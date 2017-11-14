@@ -1,4 +1,7 @@
-<tool id="fastaRegexFinder" name="Search with regexp in fasta sequences" version="0.1.0">
+<tool id="fastaRegexFinder" name="fastaRegexFinder" version="0.1.0">
+    <description>
+        Search in fasta for regexp match
+    </description>
     <requirements>
     </requirements>
     <version_command>python $__tool_directory__/fastaRegexFinder.py --version</version_command>

@@ -1,10 +1,10 @@
-<tool id="fastaRegexFinder" name="fastaRegexFinder" version="0.1.0">
+<tool id="fasta_regex_finder" name="fasta_regex_finder" version="0.1.0">
     <description>
         Search in fasta for regexp match
     </description>
     <requirements>
     </requirements>
-    <version_command>python $__tool_directory__/fastaRegexFinder.py --version</version_command>
+    <version_command>python $__tool_directory__/fastaregexfinder.py --version</version_command>
     <command detect_errors="exit_code"><![CDATA[
 python $__tool_directory__/fastaRegexFinder.py 
 --fasta "$input"
@@ -91,7 +91,7 @@ python $__tool_directory__/fastaRegexFinder.py
     <help><![CDATA[
 DESCRIPTION
     
-Search a fasta file for matches to a regex and return a bed file with the
+Search a fasta file for matches to a regular expression and return a bed file with the
 coordinates of the match and the matched sequence itself. 
     
 Output bed file has columns:
@@ -114,8 +114,6 @@ matches for that chromosome.
 The order of the output is: chroms as they are found in the inut fasta, matches
 sorted within chroms by positions.
 
-
-	
 ARGUMENTS:
 
 - regex Regex to be searched in the fasta input. Matches to the reverse complement will have - strand. The default regex is '([gG]{3,}\w{1,7}){3,}[gG]{3,}' which searches for G-quadruplexes.

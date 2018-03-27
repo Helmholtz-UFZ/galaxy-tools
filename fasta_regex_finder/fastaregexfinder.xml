@@ -6,7 +6,7 @@
     </requirements>
     <version_command>python $__tool_directory__/fastaregexfinder.py --version</version_command>
     <command detect_errors="exit_code"><![CDATA[
-python $__tool_directory__/fastaRegexFinder.py 
+python $__tool_directory__/fastaregexfinder.py 
 --fasta "$input"
 --regex "$regex"
 #if $settings.advanced == "advanced"

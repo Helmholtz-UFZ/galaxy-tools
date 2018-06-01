@@ -1,0 +1,31 @@
+<tool id="longORF" name="Obtain Longest ORFs" version="0.1.0">
+    <description>for each assembled transcript</description>
+    <command interpreter="python">
+         $__tool_directory__/getLongestORF.py $input $output_longestORF $output_ORFs</command>
+    <inputs>
+	<param name="input" format="fasta" type="data" label="Source file"/>
+    </inputs>
+    <outputs>
+	<data name="output_longestORF" format="fasta"/>
+	<data name="output_ORFs" format="tabular"/>
+    </outputs>
+    <help>
+
+	**What it does**
+	This tool identifies the longest Open Reading Frames within the respective transcript and returns their sequence in an additional output (Fasta Format).
+	It takes an amino acid fasta file with all open reading frames (+ and - strand) listed by the correspondng transcript. The tool is designed to process the output of the Galaxy tool "getorf".
+	For each transcript, the respected longest ORF is identified and listed in fasta format.
+	Furthermore, table with information about seqID, start, end, length, orientation, longest for all ORFs is given.
+	
+
+
+    </help>
+
+    <tests>
+	<test>
+ 	   <param name="input" value="test_input.fasta"/>
+	   <output name="output_longestORF" file="test_output.fasta"/>
+	   <output name="output_ORFs" file="test_output.tab"/>
+	</test>
+    </tests>
+</tool>

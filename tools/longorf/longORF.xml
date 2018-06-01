@@ -1,9 +1,9 @@
 <tool id="longORF" name="Obtain Longest ORFs" version="0.1.0">
     <description>for each assembled transcript</description>
-    <command interpreter="python">
-         $__tool_directory__/getLongestORF.py $input $output_longestORF $output_ORFs</command>
+    <command>
+         python $__tool_directory__/getLongestORF.py $input $output_longestORF $output_ORFs</command>
     <inputs>
-	<param name="input" format="fasta" type="data" label="Source file"/>
+	<param name="input" format="fasta" type="data" label="sequences"/>
     </inputs>
     <outputs>
 	<data name="output_longestORF" format="fasta"/>

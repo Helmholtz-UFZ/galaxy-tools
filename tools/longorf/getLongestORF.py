@@ -25,7 +25,6 @@
 #output1: fasta file with all longest ORFs per transcript
 #output2: table with information about seqID, start, end, length, orientation, longest for all ORFs
 
-
 import sys,re;
 
 def findlongestOrf(transcriptDict,old_seqID):
@@ -82,6 +81,9 @@ for line in INPUT:
 	line = line.strip();
 #	print line;
 	if(re.match(">",line)): #header
+
+#TODO remove ; at end of lines
+#TODO better seqID = "_".join(line.split(">")[1].split("_")[:-1]) ?
 		seqID = line.split(">")[1].split("_")[0];
 		start = int (re.search('\ \[(\d+)\ -', line).group(1));
 		end = int (re.search('-\ (\d+)\]',line).group(1));
@@ -110,6 +112,7 @@ for line in INPUT:
 			seqDict.pop(old_seqID, None);
 			lengthDict.pop(old_seqID, None);
 
+#TODO for sequences of old length output all/a random one of the same length seqs? 
 		if(seqID not in lengthDict or length >= lengthDict[seqID]):
 			headerDict[seqID] = line;
 			lengthDict[seqID] = length;

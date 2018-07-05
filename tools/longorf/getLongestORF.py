@@ -8,7 +8,7 @@
 #FLRGEPPHIGGKKDIFLHPPTLLKGR
 
 #output1: fasta file with all longest ORFs per transcript
-#output2: table with information about seqID, start, end, strand, length, sense, longest? for all ORFs
+#output2: table with information about seqID, transcript, start, end, strand, length, sense, longest? for all ORFs
 
 import sys,re;
 
@@ -16,6 +16,7 @@ def findlongestOrf(transcriptDict,old_seqID):
 	#write for previous seqID
 	prevTranscript = transcriptDict[old_seqID];
 	i_max = 0;
+	transcript = old_seqID.split("(")[0]
 
 	#find longest orf in transcript
 	for i in range(0,len(prevTranscript)):
@@ -29,7 +30,7 @@ def findlongestOrf(transcriptDict,old_seqID):
 		header = prevTranscript[i][3];
 		strand = re.search('\(([+-]+)\)',header).group(1);
 		
-		output = str(header) + "\t" + str(prevORFstart) + "\t" + str(prevORFend) + "\t" + str(prevORFlength) + "\t" + str(strand);
+		output = str(header) + "\t" + str(transcript) + "\t" + str(prevORFstart) + "\t" + str(prevORFend) + "\t" + str(prevORFlength) + "\t" + str(strand);
 		if (prevORFend - prevORFstart > 0):
 			output+="\tnormal";
 		else:
@@ -59,7 +60,7 @@ transcriptDict = {};
 
 skip = False;
 
-OUTPUT_ORF_SUMMARY.write("seqID\torf_start\torf_end\tlength\tstrand\tsense\tlongest\n");
+OUTPUT_ORF_SUMMARY.write("seqID\ttranscript\torf_start\torf_end\tlength\tstrand\tsense\tlongest\n");
 
 for line in INPUT:
 	line = line.strip();

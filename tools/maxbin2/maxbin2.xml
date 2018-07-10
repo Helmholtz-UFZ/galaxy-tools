@@ -64,7 +64,7 @@
               </param>
               <when value="rds">
                   <param name="reads" argument="-read/-read2/..." type="data" format="fasta,fastq" multiple="true" label="Reads file(s)"/>
-                  <param argument="--reassembly" type="boolean" truevalue="-reassembly" falsevalue="" checked="false" label="" help="Reassembly option is still highly experimental. To use this function, you need to feed MaxBin interleaved paired-end fastq or fasta file if you were to use this option." />
+                  <param argument="--reassembly" type="boolean" truevalue="-reassembly" falsevalue="" checked="false" label="" help="Reassembly option is still highly experimental. To use this function, you need to feed MaxBin interleaved paired-end fastq or fasta file." />
               </when>
               <when value="abdc">
                   <param name="abund" argument="-abund/-abund2/..." type="data" format="tabular" multiple="true" label="Abundance file(s)"/>
@@ -109,17 +109,17 @@
         <!-- additional output in case of reassembly -->
 	<collection name="reassembly_bins" type="list" label="${tool.name} on ${on_string} (reassembly bins)">
             <discover_datasets directory="out.reassem" pattern="out.(?P&lt;designation&gt;[0-9]+).fasta" format="fasta" visible="false" />
-            <filter>intype_cond['intype_select']=='rds' and intype_cond['reassembly']!=""</filter>
+            <filter>intype_cond['intype_select']=='rds' and intype_cond['reassembly']</filter>
         </collection>
         <collection name="reassembly_reads" type="list" label="${tool.name} on ${on_string} (reassembly reads)">
             <discover_datasets directory="out.reassem" pattern="out.reads.(?P&lt;designation&gt;[0-9]+)" format="fasta" visible="false" />
-            <filter>intype_cond['intype_select']=='rds' and intype_cond['reassembly']!=""</filter>
+            <filter>intype_cond['intype_select']=='rds' and intype_cond['reassembly']</filter>
         </collection>
         <data name="reassembly_noclass" format="fasta" label="${tool.name} on ${on_string} (reassembly unclassified sequences)" from_work_dir="out.reassem/out.reads.noclass">
-            <filter>intype_cond['intype_select']=='rds' and intype_cond['reassembly']!=""</filter>
+            <filter>intype_cond['intype_select']=='rds' and intype_cond['reassembly']</filter>
         </data>
-        <data name="reassembly_n50" format="text" label="${tool.name} on ${on_string} (reassembly N50)" from_work_dir="out.reassem/N50.txt">
-            <filter>intype_cond['intype_select']=='rds' and intype_cond['reassembly']!=""</filter>
+        <data name="reassembly_n50" format="txt" label="${tool.name} on ${on_string} (reassembly N50)" from_work_dir="out.reassem/N50.txt">
+            <filter>intype_cond['intype_select']=='rds' and intype_cond['reassembly']</filter>
         </data>
     </outputs>
     <tests>
@@ -206,7 +206,7 @@
                 <element name="002" file="3/out.reassem/out.reads.002" ftype="fasta"/>
             </output_collection>
             <output name="reassembly_noclass" file="3/out.reassem/out.reads.noclass" ftype="fasta" />
-            <output name="reassembly_n50" file="3/out.reassem/N50.txt" ftype="text" />
+            <output name="reassembly_n50" file="3/out.reassem/N50.txt" ftype="txt" />
         </test>
     </tests>
     <help><![CDATA[

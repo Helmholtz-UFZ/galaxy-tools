@@ -65,7 +65,7 @@ OUTPUT_ORF_SUMMARY.write("seqID\ttranscript\torf_start\torf_end\tlength\tstrand\
 for line in INPUT:
 	line = line.strip();
 	if(re.match(">",line)): #header
-		header = line
+		header = line.split(">")[1].split(" ")[0]
 		seqID = "_".join(line.split(">")[1].split("_")[:-1])
 		ORFstart = int (re.search('\ \[(\d+)\ -', line).group(1));
 		ORFend = int (re.search('-\ (\d+)\]',line).group(1));

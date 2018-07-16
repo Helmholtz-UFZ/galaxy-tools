@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#input: a amino acid fasta file of all open reading frames (ORF) listed by transcript (output of GalaxyTool "getorf")
 
 #example:
 #>STRG.1.1(-)_1 [10 - 69]

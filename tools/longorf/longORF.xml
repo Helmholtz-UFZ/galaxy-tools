@@ -1,4 +1,4 @@
-<tool id="longORF" name="Obtain longest ORFs" version="0.1.0">
+<tool id="longORF" name="Obtain longest ORFs" version="0.2.0">
     <description> in six-frame translations</description>
     <command><![CDATA[
         python $__tool_directory__/getLongestORF.py $input $output_longestORF $output_ORFs

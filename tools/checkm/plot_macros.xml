@@ -1,0 +1,103 @@
+<macros>
+<token name="@plot_need_qa_headtoken@">
+mkdir out_folder &amp;&amp; 
+
+</token>
+<xml name="plot_need_qa_outmacro">
+</xml>
+<token name="@plot_need_qa_token@">
+out_folder</token>
+<xml name="plot_need_qa_macro">
+    <param name="out_folder" type="data" label="output of qa command" format="text"/>
+</xml>
+<token name="@plot_headtoken@">
+mkdir bin_folder &amp;&amp; 
+#for $k, $f in enumerate($bin_folder)
+    #if $f
+        ln -s "${f}" bin_folder\/${k}.fna &amp;&amp;
+    #end if
+#end for &amp;&amp;
+
+mkdir plot_folder &amp;&amp; 
+
+</token>
+<xml name="plot_outmacro">
+<collection name="plot_folder" type="list" label="${tool.name} on ${on_string} (plots)">
+    <discover_datasets pattern="__name_and_ext__" directory="plot_folder" />
+</collection>
+</xml>
+<token name="@plot_token@">
+bin_folder
+plot_folder
+#if $image_type and $image_type is not None:
+--image_type $image_type
+#end if
+#if $dpi and $dpi is not None:
+--dpi $dpi
+#end if
+#if $font_size and $font_size is not None:
+--font_size $font_size
+#end if
+</token>
+<xml name="plot_macro">
+    <param name="bin_folder" type="data" label="bins" multiple="true" format="fasta"/>
+    
+    <param argument="--image_type" label="desired image type" name="image_type" optional="true" type="select">
+      <option value="eps">eps</option>
+      <option value="pdf">pdf</option>
+      <option selected="true" value="png">png</option>
+      <option value="ps">ps</option>
+      <option value="svg">svg</option>
+    </param>
+    <param argument="--dpi" label="desired DPI of output image" name="dpi" optional="true" type="integer" value="600"/>
+    <param argument="--font_size" label="Desired font size" name="font_size" optional="true" type="integer" value="8"/>
+</xml>
+<token name="@plot_single_headtoken@">
+</token>
+<xml name="plot_single_outmacro">
+</xml>
+<token name="@plot_single_token@">
+#if $width and $width is not None:
+--width $width
+#end if
+#if $height and $height is not None:
+--height $height
+#end if
+</token>
+<xml name="plot_single_macro">
+    <param argument="--width" label="width of output image" name="width" optional="true" type="float" value="6.5"/>
+    <param argument="--height" label="height of output image" name="height" optional="true" type="float" value="6.5"/>
+</xml>
+<token name="@plot_double_headtoken@">
+</token>
+<xml name="plot_double_outmacro">
+</xml>
+<token name="@plot_double_token@">
+#if $width and $width is not None:
+--width $width
+#end if
+#if $height and $height is not None:
+--height $height
+#end if
+</token>
+<xml name="plot_double_macro">
+    <param argument="--width" label="width of output image" name="width" optional="true" type="float" value="6.5"/>
+    <param argument="--height" label="height of output image" name="height" optional="true" type="float" value="3.5"/>
+</xml>
+<token name="@plot_rows_headtoken@">
+</token>
+<xml name="plot_rows_outmacro">
+</xml>
+<token name="@plot_rows_token@">
+#if $width and $width is not None:
+--width $width
+#end if
+#if $row_height and $row_height is not None:
+--row_height $row_height
+#end if
+</token>
+<xml name="plot_rows_macro">
+    <param argument="--width" label="width of output image" name="width" optional="true" type="float" value="6.5"/>
+    <param argument="--row_height" label="height of each row in the output image" name="row_height" optional="true" type="float" value="0.3"/>
+</xml>
+</macros>

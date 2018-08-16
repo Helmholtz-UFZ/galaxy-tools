@@ -1,0 +1,78 @@
+<tool id="checkm_lineage_wf" name="checkm lineage_wf" version="@TOOL_VERSION@">
+  <description>Runs tree, lineage_set, analyze, qa</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>plot_macros.xml</import>
+    <import>tool-macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <expand macro="stdio"/>
+  <expand macro="version_command"/>
+  <command><![CDATA[mkdir bin_folder && 
+#for $k, $f in enumerate($bin_folder)
+    #if $f
+        ln -s "${f}" bin_folder/${k}.fna &&
+    #end if
+#end for
+
+checkm lineage_wf 
+bin_folder
+'$output.extra_files_path'
+--tab_table
+--threads \${GALAXY_SLOTS:-1}
+> '$output'
+&&cp -r '$output.extra_files_path' out_folder
+## link hmmer alignments per bin in one dir to make them discoverable
+#if str($ali) == "--ali":
+&& for k in `ls out_folder/bins/`; do
+    if [ -f out_folder/bins/\$k/hmmer.tree.ali.txt ]; then 
+        ln -s \$k/hmmer.tree.ali.txt out_folder/bins/\$k.hmmer.tree.ali.txt;
+    fi; 
+done
+#end if## link nucleotide sequences per bin in one dir to make them discoverable
+#if str($nt) == "--nt":
+&& for k in `ls out_folder/bins/`; do
+    if [ -f out_folder/bins/\$k/genes.fna ]; then 
+        ln -s \$k/genes.fna out_folder/bins/\$k.genes.fna;
+    fi; 
+done
+#end if]]></command>
+  <inputs>
+    <param name="bin_folder" type="data" label="bins" multiple="true" format="fasta"/>
+    <param argument="--reduced_tree" checked="false" label="use reduced tree (requires &lt;16GB of memory) for determining lineage of each bin" name="reduced_tree" type="boolean" truevalue="--reduced_tree" falsevalue=""/>
+    <param argument="--ali" checked="false" label="generate HMMER alignment file for each bin" name="ali" type="boolean" truevalue="--ali" falsevalue=""/>
+    <param argument="--nt" checked="false" label="generate nucleotide gene sequences for each bin" name="nt" type="boolean" truevalue="--nt" falsevalue=""/>
+    <param argument="--genes" checked="false" label="bins contain genes as amino acids instead of nucleotide contigs" name="genes" type="boolean" truevalue="--genes" falsevalue=""/>
+    <param argument="--unique" label="minimum number of unique phylogenetic markers required to use lineage-specific marker set" name="unique" optional="true" type="integer" value="10"/>
+    <param argument="--multi" label="maximum number of multi-copy phylogenetic markers before defaulting to domain-level marker set" name="multi" optional="true" type="integer" value="10"/>
+    <param argument="--force_domain" checked="false" label="use domain-level sets for all bins" name="force_domain" type="boolean" truevalue="--force_domain" falsevalue=""/>
+    <param argument="--no_refinement" checked="false" label="do not perform lineage-specific marker set refinement" name="no_refinement" type="boolean" truevalue="--no_refinement" falsevalue=""/>
+    <param argument="--individual_markers" checked="false" label="treat marker as independent (i.e., ignore co-located set structure)" name="individual_markers" type="boolean" truevalue="--individual_markers" falsevalue=""/>
+    <param argument="--skip_adj_correction" checked="false" label="do not exclude adjacent marker genes when estimating contamination" name="skip_adj_correction" type="boolean" truevalue="--skip_adj_correction" falsevalue=""/>
+    <param argument="--skip_pseudogene_correction" checked="false" label="skip identification and filtering of pseudogenes" name="skip_pseudogene_correction" type="boolean" truevalue="--skip_pseudogene_correction" falsevalue=""/>
+    <param argument="--aai_strain" label="AAI threshold used to identify strain heterogeneity" name="aai_strain" optional="true" type="float" value="0.9"/>
+    <param argument="--alignment_file" label="produce file showing alignment of multi-copy genes and their AAI identity" name="alignment_file" type="boolean" truevalue="true" falsevalue="false" checked="false" />
+    <param argument="--ignore_thresholds" checked="false" label="ignore model-specific score thresholds" name="ignore_thresholds" type="boolean" truevalue="--ignore_thresholds" falsevalue=""/>
+    <param argument="--e_value" label="e-value cut off" name="e_value" optional="true" type="float" value="1e-10"/>
+    <param argument="--length" label="percent overlap between target and query" name="length" optional="true" type="float" value="0.7"/>
+
+    <param argument="--tab_table" checked="false" label="print tab-separated values table" name="tab_table" type="boolean" truevalue="--tab_table" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data  name="alignment_file_output" format="txt" hidden="false" label="${tool.name} on ${on_string} (alignment)"><filter>alignment_file=="true"</filter></data>
+    <collection name="hmmer_nucleotide_per_bin" type="list" label="${tool.name} on ${on_string} ( nucleotide gene sequences per bin)">
+      <filter>nt</filter>
+      <discover_datasets directory="out_folder/bins/" pattern="(?P&lt;designation&gt;.+).genes.fna" ext="fasta" />
+    </collection>
+    <collection name="hmmer_alignment_per_bin" type="list" label="${tool.name} on ${on_string} (HMMER alignments per bin)">
+      <filter>ali</filter>
+      <discover_datasets directory="out_folder/bins/" pattern="(?P&lt;designation&gt;.+).hmmer.tree.ali.txt" ext="txt" />
+    </collection>
+    <data format="checkm_lineage_wf" hidden="false" name="output"/>
+  </outputs>
+  <tests>
+  <expand macro="tests"/>
+  </tests>
+  <help><![CDATA[Example: checkm lineage_wf ./bins ./output]]></help>
+  <expand macro="citations"/>
+</tool>

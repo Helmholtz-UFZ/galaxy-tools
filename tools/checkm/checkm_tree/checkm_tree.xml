@@ -1,0 +1,66 @@
+<tool id="checkm_tree" name="checkm tree" version="@TOOL_VERSION@">
+  <description>Place bins in the genome tree.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>plot_macros.xml</import>
+    <import>tool-macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <expand macro="stdio"/>
+  <expand macro="version_command"/>
+  <command><![CDATA[mkdir bin_folder && 
+#for $k, $f in enumerate($bin_folder)
+    #if $f
+        ln -s "${f}" bin_folder/${k}.fna &&
+    #end if
+#end for
+
+checkm tree 
+bin_folder
+'$output.extra_files_path'
+$reduced_tree
+$ali
+$nt
+$genes
+--threads \${GALAXY_SLOTS:-1}
+> '$output'
+&&cp -r '$output.extra_files_path' out_folder
+## link hmmer alignments per bin in one dir to make them discoverable
+#if str($ali) == "--ali":
+&& for k in `ls out_folder/bins/`; do
+    if [ -f out_folder/bins/\$k/hmmer.tree.ali.txt ]; then 
+        ln -s \$k/hmmer.tree.ali.txt out_folder/bins/\$k.hmmer.tree.ali.txt;
+    fi; 
+done
+#end if## link nucleotide sequences per bin in one dir to make them discoverable
+#if str($nt) == "--nt":
+&& for k in `ls out_folder/bins/`; do
+    if [ -f out_folder/bins/\$k/genes.fna ]; then 
+        ln -s \$k/genes.fna out_folder/bins/\$k.genes.fna;
+    fi; 
+done
+#end if]]></command>
+  <inputs>
+    <param name="bin_folder" type="data" label="bins" multiple="true" format="fasta"/>
+    <param argument="--reduced_tree" checked="false" label="use reduced tree (requires &lt;16GB of memory) for determining lineage of each bin" name="reduced_tree" type="boolean" truevalue="--reduced_tree" falsevalue=""/>
+    <param argument="--ali" checked="false" label="generate HMMER alignment file for each bin" name="ali" type="boolean" truevalue="--ali" falsevalue=""/>
+    <param argument="--nt" checked="false" label="generate nucleotide gene sequences for each bin" name="nt" type="boolean" truevalue="--nt" falsevalue=""/>
+    <param argument="--genes" checked="false" label="bins contain genes as amino acids instead of nucleotide contigs" name="genes" type="boolean" truevalue="--genes" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <collection name="hmmer_nucleotide_per_bin" type="list" label="${tool.name} on ${on_string} ( nucleotide gene sequences per bin)">
+      <filter>nt</filter>
+      <discover_datasets directory="out_folder/bins/" pattern="(?P&lt;designation&gt;.+).genes.fna" ext="fasta" />
+    </collection>
+    <collection name="hmmer_alignment_per_bin" type="list" label="${tool.name} on ${on_string} (HMMER alignments per bin)">
+      <filter>ali</filter>
+      <discover_datasets directory="out_folder/bins/" pattern="(?P&lt;designation&gt;.+).hmmer.tree.ali.txt" ext="txt" />
+    </collection>
+    <data format="checkm_tree" hidden="false" name="output"/>
+  </outputs>
+  <tests>
+  <expand macro="tests"/>
+  </tests>
+  <help><![CDATA[Example: checkm tree ./bins ./output]]></help>
+  <expand macro="citations"/>
+</tool>

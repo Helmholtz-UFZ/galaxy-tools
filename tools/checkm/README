@@ -1,0 +1,57 @@
+Note ahead
+==========
+
+The Galaxy tool xml files in this repository are generated automatically by: 
+- parsing the python argparse definitions in a single xml file
+- which is postprocessed into separate tool xml files using prepare.sh
+
+Currently this has been tested only for a few tools: 
+- checkm_lineage_wf
+
+Feel free to extend the prepare.sh script to get also the other tools 
+functional. 
+
+Reference data initialisation:
+==============================
+
+Before the CheckM and the Galaxy tools can be used the reference data 
+needs to be downloaded, extracted and the CheckM needs to be told where 
+you put the data. 
+
+1. Download reference data with: `wget https://data.ace.uq.edu.au/public/CheckM_databases/checkm_data_2015_01_16.tar.gz` and extract to a location of your choice. 
+
+
+2. The path to the reference data needs to be set by the galaxy user with: `checkm data setRoot PATH`
+
+which stores the PATH: CONDA_ENV_PATH/__checkm-genome@1.0.11/lib/python2.7/site-packages/checkm/DATA_CONFIG
+
+
+Generation of tool xml files
+============================
+
+(paths might differ)
+
+```
+git clone https://github.com/erasche/argparse2tool.git
+cd argparse2tool
+virtualenv .venv
+. ./.venv/bin/activate
+python setup.py 
+PYTHONPATH=/home/berntm/projects/argparse2tool/.venv/lib/python2.7/site-packages/argparse2tool-0.4.4-py2.7.egg
+
+export PATH=/home/berntm/miniconda3/bin/:$PATH
+/home/berntm/miniconda3/bin/conda create -c bioconda -y --name __checkm-genome@1.0.11 checkm-genome=1.0.11
+/home/berntm/miniconda3/envs/__checkm-genome@1.0.11/bin/checkm
+```
+
+edit checkm to include only the part relevant for argparse
+add name to plot_need_qa_results_parser and plot_parser
+
+python checkm --generate_galaxy_xml > checkm.xml
+
+- manually created
+  - macros.xml
+  - tool_data_table_conf.xml.[sample|test]
+  - added test-data/checkm_references.loc and downloaded checkm reference data
+- add tool specific tests etc in macros_NAME.xml
+

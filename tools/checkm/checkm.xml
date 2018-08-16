@@ -1,0 +1,1709 @@
+<tool id="checkm_data" name="checkm data" version="1.0">
+  <description>Set path to the CheckM database files.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm data 
+#set repeat_var_1 = '" "'.join([ str($var.action_1) for $var in $repeat_1 ])
+"$repeat_var_1"
+
+> $default]]></command>
+  <inputs>
+    <repeat min="1" name="repeat_1" title="repeat_title">
+      <param area="false" label="&#10;  setRoot &lt;PATH&gt;  -&gt; set the data directory to &lt;PATH&gt; (requires permissions)&#10;            " name="action_1" type="text"/>
+    </repeat>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[TODO: Write help]]></help>
+</tool>
+
+<tool id="checkm_tree" name="checkm tree" version="1.0">
+  <description>Place bins in the genome tree.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm tree 
+#if $bin_folder_1 and $bin_folder_1 is not None:
+$bin_folder_1
+#end if
+
+#if $out_folder_2 and $out_folder_2 is not None:
+$out_folder_2
+#end if
+$reduced_tree
+$ali
+$nt
+$genes
+
+#if $extension and $extension is not None:
+--extension $extension
+#end if
+
+#if $threads and $threads is not None:
+--threads $threads
+#end if
+
+#if $pplacer_threads and $pplacer_threads is not None:
+--pplacer_threads $pplacer_threads
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="folder containing bins (fasta format)" name="bin_folder_1" type="text"/>
+    <param area="false" label="folder to write output files" name="out_folder_2" type="text"/>
+    <param argument="--reduced_tree" checked="false" label="use reduced tree (requires &lt;16GB of memory) for determining lineage of each bin" name="reduced_tree" type="boolean" truevalue="--reduced_tree" falsevalue=""/>
+    <param argument="--ali" checked="false" label="generate HMMER alignment file for each bin" name="ali" type="boolean" truevalue="--ali" falsevalue=""/>
+    <param argument="--nt" checked="false" label="generate nucleotide gene sequences for each bin" name="nt" type="boolean" truevalue="--nt" falsevalue=""/>
+    <param argument="--genes" checked="false" label="bins contain genes as amino acids instead of nucleotide contigs" name="genes" type="boolean" truevalue="--genes" falsevalue=""/>
+    <param area="false" argument="--extension" label="extension of bins (other files in folder are ignored)" name="extension" optional="true" type="text" value="fna"/>
+    <param argument="--threads" label="number of threads" name="threads" optional="true" type="integer" value="1"/>
+    <param argument="--pplacer_threads" label="number of threads used by pplacer (memory usage increases linearly with additional threads)" name="pplacer_threads" optional="true" type="integer" value="1"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm tree ./bins ./output]]></help>
+</tool>
+
+<tool id="checkm_tree_qa" name="checkm tree_qa" version="1.0">
+  <description>Assess phylogenetic markers found in each bin.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm tree_qa 
+#if $tree_folder_1 and $tree_folder_1 is not None:
+$tree_folder_1
+#end if
+
+#if $out_format and $out_format is not None:
+--out_format $out_format
+#end if
+
+#if $file and $file is not None:
+--file $file
+#end if
+$tab_table
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="folder specified during tree command" name="tree_folder_1" type="text"/>
+    <param argument="--out_format" label="desired output:&#10;  1. brief summary of genome tree placement&#10;  2. detailed summary of genome tree placement including lineage-specific statistics&#10;  3. genome tree in Newick format decorated with IMG genome ids&#10;  4. genome tree in Newick format decorated with taxonomy strings&#10;  5. multiple sequence alignment of reference genomes and bins" max="5" min="1" name="out_format" optional="true" type="integer" value="1"/>
+    <param area="false" argument="--file" label="print results to file" name="file" optional="true" type="text" value="stdout"/>
+    <param argument="--tab_table" checked="false" label="print tab-separated values table" name="tab_table" type="boolean" truevalue="--tab_table" falsevalue=""/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm tree_qa ./output]]></help>
+</tool>
+
+<tool id="checkm_lineage_set" name="checkm lineage_set" version="1.0">
+  <description>Infer lineage-specific marker sets for each bin.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm lineage_set 
+#if $tree_folder_1 and $tree_folder_1 is not None:
+$tree_folder_1
+#end if
+
+#if $marker_file_2 and $marker_file_2 is not None:
+$marker_file_2
+#end if
+
+#if $unique and $unique is not None:
+--unique $unique
+#end if
+
+#if $multi and $multi is not None:
+--multi $multi
+#end if
+$force_domain
+$no_refinement
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="folder specified during tree command" name="tree_folder_1" type="text"/>
+    <param area="false" label="output file describing marker set for each bin" name="marker_file_2" type="text"/>
+    <param argument="--unique" label="minimum number of unique phylogenetic markers required to use lineage-specific marker set" name="unique" optional="true" type="integer" value="10"/>
+    <param argument="--multi" label="maximum number of multi-copy phylogenetic markers before defaulting to domain-level marker set" name="multi" optional="true" type="integer" value="10"/>
+    <param argument="--force_domain" checked="false" label="use domain-level sets for all bins" name="force_domain" type="boolean" truevalue="--force_domain" falsevalue=""/>
+    <param argument="--no_refinement" checked="false" label="do not perform lineage-specific marker set refinement" name="no_refinement" type="boolean" truevalue="--no_refinement" falsevalue=""/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm lineage_set ./output lineage.ms]]></help>
+</tool>
+
+<tool id="checkm_taxon_list" name="checkm taxon_list" version="1.0">
+  <description>List available taxonomic-specific marker sets.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm taxon_list 
+#if $rank and $rank is not None:
+--rank $rank
+#end if
+> $default]]></command>
+  <inputs>
+    <param argument="--rank" label="restrict list to specified taxonomic rank" name="rank" optional="true" type="select">
+      <option selected="true" value="ALL">ALL</option>
+      <option value="class">class</option>
+      <option value="domain">domain</option>
+      <option value="family">family</option>
+      <option value="genus">genus</option>
+      <option value="life">life</option>
+      <option value="order">order</option>
+      <option value="phylum">phylum</option>
+      <option value="species">species</option>
+    </param>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm taxon_list --rank phylum]]></help>
+</tool>
+
+<tool id="checkm_taxon_set" name="checkm taxon_set" version="1.0">
+  <description>Generate taxonomic-specific marker set.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm taxon_set 
+#if $rank_1 and $rank_1 is not None:
+$rank_1
+#end if
+
+#if $taxon_2 and $taxon_2 is not None:
+$taxon_2
+#end if
+
+#if $marker_file_3 and $marker_file_3 is not None:
+$marker_file_3
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param label="taxonomic rank" name="rank_1" type="select">
+      <option value="class">class</option>
+      <option value="domain">domain</option>
+      <option value="family">family</option>
+      <option value="genus">genus</option>
+      <option value="life">life</option>
+      <option value="order">order</option>
+      <option value="phylum">phylum</option>
+      <option value="species">species</option>
+    </param>
+    <param area="false" label="taxon of interest" name="taxon_2" type="text"/>
+    <param area="false" label="output file describing taxonomic-specific marker set" name="marker_file_3" type="text"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm taxon_set domain Bacteria bacteria.ms]]></help>
+</tool>
+
+<tool id="checkm_analyze" name="checkm analyze" version="1.0">
+  <description>Identify marker genes in bins and calculate genome statistics.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm analyze 
+#if $marker_file_1 and $marker_file_1 is not None:
+$marker_file_1
+#end if
+
+#if $bin_folder_2 and $bin_folder_2 is not None:
+$bin_folder_2
+#end if
+
+#if $out_folder_3 and $out_folder_3 is not None:
+$out_folder_3
+#end if
+$ali
+$nt
+$genes
+
+#if $extension and $extension is not None:
+--extension $extension
+#end if
+
+#if $threads and $threads is not None:
+--threads $threads
+#end if
+$quiet
+$ali_top_hits
+> $default]]></command>
+  <inputs>
+    <param area="false" label="markers for assessing bins (marker set or HMM file)" name="marker_file_1" type="text"/>
+    <param area="false" label="folder containing bins (fasta format)" name="bin_folder_2" type="text"/>
+    <param area="false" label="folder to write output files" name="out_folder_3" type="text"/>
+    <param argument="--ali" checked="false" label="generate HMMER alignment file for each bin" name="ali" type="boolean" truevalue="--ali" falsevalue=""/>
+    <param argument="--nt" checked="false" label="generate nucleotide gene sequences for each bin" name="nt" type="boolean" truevalue="--nt" falsevalue=""/>
+    <param argument="--genes" checked="false" label="bins contain genes as amino acids instead of nucleotide contigs" name="genes" type="boolean" truevalue="--genes" falsevalue=""/>
+    <param area="false" argument="--extension" label="extension of bins (other files in folder are ignored)" name="extension" optional="true" type="text" value="fna"/>
+    <param argument="--threads" label="number of threads" name="threads" optional="true" type="integer" value="1"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+    <param argument="--ali_top_hits" checked="false" label="==SUPPRESS==" name="ali_top_hits" type="boolean" truevalue="--ali_top_hits" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm analyze lineage.ms ./bins ./output]]></help>
+</tool>
+
+<tool id="checkm_qa" name="checkm qa" version="1.0">
+  <description>Assess bins for contamination and completeness.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm qa 
+#if $marker_file_1 and $marker_file_1 is not None:
+$marker_file_1
+#end if
+
+#if $analyze_folder_2 and $analyze_folder_2 is not None:
+$analyze_folder_2
+#end if
+
+#if $out_format and $out_format is not None:
+--out_format $out_format
+#end if
+
+#if $exclude_markers and $exclude_markers is not None:
+--exclude_markers $exclude_markers
+#end if
+$individual_markers
+$skip_adj_correction
+$skip_pseudogene_correction
+
+#if $aai_strain and $aai_strain is not None:
+--aai_strain $aai_strain
+#end if
+
+#if $alignment_file and $alignment_file is not None:
+--alignment_file $alignment_file
+#end if
+$ignore_thresholds
+
+#if $e_value and $e_value is not None:
+--e_value $e_value
+#end if
+
+#if $length and $length is not None:
+--length $length
+#end if
+
+#if $coverage_file and $coverage_file is not None:
+--coverage_file $coverage_file
+#end if
+
+#if $file and $file is not None:
+--file $file
+#end if
+$tab_table
+
+#if $threads and $threads is not None:
+--threads $threads
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="marker file specified during analyze command" name="marker_file_1" type="text"/>
+    <param area="false" label="folder specified during analyze command" name="analyze_folder_2" type="text"/>
+    <param argument="--out_format" label="desired output:&#10;  1. summary of bin completeness and contamination&#10;  2. extended summary of bin statistics (includes GC, genome size, ...)&#10;  3. summary of bin quality for increasingly basal lineage-specific marker sets&#10;  4. list of marker genes and their counts&#10;  5. list of bin id, marker gene id, gene id&#10;  6. list of marker genes present multiple times in a bin&#10;  7. list of marker genes present multiple times on the same scaffold&#10;  8. list indicating position of each marker gene within a bin&#10;  9. FASTA file of marker genes identified in each bin" max="9" min="1" name="out_format" optional="true" type="integer" value="1"/>
+    <param area="false" argument="--exclude_markers" label="file specifying markers to exclude from marker sets" name="exclude_markers" optional="true" type="text"/>
+    <param argument="--individual_markers" checked="false" label="treat marker as independent (i.e., ignore co-located set structure)" name="individual_markers" type="boolean" truevalue="--individual_markers" falsevalue=""/>
+    <param argument="--skip_adj_correction" checked="false" label="do not exclude adjacent marker genes when estimating contamination" name="skip_adj_correction" type="boolean" truevalue="--skip_adj_correction" falsevalue=""/>
+    <param argument="--skip_pseudogene_correction" checked="false" label="skip identification and filtering of pseudogenes" name="skip_pseudogene_correction" type="boolean" truevalue="--skip_pseudogene_correction" falsevalue=""/>
+    <param argument="--aai_strain" label="AAI threshold used to identify strain heterogeneity" name="aai_strain" optional="true" type="float" value="0.9"/>
+    <param area="false" argument="--alignment_file" label="produce file showing alignment of multi-copy genes and their AAI identity" name="alignment_file" optional="true" type="text"/>
+    <param argument="--ignore_thresholds" checked="false" label="ignore model-specific score thresholds" name="ignore_thresholds" type="boolean" truevalue="--ignore_thresholds" falsevalue=""/>
+    <param argument="--e_value" label="e-value cut off" name="e_value" optional="true" type="float" value="1e-10"/>
+    <param argument="--length" label="percent overlap between target and query" name="length" optional="true" type="float" value="0.7"/>
+    <param area="false" argument="--coverage_file" label="file containing coverage of each sequence; coverage information added to table type 2 (see coverage command)" name="coverage_file" optional="true" type="text"/>
+    <param area="false" argument="--file" label="print results to file" name="file" optional="true" type="text" value="stdout"/>
+    <param argument="--tab_table" checked="false" label="print tab-separated values table" name="tab_table" type="boolean" truevalue="--tab_table" falsevalue=""/>
+    <param argument="--threads" label="number of threads" name="threads" optional="true" type="integer" value="1"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[
+Note: lineage_wf and taxonomy_wf produce a marker file in the specified output directory. The
+        lineage workflow produced a marker file called lineage.ms, while the taxonomy workflow
+        produces a marker file called <taxon>.ms (e.g. Bacteria.ms).
+
+Example: checkm qa ./output/lineage.ms ./output
+                                        ]]></help>
+</tool>
+
+<tool id="checkm_lineage_wf" name="checkm lineage_wf" version="1.0">
+  <description>Runs tree, lineage_set, analyze, qa</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm lineage_wf 
+#if $bin_folder_1 and $bin_folder_1 is not None:
+$bin_folder_1
+#end if
+
+#if $out_folder_2 and $out_folder_2 is not None:
+$out_folder_2
+#end if
+$reduced_tree
+$ali
+$nt
+$genes
+
+#if $unique and $unique is not None:
+--unique $unique
+#end if
+
+#if $multi and $multi is not None:
+--multi $multi
+#end if
+$force_domain
+$no_refinement
+$individual_markers
+$skip_adj_correction
+$skip_pseudogene_correction
+
+#if $aai_strain and $aai_strain is not None:
+--aai_strain $aai_strain
+#end if
+
+#if $alignment_file and $alignment_file is not None:
+--alignment_file $alignment_file
+#end if
+$ignore_thresholds
+
+#if $e_value and $e_value is not None:
+--e_value $e_value
+#end if
+
+#if $length and $length is not None:
+--length $length
+#end if
+
+#if $file and $file is not None:
+--file $file
+#end if
+$tab_table
+
+#if $extension and $extension is not None:
+--extension $extension
+#end if
+
+#if $threads and $threads is not None:
+--threads $threads
+#end if
+
+#if $pplacer_threads and $pplacer_threads is not None:
+--pplacer_threads $pplacer_threads
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="folder containing bins (fasta format)" name="bin_folder_1" type="text"/>
+    <param area="false" label="folder to write output files" name="out_folder_2" type="text"/>
+    <param argument="--reduced_tree" checked="false" label="use reduced tree (requires &lt;16GB of memory) for determining lineage of each bin" name="reduced_tree" type="boolean" truevalue="--reduced_tree" falsevalue=""/>
+    <param argument="--ali" checked="false" label="generate HMMER alignment file for each bin" name="ali" type="boolean" truevalue="--ali" falsevalue=""/>
+    <param argument="--nt" checked="false" label="generate nucleotide gene sequences for each bin" name="nt" type="boolean" truevalue="--nt" falsevalue=""/>
+    <param argument="--genes" checked="false" label="bins contain genes as amino acids instead of nucleotide contigs" name="genes" type="boolean" truevalue="--genes" falsevalue=""/>
+    <param argument="--unique" label="minimum number of unique phylogenetic markers required to use lineage-specific marker set" name="unique" optional="true" type="integer" value="10"/>
+    <param argument="--multi" label="maximum number of multi-copy phylogenetic markers before defaulting to domain-level marker set" name="multi" optional="true" type="integer" value="10"/>
+    <param argument="--force_domain" checked="false" label="use domain-level sets for all bins" name="force_domain" type="boolean" truevalue="--force_domain" falsevalue=""/>
+    <param argument="--no_refinement" checked="false" label="do not perform lineage-specific marker set refinement" name="no_refinement" type="boolean" truevalue="--no_refinement" falsevalue=""/>
+    <param argument="--individual_markers" checked="false" label="treat marker as independent (i.e., ignore co-located set structure)" name="individual_markers" type="boolean" truevalue="--individual_markers" falsevalue=""/>
+    <param argument="--skip_adj_correction" checked="false" label="do not exclude adjacent marker genes when estimating contamination" name="skip_adj_correction" type="boolean" truevalue="--skip_adj_correction" falsevalue=""/>
+    <param argument="--skip_pseudogene_correction" checked="false" label="skip identification and filtering of pseudogenes" name="skip_pseudogene_correction" type="boolean" truevalue="--skip_pseudogene_correction" falsevalue=""/>
+    <param argument="--aai_strain" label="AAI threshold used to identify strain heterogeneity" name="aai_strain" optional="true" type="float" value="0.9"/>
+    <param area="false" argument="--alignment_file" label="produce file showing alignment of multi-copy genes and their AAI identity" name="alignment_file" optional="true" type="text"/>
+    <param argument="--ignore_thresholds" checked="false" label="ignore model-specific score thresholds" name="ignore_thresholds" type="boolean" truevalue="--ignore_thresholds" falsevalue=""/>
+    <param argument="--e_value" label="e-value cut off" name="e_value" optional="true" type="float" value="1e-10"/>
+    <param argument="--length" label="percent overlap between target and query" name="length" optional="true" type="float" value="0.7"/>
+    <param area="false" argument="--file" label="print results to file" name="file" optional="true" type="text" value="stdout"/>
+    <param argument="--tab_table" checked="false" label="print tab-separated values table" name="tab_table" type="boolean" truevalue="--tab_table" falsevalue=""/>
+    <param area="false" argument="--extension" label="extension of bins (other files in folder are ignored)" name="extension" optional="true" type="text" value="fna"/>
+    <param argument="--threads" label="number of threads" name="threads" optional="true" type="integer" value="1"/>
+    <param argument="--pplacer_threads" label="number of threads used by pplacer (memory usage increases linearly with additional threads)" name="pplacer_threads" optional="true" type="integer" value="1"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm lineage_wf ./bins ./output]]></help>
+</tool>
+
+<tool id="checkm_taxonomy_wf" name="checkm taxonomy_wf" version="1.0">
+  <description>Runs taxon_set, analyze, qa</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm taxonomy_wf 
+#if $rank_1 and $rank_1 is not None:
+$rank_1
+#end if
+
+#if $taxon_2 and $taxon_2 is not None:
+$taxon_2
+#end if
+
+#if $bin_folder_3 and $bin_folder_3 is not None:
+$bin_folder_3
+#end if
+
+#if $out_folder_4 and $out_folder_4 is not None:
+$out_folder_4
+#end if
+$ali
+$nt
+$genes
+$individual_markers
+$skip_adj_correction
+$skip_pseudogene_correction
+
+#if $aai_strain and $aai_strain is not None:
+--aai_strain $aai_strain
+#end if
+
+#if $alignment_file and $alignment_file is not None:
+--alignment_file $alignment_file
+#end if
+$ignore_thresholds
+
+#if $e_value and $e_value is not None:
+--e_value $e_value
+#end if
+
+#if $length and $length is not None:
+--length $length
+#end if
+
+#if $coverage_file and $coverage_file is not None:
+--coverage_file $coverage_file
+#end if
+
+#if $file and $file is not None:
+--file $file
+#end if
+$tab_table
+
+#if $extension and $extension is not None:
+--extension $extension
+#end if
+
+#if $threads and $threads is not None:
+--threads $threads
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param label="taxonomic rank" name="rank_1" type="select">
+      <option value="class">class</option>
+      <option value="domain">domain</option>
+      <option value="family">family</option>
+      <option value="genus">genus</option>
+      <option value="life">life</option>
+      <option value="order">order</option>
+      <option value="phylum">phylum</option>
+      <option value="species">species</option>
+    </param>
+    <param area="false" label="taxon of interest" name="taxon_2" type="text"/>
+    <param area="false" label="folder containing bins (fasta format)" name="bin_folder_3" type="text"/>
+    <param area="false" label="folder to write output files" name="out_folder_4" type="text"/>
+    <param argument="--ali" checked="false" label="generate HMMER alignment file for each bin" name="ali" type="boolean" truevalue="--ali" falsevalue=""/>
+    <param argument="--nt" checked="false" label="generate nucleotide gene sequences for each bin" name="nt" type="boolean" truevalue="--nt" falsevalue=""/>
+    <param argument="--genes" checked="false" label="bins contain genes as amino acids instead of nucleotide contigs" name="genes" type="boolean" truevalue="--genes" falsevalue=""/>
+    <param argument="--individual_markers" checked="false" label="treat marker as independent (i.e., ignore co-located set structure)" name="individual_markers" type="boolean" truevalue="--individual_markers" falsevalue=""/>
+    <param argument="--skip_adj_correction" checked="false" label="do not exclude adjacent marker genes when estimating contamination" name="skip_adj_correction" type="boolean" truevalue="--skip_adj_correction" falsevalue=""/>
+    <param argument="--skip_pseudogene_correction" checked="false" label="skip identification and filtering of pseudogenes" name="skip_pseudogene_correction" type="boolean" truevalue="--skip_pseudogene_correction" falsevalue=""/>
+    <param argument="--aai_strain" label="AAI threshold used to identify strain heterogeneity" name="aai_strain" optional="true" type="float" value="0.9"/>
+    <param area="false" argument="--alignment_file" label="produce file showing alignment of multi-copy genes and their AAI identity" name="alignment_file" optional="true" type="text"/>
+    <param argument="--ignore_thresholds" checked="false" label="ignore model-specific score thresholds" name="ignore_thresholds" type="boolean" truevalue="--ignore_thresholds" falsevalue=""/>
+    <param argument="--e_value" label="e-value cut off" name="e_value" optional="true" type="float" value="1e-10"/>
+    <param argument="--length" label="percent overlap between target and query" name="length" optional="true" type="float" value="0.7"/>
+    <param area="false" argument="--coverage_file" label="file containing coverage of each sequence; coverage information added to table type 2 (see coverage command)" name="coverage_file" optional="true" type="text"/>
+    <param area="false" argument="--file" label="print results to file" name="file" optional="true" type="text" value="stdout"/>
+    <param argument="--tab_table" checked="false" label="print tab-separated values table" name="tab_table" type="boolean" truevalue="--tab_table" falsevalue=""/>
+    <param area="false" argument="--extension" label="extension of bins (other files in folder are ignored)" name="extension" optional="true" type="text" value="fna"/>
+    <param argument="--threads" label="number of threads" name="threads" optional="true" type="integer" value="1"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm taxonomy_wf domain Bacteria ./bins ./output]]></help>
+</tool>
+
+<tool id="plot_need_qa" name="plot_need_qa" version="1.0">
+  <description/>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python plot_need_qa 
+#if $out_folder_1 and $out_folder_1 is not None:
+$out_folder_1
+#end if
+> $default]]></command>
+  <inputs>
+    <param area="false" label="folder specified during qa command" name="out_folder_1" type="text"/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[TODO: Write help]]></help>
+</tool>
+
+<tool id="plot" name="plot" version="1.0">
+  <description/>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python plot 
+#if $bin_folder_1 and $bin_folder_1 is not None:
+$bin_folder_1
+#end if
+
+#if $plot_folder_2 and $plot_folder_2 is not None:
+$plot_folder_2
+#end if
+
+#if $image_type and $image_type is not None:
+--image_type $image_type
+#end if
+
+#if $dpi and $dpi is not None:
+--dpi $dpi
+#end if
+
+#if $font_size and $font_size is not None:
+--font_size $font_size
+#end if
+
+#if $extension and $extension is not None:
+--extension $extension
+#end if
+> $default]]></command>
+  <inputs>
+    <param area="false" label="folder containing bins to plot (fasta format)" name="bin_folder_1" type="text"/>
+    <param area="false" label="folder to hold plots" name="plot_folder_2" type="text"/>
+    <param argument="--image_type" label="desired image type" name="image_type" optional="true" type="select">
+      <option value="eps">eps</option>
+      <option value="pdf">pdf</option>
+      <option selected="true" value="png">png</option>
+      <option value="ps">ps</option>
+      <option value="svg">svg</option>
+    </param>
+    <param argument="--dpi" label="desired DPI of output image" name="dpi" optional="true" type="integer" value="600"/>
+    <param argument="--font_size" label="Desired font size" name="font_size" optional="true" type="integer" value="8"/>
+    <param area="false" argument="--extension" label="extension of bins (other files in folder are ignored)" name="extension" optional="true" type="text" value="fna"/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[TODO: Write help]]></help>
+</tool>
+
+<tool id="plot_single" name="plot_single" version="1.0">
+  <description/>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python plot_single 
+#if $width and $width is not None:
+--width $width
+#end if
+
+#if $height and $height is not None:
+--height $height
+#end if
+> $default]]></command>
+  <inputs>
+    <param argument="--width" label="width of output image" name="width" optional="true" type="float" value="6.5"/>
+    <param argument="--height" label="height of output image" name="height" optional="true" type="float" value="6.5"/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[TODO: Write help]]></help>
+</tool>
+
+<tool id="plot_double" name="plot_double" version="1.0">
+  <description/>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python plot_double 
+#if $width and $width is not None:
+--width $width
+#end if
+
+#if $height and $height is not None:
+--height $height
+#end if
+> $default]]></command>
+  <inputs>
+    <param argument="--width" label="width of output image" name="width" optional="true" type="float" value="6.5"/>
+    <param argument="--height" label="height of output image" name="height" optional="true" type="float" value="3.5"/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[TODO: Write help]]></help>
+</tool>
+
+<tool id="plot_rows" name="plot_rows" version="1.0">
+  <description/>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python plot_rows 
+#if $width and $width is not None:
+--width $width
+#end if
+
+#if $row_height and $row_height is not None:
+--row_height $row_height
+#end if
+> $default]]></command>
+  <inputs>
+    <param argument="--width" label="width of output image" name="width" optional="true" type="float" value="6.5"/>
+    <param argument="--row_height" label="height of each row in the output image" name="row_height" optional="true" type="float" value="0.3"/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[TODO: Write help]]></help>
+</tool>
+
+<tool id="checkm_gc_plot" name="checkm gc_plot" version="1.0">
+  <description>Create GC histogram and delta-GC plot.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm gc_plot 
+#set repeat_var_1 = '" "'.join([ str($var.distributions_1) for $var in $repeat_1 ])
+"$repeat_var_1"
+
+
+#if $gc_window_size and $gc_window_size is not None:
+--gc_window_size $gc_window_size
+#end if
+
+#if $gc_bin_width and $gc_bin_width is not None:
+--gc_bin_width $gc_bin_width
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <repeat min="1" name="repeat_1" title="repeat_title">
+      <param label="reference distribution(s) to plot; integer between 0 and 100" max="100" min="0" name="distributions_1" type="integer" value="95"/>
+    </repeat>
+    <param argument="--gc_window_size" label="window size used to calculate GC histogram" name="gc_window_size" optional="true" type="integer" value="5000"/>
+    <param argument="--gc_bin_width" label="width of GC bars in histogram" name="gc_bin_width" optional="true" type="float" value="0.01"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm gc_plot ./bins ./plots 95]]></help>
+</tool>
+
+<tool id="checkm_coding_plot" name="checkm coding_plot" version="1.0">
+  <description>Create coding density (CD) histogram and delta-CD plot.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm coding_plot 
+#set repeat_var_1 = '" "'.join([ str($var.distributions_1) for $var in $repeat_1 ])
+"$repeat_var_1"
+
+
+#if $cd_window_size and $cd_window_size is not None:
+--cd_window_size $cd_window_size
+#end if
+
+#if $cd_bin_width and $cd_bin_width is not None:
+--cd_bin_width $cd_bin_width
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <repeat min="1" name="repeat_1" title="repeat_title">
+      <param label="reference distribution(s) to plot; integer between 0 and 100" max="100" min="0" name="distributions_1" type="integer" value="95"/>
+    </repeat>
+    <param argument="--cd_window_size" label="window size used to calculate CD histogram" name="cd_window_size" optional="true" type="integer" value="10000"/>
+    <param argument="--cd_bin_width" label="width of CD bars in histogram" name="cd_bin_width" optional="true" type="float" value="0.01"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm coding_plot ./output ./bins ./plots 95]]></help>
+</tool>
+
+<tool id="checkm_tetra_plot" name="checkm tetra_plot" version="1.0">
+  <description>Create tetranucleotide distance (TD) histogram and delta-TD plot.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm tetra_plot 
+#if $tetra_profile_1 and $tetra_profile_1 is not None:
+$tetra_profile_1
+#end if
+
+#set repeat_var_2 = '" "'.join([ str($var.distributions_2) for $var in $repeat_2 ])
+"$repeat_var_2"
+
+
+#if $td_window_size and $td_window_size is not None:
+--td_window_size $td_window_size
+#end if
+
+#if $td_bin_width and $td_bin_width is not None:
+--td_bin_width $td_bin_width
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="tetranucleotide profiles for each bin (see tetra command)" name="tetra_profile_1" type="text"/>
+    <repeat min="1" name="repeat_2" title="repeat_title">
+      <param label="reference distribution(s) to plot; integer between 0 and 100" max="100" min="0" name="distributions_2" type="integer" value="95"/>
+    </repeat>
+    <param argument="--td_window_size" label="window size used to calculate TD histogram" name="td_window_size" optional="true" type="integer" value="5000"/>
+    <param argument="--td_bin_width" label="width of TD bars in histogram" name="td_bin_width" optional="true" type="float" value="0.01"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm tetra_plot ./output ./bins ./plots tetra.tsv 95]]></help>
+</tool>
+
+<tool id="checkm_dist_plot" name="checkm dist_plot" version="1.0">
+  <description>Create image with GC, CD, and TD distribution plots together.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm dist_plot 
+#if $out_folder_1 and $out_folder_1 is not None:
+$out_folder_1
+#end if
+
+#if $bin_folder_2 and $bin_folder_2 is not None:
+$bin_folder_2
+#end if
+
+#if $plot_folder_3 and $plot_folder_3 is not None:
+$plot_folder_3
+#end if
+
+#if $tetra_profile_4 and $tetra_profile_4 is not None:
+$tetra_profile_4
+#end if
+
+#set repeat_var_5 = '" "'.join([ str($var.distributions_5) for $var in $repeat_5 ])
+"$repeat_var_5"
+
+
+#if $image_type and $image_type is not None:
+--image_type $image_type
+#end if
+
+#if $dpi and $dpi is not None:
+--dpi $dpi
+#end if
+
+#if $font_size and $font_size is not None:
+--font_size $font_size
+#end if
+
+#if $extension and $extension is not None:
+--extension $extension
+#end if
+
+#if $width and $width is not None:
+--width $width
+#end if
+
+#if $height and $height is not None:
+--height $height
+#end if
+
+#if $gc_window_size and $gc_window_size is not None:
+--gc_window_size $gc_window_size
+#end if
+
+#if $td_window_size and $td_window_size is not None:
+--td_window_size $td_window_size
+#end if
+
+#if $cd_window_size and $cd_window_size is not None:
+--cd_window_size $cd_window_size
+#end if
+
+#if $gc_bin_width and $gc_bin_width is not None:
+--gc_bin_width $gc_bin_width
+#end if
+
+#if $td_bin_width and $td_bin_width is not None:
+--td_bin_width $td_bin_width
+#end if
+
+#if $cd_bin_width and $cd_bin_width is not None:
+--cd_bin_width $cd_bin_width
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="folder specified during analyze command" name="out_folder_1" type="text"/>
+    <param area="false" label="folder containing bins to plot (fasta format)" name="bin_folder_2" type="text"/>
+    <param area="false" label="folder to hold plots" name="plot_folder_3" type="text"/>
+    <param area="false" label="tetranucleotide profiles for each sequence (see tetra command)" name="tetra_profile_4" type="text"/>
+    <repeat min="1" name="repeat_5" title="repeat_title">
+      <param label="reference distribution(s) to plot; integer between 0 and 100" max="100" min="0" name="distributions_5" type="integer" value="95"/>
+    </repeat>
+    <param argument="--image_type" label="desired image type" name="image_type" optional="true" type="select">
+      <option value="eps">eps</option>
+      <option value="pdf">pdf</option>
+      <option selected="true" value="png">png</option>
+      <option value="ps">ps</option>
+      <option value="svg">svg</option>
+    </param>
+    <param argument="--dpi" label="desired DPI of output image" name="dpi" optional="true" type="integer" value="600"/>
+    <param argument="--font_size" label="Desired font size" name="font_size" optional="true" type="integer" value="8"/>
+    <param area="false" argument="--extension" label="extension of bins (other files in folder are ignored)" name="extension" optional="true" type="text" value="fna"/>
+    <param argument="--width" label="width of output image" name="width" optional="true" type="float" value="6.5"/>
+    <param argument="--height" label="height of output image" name="height" optional="true" type="float" value="8"/>
+    <param argument="--gc_window_size" label="window size used to calculate GC histogram" name="gc_window_size" optional="true" type="integer" value="5000"/>
+    <param argument="--td_window_size" label="window size used to calculate TD histogram" name="td_window_size" optional="true" type="integer" value="5000"/>
+    <param argument="--cd_window_size" label="window size used to calculate CD histogram" name="cd_window_size" optional="true" type="integer" value="10000"/>
+    <param argument="--gc_bin_width" label="width of GC bars in histogram" name="gc_bin_width" optional="true" type="float" value="0.01"/>
+    <param argument="--td_bin_width" label="width of TD bars in histogram" name="td_bin_width" optional="true" type="float" value="0.01"/>
+    <param argument="--cd_bin_width" label="width of CD bars in histogram" name="cd_bin_width" optional="true" type="float" value="0.01"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm dist_plot ./output ./bins ./plots tetra.tsv 95]]></help>
+</tool>
+
+<tool id="checkm_tetra_pca" name="checkm tetra_pca" version="1.0">
+  <description>PCA plot of tetranucleotide signatures.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm tetra_pca 
+#if $tetra_profile_1 and $tetra_profile_1 is not None:
+$tetra_profile_1
+#end if
+
+#if $width and $width is not None:
+--width $width
+#end if
+
+#if $height and $height is not None:
+--height $height
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="tetranucleotide profiles for each sequence (see tetra command)" name="tetra_profile_1" type="text"/>
+    <param argument="--width" label="width of output image" name="width" optional="true" type="float" value="6.5"/>
+    <param argument="--height" label="height of output image" name="height" optional="true" type="float" value="6.5"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm tetra_pca ./bins ./plots tetra.tsv]]></help>
+</tool>
+
+<tool id="checkm_gc_bias_plot" name="checkm gc_bias_plot" version="1.0">
+  <description>Plot bin coverage as a function of GC.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm gc_bias_plot 
+#if $bam_file_1 and $bam_file_1 is not None:
+$bam_file_1
+#end if
+
+#if $window_size and $window_size is not None:
+--window_size $window_size
+#end if
+$all_reads
+
+#if $min_align and $min_align is not None:
+--min_align $min_align
+#end if
+
+#if $max_edit_dist and $max_edit_dist is not None:
+--max_edit_dist $max_edit_dist
+#end if
+
+#if $threads and $threads is not None:
+--threads $threads
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="BAM file to interrogate for coverage information" name="bam_file_1" type="text"/>
+    <param argument="--window_size" label="window size used to calculate plot statistics" name="window_size" optional="true" type="integer" value="5000"/>
+    <param argument="--all_reads" checked="false" label="use all reads to estimate coverage instead of just those in proper pairs" name="all_reads" type="boolean" truevalue="--all_reads" falsevalue=""/>
+    <param argument="--min_align" label="minimum alignment length as percentage of read length" name="min_align" optional="true" type="float" value="0.98"/>
+    <param argument="--max_edit_dist" label="maximum edit distance as percentage of read length" name="max_edit_dist" optional="true" type="float" value="0.02"/>
+    <param argument="--threads" label="number of threads" name="threads" optional="true" type="integer" value="1"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm gc_bias_plot ./bins ./plots example.bam]]></help>
+</tool>
+
+<tool id="checkm_cov_pca" name="checkm cov_pca" version="1.0">
+  <description>PCA plot of coverage profiles.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm cov_pca 
+#if $coverage_file_1 and $coverage_file_1 is not None:
+$coverage_file_1
+#end if
+
+#if $width and $width is not None:
+--width $width
+#end if
+
+#if $height and $height is not None:
+--height $height
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="file indicating coverage of each sequence (see coverage command)" name="coverage_file_1" type="text"/>
+    <param argument="--width" label="width of output image" name="width" optional="true" type="float" value="6.5"/>
+    <param argument="--height" label="height of output image" name="height" optional="true" type="float" value="6.5"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm cov_pca ./bins ./plots coverate.tsv]]></help>
+</tool>
+
+<tool id="checkm_nx_plot" name="checkm nx_plot" version="1.0">
+  <description>Create Nx-plots.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm nx_plot 
+#if $step_size and $step_size is not None:
+--step_size $step_size
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param argument="--step_size" label="x step size for calculating Nx" name="step_size" optional="true" type="float" value="0.05"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm nx_plot ./bins ./plots]]></help>
+</tool>
+
+<tool id="checkm_len_plot" name="checkm len_plot" version="1.0">
+  <description>Cumulative sequence length plot.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm len_plot $quiet
+> $default]]></command>
+  <inputs>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm len_plot ./bins ./plots]]></help>
+</tool>
+
+<tool id="checkm_len_hist" name="checkm len_hist" version="1.0">
+  <description>Sequence length histogram.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm len_hist $quiet
+> $default]]></command>
+  <inputs>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm len_hist ./bins ./plots]]></help>
+</tool>
+
+<tool id="checkm_marker_plot" name="checkm marker_plot" version="1.0">
+  <description>Plot position of marker genes on sequences.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm marker_plot 
+#if $fig_padding and $fig_padding is not None:
+--fig_padding $fig_padding
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param argument="--fig_padding" label="white space to place around figure (in inches)" name="fig_padding" optional="true" type="float" value="0.2"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm marker_plot ./output ./bins ./plots]]></help>
+</tool>
+
+<tool id="checkm_par_plot" name="checkm par_plot" version="1.0">
+  <description>Parallel coordinate plot of GC and coverage.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm par_plot 
+#if $coverage_file_1 and $coverage_file_1 is not None:
+$coverage_file_1
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="file indicating coverage of each sequence (see coverage command)" name="coverage_file_1" type="text"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm par_plot ./output ./bins ./plots coverage.tsv]]></help>
+</tool>
+
+<tool id="checkm_bin_qa_plot" name="checkm bin_qa_plot" version="1.0">
+  <description>Bar plot of bin completeness, contamination, and strain heterogeneity.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm bin_qa_plot $ignore_hetero
+
+#if $aai_strain and $aai_strain is not None:
+--aai_strain $aai_strain
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param argument="--ignore_hetero" checked="false" label="do not plot strain heterogeneity" name="ignore_hetero" type="boolean" truevalue="--ignore_hetero" falsevalue=""/>
+    <param argument="--aai_strain" label="AAI threshold used to identify strain heterogeneity" name="aai_strain" optional="true" type="float" value="0.9"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm bin_qa_plot ./output ./bins ./plots]]></help>
+</tool>
+
+<tool id="checkm_unbinned" name="checkm unbinned" version="1.0">
+  <description>Identify unbinned sequences.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm unbinned 
+#if $bin_folder_1 and $bin_folder_1 is not None:
+$bin_folder_1
+#end if
+
+#if $seq_file_2 and $seq_file_2 is not None:
+$seq_file_2
+#end if
+
+#if $output_seq_file_3 and $output_seq_file_3 is not None:
+$output_seq_file_3
+#end if
+
+#if $output_stats_file_4 and $output_stats_file_4 is not None:
+$output_stats_file_4
+#end if
+
+#if $extension and $extension is not None:
+--extension $extension
+#end if
+
+#if $min_seq_len and $min_seq_len is not None:
+--min_seq_len $min_seq_len
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="folder containing bins (fasta format)" name="bin_folder_1" type="text"/>
+    <param area="false" label="sequences used to generate bins (fasta format)" name="seq_file_2" type="text"/>
+    <param area="false" label="write unbinned sequences to file" name="output_seq_file_3" type="text"/>
+    <param area="false" label="write unbinned sequence statistics to file" name="output_stats_file_4" type="text"/>
+    <param area="false" argument="--extension" label="extension of bins (other files in folder are ignored)" name="extension" optional="true" type="text" value="fna"/>
+    <param argument="--min_seq_len" label="required length of sequence" name="min_seq_len" optional="true" type="integer" value="0"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm unbinned ./bins seqs.fna unbinned.fna unbinned_stats.tsv]]></help>
+</tool>
+
+<tool id="checkm_coverage" name="checkm coverage" version="1.0">
+  <description>Calculate coverage of sequences.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm coverage 
+#if $bin_folder_1 and $bin_folder_1 is not None:
+$bin_folder_1
+#end if
+
+#if $output_file_2 and $output_file_2 is not None:
+$output_file_2
+#end if
+
+#set repeat_var_3 = '" "'.join([ str($var.bam_files_3) for $var in $repeat_3 ])
+"$repeat_var_3"
+
+
+#if $extension and $extension is not None:
+--extension $extension
+#end if
+$all_reads
+
+#if $min_align and $min_align is not None:
+--min_align $min_align
+#end if
+
+#if $max_edit_dist and $max_edit_dist is not None:
+--max_edit_dist $max_edit_dist
+#end if
+
+#if $min_qc and $min_qc is not None:
+--min_qc $min_qc
+#end if
+
+#if $threads and $threads is not None:
+--threads $threads
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="folder containing bins (fasta format)" name="bin_folder_1" type="text"/>
+    <param area="false" label="print results to file" name="output_file_2" type="text"/>
+    <repeat min="1" name="repeat_3" title="repeat_title">
+      <param area="false" label="BAM files to parse" name="bam_files_3" type="text"/>
+    </repeat>
+    <param area="false" argument="--extension" label="extension of bins (other files in folder are ignored)" name="extension" optional="true" type="text" value="fna"/>
+    <param argument="--all_reads" checked="false" label="use all reads to estimate coverage instead of just those in proper pairs" name="all_reads" type="boolean" truevalue="--all_reads" falsevalue=""/>
+    <param argument="--min_align" label="minimum alignment length as percentage of read length" name="min_align" optional="true" type="float" value="0.98"/>
+    <param argument="--max_edit_dist" label="maximum edit distance as percentage of read length" name="max_edit_dist" optional="true" type="float" value="0.02"/>
+    <param argument="--min_qc" label="minimum quality score (in phred)" name="min_qc" optional="true" type="integer" value="15"/>
+    <param argument="--threads" label="number of threads" name="threads" optional="true" type="integer" value="1"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm coverage ./bins coverage.tsv example_1.bam example_2.bam]]></help>
+</tool>
+
+<tool id="checkm_tetra" name="checkm tetra" version="1.0">
+  <description>Calculate tetranucleotide signature of sequences.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm tetra 
+#if $seq_file_1 and $seq_file_1 is not None:
+$seq_file_1
+#end if
+
+#if $output_file_2 and $output_file_2 is not None:
+$output_file_2
+#end if
+
+#if $threads and $threads is not None:
+--threads $threads
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="sequences used to generate bins (fasta format)" name="seq_file_1" type="text"/>
+    <param area="false" label="print results to file" name="output_file_2" type="text"/>
+    <param argument="--threads" label="number of threads" name="threads" optional="true" type="integer" value="1"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm tetra seqs.fna tetra.tsv]]></help>
+</tool>
+
+<tool id="checkm_profile" name="checkm profile" version="1.0">
+  <description>Calculate percentage of reads mapped to each bin.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm profile 
+#if $coverage_file_1 and $coverage_file_1 is not None:
+$coverage_file_1
+#end if
+
+#if $file and $file is not None:
+--file $file
+#end if
+$tab_table
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="file indicating coverage of each sequence (see coverage command)" name="coverage_file_1" type="text"/>
+    <param area="false" argument="--file" label="print results to file" name="file" optional="true" type="text" value="stdout"/>
+    <param argument="--tab_table" checked="false" label="print tab-separated values table" name="tab_table" type="boolean" truevalue="--tab_table" falsevalue=""/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm profile coverage.tsv]]></help>
+</tool>
+
+<tool id="checkm_join_tables" name="checkm join_tables" version="1.0">
+  <description>Join tab-separated value tables containing bin information.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm join_tables 
+#set repeat_var_1 = '" "'.join([ str($var.tables_1) for $var in $repeat_1 ])
+"$repeat_var_1"
+
+
+#if $file and $file is not None:
+--file $file
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <repeat min="1" name="repeat_1" title="repeat_title">
+      <param area="false" label="tab-separated table files with bin ids as their primary key" name="tables_1" type="text"/>
+    </repeat>
+    <param area="false" argument="--file" label="print results to file" name="file" optional="true" type="text" value="stdout"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm join_tables table1.tsv table2.tsv]]></help>
+</tool>
+
+<tool id="checkm_ssu_finder" name="checkm ssu_finder" version="1.0">
+  <description>Identify SSU (16S/18S) rRNAs in sequences.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm ssu_finder 
+#if $seq_file_1 and $seq_file_1 is not None:
+$seq_file_1
+#end if
+
+#if $bin_folder_2 and $bin_folder_2 is not None:
+$bin_folder_2
+#end if
+
+#if $out_folder_3 and $out_folder_3 is not None:
+$out_folder_3
+#end if
+
+#if $extension and $extension is not None:
+--extension $extension
+#end if
+
+#if $evalue and $evalue is not None:
+--evalue $evalue
+#end if
+
+#if $concatenate and $concatenate is not None:
+--concatenate $concatenate
+#end if
+
+#if $threads and $threads is not None:
+--threads $threads
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="sequences used to generate bins (fasta format)" name="seq_file_1" type="text"/>
+    <param area="false" label="folder containing bins (fasta format)" name="bin_folder_2" type="text"/>
+    <param area="false" label="folder to write output files" name="out_folder_3" type="text"/>
+    <param area="false" argument="--extension" label="extension of bins (other files in folder are ignored)" name="extension" optional="true" type="text" value="fna"/>
+    <param argument="--evalue" label="e-value threshold for identifying hits" name="evalue" optional="true" type="float" value="1e-05"/>
+    <param argument="--concatenate" label="concatenate hits that are within the specified number of base pairs" name="concatenate" optional="true" type="integer" value="200"/>
+    <param argument="--threads" label="number of threads" name="threads" optional="true" type="integer" value="1"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm ssu_finder seqs.fna ./bins ./ssu_finder]]></help>
+</tool>
+
+<tool id="checkm_bin_compare" name="checkm bin_compare" version="1.0">
+  <description>Compare two sets of bins.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm bin_compare 
+#if $seq_file_1 and $seq_file_1 is not None:
+$seq_file_1
+#end if
+
+#if $bin_folder1_2 and $bin_folder1_2 is not None:
+$bin_folder1_2
+#end if
+
+#if $bin_folder2_3 and $bin_folder2_3 is not None:
+$bin_folder2_3
+#end if
+
+#if $output_file_4 and $output_file_4 is not None:
+$output_file_4
+#end if
+
+#if $extension1 and $extension1 is not None:
+--extension1 $extension1
+#end if
+
+#if $extension2 and $extension2 is not None:
+--extension2 $extension2
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="sequences used to generate bins (fasta format)" name="seq_file_1" type="text"/>
+    <param area="false" label="folder containing bins (fasta format)" name="bin_folder1_2" type="text"/>
+    <param area="false" label="folder containing bins (fasta format)" name="bin_folder2_3" type="text"/>
+    <param area="false" label="output file showing overlap between bins" name="output_file_4" type="text"/>
+    <param area="false" argument="--extension1" label="extension of bins in folder 1" name="extension1" optional="true" type="text" value="fna"/>
+    <param area="false" argument="--extension2" label="extension of bins in folder 2" name="extension2" optional="true" type="text" value="fna"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm bin_compare seqs.fna ./bins1 ./bins2 bin_comparison.tsv]]></help>
+</tool>
+
+<tool id="checkm_bin_union" name="checkm bin_union" version="1.0">
+  <description>Create a non-redundant set of bins from multiple sets of bins</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm bin_union 
+#if $output_dir_1 and $output_dir_1 is not None:
+$output_dir_1
+#end if
+
+#set repeat_var_2 = '" "'.join([ str($var.bin_or_checkm_qa_table_2) for $var in $repeat_2 ])
+"$repeat_var_2"
+
+
+#if $extension and $extension is not None:
+--extension $extension
+#end if
+
+#if $min_completeness and $min_completeness is not None:
+--min_completeness $min_completeness
+#end if
+
+#if $max_contamination and $max_contamination is not None:
+--max_contamination $max_contamination
+#end if
+$quiet
+$verbose
+> $default]]></command>
+  <inputs>
+    <param area="false" label="folder for outputting" name="output_dir_1" type="text"/>
+    <repeat min="1" name="repeat_2" title="repeat_title">
+      <param area="false" label="bin folders and checkm_qa_table_tables (must have at least one of each)" name="bin_or_checkm_qa_table_2" type="text"/>
+    </repeat>
+    <param area="false" argument="--extension" label="extension of bins in bin folders" name="extension" optional="true" type="text" value="fna"/>
+    <param argument="--min_completeness" label="ignore bins with less completeness than this, as a percentage e.g. '70'" name="min_completeness" optional="true" type="float" value="70"/>
+    <param argument="--max_contamination" label="ignore bins with more contamination than this, as a percentage e.g. '10'" name="max_contamination" optional="true" type="float" value="10"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+    <param argument="--verbose" checked="false" label="Give extra information to the console output" name="verbose" type="boolean" truevalue="--verbose" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm bin_union_output bins1/ checkm_qa_tab_table1.tsv bins2/ checkm_qa_tab_table2.tsv
+
+The checkm_qa_tab_table.tsv files are generated through this process for each bin.
+checkm qa --tab_table ./output/lineage.ms ./output >checkm_qa_tab_table.tsv
+
+Also note that sequences can be assigned to multiple resulting bins.
+i.e. checkm unique will now fail]]></help>
+</tool>
+
+<tool id="checkm_merge" name="checkm merge" version="1.0">
+  <description>Identify bins with complementary sets of marker genes.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm merge 
+#if $marker_file_1 and $marker_file_1 is not None:
+$marker_file_1
+#end if
+
+#if $bin_folder_2 and $bin_folder_2 is not None:
+$bin_folder_2
+#end if
+
+#if $out_folder_3 and $out_folder_3 is not None:
+$out_folder_3
+#end if
+$genes
+
+#if $delta_comp and $delta_comp is not None:
+--delta_comp $delta_comp
+#end if
+
+#if $delta_cont and $delta_cont is not None:
+--delta_cont $delta_cont
+#end if
+
+#if $merged_comp and $merged_comp is not None:
+--merged_comp $merged_comp
+#end if
+
+#if $merged_cont and $merged_cont is not None:
+--merged_cont $merged_cont
+#end if
+
+#if $extension and $extension is not None:
+--extension $extension
+#end if
+
+#if $threads and $threads is not None:
+--threads $threads
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="marker file to use for assessing potential bin mergers (marker set or HMM file)" name="marker_file_1" type="text"/>
+    <param area="false" label="folder containing bins (fasta format)" name="bin_folder_2" type="text"/>
+    <param area="false" label="folder to write output files" name="out_folder_3" type="text"/>
+    <param argument="--genes" checked="false" label="bins contain genes as amino acids instead of nucleotide contigs" name="genes" type="boolean" truevalue="--genes" falsevalue=""/>
+    <param argument="--delta_comp" label="minimum increase in completeness to report pair" name="delta_comp" optional="true" type="float" value="5.0"/>
+    <param argument="--delta_cont" label="maximum increase in contamination to report pair" name="delta_cont" optional="true" type="float" value="10.0"/>
+    <param argument="--merged_comp" label="minimum merged completeness to report pair" name="merged_comp" optional="true" type="float" value="50.0"/>
+    <param argument="--merged_cont" label="maximum merged contamination to report pair" name="merged_cont" optional="true" type="float" value="20.0"/>
+    <param area="false" argument="--extension" label="extension of bins (other files in folder are ignored)" name="extension" optional="true" type="text" value="fna"/>
+    <param argument="--threads" label="number of threads" name="threads" optional="true" type="integer" value="1"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm merge bacteria.ms ./bins ./output]]></help>
+</tool>
+
+<tool id="checkm_outliers" name="checkm outliers" version="1.0">
+  <description>Identify outliers in bins relative to reference distributions.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm outliers 
+#if $bin_folder_1 and $bin_folder_1 is not None:
+$bin_folder_1
+#end if
+
+#if $tetra_profile_2 and $tetra_profile_2 is not None:
+$tetra_profile_2
+#end if
+
+#if $output_file_3 and $output_file_3 is not None:
+$output_file_3
+#end if
+
+#if $distributions and $distributions is not None:
+--distributions $distributions
+#end if
+
+#if $report_type and $report_type is not None:
+--report_type $report_type
+#end if
+
+#if $extension and $extension is not None:
+--extension $extension
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="folder containing bins (fasta format)" name="bin_folder_1" type="text"/>
+    <param area="false" label="tetranucleotide profiles for each sequence (see tetra command)" name="tetra_profile_2" type="text"/>
+    <param area="false" label="print results to file" name="output_file_3" type="text"/>
+    <param argument="--distributions" label="reference distribution used to identify outliers; integer between 0 and 100" max="100" min="0" name="distributions" optional="true" type="integer" value="95"/>
+    <param argument="--report_type" label="report sequences that are outliers in 'all' or 'any' reference distribution" name="report_type" optional="true" type="select">
+      <option value="all">all</option>
+      <option selected="true" value="any">any</option>
+    </param>
+    <param area="false" argument="--extension" label="extension of bins (other files in folder are ignored)" name="extension" optional="true" type="text" value="fna"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm outliers ./output ./bins tetra.tsv outliers.tsv]]></help>
+</tool>
+
+<tool id="checkm_modify" name="checkm modify" version="1.0">
+  <description>Modify sequences in a bin.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm modify 
+#if $seq_file_1 and $seq_file_1 is not None:
+$seq_file_1
+#end if
+
+#if $bin_file_2 and $bin_file_2 is not None:
+$bin_file_2
+#end if
+
+#if $output_file_3 and $output_file_3 is not None:
+$output_file_3
+#end if
+#for $i in $repeat_4:
+-a $i.add
+#end for
+#for $i in $repeat_5:
+-r $i.remove
+#end for
+
+#if $outlier_file and $outlier_file is not None:
+--outlier_file $outlier_file
+#end if
+$quiet
+> $default]]></command>
+  <inputs>
+    <param area="false" label="sequences used to generate bins (fasta format)" name="seq_file_1" type="text"/>
+    <param area="false" label="bin to be modified" name="bin_file_2" type="text"/>
+    <param area="false" label="modified bin" name="output_file_3" type="text"/>
+    <repeat name="repeat_4" title="Repeated Variable">
+      <param area="false" argument="--add" label="ID of sequence to add to bin (may specify multiple times)" name="add" type="text"/>
+    </repeat>
+    <repeat name="repeat_5" title="Repeated Variable">
+      <param area="false" argument="--remove" label="ID of sequence to remove from bin (may specify multiple times)" name="remove" type="text"/>
+    </repeat>
+    <param area="false" argument="--outlier_file" label="remove all sequences marked as outliers in the bin (see outlier command)" name="outlier_file" optional="true" type="text"/>
+    <param argument="--quiet" checked="false" label="suppress console output" name="quiet" type="boolean" truevalue="--quiet" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm modify -r seq_id1 -r seq_id2 seqs.fna bin.fna new_bin.fna]]></help>
+</tool>
+
+<tool id="checkm_unique" name="checkm unique" version="1.0">
+  <description>Ensure no sequences are assigned to multiple bins.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm unique 
+#if $bin_folder_1 and $bin_folder_1 is not None:
+$bin_folder_1
+#end if
+
+#if $extension and $extension is not None:
+--extension $extension
+#end if
+> $default]]></command>
+  <inputs>
+    <param area="false" label="folder containing bins (fasta format)" name="bin_folder_1" type="text"/>
+    <param area="false" argument="--extension" label="extension of bins (all other files in bin folder are ignored)" name="extension" optional="true" type="text" value="fna"/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm unique ./bins]]></help>
+</tool>
+
+<tool id="checkm_test" name="checkm test" version="1.0">
+  <description>Test CheckM on E. coli genome.</description>
+  <stdio>
+    <exit_code level="fatal" range="1:"/>
+  </stdio>
+  <version_command>python checkm --version</version_command>
+  <command><![CDATA[python checkm test 
+#if $output_dir_1 and $output_dir_1 is not None:
+$output_dir_1
+#end if
+> $default]]></command>
+  <inputs>
+    <param area="false" label="output folder for test data" name="output_dir_1" type="text"/>
+  </inputs>
+  <outputs>
+    <data format="txt" hidden="false" name="default"/>
+  </outputs>
+  <help><![CDATA[Example: checkm test ~/checkm_test]]></help>
+</tool>
+

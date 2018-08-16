@@ -1,0 +1,20 @@
+<macros>
+    <xml name="tests">
+        <test>
+            <param name="bin_folder" value="Bin_Sample3.001.fasta,Bin_Sample3.002.fasta" ftype="fasta"/>
+            <param name="reduced_tree" value="true" />
+            <param name="ali" value="--ali" />
+            <param name="nt" value="--nt" />
+            <output_collection name="hmmer_alignment_per_bin" type="list">
+                <element name="0" file="checkm_tree_ali_0.txt" ftype="txt" lines_diff="200"/>
+                <element name="1" file="checkm_tree_ali_1.txt" ftype="txt" lines_diff="200"/>
+            </output_collection>
+            <output_collection name="hmmer_nucleotide_per_bin" type="list">
+                <element name="0" file="checkm_tree_nt_0.fas" ftype="fasta" />
+                <element name="1" file="checkm_tree_nt_1.fas" ftype="fasta" />
+            </output_collection>
+	    <output name="output" ftype="checkm_tree" file="checkm_tree.txt"/>
+	    <!--<output name="alignment_file_output" file="lineage_wf_alnfile.fasta" ftype="fasta"/>-->
+        </test>
+    </xml>
+</macros>

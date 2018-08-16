@@ -1,0 +1,12 @@
+<macros>
+    <xml name="tests">
+        <test>
+            <param name="bin_folder" value="Bin_Sample3.001.fasta,Bin_Sample3.002.fasta" ftype="fasta"/>
+            <param name="reduced_tree" value="true" />
+            <param name="alignment_file" value="true" />
+            <param name="nt" value="--nt" />
+	    <output name="checkm_lineage_wf" ftype="tabular" file="checkm_lineage_wf_file.txt"/>
+	    <!--<output name="alignment_file_output" file="lineage_wf_alnfile.fasta" ftype="fasta"/>-->
+        </test>
+    </xml>
+</macros>

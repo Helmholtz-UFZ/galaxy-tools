@@ -1,0 +1,22 @@
+<macros>
+    <xml name="requirements">
+        <requirements>
+            <requirement type="package" version="1.0.11">checkm-genome</requirement>
+            <yield/>
+        </requirements>
+    </xml>
+    <xml name="stdio">
+        <stdio>
+            <exit_code level="fatal" range="1:" description="Error"/>
+        </stdio>
+
+    </xml>
+    <xml name="version_command">
+        <version_command><![CDATA[checkm -h | grep "CheckM v" | sed 's/CheckM v//; s/[:. ]\{2,\}//g']]></version_command>
+    </xml>
+    <xml name="citations">
+        <citations>
+            <citation type="doi">10.1101/gr.186072.114</citation>
+        </citations>
+    </xml>
+</macros>

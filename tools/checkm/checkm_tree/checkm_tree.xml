@@ -24,12 +24,20 @@ $nt
 $genes
 --threads \${GALAXY_SLOTS:-1}
 > '$output'
-&&cp -r '$output.extra_files_path' out_folder
+#if str($ali) == "--ali" or str($nt) == "--nt":
+&&if [ -d '$output.extra_files_path' ]; then
+ cp -r '$output.extra_files_path' out_folder;
+fi
+#end if
+
 ## link hmmer alignments per bin in one dir to make them discoverable
 #if str($ali) == "--ali":
 && for k in `ls out_folder/bins/`; do
-    if [ -f out_folder/bins/\$k/hmmer.tree.ali.txt ]; then 
-        ln -s \$k/hmmer.tree.ali.txt out_folder/bins/\$k.hmmer.tree.ali.txt;
+    if [ -f out_folder/bins/\$k/hmmer.tree.txt ]; then 
+        ln -s \$k/hmmer.tree.txt out_folder/bins/hmmer.tree.\$k.txt;
+    fi; 
+    if [ -f out_folder/bins/\$k/hmmer.analyze.txt ]; then 
+        ln -s \$k/hmmer.analyze.txt out_folder/bins/hmmer.analyze.\$k.txt;
     fi; 
 done
 #end if## link nucleotide sequences per bin in one dir to make them discoverable
@@ -48,15 +56,15 @@ done
     <param argument="--genes" checked="false" label="bins contain genes as amino acids instead of nucleotide contigs" name="genes" type="boolean" truevalue="--genes" falsevalue=""/>
   </inputs>
   <outputs>
-    <collection name="hmmer_nucleotide_per_bin" type="list" label="${tool.name} on ${on_string} ( nucleotide gene sequences per bin)">
+    <collection name="hmmer_nucleotide_per_bin" type="list" label="${tool.name} on ${on_string} (nucleotide gene sequences per bin)">
       <filter>nt</filter>
       <discover_datasets directory="out_folder/bins/" pattern="(?P&lt;designation&gt;.+).genes.fna" ext="fasta" />
     </collection>
     <collection name="hmmer_alignment_per_bin" type="list" label="${tool.name} on ${on_string} (HMMER alignments per bin)">
       <filter>ali</filter>
-      <discover_datasets directory="out_folder/bins/" pattern="(?P&lt;designation&gt;.+).hmmer.tree.ali.txt" ext="txt" />
+      <discover_datasets directory="out_folder/bins/" pattern="hmmer.(?P&lt;designation&gt;.+).txt" ext="txt" />
     </collection>
-    <data format="checkm_tree" hidden="false" name="output"/>
+    <data name="output" format="checkm_tree_folder" hidden="false" label="${tool.name} on ${on_string}"/>
   </outputs>
   <tests>
   <expand macro="tests"/>

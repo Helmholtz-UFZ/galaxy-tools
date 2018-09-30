@@ -1,0 +1,51 @@
+
+<macros>
+    <xml name="tests">
+        <test>
+            <param name="tree_folder" value="checkm_tree.out" ftype="checkmtree">
+<composite_data value="checkm_tree/storage/phylo_hmm_info.pkl.gz" />
+<composite_data value="checkm_tree/storage/tree/PF00466.15.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/PF00687.16.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/PF00297.17.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/concatenated.pplacer.json" />
+<composite_data value="checkm_tree/storage/tree/PF00189.15.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/PF00573.17.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/PF00333.15.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/PF00366.15.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/PF00252.13.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/PF00177.16.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/PF00281.14.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/concatenated.fasta" />
+<composite_data value="checkm_tree/storage/tree/PF00318.15.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/PF04560.15.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/concatenated.tre" />
+<composite_data value="checkm_tree/storage/tree/PF00276.15.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/PF00238.14.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/PF00562.23.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/PF00831.18.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/PF00673.16.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/pplacer.out" />
+<composite_data value="checkm_tree/storage/tree/PF00312.17.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/PF03719.10.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/PF00410.14.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/PF00298.14.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/PF00861.17.masked.faa" />
+<composite_data value="checkm_tree/storage/tree/TIGR00344.masked.faa" />
+<composite_data value="checkm_tree/storage/bin_stats.tree.tsv" />
+<composite_data value="checkm_tree/bins/0/genes.faa" />
+<composite_data value="checkm_tree/bins/0/genes.fna" />
+<composite_data value="checkm_tree/bins/0/hmmer.tree.ali.txt" />
+<composite_data value="checkm_tree/bins/0/hmmer.tree.txt" />
+<composite_data value="checkm_tree/bins/0/genes.gff" />
+<composite_data value="checkm_tree/bins/1/genes.faa" />
+<composite_data value="checkm_tree/bins/1/genes.fna" />
+<composite_data value="checkm_tree/bins/1/hmmer.tree.ali.txt" />
+<composite_data value="checkm_tree/bins/1/hmmer.tree.txt" />
+<composite_data value="checkm_tree/bins/1/genes.gff" />
+            </param>
+            <param name="out_format" value="1" />
+	    <output name="output" ftype="txt" file="checkm_tree_qa_1.txt"/>
+	    <!--<output name="alignment_file_output" file="lineage_wf_alnfile.fasta" ftype="fasta"/>-->
+        </test>
+    </xml>
+</macros>

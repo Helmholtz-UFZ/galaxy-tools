@@ -5,42 +5,12 @@
 	    <datatype_file name="gmql.py" />
     </datatype_files>-->
     <registration>
-    <datatype extension="checkm_test" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_unique" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_modify" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_outliers" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_merge" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_bin_union" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_bin_compare" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_ssu_finder" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_join_tables" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_profile" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_tetra" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_coverage" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_unbinned" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_bin_qa_plot" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_par_plot" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_marker_plot" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_len_hist" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_len_plot" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_nx_plot" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_cov_pca" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_gc_bias_plot" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_tetra_pca" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_dist_plot" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_tetra_plot" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_coding_plot" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_gc_plot" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_taxonomy_wf" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_lineage_wf" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_qa" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_analyze" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_taxon_set" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_taxon_list" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_lineage_set" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_tree_qa" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_tree" type="galaxy.datatypes.data:Text" subclass="True" />
-    <datatype extension="checkm_data" type="galaxy.datatypes.data:Text" subclass="True" />
+        <datatype extension="checkm_tree_folder" type="galaxy.datatypes.tabular:Tabular" subclass="True" />
+        <datatype extension="checkm_marker_file" type="galaxy.datatypes.tabular:Tabular" subclass="True" />
+        <datatype extension="checkm_analyze_folder" type="galaxy.datatypes.tabular:Tabular" subclass="True" />
+        <datatype extension="checkm_qa_folder" type="galaxy.datatypes.tabular:Tabular" subclass="True" />
+        <datatype extension="checkm_tetra_profile" type="galaxy.datatypes.tabular:Tabular" subclass="True" />
+        <datatype extension="checkm_coverage" type="galaxy.datatypes.tabular:Tabular" subclass="True" />
     </registration>
     <!--<sniffers>
         <sniffer type="galaxy.datatypes.gmql:Gdm" />

@@ -1,0 +1,15 @@
+#                                                                            --- full sequence --- -------------- this domain -------------   hmm coord   ali coord   env coord
+# target name        accession   tlen query name           accession   qlen   E-value  score  bias   #  of  c-Evalue  i-Evalue  score  bias  from    to  from    to  from    to  acc description of target
+#------------------- ---------- ----- -------------------- ---------- ----- --------- ------ ----- --- --- --------- --------- ------ ----- ----- ----- ----- ----- ----- ----- ---- ---------------------
+contig-201_269_2     -            643 TIGR00344            TIGR00344    847   0.00025   15.1   0.1   1   1   3.9e-07   0.00036   14.6   0.1   556   679    72   202    51   247 0.81 # 267 # 2195 # -1 # ID=64_2;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.496
+contig-201_753_1     -             82 TIGR00422            TIGR00422    863     2e-11   38.3   0.1   1   1   2.3e-14   2.2e-11   38.2   0.1   803   863     2    62     1    62 0.96 # 3 # 248 # 1 # ID=190_1;partial=10;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.557
+#
+# Program:         hmmsearch
+# Version:         3.2 (June 2018)
+# Pipeline mode:   SEARCH
+# Query file:      /tmp/dff49aa3-108b-4530-a985-ddd0f91d414a
+# Target file:     /tmp/tmpQmULci/job_working_directory/000/3/dataset_3_files/bins/0/genes.faa
+# Option settings: hmmsearch --domtblout /tmp/tmpQmULci/job_working_directory/000/3/dataset_3_files/bins/0/hmmer.tree.txt --notextw -E 0.1 --domE 0.1 --cpu 1 /tmp/dff49aa3-108b-4530-a985-ddd0f91d414a /tmp/tmpQmULci/job_working_directory/000/3/dataset_3_files/bins/0/genes.faa 
+# Current dir:     /tmp/tmpQmULci/job_working_directory/000/3/working
+# Date:            Wed Aug 22 14:33:08 2018
+# [ok]

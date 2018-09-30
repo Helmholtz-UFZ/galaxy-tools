@@ -5,7 +5,7 @@
             <param name="reduced_tree" value="true" />
             <param name="alignment_file" value="true" />
             <param name="nt" value="--nt" />
-	    <output name="checkm_lineage_wf" ftype="tabular" file="checkm_lineage_wf_file.txt"/>
+	    <output name="output" ftype="checkm_lineage_wf" file="checkm_lineage_wf_file.txt"/>
 	    <!--<output name="alignment_file_output" file="lineage_wf_alnfile.fasta" ftype="fasta"/>-->
         </test>
     </xml>

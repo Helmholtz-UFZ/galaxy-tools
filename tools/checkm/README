@@ -55,3 +55,18 @@ python checkm --generate_galaxy_xml > checkm.xml
   - added test-data/checkm_references.loc and downloaded checkm reference data
 - add tool specific tests etc in macros_NAME.xml
 
+
+TODOs
+=====
+
+- next: taxon_wf taxon_set
+- replace phylum taxon input by a now select where the options are from the output of checkm taxon_list
+
+- add section around plot macros and find a nice order 
+
+- some tools seem to accept hmm in adition to marker_file as input
+- there are options with label ==SUPPRESS== that should be removed
+- add help for hmmer output files: 
+"""
+The hmmer.tree.txt file is the alignment of the genes used to insert your genome into the CheckM reference tree. These genes are uses solely for this purpose. The hmmer.analyze.txt contains the alignment of the genes used to assess the completeness and contamination of your genomes.
+"""

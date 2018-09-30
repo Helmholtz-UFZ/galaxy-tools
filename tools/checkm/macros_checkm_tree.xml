@@ -13,7 +13,48 @@
                 <element name="0" file="checkm_tree_nt_0.fas" ftype="fasta" />
                 <element name="1" file="checkm_tree_nt_1.fas" ftype="fasta" />
             </output_collection>
-	    <output name="output" ftype="checkm_tree" file="checkm_tree.txt"/>
+            <output name="output" file="checkm_tree.out" ftype="checkm_tree">
+<extra_files type="file" value="checkm_tree/storage/phylo_hmm_info.pkl.gz" name="checkm_tree/storage/phylo_hmm_info.pkl.gz" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00466.15.masked.faa" name="checkm_tree/storage/tree/PF00466.15.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00687.16.masked.faa" name="checkm_tree/storage/tree/PF00687.16.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00297.17.masked.faa" name="checkm_tree/storage/tree/PF00297.17.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/concatenated.pplacer.json" name="checkm_tree/storage/tree/concatenated.pplacer.json" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00189.15.masked.faa" name="checkm_tree/storage/tree/PF00189.15.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00573.17.masked.faa" name="checkm_tree/storage/tree/PF00573.17.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00333.15.masked.faa" name="checkm_tree/storage/tree/PF00333.15.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00366.15.masked.faa" name="checkm_tree/storage/tree/PF00366.15.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00252.13.masked.faa" name="checkm_tree/storage/tree/PF00252.13.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00177.16.masked.faa" name="checkm_tree/storage/tree/PF00177.16.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00281.14.masked.faa" name="checkm_tree/storage/tree/PF00281.14.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/concatenated.fasta" name="checkm_tree/storage/tree/concatenated.fasta" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00318.15.masked.faa" name="checkm_tree/storage/tree/PF00318.15.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF04560.15.masked.faa" name="checkm_tree/storage/tree/PF04560.15.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/concatenated.tre" name="checkm_tree/storage/tree/concatenated.tre" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00276.15.masked.faa" name="checkm_tree/storage/tree/PF00276.15.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00238.14.masked.faa" name="checkm_tree/storage/tree/PF00238.14.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00562.23.masked.faa" name="checkm_tree/storage/tree/PF00562.23.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00831.18.masked.faa" name="checkm_tree/storage/tree/PF00831.18.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00673.16.masked.faa" name="checkm_tree/storage/tree/PF00673.16.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/pplacer.out" name="checkm_tree/storage/tree/pplacer.out" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00312.17.masked.faa" name="checkm_tree/storage/tree/PF00312.17.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF03719.10.masked.faa" name="checkm_tree/storage/tree/PF03719.10.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00410.14.masked.faa" name="checkm_tree/storage/tree/PF00410.14.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00298.14.masked.faa" name="checkm_tree/storage/tree/PF00298.14.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/PF00861.17.masked.faa" name="checkm_tree/storage/tree/PF00861.17.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/tree/TIGR00344.masked.faa" name="checkm_tree/storage/tree/TIGR00344.masked.faa" />
+<extra_files type="file" value="checkm_tree/storage/bin_stats.tree.tsv" name="checkm_tree/storage/bin_stats.tree.tsv" />
+<extra_files type="file" value="checkm_tree/bins/0/genes.faa" name="checkm_tree/bins/0/genes.faa" />
+<extra_files type="file" value="checkm_tree/bins/0/genes.fna" name="checkm_tree/bins/0/genes.fna" />
+<extra_files type="file" value="checkm_tree/bins/0/hmmer.tree.ali.txt" name="checkm_tree/bins/0/hmmer.tree.ali.txt" />
+<extra_files type="file" value="checkm_tree/bins/0/hmmer.tree.txt" name="checkm_tree/bins/0/hmmer.tree.txt" />
+<extra_files type="file" value="checkm_tree/bins/0/genes.gff" name="checkm_tree/bins/0/genes.gff" />
+<extra_files type="file" value="checkm_tree/bins/1/genes.faa" name="checkm_tree/bins/1/genes.faa" />
+<extra_files type="file" value="checkm_tree/bins/1/genes.fna" name="checkm_tree/bins/1/genes.fna" />
+<extra_files type="file" value="checkm_tree/bins/1/hmmer.tree.ali.txt" name="checkm_tree/bins/1/hmmer.tree.ali.txt" />
+<extra_files type="file" value="checkm_tree/bins/1/hmmer.tree.txt" name="checkm_tree/bins/1/hmmer.tree.txt" />
+<extra_files type="file" value="checkm_tree/bins/1/genes.gff" name="checkm_tree/bins/1/genes.gff" />
+	    </output>
+	<!--<output name="output" ftype="checkm_tree" file="checkm_tree.txt"/>-->
 	    <!--<output name="alignment_file_output" file="lineage_wf_alnfile.fasta" ftype="fasta"/>-->
         </test>
     </xml>

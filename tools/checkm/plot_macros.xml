@@ -1,14 +1,13 @@
 <macros>
 <token name="@plot_need_qa_headtoken@">
-mkdir out_folder &amp;&amp; 
-
 </token>
 <xml name="plot_need_qa_outmacro">
 </xml>
 <token name="@plot_need_qa_token@">
-out_folder</token>
+'$out_folder.extra_files_path'
+</token>
 <xml name="plot_need_qa_macro">
-    <param name="out_folder" type="data" label="output of qa command" format="text"/>
+    <param name="out_folder" type="data" format="checkm_qa_folder" label="output of qa command" />
 </xml>
 <token name="@plot_headtoken@">
 mkdir bin_folder &amp;&amp; 

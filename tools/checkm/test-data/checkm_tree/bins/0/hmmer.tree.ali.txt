@@ -1,0 +1,1280 @@
+# hmmsearch :: search profile(s) against a sequence database
+# HMMER 3.2 (June 2018); http://hmmer.org/
+# Copyright (C) 2018 Howard Hughes Medical Institute.
+# Freely distributed under the BSD open source license.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query HMM file:                  /tmp/dff49aa3-108b-4530-a985-ddd0f91d414a
+# target sequence database:        /tmp/tmpQmULci/job_working_directory/000/3/dataset_3_files/bins/0/genes.faa
+# per-dom hits tabular output:     /tmp/tmpQmULci/job_working_directory/000/3/dataset_3_files/bins/0/hmmer.tree.txt
+# max ASCII text line length:      unlimited
+# sequence reporting threshold:    E-value <= 0.1
+# domain reporting threshold:      E-value <= 0.1
+# number of worker threads:        1
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       Ribosom_S12_S23  [M=122]
+Accession:   PF00164.20
+Description: Ribosomal protein S12/S23
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (122 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                         7  (0.0075594); expected 18.5 (0.02)
+Passed bias filter:                        5  (0.00539957); expected 18.5 (0.02)
+Passed Vit filter:                         0  (0); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 6038.41
+//
+Query:       Ribosomal_S7  [M=148]
+Accession:   PF00177.16
+Description: Ribosomal protein S7p/S5e
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (148 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        35  (0.037797); expected 18.5 (0.02)
+Passed bias filter:                       27  (0.0291577); expected 18.5 (0.02)
+Passed Vit filter:                         2  (0.00215983); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 5963.49
+//
+Query:       Ribosomal_L2  [M=77]
+Accession:   PF00181.18
+Description: Ribosomal Proteins L2, RNA binding domain
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (77 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        26  (0.0280778); expected 18.5 (0.02)
+Passed bias filter:                       22  (0.0237581); expected 18.5 (0.02)
+Passed Vit filter:                         1  (0.00107991); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.01u 0.00s 00:00:00.01 Elapsed: 00:00:00.00
+# Mc/sec: 5536.01
+//
+Query:       Ribosomal_S3_C  [M=85]
+Accession:   PF00189.15
+Description: Ribosomal protein S3, C-terminal domain
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (85 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        23  (0.024838); expected 18.5 (0.02)
+Passed bias filter:                       16  (0.0172786); expected 18.5 (0.02)
+Passed Vit filter:                         0  (0); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 6501.98
+//
+Query:       Ribosomal_S19  [M=81]
+Accession:   PF00203.16
+Description: Ribosomal protein S19
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (81 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        27  (0.0291577); expected 18.5 (0.02)
+Passed bias filter:                       23  (0.024838); expected 18.5 (0.02)
+Passed Vit filter:                         4  (0.00431965); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 5768.09
+//
+Query:       Ribosomal_L22  [M=105]
+Accession:   PF00237.14
+Description: Ribosomal protein L22p/L17e
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (105 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        27  (0.0291577); expected 18.5 (0.02)
+Passed bias filter:                       25  (0.0269978); expected 18.5 (0.02)
+Passed Vit filter:                         4  (0.00431965); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.01u 0.00s 00:00:00.01 Elapsed: 00:00:00.00
+# Mc/sec: 6804.23
+//
+Query:       Ribosomal_L14  [M=122]
+Accession:   PF00238.14
+Description: Ribosomal protein L14p/L23e
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (122 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        19  (0.0205184); expected 18.5 (0.02)
+Passed bias filter:                       12  (0.012959); expected 18.5 (0.02)
+Passed Vit filter:                         1  (0.00107991); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 8022.48
+//
+Query:       Ribosomal_L16  [M=133]
+Accession:   PF00252.13
+Description: Ribosomal protein L16p/L10e
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (133 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        22  (0.0237581); expected 18.5 (0.02)
+Passed bias filter:                       18  (0.0194384); expected 18.5 (0.02)
+Passed Vit filter:                         0  (0); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 8262.92
+//
+Query:       Ribosomal_L23  [M=92]
+Accession:   PF00276.15
+Description: Ribosomal protein L23
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (92 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        22  (0.0237581); expected 18.5 (0.02)
+Passed bias filter:                       17  (0.0183585); expected 18.5 (0.02)
+Passed Vit filter:                         0  (0); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 7245.00
+//
+Query:       Ribosomal_L5  [M=56]
+Accession:   PF00281.14
+Description: Ribosomal protein L5
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (56 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        22  (0.0237581); expected 18.5 (0.02)
+Passed bias filter:                       22  (0.0237581); expected 18.5 (0.02)
+Passed Vit filter:                         1  (0.00107991); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.01u 0.00s 00:00:00.01 Elapsed: 00:00:00.00
+# Mc/sec: 4786.85
+//
+Query:       Ribosomal_L3  [M=263]
+Accession:   PF00297.17
+Description: Ribosomal protein L3
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (263 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        18  (0.0194384); expected 18.5 (0.02)
+Passed bias filter:                       16  (0.0172786); expected 18.5 (0.02)
+Passed Vit filter:                         1  (0.00107991); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 12020.71
+//
+Query:       Ribosomal_L11  [M=69]
+Accession:   PF00298.14
+Description: Ribosomal protein L11, RNA binding domain
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (69 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        24  (0.0259179); expected 18.5 (0.02)
+Passed bias filter:                       22  (0.0237581); expected 18.5 (0.02)
+Passed Vit filter:                         1  (0.00107991); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.01u 0.00s 00:00:00.01 Elapsed: 00:00:00.00
+# Mc/sec: 5558.46
+//
+Query:       Ribosomal_S15  [M=83]
+Accession:   PF00312.17
+Description: Ribosomal protein S15
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (83 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        27  (0.0291577); expected 18.5 (0.02)
+Passed bias filter:                       22  (0.0237581); expected 18.5 (0.02)
+Passed Vit filter:                         3  (0.00323974); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 5814.48
+//
+Query:       Ribosomal_S2  [M=211]
+Accession:   PF00318.15
+Description: Ribosomal protein S2
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (211 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        38  (0.0410367); expected 18.5 (0.02)
+Passed bias filter:                       26  (0.0280778); expected 18.5 (0.02)
+Passed Vit filter:                         1  (0.00107991); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 10053.40
+//
+Query:       Ribosomal_S5  [M=67]
+Accession:   PF00333.15
+Description: Ribosomal protein S5, N-terminal domain
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (67 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        27  (0.0291577); expected 18.5 (0.02)
+Passed bias filter:                       24  (0.0259179); expected 18.5 (0.02)
+Passed Vit filter:                         2  (0.00215983); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 5072.65
+//
+Query:       Ribosomal_S17  [M=69]
+Accession:   PF00366.15
+Description: Ribosomal protein S17
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (69 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        12  (0.012959); expected 18.5 (0.02)
+Passed bias filter:                       12  (0.012959); expected 18.5 (0.02)
+Passed Vit filter:                         0  (0); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.01u 0.00s 00:00:00.01 Elapsed: 00:00:00.00
+# Mc/sec: 4909.84
+//
+Query:       Ribosomal_S9  [M=121]
+Accession:   PF00380.14
+Description: Ribosomal protein S9/S16
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (121 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        26  (0.0280778); expected 18.5 (0.02)
+Passed bias filter:                       23  (0.024838); expected 18.5 (0.02)
+Passed Vit filter:                         0  (0); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 7372.85
+//
+Query:       Ribosomal_S8  [M=129]
+Accession:   PF00410.14
+Description: Ribosomal protein S8
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (129 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        24  (0.0259179); expected 18.5 (0.02)
+Passed bias filter:                       18  (0.0194384); expected 18.5 (0.02)
+Passed Vit filter:                         0  (0); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 7754.06
+//
+Query:       Ribosomal_S11  [M=110]
+Accession:   PF00411.14
+Description: Ribosomal protein S11
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (110 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        27  (0.0291577); expected 18.5 (0.02)
+Passed bias filter:                       25  (0.0269978); expected 18.5 (0.02)
+Passed Vit filter:                         1  (0.00107991); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.01u 0.00s 00:00:00.01 Elapsed: 00:00:00.00
+# Mc/sec: 6706.81
+//
+Query:       Ribosomal_L10  [M=100]
+Accession:   PF00466.15
+Description: Ribosomal protein L10
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (100 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        33  (0.0356371); expected 18.5 (0.02)
+Passed bias filter:                       28  (0.0302376); expected 18.5 (0.02)
+Passed Vit filter:                         1  (0.00107991); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 6171.83
+//
+Query:       RNA_pol_Rpb2_6  [M=386]
+Accession:   PF00562.23
+Description: RNA polymerase Rpb2, domain 6
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (386 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        22  (0.0237581); expected 18.5 (0.02)
+Passed bias filter:                       17  (0.0183585); expected 18.5 (0.02)
+Passed Vit filter:                         2  (0.00215983); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 12700.90
+//
+Query:       Ribosomal_L13  [M=128]
+Accession:   PF00572.13
+Description: Ribosomal protein L13
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (128 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        26  (0.0280778); expected 18.5 (0.02)
+Passed bias filter:                       23  (0.024838); expected 18.5 (0.02)
+Passed Vit filter:                         3  (0.00323974); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.01u 0.00s 00:00:00.01 Elapsed: 00:00:00.00
+# Mc/sec: 7967.56
+//
+Query:       Ribosomal_L4  [M=192]
+Accession:   PF00573.17
+Description: Ribosomal protein L4/L1 family
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (192 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        23  (0.024838); expected 18.5 (0.02)
+Passed bias filter:                       17  (0.0183585); expected 18.5 (0.02)
+Passed Vit filter:                         1  (0.00107991); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 9649.91
+//
+Query:       RNA_pol_Rpb1_2  [M=166]
+Accession:   PF00623.15
+Description: RNA polymerase Rpb1, domain 2
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (166 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        16  (0.0172786); expected 18.5 (0.02)
+Passed bias filter:                       15  (0.0161987); expected 18.5 (0.02)
+Passed Vit filter:                         0  (0); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 9769.11
+//
+Query:       Ribosomal_L5_C  [M=95]
+Accession:   PF00673.16
+Description: ribosomal L5P family C-terminus
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (95 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        14  (0.0151188); expected 18.5 (0.02)
+Passed bias filter:                       13  (0.0140389); expected 18.5 (0.02)
+Passed Vit filter:                         1  (0.00107991); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 6551.79
+//
+Query:       Ribosomal_L1  [M=220]
+Accession:   PF00687.16
+Description: Ribosomal protein L1p/L10e family
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (220 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        23  (0.024838); expected 18.5 (0.02)
+Passed bias filter:                       15  (0.0161987); expected 18.5 (0.02)
+Passed Vit filter:                         4  (0.00431965); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 9370.17
+//
+Query:       Ribosomal_L29  [M=58]
+Accession:   PF00831.18
+Description: Ribosomal L29 protein
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (58 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        43  (0.0464363); expected 18.5 (0.02)
+Passed bias filter:                       28  (0.0302376); expected 18.5 (0.02)
+Passed Vit filter:                         1  (0.00107991); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 4292.94
+//
+Query:       Ribosomal_L18p  [M=119]
+Accession:   PF00861.17
+Description: Ribosomal L18p/L5e family
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (119 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        23  (0.024838); expected 18.5 (0.02)
+Passed bias filter:                       18  (0.0194384); expected 18.5 (0.02)
+Passed Vit filter:                         2  (0.00215983); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.01u 0.00s 00:00:00.01 Elapsed: 00:00:00.00
+# Mc/sec: 7511.66
+//
+Query:       RNA_pol_Rpb6  [M=57]
+Accession:   PF01192.17
+Description: RNA polymerase Rpb6
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (57 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        21  (0.0226782); expected 18.5 (0.02)
+Passed bias filter:                       18  (0.0194384); expected 18.5 (0.02)
+Passed Vit filter:                         1  (0.00107991); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 4317.32
+//
+Query:       TruB_N  [M=149]
+Accession:   PF01509.13
+Description: TruB family pseudouridylate synthase (N terminal domain)
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (149 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        19  (0.0205184); expected 18.5 (0.02)
+Passed bias filter:                       17  (0.0183585); expected 18.5 (0.02)
+Passed Vit filter:                         0  (0); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 8943.29
+//
+Query:       SRP_SPB  [M=104]
+Accession:   PF02978.14
+Description: Signal peptide binding domain
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (104 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        24  (0.0259179); expected 18.5 (0.02)
+Passed bias filter:                       18  (0.0194384); expected 18.5 (0.02)
+Passed Vit filter:                         2  (0.00215983); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.01u 0.00s 00:00:00.01 Elapsed: 00:00:00.00
+# Mc/sec: 6563.18
+//
+Query:       Ribosomal_S5_C  [M=74]
+Accession:   PF03719.10
+Description: Ribosomal protein S5, C-terminal domain
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (74 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        29  (0.0313175); expected 18.5 (0.02)
+Passed bias filter:                       22  (0.0237581); expected 18.5 (0.02)
+Passed Vit filter:                         1  (0.00107991); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 5036.08
+//
+Query:       Ribosomal_L11_N  [M=60]
+Accession:   PF03946.9
+Description: Ribosomal protein L11, N-terminal domain
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (60 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        22  (0.0237581); expected 18.5 (0.02)
+Passed bias filter:                       21  (0.0226782); expected 18.5 (0.02)
+Passed Vit filter:                         3  (0.00323974); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 4393.82
+//
+Query:       Ribosomal_L2_C  [M=130]
+Accession:   PF03947.13
+Description: Ribosomal Proteins L2, C-terminal domain
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (130 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        19  (0.0205184); expected 18.5 (0.02)
+Passed bias filter:                       15  (0.0161987); expected 18.5 (0.02)
+Passed Vit filter:                         2  (0.00215983); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 7429.84
+//
+Query:       RNA_pol_Rpb2_7  [M=82]
+Accession:   PF04560.15
+Description: RNA polymerase Rpb2, domain 7
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (82 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        12  (0.012959); expected 18.5 (0.02)
+Passed bias filter:                       12  (0.012959); expected 18.5 (0.02)
+Passed Vit filter:                         0  (0); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 5956.44
+//
+Query:       RNA_pol_Rpb2_2  [M=190]
+Accession:   PF04561.9
+Description: RNA polymerase Rpb2, domain 2
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (190 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        26  (0.0280778); expected 18.5 (0.02)
+Passed bias filter:                       20  (0.0215983); expected 18.5 (0.02)
+Passed Vit filter:                         0  (0); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 9431.93
+//
+Query:       RNA_pol_Rpb2_1  [M=203]
+Accession:   PF04563.10
+Description: RNA polymerase beta subunit
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (203 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        14  (0.0151188); expected 18.5 (0.02)
+Passed bias filter:                       14  (0.0151188); expected 18.5 (0.02)
+Passed Vit filter:                         0  (0); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 10131.97
+//
+Query:       RNA_pol_Rpb2_3  [M=68]
+Accession:   PF04565.11
+Description: RNA polymerase Rpb2, domain 3
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (68 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        10  (0.0107991); expected 18.5 (0.02)
+Passed bias filter:                       10  (0.0107991); expected 18.5 (0.02)
+Passed Vit filter:                         1  (0.00107991); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 4898.09
+//
+Query:       RNA_pol_Rpb1_1  [M=337]
+Accession:   PF04997.7
+Description: RNA polymerase Rpb1, domain 1
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (337 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        30  (0.0323974); expected 18.5 (0.02)
+Passed bias filter:                       19  (0.0205184); expected 18.5 (0.02)
+Passed Vit filter:                         1  (0.00107991); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 11771.10
+//
+Query:       RNA_pol_Rpb1_4  [M=108]
+Accession:   PF05000.12
+Description: RNA polymerase Rpb1, domain 4
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (108 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        20  (0.0215983); expected 18.5 (0.02)
+Passed bias filter:                       16  (0.0172786); expected 18.5 (0.02)
+Passed Vit filter:                         0  (0); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 7082.48
+//
+Query:       IF-2  [M=109]
+Accession:   PF11987.3
+Description: Translation-initiation factor 2
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (109 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        26  (0.0280778); expected 18.5 (0.02)
+Passed bias filter:                       16  (0.0172786); expected 18.5 (0.02)
+Passed Vit filter:                         2  (0.00215983); expected 0.9 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.00u 0.00s 00:00:00.00 Elapsed: 00:00:00.00
+# Mc/sec: 6761.46
+//
+Query:       TIGR00344  [M=847]
+Accession:   TIGR00344
+Description: alaS: alanine--tRNA ligase
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence         Description
+    ------- ------ -----    ------- ------ -----   ---- --  --------         -----------
+    0.00025   15.1   0.1    0.00036   14.6   0.1    1.2  1  contig-201_269_2  # 267 # 2195 # -1 # ID=64_2;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.496
+
+
+Domain annotation for each sequence (and alignments):
+>> contig-201_269_2  # 267 # 2195 # -1 # ID=64_2;partial=00;start_type=ATG;rbs_motif=AGGA;rbs_spacer=5-10bp;gc_cont=0.496
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   14.6   0.1   3.9e-07   0.00036     556     679 ..      72     202 ..      51     247 .. 0.81
+
+  Alignments for each domain:
+  == domain 1  score: 14.6 bits;  conditional E-value: 3.9e-07
+         TIGR00344 556 nHsatHllhaalkkvlgehvkQaGslveakklrlDfshkravtkeelkkvEdlvneqilenlqvkvelmdleeakkkgalalfgeky..........gekvRvvsvgdvsvelCgGtHvenTgeiglfkIvkee 679
+                        Hs  Hll  a+k+ l +h k a   v ++    D+   r +t+e+++++E+ + e   +n++v  + +  +ea++ +a +  ge y          ++    + + +  v++C G Hv n      fk++k+ 
+  contig-201_269_2  72 RHSCAHLLGHAIKQ-LWPHTKMAIGPVIDNGFYYDVDLDRTLTQEDVEALEKRMHELAEKNYDVIKKKVSWHEARETFANR--GESYkvsildeniaHDDKPGLYFHEEYVDMCRGPHVPNMRFCHHFKLMKTA 202
+                       6***********97.6788888888899999******************************************99988866..444411223111133333334444688999999999998888888877765 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (847 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        33  (0.0356371); expected 18.5 (0.02)
+Passed bias filter:                       19  (0.0205184); expected 18.5 (0.02)
+Passed Vit filter:                         4  (0.00431965); expected 0.9 (0.001)
+Passed Fwd filter:                         1  (0.00107991); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               1  [number of targets reported over threshold]
+# CPU time: 0.02u 0.00s 00:00:00.02 Elapsed: 00:00:00.02
+# Mc/sec: 6527.06
+//
+Query:       TIGR00422  [M=863]
+Accession:   TIGR00422
+Description: valS: valine--tRNA ligase
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence         Description
+    ------- ------ -----    ------- ------ -----   ---- --  --------         -----------
+      2e-11   38.3   0.1    2.2e-11   38.2   0.1    1.0  1  contig-201_753_1  # 3 # 248 # 1 # ID=190_1;partial=10;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.557
+
+
+Domain annotation for each sequence (and alignments):
+>> contig-201_753_1  # 3 # 248 # 1 # ID=190_1;partial=10;start_type=Edge;rbs_motif=None;rbs_spacer=None;gc_cont=0.557
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   38.2   0.1   2.3e-14   2.2e-11     803     863 .]       2      62 ..       1      62 [. 0.96
+
+  Alignments for each domain:
+  == domain 1  score: 38.2 bits;  conditional E-value: 2.3e-14
+         TIGR00422 803 evevlipvkelenkakelaklqkelekekkekeriekkleneafvkkapkevvekekekle 863
+                       ++e+lip+++l+nk++ela+l+ke++k++ e +rie+kl+ne+fv++ap++v++ke+ekle
+  contig-201_753_1   2 GAELLIPMAGLINKEDELARLAKEVAKIEGEISRIENKLANEGFVARAPEAVIAKEREKLE 62 
+                       67999*****************************************************985 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (863 nodes)
+Target sequences:                        926  (192414 residues searched)
+Passed MSV filter:                        31  (0.0334773); expected 18.5 (0.02)
+Passed bias filter:                       23  (0.024838); expected 18.5 (0.02)
+Passed Vit filter:                         4  (0.00431965); expected 0.9 (0.001)
+Passed Fwd filter:                         1  (0.00107991); expected 0.0 (1e-05)
+Initial search space (Z):                926  [actual number of targets]
+Domain search space  (domZ):               1  [number of targets reported over threshold]
+# CPU time: 0.01u 0.00s 00:00:00.01 Elapsed: 00:00:00.01
+# Mc/sec: 11399.36
+//
+[ok]

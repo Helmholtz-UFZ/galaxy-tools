@@ -18,15 +18,51 @@
 checkm lineage_wf 
 bin_folder
 '$output.extra_files_path'
+$reduced_tree
+$ali
+$nt
+$genes
+#if $unique and $unique is not None:
+--unique $unique
+#end if
+#if $multi and $multi is not None:
+--multi $multi
+#end if
+$force_domain
+$no_refinement
+$individual_markers
+$skip_adj_correction
+$skip_pseudogene_correction
+#if $aai_strain and $aai_strain is not None:
+--aai_strain $aai_strain
+#end if
+#if $alignment_file == "true":
+--alignment_file $alignment_file_output
+#end if
+$ignore_thresholds
+#if $e_value and $e_value is not None:
+--e_value $e_value
+#end if
+#if $length and $length is not None:
+--length $length
+#end if
 --tab_table
 --threads \${GALAXY_SLOTS:-1}
 > '$output'
-&&cp -r '$output.extra_files_path' out_folder
+#if str($ali) == "--ali" or str($nt) == "--nt":
+&&if [ -d '$output.extra_files_path' ]; then
+ cp -r '$output.extra_files_path' out_folder;
+fi
+#end if
+
 ## link hmmer alignments per bin in one dir to make them discoverable
 #if str($ali) == "--ali":
 && for k in `ls out_folder/bins/`; do
-    if [ -f out_folder/bins/\$k/hmmer.tree.ali.txt ]; then 
-        ln -s \$k/hmmer.tree.ali.txt out_folder/bins/\$k.hmmer.tree.ali.txt;
+    if [ -f out_folder/bins/\$k/hmmer.tree.txt ]; then 
+        ln -s \$k/hmmer.tree.txt out_folder/bins/hmmer.tree.\$k.txt;
+    fi; 
+    if [ -f out_folder/bins/\$k/hmmer.analyze.txt ]; then 
+        ln -s \$k/hmmer.analyze.txt out_folder/bins/hmmer.analyze.\$k.txt;
     fi; 
 done
 #end if## link nucleotide sequences per bin in one dir to make them discoverable
@@ -56,19 +92,18 @@ done
     <param argument="--e_value" label="e-value cut off" name="e_value" optional="true" type="float" value="1e-10"/>
     <param argument="--length" label="percent overlap between target and query" name="length" optional="true" type="float" value="0.7"/>
 
-    <param argument="--tab_table" checked="false" label="print tab-separated values table" name="tab_table" type="boolean" truevalue="--tab_table" falsevalue=""/>
   </inputs>
   <outputs>
-    <data  name="alignment_file_output" format="txt" hidden="false" label="${tool.name} on ${on_string} (alignment)"><filter>alignment_file=="true"</filter></data>
-    <collection name="hmmer_nucleotide_per_bin" type="list" label="${tool.name} on ${on_string} ( nucleotide gene sequences per bin)">
+    <data  name="alignment_file_output" format="txt" hidden="false" label="${tool.name} on ${on_string} (alignment)"><filter>alignment_file</filter></data>
+    <collection name="hmmer_nucleotide_per_bin" type="list" label="${tool.name} on ${on_string} (nucleotide gene sequences per bin)">
       <filter>nt</filter>
       <discover_datasets directory="out_folder/bins/" pattern="(?P&lt;designation&gt;.+).genes.fna" ext="fasta" />
     </collection>
     <collection name="hmmer_alignment_per_bin" type="list" label="${tool.name} on ${on_string} (HMMER alignments per bin)">
       <filter>ali</filter>
-      <discover_datasets directory="out_folder/bins/" pattern="(?P&lt;designation&gt;.+).hmmer.tree.ali.txt" ext="txt" />
+      <discover_datasets directory="out_folder/bins/" pattern="hmmer.(?P&lt;designation&gt;.+).txt" ext="txt" />
     </collection>
-    <data format="checkm_lineage_wf" hidden="false" name="output"/>
+    <data name="output" format="checkm_qa_folder" hidden="false" label="${tool.name} on ${on_string}"/>
   </outputs>
   <tests>
   <expand macro="tests"/>

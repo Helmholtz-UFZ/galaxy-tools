@@ -1,0 +1,67 @@
+# Some IO information for tool developing: 
+# 
+# Lineage-specific marker set:
+# 
+# bins	> 	tree	>	tree_folder
+# tree_folder	>	tree_qa		>  
+# tree_folder	> 	lineage_set  	> 	marker_file
+# 
+# Taxonomic-specific marker set:
+# 
+# 	>	taxon_list   > taxon_list
+#	>	taxon_set    > marker_file
+# 
+# Apply marker set to genome bins:
+# 
+# bins,marker_file/hmm file	>	analyze      >	analyze_folder
+# analyze_folder,marker_file	>	qa   >	(analyze+)qa_folder       
+# 
+#   Common workflows (combines above commands):
+#     lineage_wf   -> Runs tree, lineage_set, analyze, qa
+#     taxonomy_wf  -> Runs taxon_set, analyze, qa
+# 
+# Bin QA plots:
+# 
+# bins,qa_folder    >	bin_qa_plot	>	
+# 
+# Reference distribution plots:
+# 
+# bins	>	gc_plot
+# bins,qa_folder	>	coding_plot 
+bins,qa_folder,tetra_profile	>	tetra_plot
+bins,analyze_folder,tetra_profile	> 	dist_plot
+
+General plots:
+
+# bins	>	nx_plot
+# bins	> 	len_plot
+# bins	> 	len_hist
+# bins,qa_folder	>	marker_plot
+    par_plot     <- qa_folder, coverage
+    gc_bias_plot <- BAM?
+
+  Sequence subspace plots:
+    cov_pca      <- coverage
+    tetra_pca    <- tetra_profile
+
+  Bin exploration and modification:
+#    unique       <- bins
+    merge        <- marker_file/hmms 
+    bin_compare  <- sequences, bin1 bin2 
+
+    bin_union    -> [Experimental] Merge multiple binning efforts into a single bin set
+    modify       -> [Experimental] Modify sequences in a bin
+    outliers     -> [Experimental] Identify outlier in bins relative to reference distributions
+
+  Utility functions:
+    unbinned     <- bins, sequences
+	-> 
+    coverage     <- bins, BAM
+	-> coverage
+    tetra        <- sequences
+		-> tetra
+    profile      <- coverage
+    join_tables  <- tables? 
+    ssu_finder   <- sequences, bins
+
+  Use 'checkm data setRoot' to specify the location of CheckM database files.

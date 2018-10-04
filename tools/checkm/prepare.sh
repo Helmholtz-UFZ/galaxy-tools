@@ -1,5 +1,24 @@
 #!/bin/bash
 
+function get_taxons () {
+	if [ ! -f taxon_list.tsv ]; then
+		. /home/berntm/miniconda3/bin/activate '/home/berntm/miniconda3/envs/__checkm-genome@1.0.11'
+		checkm taxon_list 2> /dev/null | grep -v "\-\-\-" | sed 's/^\s\+//g; s/\s\+$//g; s/\s\{2,\}/\t/g'| grep -v "^$"| grep -v "^Rank" > taxon_list.tsv
+	fi
+	for i in $(cat taxon_list.tsv | cut -f 1 | uniq)
+	do
+		echo -n '\t<when value=\"'$i'\">\n'
+ 		echo -n '\t\t<param name=\"taxon\" type=\"select\">\n'
+ 		IFS=$'\t'
+ 		for j in $(cat taxon_list.tsv | grep "^$i"|awk 'BEGIN{FS="\t"}{printf("%s\t", $2)}')
+ 		do
+ 			echo -n '\t\t\t<option value=\"'$j'\">'$j'</option>\n'
+ 		done
+ 		echo -n '\t\t</param>\n'
+		echo -n '\t</when>\n'
+	done
+}
+
 function get_parent_parsers () {
 	pname=$1
 	parents=$(grep "add_parser('$pname[^_]" checkm -A 3 | grep parents | sed "s/\s\+parents=\[\([a-z_, ]\+\)\].*/\1/; s/,//g;")
@@ -71,14 +90,14 @@ do
 			# remove numbers behind variables (positionals)
 			sed 's/_[0-9]//g' |
 			# fix --threads and --pplacer_threads to GALAXY_SLOTS
-			sed 's/#if $threads.*$threadsENDOFLINEMARKER#end ifENDOFLINEMARKER/--threads \\${GALAXY_SLOTS:-1}/g' |
-			sed 's/#if $pplacer_threads.*$pplacer_threadsENDOFLINEMARKER#end ifENDOFLINEMARKER/--pplacer_threads \\${GALAXY_SLOTS:-1}/g' |
+			sed 's/#if $threads.*$threadsENDOFLINEMARKER#end if/--threads \\${GALAXY_SLOTS:-1}/g' |
+			sed 's/#if $pplacer_threads.*$pplacer_threadsENDOFLINEMARKER#end if/--pplacer_threads \\${GALAXY_SLOTS:-1}/g' |
 			# remove extension
  			sed 's/#if $extension.*$extension[0-9]*ENDOFLINEMARKER#end if//g' |
 			# replace bin_folder argument
-			sed 's/#if $\(bin_folder[0-9]*\)[^#]*$bin_folder[0-9]*ENDOFLINEMARKER#end ifENDOFLINEMARKER/\1/' |
+			sed 's/#if $\(bin_folder[0-9]*\)[^#]*$bin_folder[0-9]*ENDOFLINEMARKER#end if/\1/' |
 			# replace seq_file, and tree_folder argument 
-			sed "s/#if \$\(seq_file\|tree_folder\|marker_file\|analyze_folder\)[^#]*ENDOFLINEMARKER#end ifENDOFLINEMARKER/'\$\1'/g" |
+			sed "s/#if \$\(seq_file\|tree_folder\|marker_file\|analyze_folder\|rank\|taxon\) [^#]*ENDOFLINEMARKER#end if/'\$\1'/g" |
 			# replace out_folder by extra_files_path of output data set
 			sed "s/#if \$out_folder[^#]*\$out_folderENDOFLINEMARKER#end if/'\$output.extra_files_path'/" |
 			sed 's/#if $out_format[^#]*$out_formatENDOFLINEMARKER#end if/--out_format $out_format/' |
@@ -128,17 +147,19 @@ do
 		# tools with analyze_folder output get <data> 
 		if [ "$fname" == "checkm_analyze" ]; then
 			sed -i -e "s/<outputs>/<outputs>\n    <data name=\"output\" format=\"checkm_analyze_folder\" hidden=\"false\" label=\"\${tool.name} on \${on_string}\"\/>/" "$fname/$fname.xml"
-		# tools with tree_folder output get <data> 
-		elif [ "$fname" == "checkm_lineage_wf" ]; then
+		fi
+		if [ "$fname" == "checkm_lineage_wf" ] || [ "$fname" == "checkm_taxonomy_wf" ]; then
 			sed -i -e "s/<outputs>/<outputs>\n    <data name=\"output\" format=\"checkm_qa_folder\" hidden=\"false\" label=\"\${tool.name} on \${on_string}\"\/>/" "$fname/$fname.xml"
-		# tools with tree_folder output get <data> 
-		elif [ "$fname" == "checkm_tree" ]; then
+		fi
+		if [ "$fname" == "checkm_tree" ]; then
 			sed -i -e "s/<outputs>/<outputs>\n    <data name=\"output\" format=\"checkm_tree_folder\" hidden=\"false\" label=\"\${tool.name} on \${on_string}\"\/>/" "$fname/$fname.xml"
+		fi
 		# fix out_format (make it a select)
-		elif [ "$fname" == "checkm_tree_qa" ]; then
+		if [ "$fname" == "checkm_tree_qa" ]; then
 			sed -i -e 's#<param argument="--out_format.*#<param argument="--out_format" label="desired output" type="select">\n      <option value="1" selected="true">brief summary of genome tree placement</option>\n      <option value="2">detailed summary of genome tree placement including lineage-specific statistics</option>\n      <option value="3">genome tree in Newick format decorated with IMG genome ids</option>\n      <option value="4">genome tree in Newick format decorated with taxonomy strings</option>\n      <option value="5">multiple sequence alignment of reference genomes and bins</option>\n    </param>#' "$fname/$fname.xml"
 			sed -i -e 's#<outputs>#<outputs>\n    <data format="tabular" name="output">\n        <change_format>\n            <when input="out_format" value="3" format="newick" />\n            <when input="out_format" value="4" format="newick" />\n            <when input="out_format" value="5" format="fasta" />\n        </change_format>\n    </data>#' "$fname/$fname.xml"
-		elif [ "$fname" == "checkm_qa" ]; then
+		fi
+		if [ "$fname" == "checkm_qa" ]; then
 			# adapt default output
 			sed -i -e 's#<param argument="--out_format.*#<param argument="--out_format" label="desired output" type="select">\n      <option value="1" selected="true">summary of bin completeness and contamination</option>\n      <option value="2">extended summary of bin statistics (includes GC, genome size, ...)</option>\n      <option value="3">summary of bin quality for increasingly basal lineage-specific marker sets</option>\n      <option value="4">list of marker genes and their counts</option>\n      <option value="5">list of bin id, marker gene id, gene id</option>\n      <option value="6">list of marker genes present multiple times in a bin</option>\n      <option value="7">list of marker genes present multiple times on the same scaffold</option>\n      <option value="8">list indicating position of each marker gene within a bin</option>\n      <option value="9">FASTA file of marker genes identified in each bin</option>\n    </param>#' "$fname/$fname.xml"
 			# add output
@@ -147,11 +168,22 @@ do
 			# analyze folder is input and output -> create a copy of the input
 			sed -i -e "s#python checkm qa#cp -r '\$analyze_folder.extra_files_path' '\$output.extra_files_path' \&\&\\npython checkm qa#" "$fname/$fname.xml"
 			sed -i -e "s#^'\$analyze_folder'\$#'\$output.extra_files_path'#" "$fname/$fname.xml"
+		fi
 		# make taxon list a tsv file
-		elif [ "$fname" == "checkm_taxon_list" ]; then
-			replacement="sed 's/^\s\+//; s/\s\+$//; s/\s\{2,\}/\t/g; s/^Rank/\# Rank/' | grep -v '\-\-\-' | grep -v '^$'"
-			sed -i -e "s#^>#$replacement > #" "$fname/$fname.xml"
+		if [ "$fname" == "checkm_taxon_list" ]; then
+			replacement="sed 's/^\\\s\\\+//; s/\\\s\\\+$//; s/\\\s\\\{2,\\\}/\\\t/g; s/^Rank/\# Rank/' | grep -v '\\\-\\\-\\\-' | grep -v '^$'"
+			sed -i -e "s#^>#| $replacement > #" "$fname/$fname.xml"
 			sed -i -e 's#<outputs>#<outputs>\n    <data format="tabular" name="output"/>#' "$fname/$fname.xml"
+		fi
+		# make proper taxon and species conditional/select
+		if [ "$fname" == "checkm_taxon_set" ] || [ "$fname" == "checkm_taxonomy_wf" ]; then
+			sed -i -e 's/\(<param label="taxonomic rank"\)/<conditional name="taxon_cond">\n\t\1/;' "$fname/$fname.xml"
+			sed -i -e "s#<param area=\"false\" label=\"taxon of interest\".*#$(get_taxons)</conditional>#" "$fname/$fname.xml"
+			sed -i -e "s/\$\(rank\|taxon\)/\$taxon_cond.\1/" "$fname/$fname.xml"
+		fi
+		# make proper taxon and species conditional/select
+		if [ "$fname" == "checkm_unique" ]; then
+			sed -i -e "s#<outputs>#<outputs>\n    <data  name=\"output\" format=\"txt\" hidden=\"false\"/>#" $fname/$fname.xml
 		fi
 
 		# remove stdout redirection from all plot tools
@@ -257,8 +289,11 @@ do
 				echo "add $p to $fname"
 			done
 		fi
-		# replace call
-		sed -i -e 's/python checkm/checkm/' $fname/$fname.xml
+		# replace call from `python checkm` to `echo | checkm`
+		# the `echo |` deals with the cases where checkm guesses
+		# that the sequences are of the wrong type and asks 
+		# the user (see Limitations in README)
+		sed -i -e 's/python checkm/echo | checkm/' $fname/$fname.xml
 	else			# subcommands go to macros
 		sedcmd="/<tool id=\"$fname\"/,/<\/tool>/!d"
 		tokensedcmd="/<command><!\[CDATA\[python $fname/,/<\/command>/!d"

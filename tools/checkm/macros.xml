@@ -9,6 +9,7 @@
     <xml name="stdio">
         <stdio>
             <exit_code level="fatal" range="1:" description="Error"/>
+	    <regex match="Expected all files to contain sequences in" source="both" level="fatal" description="nt/aa sequences provided but aa/nt sequences expected"/>
         </stdio>
 
     </xml>

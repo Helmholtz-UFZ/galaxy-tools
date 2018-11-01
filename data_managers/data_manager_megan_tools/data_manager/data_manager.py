@@ -101,7 +101,6 @@ def main(fname, outjson):
     for filename in os.listdir(workdir):
         shutil.move(os.path.join(output_path, filename), target_directory)
     file(outjson, 'w').write(json.dumps(data_manager_json))
-    sys.stderr.write("%s\n"%(json.dumps(data_manager_json, indent=4)))
 
 
 if __name__ == '__main__':

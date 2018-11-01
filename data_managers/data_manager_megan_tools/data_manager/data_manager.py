@@ -47,7 +47,15 @@ FILE2TYPE = {
 }
 
 def url_download(fname, workdir):
-    file_path = os.path.join(workdir, 'download.dat')
+    """
+    download http://ab.inf.uni-tuebingen.de/data/software/megan6/download/FNAME
+    to workdir
+    and unzip zip file (not gz)
+    
+    return the name of the resulting file 
+           ie gz-file of extracted file in zip-file
+    """
+    file_path = os.path.join(workdir, fname)
     if not os.path.exists(workdir):
         os.makedirs(workdir)
     src = None
@@ -68,20 +76,22 @@ def url_download(fname, workdir):
     if zipfile.is_zipfile(file_path):
         fh = zipfile.ZipFile(file_path, 'r')
     else:
-        return
+        return fname
     fh.extractall(workdir)
     os.remove(file_path)
-
+    unzipped = os.listdir(workdir)
+    assert len(unzipped) == 1
+    return unzipped[0]
 
 def main(fname, outjson):
     workdir = os.path.join(os.getcwd(), 'megan_tools')
-    url_download(fname, workdir)
+    path = url_download(fname, workdir)
 
     data_manager_entry = {}
     data_manager_entry['value'] = fname.split(".")[0]
     data_manager_entry['name'] = FILE2NAME[fname]
     data_manager_entry['type'] = FILE2TYPE[fname]
-    data_manager_entry['path'] = '.'
+    data_manager_entry['path'] = path
 
     data_manager_json = dict(data_tables=dict(megan_tools=data_manager_entry))
 

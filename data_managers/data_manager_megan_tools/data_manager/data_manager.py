@@ -29,18 +29,18 @@ FILE2NAME = {
 }
 
 FILE2TYPE = {
-    "prot_acc2tax-June2018X1.abin.zip":"acc2tax",
-    "nucl_acc2tax-June2018.abin.zip":"acc2tax",
-    "acc2interpro-June2018X.abin.zip":"acc2interpro",
+    "prot_acc2tax-June2018X1.abin.zip":"acc2taxa",
+    "nucl_acc2tax-June2018.abin.zip":"acc2taxa",
+    "acc2interpro-June2018X.abin.zip":"acc2interpro2go",
     "acc2eggnog-Oct2016X.abin.zip":"acc2eggnog",
     "acc2seed-May2015XX.abin.zip":"acc2seed",
     "acc2kegg-Dec2017X1-ue.abin.zip":"acc2kegg",
     "SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz":"syn2taxa",
     "SSURef_NR99_128_tax_silva_to_NCBI_synonyms.map.gz":"syn2taxa",
-    "prot_gi2tax-Aug2016X.bin.zip":"gi2tax",
-    "nucl_gi2tax-Aug2016.bin.zip":"gi2tax",
+    "prot_gi2tax-Aug2016X.bin.zip":"gi2taxa",
+    "nucl_gi2tax-Aug2016.bin.zip":"gi2taxa",
     "gi2eggnog-June2016X.bin.zip":"gi2eggnog",
-    "gi2interpro-June2016X.bin.zip":"gi2interpro",
+    "gi2interpro-June2016X.bin.zip":"gi2interpro2go",
     "gi2seed-May2015X.bin.zip":"gi2seed-",
     "gi2kegg-Aug2016X-ue.bin.zip":"gi2kegg"
 }
@@ -91,7 +91,6 @@ def main(fname, outjson):
     data_manager_entry['name'] = FILE2NAME[fname]
     data_manager_entry['type'] = FILE2TYPE[fname]
     data_manager_entry['path'] = path
-    
     data_manager_json = dict(data_tables=dict(megan_tools=data_manager_entry))
 
     params = json.loads(open(outjson).read())

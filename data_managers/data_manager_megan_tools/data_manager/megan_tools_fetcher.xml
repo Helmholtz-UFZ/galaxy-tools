@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<tool id="megan_tools_fetcher" name="megan tools" tool_type="manage_data" version="1.0.0">
+    <description>Mapping files downloader</description>
+    <command detect_errors="exit_code">
+    <![CDATA[
+    python '$__tool_directory__/data_manager.py' 
+    --out '${out_file}'
+    --file '$type_cond.database_name'
+    ]]>
+    </command>
+    <inputs>
+        <conditional name="type_cond">
+            <param name="type_select" type="select" label="mapping type">
+                <option value="ncbi_current">Mapping files for current NCBI-nr protein database (not containing GI numbers)</option>
+                <option value="silva">Mapping file for working with the SILVA SSU database</option>
+                <option value="ncbi_deprecated">Deprecated mapping files for NCBI-nr protein database (releases until August 2016, containing GI numbers):</option>
+	    </param>
+            <when value="ncbi_current">
+                <param name="database_name" type="select" label="mapping data">
+                    <option value="prot_acc2tax-June2018X1.abin.zip">Protein accession to NCBI-taxonomy (June2018X1)</option>
+                    <option value="nucl_acc2tax-June2018.abin.zip">Nucleotide accession to NCBI-taxonomy (June2018)</option>
+                    <option value="acc2interpro-June2018X.abin.zip">Protein accession to InterPro (June2018X)</option>
+                    <option value="acc2eggnog-Oct2016X.abin.zip">Protein accession to eggNOG (Oct2016X)</option>
+                    <option value="acc2seed-May2015XX.abin.zip">Protein accession to SEED (May2015XX)</option>
+                    <option value="acc2kegg-Dec2017X1-ue.abin.zip">Protein accession to KEGG (Dec2017X1). Only for use with the Ultimate Edition of MEGAN.</option>
+                </param>
+            </when>
+            <when value="silva">
+                <param name="database_name" type="select" label="mapping data">
+                    <option value="SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz">SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz</option>
+                    <option value="SSURef_NR99_128_tax_silva_to_NCBI_synonyms.map.gz">SSURef_NR99_128_tax_silva_to_NCBI_synonyms.map.gz</option>
+                </param>
+            </when>
+            <when value="ncbi_deprecated">
+                <param name="database_name" type="select" label="mapping data">
+                    <option value="prot_gi2tax-Aug2016X.bin.zip">Protein accession to NCBI-taxonomy (Aug2016X)</option>
+                    <option value="nucl_gi2tax-Aug2016.bin.zip">Nucleotide accession to NCBI-taxonomy (Aug2016)</option>
+                    <option value="gi2eggnog-June2016X.bin.zip">Protein accession to InterPro (June2016X)</option>
+                    <option value="gi2interpro-June2016X.bin.zip">Protein accession to eggNOG (June2016X)</option>
+                    <option value="gi2seed-May2015X.bin.zip">Protein accession to SEED (May2015X)</option>
+                    <option value="gi2kegg-Aug2016X-ue.bin.zip">Protein accession to KEGG (Aug2016X). Only for use with the Ultimate Edition of MEGAN.</option>
+                </param>
+            </when>
+        </conditional>
+    </inputs>
+    <outputs>
+        <data name="out_file" format="data_manager_json" />
+    </outputs>
+    <tests>
+        <test>
+            <conditional name="type_cond">
+                <param name="type_select" value="silva"/>
+                <param name="database_name" value="SSURef_Nr99_132_tax_silva_to_NCBI_synonyms.map.gz"/>
+            </conditional>
+            <output name="out_file" file="SSURef_Nr99_132_tax_silva_to_NCBI_synonyms_json"/>
+        </test>
+    </tests>
+    <help>
+TODO
+    </help>
+</tool>
+

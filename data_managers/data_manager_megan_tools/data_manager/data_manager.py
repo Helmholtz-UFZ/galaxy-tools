@@ -1,9 +1,8 @@
 import argparse
-import datetime
 import json
 import os
 import shutil
-import tarfile
+import sys
 import zipfile
 try:
     # For Python 3.0 and later
@@ -92,7 +91,7 @@ def main(fname, outjson):
     data_manager_entry['name'] = FILE2NAME[fname]
     data_manager_entry['type'] = FILE2TYPE[fname]
     data_manager_entry['path'] = path
-
+    
     data_manager_json = dict(data_tables=dict(megan_tools=data_manager_entry))
 
     params = json.loads(open(outjson).read())
@@ -102,6 +101,7 @@ def main(fname, outjson):
     for filename in os.listdir(workdir):
         shutil.move(os.path.join(output_path, filename), target_directory)
     file(outjson, 'w').write(json.dumps(data_manager_json))
+    sys.stderr.write("%s\n"%(json.dumps(data_manager_json, indent=4)))
 
 
 if __name__ == '__main__':

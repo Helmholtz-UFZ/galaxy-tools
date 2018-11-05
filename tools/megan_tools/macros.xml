@@ -13,6 +13,198 @@
     </xml>
     <xml name="version_command">
         <version_command><![CDATA[./daa2rma |& grep version | sed 's/.*version \([0-9.]\+\),.*/\1/']]></version_command>
+</xml>
+    <token name="@CLASSIFICATION_UTILS@"><![CDATA[
+#def get_mapping($var, $category, $target)
+    #if $var.has_key($category+$target):
+        #set m=""
+        #if $var.has_key($category+$target+"_select") and $var[$category+$target+"_select"]=='indexed':
+            #if $var[$category+$target]
+               #set m=str($var[$category+$target].fields.path)
+            #end if
+        #else
+            #set m=str($var[$category+$target])
+        #end if
+        #if $m!="" and $m!=None and m!="None":
+            #return "--"+$category+$target+" "+$m
+        #end if
+    #else
+        #return ""
+    #end if
+#end def
+
+#def get_mapping_history_indexed($var, $category, $target):
+    #if $var.has_key( $category+$target+'_cond' ):
+        #return $get_mapping($var[$category+$target+'_cond'], $category, $target)
+    #else
+        #return $get_mapping($var, $category, $target)
+    #end if
+#end def
+
+#def get_mapping_acc_gi( $section, $category, $target ):
+    #if category in ['gi2','acc2'] and $section.has_key('acc_or_gi_cond'):
+        #return $get_mapping_history_indexed($section.acc_or_gi_cond, $category, $target)
+    #else:
+        #return $get_mapping_history_indexed($section, $category, $target)
+    #end if
+#end def
+    ]]></token>
+    <xml name="mapping" token_varname="myvar" token_label="mylabel">
+        <conditional name="@VARNAME@_cond">
+            <param name="@VARNAME@_select" type="select" label="@LABEL@"> 
+                <option value="indexed">Use a built-in mapping</option>
+                <option value="history">Use a mapping from the history</option>
+            </param>
+            <when value="indexed">
+                <param argument="--@VARNAME@" type="select" optional="true" label="mapping" >
+                    <options from_data_table="megan_tools">
+                        <filter type="static_value" column="2" value="@VARNAME@" keep="true"/>
+                    </options>
+                </param>
+            </when>
+            <when value="history">
+                <param argument="--@VARNAME@" type="data" format="tabular" optional="true" label="mapping" />
+            </when>
+        </conditional>
+    </xml>
+    <xml name="mappings_gi_acc_syn" token_target="mytarget" token_targetlabel="mytargetlabel">
+        <section  name="section_@TARGET@" title="@TARGETLABEL@ Mappings" expanded="false">
+            <conditional name="acc_or_gi_cond">
+                <param name="acc_or_gi_select" type="select" label="Mapping from GI/Accession" help="use GI for NR releases until August 2016, containing GI numbers"> 
+                    <option value="acc">Accession</option>
+                    <option value="gi">GI</option>
+                </param>
+                <when value="gi">
+                    <expand macro="mapping" varname="gi2@TARGET@" label="GI-to-@TARGETLABEL@ mapping"/>
+                </when>
+                <when value="acc">
+                    <expand macro="mapping" varname="acc2@TARGET@" label="Accession-to-@TARGETLABEL@ mapping"/>
+                </when>
+            </conditional>
+            <expand macro="mapping" varname="syn2@TARGET@" label="Synonyms-to-@TARGETLABEL@ mapping"/>
+            <yield/>
+        </section>
+    </xml>
+
+    <xml name="mappings_gi_acc_syn_tags" token_target="mytarget" token_targetlabel="mytargetlabel">
+        <expand macro="mappings_gi_acc_syn" target="@TARGET@" targetlabel="@TARGETLABEL@">
+            <param argument="--tags4@TARGET@" type="data" format="tabular" optional="true" label="Tags for @TARGETLABEL@ id parsing" help="(must set to activate id parsing)"/>
+        </expand>
+    </xml>
+
+    <token name="@MDF_CLI@"><![CDATA[
+#if $metaDataFile:
+    -mdf
+    #for $m in $metaDataFile
+        #if $m
+            '$m'
+        #end if
+    #end for
+#end if
+    ]]></token>
+    <xml name="mdf_macro">
+        <param argument="--metaDataFile" type="data" format="tabular" multiple="true" optional="true" label="Files containing metadata to be included in RMA6 files"/>
+    </xml>
+
+    <token name="@READS_CLI@"><![CDATA[
+## Reads  
+--paired $reads.paired
+--pairedSuffixLength $reads.pairedSuffixLength 
+    ]]></token>
+    <xml name="reads_macro">
+        <section name="reads" title="Reads Options" expanded="true">
+            <param argument="--paired" type="boolean" truevalue="true" falsevalue="false" checked="false" label="" />
+            <param argument="--pairedSuffixLength" type="integer" value="0" label="Length of name suffix used to distinguish names" help="i.e. first word in header) of read and its mate (use 0 if read and mate have same name" />
+            <yield/>
+        </section>
+    </xml>
+
+    <token name="@PARAMETERS_CLI@"><![CDATA[
+##Parameters  
+--longReads $params.longReads
+--classify $params.classify
+--minScore $params.minScore
+--maxExpected $params.maxExpected
+--minPercentIdentity $params.minPercentIdentity
+--topPercent $params.topPercent
+--minSupportPercent $params.minSupportPercent
+--minSupport $params.minSupport
+--minPercentReadCover $params.minPercentReadCover
+--minPercentReferenceCover $params.minPercentReferenceCover
+--lcaAlgorithm $params.lcaAlgorithm
+--lcaCoveragePercent $params.lcaCoveragePercent
+--readAssignmentMode $params.readAssignmentMode
+#if $params.conFile:
+    --conFile '$params.conFile'
+#end if
+    ]]></token>
+    <xml name="params_macro">
+        <section name="params" title="Parameters" expanded="true">
+            <param argument="--longReads" type="boolean" truevalue="true" falsevalue="false" checked="false" label="Parse and analyse as long reads" />
+            <yield/>
+            <param argument="--classify" type="boolean" truevalue="true" falsevalue="false" checked="true" label="Run classification algorithm" />
+            <param argument="--minScore" type="float" value="50.0" label="Min score" />
+            <param argument="--maxExpected" type="float" value="0.01" label="Max expected" />
+            <param argument="--minPercentIdentity" type="float" value="0.00" label="Min percent identity" />
+            <param argument="--topPercent" type="float" value="10.0" label="Top percent" />
+            <param argument="--minSupportPercent" type="float" value="0.05" label="Min support as percent of assigned reads (0==off)" />
+            <param argument="--minSupport" type="integer" value="0" label="Min support (0==off)" />
+            <param argument="--minPercentReadCover" type="float" value="0.0" label="Min percent of read length to be covered by alignments" />
+            <param argument="--minPercentReferenceCover" type="float" value="0.0" label="Min percent of reference length to be covered by alignments" />
+            <param argument="--lcaAlgorithm" type="select" label="LCA algorithm to use for taxonomic assignment">
+                <option value="naive" selected="true">naive</option>
+                <option value="weighted">weighted</option>
+                <option value="longReads">longReads</option>
+            </param>
+            <param argument="--lcaCoveragePercent" type="float" value="100.0" min="0.0" max="100.0" label="Set the percent for the LCA to cover" />
+            <param argument="--readAssignmentMode" type="select" label="Read assignment mode">
+                <option value="readCount" selected="true">readCount</option>
+                <option value="readLength">readLength</option>
+                <option value="alignedBases">alignedBases</option>
+                <option value="readMagnitude">readMagnitude</option>
+            </param>
+            <param argument="--conFile" type="data" format="tabular" optional="true" label="File of contaminant taxa" help="one Id or name per line"/>
+        </section>
+    </xml>
+
+    <token name="@CLASSIFICATION_CLI@"><![CDATA[
+##Classification support:
+--parseTaxonNames $classification.parseTaxonNames
+#for $cat in $CATEGORIES:
+    #for $target in $TARGETS
+        $get_mapping_acc_gi( $classification['section_'+$target], $cat, $target )
+    #end for
+#end for
+    ]]></token>
+    <xml name="classification_macro">
+        <section name="classification" title="Classification support options" expanded="true">
+            <param argument="--parseTaxonNames" type="boolean" truevalue="true" falsevalue="false" checked="true" label="Parse taxon names" />
+
+            <expand macro="mappings_gi_acc_syn" target="taxa" targetlabel="Taxonomy"/>
+            <expand macro="mappings_gi_acc_syn_tags" target="eggnog" targetlabel="EGGNOG"/>
+            <expand macro="mappings_gi_acc_syn_tags" target="interpro2go" targetlabel="INTERPRO2GO"/>
+            <expand macro="mappings_gi_acc_syn_tags" target="seed" targetlabel="SEED"/>
+            <expand macro="mappings_gi_acc_syn_tags" target="kegg" targetlabel="KEGG"/>
+        </section>
+    </xml>
+    
+    <token name="@OTHER_CLI@"><![CDATA[
+##Other:
+--firstWordIsAccession $other.firstWordIsAccession
+#if len($other.accessionTags)>0:
+    --accessionTags 
+    #for $i, $s in enumerate($other.accessionTags)
+        '$s.tag'
+    #end for
+#end if
+    ]]></token>
+    <xml name="other_macro">
+        <section name="other" title="Other options" expanded="true">
+            <param argument="--firstWordIsAccession" type="boolean" truevalue="true" falsevalue="false" checked="true" label="First word in reference header is accession number" help="enable for NCBI-nr downloaded Sep 2016 or later" />
+            <repeat name="accessionTags" title="List of accession tags" min="0" default="0" help="Default value(s): gb| ref|.">
+                <param name="tag" type="text" label="Accession tag"/>
+            </repeat>
+        </section>
     </xml>
     <xml name="citations">
         <citations>

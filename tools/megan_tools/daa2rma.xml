@@ -7,188 +7,58 @@
     <expand macro="stdio"/>
     <expand macro="version_command"/>
     <command detect_errors="aggressive"><![CDATA[
+@CLASSIFICATION_UTILS@
+
+#set CATEGORIES=['gi2', 'acc2', 'syn2', 'tags4']
+#set TARGETS=['taxa', 'eggnog', 'interpro2go', 'seed', 'kegg']
+
+ln -s $in input.daa &&
 daa2rma
-
-## input 
--i '$in'
-#if $metaDataFile:
-    -mdf
-    #for $m in $metaDataFile
-        #if $m
-            '$m'
-        #end if
-    #end for
-#end if
-
-## Output  
+-i input.daa
 -o '$rma'
 
-## Reads  
---paired $reads.paired
---pairedSuffixLength $reads.pairedSuffixLength 
+@MDF_CLI@
+@READS_CLI@
 --pairedReadsInOneFile $reads.pairedReadsInOneFile
-
-##Parameters  
---longReads $params.longReads
+@PARAMETERS_CLI@
 --maxMatchesPerRead $params.maxMatchesPerRead
---classify $params.classify
---minScore $params.minScore
---maxExpected $params.maxExpected
---minPercentIdentity $params.minPercentIdentity
---topPercent $params.topPercent
---minSupportPercent $params.minSupportPercent
---minSupport $params.minSupport
---minPercentReadCover $params.minPercentReadCover
---minPercentReferenceCover $params.minPercentReferenceCover
---lcaAlgorithm $params.lcaAlgorithm
---lcaCoveragePercent $params.lcaCoveragePercent
---readAssignmentMode $params.readAssignmentMode
-#if $params.conFile:
-    --conFile '$params.conFile'
-#end if
-
-##Classification support:
---parseTaxonNames $parseTaxonNames
-#if $gi2taxa
-    --gi2taxa $gi2taxa
-#end if
-#if $acc2taxa
-    --acc2taxa $acc2taxa
-#end if
-#if $syn2taxa
-    --syn2taxa $syn2taxa
-#end if
-#if $gi2eggnog
-    --gi2eggnog $gi2eggnog
-#end if
-#if $acc2eggnog
-    --acc2eggnog $acc2eggnog
-#end if
-#if $syn2eggnog
-    --syn2eggnog $syn2eggnog
-#end if
-#if $tags4eggnog
-    --tags4eggnog $tags4eggnog
-#end if
-#if $gi2interpro2go
-    --gi2interpro2go $gi2interpro2go
-#end if
-#if $acc2interpro2go
-    --acc2interpro2go $acc2interpro2go
-#end if
-#if $syn2interpro2go
-    --syn2interpro2go $syn2interpro2go
-#end if
-#if $tags4interpro2go
-    --tags4interpro2go $tags4interpro2go
-#end if
-#if $gi2kegg
-    --gi2kegg $gi2kegg
-#end if
-#if $acc2kegg
-    --acc2kegg $acc2kegg
-#end if
-#if $syn2kegg
-    --syn2kegg $syn2kegg
-#end if
-#if $tags4kegg
-    --tags4kegg $tags4kegg
-#end if
-#if $gi2seed
-    --gi2seed $gi2seed
-#end if
-#if $acc2seed
-    --acc2seed $acc2seed
-#end if
-#if $syn2seed
-    --syn2seed $syn2seed
-#end if
-#if $tags4seed
-    --tags4seed $tags4seed
-#end if
-
-##Other:
---firstWordIsAccession $firstWordIsAccession
-#if len($accessionTags)>0:
-    --accessionTags 
-    #for $i, $s in enumerate($accessionTags)
-        '$s.tag'
-    #end for
-#end if
+@CLASSIFICATION_CLI@
+@OTHER_CLI@
     ]]></command>
     <inputs>
         <param argument="--in" type="data" format="daa" label="Input DAA file"/>
-        <param argument="--metaDataFile" type="data" format="rmf" multiple="true" optional="true" label="Files containing metadata to be included in RMA6 files"/>
-	<section name="reads" title="Reads Options" expanded="true">
-            <param argument="--paired" type="boolean" truevalue="true" falsevalue="false" checked="false" label="" />
-            <param argument="--pairedSuffixLength" type="integer" value="0" label="Length of name suffix used to distinguish names" help="i.e. first word in header) of read and its mate (use 0 if read and mate have same name" />
-	    <param argument="--pairedReadsInOneFile" type="boolean" truevalue="true" falsevalue="false" checked="false" label="Paired reads in one file" help="usually they are in two" />
-	</section>
-	<section name="params" title="Parameters" expanded="true">
-	    <param argument="--longReads" type="boolean" truevalue="true" falsevalue="false" checked="false" label="Parse and analyse as long reads" />
+        <expand macro="mdf_macro"/>
+        <expand macro="reads_macro">
+            <param argument="--pairedReadsInOneFile" type="boolean" truevalue="true" falsevalue="false" checked="false" label="Paired reads in one file" help="usually they are in two" />
+        </expand>
+        <expand macro="params_macro">
             <param argument="--maxMatchesPerRead" type="integer" value="100" label="Max matches per read" />
-	    <param argument="--classify" type="boolean" truevalue="true" falsevalue="false" checked="true" label="Run classification algorithm" />
-            <param argument="--minScore" type="float" value="50.0" label="Min score" />
-            <param argument="--maxExpected" type="float" value="0.01" label="Max expected" />
-            <param argument="--minPercentIdentity" type="float" value="0.00" label="Min percent identity" />
-            <param argument="--topPercent" type="float" value="10.0" label="Top percent" />
-            <param argument="--minSupportPercent" type="float" value="0.05" label="Min support as percent of assigned reads (0==off)" />
-            <param argument="--minSupport" type="integer" value="0" label="Min support (0==off)" />
-            <param argument="--minPercentReadCover" type="float" value="0.0" label="Min percent of read length to be covered by alignments" />
-            <param argument="--minPercentReferenceCover" type="float" value="0.0" label="Min percent of reference length to be covered by alignments" />
-            <param argument="--lcaAlgorithm" type="select" label="LCA algorithm to use for taxonomic assignment">
-                <option value="naive" selected="true">naive</option>
-                <option value="weighted">weighted</option>
-                <option value="longReads">longReads</option>
-            </param>
-            <param argument="--readAssignmentMode" type="select" label="Read assignment mode">
-                <option value="readCount" selected="true">readCount</option>
-                <option value="readLength">readLength</option>
-                <option value="alignedBases">alignedBases</option>
-                <option value="readMagnitude">readMagnitude</option>
-            </param>
-            <param argument="--conFile" type="data" format="tabular" optional="true" label="File of contaminant taxa" help="one Id or name per line"/>
-	</section>
-	<section name="class" title="Classification support options" expanded="true">
-	    <param argument="" type="boolean" truevalue="true" falsevalue="false" checked="true" label="Parse taxon names" />
-            <param argument="--gi2taxa" type="data" format="" optional="true" label="GI-to-Taxonomy mapping" />
-            <param argument="--acc2taxa" type="data" format="" optional="true" label="Accession-to-Taxonomy mapping" />
-            <param argument="--syn2taxa" type="data" format="" optional="true" label="Synonyms-to-Taxonomy mapping" />
-            <param argument="--gi2eggnog" type="data" format="" optional="true" label="GI-to-EGGNOG mapping" />
-            <param argument="--acc2eggnog" type="data" format="" optional="true" label="Accession-to-EGGNOG mapping" />
-            <param argument="--syn2eggnog" type="data" format="" optional="true" label="Synonyms-to-EGGNOG mapping" />
-            <param argument="--tags4eggnog" type="data" format="" optional="true" label="Tags for EGGNOG id parsing (must set to activate id parsing)" />
-            <param argument="--gi2interpro2go" type="data" format="" optional="true" label="GI-to-INTERPRO2GO mapping" />
-            <param argument="--acc2interpro2go" type="data" format="" optional="true" label="Accession-to-INTERPRO2GO mapping" />
-            <param argument="--syn2interpro2go" type="data" format="" optional="true" label="Synonyms-to-INTERPRO2GO mapping" />
-            <param argument="--tags4interpro2go" type="data" format="" optional="true" label="Tags for INTERPRO2GO id parsing" />
-            <param argument="--gi2kegg" type="data" format="" optional="true" label="GI-to-KEGG mapping" />
-            <param argument="--acc2kegg" type="data" format="" optional="true" label="Accession-to-KEGG mapping" />
-            <param argument="--syn2kegg" type="data" format="" optional="true" label="Synonyms-to-KEGG mapping" />
-            <param argument="--tags4kegg" type="data" format="" optional="true" label="Tags for KEGG id parsing (must set to activate id parsing)" />
-            <param argument="--gi2seed" type="data" format="" optional="true" label="GI-to-SEED mapping" />
-            <param argument="--acc2seed" type="data" format="" optional="true" label="Accession-to-SEED mapping" />
-            <param argument="--syn2seed" type="data" format="" optional="true" label="Synonyms-to-SEED mapping" />
-            <param argument="--tags4seed" type="data" format="" optional="true" label="Tags for SEED id parsing (must set to activate id parsing)" />
-	</section>
-	<section name="other" title="Other options" expanded="true">
-	    <param argument="--firstWordIsAccession" type="boolean" truevalue="true" falsevalue="false" checked="true" label="First word in reference header is accession number" help="enable for NCBI-nr downloaded Sep 2016 or later" />
-            <repeat name="accessionTags" title="List of accession tags" min="0" default="0" help="Default value(s): gb| ref|.">
-                <param name="tag" type="text" label="Accession tag"/>
-            </repeat>
-	</section>
+        </expand>
+        <expand macro="classification_macro"/>
+        <expand macro="other_macro"/>
     </inputs>
     <outputs>
-        <data name="rma" format="rma" label="${tool.name} on ${on_string}"/>
+        <data name="rma" format="rma6" label="${tool.name} on ${on_string}"/>
     </outputs>
     <tests>
         <test>
             <param name="in" ftype="daa" value="diamond_results.daa"/>
-            <output name="rma" ftype="rma" value="diamond_results.rma" />
-	</test>
+            <output name="rma" ftype="rma6" value="diamond_results.rma" />
+       </test>
     </tests>
     <help><![CDATA[
-	    Compute a MEGAN rma6 file from a DIAMOND daa file
+Compute a MEGAN RMA6 file from a DIAMOND DAA file
+
+**Input**
+
+- DAA file
+- metadata mapping file (as defined in http://qiime.org/documentation/file_formats.html
+- BIOM 1 format (see http://biom-format.org/documentation/format-versions/biom-1.0.html
+
+**Output**
+
+- RMA6 file
+
     ]]></help>
     <expand macro="citations"/>
 </tool>

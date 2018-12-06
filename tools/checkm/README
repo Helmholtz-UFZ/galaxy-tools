@@ -9,7 +9,27 @@ Currently this has been tested only for a few tools:
 - checkm_lineage_wf
 
 Feel free to extend the prepare.sh script to get also the other tools 
-functional. 
+functional.
+
+Limitations: 
+============
+
+Checkm accepts nucleotide or aminoacid sequences. For the latter `--gene`
+needs to be added. 
+
+Currently checkm checks of the sequences are are really nucleotide or 
+aminoacid sequences, respectively, and asks the user if the choice is 
+correct. This seems to affect tree, analyze, merge
+
+https://github.com/Ecogenomics/CheckM/issues/171
+
+As a workaround the Galaxy wrappers do `echo | checkm ...`, ie one 
+enter (which triggers the default answer) is presented to checkm. 
+This aborts the program, but no negative exit code results (ie the 
+result woul look positive .. but it is not). This is covered via 
+stdio regex.
+
+At least this way check finishes.
 
 Reference data initialisation:
 ==============================

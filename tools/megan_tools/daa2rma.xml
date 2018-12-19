@@ -43,7 +43,7 @@ daa2rma
     <tests>
         <test>
             <param name="in" ftype="daa" value="diamond_results.daa"/>
-            <output name="rma" ftype="rma6" value="diamond_results.rma" />
+            <output name="rma" ftype="rma6" value="diamond_results.rma" compare="sim_size" />
        </test>
     </tests>
     <help><![CDATA[

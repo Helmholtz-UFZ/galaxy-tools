@@ -9,7 +9,7 @@
     <xml name="stdio">
         <stdio>
             <exit_code level="fatal" range="1:" description="Error"/>
-            <regex match="There is insufficient memory for the Java Runtime Environment" source="stdio" level="fatal_oom" description="Out of memory" />
+            <regex match="There is insufficient memory for the Java Runtime Environment" source="stdout" level="fatal_oom" description="Out of memory" />
     </stdio>
     </xml>
     <xml name="version_command">

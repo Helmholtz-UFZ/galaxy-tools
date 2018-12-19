@@ -41,7 +41,7 @@ daa-meganizer
     <tests>
         <test>
             <param name="in" ftype="daa" value="diamond_results.daa"/>
-            <output name="output" ftype="daa" value="diamond_results_meganized.daa" />
+            <output name="output" ftype="daa" value="diamond_results_meganized.daa" compare="sim_size" />
        </test>
     </tests>
     <help><![CDATA[

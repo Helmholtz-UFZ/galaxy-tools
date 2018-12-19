@@ -9,7 +9,8 @@
     <xml name="stdio">
         <stdio>
             <exit_code level="fatal" range="1:" description="Error"/>
-        </stdio>
+            <regex match="There is insufficient memory for the Java Runtime Environment" source="stdio" level="fatal_oom" description="Out of memory" />
+    </stdio>
     </xml>
     <xml name="version_command">
         <version_command><![CDATA[./daa2rma |& grep version | sed 's/.*version \([0-9.]\+\),.*/\1/']]></version_command>

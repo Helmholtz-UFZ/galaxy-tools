@@ -1,4 +1,4 @@
-<tool id="daa2rma" name="daa2rma" version="2.2.4">
+<tool id="daa2rma" name="daa2rma" version="@TOOL_VERSION@" profile="19.01">
     <description>Compute a MEGAN rma6 file from a DIAMOND daa file</description>
     <macros>
         <import>macros.xml</import>

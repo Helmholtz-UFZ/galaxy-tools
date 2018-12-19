@@ -1,4 +1,4 @@
-<tool id="daa_meganizer" name="daa-meganizer" version="2.2.4" profile="18.09">
+<tool id="daa_meganizer" name="daa-meganizer" version="@TOOL_VERSION@" profile="18.09">
     <description>Prepare DIAMOND daa file for use with MEGAN</description>
     <macros>
         <import>macros.xml</import>

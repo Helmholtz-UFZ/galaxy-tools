@@ -1,0 +1,56 @@
+<tool id="dada2_plotQualityProfile" name="dada2: plotQualityProfile" version="@DADA2_VERSION@">
+    <description>plot a visual summary of the quality scores</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements"/>
+    <command detect_errors="exit_code"><![CDATA[
+        Rscript --slave '$dada2_script'
+    ]]></command>
+    <configfiles>
+        <configfile name="dada2_script"><![CDATA[
+files = c()
+#if $mode_cond.mode_select == "TRUE"
+    #for $read in $mode_cond.reads:
+        files = c(files, '$read')
+    #end for
+#else
+    files = c(files, '$mode_cond.reads')
+#end if
+
+library(ggplot2, quietly=T)
+library(dada2, quietly=T)
+
+qp <- plotQualityProfile(files,
+#if str($n) != ""
+    n=$n, 
+#end if
+    aggregate = $mode_cond.mode_select)
+
+ggsave('output.pdf', qp, width = 20,height = 15,units = c("cm"))
+    ]]></configfile>
+    </configfiles>
+    <inputs>
+        <conditional name="mode_cond">
+            <param name="mode_select" type="select" label="Aggregate data" help="Create a single plot for all data sets (default) or a separate plot for each data set">
+                <option value="TRUE">yes</option>
+                <option value="FALSE">no</option>
+            </param>
+            <when value="TRUE">
+                <param name="reads" type="data" multiple="true" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
+            </when>
+            <when value="FALSE">
+                <param name="reads" type="data" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
+            </when>
+        </conditional>
+        <param name="n" type="integer" optional="true" label="sample number" help="number of records to sample from the fastq file (default 500.000)"/>
+    </inputs>
+    <outputs>
+        <data name="output" format="pdf" from_work_dir="output.pdf"/>
+    </outputs>
+
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

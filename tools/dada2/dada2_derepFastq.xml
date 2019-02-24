@@ -1,0 +1,29 @@
+<tool id="dada2_derepFastq" name="dada2: derepFastq" version="@DADA2_VERSION@">
+    <description>dereplicate amplicon sequences</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements"/>
+    <command detect_errors="exit_code"><![CDATA[
+    Rscript '$dada2_script'
+    ]]></command>
+    <configfiles>
+        <configfile name="dada2_script"><![CDATA[
+library(dada2, quietly=T)
+
+derep <- derepFastq('$reads')
+saveRDS(derep, file='$derep')
+    ]]></configfile>
+    </configfiles>
+    <inputs>
+        <param name="reads" type="data" format="fastqsanger,fastqsanger.gz" label="Short read data" />
+    </inputs>
+    <outputs>
+        <data name="derep" format="rdata" label="${tool.name} on ${on_string}"/>
+    </outputs>
+
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

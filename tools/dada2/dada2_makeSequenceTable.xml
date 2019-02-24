@@ -1,0 +1,39 @@
+<tool id="dada2_makeSequenceTable" name="dada2: makeSequenceTable" version="@DADA2_VERSION@">
+    <description>construct a sequence table (analogous to OTU table)</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements"/>
+    <command detect_errors="exit_code"><![CDATA[
+    Rscript '$dada2_script'
+    ]]></command>
+    <configfiles>
+        <configfile name="dada2_script"><![CDATA[
+library(dada2, quietly=T)
+
+samples <- list()
+#for $s in $samples:
+samples[[length(samples)+1]] <- readRDS('$s')
+#end for
+
+st <- makeSequenceTable(samples, orderBy = "$orderby")
+saveRDS(st, file='$stable')
+##write.table(st, "$stable", quote=F, sep="\t")
+    ]]></configfile>
+    </configfiles>
+    <inputs>
+        <param name="samples" type="data" multiple="true" format="rdata" label="samples" />
+        <param name="orderby" type="select" label="Column order">
+            <option value="abundance">abundance</option>
+            <option value="nsamples">nsamples</option>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="stable" format="rdata" label="${tool.name} on ${on_string}"/>
+    </outputs>
+
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

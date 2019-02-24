@@ -1,0 +1,37 @@
+<tool id="dada2_removeBimeraDenovo" name="dada2: removeBimeraDenovo" version="@DADA2_VERSION@">
+    <description>Remove bimeras from collections of unique sequences</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements"/>
+    <command detect_errors="exit_code"><![CDATA[
+    Rscript '$dada2_script'
+    ]]></command>
+    <configfiles>
+        <configfile name="dada2_script"><![CDATA[
+library(dada2, quietly=T)
+
+unqs <- readRDS('$unqs')
+st <- removeBimeraDenovo(unqs, method = "$method")
+saveRDS(st, file='$stable')
+
+print( paste( "remaining nonchimeric: ",  100*sum(st)/sum(unqs), "%" ))
+##write.table(st, "$stable", quote=F, sep="\t")
+    ]]></configfile>
+    </configfiles>
+    <inputs>
+        <param name="unqs" type="data" format="rdata" label="sequence table" help=""/>
+        <param name="method" type="select" label="Method">
+            <option value="consensus">check samples independently for bimeras and make a consensus decision on each sequence variant</option>
+            <option value="pooled">pool samples for bimera identification</option>
+            <option value="per-sample">check samples independently for bimeras and remove (0-out) sequence variants from samples independently</option>
+        </param>
+   </inputs>
+    <outputs>
+        <data name="stable" format="rdata" label="${tool.name} on ${on_string}"/>
+    </outputs>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

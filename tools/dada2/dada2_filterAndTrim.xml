@@ -1,0 +1,123 @@
+<tool id="dada2_filterAndTrim" name="dada2: filterAndTrim" version="@DADA2_VERSION@">
+    <description>Filters and trims an short read data</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements"/>
+    <command detect_errors="exit_code"><![CDATA[
+#if $paired_cond.paired_select == "TRUE"
+    ln -s '$paired_cond.reads.forward' forward &&
+    ln -s '$paired_cond.reads.reverse' reverse &&
+#else
+    ln -s '$paired_cond.reads' forward &&
+#end if
+Rscript '$dada2_script'
+sed -i '1!b;s/^/#dataset/' $outtab
+    ]]></command>
+    <configfiles>
+        <configfile name="dada2_script"><![CDATA[
+truncQ <- c($truncQ)
+truncLen <- c($truncLen)
+trimLeft <- c($trimLeft)
+trimRight <- c($trimRight)
+#if str($maxLen) == ""
+    maxLen <- c(Inf)
+#else:
+    maxLen <- c($maxLen)
+#end if
+minLen <- c($minLen)
+maxN <- c($maxN)
+minQ <- c($minQ)
+#if str($maxEE) == ""
+    maxEE <- c(Inf)
+#else:
+    maxEE <- c($maxEE)
+#end if
+#if $paired_cond.paired_select == "TRUE" and $seprev_cond.seprev_select == "yes"
+    truncQ <- c(truncQ,$seprev_cond.truncQ)
+    truncLen <- c(truncLen,$seprev_cond.truncLen)
+    trimLeft <- c(trimLeft,$seprev_cond.trimLeft)
+    trimRight <- c(trimRight,$seprev_cond.trimRight)
+    #if str($seprev_cond.maxLen) == ""
+        maxLen <- c(maxLen,Inf)
+    #else:
+        maxLen <- c(maxLen,$seprev_cond.maxLen)
+    #end if
+    minLen <- c(minLen,$seprev_cond.minLen)
+    maxN <- c(maxN,$seprev_cond.maxN)
+    minQ <- c(minQ,$seprev_cond.minQ)
+    #if str($seprev_cond.maxEE) == ""
+        maxEE <- c(maxEE,Inf)
+    #else:
+        maxEE <- c(maxEE,$seprev_cond.maxEE)
+    #end if
+#end if
+
+#if $paired_cond.paired_select == "TRUE"
+    fwd = 'forward'
+    rev = 'reverse'
+#else
+    fwd = 'forward'
+#end if
+
+library(dada2, quietly=T)
+
+ftout <- filterAndTrim(c(fwd), c('filt_forward.fastq.gz'), 
+#if $paired_cond.paired_select == "TRUE"
+    rev = c(rev), filt.rev = c('filt_reverse.fastq.gz'), 
+#end if
+    compress = TRUE,
+    truncQ = truncQ, truncLen = truncLen, trimLeft = trimLeft, trimRight = trimRight, maxLen = maxLen,
+    minLen = minLen, maxN = maxN, minQ = minQ, maxEE = maxEE, rm.phix = $rmPhiX, orient.fwd = '$orientFwd')
+    
+rownames(ftout) <- c( '$paired_cond.reads.element_identifier' )
+
+write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
+    ]]></configfile>
+    </configfiles>
+    <inputs>
+        <conditional name="paired_cond">
+            <param name="paired_select" type="select" label="Paired reads">
+                <option value="TRUE">yes</option>
+                <option value="FALSE">no</option>
+            </param>
+            <when value="TRUE">
+                <param name="reads" type="data_collection" collection_type="paired" format="fastqsanger,fastqsanger.gz" label="Paired short read data"/>
+            </when>
+            <when value="FALSE">
+                <param name="reads" type="data" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
+            </when>
+        </conditional>
+        <expand macro="trimmers"/>
+        <expand macro="filters"/>
+        <conditional name="seprev_cond">
+		<param name="seprev_select" type="select" label="Separate filters and trimmers for reverse reads" help="only applies to paired end data">
+			<option value="no">no</option>
+			<option value="yes">yes</option>
+		</param>
+		<when value="no"/>
+		<when value="yes">
+                    <expand macro="trimmers"/>
+                    <expand macro="filters"/>
+		</when> 
+        </conditional>
+        <param name="rmPhiX" truevalue="TRUE" falsevalue="FALSE" type="boolean" checked="true" label="Discard reads matching PhiX" />
+        <param name="orientFwd" type="text" value="" optional="true" label="String present at the start of valid reads" />
+    </inputs>
+    <outputs>
+        <collection name="paired_output" type="paired">
+            <data name="forward" format="fastqsanger.gz" from_work_dir="filt_forward.fastq.gz" />
+            <data name="reverse" format="fastqsanger.gz" from_work_dir="filt_reverse.fastq.gz" />
+	    <filter>paired_cond['paired_select'] == 'TRUE'</filter>
+        </collection>   
+	<data name="output" format="fastqsanger.gz" from_work_dir="filt_forward.fastq.gz">
+	    <filter>paired_cond['paired_select'] == 'FALSE'</filter>
+        </data>
+	<data name="outtab" format="tabular" label="${tool.name} on ${on_string}: Statistics"/>
+    </outputs>
+
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

@@ -1,0 +1,61 @@
+<tool id="dada2_learnErrors" name="dada2: learnErrors" version="@DADA2_VERSION@">
+    <description>Learn Error rates</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements"/>
+    <command detect_errors="exit_code"><![CDATA[
+    #for $read in $reads:
+        ln -s '$read' '$read.element_identifier' &&
+    #end for
+    Rscript '$dada2_script' \${GALAXY_SLOTS:-1}
+    ]]></command>
+    <configfiles>
+        <configfile name="dada2_script"><![CDATA[
+library(ggplot2, quietly=T)
+library(dada2, quietly=T)
+
+args <- commandArgs(trailingOnly = TRUE)
+nthreads <- args[1]
+
+files <- c()
+#for $read in $reads:
+files <- c(files, '$read.element_identifier')
+#end for
+
+err <- learnErrors(files, nbases = 10**$nbases, 
+           errorEstimationFunction = $advanced.errfoo, multithread = nthreads,
+           randomize = $advanced.randomize, MAX_CONSIST = $advanced.maxconsist, OMEGA_C = $advanced.omegac)
+saveRDS(err, file='$errors')
+
+plot <- plotErrors(err, obs = $plotopt.obs, err_out = $plotopt.errout, err_in = $plotopt.errin, nominalQ = $plotopt.nominalQ)
+ggsave('output.pdf', plot, width = 20,height = 15,units = c("cm"))
+    ]]></configfile>
+    </configfiles>
+    <inputs>
+        <param name="reads" type="data" multiple="true" format="fastqsanger,fastqsanger.gz" label="Short read data" help="forward or reverse reads should be processed separately"/>
+	<param name="nbases" type="integer" value="8" min="0" label="Magnitide of number of bases to use for learning" help=""/>
+        <section name="advanced" title="Advanced Option">
+		<expand macro="errorEstimationFunction"/>
+		<param name="randomize" type="boolean" checked="false" truevalue="TRUE" falsevalue="FALSE" label="randomize samples"/>
+            <param name="maxconsist" type="integer" value="10" min="0" label="maximum number of times to step through the selfconsistency loop" help=""/>
+	    <param name="omegac" type="integer" value="0" min="0" label="threshold at which unique sequences inferred to contain errors are corrected" help=""/>
+	</section>
+        <section name="plotopt" title="Plotting Option">
+		<param name="obs" type="boolean" checked="true" truevalue="TRUE" falsevalue="FALSE" label="plot observed error rates"/>
+		<param name="errout" type="boolean" checked="true" truevalue="TRUE" falsevalue="FALSE" label="plot output error rates"/>
+		<param name="errin" type="boolean" checked="false" truevalue="TRUE" falsevalue="FALSE" label="plot input error rates"/>
+		<param name="nominalQ" type="boolean" checked="true" truevalue="TRUE" falsevalue="FALSE" label="plot observed error rates"/>
+	</section>
+
+    </inputs>
+    <outputs>
+        <data name="errors" format="rdata" label="${tool.name} on ${on_string}"/>
+        <data name="output" format="pdf" from_work_dir="output.pdf" label="${tool.name} on ${on_string}: error rates plot"/>
+    </outputs>
+
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

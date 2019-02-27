@@ -1,9 +1,7 @@
 TODO
 ====
 
-In both cases: 
 
-* allow input of single end data, single pair, single pair in separate data sets, ...
 
 If we make a monolithic tool: 
 
@@ -12,3 +10,91 @@ If we make a monolithic tool:
 If we keep separate tools: 
 
 - make Rdata data types specific (like xmcs https://github.com/workflow4metabolomics/xcms/tree/dev/datatypes)
+* alternatively the data set types could be derived from tabular and the Rdata could be attached via
+  `.extra_files_path` this way the user could have some intermediate output that he could look at.
+
+
+In both cases: 
+
+* allow input of single end data, single pair, single pair in separate data sets, ...
+* add mergePairsByID functionality to mergePairs tool
+
+Tools: 
+======
+
+• Quality filtering 
+  
+  filterAndTrim IO=(fastq -> fastq) 
+
+• Dereplication 
+
+  derepFastq (fastq -> derep-class object)
+
+• Learn error rates 
+
+  learnErrors + plotErrors
+    in: input list, or vector, of file names (or a list of derep-class objects WHY .. learning should be done on full data) 
+    out: named list w entries 
+      - \$err\_out: A numeric matrix with the learned error rates. 
+      - \$err\_in: The initialization error rates (unimportant). 
+      - \$trans: A feature table of observed transitions for each type (eg. A->C) and quality score
+
+• Sample Inference (dada)
+   in: (list of) derep-class object
+   out: (list of) dada-class object 
+
+• Chimera Removal 
+
+  removeBimeraDenovo
+
+  in: A uniques-vector or any object that can be coerced into one with getUniques.
+  out: A uniques vector, or an object of matching class if a data.frame or sequence table is provided
+
+• Merging of Paired Reads 
+
+  mergePairs
+   in: 2x dada-class object(s), 2x derep-class object(s)
+   out: A data.frame, or a list of data.frames.
+     - The return data.frame(s) has a row for each unique pairing of forward/reverse denoised sequences,
+     - cols
+       • \$abundance: Number of reads corresponding to this forward/reverse combination.
+       • \$sequence: The merged sequence.
+       • \$forward: The index of the forward denoised sequence.
+       • \$reverse: The index of the reverse denoised sequence.
+       • \$nmatch: Number of matches nts in the overlap region.
+       • \$nmismatch: Number of mismatches in the overlap region.
+       • \$nindel: Number of indels in the overlap region.
+       • \$prefer: The sequence used for the overlap region. 1=forward; 2=reverse.
+       • \$accept: TRUE if overlap between forward and reverse denoised sequences was at least minOverlap and had at most maxMismatch differences. FALSE otherwise.
+       • \$...: Additional columns specified in propagateCol.
+
+• Taxonomic Classification (assignTaxonomy, assignSpecies)
+
+* Other 
+
+  makeSequenceTable
+   in A list of the samples to include in the sequence table. Samples can be provided in any format that can be processed by getUniques
+   out Named integer matrix (row for each sample, column for each unique sequence)
+
+  mergeSequenceTables
+
+  uniquesToFasta
+  in: A uniques-vector or any object that can be coerced into one with getUniques.
+  
+  getSequences
+
+  extracts the sequences from several different data objects: including including dada-class
+  and derep-class objects, as well as data.frame objects that have both $sequence and $abun-
+  dance columns.
+
+  getUniques
+
+  extracts the uniques-vector from several different data objects, including dada-class
+  and derep-class objects, as well as data.frame objects that have both $sequence and $abundance
+  columns
+
+  plotQualityProfile
+
+  seqComplexity
+
+  setDadaOpt(...)

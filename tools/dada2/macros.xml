@@ -10,26 +10,39 @@
     <token name="@DADA2_VERSION@">1.10.0</token>
     <token name="@WRAPPER_VERSION@">0</token>
     
+    <xml name="version_command">
+        <version_command><![CDATA[
+echo $(R --version | grep version | grep -v GNU)", dada2 version" $(R --vanilla --slave -e "library(dada2); cat(sessionInfo()\$otherPkgs\$dada2\$Version)" 2> /dev/null | grep -v -i "WARNING: ")
+        ]]></version_command>
+    </xml>
+
+    echo $(R --version | grep version | grep -v GNU)", DESeq2 version" $(R --vanilla --slave -e "library(dada2); cat(sessionInfo()\$otherPkgs\$dada2\$Version)" 2> /dev/null | grep -v -i "WARNING: ")
+
     <xml name="citations">
         <citations>
             <citation type="doi">10.1038/nmeth.3869</citation>
         </citations>
     </xml>
 
+    <token name="@DADA_UNIQUES@">dada2.derep,dada2.dada,dada2.mergepairs</token>
 
     <!-- for filterAndTrim --> 
-    <xml name="trimmers">
-        <param name="truncQ" type="integer" value="2" min="0" label="Truncate reads at quality threshold" help="Truncate reads at the first instance of a quality score less than or equal to this threshold"/>
-        <param name="truncLen" type="integer" value="0" min="0" label="Truncate read length" help=""/>
-        <param name="trimLeft" type="integer" value="0" min="0" label="Remove nucleotides from start" help=""/>
-        <param name="trimRight" type="integer" value="0" min="0" label="Remove nucleotides from end" help=""/>
+	<xml name="trimmers">
+        <section name="trim" title="trimming parameters">
+            <param name="truncQ" type="integer" value="2" min="0" label="Truncate reads at quality threshold" help="Truncate reads at the first instance of a quality score less than or equal to this threshold"/>
+            <param name="truncLen" type="integer" value="0" min="0" label="Truncate read length" help=""/>
+            <param name="trimLeft" type="integer" value="0" min="0" label="Remove nucleotides from start" help=""/>
+    		<param name="trimRight" type="integer" value="0" min="0" label="Remove nucleotides from end" help=""/>
+		</section>
     </xml>
     <xml name="filters">
-        <param name="maxLen" type="integer" value="" optional="true" min="0" label="Remove reads longer than" help=""/>
-        <param name="minLen" type="integer" value="20" min="0" label="Remove reads shorter than" help=""/>
-        <param name="maxN" type="integer" value="0" min="0" label="Remove reads with more Ns" help=""/>
-        <param name="minQ" type="integer" value="0" min="0" label="Remove reads containings quality" help=""/>
-        <param name="maxEE" type="integer" value="" optional="true" min="0" label="Remove reads by expected errors" help=""/>
+        <section name="filter" title="filtering parameters">
+            <param name="maxLen" type="integer" value="" optional="true" min="0" label="Remove reads longer than" help=""/>
+            <param name="minLen" type="integer" value="20" min="0" label="Remove reads shorter than" help=""/>
+            <param name="maxN" type="integer" value="0" min="0" label="Remove reads with more Ns" help=""/>
+            <param name="minQ" type="integer" value="0" min="0" label="Remove reads containing quality" help=""/>
+            <param name="maxEE" type="integer" value="" optional="true" min="0" label="Remove reads by expected errors" help=""/>
+		</section>
     </xml>
 
 

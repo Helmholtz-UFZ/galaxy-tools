@@ -19,6 +19,54 @@ In both cases:
 * allow input of single end data, single pair, single pair in separate data sets, ...
 * add mergePairsByID functionality to mergePairs tool
 
+
+Datatypes:
+==========
+
+**derep-class**: list w 3 members
+- uniques: Named integer vector. Named by the unique sequence, valued by abundance.
+• quals: Numeric matrix of average quality scores by position for each unique. Uniques are
+rows, positions are cols.
+* map: Integer vector of length the number of reads, and value the index (in uniques) of the
+unique to which that read was assigned.
+
+**learnErrorsOutput**: A named list with three entries
+- err_out: A numeric matrix with the learned error rates. 
+- err_in: The initialization error rates (unimportant). 
+- trans: A feature table of observed transitions for each type (eg. A->C) and quality score.
+
+**dada-class**: A multi-item List with the following named values...
+• denoised: Integer vector, named by sequence valued by abundance, of the denoised sequences.
+• clustering: An informative data.frame containing information on each cluster.
+• sequence: A character vector of each denoised sequence. Identical to names(denoised).
+• quality: The average quality scores for each cluster (row) by position (col).
+• map: Integer vector that maps the unique (index of derep.unique) to the denoised sequence (index of dada.denoised).
+• birth_subs: A data.frame containing the substitutions at the birth of each new cluster.
+• trans: The matrix of transitions by type (row), eg. A2A, A2C..., and quality score (col)
+observed in the final output of the dada algorithm.
+• err_in: The err matrix used for this invocation of dada.
+• err_out: The err matrix estimated from the output of dada. NULL if err_function not provided.
+• opts: A list of the dada_opts used for this invocation of dada.
+• call: The function call used for this invocation of dada.
+
+**uniques**: derep, dada, mergepairs(or data frame w sequenc and abundance columns)
+
+**mergepairs**:
+
+data.frame(s) has a row for each unique pairing of forward/reverse denoised sequences, and the following columns:
+• abundance: Number of reads corresponding to this forward/reverse combination.
+• sequence: The merged sequence.
+• forward: The index of the forward denoised sequence.
+• reverse: The index of the reverse denoised sequence.
+• nmatch: Number of matches nts in the overlap region.
+• nmismatch: Number of mismatches in the overlap region.
+• nindel: Number of indels in the overlap region.
+• prefer: The sequence used for the overlap region. 1=forward; 2=reverse.
+• accept: TRUE if overlap between forward and reverse denoised sequences was at least minOverlap and had at most maxMismatch differences. FALSE otherwise.
+• $...: Additional columns specified in propagateCol
+
+
+
 Tools: 
 ======
 

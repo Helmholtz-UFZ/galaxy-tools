@@ -4,23 +4,34 @@
         <import>macros.xml</import>
     </macros>
     <expand macro="requirements"/>
+    <exmand macro="version_command"/>
     <command detect_errors="exit_code"><![CDATA[
     Rscript '$dada2_script'
     ]]></command>
     <configfiles>
         <configfile name="dada2_script"><![CDATA[
 library(dada2, quietly=T)
+#if $unqs.is_of_type('dada.derep') or $unqs.is_of_type('dada2.dada')
+    unqs <- readRDS('$unqs')
+#else if $unqs.is_of_type('dada.sequencetable')
+	unqs <- as.matrix( read.table('$unqs', header=T, sep="\t", row.names=1) )
+#else
+	unqs <- read.table('$unqs', header=T, sep="\t" )
+#end if
 
-unqs <- readRDS('$unqs')
 st <- removeBimeraDenovo(unqs, method = "$method")
-saveRDS(st, file='$stable')
+
+#if $unqs.is_of_type('dada.derep') or $unqs.is_of_type('dada2.dada')
+    saveRDS(st, file='$stable')
+#else
+    write.table(st, "$stable", quote=F, sep="\t")
+#end if
 
 print( paste( "remaining nonchimeric: ",  100*sum(st)/sum(unqs), "%" ))
-##write.table(st, "$stable", quote=F, sep="\t")
     ]]></configfile>
     </configfiles>
     <inputs>
-        <param name="unqs" type="data" format="rdata" label="sequence table" help=""/>
+        <param name="unqs" type="data" format="@DADA_UNIQUES@,dada2.sequencetable" label="sequence table" help=""/>
         <param name="method" type="select" label="Method">
             <option value="consensus">check samples independently for bimeras and make a consensus decision on each sequence variant</option>
             <option value="pooled">pool samples for bimera identification</option>
@@ -28,7 +39,8 @@ print( paste( "remaining nonchimeric: ",  100*sum(st)/sum(unqs), "%" ))
         </param>
    </inputs>
     <outputs>
-        <data name="stable" format="rdata" label="${tool.name} on ${on_string}"/>
+        <data name="stable" format_source="unqs" label="${tool.name} on ${on_string}"/>
+
     </outputs>
     <help><![CDATA[
         TODO: Fill in help.

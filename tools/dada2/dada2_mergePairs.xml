@@ -4,6 +4,7 @@
         <import>macros.xml</import>
     </macros>
     <expand macro="requirements"/>
+    <exmand macro="version_command"/>
     <command detect_errors="exit_code"><![CDATA[
     Rscript '$dada2_script'
     ]]></command>
@@ -11,32 +12,32 @@
         <configfile name="dada2_script"><![CDATA[
 library(dada2, quietly=T)
 
-dadaF <- readRDS('$dadaf')
-dadaR <- readRDS('$dadar')
-derepF <- readRDS('$derepf')
-derepR <- readRDS('$derepr')
+dadaF <- readRDS(file.path('$dadaf.extra_files_path',"Rdata"))
+dadaR <- readRDS(file.path('$dadar.extra_files_path',"Rdata"))
+derepF <- readRDS(file.path('$derepf.extra_files_path',"Rdata"))
+derepR <- readRDS(file.path('$derepr.extra_files_path',"Rdata"))
 
 merged <- mergePairs(dadaF, derepF, dadaR, derepR, minOverlap = $minoverlap, maxMismatch = $maxmismatch,
     returnRejects = FALSE, propagateCol = character(0),
     justConcatenate = $justconcatenate, trimOverhang = $trimoverhang)
     
-saveRDS(merged, file='$merged')
-##write.table(merged, "$merged", quote=F, sep="\t")
+##saveRDS(merged, file='$merged')
+##For display in Galaxy this could be transposed (..but the user could also do it herself)
+write.table(merged, "$merged", quote=F, sep="\t", row.names = F, col.names = T)
     ]]></configfile>
     </configfiles>
     <inputs>
-        <param name="dadaf" type="data" format="rdata" label="dada results for forward reads"/>
-        <param name="derepf" type="data" format="rdata" label="dereplicated forward reads"/>
-        <param name="dadar" type="data" format="rdata" label="dada results for reverse reads"/>
-        <param name="derepr" type="data" format="rdata" label="dereplicated reverse reads"/>
-
-	<param name="minoverlap" type="integer" value="12" min="0" label="minimum length of the overlap"/>
+        <param name="dadaf" type="data" format="dada2.dada" label="dada results for forward reads"/>
+        <param name="derepf" type="data" format="dada2.derep" label="dereplicated forward reads"/>
+        <param name="dadar" type="data" format="dada2.dada" label="dada results for reverse reads"/>
+        <param name="derepr" type="data" format="dada2.derep" label="dereplicated reverse reads"/>
+        <param name="minoverlap" type="integer" value="12" min="0" label="minimum length of the overlap"/>
         <param name="maxmismatch" type="integer" value="0" min="0" label="maximum number of mismatches"/>
         <param name="justconcatenate" type="boolean" checked="false" truevalue="FALSE" falsevalue="FALSE" label="concatenated rather than merge"/>
         <param name="trimoverhang" type="boolean" checked="false" truevalue="FALSE" falsevalue="FALSE" label="trim overhangs"/>
     </inputs>
     <outputs>
-        <data name="merged" format="rdata" label="${tool.name} on ${on_string}"/>
+        <data name="merged" format="dada2.mergepairs" label="${tool.name} on ${on_string}"/>
     </outputs>
 
     <help><![CDATA[

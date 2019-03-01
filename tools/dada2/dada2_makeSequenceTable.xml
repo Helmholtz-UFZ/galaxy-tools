@@ -4,6 +4,7 @@
         <import>macros.xml</import>
     </macros>
     <expand macro="requirements"/>
+    <exmand macro="version_command"/>
     <command detect_errors="exit_code"><![CDATA[
     Rscript '$dada2_script'
     ]]></command>
@@ -13,23 +14,26 @@ library(dada2, quietly=T)
 
 samples <- list()
 #for $s in $samples:
-samples[[length(samples)+1]] <- readRDS('$s')
+    #if $s.is_of_type('dada.derep') or $s.is_of_type('dada2.dada')
+	samples[['$s.element_identifier']] <- readRDS('$s')
+	#else
+	samples[['$s.element_identifier']] <- read.table('$s', header=T, sep="\t")
+	#end if
 #end for
-
 st <- makeSequenceTable(samples, orderBy = "$orderby")
-saveRDS(st, file='$stable')
-##write.table(st, "$stable", quote=F, sep="\t")
+##saveRDS(st, file='$stable')
+write.table(st, "$stable", quote=F, sep="\t", row.names = T, col.names = NA)
     ]]></configfile>
     </configfiles>
     <inputs>
-        <param name="samples" type="data" multiple="true" format="rdata" label="samples" />
+        <param name="samples" type="data" multiple="true" format="@DADA_UNIQUES@" label="samples" />
         <param name="orderby" type="select" label="Column order">
             <option value="abundance">abundance</option>
             <option value="nsamples">nsamples</option>
         </param>
     </inputs>
     <outputs>
-        <data name="stable" format="rdata" label="${tool.name} on ${on_string}"/>
+        <data name="stable" format="dada2.sequencetable" label="${tool.name} on ${on_string}"/>
     </outputs>
 
     <help><![CDATA[

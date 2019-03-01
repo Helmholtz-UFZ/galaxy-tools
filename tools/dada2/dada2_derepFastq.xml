@@ -4,22 +4,25 @@
         <import>macros.xml</import>
     </macros>
     <expand macro="requirements"/>
+    <exmand macro="version_command"/>
     <command detect_errors="exit_code"><![CDATA[
+	mkdir '$derep.extra_files_path' &&
     Rscript '$dada2_script'
     ]]></command>
     <configfiles>
         <configfile name="dada2_script"><![CDATA[
 library(dada2, quietly=T)
-
 derep <- derepFastq('$reads')
-saveRDS(derep, file='$derep')
+
+write.table(derep\$uniques, file = '$derep', quote = F, sep = "\t", row.names = T, col.names = F)
+saveRDS(derep, file=file.path('$derep.extra_files_path', "Rdata"))
     ]]></configfile>
     </configfiles>
     <inputs>
         <param name="reads" type="data" format="fastqsanger,fastqsanger.gz" label="Short read data" />
     </inputs>
     <outputs>
-        <data name="derep" format="rdata" label="${tool.name} on ${on_string}"/>
+        <data name="derep" format="dada2.derep" label="${tool.name} on ${on_string}"/>
     </outputs>
 
     <help><![CDATA[

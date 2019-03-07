@@ -19,7 +19,13 @@ nthreads <- as.integer(args[1])
 
 seqs <- $read_data($seqs)
 
-taxa <- assignTaxonomy(seqs, '$refFasta', minBoot = $minBoot, tryRC = $tryRC,
+#if $reference_cond.reference_select == history
+ref <- '$refFasta'
+#else
+ref <- $reference_cond.refFasta.fields.path
+#end if
+
+taxa <- assignTaxonomy(seqs, ref, minBoot = $minBoot, tryRC = $tryRC,
             outputBootstraps = $outputBootstraps, multithread = nthreads)
 
 #if $outputBootstraps
@@ -46,7 +52,23 @@ write.table(taxa, file = '$output', quote = F, sep = "\t", row.names = T, col.na
     </configfiles>
     <inputs>
         <param name="seqs" type="data" format="@DADA_UNIQUES@,dada2_sequencetable,dada2_uniques" label="sequences to be assigned" help=""/>
-        <param name="refFasta" type="data" format="fasta,fasta.gz" label="Reference data set" help=""/>
+        <conditional name="reference_cond">
+          <param name="source" type="reference_select" label="Select a reference dataset your history or use a built-in?">
+            <option value="builtin">Use a built-in reference</option>
+            <option value="history">Use reference data from the history</option>
+          </param>
+          <when value="builtin">
+            <param name="refFasta" type="select" label="Select reference data set" help="If a reference data set of interest is not listed, contact the Galaxy administrators">
+              <options from_data_table="dada2_taxonomy">
+                <filter type="sort_by" column="2"/>
+                <validator type="no_options" message="No indexes are available for the selected input dataset"/>
+              </options>
+            </param>
+          </when>
+          <when value="history">
+            <param name="refFasta" type="data" format="fasta,fasta.gz" label="Reference data set" />
+          </when>
+        </conditional>
         <param name="minBoot" type="integer" value="50" min="0" label="Minimum bootstrap confidence" help="for assigning a
 taxonomic level"/>
         <param name="tryRC" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Try reverse complement" help="the reverse-complement of each sequence will be used for classification if it is a better match to the reference sequences than the forward sequence"/>

@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<tool id="dada_fetcher" name="dada2 dada manager" tool_type="manage_data" version="0.0.3">
+    <description>Download reference data sets</description>
+    <command detect_errors="exit_code">
+    <![CDATA[
+    python '$__tool_directory__/data_manager.py' 
+    --out '${out_file}'
+    --dataset '$database_name'
+    ]]>
+    </command>
+    <inputs>
+        <param name="database_name" type="select" label="mapping data">
+            <option value="silva132">Silva version 132</option>
+            <option value="silva128">Silva version 128</option>
+            <option value="rdp16">RDP trainset 16 + RDP database release 11.5</option>
+            <option value="rdp14">RDP trainset 14</option>
+            <option value="gg13.84">GreenGenes version 13.8</option>
+<!--            <option value="unite8.0">UNITE: General Fasta release 8.0 </option>
+            <option value="RefSeq_RDP">NCBI RefSeq 16S rRNA database supplemented by RDP</option>
+            <option value="gtdb">GTDB: Genome Taxonomy Database (More info: http://gtdb.ecogenomic.org/)</option>
+            <option value="hitdb1">HitDB version 1 (Human InTestinal 16S rRNA)</option>
+            <option value="silva132_euk">Silva Eukaryotic 18S, v132 &amp; v128</option>
+            <option value="PR2v4.11.0">Protist Ribosomal Reference database 2 version 4.11.0</option>-->
+        </param>
+    </inputs>
+    <outputs>
+        <data name="out_file" format="data_manager_json" />
+    </outputs>
+    <tests>
+        <test>
+            <param name="database_name" value="silva132"/>
+            <output name="out_file" file="silva132_json"/>
+        </test>
+    </tests>
+    <help>
+TODO http://www.arb-silva.de/silva-license-information
+    </help>
+</tool>
+

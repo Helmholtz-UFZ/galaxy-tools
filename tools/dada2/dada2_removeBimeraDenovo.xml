@@ -4,43 +4,70 @@
         <import>macros.xml</import>
     </macros>
     <expand macro="requirements"/>
-    <exmand macro="version_command"/>
+    <expand macro="version_command"/>
     <command detect_errors="exit_code"><![CDATA[
+    #if $unqs.is_of_type('dada.derep') or $unqs.is_of_type('dada2_dada')
+        mkdir '$stable_uniques.extra_files_path' &&
+    #end if
     Rscript '$dada2_script'
     ]]></command>
     <configfiles>
         <configfile name="dada2_script"><![CDATA[
 library(dada2, quietly=T)
-#if $unqs.is_of_type('dada.derep') or $unqs.is_of_type('dada2.dada')
-    unqs <- readRDS('$unqs')
-#else if $unqs.is_of_type('dada.sequencetable')
-	unqs <- as.matrix( read.table('$unqs', header=T, sep="\t", row.names=1) )
+#if $unqs.is_of_type('dada2_derep') or $unqs.is_of_type('dada2_dada')
+    unqs <- readRDS(file.path('$unqs.extra_files_path', 'Rdata'))
+#else if $unqs.is_of_type('dada2_sequencetable')
+    unqs <- as.matrix( read.table('$unqs', header=T, sep="\t", row.names=1) )
+#else if $unqs.is_of_type('dada2_mergepairs')
+    unqs <- read.table('$unqs', header=T, sep="\t" )
 #else
-	unqs <- read.table('$unqs', header=T, sep="\t" )
+    write("error: unknown input type", stderr())
+    quit(1)
 #end if
 
-st <- removeBimeraDenovo(unqs, method = "$method")
+nonchim <- removeBimeraDenovo(unqs, method = "$method")
 
-#if $unqs.is_of_type('dada.derep') or $unqs.is_of_type('dada2.dada')
-    saveRDS(st, file='$stable')
-#else
-    write.table(st, "$stable", quote=F, sep="\t")
+## - output is data.frame (mergepairs) or sequencetable (if this was the input)
+## - otherwise uniques-vector
+
+#if $unqs.is_of_type('dada.derep') or $unqs.is_of_type('dada2_dada')
+    write.table(nonchim, file = '$stable_uniques', quote = F, sep = "\t", row.names = T, col.names = F)
+    saveRDS(nonchim, file=file.path('$stable_uniques.extra_files_path',"Rdata"))
+#else if $unqs.is_of_type('dada2_sequencetable')
+    write.table(nonchim, "$stable_sequencetable", quote=F, sep="\t", row.names = T, col.names = NA)
+#else if $unqs.is_of_type('dada2_mergepairs')
+    write.table(nonchim, "$stable_mergepairs", quote=F, sep="\t")
 #end if
 
-print( paste( "remaining nonchimeric: ",  100*sum(st)/sum(unqs), "%" ))
+## dada input
+if(class(unqs)=="list"){
+    unqssum<-lapply(lapply(unqs, getUniques),sum)
+    nonchimsum<-lapply(nonchim,sum)
+    mapply(function(X,Y) { 100*X/Y }, X=nonchimsum, Y=unqssum)
+}else{
+    cat("remaining nonchimeric: ", 100*sum(getUniques(nonchim))/sum(getUniques(unqs)), "%")
+}
     ]]></configfile>
     </configfiles>
     <inputs>
-        <param name="unqs" type="data" format="@DADA_UNIQUES@,dada2.sequencetable" label="sequence table" help=""/>
+        <param name="unqs" type="data" format="@DADA_UNIQUES@,dada2_sequencetable" label="sequence table" help=""/>
         <param name="method" type="select" label="Method">
             <option value="consensus">check samples independently for bimeras and make a consensus decision on each sequence variant</option>
             <option value="pooled">pool samples for bimera identification</option>
             <option value="per-sample">check samples independently for bimeras and remove (0-out) sequence variants from samples independently</option>
         </param>
    </inputs>
-    <outputs>
-        <data name="stable" format_source="unqs" label="${tool.name} on ${on_string}"/>
-
+   <outputs>
+        <!-- fix output filters in a later release https://github.com/galaxyproject/galaxy/issues/7464 -->
+        <data name="stable_uniques" format="dada2_uniques" label="${tool.name} on ${on_string}" from_work_dir="nonchim.uniques">
+            <filter>unqs.ext == "dada2_derep" or unqs.ext == "dada2_dada"</filter>
+	</data>
+        <data name="stable_mergepairs" format="dada2_mergepairs" label="${tool.name} on ${on_string}" from_work_dir="nonchim.mergepairs">
+            <filter>unqs.ext == "dada2_mergepairs"</filter>
+	</data>
+        <data name="stable_sequencetable" format="dada2_sequencetable" label="${tool.name} on ${on_string}" from_work_dir="nonchim.mergepairs">
+            <filter>unqs.ext == "dada2_sequencetable"</filter>
+	</data>
     </outputs>
     <help><![CDATA[
         TODO: Fill in help.

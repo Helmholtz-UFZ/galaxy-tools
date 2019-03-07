@@ -24,8 +24,25 @@ echo $(R --version | grep version | grep -v GNU)", dada2 version" $(R --vanilla 
         </citations>
     </xml>
 
-    <token name="@DADA_UNIQUES@">dada2.derep,dada2.dada,dada2.mergepairs</token>
+    <token name="@DADA_UNIQUES@">dada2_derep,dada2_dada,dada2_mergepairs</token>
 
+    <token name="@READ_FOO@"><![CDATA[
+    #def read_data($dataset)
+        #if $dataset.is_of_type('dada2_derep')
+            readRDS(file.path('$dataset.extra_files_path', 'Rdata'))
+        #else if $dataset.is_of_type('dada2_dada')
+            readRDS('$dataset')
+        #else if $dataset.is_of_type('dada2_sequencetable')
+            as.matrix( read.table('$dataset', header=T, sep="\t", row.names=1) )
+        #else if $dataset.is_of_type('dada2_mergepairs')
+              read.table('$dataset', header=T, sep="\t" )
+        #else if $dataset.is_of_type('tabular')
+              read.table('$dataset', header=T, sep="\t", row.names=1 )
+        #else
+            #raise Exception("error: unknown input type")
+        #end if
+    #end def
+    ]]></token>
     <!-- for filterAndTrim --> 
 	<xml name="trimmers">
         <section name="trim" title="trimming parameters">
@@ -42,7 +59,7 @@ echo $(R --version | grep version | grep -v GNU)", dada2 version" $(R --vanilla 
             <param name="maxN" type="integer" value="0" min="0" label="Remove reads with more Ns" help=""/>
             <param name="minQ" type="integer" value="0" min="0" label="Remove reads containing quality" help=""/>
             <param name="maxEE" type="integer" value="" optional="true" min="0" label="Remove reads by expected errors" help=""/>
-		</section>
+        </section>
     </xml>
 
 

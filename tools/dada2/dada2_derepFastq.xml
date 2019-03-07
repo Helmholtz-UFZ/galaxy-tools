@@ -4,7 +4,7 @@
         <import>macros.xml</import>
     </macros>
     <expand macro="requirements"/>
-    <exmand macro="version_command"/>
+    <expand macro="version_command"/>
     <command detect_errors="exit_code"><![CDATA[
 	mkdir '$derep.extra_files_path' &&
     Rscript '$dada2_script'
@@ -22,9 +22,14 @@ saveRDS(derep, file=file.path('$derep.extra_files_path', "Rdata"))
         <param name="reads" type="data" format="fastqsanger,fastqsanger.gz" label="Short read data" />
     </inputs>
     <outputs>
-        <data name="derep" format="dada2.derep" label="${tool.name} on ${on_string}"/>
+        <data name="derep" format="dada2_derep" label="${tool.name} on ${on_string}"/>
     </outputs>
-
+    <tests>
+        <test>
+            <param name="reads" value="filterAndTrim_single_F3D0_R1.fq.gz" ftype="fastqsanger.gz" />
+            <output name="output" value="derepFastq_single_F3D0_R1.table" ftype="dada2_derep" />
+        </test>
+    </tests>
     <help><![CDATA[
         TODO: Fill in help.
     ]]></help>

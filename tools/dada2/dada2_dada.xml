@@ -4,17 +4,12 @@
         <import>macros.xml</import>
     </macros>
     <expand macro="requirements"/>
-    <exmand macro="version_command"/>
+    <expand macro="version_command"/>
     <command detect_errors="exit_code"><![CDATA[
-    #if $batch_cond.batch_select == "no"	
-        #for $d in $batch_cond.derep:
-            ln -s '$d' '$d.element_identifier' &&
-        #end for
-    #else
-        ln -s '$batch_cond.derep.extra_files_path'/Rdata '$batch_cond.derep.element_identifier' &&
+    #if $batch_cond.batch_select == "no"
+        mkdir output &&
     #end if
-	mkdir '$dada.extra_files_path' &&
-	Rscript '$dada2_script' \${GALAXY_SLOTS:-1}
+    Rscript '$dada2_script' \${GALAXY_SLOTS:-1}
     ]]></command>
     <configfiles>
         <configfile name="dada2_script"><![CDATA[
@@ -22,54 +17,100 @@ library(ggplot2, quietly=T)
 library(dada2, quietly=T)
 
 args <- commandArgs(trailingOnly = TRUE)
-nthreads <- args[1]
+nthreads <- as.integer(args[1])
 
-#if $batch_cond.batch_select == "no"	
+#if $batch_cond.batch_select == "no"
 derep <- list()
-    #for $d in $batch_cond.derep:
-derep[[length(derep)+1]] <- readRDS('$d.element_identifier')
-    #end for
+#for $d in $batch_cond.derep:
+derep[["$d.element_identifier"]] <- readRDS(file.path('$d.extra_files_path', 'Rdata'))
+#end for
 #else
-derep <- readRDS('$batch_cond.derep.element_identifier')
+derep <- readRDS(file.path('$batch_cond.derep.extra_files_path', 'Rdata'))
 #end if
 
 err <- readRDS(file.path('$errorrates.extra_files_path',"Rdata"))
 
-dada_result <- dada(derep, err, errorEstimationFunction = $errfoo, selfConsist = $selfconsist, pool = $batch_cond.pool, multithread = nthreads)
+#if $batch_cond.batch_select == "yes":
+pool <- F
+#else
+    #if $batch_cond.pool == "TRUE"
+pool <- T
+    #else if $batch_cond.pool == "FALSE"
+pool <- F
+    #else 
+pool <- 'pseudo'
+    #end if
+#end if
+dada_result <- dada(derep, err, errorEstimationFunction = $errfoo, selfConsist = $selfconsist, pool = pool, multithread = nthreads)
 
-write.table(dada_result\$clustering, file = '$dada', quote = F, sep = "\t", row.names = F, col.names = F)
-saveRDS(dada_result, file=file.path('$dada.extra_files_path',"Rdata"))
+#if $batch_cond.batch_select == "no":
+    for( id in names(dada_result) ){
+        saveRDS(dada_result[[id]], file=file.path("output" ,paste(id, "dada2_dada", sep=".")))
+    }
+#else
+    saveRDS(dada_result, file='$dada')
+#end if
 
+## for( id in names(dada_result) ){
+##     tab <- dada_result[[id]]\$clustering
+##     tabnames <- names(tab)
+##     tab\$sample <- id
+##     tabnames<-c("sample", tabnames)
+##     tab <- tab[,tabnames]
+##     write.table(tab, file = '$dada', append = T, quote = F, sep = "\t", row.names = F, col.names = F)
+## }
     ]]></configfile>
     </configfiles>
     <inputs>
         <conditional name="batch_cond">
             <param name="batch_select" type="select" label="Process samples in batches">
-                <option value="yes">yes</option>
                 <option value="no">no</option>
+                <option value="yes">yes</option>
             </param>
             <when value="yes">
-                <param name="derep" type="data" format="dada2.derep" label="Dereplicated reads"/>
-                <param name="pool" type="text" value="FALSE" hidden="true" label="Pool samples"/>
+                <param name="derep" type="data" format="dada2_derep" label="Dereplicated reads"/>
             </when>
             <when value="no">
-                <param name="derep" type="data" multiple="true" format="dada2.derep" label="Dereplicated reads"/>
+                <param name="derep" type="data" multiple="true" format="dada2_derep" label="Dereplicated reads"/>
                 <param name="pool" type="select" label="Pool samples">
                     <option value="FALSE">process samples individually</option>
                     <option value="TRUE">pool samples</option>
-                    <option value="'pseudo'">pseudo pooling between individually processed samples</option>
+                    <option value="pseudo">pseudo pooling between individually processed samples</option>
                 </param>
             </when>
         </conditional>
-        <param name="errorrates" type="data" format="dada2.errorrates" label="Error rates"/>
+        <param name="errorrates" type="data" format="dada2_errorrates" label="Error rates"/>
         <expand macro="errorEstimationFunction"/>
         <param name="selfconsist" type="boolean" checked="false" truevalue="TRUE" falsevalue="FALSE" label="Alternate between sample inference and error rate estimation until convergence"/>
     </inputs>
     <outputs>
-        <data name="dada" format="dada2.dada" label="${tool.name} on ${on_string}"/>
+	<data name="dada" format="dada2_dada">
+            <filter>batch_cond['batch_select']=="yes"</filter>
+        </data>
+        <collection name="data_collection" type="list">
+            <discover_datasets pattern="__name_and_ext__" directory="output" />
+            <filter>batch_cond['batch_select']=="no"</filter>
+        </collection>
     </outputs>
     <help><![CDATA[
-        TODO: Fill in help.
+**Input:**
+
+- A number of derep data sets computed with derepFastq (given as list or multiple data sets)
+- An errorrates data set computed with learnErrors
+
+You can decide to compute the data jointly or in batches.
+
+- Jointly (Process "samples in batches"=no): A single Galaxy job is started that processes all derep data sets jointly. You may chose different pooling strategies: if the started dada job processes the samples individually, pooled, or pseudo pooled. 
+- In batches (Process "samples in batches"=yes): A separate Galaxy job is started for earch derep data set. This is equivalent to joint processing and choosing to process samples individually. 
+
+While the single dada job (in case of joint processing) can use multiple cores on one compute node, 
+batched processing distributes the work on a number of jobs (equal to the number of input 
+derep data sets) where each can use multiple cores. Hence, if you intend to process the data 
+sets individually, batched processing is more efficient -- in particular if Galaxy has access to 
+a larger number of compute ressources. 
+
+
+	    TODO: Fill in help.
     ]]></help>
     <expand macro="citations"/>
 </tool>

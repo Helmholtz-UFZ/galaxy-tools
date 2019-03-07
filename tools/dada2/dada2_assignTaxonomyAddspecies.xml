@@ -1,0 +1,90 @@
+<tool id="dada2_assignTaxonomyAddspecies" name="dada2: assignTaxonomy and addSpecies" version="@DADA2_VERSION@">
+    <description>Learn Error rates</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements"/>
+    <expand macro="version_command"/>
+    <command detect_errors="exit_code"><![CDATA[
+    Rscript '$dada2_script' \${GALAXY_SLOTS:-1}
+    ]]></command>
+    <configfiles>
+        <configfile name="dada2_script"><![CDATA[
+@READ_FOO@
+
+library(dada2, quietly=T)
+
+args <- commandArgs(trailingOnly = TRUE)
+nthreads <- as.integer(args[1])
+
+seqs <- $read_data($seqs)
+
+taxa <- assignTaxonomy(seqs, '$refFasta', minBoot = $minBoot, tryRC = $tryRC,
+            outputBootstraps = $outputBootstraps, multithread = nthreads)
+
+#if $outputBootstraps
+    boot <- taxa$boot
+    taxa <- taxa$taxa
+#end if
+
+
+#if $addSpecies_cond.addSpecies_select == "TRUE"
+    #if $addSpecies_cond.allowMultiple_cond.allowMultiple == "num"
+    aM <- $addSpecies_cond.allowMultiple_cond.num
+    #else
+    aM <- $addSpecies_cond.allowMultiple_cond.allowMultiple
+    #end if
+    taxa <- addSpecies(taxa, '$addSpecies_cond.speciesRefFasta', allowMultiple = aM, tryRC = $addSpecies_cond.tryRC)
+#end if
+
+#if $outputBootstraps
+    TODO output boot 
+#end if
+
+write.table(taxa, file = '$output', quote = F, sep = "\t", row.names = T, col.names = NA)
+    ]]></configfile>
+    </configfiles>
+    <inputs>
+        <param name="seqs" type="data" format="@DADA_UNIQUES@,dada2_sequencetable,dada2_uniques" label="sequences to be assigned" help=""/>
+        <param name="refFasta" type="data" format="fasta,fasta.gz" label="Reference data set" help=""/>
+        <param name="minBoot" type="integer" value="50" min="0" label="Minimum bootstrap confidence" help="for assigning a
+taxonomic level"/>
+        <param name="tryRC" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Try reverse complement" help="the reverse-complement of each sequence will be used for classification if it is a better match to the reference sequences than the forward sequence"/>
+        <param name="outputBootstraps" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Output bootstrap values"/>
+        <!-- TODO taxLevels -->
+
+        <conditional name="addSpecies_cond">
+            <param name="addSpecies_select" type="select" label="Add genus-species binomials to the taxonomic table">
+                <option value="FALSE">No</option>
+                <option value="TRUE">Yes</option>
+            </param>
+            <when value="FALSE"/>
+            <when value="TRUE">
+                <param name="speciesRefFasta" type="data" format="fasta,fasta.gz" label="Reference data set" help=""/>
+                <conditional name="allowMultiple_cond">
+                    <param name="allowMultiple" type="select" label="reporting options">
+                        <option value="FALSE">only unambiguous identifications</option>
+                        <option value="TRUE">all exactly matched species</option>
+                        <option value="num">specify the maximal number of reported exactly matched species</option>
+                    </param>
+                    <when value="FALSE"/>
+                    <when value="TRUE"/>
+                    <when value="num">
+                        <param name="num" type="integer" value="" min="1" label="Number of matched species"/>
+                    </when>
+                </conditional>
+                <param name="tryRC" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Try reverse complement" help="the reverse-complement of each sequence will be used for classification if it is a better match to the reference sequences than the forward sequence"/>
+            </when>
+        </conditional>
+    </inputs>
+    <outputs>
+        <data name="output" format="tabular" label="${tool.name} on ${on_string}"/>
+    </outputs>
+
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+    <expand macro="citations"/>
+</tool>
+
+

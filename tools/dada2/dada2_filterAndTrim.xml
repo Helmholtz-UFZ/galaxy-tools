@@ -4,14 +4,8 @@
         <import>macros.xml</import>
     </macros>
     <expand macro="requirements"/>
-    <exmand macro="version_command"/>
+    <expand macro="version_command"/>
     <command detect_errors="exit_code"><![CDATA[
-#if $paired_cond.paired_select == "TRUE"
-    ln -s '$paired_cond.reads.forward' forward &&
-    ln -s '$paired_cond.reads.reverse' reverse &&
-#else
-    ln -s '$paired_cond.reads' forward &&
-#end if
 Rscript '$dada2_script'
 sed -i '1!b;s/^/#dataset/' $outtab
     ]]></command>
@@ -54,20 +48,23 @@ minQ <- c($filter.minQ)
     #end if
 #end if
 
+fwd <- NULL
+rev <- NULL
+filt.fwd <- NULL
+filt.rev <- NULL
 #if $paired_cond.paired_select == "TRUE"
-    fwd = 'forward'
-    rev = 'reverse'
+    fwd <- c(fwd, '$paired_cond.reads.forward')
+	rev <- c(rev, '$paired_cond.reads.reverse')
+    filt.fwd <- c(filt.fwd, '$paired_output.forward')
+	filt.rev <- c(filt.rev, '$paired_output.reverse')
 #else
-    fwd = 'forward'
+    fwd <- c(fwd, '$paired_cond.reads')
+    filt.fwd <- c(filt.fwd, '$output')
 #end if
 
 library(dada2, quietly=T)
 
-ftout <- filterAndTrim(c(fwd), c('filt_forward.fastq.gz'), 
-#if $paired_cond.paired_select == "TRUE"
-    rev = c(rev), filt.rev = c('filt_reverse.fastq.gz'), 
-#end if
-    compress = TRUE,
+ftout <- filterAndTrim(fwd, filt.fwd, rev = rev, filt.rev,  compress = TRUE,
     truncQ = truncQ, truncLen = truncLen, trimLeft = trimLeft, trimRight = trimRight, maxLen = maxLen,
     minLen = minLen, maxN = maxN, minQ = minQ, maxEE = maxEE, rm.phix = $rmPhiX, orient.fwd = '$orientFwd')
     
@@ -116,6 +113,33 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
         </data>
         <data name="outtab" format="tabular" label="${tool.name} on ${on_string}: Statistics"/>
     </outputs>
+	<tests>
+        <!-- paired data -->
+        <test>
+            <conditional name="paired_cond">
+                <param name="paired_select" value="TRUE"/>
+    			<param name="reads">
+                    <collection type="paired">
+                        <element name="forward" value="F3D0_S188_L001_R1_001.fastq" ftype="fastqsanger"/>
+                        <element name="reverse" value="F3D0_S188_L001_R2_001.fastq" ftype="fastqsanger"/>
+                    </collection>
+    			</param>
+    		</conditional>
+            <output_collection name="paired_output" count="2">
+                <element name="forward" value="filterAndTrim_paired_F3D0_R1.fq.gz" ftype="fastqsanger.gz" />
+                <element name="reverse" value="filterAndTrim_paired_F3D0_R2.fq.gz" ftype="fastqsanger.gz" />
+            </output_collection>
+        </test>
+        <!-- paired data -->
+        <test>
+            <conditional name="paired_cond">
+                <param name="paired_select" value="FALSE"/>
+    			<param name="reads" value="F3D0_S188_L001_R1_001.fastq" ftype="fastqsanger"/>
+    		</conditional>
+            <output name="output" value="filterAndTrim_single_F3D0_R1.fq.gz" ftype="fastqsanger.gz" />
+	    </test>
+		<!-- TODO parameter tests -->
+    </tests>
 
     <help><![CDATA[
         TODO: Fill in help.

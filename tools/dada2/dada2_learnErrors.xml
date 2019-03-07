@@ -4,7 +4,7 @@
         <import>macros.xml</import>
     </macros>
     <expand macro="requirements"/>
-    <exmand macro="version_command"/>
+    <expand macro="version_command"/>
     <command detect_errors="exit_code"><![CDATA[
     #for $read in $reads:
         ln -s '$read' '$read.element_identifier' &&
@@ -18,7 +18,7 @@ library(ggplot2, quietly=T)
 library(dada2, quietly=T)
 
 args <- commandArgs(trailingOnly = TRUE)
-nthreads <- args[1]
+nthreads <- as.integer(args[1])
 
 files <- c()
 #for $read in $reads:
@@ -56,7 +56,7 @@ ggsave('output.pdf', plot, width = 20,height = 15,units = c("cm"))
 
     </inputs>
     <outputs>
-        <data name="errors" format="dada2.errorrates" label="${tool.name} on ${on_string}"/>
+        <data name="errors" format="dada2_errorrates" label="${tool.name} on ${on_string}"/>
         <data name="output" format="pdf" from_work_dir="output.pdf" label="${tool.name} on ${on_string}: error rates plot"/>
     </outputs>
 

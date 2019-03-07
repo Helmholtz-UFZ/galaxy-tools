@@ -1,0 +1,105 @@
+<tool id="dada2_seqCounts" name="dada2: sequence counts" version="@DADA2_VERSION@">
+    <description></description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements"/>
+    <expand macro="version_command"/>
+    <command detect_errors="exit_code"><![CDATA[
+    Rscript '$dada2_script'
+    ]]></command>
+    <configfiles>
+        <configfile name="dada2_script"><![CDATA[
+@READ_FOO@
+library(dada2, quietly=T)
+
+getN <- function(x){ sum(getUniques(x)) }
+
+df <- NULL
+#for $i, $rep in enumerate($inrep)
+    samples = list()
+    #for $s in $rep.input:
+        #if len($rep.input) == 1
+            samples <- $read_data( $s )
+        #else
+            sample_name <- '$s.element_identifier'
+            samples[[sample_name]] <- $read_data( $s )
+        #end if
+        #if $s.ext == "tabular"
+            tabular <- T
+        #else
+            tabular <- F
+        #end if
+    #end for
+
+    #if str($rep.name) == ""
+        dname <- '$str(i)'
+    #else
+        dname <- '$rep.name'
+    #end if
+
+    if( tabular ){
+        tdf <- NULL
+        for( n in names( samples ) ){
+            if(is.null(tdf)){
+                tdf <- samples[[n]]
+            }else{
+                tdf <- rbind(tdf, samples[[n]])
+            }
+        }
+        names(tdf) <- paste( dname, names(tdf) )
+        tdf <- cbind( data.frame(samples=names( samples )), tdf)
+    }else{
+        if(is.null(names(samples))){
+            tdf <- data.frame( samples = row.names(samples) )
+        }else{
+            tdf <- data.frame( samples = names(samples) )
+        }
+        t <- tryCatch({
+            sapply(samples, getN)
+        }, 
+        error=function(cond) {
+            rowSums(samples)
+        })
+        tdf[[ dname ]] <- t
+    }
+    if(is.null(df)){
+        df <- tdf
+    }else{
+        df <- merge( df, tdf, by="samples", all=T, no.dups=T)
+    }
+#end for
+write.table(df, "$counts", quote=F, sep="\t", row.names = F, col.names = T)
+    ]]></configfile>
+    </configfiles>
+    <inputs>
+		<repeat name="inrep" title="data sets" min="1">
+            <param name="input" type="data" multiple="true" format="tabular,@DADA_UNIQUES@,dada2_sequencetable,dada2_uniques" label="Dataset(s)"/>
+            <param name="name" type="text" value="" optional="true" label="name"/>
+        </repeat>
+    </inputs>
+    <outputs>
+        <data name="counts" format="tabular" label="${tool.name} on ${on_string}"/>
+    </outputs>
+    <tests>
+    </tests>
+    <help><![CDATA[
+Get the counts of sequences per sample for the different stages of the dada pipeline.
+
+**Inputs:**
+
+Any number of results from derepFastq, dada, mergePairs, makeSequenceTable, and removeBimeraDenovo. Additionally the statistics of filterAndTrim can be used.
+
+**Output:**
+
+A table containing the number of sequences per sample (rows) for each input (columns)
+
+**Details**
+
+For results from 
+
+- derepFastq, dada, and mergePairs the sum of the result of dada2's getUniques function is used
+- makeSequenceTable, and removeBimeraDenovo R's rowSums function is used
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

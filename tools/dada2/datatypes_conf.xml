@@ -4,9 +4,11 @@
         <datatype_file name="rdata_xcms_datatype.py"/>
     </datatype_files>
     <registration>
-        <datatype extension="dada2.derep" type="galaxy.datatypes.dada2_datatype:dada_derep" mimetype="application/text" subclass="true" display_in_upload="data" />
-        <datatype extension="dada2.dada" type="galaxy.datatypes.dada2_datatype:dada_dada" mimetype="application/text" subclass="true" display_in_upload="false" />
-        <datatype extension="dada2.errorrates" type="galaxy.datatypes.dada2_datatype:dada_errorrates" mimetype="application/text" subclass="true" display_in_upload="false" />
-        <datatype extension="dada2.mergepairs" type="galaxy.datatypes.dada2_datatype:dada_mergepairs" mimetype="application/text" subclass="true" display_in_upload="false" />
+        <datatype extension="dada2_derep" type="galaxy.datatypes.dada2_datatype:dada_derep" mimetype="application/text" subclass="true" display_in_upload="data" />
+        <datatype extension="dada2_dada" type="galaxy.datatypes.dada2_datatype:dada_dada" mimetype="application/text" subclass="true" display_in_upload="false" />
+        <datatype extension="dada2_errorrates" type="galaxy.datatypes.dada2_datatype:dada_errorrates" mimetype="application/text" subclass="true" display_in_upload="false" />
+        <datatype extension="dada2_mergepairs" type="galaxy.datatypes.dada2_datatype:dada_mergepairs" mimetype="application/text" subclass="true" display_in_upload="false" />
+        <datatype extension="dada2_sequencetable" type="galaxy.datatypes.dada2_datatype:dada_sequencetable" mimetype="application/text" subclass="true" display_in_upload="false" />
+        <datatype extension="dada2_uniques" type="galaxy.datatypes.dada2_datatype:dada_uniques" mimetype="application/text" subclass="true" display_in_upload="false" />
     </registration>
 </datatypes>

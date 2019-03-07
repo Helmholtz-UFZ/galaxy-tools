@@ -4,25 +4,48 @@
         <import>macros.xml</import>
     </macros>
     <expand macro="requirements"/>
-    <exmand macro="version_command"/>
+    <expand macro="version_command"/>
     <command detect_errors="exit_code"><![CDATA[
     Rscript '$dada2_script'
     ]]></command>
     <configfiles>
         <configfile name="dada2_script"><![CDATA[
+@READ_FOO@
+
 library(dada2, quietly=T)
+#if $filter.plot == "yes"
+library(ggplot2, quietly=T)
+#end if
 
 samples <- list()
 #for $s in $samples:
-    #if $s.is_of_type('dada.derep') or $s.is_of_type('dada2.dada')
-	samples[['$s.element_identifier']] <- readRDS('$s')
-	#else
-	samples[['$s.element_identifier']] <- read.table('$s', header=T, sep="\t")
-	#end if
+    #if $len($samples) == 1
+    samples <- $read_data($s)
+    #else
+    samples[["$s.element_identifier"]] <- $read_data($s)
+    #end if
 #end for
-st <- makeSequenceTable(samples, orderBy = "$orderby")
-##saveRDS(st, file='$stable')
-write.table(st, "$stable", quote=F, sep="\t", row.names = T, col.names = NA)
+## make sequence table
+seqtab <- makeSequenceTable(samples, orderBy = "$orderby")
+
+## get and plot length distribution
+seqlen <- data.frame(length = nchar(getSequences(seqtab)))
+seqlenq <- quantile(seqlen\$length, probs=c( $filter.plower, $filter.pupper  ))
+
+#if $filter.plot == "yes"
+pdf( '$plot' )
+ggplot(seqlen) + 
+    geom_histogram( aes(x=length), binwidth=1 ) + 
+    geom_vline(xintercept=c(seqlenq[1]-0.5, seqlenq[2]+0.5))
+bequiet <- dev.off()
+#end if
+
+## filter by seqlengths
+#if $filter.filter == "yes"
+seqtab <- seqtab[,nchar(colnames(seqtab)) %in% seqlenq]
+#end if
+
+write.table(seqtab, "$stable", quote=F, sep="\t", row.names = T, col.names = NA)
     ]]></configfile>
     </configfiles>
     <inputs>
@@ -31,9 +54,18 @@ write.table(st, "$stable", quote=F, sep="\t", row.names = T, col.names = NA)
             <option value="abundance">abundance</option>
             <option value="nsamples">nsamples</option>
         </param>
+        <section name="filter" title="Plot and filter sequence lengths">
+            <param name="plower" type="float" min="0" max="1" value="0.01" label="lower quantile" />
+            <param name="pupper" type="float" min="0" max="1" value="0.99" label="upper quantile" />
+            <param name="plot" type="boolean" truevalue="yes" falsevalue="no" checked="true" label="plot sequence length distribution" />
+            <param name="filter" type="boolean" truevalue="yes" falsevalue="no" checked="true" label="filter sequence length using quantiles" />
+	</section>
     </inputs>
     <outputs>
-        <data name="stable" format="dada2.sequencetable" label="${tool.name} on ${on_string}"/>
+        <data name="stable" format="dada2_sequencetable" label="${tool.name} on ${on_string}"/>
+        <data name="plot" format="pdf" label="${tool.name} on ${on_string}: sequence length distribution">
+            <filter>filter['plot']</filter>
+	</data>
     </outputs>
 
     <help><![CDATA[

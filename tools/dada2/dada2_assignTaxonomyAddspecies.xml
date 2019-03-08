@@ -40,6 +40,11 @@ taxa <- assignTaxonomy(seqs, ref, minBoot = $minBoot, tryRC = $tryRC,
     #else
     aM <- $addSpecies_cond.allowMultiple_cond.allowMultiple
     #end if
+    #if $addSpecies_cond.speciesreference_cond.reference_select == history
+    ref <- '$addSpecies_cond.speciesreference_cond.speciesrefFasta'
+    #else
+    ref <- '$addSpecies_cond.speciesreference_cond.speciesrefFasta.fields.path'
+    #end if
     taxa <- addSpecies(taxa, '$addSpecies_cond.speciesRefFasta', allowMultiple = aM, tryRC = $addSpecies_cond.tryRC)
 #end if
 
@@ -53,7 +58,7 @@ write.table(taxa, file = '$output', quote = F, sep = "\t", row.names = T, col.na
     <inputs>
         <param name="seqs" type="data" format="@DADA_UNIQUES@,dada2_sequencetable,dada2_uniques" label="sequences to be assigned" help=""/>
         <conditional name="reference_cond">
-          <param name="source" type="reference_select" label="Select a reference dataset your history or use a built-in?">
+          <param name="reference_select" type="select" label="Select a reference dataset your history or use a built-in?">
             <option value="builtin">Use a built-in reference</option>
             <option value="history">Use reference data from the history</option>
           </param>
@@ -73,7 +78,6 @@ write.table(taxa, file = '$output', quote = F, sep = "\t", row.names = T, col.na
 taxonomic level"/>
         <param name="tryRC" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Try reverse complement" help="the reverse-complement of each sequence will be used for classification if it is a better match to the reference sequences than the forward sequence"/>
         <param name="outputBootstraps" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Output bootstrap values"/>
-        <!-- TODO taxLevels -->
 
         <conditional name="addSpecies_cond">
             <param name="addSpecies_select" type="select" label="Add genus-species binomials to the taxonomic table">
@@ -82,7 +86,23 @@ taxonomic level"/>
             </param>
             <when value="FALSE"/>
             <when value="TRUE">
-                <param name="speciesRefFasta" type="data" format="fasta,fasta.gz" label="Reference data set" help=""/>
+                <conditional name="speciesreference_cond">
+                  <param name="speciesreference_select" type="select" label="Select a reference dataset your history or use a built-in?">
+                    <option value="builtin">Use a built-in reference</option>
+                    <option value="history">Use reference data from the history</option>
+                  </param>
+                  <when value="builtin">
+                    <param name="speciesrefFasta" type="select" label="Select reference data set" help="If a reference data set of interest is not listed, contact the Galaxy administrators">
+                      <options from_data_table="dada2_species">
+                        <filter type="sort_by" column="2"/>
+                        <validator type="no_options" message="No indexes are available for the selected input dataset"/>
+                      </options>
+                    </param>
+                  </when>
+                  <when value="history">
+                    <param name="speciesrefFasta" type="data" format="fasta,fasta.gz" label="Reference data set" />
+                  </when>
+                </conditional>
                 <conditional name="allowMultiple_cond">
                     <param name="allowMultiple" type="select" label="reporting options">
                         <option value="FALSE">only unambiguous identifications</option>

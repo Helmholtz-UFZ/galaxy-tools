@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<tool id="dada_fetcher" name="dada2 dada manager" tool_type="manage_data" version="0.0.3">
+<tool id="dada_fetcher" name="dada2 dada manager" tool_type="manage_data" version="0.0.5">
     <description>Download reference data sets</description>
     <command detect_errors="exit_code">
     <![CDATA[
@@ -12,15 +12,18 @@
         <param name="database_name" type="select" label="mapping data">
             <option value="silva132">Silva version 132</option>
             <option value="silva128">Silva version 128</option>
-            <option value="rdp16">RDP trainset 16 + RDP database release 11.5</option>
+            <option value="rdp16">RDP trainset 16</option>
             <option value="rdp14">RDP trainset 14</option>
-            <option value="gg13.84">GreenGenes version 13.8</option>
-<!--            <option value="unite8.0">UNITE: General Fasta release 8.0 </option>
-            <option value="RefSeq_RDP">NCBI RefSeq 16S rRNA database supplemented by RDP</option>
-            <option value="gtdb">GTDB: Genome Taxonomy Database (More info: http://gtdb.ecogenomic.org/)</option>
-            <option value="hitdb1">HitDB version 1 (Human InTestinal 16S rRNA)</option>
-            <option value="silva132_euk">Silva Eukaryotic 18S, v132 &amp; v128</option>
-            <option value="PR2v4.11.0">Protist Ribosomal Reference database 2 version 4.11.0</option>-->
+            <option value="gg13.84">GreenGenes version 13.84</option>
+            <option value="unite8.0_fungi">UNITE: General Fasta release 8.0 for Fungi</option>
+            <option value="unite8.0_fungi_singletons">UNITE: General Fasta release 8.0 for Fungi including global and 97% singletons</option>
+            <option value="unite8.0_euka">UNITE: General Fasta release 8.0 for all Eukaryotes</option>
+            <option value="unite8.0_euka_singletons">UNITE: General Fasta release 8.0 for all Eukaryotes including global and 97% singletons</option>
+            <option value="RefSeq_RDP_2018_05">NCBI RefSeq 16S rRNA database supplemented by RDP (05/2018)</option>
+            <option value="gtdb_2018_11_20">GTDB: Genome Taxonomy Database (Bacteria &amp; Archaea) (11/2018)</option>
+            <option value="hitdb1">HitDB version 1 (Human InTestinal 16S)</option>
+            <option value="silva132_euk_18S">Silva version 132 Eukaryotic 18S</option>
+            <option value="PR2v4.11.1">Protist Ribosomal Reference database (PR2) 4.11.1</option>
         </param>
     </inputs>
     <outputs>
@@ -32,8 +35,56 @@
             <output name="out_file" file="silva132_json"/>
         </test>
     </tests>
-    <help>
-TODO http://www.arb-silva.de/silva-license-information
-    </help>
+    <help><![CDATA[
+Public Reference data sets
+--------------------------
+
+The following 16S data sets are taken from the list of data sets maintained by the DADA2 project (https://benjjneb.github.io/dada2/training.html)
+
+- Silva version 132
+- Silva version 128
+- RDP trainset 16 + RDP database release 11.5</option>
+- RDP trainset 14
+- GreenGenes version 13.8
+
+While the Silva and RDP data sets contain reference data bases for taxonomy and species assignment, the greengenes data set only contains a reference data base for taxonomy assignment.
+
+For the Silva data sets consider to check the license information: http://www.arb-silva.de/silva-license-information.
+
+
+
+(More info: http://gtdb.ecogenomic.org/)
+
+https://github.com/pr2database/pr2database
+
+
+Custom Reference data sets
+--------------------------
+
+For ** taxonomy assignment ** the following is needed: 
+
+- a reference fasta data base 
+- a comma separated list of taxonomic ranks present in the reference data base 
+
+The reference fasta data base for taxonomic assignment (fasta or compressed fasta) needs to encode the taxonomy corresponding to each sequence in the fasta header lines in the following fashion (note, the second sequence is not assigned down to level 6):
+
+::
+
+>Level1;Level2;Level3;Level4;Level5;Level6;
+ACCTAGAAAGTCGTAGATCGAAGTTGAAGCATCGCCCGATGATCGTCTGAAGCTGTAGCATGAGTCGATTTTCACATTCAGGGATACCATAGGATAC
+>Level1;Level2;Level3;Level4;Level5;
+CGCTAGAAAGTCGTAGAAGGCTCGGAGGTTTGAAGCATCGCCCGATGGGATCTCGTTGCTGTAGCATGAGTACGGACATTCAGGGATCATAGGATAC
+
+The list of required taxonomic ranks could be for instance: "Kingdom,Phylum,Class,Order,Family,Genus"
+
+The reference data base for ** species assignment ** is a fasta file (or compressed fasta file), with the id line formatted as follows:
+
+::
+
+>ID Genus species
+ACCTAGAAAGTCGTAGATCGAAGTTGAAGCATCGCCCGATGATCGTCTGAAGCTGTAGCATGAGTCGATTTTCACATTCAGGGATACCATAGGATAC
+>ID Genus species
+CGCTAGAAAGTCGTAGAAGGCTCGGAGGTTTGAAGCATCGCCCGATGGGATCTCGTTGCTGTAGCATGAGTACGGACATTCAGGGATCATAGGATAC
+    ]]></help>
 </tool>
 

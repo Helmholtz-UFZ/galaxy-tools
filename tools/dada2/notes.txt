@@ -63,7 +63,7 @@ data.frame(s) has a row for each unique pairing of forward/reverse denoised sequ
 • nindel: Number of indels in the overlap region.
 • prefer: The sequence used for the overlap region. 1=forward; 2=reverse.
 • accept: TRUE if overlap between forward and reverse denoised sequences was at least minOverlap and had at most maxMismatch differences. FALSE otherwise.
-• $...: Additional columns specified in propagateCol
+• ...: Additional columns specified in propagateCol
 
 
 
@@ -81,8 +81,8 @@ Tools:
 • Learn error rates 
 
   learnErrors + plotErrors
-    in: input list, or vector, of file names (or a list of derep-class objects WHY .. learning should be done on full data) 
-    out: named list w entries 
+    - in: input list, or vector, of file names (or a list of derep-class objects WHY .. learning should be done on full data) 
+    - out: named list w entries 
       - \$err\_out: A numeric matrix with the learned error rates. 
       - \$err\_in: The initialization error rates (unimportant). 
       - \$trans: A feature table of observed transitions for each type (eg. A->C) and quality score
@@ -105,16 +105,16 @@ Tools:
    out: A data.frame, or a list of data.frames.
      - The return data.frame(s) has a row for each unique pairing of forward/reverse denoised sequences,
      - cols
-       • \$abundance: Number of reads corresponding to this forward/reverse combination.
-       • \$sequence: The merged sequence.
-       • \$forward: The index of the forward denoised sequence.
-       • \$reverse: The index of the reverse denoised sequence.
-       • \$nmatch: Number of matches nts in the overlap region.
-       • \$nmismatch: Number of mismatches in the overlap region.
-       • \$nindel: Number of indels in the overlap region.
-       • \$prefer: The sequence used for the overlap region. 1=forward; 2=reverse.
-       • \$accept: TRUE if overlap between forward and reverse denoised sequences was at least minOverlap and had at most maxMismatch differences. FALSE otherwise.
-       • \$...: Additional columns specified in propagateCol.
+       - \$abundance: Number of reads corresponding to this forward/reverse combination.
+       - \$sequence: The merged sequence.
+       - \$forward: The index of the forward denoised sequence.
+       - \$reverse: The index of the reverse denoised sequence.
+       - \$nmatch: Number of matches nts in the overlap region.
+       - \$nmismatch: Number of mismatches in the overlap region.
+       - \$nindel: Number of indels in the overlap region.
+       - \$prefer: The sequence used for the overlap region. 1=forward; 2=reverse.
+       - \$accept: TRUE if overlap between forward and reverse denoised sequences was at least minOverlap and had at most maxMismatch differences. FALSE otherwise.
+       - \$...: Additional columns specified in propagateCol.
 
 • Taxonomic Classification (assignTaxonomy, assignSpecies)
 
@@ -132,13 +132,13 @@ Tools:
   getSequences
 
   extracts the sequences from several different data objects: including including dada-class
-  and derep-class objects, as well as data.frame objects that have both $sequence and $abun-
+  and derep-class objects, as well as data.frame objects that have both \$sequence and \$abun-
   dance columns.
 
   getUniques
 
   extracts the uniques-vector from several different data objects, including dada-class
-  and derep-class objects, as well as data.frame objects that have both $sequence and $abundance
+  and derep-class objects, as well as data.frame objects that have both \$sequence and \$abundance
   columns
 
   plotQualityProfile

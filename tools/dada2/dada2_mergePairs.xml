@@ -27,21 +27,24 @@ write.table(merged, "$merged", quote=F, sep="\t", row.names = F, col.names = T)
     ]]></configfile>
     </configfiles>
     <inputs>
-        <param name="dadaf" type="data" format="dada2_dada" label="dada results for forward reads"/>
-        <param name="derepf" type="data" format="dada2_derep" label="dereplicated forward reads"/>
-        <param name="dadar" type="data" format="dada2_dada" label="dada results for reverse reads"/>
-        <param name="derepr" type="data" format="dada2_derep" label="dereplicated reverse reads"/>
-        <param name="minoverlap" type="integer" value="12" min="0" label="minimum length of the overlap"/>
-        <param name="maxmismatch" type="integer" value="0" min="0" label="maximum number of mismatches"/>
-        <param name="justconcatenate" type="boolean" checked="false" truevalue="FALSE" falsevalue="FALSE" label="concatenated rather than merge"/>
-        <param name="trimoverhang" type="boolean" checked="false" truevalue="FALSE" falsevalue="FALSE" label="trim overhangs"/>
+        <param name="dadaf" type="data" format="dada2_dada" label="Dada results for forward reads"/>
+        <param name="derepf" type="data" format="dada2_derep" label="Dereplicated forward reads"/>
+        <param name="dadar" type="data" format="dada2_dada" label="Dada results for reverse reads"/>
+        <param name="derepr" type="data" format="dada2_derep" label="Dereplicated reverse reads"/>
+        <param name="minoverlap" type="integer" value="12" min="0" label="Minimum length of the overlap"/>
+        <param name="maxmismatch" type="integer" value="0" min="0" label="Maximum number of mismatches"/>
+        <param name="justconcatenate" type="boolean" checked="false" truevalue="FALSE" falsevalue="FALSE" label="Concatenated rather than merge" help="The forward and reverse-complemented reverse read are concatenated rather than merged, with a 10 Ns spacer inserted between them"/>
+        <param name="trimoverhang" type="boolean" checked="false" truevalue="FALSE" falsevalue="FALSE" label="Trim overhangs" help="Overhangs are when the reverse read extends past the start of the forward read, and vice-versa, as can happen when reads are longer than the amplicon and read into the other-direction primer region"/>
     </inputs>
     <outputs>
         <data name="merged" format="dada2_mergepairs" label="${tool.name} on ${on_string}"/>
     </outputs>
 
     <help><![CDATA[
-        TODO: Fill in help.
+Description
+...........
+
+This function attempts to merge each denoised pair of forward and reverse reads, rejecting any pairs which do not sufficiently overlap or which contain too many (>0 by default) mismatches in the overlap region.
     ]]></help>
     <expand macro="citations"/>
 </tool>

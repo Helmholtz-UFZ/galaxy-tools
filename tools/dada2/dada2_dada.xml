@@ -95,7 +95,19 @@ dada_result <- dada(derep, err,
             <filter>batch_cond['batch_select']=="no"</filter>
         </collection>
     </outputs>
-    <help><![CDATA[
+    <tests>
+	    <test>
+			<param name="batch_cond|batch_select" value="no"/>
+			<param name="batch_cond|derep" value="" ftype="dada2_derep" >
+				<extra_files type="Rdata" name="Rdata" value="derepFastq_paired_F3D0_R1.Rdata" />
+	        </param>
+            <param name="errorrates" value="learnErrors_forward.tab" ftype="dada2_errorrates" >
+				<extra_files type="Rdata" name="Rdata" value="learnErrors_forward.Rdata" />
+	        </param>
+
+	</test>
+    </tests>
+	<help><![CDATA[
 Description
 ...........
 

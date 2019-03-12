@@ -129,6 +129,21 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
                 <element name="reverse" value="filterAndTrim_paired_F3D0_R2.fq.gz" ftype="fastqsanger.gz" />
             </output_collection>
         </test>
+        <test>
+            <conditional name="paired_cond">
+                <param name="paired_select" value="TRUE"/>
+                <param name="reads">
+                    <collection type="paired">
+                        <element name="forward" value="F3D141_S207_L001_R1_001.fastq.gz" ftype="fastqsanger.gz"/>
+                        <element name="reverse" value="F3D141_S207_L001_R2_001.fastq.gz" ftype="fastqsanger.gz"/>
+                    </collection>
+                </param>
+            </conditional>
+            <output_collection name="paired_output" count="2">
+                <element name="forward" value="filterAndTrim_paired_F3D141_R1.fq.gz" ftype="fastqsanger.gz" />
+                <element name="reverse" value="filterAndTrim_paired_F3D141_R2.fq.gz" ftype="fastqsanger.gz" />
+            </output_collection>
+        </test>
         <!-- single end data -->
         <test>
             <conditional name="paired_cond">

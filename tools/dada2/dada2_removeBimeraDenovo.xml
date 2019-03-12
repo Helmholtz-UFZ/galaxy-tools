@@ -1,4 +1,4 @@
-<tool id="dada2_removeBimeraDenovo" name="dada2: removeBimeraDenovo" version="@DADA2_VERSION@">
+<tool id="dada2_removeBimeraDenovo" name="dada2: removeBimeraDenovo" version="@DADA2_VERSION@+galaxy@WRAPPER_VERSION@">
     <description>Remove bimeras from collections of unique sequences</description>
     <macros>
         <import>macros.xml</import>

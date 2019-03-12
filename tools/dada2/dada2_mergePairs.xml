@@ -1,4 +1,4 @@
-<tool id="dada2_mergePairs" name="dada2: mergePairs" version="@DADA2_VERSION@">
+<tool id="dada2_mergePairs" name="dada2: mergePairs" version="@DADA2_VERSION@+galaxy@WRAPPER_VERSION@">
     <description>Merge denoised forward and reverse reads</description>
     <macros>
         <import>macros.xml</import>

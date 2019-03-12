@@ -1,4 +1,4 @@
-<tool id="dada2_derepFastq" name="dada2: derepFastq" version="@DADA2_VERSION@">
+<tool id="dada2_derepFastq" name="dada2: derepFastq" version="@DADA2_VERSION@+galaxy@WRAPPER_VERSION@">
     <description>dereplicate amplicon sequences</description>
     <macros>
         <import>macros.xml</import>
@@ -31,7 +31,25 @@ saveRDS(derep, file=file.path('$derep.extra_files_path', "Rdata"))
         </test>
     </tests>
     <help><![CDATA[
-        TODO: Fill in help.
+Description
+...........
+
+Dereplication combines all identical sequencing reads into into “unique sequences” with a corresponding “abundance” equal to the number of reads with that unique sequence. Dereplication substantially reduces computation time by eliminating redundant comparisons.
+
+Usage
+.....
+
+**Input** is a FASTQ dataset containing the filtered and trimmed reads of a sample. 
+
+**Output** a dataset with type *dada2_derep* which is a table that shows the 
+dereplicated sequences and their abundances.
+
+The output can be used as input for the *dada2: dada* tool which infers the sample composition from the dereplicated sequences given an error model. 
+
+Details
+.......
+
+Dereplication in the DADA2 pipeline has one crucial addition from other pipelines: DADA2 retains a summary of the quality information associated with each unique sequence. The consensus quality profile of a unique sequence is the average of the positional qualities from the dereplicated reads. These quality profiles inform the error model of the subsequent sample inference step, significantly increasing DADA2’s accuracy.
     ]]></help>
     <expand macro="citations"/>
 </tool>

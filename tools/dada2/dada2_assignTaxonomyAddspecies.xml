@@ -1,4 +1,4 @@
-<tool id="dada2_assignTaxonomyAddspecies" name="dada2: assignTaxonomy and addSpecies" version="@DADA2_VERSION@">
+<tool id="dada2_assignTaxonomyAddspecies" name="dada2: assignTaxonomy and addSpecies" version="@DADA2_VERSION@+galaxy@WRAPPER_VERSION@">
     <description>Learn Error rates</description>
     <macros>
         <import>macros.xml</import>
@@ -19,20 +19,23 @@ nthreads <- as.integer(args[1])
 
 seqs <- $read_data($seqs)
 
-#if $reference_cond.reference_select == history
-ref <- '$refFasta'
+#if $reference_cond.reference_select == "history"
+ref <- '$reference_cond.refFasta'
+ref <- '$reference_cond.taxLevels'
 #else
-ref <- $reference_cond.refFasta.fields.path
+ref <- '$reference_cond.refFasta.fields.path'
+tl <- '$reference_cond.refFasta.fields.taxlevels'
 #end if
+tl <- strsplit(tl, ",")[[1]]
 
 taxa <- assignTaxonomy(seqs, ref, minBoot = $minBoot, tryRC = $tryRC,
-            outputBootstraps = $outputBootstraps, multithread = nthreads)
+    outputBootstraps = $outputBootstraps, 
+    taxLevels = tl, multithread = nthreads, verbose=T)
 
 #if $outputBootstraps
     boot <- taxa$boot
     taxa <- taxa$taxa
 #end if
-
 
 #if $addSpecies_cond.addSpecies_select == "TRUE"
     #if $addSpecies_cond.allowMultiple_cond.allowMultiple == "num"
@@ -40,12 +43,12 @@ taxa <- assignTaxonomy(seqs, ref, minBoot = $minBoot, tryRC = $tryRC,
     #else
     aM <- $addSpecies_cond.allowMultiple_cond.allowMultiple
     #end if
-    #if $addSpecies_cond.speciesreference_cond.reference_select == history
+    #if $addSpecies_cond.speciesreference_cond.speciesreference_select == "history"
     ref <- '$addSpecies_cond.speciesreference_cond.speciesrefFasta'
     #else
     ref <- '$addSpecies_cond.speciesreference_cond.speciesrefFasta.fields.path'
     #end if
-    taxa <- addSpecies(taxa, '$addSpecies_cond.speciesRefFasta', allowMultiple = aM, tryRC = $addSpecies_cond.tryRC)
+    taxa <- addSpecies(taxa, ref, allowMultiple = aM, tryRC = $addSpecies_cond.tryRC)
 #end if
 
 #if $outputBootstraps
@@ -72,6 +75,7 @@ write.table(taxa, file = '$output', quote = F, sep = "\t", row.names = T, col.na
           </when>
           <when value="history">
             <param name="refFasta" type="data" format="fasta,fasta.gz" label="Reference data set" />
+            <param name="taxLevels" type="text" label="Names of the taxonomic levels in the data set" help="comma separated list" />
           </when>
         </conditional>
         <param name="minBoot" type="integer" value="50" min="0" label="Minimum bootstrap confidence" help="for assigning a

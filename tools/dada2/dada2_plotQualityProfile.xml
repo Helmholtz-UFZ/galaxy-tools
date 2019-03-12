@@ -1,4 +1,4 @@
-<tool id="dada2_plotQualityProfile" name="dada2: plotQualityProfile" version="@DADA2_VERSION@">
+<tool id="dada2_plotQualityProfile" name="dada2: plotQualityProfile" version="@DADA2_VERSION@+galaxy@WRAPPER_VERSION@">
     <description>plot a visual summary of the quality scores</description>
     <macros>
         <import>macros.xml</import>
@@ -49,9 +49,29 @@ ggsave('output.pdf', qp, width = 20,height = 15,units = c("cm"))
     <outputs>
         <data name="output" format="pdf" from_work_dir="output.pdf"/>
     </outputs>
-
+    <tests>
+        <test>
+            <param name="mode_cond|mode_select" value="TRUE"/>
+            <param name="mode_cond|reads" value="F3D0_S188_L001_R1_001.fastq.gz,F3D0_S188_L001_R2_001.fastq.gz" ftype="fastqsanger.gz"/>
+            <output name="output" value="qualityProfileMultiple.pdf" ftype="pdf"/>
+        </test>
+        <test>
+            <param name="mode_cond|mode_select" value="FALSE"/>
+            <param name="mode_cond|reads" value="F3D0_S188_L001_R1_001.fastq.gz" ftype="fastqsanger.gz"/>
+            <output name="output" value="qualityProfile.pdf" ftype="pdf"/>
+        </test>
+    </tests>
     <help><![CDATA[
-        TODO: Fill in help.
+Summary
+.......
+
+This function plots a visual summary of the distribution of quality scores as a function of sequence position for the input fastq datasets.
+
+Details
+.......
+
+The distribution of quality scores at each position is shown as a grey-scale heat map, with dark colors corresponding to higher frequency. The plotted lines show positional summary statistics: green is the mean, orange is the median, and the dashed orange lines are the 25th and 75th quantiles. If the sequences vary in length, a red line will be plotted showing the percentage of reads that extend
+to at least that position.
     ]]></help>
     <expand macro="citations"/>
 </tool>

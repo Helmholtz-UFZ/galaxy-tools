@@ -1,4 +1,4 @@
-<tool id="dada2_dada" name="dada2: dada" version="@DADA2_VERSION@">
+<tool id="dada2_dada" name="dada2: dada" version="@DADA2_VERSION@+galaxy@WRAPPER_VERSION@">
     <description>Remove sequencing errors</description>
     <macros>
         <import>macros.xml</import>
@@ -41,7 +41,9 @@ pool <- F
 pool <- 'pseudo'
     #end if
 #end if
-dada_result <- dada(derep, err, errorEstimationFunction = $errfoo, selfConsist = $selfconsist, pool = pool, multithread = nthreads)
+dada_result <- dada(derep, err, 
+## not needed for end user:    errorEstimationFunction = $errfoo, selfConsist = $selfconsist, 
+    pool = pool, multithread = nthreads)
 
 #if $batch_cond.batch_select == "no":
     for( id in names(dada_result) ){
@@ -80,8 +82,9 @@ dada_result <- dada(derep, err, errorEstimationFunction = $errfoo, selfConsist =
             </when>
         </conditional>
         <param name="errorrates" type="data" format="dada2_errorrates" label="Error rates"/>
-        <expand macro="errorEstimationFunction"/>
-        <param name="selfconsist" type="boolean" checked="false" truevalue="TRUE" falsevalue="FALSE" label="Alternate between sample inference and error rate estimation until convergence"/>
+		<!-- not needed for end user I guess
+	    <expand macro="errorEstimationFunction"/>
+		<param name="selfconsist" type="boolean" checked="false" truevalue="TRUE" falsevalue="FALSE" label="Alternate between sample inference and error rate estimation until convergence"/>-->
     </inputs>
     <outputs>
 	<data name="dada" format="dada2_dada">
@@ -93,24 +96,38 @@ dada_result <- dada(derep, err, errorEstimationFunction = $errfoo, selfConsist =
         </collection>
     </outputs>
     <help><![CDATA[
+Description
+...........
+
+The dada function takes as input dereplicated amplicon sequencing reads and returns the inferred
+composition of the sample (or samples). Put another way, dada removes all sequencing errors to
+reveal the members of the sequenced community.
+
+Usage
+.....
+
 **Input:**
 
-- A number of derep data sets computed with derepFastq (given as list or multiple data sets)
-- An errorrates data set computed with learnErrors
+- A number of dada2_derep datasets computed with *derepFastq* (given as collection or multiple data sets)
+- An dada2_errorrates data set computed with learnErrors
 
 You can decide to compute the data jointly or in batches.
 
 - Jointly (Process "samples in batches"=no): A single Galaxy job is started that processes all derep data sets jointly. You may chose different pooling strategies: if the started dada job processes the samples individually, pooled, or pseudo pooled. 
-- In batches (Process "samples in batches"=yes): A separate Galaxy job is started for earch derep data set. This is equivalent to joint processing and choosing to process samples individually. 
+- In batches (Process "samples in batches"=yes): A separate Galaxy job is started for earch derep data set. This is equivalent to joint processing and choosing to process samples individually.  
 
-While the single dada job (in case of joint processing) can use multiple cores on one compute node, 
-batched processing distributes the work on a number of jobs (equal to the number of input 
-derep data sets) where each can use multiple cores. Hence, if you intend to process the data 
-sets individually, batched processing is more efficient -- in particular if Galaxy has access to 
-a larger number of compute ressources. 
+While the single dada job (in case of joint processing) can use multiple cores on one compute node, batched processing distributes the work on a number of jobs (equal to the number of input derep data sets) where each can use multiple cores. Hence, if you intend to or need to process the data sets individually, batched processing is more efficient -- in particular if Galaxy has access to a larger number of compute ressources. 
 
+A typical use case of individual processing of the samples are large data sets for which the pooled strategy needs to much time or memory.
 
-	    TODO: Fill in help.
+**Output**: a data set of type dada2_dada. 
+
+The output of this tool can serve as input for *dada2: mergePairs*, *dada2: removeBimeraDinovo*, and "dada2: makeSequenceTable"
+
+Details
+.......
+
+Briefly, dada implements a statistical test for the notion that a specific sequence was seen too many times to have been caused by amplicon errors from currently inferred sample sequences. Overly abundant sequences are used as the seeds of new partitions of sequencing reads, and the final set of partitions is taken to represent the denoised composition of the sample. A more detailed explanation of the algorithm is found in the dada2 puplication (see below) and https://doi.org/10.1186/1471-2105-13-283. dada depends on a parametric error model of substitutions. Thus the quality of its sample inference is affected by the accuracy of the estimated error rates. All comparisons between sequences performed by dada depend on pairwise alignments. This step is the most computationally intensive part of the algorithm, and two alignment heuristics have been implemented in dada for speed: A kmer-distance screen and banded Needleman-Wunsch alignmemt.
     ]]></help>
     <expand macro="citations"/>
 </tool>

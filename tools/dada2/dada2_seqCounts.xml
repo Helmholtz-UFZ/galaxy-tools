@@ -1,4 +1,4 @@
-<tool id="dada2_seqCounts" name="dada2: sequence counts" version="@DADA2_VERSION@">
+<tool id="dada2_seqCounts" name="dada2: sequence counts" version="@DADA2_VERSION@+galaxy@WRAPPER_VERSION@">
     <description></description>
     <macros>
         <import>macros.xml</import>

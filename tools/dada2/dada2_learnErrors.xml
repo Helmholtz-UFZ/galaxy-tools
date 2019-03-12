@@ -1,4 +1,4 @@
-<tool id="dada2_learnErrors" name="dada2: learnErrors" version="@DADA2_VERSION@">
+<tool id="dada2_learnErrors" name="dada2: learnErrors" version="@DADA2_VERSION@+galaxy@WRAPPER_VERSION@">
     <description>Learn Error rates</description>
     <macros>
         <import>macros.xml</import>
@@ -40,28 +40,58 @@ ggsave('output.pdf', plot, width = 20,height = 15,units = c("cm"))
     </configfiles>
     <inputs>
         <param name="reads" type="data" multiple="true" format="fastqsanger,fastqsanger.gz" label="Short read data" help="forward or reverse reads should be processed separately"/>
-        <param name="nbases" type="integer" value="8" min="0" label="Magnitide of number of bases to use for learning" help=""/>
-            <section name="advanced" title="Advanced Option">
+        <param name="nbases" type="integer" value="8" min="0" label="Magnitide of number of bases to use for learning"/>
+        <section name="advanced" title="Advanced Option">
             <expand macro="errorEstimationFunction"/>
-            <param name="randomize" type="boolean" checked="false" truevalue="TRUE" falsevalue="FALSE" label="randomize samples"/>
-                <param name="maxconsist" type="integer" value="10" min="0" label="maximum number of times to step through the selfconsistency loop" help=""/>
-            <param name="omegac" type="integer" value="0" min="0" label="threshold at which unique sequences inferred to contain errors are corrected" help=""/>
+            <param name="randomize" type="boolean" checked="false" truevalue="TRUE" falsevalue="FALSE" label="Randomize samples"/>
+                <param name="maxconsist" type="integer" value="10" min="0" label="Maximum number of times to step through the selfconsistency loop" help=""/>
+            <param name="omegac" type="integer" value="0" min="0" label="Threshold at which unique sequences inferred to contain errors are corrected" help=""/>
         </section>
-            <section name="plotopt" title="Plotting Option">
-            <param name="obs" type="boolean" checked="true" truevalue="TRUE" falsevalue="FALSE" label="plot observed error rates"/>
-            <param name="errout" type="boolean" checked="true" truevalue="TRUE" falsevalue="FALSE" label="plot output error rates"/>
-            <param name="errin" type="boolean" checked="false" truevalue="TRUE" falsevalue="FALSE" label="plot input error rates"/>
-            <param name="nominalQ" type="boolean" checked="true" truevalue="TRUE" falsevalue="FALSE" label="plot observed error rates"/>
+        <section name="plotopt" title="Plotting Option">
+            <param name="obs" type="boolean" checked="true" truevalue="TRUE" falsevalue="FALSE" label="Plot observed error rates"/>
+            <param name="errout" type="boolean" checked="true" truevalue="TRUE" falsevalue="FALSE" label="Plot output error rates"/>
+            <param name="errin" type="boolean" checked="false" truevalue="TRUE" falsevalue="FALSE" label="Plot input error rates"/>
+            <param name="nominalQ" type="boolean" checked="true" truevalue="TRUE" falsevalue="FALSE" label="Plot expected error rates"/>
         </section>
-
     </inputs>
     <outputs>
         <data name="errors" format="dada2_errorrates" label="${tool.name} on ${on_string}"/>
         <data name="output" format="pdf" from_work_dir="output.pdf" label="${tool.name} on ${on_string}: error rates plot"/>
     </outputs>
+	<tests>
+        <test>
+		</test>
+    </tests>
+	<help><![CDATA[
+Description
+...........
 
-    <help><![CDATA[
-        TODO: Fill in help.
+Error rates are learned by alternating between sample inference and error rate estimation until convergence. Additionally a plot is generated that shows the observed frequency of each transition (eg. A->C) as a function of the associated quality score, the final estimated error rates (if they exist), the initial input rates, and the expected error rates under the nominal definition of quality scores. 
+
+Usage
+-----
+
+**Input** are the FASTQ dataset containing the filtered and trimmed reads of the samples.
+
+The main **output** of type dada2_errorrates shows the numeric matrix with the learned error rates.
+
+The **plot** shows the error rates for each possible transition (A→C, A→G,...)
+
+- Points are the observed error rates for each consensus quality score. 
+- The black line shows the estimated error rates after convergence of the machine-learning algorithm. 
+- The red line shows the error rates expected under the nominal definition of the Q-score. 
+
+The learned error rates are input the the *dada2: dada* tool.
+
+Details
+.......
+
+The learnErrors method learns a parametric this error model from the data, by alternating estimation of the error rates and inference of sample composition until they converge on a jointly consistent solution. As in many machine-learning problems, the algorithm must begin with an initial guess, for which the maximum possible error rates in this data are used (the error rates if only the most abundant sequence is correct and all the rest are errors).
+
+It is expected that the estimated error rates (black lines in the plot) are in a good fit to the observed rates (points in the plot), and that the error rates drop with increased quality. Try to increase the **number of bases to use for learning** if this is not the case.
+    
+
+Everything looks reasonable and we proceed with confidence.
     ]]></help>
     <expand macro="citations"/>
 </tool>

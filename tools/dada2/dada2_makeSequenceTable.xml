@@ -29,42 +29,23 @@ samples <- list()
 seqtab <- makeSequenceTable(samples, orderBy = "$orderby")
 
 
-## get and plot length distribution
-#if $plot == "yes" or $filter_cond.filter_select == "minmax" != "no":
-
-seqlen<-c()
-for( c in 1:ncol(seqtab) ){
-    for( r in 1:nrow(seqtab) ){
-        seqlen <- c(seqlen, rep(nchar( colnames(seqtab)[c] ), seqtab[ r, c ]))
-    }
-}
-TODO https://github.com/benjjneb/dada2/issues/704#issuecomment-471577398
-#if $filter_cond.filter_select == "minmax": 
-    rng <- c($filter_cond.min,$filter_cond.max)
-    outliers <-unique(sort( seqlen[ ! seqlen %in% seq() ] ))
-#else
-    #if $filter_cond.filter_select == "no":
-       coef <- 1.5
-    #else
-       coef <- $filter_cond.coef
-    #end if
-    rng <- range( seqlen[ ! seqlen %in% boxplot.stats(seqlen, coef=coef)\$out ] )
-#end if
+reads.per.seqlen <- tapply(colSums(seqtab), factor(nchar(getSequences(seqtab))), sum)
+df <- data.frame(length=as.numeric(names(reads.per.seqlen)), count=reads.per.seqlen)
 
 #if $plot == "yes"
 pdf( '$plot_output' )
-D <- data.frame(length=seqlen )
-ggplot(D) + 
-    geom_histogram( aes(x=length), binwidth=1 ) + 
-    geom_vline( xintercept=c(rng[1]-0.5, rng[2]+0.5) ) + 
+ggplot(data=df, aes(x=length, y=count)) + 
+    geom_col() + 
+#if $filter_cond.filter_select != "no"
+    geom_vline( xintercept=c($filter_cond.min-0.5, $filter_cond.max+0.5) ) + 
+#end if
     theme_bw()
 bequiet <- dev.off()
 #end if
 
 ## filter by seqlengths
 #if $filter_cond.filter_select != "no"
-    seqtab <- seqtab[, nchar(colnames(seqtab)) %in% seq(rng[1], rng[2])]
-#end if
+    seqtab <- seqtab[, nchar(colnames(seqtab)) %in% seq($filter_cond.min, $filter_cond.max)]
 #end if
 
 write.table(seqtab, "$stable", quote=F, sep="\t", row.names = T, col.names = NA)
@@ -80,15 +61,11 @@ write.table(seqtab, "$stable", quote=F, sep="\t", row.names = T, col.names = NA)
             <param name="filter_select" type="select" label="Filter method">
                 <option value="no">No filter</option>
                 <option value="minmax">Specify minimum and maximum sequence lengths</option>
-                <option value="outlier">Automatic by outlier detection</option>
             </param>
             <when value="no"/>
             <when value="minmax">
                 <param name="min" type="integer" value="" label="Minimum sequence length"/>
                 <param name="max" type="integer" value="" label="Maximum sequence length"/>
-            </when>
-            <when value="outlier">
-                <param name="coef" type="float" value="1.5" label="Interquartile range coefficient"/>
             </when>
         </conditional>
         <param name="plot" type="boolean" truevalue="yes" falsevalue="no" checked="true" label="plot sequence length distribution" />

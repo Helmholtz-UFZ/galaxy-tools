@@ -61,21 +61,22 @@ ggsave('output.pdf', plot, width = 20,height = 15,units = c("cm"))
     </outputs>
     <tests>
         <test>
-            <param name="reads" value="filterAndTrim_paired_F3D0_R1.fq.gz,filterAndTrim_paired_F3D0_R2.fq.gz" ftype="fastqsanger.gz"/>
+            <param name="reads" value="filterAndTrim_paired_F3D0_R1.fq.gz,filterAndTrim_paired_F3D141_R1.fq.gz" ftype="fastqsanger.gz"/>
             <output name="errors" value="learnErrors_forward.tab" ftype="dada_errorrates">
-                <extra_files type="Rdata" name="Rdata" value="learnErrors_forward.Rdata" />
+                <extra_files type="rdata" name="Rdata" value="learnErrors_forward.Rdata" />
             </output>
             <output name="output" value="learnErrors_forward.pdf" ftype="pdf" />
         </test>
+		<!-- test for creating input for dada results for reverse, not needed for testing -->
         <test>
-            <param name="reads" value="filterAndTrim_paired_F3D141_R1.fq.gz,filterAndTrim_paired_F3D141_R2.fq.gz" ftype="fastqsanger.gz"/>
+            <param name="reads" value="filterAndTrim_paired_F3D0_R2.fq.gz,filterAndTrim_paired_F3D141_R2.fq.gz" ftype="fastqsanger.gz"/>
             <output name="errors" value="learnErrors_reverse.tab" ftype="dada_errorrates">
-                <extra_files type="Rdata" name="Rdata" value="learnErrors_reverse.Rdata" />
+                <extra_files type="rdata" name="Rdata" value="learnErrors_reverse.Rdata" />
             </output>
             <output name="output" value="learnErrors_reverse.pdf" ftype="pdf" />
         </test>
         <test>
-            <param name="reads" value="F3D0_S188_L001_R2_001.fastq.gz,F3D141_S207_L001_R2_001.fastq.gz" ftype="fastqsanger.gz"/>
+            <param name="reads" value="filterAndTrim_paired_F3D0_R1.fq.gz,filterAndTrim_paired_F3D141_R1.fq.gz" ftype="fastqsanger.gz"/>
             <param name="plotopt|obs" value="FALSE" />
             <param name="plotopt|errout" value="FALSE" />
             <param name="plotopt|errin" value="TRUE" />

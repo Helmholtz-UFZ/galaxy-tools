@@ -34,6 +34,11 @@ class dada_derep( Tabular ):
 class dada_dada( RData ):
     """
     datatype for dada2's dada-class
+
+    note: intended to implement this as table + Rdata like the other data types
+    problem is that in non-batch mode the dada wrapper uses discover_datasets
+    to get the collection elements and there is currently no way to set extra 
+    files when doing this.
     """
     file_ext = "dada2_dada"
     blurb = "result of dada"
@@ -46,6 +51,7 @@ class dada_errorrates( Tabular ):
     - additional file contains the Rdata
     """
     file_ext = "dada2_errorrates"
+    composite_type = 'basic'
     blurb = "learned error rates"
     def __init__(self, **kwd):
         """Initialize derep datatype"""
@@ -60,6 +66,7 @@ class dada_mergepairs( Tabular ):
     - the data is stored as table (wo additional Rdata)
     """
     file_ext = "dada2_mergepairs"
+    composite_type = 'basic'
     blurb = "merged reads"
     def __init__(self, **kwd):
         """Initialize derep datatype"""

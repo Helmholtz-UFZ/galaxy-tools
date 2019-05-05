@@ -6,29 +6,53 @@
     <expand macro="requirements"/>
     <expand macro="version_command"/>
     <command detect_errors="exit_code"><![CDATA[
-        Rscript --slave '$dada2_script'
+##name files by linking
+#import re
+#if "batch" in str($paired_cond.paired_select)
+  #set elid = re.sub('[^\w\-\.]', '_', str($paired_cond.fl.element_identifier))
+  #if "single" in str($paired_cond.paired_select)
+    ln -s '$paired_cond.fl' '$elid' &&
+  #else
+    ln -s '$paired_cond.fl.forward' '$elid'_forward &&
+    ln -s '$paired_cond.fl.reverse' '$elid'_reverse &&
+  #end if
+#else
+  #for $read in $paired_cond.fl:
+    #set elid = re.sub('[^\w\-\.]', '_', str($read.element_identifier))
+    #if "single" in str($paired_cond.paired_select)
+      ln -s '$read' '$elid' &&
+    #else
+      ln -s '$read.forward' '$elid'_forward &&
+      ln -s '$read.reverse' '$elid'_reverse &&
+    #end if
+  #end for
+#end if
+	
+	Rscript --slave '$dada2_script'
     ]]></command>
     <configfiles>
         <configfile name="dada2_script"><![CDATA[
+#import re
 files = c()
-#if "batch" in $paired_cond.paired_select
-	#if "single" in $paired_cond.paired_select
-		files = c(files, '$reads')
-	#else
-		files = c(files, '$reads.forward')
-		files = c(files, '$reads.reverse')
-	#end if
+#if "batch" in str($paired_cond.paired_select)
+  #set elid = re.sub('[^\w\-\.]', '_', str($paired_cond.fl.element_identifier))
+  #if "single" in str($paired_cond.paired_select)
+    files = c(files, '$elid')
+  #else
+    files = c(files, paste('$elid', 'forward', sep = "_"))
+    files = c(files, paste('$elid', 'reverse', sep = "_"))
+  #end if
 #else
-	#for $read in $paired_cond.reads:
-		#if $paired_cond.paired_select == "no"
-			files = c(files, '$read')
-		#else
-			files = c(files, '$read.forward')
-			files = c(files, '$read.reverse')
-		#end if
-	#end for
+  #for $read in $paired_cond.fl:
+    #set elid = re.sub('[^\w\-\.]', '_', str($read.element_identifier))
+    #if "single" in str($paired_cond.paired_select)
+      files = c(files, '$elid')
+    #else
+      files = c(files, paste('$elid', 'forward', sep = "_"))
+      files = c(files, paste('$elid', 'reverse', sep = "_"))
+    #end if
+  #end for
 #end if
-
 
 library(ggplot2, quietly=T)
 library(dada2, quietly=T)
@@ -37,64 +61,83 @@ qp <- plotQualityProfile(files,
 #if str($n) != ""
     n=$n,
 #end if
-    aggregate = $mode)
+    aggregate = $aggregate)
 
 ggsave('output.pdf', qp, width = 20,height = 15,units = c("cm"))
     ]]></configfile>
     </configfiles>
     <inputs>
-		<conditional name="paired_cond">
-			<param name="paired_select" type="select" label="Input data organisation and processing mode" help="Select if data is organized in a paired collection or not (note that the pairing of the data sets is not used by the tool); batch will create a separate pdf for each input data set or data set pair; non-batch will create one pdf containing a plot for each data set">
-				<option value="paired">paired - non batch</option>
-				<option value="single">single - non batch</option>
-				<option value="paired_batch">paired - batch</option>
-				<option value="single_batch">single - batch</option>
-			</param>
-			<when value="paired">
-				<param name="reads" type="data_collection" collection_type="list:paired" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
-			</when>
-			<when value="single">
-				<param name="reads" type="data" multiple="true" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
-			</when>
-			<when value="paired_batch">
-				<param name="reads" type="data_collection" collection_type="paired" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
-			</when>
-			<when value="single_batch">
-				<param name="reads" type="data" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
-			</when>
-		</conditional>
-		<param name="mode" type="boolean" label="Aggregate data" checked="True" truevalue="TRUE" falsevalue="FALSE" help="Create a single plot for all data sets (default) or a separate plot for each data set"/>
-        <param name="n" type="integer" optional="true" label="sample number" help="number of records to sample from the fastq file (default 500.000)"/>
+        <conditional name="paired_cond">
+            <param name="paired_select" type="select" label="Input data organisation and processing mode" help="Select if data is organized in a paired collection or not (note that the pairing of the data sets is not used by the tool); batch will create a separate pdf for each input data set or data set pair; non-batch will create one pdf containing a plot for each data set">
+                <option value="paired">paired - non batch</option>
+                <option value="single">single - non batch</option>
+                <option value="paired_batch">paired - batch</option>
+                <option value="single_batch">single - batch</option>
+            </param>
+            <when value="paired">
+                <param argument="fl" type="data_collection" collection_type="list:paired" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
+            </when>
+            <when value="single">
+                <param argument="fl" type="data" multiple="true" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
+            </when>
+            <when value="paired_batch">
+                <param argument="fl" type="data_collection" collection_type="paired" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
+            </when>
+            <when value="single_batch">
+                <param argument="fl" type="data" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
+            </when>
+        </conditional>
+        <param argument="aggregate" type="boolean" label="Aggregate data" checked="True" truevalue="TRUE" falsevalue="FALSE" help="Create a single plot for all data sets (default) or a separate plot for each data set"/>
+        <param argument="n" type="integer" value="500000" label="sample number" help="number of records to sample from the fastq file"/>
     </inputs>
     <outputs>
         <data name="output" format="pdf" from_work_dir="output.pdf"/>
     </outputs>
     <tests>
+        <!-- paired non-batch, aggregate -->
         <test>
-            <param name="mode" value="TRUE"/>
-            <conditional name="paired_cond">
-                <param name="paired_select" value="TRUE"/>
-                <param name="reads">
-                    <collection type="paired">
-                        <element name="forward" value="F3D0_S188_L001_R1_001.fastq.gz" ftype="fastqsanger.gz"/>
-                        <element name="reverse" value="F3D0_S188_L001_R2_001.fastq.gz" ftype="fastqsanger.gz"/>
-                    </collection>
-                </param>
-            </conditional>
+            <param name="aggregate" value="TRUE"/>
+            <param name="paired_cond|paired_select" value="paired"/>
+            <param name="paired_cond|fl">
+                <collection type="list:paired">
+                    <element name="F3D0_S188_L001">
+                        <collection type="paired">
+                            <element name="forward" value="F3D0_S188_L001_R1_001.fastq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="F3D0_S188_L001_R2_001.fastq.gz" ftype="fastqsanger.gz"/>
+                         </collection>
+                    </element>
+                </collection>
+            </param>
             <output name="output" value="qualityProfileMultiple.pdf" ftype="pdf"/>
         </test>
+        <!-- paired, batch, no aggregate-->
         <test>
-            <param name="mode" value="FALSE"/>
-            <param name="reads" value="F3D0_S188_L001_R1_001.fastq.gz,F3D0_S188_L001_R2_001.fastq.gz" ftype="fastqsanger.gz"/>
+            <param name="aggregate" value="FALSE"/>
+            <param name="paired_cond|paired_select" value="paired_batch"/>
+            <param name="paired_cond|fl">
+                <collection type="paired">
+                    <element name="forward" value="F3D0_S188_L001_R1_001.fastq.gz" ftype="fastqsanger.gz"/>
+                    <element name="reverse" value="F3D0_S188_L001_R2_001.fastq.gz" ftype="fastqsanger.gz"/>
+                </collection>
+            </param>
             <output name="output" value="qualityProfile.pdf" ftype="pdf"/>
         </test>
+        <!-- single, non-batch, aggregate -->
         <test>
-            <param name="mode" value="FALSE"/>
-            <param name="reads" value="F3D0_S188_L001_R1_001.fastq.gz,F3D0_S188_L001_R2_001.fastq.gz" ftype="fastqsanger.gz"/>
+            <param name="aggregate" value="TRUE"/>
+            <param name="paired_cond|paired_select" value="single"/>
+            <param name="paired_cond|fl" value="F3D0_S188_L001_R1_001.fastq.gz,F3D0_S188_L001_R2_001.fastq.gz" ftype="fastqsanger.gz"/>
             <param name="n" value="10000"/>
             <output name="output" value="qualityProfileSmallSample.pdf" ftype="pdf"/>
         </test>
-    </tests>
+        <!-- single, batch, no aggregate -->
+        <test>
+            <param name="aggregate" value="FALSE"/>
+            <param name="paired_cond|paired_select" value="single_batch"/>
+            <param name="paired_cond|fl" value="F3D0_S188_L001_R1_001.fastq.gz" ftype="fastqsanger.gz"/>
+            <param name="n" value="10000"/>
+            <output name="output" value="qualityProfileSmallSample.pdf" ftype="pdf" compare="sim_size"/>
+        </test>    </tests>
     <help><![CDATA[
 Summary
 .......

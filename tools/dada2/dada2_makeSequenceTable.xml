@@ -11,6 +11,7 @@
     <configfiles>
         <configfile name="dada2_script"><![CDATA[
 @READ_FOO@
+@WRITE_FOO@
 
 library(dada2, quietly=T)
 #if $plot == "yes"
@@ -19,25 +20,20 @@ library(ggplot2, quietly=T)
 
 samples <- list()
 #for $s in $samples:
-    #if $len($samples) == 1
-    samples <- $read_data($s)
-    #else
-    samples[["$s.element_identifier"]] <- $read_data($s)
-    #end if
+    samples[["$s.element_identifier"]] <- readRDS('$s')
 #end for
-## make sequence table
-seqtab <- makeSequenceTable(samples, orderBy = "$orderby")
 
+seqtab <- makeSequenceTable(samples, orderBy = "$orderBy")
 
 reads.per.seqlen <- tapply(colSums(seqtab), factor(nchar(getSequences(seqtab))), sum)
 df <- data.frame(length=as.numeric(names(reads.per.seqlen)), count=reads.per.seqlen)
 
 #if $plot == "yes"
 pdf( '$plot_output' )
-ggplot(data=df, aes(x=length, y=count)) + 
-    geom_col() + 
+ggplot(data=df, aes(x=length, y=count)) +
+    geom_col() +
 #if $filter_cond.filter_select != "no"
-    geom_vline( xintercept=c($filter_cond.min-0.5, $filter_cond.max+0.5) ) + 
+    geom_vline( xintercept=c($filter_cond.min-0.5, $filter_cond.max+0.5) ) +
 #end if
     theme_bw()
 bequiet <- dev.off()
@@ -45,20 +41,19 @@ bequiet <- dev.off()
 
 ## filter by seqlengths
 #if $filter_cond.filter_select != "no"
-    seqtab <- seqtab[, nchar(colnames(seqtab)) %in% seq($filter_cond.min, $filter_cond.max)]
+    seqtab <- seqtab[, nchar(colnames(seqtab)) %in% seq($filter_cond.min, $filter_cond.max), drop=F]
 #end if
-
-write.table(seqtab, "$stable", quote=F, sep="\t", row.names = T, col.names = NA)
+write.data( seqtab, '$stable', "dada2_sequencetable" )
     ]]></configfile>
     </configfiles>
     <inputs>
-        <param name="samples" type="data" multiple="true" format="@DADA_UNIQUES@" label="samples" />
-        <param name="orderby" type="select" label="Column order">
+        <param argument="samples" type="data" multiple="true" format="@DADA_UNIQUES@" label="samples" />
+        <param argument="orderBy" type="select" label="Column order">
             <option value="abundance">abundance</option>
             <option value="nsamples">nsamples</option>
         </param>
         <conditional name="filter_cond">
-            <param name="filter_select" type="select" label="Filter method">
+            <param name="filter_select" type="select" label="Length filter method">
                 <option value="no">No filter</option>
                 <option value="minmax">Specify minimum and maximum sequence lengths</option>
             </param>
@@ -76,38 +71,42 @@ write.table(seqtab, "$stable", quote=F, sep="\t", row.names = T, col.names = NA)
             <filter>plot</filter>
         </data>
     </outputs>
-
+    <tests>
+        <test expect_num_outputs="2">
+            <param name="samples" ftype="dada2_mergepairs" value="mergePairs_F3D0.Rdata"/>
+            <output name="stable" value="makeSequenceTable_F3D0.tab" ftype="dada2_sequencetable" />
+            <output name="plot_output" value="makeSequenceTable_F3D0.pdf" ftype="pdf" />
+        </test>
+        <test expect_num_outputs="1">
+            <param name="samples" ftype="dada2_mergepairs" value="mergePairs_F3D0.Rdata"/>
+            <param name="filter_cond|filter_select" value="minmax"/>
+            <param name="filter_cond|min" value="200"/>
+            <param name="filter_cond|max" value="300"/>
+            <param name="plot" value="no" />
+            <output name="stable" value="makeSequenceTable_F3D0.tab" ftype="dada2_sequencetable" />
+        </test>
+    </tests>
     <help><![CDATA[
-This function constructs a sequence table (analogous to an OTU table) from the provided list of
-samples.
+Description
+...........
 
-Custom Reference data sets
---------------------------
+This function constructs a sequence table -- more precisely an amplicon sequence variant table (ASV) table -- a higher-resolution version of the OTU table produced by traditional methods.
 
-For ** taxonomy assignment ** the following is needed: 
+The sequence table is a matrix with rows corresponding to (and named by) the samples, and columns corresponding to (and named by) the sequence variants.
 
-- a reference fasta data base 
-- a comma separated list of taxonomic ranks present in the reference data base 
+Usage
+.....
 
-The reference fasta data base for taxonomic assignment (fasta or compressed fasta) needs to encode the taxonomy corresponding to each sequence in the fasta header lines in the following fashion (note, the second sequence is not assigned down to level 6):
+**Input**: The result of derepFastq, dada, or mergePairs.
 
-::
+**Output**: A data set of type dada2_sequencetable, i.e. a tabular with a row for each sample, and a column for each unique sequence across all the samples. The columns are named by the sequence.
 
-    >Level1;Level2;Level3;Level4;Level5;Level6;
-    ACCTAGAAAGTCGTAGATCGAAGTTGAAGCATCGCCCGATGATCGTCTGAAGCTGTAGCATGAGTCGATTTTCACATTCAGGGATACCATAGGATAC
-    >Level1;Level2;Level3;Level4;Level5;
-    CGCTAGAAAGTCGTAGAAGGCTCGGAGGTTTGAAGCATCGCCCGATGGGATCTCGTTGCTGTAGCATGAGTACGGACATTCAGGGATCATAGGATAC
+Details
+.......
 
-The list of required taxonomic ranks could be for instance: "Kingdom,Phylum,Class,Order,Family,Genus"
+Sequences that are much longer or shorter than expected may be the result of non-specific priming. You can remove non-target-length by applying a length filter. This is analogous to “cutting a band” in-silico to get amplicons of the targeted length.
 
-The reference data base for ** species assignment ** is a fasta file (or compressed fasta file), with the id line formatted as follows:
-
-::
-
-    >ID Genus species
-    ACCTAGAAAGTCGTAGATCGAAGTTGAAGCATCGCCCGATGATCGTCTGAAGCTGTAGCATGAGTCGATTTTCACATTCAGGGATACCATAGGATAC
-    >ID Genus species
-    CGCTAGAAAGTCGTAGAAGGCTCGGAGGTTTGAAGCATCGCCCGATGGGATCTCGTTGCTGTAGCATGAGTACGGACATTCAGGGATCATAGGATAC
+@HELP_OVERVIEW@
     ]]></help>
     <expand macro="citations"/>
 </tool>

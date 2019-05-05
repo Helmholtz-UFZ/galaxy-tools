@@ -6,8 +6,8 @@
     <expand macro="requirements"/>
     <expand macro="version_command"/>
     <command detect_errors="exit_code"><![CDATA[
-Rscript '$dada2_script' &&
-sed -i '1!b;s/^/#dataset/' $outtab
+Rscript '$dada2_script'
+## && sed -i '1!b;s/^/#dataset/' $outtab
     ]]></command>
     <configfiles>
         <configfile name="dada2_script"><![CDATA[
@@ -67,7 +67,7 @@ library(dada2, quietly=T)
 ftout <- filterAndTrim(fwd, filt.fwd, rev = rev, filt.rev,  compress = TRUE,
     truncQ = truncQ, truncLen = truncLen, trimLeft = trimLeft, trimRight = trimRight, maxLen = maxLen,
     minLen = minLen, maxN = maxN, minQ = minQ, maxEE = maxEE, rm.phix = $rmPhiX, orient.fwd = '$orientFwd')
-    
+
 rownames(ftout) <- c( '$paired_cond.reads.element_identifier' )
 write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
     ]]></configfile>
@@ -79,10 +79,10 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
                 <option value="FALSE">no</option>
             </param>
             <when value="TRUE">
-                <param name="reads" type="data_collection" collection_type="paired" format="fastqsanger,fastqsanger.gz" label="Paired short read data"/>
+                <param name="reads" argument="fwd/rev" type="data_collection" collection_type="paired" format="fastqsanger,fastqsanger.gz" label="Paired short read data"/>
             </when>
             <when value="FALSE">
-                <param name="reads" type="data" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
+                <param name="reads" argument="fwd" type="data" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
             </when>
         </conditional>
         <expand macro="trimmers"/>
@@ -96,27 +96,28 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
             <when value="yes">
                 <expand macro="trimmers"/>
                 <expand macro="filters"/>
-            </when> 
+            </when>
         </conditional>
-        <param name="rmPhiX" truevalue="TRUE" falsevalue="FALSE" type="boolean" checked="true" label="Discard reads matching the PhiX genome" />
-        <param name="orientFwd" type="text" value="" optional="true" label="String present at the start of valid reads" help="see below"/>
+        <param argument="rmPhiX" truevalue="TRUE" falsevalue="FALSE" type="boolean" checked="true" label="Discard reads matching the PhiX genome" />
+        <param name="orientFwd" argument="orinent.fwd" type="text" value="" optional="true" label="String present at the start of valid reads" help="see below"/>
         <param name="output_statistics" truevalue="TRUE" falsevalue="FALSE" type="boolean" checked="true" label="Output statistics" help="Create extra table with the number of reads pre and post filtering" />
     </inputs>
     <outputs>
         <collection name="paired_output" type="paired">
-            <data name="forward" format="fastqsanger.gz" from_work_dir="filt_forward.fastq.gz" />
-            <data name="reverse" format="fastqsanger.gz" from_work_dir="filt_reverse.fastq.gz" />
-            <filter>paired_cond['paired_select'] == 'TRUE'</filter>
-        </collection>   
-        <data name="output" format="fastqsanger.gz" from_work_dir="filt_forward.fastq.gz">
-            <filter>paired_cond['paired_select'] == 'FALSE'</filter>
+            <data name="forward" format="fastqsanger.gz" />
+            <data name="reverse" format="fastqsanger.gz" />
+            <filter>paired_cond['paired_select'] == "TRUE"</filter>
+        </collection>
+        <data name="output" format="fastqsanger.gz" >
+            <filter>paired_cond['paired_select'] == "FALSE"</filter>
         </data>
         <data name="outtab" format="tabular" label="${tool.name} on ${on_string}: Statistics">
-			<filter>output_statistics</filter>
-		</data>
+            <filter>output_statistics</filter>
+        </data>
     </outputs>
     <tests>
-        <!-- paired data -->
+        <!-- paired data 
+             currently removed `expect_num_outputs="2"` because of https://github.com/galaxyproject/galaxy/pull/7894-->
         <test>
             <conditional name="paired_cond">
                 <param name="paired_select" value="TRUE"/>
@@ -127,21 +128,23 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
                     </collection>
                 </param>
             </conditional>
-            <output_collection name="paired_output" count="2">
-                <element name="forward" value="filterAndTrim_paired_F3D0_R1.fq.gz" ftype="fastqsanger.gz" />
-                <element name="reverse" value="filterAndTrim_paired_F3D0_R2.fq.gz" ftype="fastqsanger.gz" />
+            <output_collection name="paired_output" type="paired" count="2">
+                <element name="forward" value="filterAndTrim_F3D0_R1.fq.gz" ftype="fastqsanger.gz" />
+                <element name="reverse" value="filterAndTrim_F3D0_R2.fq.gz" ftype="fastqsanger.gz" />
             </output_collection>
+            <output name="outtab" value="filterAndTrim_F3D0.tab" ftype="tabular"/>
         </test>
         <!-- single end data -->
-        <test>
+        <test expect_num_outputs="1">
             <conditional name="paired_cond">
                 <param name="paired_select" value="FALSE"/>
                 <param name="reads" value="F3D0_S188_L001_R1_001.fastq.gz" ftype="fastqsanger.gz"/>
             </conditional>
+            <param name="output_statistics" value="FALSE" />
             <output name="output" value="filterAndTrim_single_F3D0_R1.fq.gz" ftype="fastqsanger.gz" />
         </test>
         <!-- single end data trimming -->
-        <test>
+        <test expect_num_outputs="1">
             <conditional name="paired_cond">
                 <param name="paired_select" value="FALSE"/>
                 <param name="reads" value="F3D0_S188_L001_R1_001.fastq.gz" ftype="fastqsanger.gz"/>
@@ -150,10 +153,11 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
             <param name="trim|trimLeft" value="150" />
             <param name="trim|trimRight" value="2" />
             <param name="trim|truncLen" value="2" />
+            <param name="output_statistics" value="FALSE" />
             <output name="output" value="filterAndTrim_single_trimmers_F3D0_R1.fq.gz" ftype="fastqsanger.gz" />
         </test>
         <!-- single end data filtering -->
-        <test>
+        <test expect_num_outputs="1">
             <conditional name="paired_cond">
                 <param name="paired_select" value="FALSE"/>
                 <param name="reads" value="F3D0_S188_L001_R1_001.fastq.gz" ftype="fastqsanger.gz"/>
@@ -163,10 +167,12 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
             <param name="filter|maxN" value="100" />
             <param name="filter|minQ" value="13" />
             <param name="filter|maxEE" value="1" />
+            <param name="output_statistics" value="FALSE" />
             <output name="output" value="filterAndTrim_single_filters_F3D0_R1.fq.gz" ftype="fastqsanger.gz" />
         </test>
-        <!-- paired data w separate filters and trimmers for reverse -->
-        <test>
+        <!-- paired data w separate filters and trimmers for reverse 
+             currently removed `expect_num_outputs="1"` because of https://github.com/galaxyproject/galaxy/pull/7894-->
+            <test>
             <conditional name="paired_cond">
                 <param name="paired_select" value="TRUE"/>
                 <param name="reads">
@@ -186,7 +192,8 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
             <param name="seprev_cond|filter|maxN" value="100" />
             <param name="seprev_cond|filter|minQ" value="13" />
             <param name="seprev_cond|filter|maxEE" value="1" />
-            <output_collection name="paired_output" count="2"/>
+            <param name="output_statistics" value="FALSE" />
+            <output_collection name="paired_output" type="paired" count="2"/>
         </test>
     </tests>
 
@@ -197,9 +204,9 @@ Description
 Filters and trims an input FASTQ dataset (can be compressed) based on several user-definable criteria, and outputs a compressed FASTQ data set containing those trimmed reads which passed the filters. For paired end data forward and reverse FASTQ datasets can be provided as pair of FASTQ datasets, in which case filtering is performed on the forward and reverse reads independently, and both reads must pass for the read pair to be in the output.
 
 Usage
------
+.....
 
-**Input** is a FASTQ dataset (or a pair on case of paired end data) containing all reads of a sample. If you have multiple samples it is suggested to organize them in a (paired) collection. The **output** is a (paired) collection of filtered and trimmed paired FASTQ datasets (again one data set or pair per sample). 
+**Input** is a FASTQ dataset (or a pair on case of paired end data) containing all reads of a sample. If you have multiple samples it is suggested to organize them in a (paired) collection. The **output** is a (paired) collection of filtered and trimmed paired FASTQ datasets (again one data set or pair per sample).
 
 Upstream dada2 tools are *dada2: derepFastq* and *dada2: learnErrorRates*. Note that these tools do not work on paired end data. So, if you have paired end data you need to split the generated paired collection into one containing the forward reads and one containing the reverse reads. This can be done by the *unzip collection* tool.
 
@@ -211,7 +218,7 @@ Details
 *Trimming and filtering*:
 
 - Truncation of the read length is enforced after trimming of the right end.
-- The long read filter is applied before trimming and the short read filter after trimming. 
+- The long read filter is applied before trimming and the short read filter after trimming.
 - For details on the calculation of the number of expected errors see also https://doi.org/10.1093/bioinformatics/btv401
 
 
@@ -225,7 +232,9 @@ Notes
 This step may be replaced by alternative tools to filter and trim short read data if the following is ensured:
 
 - For paired end data unpaired reads must be removed.
-- There must not be a read containing a non-canonical nucleotide (N). 
+- There must not be a read containing a non-canonical nucleotide (N).
+
+@HELP_OVERVIEW@
     ]]></help>
     <expand macro="citations"/>
 </tool>

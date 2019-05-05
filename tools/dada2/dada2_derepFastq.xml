@@ -6,52 +6,56 @@
     <expand macro="requirements"/>
     <expand macro="version_command"/>
     <command detect_errors="exit_code"><![CDATA[
-	mkdir '$derep.extra_files_path' &&
+    mkdir '$derep.extra_files_path' &&
     Rscript '$dada2_script'
     ]]></command>
     <configfiles>
         <configfile name="dada2_script"><![CDATA[
 library(dada2, quietly=T)
-derep <- derepFastq('$reads')
+derep <- derepFastq('$fls')
 
-write.table(derep\$uniques, file = '$derep', quote = F, sep = "\t", row.names = T, col.names = F)
-saveRDS(derep, file=file.path('$derep.extra_files_path', "Rdata"))
+## write.table(derep\$uniques, file = '$derep', quote = F, sep = "\t", row.names = T, col.names = F)
+saveRDS(derep, file='$derep')
     ]]></configfile>
     </configfiles>
     <inputs>
-        <param name="reads" type="data" format="fastqsanger,fastqsanger.gz" label="Short read data" />
+        <param argument="fls" type="data" format="fastqsanger,fastqsanger.gz" label="Short read data" />
     </inputs>
     <outputs>
         <data name="derep" format="dada2_derep" label="${tool.name} on ${on_string}"/>
     </outputs>
     <tests>
         <test>
-            <param name="reads" value="filterAndTrim_single_F3D0_R1.fq.gz" ftype="fastqsanger.gz" />
-            <output name="output" value="derepFastq_single_F3D0_R1.table" ftype="dada2_derep" >
-				<extra_files type="file" name="Rdata" value="derepFastq_single_F3D0_R1.Rdata" />
-            </output>
+            <param name="fls" value="filterAndTrim_F3D0_R1.fq.gz" ftype="fastqsanger.gz" />
+            <output name="derep" value="derepFastq_F3D0_R1.Rdata" ftype="dada2_derep" />
+        </test>
+        <!-- test for creating input for dada results for reverse, not needed for testing -->
+        <test>
+            <param name="fls" value="filterAndTrim_F3D0_R2.fq.gz" ftype="fastqsanger.gz" />
+            <output name="derep" value="derepFastq_F3D0_R2.Rdata" ftype="dada2_derep" />
         </test>
     </tests>
     <help><![CDATA[
 Description
 ...........
 
-Dereplication combines all identical sequencing reads into into “unique sequences” with a corresponding “abundance” equal to the number of reads with that unique sequence. Dereplication substantially reduces computation time by eliminating redundant comparisons.
+Dereplication combines all identical sequencing reads into into “unique sequences” with a corresponding “abundance” equal to the number of reads with that unique sequence. Dereplication substantially reduces computation time of the subsequent steps by eliminating redundant comparisons.
 
 Usage
 .....
 
-**Input** is a FASTQ dataset containing the filtered and trimmed reads of a sample. 
+**Input** is a FASTQ dataset containing the filtered and trimmed reads of a sample.
 
-**Output** a dataset with type *dada2_derep* which is a table that shows the 
-dereplicated sequences and their abundances.
+**Output** a dataset with type *dada2_derep* (which is a RData file containing the output of dada2's derepFastq function).
 
-The output can be used as input for the *dada2: dada* tool which infers the sample composition from the dereplicated sequences given an error model. 
+The output can be used as input for the *dada2: dada* tool which infers the sample composition from the dereplicated sequences given an error model.
 
 Details
 .......
 
 Dereplication in the DADA2 pipeline has one crucial addition from other pipelines: DADA2 retains a summary of the quality information associated with each unique sequence. The consensus quality profile of a unique sequence is the average of the positional qualities from the dereplicated reads. These quality profiles inform the error model of the subsequent sample inference step, significantly increasing DADA2’s accuracy.
+
+@HELP_OVERVIEW@
     ]]></help>
     <expand macro="citations"/>
 </tool>

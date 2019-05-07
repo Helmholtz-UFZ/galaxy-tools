@@ -6,7 +6,6 @@
     <expand macro="requirements"/>
     <expand macro="version_command"/>
     <command detect_errors="exit_code"><![CDATA[
-    mkdir '$derep.extra_files_path' &&
     Rscript '$dada2_script'
     ]]></command>
     <configfiles>

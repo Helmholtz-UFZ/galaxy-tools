@@ -1,0 +1,13 @@
+# This is a sample file distributed with Galaxy that is used to define a
+# list of dada2 reference data sets for species assignment, using three
+# tab separated columns:
+#
+# <unique_build_id>	<display_name>	<fasta_file_path>
+#
+# Datasets can be retrieved from http://busco.ezlab.org/frame_wget.html
+#
+# Datasets can be retrieved from https://benjjneb.github.io/dada2/training.html
+silva_132	Silva version 132	/tmp/tmpC8Yc3F/tmpzwAZwA/tmpZp3_e0/database/data_manager_tool-datal4tFOr/dada2/silva_132.species
+rdp_16	RDP trainset 16	/tmp/tmpC8Yc3F/tmpzwAZwA/tmpZp3_e0/database/data_manager_tool-datal4tFOr/dada2/rdp_16.species
+rdp_16	RDP trainset 16	/tmp/tmpLsjmNt/tmppH8mTW/tmpqUnkc6/database/data_manager_tool-data1EI7iU/dada2/rdp_16.species
+silva_132	Silva version 132	/tmp/tmpLsjmNt/tmppH8mTW/tmpqUnkc6/database/data_manager_tool-data1EI7iU/dada2/silva_132.species

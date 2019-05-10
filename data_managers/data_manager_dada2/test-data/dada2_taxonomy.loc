@@ -1,0 +1,20 @@
+# This is a sample file distributed with Galaxy that is used to define a
+# list of dada2 reference data sets for taxonomy assignment, using three
+# tab separated columns:
+#
+# <unique_build_id>	<display_name>	<fasta_file_path>	<taxlevels>
+#
+# Datasets can be retrieved from https://benjjneb.github.io/dada2/training.html
+# 
+# taxlevels is a comma separated list of taxonomy levels
+silva_132	Silva version 132	/tmp/tmpC8Yc3F/tmpzwAZwA/tmpZp3_e0/database/data_manager_tool-datal4tFOr/dada2/silva_132.taxonomy	Kingdom,Phylum,Class,Order,Family,Genus,Species
+rdp_16	RDP trainset 16	/tmp/tmpC8Yc3F/tmpzwAZwA/tmpZp3_e0/database/data_manager_tool-datal4tFOr/dada2/rdp_16.taxonomy	Kingdom,Phylum,Class,Order,Family,Genus,Species
+greengenes_13.84	GreenGenes version 13.84	/tmp/tmpC8Yc3F/tmpzwAZwA/tmpZp3_e0/database/data_manager_tool-datal4tFOr/dada2/greengenes_13.84.taxonomy	Kingdom,Phylum,Class,Order,Family,Genus,Species
+unite_8.0_fungi	UNITE: General Fasta release 8.0 for Fungi	/tmp/tmpC8Yc3F/tmpzwAZwA/tmpZp3_e0/database/data_manager_tool-datal4tFOr/dada2/unite_8.0_fungi.taxonomy	Kingdom,Phylum,Class,Order,Family,Genus,Species
+RefSeq_RDP_2018_05	NCBI RefSeq 16S rRNA database supplemented by RDP (05/2018)	/tmp/tmpC8Yc3F/tmpzwAZwA/tmpZp3_e0/database/data_manager_tool-datal4tFOr/dada2/RefSeq_RDP_2018_05.taxonomy	Kingdom,Phylum,Class,Order,Family,Genus,Species
+gtdb_2018_11	GTDB: Genome Taxonomy Database (Bacteria &amp; Archaea) (11/2018)	/tmp/tmpC8Yc3F/tmpzwAZwA/tmpZp3_e0/database/data_manager_tool-datal4tFOr/dada2/gtdb_2018_11.taxonomy	Kingdom,Phylum,Class,Order,Family,Genus,Species
+hitdb_1	HitDB version 1 (Human InTestinal 16S rRNA)	/tmp/tmpC8Yc3F/tmpzwAZwA/tmpZp3_e0/database/data_manager_tool-datal4tFOr/dada2/hitdb_1.taxonomy	Kingdom,Phylum,Class,Order,Family,Genus,Species
+silva_euk_18S_132	Silva version 132 Eukaryotic 18S	/tmp/tmpC8Yc3F/tmpzwAZwA/tmpZp3_e0/database/data_manager_tool-datal4tFOr/dada2/silva_euk_18S_132.taxonomy	Kingdom,Phylum,Class,Order,Family,Genus,Species
+PR2_4.11.1	Protist Ribosomal Reference database (PR2) 4.11.1	/tmp/tmpC8Yc3F/tmpzwAZwA/tmpZp3_e0/database/data_manager_tool-datal4tFOr/dada2/PR2_4.11.1.taxonomy	Kingdom,Supergroup,Division,Class,Order,Family,Genus,Species
+rdp_16	RDP trainset 16	/tmp/tmpLsjmNt/tmppH8mTW/tmpqUnkc6/database/data_manager_tool-data1EI7iU/dada2/rdp_16.taxonomy	Kingdom,Phylum,Class,Order,Family,Genus,Species
+silva_132	Silva version 132	/tmp/tmpLsjmNt/tmppH8mTW/tmpqUnkc6/database/data_manager_tool-data1EI7iU/dada2/silva_132.taxonomy	Kingdom,Phylum,Class,Order,Family,Genus,Species

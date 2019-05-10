@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
-<tool id="dada_fetcher" name="dada2 data manager" version="0.0.5">
+<tool id="dada_fetcher" name="dada2 data manager" tool_type="manage_data" version="0.0.5">
     <description>Download reference databases</description>
     <command detect_errors="exit_code"><![CDATA[
     python '$__tool_directory__/data_manager.py'
-    --out '${out_file}'
-    --dataset '$db_cond.db_select'_'$db_cond.version_select'
+	--out '$out_file'
+	#set dataset = str($db_cond.db_select) + '_' + str($db_cond.version_select)
+    --dataset '$dataset'
     ]]>
     </command>
     <inputs>
@@ -76,47 +77,47 @@
     <tests>
         <test>
             <param name="db_cond|db_select" value="silva"/>
-            <param name="db_cond|db_version" value="132"/>
+            <param name="db_cond|version_select" value="132"/>
             <output name="out_file" file="silva132_json"/>
         </test>
         <test>
             <param name="db_cond|db_select" value="rdp"/>
-            <param name="db_cond|db_version" value="16"/>
+            <param name="db_cond|version_select" value="16"/>
             <output name="out_file" file="rdp16_json"/>
         </test>
         <test>
             <param name="db_cond|db_select" value="greengenes"/>
-            <param name="db_cond|db_version" value="13.84"/>
+            <param name="db_cond|version_select" value="13.84"/>
             <output name="out_file" file="greengenes13.84_json"/>
         </test>
         <test>
             <param name="db_cond|db_select" value="unite"/>
-            <param name="db_cond|db_version" value="8.0_fungi"/>
+            <param name="db_cond|version_select" value="8.0_fungi"/>
             <output name="out_file" file="unite8fungi_json"/>
         </test>
         <test>
             <param name="db_cond|db_select" value="RefSeq_RDP"/>
-            <param name="db_cond|db_version" value="2018_05"/>
+            <param name="db_cond|version_select" value="2018_05"/>
             <output name="out_file" file="RefSeq_RDP2018_json"/>
         </test>
         <test>
             <param name="db_cond|db_select" value="gtdb"/>
-            <param name="db_cond|db_version" value="2018_11"/>
+            <param name="db_cond|version_select" value="2018_11"/>
             <output name="out_file" file="gtdb2018_json"/>
         </test>
         <test>
             <param name="db_cond|db_select" value="hitdb"/>
-            <param name="db_cond|db_version" value="1"/>
+            <param name="db_cond|version_select" value="1"/>
             <output name="out_file" file="hitdb1_json"/>
         </test>
         <test>
             <param name="db_cond|db_select" value="silva_euk_18S"/>
-            <param name="db_cond|db_version" value="132"/>
+            <param name="db_cond|version_select" value="132"/>
             <output name="out_file" file="silvaeuk132_json"/>
         </test>
         <test>
             <param name="db_cond|db_select" value="PR2"/>
-            <param name="db_cond|db_version" value="4.11.1"/>
+            <param name="db_cond|version_select" value="4.11.1"/>
             <output name="out_file" file="PR24.11.1_json"/>
         </test>
     </tests>

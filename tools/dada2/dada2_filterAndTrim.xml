@@ -89,14 +89,14 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
                 <option value="single">single</option>
             </param>
             <when value="paired">
-                <param name="reads" argument="fwd/rev" type="data_collection" collection_type="paired" format="fastqsanger,fastqsanger.gz" label="Paired short read data"/>
+                <param name="reads" argument="fwd/rev" type="data_collection" collection_type="paired" format="fastq,fastq.gz" label="Paired short read data"/>
             </when>
             <when value="separate">
-                <param name="forward" argument="fwd" type="data" format="fastqsanger,fastqsanger.gz" label="Forward read data"/>
-                <param name="reverse" argument="rev" type="data" format="fastqsanger,fastqsanger.gz" label="Reverse read data"/>
+                <param name="forward" argument="fwd" type="data" format="fastq,fastq.gz" label="Forward read data"/>
+                <param name="reverse" argument="rev" type="data" format="fastq,fastq.gz" label="Reverse read data"/>
             </when>
             <when value="single">
-                <param name="reads" argument="fwd" type="data" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
+                <param name="reads" argument="fwd" type="data" format="fastq,fastq.gz" label="Short read data"/>
             </when>
         </conditional>
         <expand macro="trimmers"/>
@@ -113,7 +113,7 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
             </when>
         </conditional>
         <param argument="rmPhiX" truevalue="TRUE" falsevalue="FALSE" type="boolean" checked="true" label="Discard reads matching the PhiX genome" />
-        <param name="orientFwd" argument="orinent.fwd" type="text" value="" optional="true" label="String present at the start of valid reads" help="see below"/>
+        <param name="orientFwd" argument="orient.fwd" type="text" value="" optional="true" label="String present at the start of valid reads" help="see below"/>
         <param name="output_statistics" truevalue="TRUE" falsevalue="FALSE" type="boolean" checked="true" label="Output statistics" help="Create extra table with the number of reads pre and post filtering" />
     </inputs>
     <outputs>

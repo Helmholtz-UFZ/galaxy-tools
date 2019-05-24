@@ -75,16 +75,16 @@ ggsave('output.pdf', qp, width = 20,height = 15,units = c("cm"))
                 <option value="single_batch">single - batch</option>
             </param>
             <when value="paired">
-                <param argument="fl" type="data_collection" collection_type="list:paired" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
+                <param argument="fl" type="data_collection" collection_type="list:paired" format="fastq,fastq.gz" label="Short read data"/>
             </when>
             <when value="single">
-                <param argument="fl" type="data" multiple="true" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
+                <param argument="fl" type="data" multiple="true" format="fastq,fastq.gz" label="Short read data"/>
             </when>
             <when value="paired_batch">
-                <param argument="fl" type="data_collection" collection_type="paired" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
+                <param argument="fl" type="data_collection" collection_type="paired" format="fastq,fastq.gz" label="Short read data"/>
             </when>
             <when value="single_batch">
-                <param argument="fl" type="data" format="fastqsanger,fastqsanger.gz" label="Short read data"/>
+                <param argument="fl" type="data" format="fastq,fastq.gz" label="Short read data"/>
             </when>
         </conditional>
         <param argument="aggregate" type="boolean" label="Aggregate data" checked="True" truevalue="TRUE" falsevalue="FALSE" help="Create a single plot for all data sets (default) or a separate plot for each data set"/>

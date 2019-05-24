@@ -34,7 +34,7 @@ ggsave('plot.pdf', plot, width = 20,height = 15,units = c("cm"))
     ]]></configfile>
     </configfiles>
     <inputs>
-        <param argument="fls" type="data" multiple="true" format="fastqsanger,fastqsanger.gz" label="Short read data" help="forward or reverse reads should be processed separately"/>
+        <param argument="fls" type="data" multiple="true" format="fastq,fastq.gz" label="Short read data" help="forward or reverse reads should be processed separately"/>
         <param argument="nbases" type="integer" value="8" min="0" label="Magnitide of number of bases to use for learning"/>
         <section name="advanced" title="Advanced Option">
             <expand macro="errorEstimationFunction"/>

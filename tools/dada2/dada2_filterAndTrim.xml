@@ -119,7 +119,7 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
         <param name="output_statistics" truevalue="TRUE" falsevalue="FALSE" type="boolean" checked="true" label="Output statistics" help="Create extra table with the number of reads pre and post filtering" />
     </inputs>
     <outputs>
-        <collection name="paired_output" type="paired" structured_like="paired_reads" inherit_format="true">
+        <collection name="paired_output" type="paired" format_source="paired_reads">
             <filter>paired_cond['paired_select'] == "paired"</filter>
         </collection>
         <data name="output_single" format_source="reads" >
@@ -138,7 +138,7 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
     <tests>
         <!-- paired data 
              currently removed `expect_num_outputs="2"` because of https://github.com/galaxyproject/galaxy/pull/7894-->
-        <test>
+        <test expect_num_outputs="3">
             <conditional name="paired_cond">
                 <param name="paired_select" value="paired"/>
                 <param name="paired_reads">
@@ -155,7 +155,7 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
             <output name="outtab" value="filterAndTrim_F3D0.tab" ftype="tabular"/>
         </test>
         <!-- separate paired data -->
-        <test>
+        <test expect_num_outputs="3">
             <conditional name="paired_cond">
                 <param name="paired_select" value="separate"/>
                 <param name="forward" value="F3D0_S188_L001_R1_001.fastq.gz" ftype="fastqsanger.gz"/>
@@ -203,8 +203,8 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
         </test>
         <!-- paired data w separate filters and trimmers for reverse 
              currently removed `expect_num_outputs="1"` because of https://github.com/galaxyproject/galaxy/pull/7894-->
-            <test>
-            <conditional name="paired_cond">
+        <test expect_num_outputs="2">
+            <conditional name="paired_cond" >
                 <param name="paired_select" value="paired"/>
                 <param name="paired_reads">
                     <collection type="paired">

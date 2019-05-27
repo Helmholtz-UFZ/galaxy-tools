@@ -33,37 +33,52 @@
     <configfiles>
         <configfile name="dada2_script"><![CDATA[
 #import re
-files = c()
+fwd_files = c()
+rev_files = c()
 #if "batch" in str($paired_cond.paired_select)
   #set elid = re.sub('[^\w\-\.]', '_', str($paired_cond.fl.element_identifier))
   #if "single" in str($paired_cond.paired_select)
-    files = c(files, '$elid')
+    fwd_files = c(fwd_files, '$elid')
   #else
-    files = c(files, paste('$elid', 'forward', sep = "_"))
-    files = c(files, paste('$elid', 'reverse', sep = "_"))
+    fwd_files = c(fwd_files, paste('$elid', 'forward', sep = "_"))
+    rev_files = c(rev_files, paste('$elid', 'reverse', sep = "_"))
   #end if
 #else
   #for $read in $paired_cond.fl:
     #set elid = re.sub('[^\w\-\.]', '_', str($read.element_identifier))
     #if "single" in str($paired_cond.paired_select)
-      files = c(files, '$elid')
+      fwd_files = c(fwd_files, '$elid')
     #else
-      files = c(files, paste('$elid', 'forward', sep = "_"))
-      files = c(files, paste('$elid', 'reverse', sep = "_"))
+      fwd_files = c(fwd_files, paste('$elid', 'forward', sep = "_"))
+      rev_files = c(rev_files, paste('$elid', 'reverse', sep = "_"))
     #end if
   #end for
+#end if
+
+#if not "batch" in str($paired_cond.paired_select)
+agg = $paired_cond.aggregate
+#else
+agg = FALSE
 #end if
 
 library(ggplot2, quietly=T)
 library(dada2, quietly=T)
 
-qp <- plotQualityProfile(files,
+qp <- plotQualityProfile(fwd_files,
 #if str($n) != ""
     n=$n,
 #end if
-    aggregate = $aggregate)
-
+    aggregate = agg)
 ggsave('output.pdf', qp, width = 20,height = 15,units = c("cm"))
+
+#if "paired" in str($paired_cond.paired_select)
+qp <- plotQualityProfile(rev_files,
+#if str($n) != ""
+    n=$n,
+#end if
+    aggregate = agg)
+ggsave('output_rev.pdf', qp, width = 20,height = 15,units = c("cm"))
+#end if
     ]]></configfile>
     </configfiles>
     <inputs>
@@ -76,9 +91,11 @@ ggsave('output.pdf', qp, width = 20,height = 15,units = c("cm"))
             </param>
             <when value="paired">
                 <param argument="fl" type="data_collection" collection_type="list:paired" format="fastq,fastq.gz" label="Short read data"/>
+                <param argument="aggregate" type="boolean" label="Aggregate data" checked="True" truevalue="TRUE" falsevalue="FALSE" help="Create a single plot for all data sets (default) or a separate plot for each data set"/>
             </when>
             <when value="single">
                 <param argument="fl" type="data" multiple="true" format="fastq,fastq.gz" label="Short read data"/>
+                <param argument="aggregate" type="boolean" label="Aggregate data" checked="True" truevalue="TRUE" falsevalue="FALSE" help="Create a single plot for all data sets (default) or a separate plot for each data set"/>
             </when>
             <when value="paired_batch">
                 <param argument="fl" type="data_collection" collection_type="paired" format="fastq,fastq.gz" label="Short read data"/>
@@ -87,17 +104,24 @@ ggsave('output.pdf', qp, width = 20,height = 15,units = c("cm"))
                 <param argument="fl" type="data" format="fastq,fastq.gz" label="Short read data"/>
             </when>
         </conditional>
-        <param argument="aggregate" type="boolean" label="Aggregate data" checked="True" truevalue="TRUE" falsevalue="FALSE" help="Create a single plot for all data sets (default) or a separate plot for each data set"/>
         <param argument="n" type="integer" value="500000" label="sample number" help="number of records to sample from the fastq file"/>
     </inputs>
     <outputs>
-        <data name="output" format="pdf" from_work_dir="output.pdf"/>
+        <data name="output" format="pdf" from_work_dir="output.pdf">
+            <filter>"single" in paired_cond['paired_select']</filter>
+		</data>
+		<data name="output_fwd" format="pdf" from_work_dir="output.pdf" label="${tool.name} on ${on_string}: forward reads">
+            <filter>"paired" in paired_cond['paired_select']</filter>
+        </data>
+		<data name="output_rev" format="pdf" from_work_dir="output_rev.pdf" label="${tool.name} on ${on_string}: reverse reads">
+            <filter>"paired" in paired_cond['paired_select']</filter>
+        </data>
     </outputs>
     <tests>
         <!-- paired non-batch, aggregate -->
         <test>
-            <param name="aggregate" value="TRUE"/>
             <param name="paired_cond|paired_select" value="paired"/>
+            <param name="paired_cond|aggregate" value="TRUE"/>
             <param name="paired_cond|fl">
                 <collection type="list:paired">
                     <element name="F3D0_S188_L001">
@@ -108,11 +132,11 @@ ggsave('output.pdf', qp, width = 20,height = 15,units = c("cm"))
                     </element>
                 </collection>
             </param>
-            <output name="output" value="qualityProfileMultiple.pdf" ftype="pdf"/>
+            <output name="output_fwd" value="qualityProfileMultiple.pdf" ftype="pdf"/>
+            <output name="output_rev" value="qualityProfileMultiple_rev.pdf" ftype="pdf"/>
         </test>
         <!-- paired, batch, no aggregate-->
         <test>
-            <param name="aggregate" value="FALSE"/>
             <param name="paired_cond|paired_select" value="paired_batch"/>
             <param name="paired_cond|fl">
                 <collection type="paired">
@@ -120,12 +144,13 @@ ggsave('output.pdf', qp, width = 20,height = 15,units = c("cm"))
                     <element name="reverse" value="F3D0_S188_L001_R2_001.fastq.gz" ftype="fastqsanger.gz"/>
                 </collection>
             </param>
-            <output name="output" value="qualityProfile.pdf" ftype="pdf"/>
+            <output name="output_fwd" value="qualityProfile.pdf" ftype="pdf"/>
+            <output name="output_rev" value="qualityProfile_rev.pdf" ftype="pdf"/>
         </test>
         <!-- single, non-batch, aggregate -->
         <test>
-            <param name="aggregate" value="TRUE"/>
             <param name="paired_cond|paired_select" value="single"/>
+            <param name="paired_cond|aggregate" value="TRUE"/>
             <param name="paired_cond|fl" value="F3D0_S188_L001_R1_001.fastq.gz,F3D0_S188_L001_R2_001.fastq.gz" ftype="fastqsanger.gz"/>
             <param name="n" value="10000"/>
             <output name="output" value="qualityProfileSmallSample.pdf" ftype="pdf"/>

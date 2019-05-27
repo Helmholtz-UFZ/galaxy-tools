@@ -69,7 +69,7 @@ write.data <- function( data, fname, type ){
             <param argument="truncQ" type="integer" value="2" min="0" label="Truncate reads at quality threshold" help="Truncate reads at the first instance of a quality score less than or equal to this threshold"/>
             <param argument="trimLeft" type="integer" value="0" min="0" label="Trim start of each read" help="The number of nucleotides to remove from the start of each read."/>
             <param argument="trimRight" type="integer" value="0" min="0" label="Trim end of each read" help="The number of nucleotides to remove from the end of each read"/>
-            <param argument="truncLen" type="integer" value="0" min="0" label="Truncate read length" help="Truncate reads after this amount of bases. Reads shorter than this are discarded."/>
+			<param argument="truncLen" type="integer" value="0" min="0" label="Truncate read length" help="Truncate reads after this amount of bases. Reads shorter than this are discarded. (default 0: no truncation)"/>
         </section>
     </xml>
     <xml name="filters">

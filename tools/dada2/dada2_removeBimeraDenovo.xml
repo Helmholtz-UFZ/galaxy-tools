@@ -113,6 +113,7 @@ The frequency of chimeric sequences varies substantially from dataset to dataset
 
 Considerations for your own data: Most of your reads should remain after chimera removal (it is not uncommon for a majority of sequence variants to be removed though). If most of your reads were removed as chimeric, upstream processing may need to be revisited. In almost all cases this is caused by primer sequences with ambiguous nucleotides that were not removed prior to beginning the DADA2 pipeline.
 
+@HELP_OVERVIEW@
     ]]></help>
     <expand macro="citations"/>
 </tool>

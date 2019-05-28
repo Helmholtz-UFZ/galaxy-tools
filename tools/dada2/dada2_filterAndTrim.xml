@@ -53,13 +53,13 @@ rev <- NULL
 filt.fwd <- NULL
 filt.rev <- NULL
 #if $paired_cond.paired_select == "paired"
-    fwd <- c(fwd, '$paired_cond.paired_reads.forward')
-    rev <- c(rev, '$paired_cond.paired_reads.reverse')
+    fwd <- c(fwd, '$paired_cond.reads.forward')
+    rev <- c(rev, '$paired_cond.reads.reverse')
     filt.fwd <- c(filt.fwd, '$paired_output.forward')
     filt.rev <- c(filt.rev, '$paired_output.reverse')
 #else if $paired_cond.paired_select == "separate"
-    fwd <- c(fwd, '$paired_cond.forward')
-    rev <- c(rev, '$paired_cond.reverse')
+    fwd <- c(fwd, '$paired_cond.reads')
+    rev <- c(rev, '$paired_cond.sdaer')
     filt.fwd <- c(filt.fwd, '$output_fwd')
     filt.rev <- c(filt.rev, '$output_rev')
 #else
@@ -73,34 +73,12 @@ ftout <- filterAndTrim(fwd, filt.fwd, rev = rev, filt.rev,  compress = TRUE,
     truncQ = truncQ, truncLen = truncLen, trimLeft = trimLeft, trimRight = trimRight, maxLen = maxLen,
     minLen = minLen, maxN = maxN, minQ = minQ, maxEE = maxEE, rm.phix = $rmPhiX, orient.fwd = '$orientFwd')
 
-#if $paired_cond.paired_select == "separate":
-    rownames(ftout) <- c( '$paired_cond.forward.element_identifier' )
-#else if $paired_cond.paired_select == "paired"
-    rownames(ftout) <- c( '$paired_cond.paired_reads.element_identifier' )
-#else:
-    rownames(ftout) <- c( '$paired_cond.reads.element_identifier' )
-#end if
+rownames(ftout) <- c( '$paired_cond.reads.element_identifier' )
 write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
     ]]></configfile>
     </configfiles>
     <inputs>
-        <conditional name="paired_cond">
-            <param name="paired_select" type="select" label="Paired reads">
-                <option value="paired">paired - in a data set pair</option>
-                <option value="separate">paired - in two separate data sets</option>
-                <option value="single">single</option>
-            </param>
-            <when value="paired">
-                <param name="paired_reads" argument="fwd/rev" type="data_collection" collection_type="paired" format="fastq,fastq.gz" label="Paired short read data"/>
-            </when>
-            <when value="separate">
-                <param name="forward" argument="fwd" type="data" format="fastq,fastq.gz" label="Forward read data"/>
-                <param name="reverse" argument="rev" type="data" format="fastq,fastq.gz" label="Reverse read data"/>
-            </when>
-            <when value="single">
-                <param name="reads" argument="fwd" type="data" format="fastq,fastq.gz" label="Short read data"/>
-            </when>
-        </conditional>
+        <expand macro="fastq_input" multiple="False" collection_type="paired" argument_fwd="fwd" argument_rev="rev"/>
         <expand macro="trimmers"/>
         <expand macro="filters"/>
         <conditional name="seprev_cond">
@@ -119,16 +97,16 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
         <param name="output_statistics" truevalue="TRUE" falsevalue="FALSE" type="boolean" checked="true" label="Output statistics" help="Create extra table with the number of reads pre and post filtering" />
     </inputs>
     <outputs>
-        <collection name="paired_output" type="paired" format_source="paired_reads">
+        <collection name="paired_output" type="paired" format_source="reads['forward']">
             <filter>paired_cond['paired_select'] == "paired"</filter>
         </collection>
         <data name="output_single" format_source="reads" >
             <filter>paired_cond['paired_select'] == "single"</filter>
         </data>
-        <data name="output_fwd" format_source="forward" label="${tool.name} on ${on_string}: Forward reads" >
+        <data name="output_fwd" format_source="reads" label="${tool.name} on ${on_string}: Forward reads" >
             <filter>paired_cond['paired_select'] == "separate"</filter>
         </data>
-        <data name="output_rev" format_source="reverse" label="${tool.name} on ${on_string}: Reverse reads" >
+        <data name="output_rev" format_source="sdaer" label="${tool.name} on ${on_string}: Reverse reads" >
             <filter>paired_cond['paired_select'] == "separate"</filter>
         </data>
         <data name="outtab" format="tabular" label="${tool.name} on ${on_string}: Statistics">
@@ -136,12 +114,12 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
         </data>
     </outputs>
     <tests>
-        <!-- paired data 
+        <!-- paired data
              currently removed `expect_num_outputs="2"` because of https://github.com/galaxyproject/galaxy/pull/7894-->
-        <test expect_num_outputs="3">
+        <test expect_num_outputs="4">
             <conditional name="paired_cond">
                 <param name="paired_select" value="paired"/>
-                <param name="paired_reads">
+                <param name="reads">
                     <collection type="paired">
                         <element name="forward" value="F3D0_S188_L001_R1_001.fastq.gz" ftype="fastqsanger.gz"/>
                         <element name="reverse" value="F3D0_S188_L001_R2_001.fastq.gz" ftype="fastqsanger.gz"/>
@@ -158,8 +136,8 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
         <test expect_num_outputs="3">
             <conditional name="paired_cond">
                 <param name="paired_select" value="separate"/>
-                <param name="forward" value="F3D0_S188_L001_R1_001.fastq.gz" ftype="fastqsanger.gz"/>
-                <param name="reverse" value="F3D0_S188_L001_R2_001.fastq.gz" ftype="fastqsanger.gz"/>
+                <param name="reads" value="F3D0_S188_L001_R1_001.fastq.gz" ftype="fastqsanger.gz"/>
+                <param name="sdaer" value="F3D0_S188_L001_R2_001.fastq.gz" ftype="fastqsanger.gz"/>
             </conditional>
             <output name="output_fwd" value="filterAndTrim_F3D0_R1.fq.gz" ftype="fastqsanger.gz" />
             <output name="output_rev" value="filterAndTrim_F3D0_R2.fq.gz" ftype="fastqsanger.gz" />
@@ -201,12 +179,12 @@ write.table(ftout, "$outtab", quote=F, sep="\t", col.names=NA)
             <param name="output_statistics" value="FALSE" />
             <output name="output_fwd" value="filterAndTrim_single_filters_F3D0_R1.fq.gz" ftype="fastqsanger.gz" />
         </test>
-        <!-- paired data w separate filters and trimmers for reverse 
+        <!-- paired data w separate filters and trimmers for reverse
              currently removed `expect_num_outputs="1"` because of https://github.com/galaxyproject/galaxy/pull/7894-->
-        <test expect_num_outputs="2">
+        <test expect_num_outputs="3">
             <conditional name="paired_cond" >
                 <param name="paired_select" value="paired"/>
-                <param name="paired_reads">
+                <param name="reads">
                     <collection type="paired">
                         <element name="forward" value="F3D0_S188_L001_R1_001.fastq.gz" ftype="fastqsanger.gz"/>
                         <element name="reverse" value="F3D0_S188_L001_R2_001.fastq.gz" ftype="fastqsanger.gz"/>
@@ -237,7 +215,7 @@ Filters and trims a FASTQ dataset (can be compressed) based on several user-defi
 Usage
 .....
 
-**Input** is a FASTQ dataset (or a pair in case of paired end data) containing all reads of a sample. It is suggested to organize them in a (paired) collection (in particular if you have multiple samples). 
+**Input** is a FASTQ dataset (or a pair in case of paired end data) containing all reads of a sample. It is suggested to organize them in a (paired) collection (in particular if you have multiple samples).
 
 **Output** is a (paired) collection of filtered and trimmed paired FASTQ datasets (again one data set or pair per sample).
 

@@ -84,7 +84,7 @@ write.table(df, "$counts", quote=F, sep="\t", row.names = F, col.names = T)
     </outputs>
     <tests>
         <!-- test for the separate inputs (didn't implement as single test using the repeat
-             since the sample name won't match anyway [galaxy does not allow to specify the 
+             since the sample name won't match anyway [galaxy does not allow to specify the
              names of the elements of the input collection for <param ... multiple="true">]) -->
         <test>
             <repeat name="inrep">
@@ -140,7 +140,7 @@ Usage
 
 **Inputs:**
 
-Any number of results of dada2 steps in the following form: 
+Any number of results of dada2 steps in the following form:
 - a collection of results from derep, dada, or mergePairs; or the collection of statistics from filterAndTrim (the identifiers of the collection elements are used as sample names)
 - the result of makeSequenceTable or removeBimeraDenovo
 

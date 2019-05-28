@@ -11,7 +11,7 @@ Wrappers for the core functionality of the dada2 package https://benjjneb.github
 Datatypes
 =========
 
-The dada2 Galaxy wrappers use a few extra data types to ensure that only inputs of the correct type can be used. 
+The dada2 Galaxy wrappers use a few extra data types to ensure that only inputs of the correct type can be used, these datatypes are available from Galaxy release 19.05, for earlier releases they need to be added manually. 
 
 For the outputs of derep, dada, learnErrors, and mergePairs the following datatypes are used that derive from  Rdata (which contains the named list that is returned from the corresponding dada function):
 
@@ -35,5 +35,4 @@ Note the difference between the R and Galaxy representations! The main motivatio
 TODOs 
 =====
 
-- implememt getUniques tool to view intermediate results?
-- implement tests for cached reference data
+- implement getUniques tool to view intermediate results?

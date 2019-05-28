@@ -90,7 +90,7 @@ Description
 
 Error rates are learned by alternating between sample inference and error rate estimation until convergence. Additionally a plot is generated that shows the observed frequency of each transition (eg. A->C) as a function of the associated quality score, the final estimated error rates (if they exist), the initial input rates, and the expected error rates under the nominal definition of quality scores.
 
-In addition a plot is generated (with plotErrors) that shows the observed frequency of each transition (eg. A->C) as a function of the associated quality score. Also the final estimated error rates (if they exist) are shown. Optionally also the initial input rates and the expected error rates under the nominal definition of quality scores can be added to the plot. 
+In addition a plot is generated (with plotErrors) that shows the observed frequency of each transition (eg. A->C) as a function of the associated quality score. Also the final estimated error rates (if they exist) are shown. Optionally also the initial input rates and the expected error rates under the nominal definition of quality scores can be added to the plot.
 
 Usage
 .....
@@ -112,7 +112,7 @@ The learnErrors method learns a parametric error model from the data, by alterna
 
 It is expected that the estimated error rates (black lines in the plot) are in a good fit to the observed rates (points in the plot), and that the error rates drop with increased quality. Try to increase the **number of bases to use for learning** if this is not the case.
 
-Error functions: 
+Error functions:
 
 - loessErrfun: accepts a matrix of observed transitions, with each transition corresponding to a row (eg. row 2 = A->C) and each column to a quality score (eg. col 31 = Q30). It returns a matrix of estimated error rates of the same shape. Error rates are estimates by a loess fit of the observed rates of each transition as a function of the quality score. Self-transitions (i.e. A->A) are taken to be the left-over probability.
 - noqualErrfun: accepts a matrix of observed transitions, groups together all observed transitions regardless of quality scores, and estimates the error rate for that transition as the observed fraction of those transitions. The effect is that quality scores will be effectively ignored.

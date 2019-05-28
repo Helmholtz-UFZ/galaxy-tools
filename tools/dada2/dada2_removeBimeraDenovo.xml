@@ -21,7 +21,7 @@ seqtab.nochim <- removeBimeraDenovo(unqs, method = "$method")
 ## - output is data.frame (mergepairs) or sequencetable (if this was the input)
 ##   in the former case the (multi item) list is stored as RDS
 ##   in the latter case the named int matrix is stored as tabular (rows=samples, columns=ASVs)
-## - otherwise uniques-vector, i.e. a named integer vector 
+## - otherwise uniques-vector, i.e. a named integer vector
 
 #if $unqs.is_of_type('dada2_derep') or $unqs.is_of_type('dada2_dada')
     write.data( seqtab.nochim, '$stable_uniques', "dada2_uniques" )
@@ -63,25 +63,25 @@ if(class(unqs)=="list"){
         </data>
     </outputs>
     <tests>
-        <test>
+        <test expect_num_outputs="1">
             <param name="unqs" ftype="dada2_sequencetable" value="makeSequenceTable_F3D0.tab"/>
             <output name="stable_sequencetable" value="removeBimeraDenovo_F3D0.tab" ftype="dada2_sequencetable" />
         </test>
         <!-- derep input -->
-        <test>
+        <test expect_num_outputs="1">
             <param name="unqs" ftype="dada2_derep" value="derepFastq_F3D0_R1.Rdata"/>
             <output name="stable_uniques" value="removeBimeraDenovo_F3D0_derep_uniques.tab" ftype="dada2_uniques" />
         </test>
         <!-- dada input -->
-        <test>
+        <test expect_num_outputs="1">
             <param name="unqs" ftype="dada2_dada" value="dada_F3D0_R1.Rdata"/>
             <output name="stable_uniques" value="removeBimeraDenovo_F3D0_dada_uniques.tab" ftype="dada2_uniques" />
         </test>
         <!-- mergepairs input + non default-->
-        <test>
+        <test expect_num_outputs="1">
             <param name="unqs" ftype="dada2_mergepairs" value="mergePairs_F3D0.Rdata"/>
-            <output name="stable_mergepairs" value="removeBimeraDenovo_F3D0_mergepairs.Rdata" ftype="dada2_mergepairs" />
             <param name="method" value="pooled"/>
+            <output name="stable_mergepairs" value="removeBimeraDenovo_F3D0_mergepairs.Rdata" ftype="dada2_mergepairs" />
         </test>
     </tests>
     <help><![CDATA[

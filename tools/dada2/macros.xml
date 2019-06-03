@@ -16,6 +16,12 @@ echo $(R --version | grep version | grep -v GNU)", dada2 version" $(R --vanilla 
         ]]></version_command>
     </xml>
 
+    <xml name="stdio">
+        <stdio>
+            <regex match="Error: cannot allocate" source="stderr" level="fatal_oom" description="Out of memory error occurred" />
+        </stdio>
+    </xml>
+
     <xml name="citations">
         <citations>
             <citation type="doi">10.1038/nmeth.3869</citation>

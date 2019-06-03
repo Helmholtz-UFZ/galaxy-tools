@@ -4,6 +4,7 @@
         <import>macros.xml</import>
     </macros>
     <expand macro="requirements"/>
+    <expand macro="stdio"/>
     <expand macro="version_command"/>
     <command detect_errors="exit_code"><![CDATA[
     Rscript '$dada2_script' \${GALAXY_SLOTS:-1}
@@ -130,7 +131,7 @@ taxonomic level"/>
     </outputs>
     <tests>
         <!-- test w default params -->
-        <test expect_num_outputs="1">>
+        <test expect_num_outputs="1">
             <param name="seqs" ftype="dada2_sequencetable" value="removeBimeraDenovo_F3D0.tab"/>
             <param name="reference_cond|reference_select" value="history"/>
             <param name="reference_cond|refFasta" ftype="fasta" value="reference.fa"/>

@@ -4,6 +4,7 @@
         <import>macros.xml</import>
     </macros>
     <expand macro="requirements"/>
+    <expand macro="stdio"/>
     <expand macro="version_command"/>
     <command detect_errors="exit_code"><![CDATA[
     #if $batch_cond.batch_select == "no"

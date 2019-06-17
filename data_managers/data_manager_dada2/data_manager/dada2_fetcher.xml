@@ -14,7 +14,8 @@
                 <option value="silva">Silva</option>
                 <option value="rdp">RDP</option>
                 <option value="greengenes">GreenGenes</option>
-                <option value="unite">UNITE: General Fasta</option>
+                <option value="unite">UNITE Fungi: General Fasta</option>
+                <!-- UNITE Eukaryotes not yet supported https://github.com/benjjneb/dada2/issues/702 -->
                 <option value="RefSeq_RDP">NCBI RefSeq 16S rRNA database supplemented by RDP</option>
                 <option value="gtdb">GTDB: Genome Taxonomy Database (Bacteria &amp; Archaea)</option>
                 <option value="hitdb">HitDB (Human InTestinal 16S)</option>

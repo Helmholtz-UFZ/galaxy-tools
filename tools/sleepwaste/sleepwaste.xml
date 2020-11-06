@@ -1,0 +1,110 @@
+<tool id="sleepwaste" name="Waste time and memory" version="0.1.0">
+    <requirements>
+    </requirements>
+    <stdio>
+        <exit_code range="1:" />
+    </stdio>
+    <command><![CDATA[
+	    #if $language == "bash-dd":
+	       ${__tool_directory__}/sleepwaste-dd.sh
+	    #elif $language == "bash-array":
+               $__tool_directory__/sleepwaste-array.sh
+	    #elif $language == "python":
+	       python $__tool_directory__/sleepwaste.py 
+	    #elif $language == "cpp":
+	       $__tool_directory__/sleepwaste-cpp
+	    #elif $language == "c":
+	       $__tool_directory__/sleepwaste-c
+	    #elif $language == "perl":
+	       perl $__tool_directory__/sleepwaste.pl
+	    #elif $language == "java":
+	       java -classpath $__tool_directory__ -Xmx4548m sleepwaste 
+	    #end if
+	 '$time' '$memory' > '$ofile'
+	]]>
+    </command>
+    <inputs>
+       <param name="language" type="select" label="Language">
+          <option value="bash-dd">Bash using dd</option>
+          <option value="bash-array">Bash using large array</option>
+          <option value="python">Python</option>
+          <option value="cpp">C++</option>
+          <option value="c">C</option>
+          <option value="perl">perl</option>
+          <option value="java">java</option>
+       </param>
+
+       <param name="time" type="integer" label="Wasted time" value="60" min="0" help="time to waste (sec)" />
+       <param name="memory" type="integer" label="Wasted memory" value="1000" min="0" help="memory to waste (MB)" />
+    </inputs>
+    <outputs>
+	<data name="ofile" format="txt" />
+    </outputs>
+    <tests>
+        <test>
+            <param name="time" value="10" />
+	    <param name="memory" value="1" />
+	    <param name="language" value="bash-dd" />
+            <output name="ofile" file="bash-dd.out">
+		    <assert_contents><has_text text="slept for" /></assert_contents>
+            </output>
+        </test>
+	<test>
+            <param name="time" value="10" />
+	    <param name="memory" value="1" />
+	    <param name="language" value="bash-array" />
+            <output name="ofile" file="bash-array.out">
+                <assert_contents><has_text text="slept for" /></assert_contents>
+            </output>
+        </test>
+	<test>
+	    <param name="time" value="10" />
+            <param name="memory" value="200" />
+	    <param name="language" value="python" />
+	    <output name="ofile" file="python.out">
+                <assert_contents><has_text text="slept for" /></assert_contents>
+	    </output>
+	</test>
+	<test>
+            <param name="time" value="10" />
+	    <param name="memory" value="200" />
+	    <param name="language" value="cpp" />
+            <output name="ofile" file="cpp.out">
+                <assert_contents><has_text text="slept for" /></assert_contents>
+	    </output>
+	</test>
+	<test>
+            <param name="time" value="10" />
+	    <param name="memory" value="200" />
+	    <param name="language" value="c" />
+            <output name="ofile" file="c.out">
+                <assert_contents><has_text text="slept for" /></assert_contents>
+	     </output>
+        </test>
+	<test>
+            <param name="time" value="10" />
+	    <param name="memory" value="200" />
+	    <param name="language" value="perl" />
+            <output name="ofile" file="perl.out">
+                <assert_contents><has_text text="slept for" /></assert_contents>
+	    </output>
+        </test>
+	<test>
+            <param name="time" value="10" />
+	    <param name="memory" value="200" />
+	    <param name="language" value="java" />
+	    <output name="ofile" file="java.out">
+	       <assert_contents><has_text text="slept for" /></assert_contents>
+             </output>
+	</test>
+    </tests>
+    <help><![CDATA[
+        usage: sleepwaste.py [-h] [--time TIME] [--memory MEMORY]
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --time TIME      time (s) to waste
+  --memory MEMORY  memory (MB) to waste
+
+    ]]></help>
+</tool>

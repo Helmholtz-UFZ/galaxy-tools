@@ -1,0 +1,100 @@
+<macros>
+
+<xml name="requirements">
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">saqc</requirement>
+    </requirements>
+</xml>
+
+<token name="@TOOL_VERSION@">2.4.0</token>
+<token name="@VERSION_SUFFIX@">0</token>
+
+<xml name="citations"/>
+
+<xml name="saqc_tests">
+<tests>
+    <!-- https://rdm-software.pages.ufz.de/saqc/gettingstarted/TutorialCLI.html#get-toy-data-and-configuration
+    varname;test
+    SM2    ;flagRange(min=10, max=60)
+    SM2    ;flagMAD(window="30d", z=3.5)
+    SM2    ;plot() -->
+
+    <test>
+        <param name="data" value="data.csv" ftype="csv"/>
+        <repeat name="methods_repeat">
+            <conditional name="module_cond">
+                <param name="module_select" value="outliers"/>
+                <conditional name="method_cond">
+                    <param name="method_select" value="flagRange"/>
+                    <param name="field" value="SM2"/>
+                    <param name="min" value="10"/>
+                    <param name="max" value="60"/>
+                </conditional>
+            </conditional>
+        </repeat>
+        <repeat name="methods_repeat">
+            <conditional name="module_cond">
+                <param name="module_select" value="outliers"/>
+                <conditional name="method_cond">
+                    <param name="method_select" value="flagMAD"/>
+                    <param name="field" value="SM2"/>
+                    <param name="center" value="false"/>
+                    <param name="window" value="30d"/>
+                    <param name="z" value="3.5"/>
+                </conditional>
+            </conditional>
+        </repeat>
+        <repeat name="methods_repeat">
+            <conditional name="module_cond">
+                <param name="module_select" value="tools"/>
+                <conditional name="method_cond">
+                    <!-- plot names should be determined automatically -->
+                    <param name="path" value="test"/>
+                    <param name="method_select" value="plot"/>
+                    <param name="field" value="SM2"/>
+                </conditional>
+            </conditional>
+        </repeat>
+        <output name="output" ftype="csv">
+            <assert_contents>
+                <has_n_lines n="14696"/>
+                <has_n_columns n="7" sep=","/>
+                <has_text text=",UNFLAGGED,"/>
+            </assert_contents>
+        </output>
+        <output_collection name="plots" type="list">
+            <element name="test" file="data.csv.plot.png" ftype="png" />
+        </output_collection>
+        <!-- <assert_command>
+            <has_text text="SM2"/>
+            <has_text text="flagRange(min=10, max=60)"/>
+        </assert_command> -->
+    </test>
+
+    <!-- docs/resources/data/config_ci.csv
+
+# SM2;align(freq="15Min", method="nshift")
+# '.*';flagRange(min=10, max=60)
+SM2;flagMissing()
+# SM2;flagRange(min=10, max=60)
+# SM2;flagMAD(window="30d", z=3.5) -->
+
+    <!-- <test>
+        <repeat name="methods_repeat">
+            <conditional name="module_cond">
+                <param name="module_select"  value="interpolation"/>
+                <conditional name="method_cond">
+                    <param name="method_select"  value="align"/>
+                    <param name="field"  value="SM2"/>
+                    <param name="freq" value="15Min"/>
+                    <param name="method" value="polynomial"/>
+                </conditional>
+            </conditional>
+        </repeat>
+        <assert_command>
+            <has_text text="SM2"/>
+        </assert_command>
+    </test> -->
+</tests>
+</xml>
+</macros>

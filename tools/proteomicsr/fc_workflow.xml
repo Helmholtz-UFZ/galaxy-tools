@@ -84,6 +84,7 @@ If no sampleMapping dataframe is available, use sampleMapping = NULL, which is a
         <param argument="color_none" type="color" value="#000000" label="Color for insignificant differential expression"/>
     </inputs>
     <outputs>
+        <!-- TODO make dat_calculated primary output -->
         <data name="log"/>
         <collection name="output" type="list">
             <discover_datasets pattern="__name_and_ext__" directory="Rdata"/>
@@ -96,6 +97,7 @@ If no sampleMapping dataframe is available, use sampleMapping = NULL, which is a
         <test>
             <param name="sampleTable" value="sampleTable.csv" ftype="csv"/>
             <output_collection name="output" count="3" type="list">
+                <!-- TODO there should be more outputs -->
                 <element name="dat_log2" ftype="csv">
                     <assert_contents>
                         <has_n_lines n="5058"/>

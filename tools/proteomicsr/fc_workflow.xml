@@ -82,15 +82,23 @@ If no sampleMapping dataframe is available, use sampleMapping = NULL, which is a
         <param argument="color_up" type="color" value="#DC0000" label="Color for up-regulated proteins"/>
         <param argument="color_down" type="color" value="#3C5488" label="Color for down-regulated proteins"/>
         <param argument="color_none" type="color" value="#000000" label="Color for insignificant differential expression"/>
+        <param name="out_select" type="select" multiple="true">
+            <option value="dat_calcuated">dat calculated TODO</option>
+            <option value="plots" selected="true">Plots</option>
+        </param>
     </inputs>
     <outputs>
         <!-- TODO make dat_calculated primary output -->
         <!-- <data name="log"/> -->
+        <data name="dat_calculated" format="csv" from_work_dir="Rdata/dat_calculated.csv">
+            <filter>"dat_calculated" in out_select</filter>
+        </data>
         <collection name="output" type="list">
             <discover_datasets pattern="__name_and_ext__" directory="Rdata"/>
         </collection>
         <collection name="plots" type="list" label="${tool.name} on ${on_string}: plots">
             <discover_datasets pattern="__name_and_ext__" directory="Plots"/>
+            <filter>"plots" in out_selected</filter>
         </collection>
     </outputs>
     <tests>

@@ -85,11 +85,11 @@ If no sampleMapping dataframe is available, use sampleMapping = NULL, which is a
     </inputs>
     <outputs>
         <!-- TODO make dat_calculated primary output -->
-        <data name="log"/>
+        <!-- <data name="log"/> -->
         <collection name="output" type="list">
             <discover_datasets pattern="__name_and_ext__" directory="Rdata"/>
         </collection>
-        <collection name="plots" type="list" label="${tool_name} on ${on_string}: plots">
+        <collection name="plots" type="list" label="${tool.name} on ${on_string}: plots">
             <discover_datasets pattern="__name_and_ext__" directory="Plots"/>
         </collection>
     </outputs>

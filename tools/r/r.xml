@@ -1,0 +1,159 @@
+<tool id="r_tidyverse" name="R" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0">
+    <description>tidyverse</description>
+    <macros>
+        <token name="@TOOL_VERSION@">4.3.1</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">r</xref>
+    </xrefs>
+    <requirements>
+        <container type="docker">rocker/tidyverse:@TOOL_VERSION@</container>
+    </requirements>
+    <version_command>R --version</version_command>
+    <command detect_errors="aggressive"><![CDATA[
+        echo ".libPaths(c(\"\${R_LIBS_USER:-\$_GALAXY_JOB_TMP_DIR}\", \"/usr/local/lib/R/site-library\", \"/usr/local/lib/R/library\"))" > ~/.Rprofile &&
+        Rscript '$r_script'
+        #for $p in $parameters
+            '$p.param'
+        #end for
+        #if $infile
+            < '$infile'
+        #end if
+    ]]></command>
+    <configfiles>
+        <configfile name="r_script">$code</configfile>
+    </configfiles>
+    <inputs>
+        <param name="infile" format="txt" optional="true" type="data" label="File to process"/>
+        <param name="code" type="text" area="true" label="R program" help="">
+            <sanitizer>
+                <valid initial="string.printable"/>
+            </sanitizer>
+        </param>
+        <repeat name="parameters" title="Parameters" default="0" help="Supply one or more parameters">
+            <param name="param" type="text" label="Parameter" help="">
+            </param>
+        </repeat>
+    </inputs>
+    <outputs>
+        <collection name="output" type="list" label="Outputs">
+            <discover_datasets pattern="__designation_and_ext__"/>
+        </collection>
+    </outputs>
+    <tests>
+        <!-- read tsv write csv -->
+        <test>
+            <param name="infile" value="test.tsv" ftype="tabular"/>
+            <param name="code" value='data = read.delim(file("stdin")); write.csv(data, "data.csv", row.names=FALSE)'/>
+            <output_collection name="output" type="list" count="1">
+                <element name="data" ftype="csv">
+                    <assert_contents>
+                        <has_line line="1,2" />
+                        <has_n_lines n="3"/>
+                        <has_n_columns n="2" sep=","/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+        </test>
+        <!-- optional input and load titdy install libraries -->
+        <test>
+            <param name="infile" value="test.tsv" ftype="tabular"/>
+            <param name="code" value='library(ggplot2); data = read.delim(file("stdin")); pdf("points.pdf"); ggplot(data, aes(x=A, y=B)) + geom_point(); dev.off(); '/>
+            <output_collection name="output" type="list" count="1">
+                <element name="points" ftype="pdf">
+                    <assert_contents>
+                        <has_text text="PDF" />
+                    </assert_contents>
+                </element>
+            </output_collection>
+        </test>
+        <!-- optional input and install libraries -->
+        <test>
+            <param name="code" value='install.packages("maybe"); library(maybe); print("success")'/>
+            <output_collection name="output" type="list" count="0"/>
+            <assert_stdout>
+                <has_line line='[1] "success"'/>
+            </assert_stdout>
+        </test>
+        <test>
+            <param name="code" value='install.packages("BiocManager"); BiocManager::install("multtest"); print("success")'/>
+            <output_collection name="output" type="list" count="0"/>
+            <assert_stdout>
+                <has_line line='[1] "success"'/>
+            </assert_stdout>
+        </test>
+        <!-- read binary files (eg rds) .. need mode rw -->
+        <test>
+            <param name="infile" value="test.rds" ftype="rds"/>
+            <param name="code" value='data = readRDS(file("/dev/stdin")); write.csv(data, "data.csv", row.names=FALSE)'/>
+            <output_collection name="output" type="list" count="1">
+                <element name="data" ftype="csv">
+                    <assert_contents>
+                        <has_line line="1,2" />
+                        <has_n_lines n="3"/>
+                        <has_n_columns n="2" sep=","/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+        </test>
+        <!-- parameters -->
+        <test>
+            <param name="code" value='args = commandArgs(trailingOnly = TRUE); fileConn = file(args[1]); writeLines(c("Hello,world","Bye,world"), fileConn); close(fileConn); print(args[2]);'/>
+            <repeat name="parameters">
+                <param name="param" value="filename.csv"/>
+            </repeat>
+            <repeat name="parameters">
+                <param name="param" value="some value"/>
+            </repeat>
+            <output_collection name="output" type="list" count="1">
+                <element name="filename" ftype="csv">
+                    <assert_contents>
+                        <has_line line="Hello,world"/>
+                        <has_n_lines n="2"/>
+                        <has_n_columns n="2" sep=","/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+            <assert_stdout>
+                <has_line line='[1] "some value"'/>
+            </assert_stdout>
+        </test>
+    </tests>
+    <help><![CDATA[
+**Warning**
+
+.. class:: warningmark
+
+This tool is only intended to serve for single-use, ad-hoc exploratory analysis
+of data sets with small R scripts.
+If you use this tool repeatedly with the same R script and/or have the impression
+that other Galaxy users could profit from this R code then contact your local
+Galaxy administrator or the Galaxy community, e.g. at https://github.com/galaxyproject/tools-iuc/,
+and ask if your R script can be turned into a proper Galaxy tool.
+One of the main advantages of a proper Galaxy tool is that they are tested and
+maintained. Furthermore the whole Galaxy community may profit.
+
+**What it does**
+
+Executes an **R** script (in a rocker/tidyverse container).
+
+The tool can read an optional input data set from stdin using ``file("stdin")``,
+e.g. a tab delimited file can be read as ``data <- read.delim(file("stdin"));``.
+
+Output datasets are read from the current working directory and put into a
+single collection.  The collection elements will be names like the file names
+(without the extension). The file extension determines the datatype of the
+datasets (or Galaxy will try to autodetect the data type).
+
+Additional parameters can be given and used in the R script, e.g.  ``args =
+commandArgs(trailingOnly = TRUE); first_arg = file(args[1])`` the first argument
+will be stored in the variable `first_arg`.
+
+The libraries of the tidyverse are available, see https://github.com/tidyverse/tidyverse.
+
+    ]]></help>
+    <citations>
+        <citation type="doi">10.21105/joss.01686</citation>
+    </citations>
+</tool>

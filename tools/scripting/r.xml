@@ -12,15 +12,27 @@
             ## echo ".libPaths(c(\"\${R_LIBS_USER:-\$_GALAXY_JOB_TMP_DIR}\", \"/usr/local/lib/R/site-library\", \"/usr/local/lib/R/library\"))" > ~/.Rprofile &&
             Rscript
         ]]></token>
-        <token name="@HELP_READ_FROM_STDIN@"><![CDATA[
-            The tool can read an optional input data set from stdin using ``file("/dev/stdin")``,
-            e.g. a tab delimited file can be read as ``data <- read.delim(file("/dev/stdin"));``.
-        ]]></token>
         <token name="@HELP_PARAMETERS@"><![CDATA[
-            Additional parameters can be given and used in the R script, e.g.  ``args =
-            commandArgs(trailingOnly = TRUE); first_arg = file(args[1])`` the first argument
-            will be stored in the variable `first_arg`.
+In the R script parameters can be used as follows, e.g.  
+            
+::
+
+    args <- commandArgs(trailingOnly = TRUE);
+    first_arg <- file(args[1])
+
+the first argument will be stored in the variable `first_arg`.
         ]]></token>
+        <token name="@HELP_READ_FROM_STDIN@"><![CDATA[
+Dataset arguments can be read as follows, e.g. 
+a tab delimited file can be read as 
+
+::
+
+    args <- commandArgs(trailingOnly = TRUE);
+    data <- read.delim(args[1]);
+
+        ]]></token>
+    </macros>
     <xrefs>
         <xref type="bio.tools">r</xref>
     </xrefs>
@@ -28,15 +40,19 @@
         <container type="docker">@CONTAINER@:@TOOL_VERSION@</container>
     </requirements>
     <version_command>R --version</version_command>
-    <expand macro="command_macro"/>
+    <expand macro="command_macro"/> 
     <expand macro="inputs_macro"/>
     <expand macro="outputs_macro"/>
 
     <tests>
         <!-- read tsv write csv -->
         <test>
-            <param name="infile" value="test.tsv" ftype="tabular"/>
-            <param name="code" value='data = read.delim(file("stdin")); write.csv(data, "data.csv", row.names=FALSE)'/>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="param" value="test.tsv" ftype="tabular"/>
+                </conditional>
+            </repeat>
+            <param name="code" value='args = commandArgs(trailingOnly = TRUE); data = read.delim(args[1]); write.csv(data, "data.csv", row.names=FALSE)'/>
             <output_collection name="output" type="list" count="1">
                 <element name="data" ftype="csv">
                     <assert_contents>
@@ -49,8 +65,13 @@
         </test>
         <!-- use a tidyverse library -->
         <test>
-            <param name="infile" value="test.tsv" ftype="tabular"/>
-            <param name="code" value='library(ggplot2); data = read.delim(file("stdin")); pdf("points.pdf"); ggplot(data, aes(x=A, y=B)) + geom_point(); dev.off(); '/>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="param" value="test.tsv" ftype="tabular"/>
+                    <param name="filename" value="custom_name.tsv"/>
+                </conditional>
+            </repeat>
+            <param name="code" value='library(ggplot2); args = commandArgs(trailingOnly = TRUE); data = read.delim(args[1]); pdf("points.pdf"); ggplot(data, aes(x=A, y=B)) + geom_point(); dev.off(); print(paste("plotted", args[1]))'/>
             <output_collection name="output" type="list" count="1">
                 <element name="points" ftype="pdf">
                     <assert_contents>
@@ -58,6 +79,9 @@
                     </assert_contents>
                 </element>
             </output_collection>
+            <assert_stdout>
+                <has_line line='[1] "plotted inputs/custom_name.tsv"'/>
+            </assert_stdout>
         </test>
         <!-- install libraries fails -->
         <test expect_failure="true">
@@ -68,8 +92,12 @@
         </test>
         <!-- read binary files (eg rds) -->
         <test>
-            <param name="infile" value="test.rds" ftype="rds"/>
-            <param name="code" value='data = readRDS(file("/dev/stdin")); write.csv(data, "data.csv", row.names=FALSE)'/>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="param" value="test.rds" ftype="rds"/>
+                </conditional>
+            </repeat>
+            <param name="code" value='args = commandArgs(trailingOnly = TRUE); data = readRDS(args[1]); write.csv(data, "data.csv", row.names=FALSE)'/>
             <output_collection name="output" type="list" count="1">
                 <element name="data" ftype="csv">
                     <assert_contents>
@@ -82,13 +110,19 @@
         </test>
         <!-- optional input and parameters -->
         <test>
+            <repeat name="parameters">
+                <conditional name="type_cond"> 
+                    <param name="type_sel" value="text"/>
+                    <param name="param" value="filename.csv"/>
+                </conditional>
+            </repeat>
+            <repeat name="parameters">
+                <conditional name="type_cond"> 
+                    <param name="type_sel" value="text"/>
+                    <param name="param" value="some value"/>
+                </conditional>
+            </repeat>
             <param name="code" value='args = commandArgs(trailingOnly = TRUE); fileConn = file(args[1]); writeLines(c("Hello,world","Bye,world"), fileConn); close(fileConn); print(args[2]);'/>
-            <repeat name="parameters">
-                <param name="param" value="filename.csv"/>
-            </repeat>
-            <repeat name="parameters">
-                <param name="param" value="some value"/>
-            </repeat>
             <output_collection name="output" type="list" count="1">
                 <element name="filename" ftype="csv">
                     <assert_contents>

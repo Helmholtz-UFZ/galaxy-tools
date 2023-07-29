@@ -13,18 +13,18 @@
             python
         ]]></token>
         <token name="@HELP_READ_FROM_STDIN@"><![CDATA[
-            The tool can read an optional input data set from stdin using ``sys.stdin``,
-            e.g. a tab delimited file can be read with ``pandas`` 
+The script can access data set parameters as follows,
+e.g. a tab delimited file can be read with ``pandas`` 
 
 ::
 
     import sys
     import pandas as pd
-    df = pd.read_csv(sys.stdin, sep="\t")
+    df = pd.read_csv(sys.argv[1], sep="\t")
 
         ]]></token>
         <token name="@HELP_PARAMETERS@"><![CDATA[
-            Additional parameters can be given and used in the R script, e.g.
+Additional parameters can be used, e.g.
 
 ::
 
@@ -46,8 +46,13 @@ will store the 1st argument in the variable ``first_arg``.
     <tests>
         <!-- read tsv write csv -->
         <test>
-            <param name="infile" value="test.tsv" ftype="tabular"/>
-            <param name="code" value='import sys; import pandas as pd; df = pd.read_csv(sys.stdin, sep="\t"); df.to_csv("data.csv", index=False, sep=",");'/>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="type_sel" value="data"/>
+                    <param name="param" value="test.tsv" ftype="tabular"/>
+                </conditional>
+            </repeat>
+            <param name="code" value='import sys; import pandas as pd; df = pd.read_csv(sys.argv[1], sep="\t"); df.to_csv("data.csv", index=False, sep=",");'/>
             <output_collection name="output" type="list" count="1">
                 <element name="data" ftype="csv">
                     <assert_contents>
@@ -60,8 +65,13 @@ will store the 1st argument in the variable ``first_arg``.
         </test>
         <!-- plot w matplotlib -->
         <test>
-            <param name="infile" value="test.tsv" ftype="tabular"/>
-            <param name="code" value='import sys; import pandas as pd; from matplotlib.backends.backend_pdf import PdfPages;  df = pd.read_csv(sys.stdin, sep="&#009;"); fh = PdfPages("points.pdf"); plt = df.plot(); fh.savefig(); fh.close()'/>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="param" value="test.tsv" ftype="tabular"/>
+                    <param name="filename" value="custom_name.tsv"/>
+                </conditional>
+            </repeat>
+            <param name="code" value='import sys; import pandas as pd; from matplotlib.backends.backend_pdf import PdfPages;  df = pd.read_csv(sys.argv[1], sep="\t"); fh = PdfPages("points.pdf"); plt = df.plot(); fh.savefig(); fh.close(); print(f"plotted {sys.argv[1]}")'/>
             <output_collection name="output" type="list" count="1">
                 <element name="points" ftype="pdf">
                     <assert_contents>
@@ -69,6 +79,9 @@ will store the 1st argument in the variable ``first_arg``.
                     </assert_contents>
                 </element>
             </output_collection>
+            <assert_stdout>
+                <has_line line="plotted inputs/custom_name.tsv"/>
+            </assert_stdout>
         </test>
         <!-- install libraries ("forbidden") -->
         <test expect_failure="true">
@@ -76,8 +89,12 @@ will store the 1st argument in the variable ``first_arg``.
         </test>
         <!-- read binary files (eg feather)  -->
         <test>
-            <param name="infile" value="test.h5" ftype="h5"/>
-            <param name="code" value='import sys; import os; import pandas as pd; tmp = open("tmp", "wb"); tmp.write(sys.stdin.buffer.read()); tmp.close(); df = pd.read_hdf("tmp"); os.unlink("tmp"); df.to_csv("data.csv", index=False, sep=",");'/>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="param" value="test.h5" ftype="h5"/>
+                </conditional>
+            </repeat>
+            <param name="code" value='import sys; import os; import pandas as pd; df = pd.read_hdf(sys.argv[1]); df.to_csv("data.csv", index=False, sep=",");'/>
             <output_collection name="output" type="list" count="1">
                 <element name="data" ftype="csv">
                     <assert_contents>
@@ -90,13 +107,19 @@ will store the 1st argument in the variable ``first_arg``.
         </test>
         <!-- parameters -->
         <test>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="type_sel" value="text"/>
+                    <param name="param" value="filename.csv"/>
+                </conditional>
+            </repeat>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="type_sel" value="text"/>
+                    <param name="param" value="some value"/>
+                </conditional>
+            </repeat>
             <param name="code" value='import sys; fh = open(sys.argv[1], "w"); fh.write("Hello,world\n"); fh.write("Bye,world\n"); fh.close(); print(sys.argv[2]);'/>
-            <repeat name="parameters">
-                <param name="param" value="filename.csv"/>
-            </repeat>
-            <repeat name="parameters">
-                <param name="param" value="some value"/>
-            </repeat>
             <output_collection name="output" type="list" count="1">
                 <element name="filename" ftype="csv">
                     <assert_contents>

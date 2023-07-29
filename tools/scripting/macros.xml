@@ -1,0 +1,121 @@
+<macros>
+    <xml name="command_macro">
+        <command detect_errors="aggressive"><![CDATA[
+            #import re
+            mkdir inputs &&
+            #for $p in $parameters
+                #if $p.type_cond.type_sel == "data"
+                    #if $p.type_cond.filename != ''
+                        #set fname = $p.type_cond.filename
+                    #else
+                        #set fname=re.sub('[^\s\w\.]', '_', str($p.type_cond.param.element_identifier)) + "." + $p.type_cond.param.ext
+                    #end if
+                    ln -s '$p.type_cond.param' inputs/'$fname' &&
+                #end if
+            #end for
+
+            @COMMAND_AND_SETUP@
+            '$script'
+            #for $p in $parameters
+                #if $p.type_cond.type_sel == "data"
+                    #if $p.type_cond.filename != ''
+                        #set fname = $p.type_cond.filename
+                    #else
+                        #set fname=re.sub('[^\s\w\.]', '_', str($p.type_cond.param.element_identifier)) + "." + $p.type_cond.param.ext
+                    #end if
+                    inputs/'$fname'
+                #else
+                    '$p.type_cond.param'
+                #end if
+            #end for
+        ]]></command>
+        <configfiles>
+            <configfile name="script">$code</configfile>
+        </configfiles>
+    </xml>
+    <xml name="inputs_macro">
+        <inputs>
+            <repeat name="parameters" title="Parameters" min="1" default="1" help="Supply one or more parameters">
+                <conditional name="type_cond">
+                    <param name="type_sel" type="select" label="Parameter type">
+                        <option value="data">Dataset</option>
+                        <option value="text">Text</option>
+                        <!-- Not sure if int/float make sense .. can they be connected to text in WFs? -->
+                    </param>
+                    <when value="data">
+                        <param name="param" type="data" label="Dataset"/>
+                        <param name="filename" type="text" label="File name" help="Set if you want to access the data set with a specific file name. Only alphanumeric characters, dash and underscore are allowed (all other characters are replaced by an undercore). Default is Galaxy's data set name.">
+                            <sanitizer invalid_char="_">
+                                <valid initial="string.ascii_letters,string.digits">
+                                    <add value="_" />
+                                    <add value="-" />
+                                    <add value="." />
+                                </valid>
+                            </sanitizer> 
+                            <!-- file names must not start with dash -->
+                            <validator type="regex" negate="true" message="Filenames must not start with a dash">^[-].*$</validator>
+                        </param>
+                    </when>
+                    <when value="text">
+                        <param name="param" type="text" label="Text parameter" help=""/>
+                    </when>
+                </conditional>
+            </repeat>
+            <param name="code" type="text" area="true" label="@LANGUAGE@ program" help="">
+                <sanitizer>
+                    <valid initial="string.printable"/>
+                </sanitizer>
+            </param>
+        </inputs>
+    </xml>
+    <xml name="outputs_macro">
+        <outputs>
+            <collection name="output" type="list" label="Outputs">
+                <discover_datasets pattern="__designation_and_ext__"/>
+            </collection>
+        </outputs>
+    </xml>
+
+    <xml name="help_macro">
+        <help><![CDATA[
+**Warning**
+
+.. class:: warningmark
+
+**Make sure that you know what you are doing. When used wrong the tool may lead to
+data loss of files that you can write to.**
+
+.. class:: warningmark
+
+This tool is only intended to serve for single-use, ad-hoc exploratory analysis
+of data sets with small @LANGUAGE@ scripts.
+
+.. class:: warningmark
+
+If you use this tool repeatedly with the same script and/or have the impression
+that other Galaxy users could profit from this script then contact your local
+Galaxy administrator or the Galaxy community, e.g. at https://github.com/galaxyproject/tools-iuc/,
+and ask if your script can be turned into a proper Galaxy tool.
+One of the main advantages of a proper Galaxy tool is that they are tested and
+maintained. Furthermore the whole Galaxy community may profit.
+
+**What it does**
+
+Executes an **@LANGUAGE@** script (in a @CONTAINER@ container).
+
+An arbitrary number of data or text parameters can be given to the script.
+Data parameters are by default named like the datasets name and the datatype
+is used as extension. This can be overwritten with the filename parameter
+for the corresponding dataset.
+
+@HELP_PARAMETERS@
+
+@HELP_READ_FROM_STDIN@
+
+Output datasets are read from the current working directory and put into a
+single collection.  The collection elements will be named as the file names
+(without the extension). The file extension determines the datatype of the
+datasets (or Galaxy will try to autodetect the data type).
+        ]]></help>
+    </xml>
+</macros>

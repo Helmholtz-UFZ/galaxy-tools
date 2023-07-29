@@ -1,0 +1,157 @@
+<tool id="python_anaconda" name="python" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0">
+    <description>anaconda</description>
+    <macros>
+        <token name="@TOOL_VERSION@">2023.07-1</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <xrefs>
+    </xrefs>
+    <requirements>
+        <container type="docker">continuumio/anaconda3:@TOOL_VERSION@</container>
+    </requirements>
+    <version_command>python --version</version_command>
+    <command detect_errors="aggressive"><![CDATA[
+        ## forbid the easy way to install packages (pip)
+        export PIP_REQUIRE_VIRTUALENV=true &&
+
+        python '$python_script'
+        #for $p in $parameters
+            '$p.param'
+        #end for
+        #if $infile
+            < '$infile'
+        #end if
+    ]]></command>
+    <configfiles>
+        <configfile name="python_script">$code</configfile>
+    </configfiles>
+    <inputs>
+        <param name="infile" format="txt" optional="true" type="data" label="File to process"/>
+        <param name="code" type="text" area="true" label="python program" help="">
+            <sanitizer>
+                <valid initial="string.printable"/>
+            </sanitizer>
+        </param>
+        <repeat name="parameters" title="Parameters" default="0" help="Supply one or more parameters">
+            <param name="param" type="text" label="Parameter" help="">
+            </param>
+        </repeat>
+    </inputs>
+    <outputs>
+        <collection name="output" type="list" label="Outputs">
+            <discover_datasets pattern="__designation_and_ext__"/>
+        </collection>
+    </outputs>
+    <tests>
+        <!-- read tsv write csv -->
+        <test>
+            <param name="infile" value="test.tsv" ftype="tabular"/>
+            <param name="code" value='import sys; import pandas as pd; df = pd.read_csv(sys.stdin, sep="\t"); df.to_csv("data.csv", index=False, sep=",");'/>
+            <output_collection name="output" type="list" count="1">
+                <element name="data" ftype="csv">
+                    <assert_contents>
+                        <has_line line="1,2" />
+                        <has_n_lines n="3"/>
+                        <has_n_columns n="2" sep=","/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+        </test>
+        <!-- plot w matplotlib -->
+        <test>
+            <param name="infile" value="test.tsv" ftype="tabular"/>
+            <param name="code" value='import sys; import pandas as pd; from matplotlib.backends.backend_pdf import PdfPages;  df = pd.read_csv(sys.stdin, sep="&#009;"); fh = PdfPages("points.pdf"); plt = df.plot(); fh.savefig(); fh.close()'/>
+            <output_collection name="output" type="list" count="1">
+                <element name="points" ftype="pdf">
+                    <assert_contents>
+                        <has_text text="PDF" />
+                    </assert_contents>
+                </element>
+            </output_collection>
+        </test>
+        <!-- install libraries ("forbidden") -->
+        <test expect_failure="true">
+            <param name="code" value='import pip; pip.main(["install", "biopython"]); import Bio'/>
+        </test>
+        <!-- read binary files (eg feather)  -->
+        <test>
+            <param name="infile" value="test.h5" ftype="h5"/>
+            <param name="code" value='import sys; import os; import pandas as pd; tmp = open("tmp", "wb"); tmp.write(sys.stdin.buffer.read()); tmp.close(); df = pd.read_hdf("tmp"); os.unlink("tmp"); df.to_csv("data.csv", index=False, sep=",");'/>
+            <output_collection name="output" type="list" count="1">
+                <element name="data" ftype="csv">
+                    <assert_contents>
+                        <has_line line="1,2" />
+                        <has_n_lines n="3"/>
+                        <has_n_columns n="2" sep=","/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+        </test>
+        <!-- parameters -->
+        <test>
+            <param name="code" value='import sys; fh = open(sys.argv[1], "w"); fh.write("Hello,world\n"); fh.write("Bye,world\n"); fh.close(); print(sys.argv[2]);'/>
+            <repeat name="parameters">
+                <param name="param" value="filename.csv"/>
+            </repeat>
+            <repeat name="parameters">
+                <param name="param" value="some value"/>
+            </repeat>
+            <output_collection name="output" type="list" count="1">
+                <element name="filename" ftype="csv">
+                    <assert_contents>
+                        <has_line line="Hello,world"/>
+                        <has_n_lines n="2"/>
+                        <has_n_columns n="2" sep=","/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+            <assert_stdout>
+                <has_line line='some value'/>
+            </assert_stdout>
+        </test>
+    </tests>
+    <help><![CDATA[
+**Warning**
+
+.. class:: warningmark
+
+**Make sure that you know what you are doing. When used wrong the tool may lead to
+data loss of files that you can write to.**
+
+.. class:: warningmark
+
+This tool is only intended to serve for single-use, ad-hoc exploratory analysis
+of data sets with small R scripts.
+
+.. class:: warningmark
+
+If you use this tool repeatedly with the same R script and/or have the impression
+that other Galaxy users could profit from this R code then contact your local
+Galaxy administrator or the Galaxy community, e.g. at https://github.com/galaxyproject/tools-iuc/,
+and ask if your R script can be turned into a proper Galaxy tool.
+One of the main advantages of a proper Galaxy tool is that they are tested and
+maintained. Furthermore the whole Galaxy community may profit.
+
+**What it does**
+
+Executes an **R** script (in a rocker/tidyverse container).
+
+The tool can read an optional input data set from stdin using ``file("stdin")``,
+e.g. a tab delimited file can be read as ``data <- read.delim(file("stdin"));``.
+
+Output datasets are read from the current working directory and put into a
+single collection.  The collection elements will be names like the file names
+(without the extension). The file extension determines the datatype of the
+datasets (or Galaxy will try to autodetect the data type).
+
+Additional parameters can be given and used in the R script, e.g.  ``args =
+commandArgs(trailingOnly = TRUE); first_arg = file(args[1])`` the first argument
+will be stored in the variable `first_arg`.
+
+The libraries of the tidyverse are available, see https://github.com/tidyverse/tidyverse.
+
+    ]]></help>
+    <citations>
+        <citation type="doi">10.21105/joss.01686</citation>
+    </citations>
+</tool>

@@ -1,0 +1,17 @@
+name: scripting tools
+owner: berntm
+description: suite_scripting
+long_description: |
+  Tools to execute scripting languages in Galaxy.
+categories:
+- Text Manipulation
+remote_repository_url: https://github.com/bernt-matthias/mb-galaxy-tools/tree/master/tools/scripting/
+type: unrestricted
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: "Wrapper for the {{ tool_name }} scripting language."
+suite:
+  name: "suite_scripting"
+  description: "Tools to execute scripting languages in Galaxy"
+  long_description: |
+    Tools to execute scripting languages in Galaxy.

@@ -12,7 +12,9 @@
     </requirements>
     <version_command>R --version</version_command>
     <command detect_errors="aggressive"><![CDATA[
-        echo ".libPaths(c(\"\${R_LIBS_USER:-\$_GALAXY_JOB_TMP_DIR}\", \"/usr/local/lib/R/site-library\", \"/usr/local/lib/R/library\"))" > ~/.Rprofile &&
+        ## This would allow the installation of R packages
+        ## which I so not want (because users likely would install unversioned tools)
+        ## echo ".libPaths(c(\"\${R_LIBS_USER:-\$_GALAXY_JOB_TMP_DIR}\", \"/usr/local/lib/R/site-library\", \"/usr/local/lib/R/library\"))" > ~/.Rprofile &&
         Rscript '$r_script'
         #for $p in $parameters
             '$p.param'
@@ -56,7 +58,7 @@
                 </element>
             </output_collection>
         </test>
-        <!-- optional input and load titdy install libraries -->
+        <!-- use a tidyverse library -->
         <test>
             <param name="infile" value="test.tsv" ftype="tabular"/>
             <param name="code" value='library(ggplot2); data = read.delim(file("stdin")); pdf("points.pdf"); ggplot(data, aes(x=A, y=B)) + geom_point(); dev.off(); '/>
@@ -68,22 +70,14 @@
                 </element>
             </output_collection>
         </test>
-        <!-- optional input and install libraries -->
-        <test>
+        <!-- install libraries fails -->
+        <test expect_failure="true">
             <param name="code" value='install.packages("maybe"); library(maybe); print("success")'/>
-            <output_collection name="output" type="list" count="0"/>
-            <assert_stdout>
-                <has_line line='[1] "success"'/>
-            </assert_stdout>
         </test>
-        <test>
+        <test expect_failure="true">
             <param name="code" value='install.packages("BiocManager"); BiocManager::install("multtest"); print("success")'/>
-            <output_collection name="output" type="list" count="0"/>
-            <assert_stdout>
-                <has_line line='[1] "success"'/>
-            </assert_stdout>
         </test>
-        <!-- read binary files (eg rds) .. need mode rw -->
+        <!-- read binary files (eg rds) -->
         <test>
             <param name="infile" value="test.rds" ftype="rds"/>
             <param name="code" value='data = readRDS(file("/dev/stdin")); write.csv(data, "data.csv", row.names=FALSE)'/>
@@ -97,7 +91,7 @@
                 </element>
             </output_collection>
         </test>
-        <!-- parameters -->
+        <!-- optional input and parameters -->
         <test>
             <param name="code" value='args = commandArgs(trailingOnly = TRUE); fileConn = file(args[1]); writeLines(c("Hello,world","Bye,world"), fileConn); close(fileConn); print(args[2]);'/>
             <repeat name="parameters">

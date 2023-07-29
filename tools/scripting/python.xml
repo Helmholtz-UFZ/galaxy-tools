@@ -1,8 +1,38 @@
-<tool id="python_anaconda" name="python" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0">
+<tool id="python_anaconda" name="@LANGUAGE@" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0">
     <description>anaconda</description>
     <macros>
+        <import>macros.xml</import>
+        <token name="@LANGUAGE@">python</token>
+        <token name="@CONTAINER@">continuumio/anaconda3</token>
         <token name="@TOOL_VERSION@">2023.07-1</token>
         <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@COMMAND_AND_SETUP@"><![CDATA[
+            ## forbid the easy way to install packages (pip)
+            export PIP_REQUIRE_VIRTUALENV=true &&
+
+            python
+        ]]></token>
+        <token name="@HELP_READ_FROM_STDIN@"><![CDATA[
+            The tool can read an optional input data set from stdin using ``sys.stdin``,
+            e.g. a tab delimited file can be read with ``pandas`` 
+
+::
+
+    import sys
+    import pandas as pd
+    df = pd.read_csv(sys.stdin, sep="\t")
+
+        ]]></token>
+        <token name="@HELP_PARAMETERS@"><![CDATA[
+            Additional parameters can be given and used in the R script, e.g.
+
+::
+
+    import sys
+    first_arg = sys.argv[1]
+
+will store the 1st argument in the variable ``first_arg``.
+        ]]></token>
     </macros>
     <xrefs>
     </xrefs>
@@ -10,38 +40,9 @@
         <container type="docker">continuumio/anaconda3:@TOOL_VERSION@</container>
     </requirements>
     <version_command>python --version</version_command>
-    <command detect_errors="aggressive"><![CDATA[
-        ## forbid the easy way to install packages (pip)
-        export PIP_REQUIRE_VIRTUALENV=true &&
-
-        python '$python_script'
-        #for $p in $parameters
-            '$p.param'
-        #end for
-        #if $infile
-            < '$infile'
-        #end if
-    ]]></command>
-    <configfiles>
-        <configfile name="python_script">$code</configfile>
-    </configfiles>
-    <inputs>
-        <param name="infile" format="txt" optional="true" type="data" label="File to process"/>
-        <param name="code" type="text" area="true" label="python program" help="">
-            <sanitizer>
-                <valid initial="string.printable"/>
-            </sanitizer>
-        </param>
-        <repeat name="parameters" title="Parameters" default="0" help="Supply one or more parameters">
-            <param name="param" type="text" label="Parameter" help="">
-            </param>
-        </repeat>
-    </inputs>
-    <outputs>
-        <collection name="output" type="list" label="Outputs">
-            <discover_datasets pattern="__designation_and_ext__"/>
-        </collection>
-    </outputs>
+    <expand macro="command_macro"/>
+    <expand macro="inputs_macro"/>
+    <expand macro="outputs_macro"/>
     <tests>
         <!-- read tsv write csv -->
         <test>
@@ -110,48 +111,17 @@
             </assert_stdout>
         </test>
     </tests>
-    <help><![CDATA[
-**Warning**
-
-.. class:: warningmark
-
-**Make sure that you know what you are doing. When used wrong the tool may lead to
-data loss of files that you can write to.**
-
-.. class:: warningmark
-
-This tool is only intended to serve for single-use, ad-hoc exploratory analysis
-of data sets with small R scripts.
-
-.. class:: warningmark
-
-If you use this tool repeatedly with the same R script and/or have the impression
-that other Galaxy users could profit from this R code then contact your local
-Galaxy administrator or the Galaxy community, e.g. at https://github.com/galaxyproject/tools-iuc/,
-and ask if your R script can be turned into a proper Galaxy tool.
-One of the main advantages of a proper Galaxy tool is that they are tested and
-maintained. Furthermore the whole Galaxy community may profit.
-
-**What it does**
-
-Executes an **R** script (in a rocker/tidyverse container).
-
-The tool can read an optional input data set from stdin using ``file("stdin")``,
-e.g. a tab delimited file can be read as ``data <- read.delim(file("stdin"));``.
-
-Output datasets are read from the current working directory and put into a
-single collection.  The collection elements will be names like the file names
-(without the extension). The file extension determines the datatype of the
-datasets (or Galaxy will try to autodetect the data type).
-
-Additional parameters can be given and used in the R script, e.g.  ``args =
-commandArgs(trailingOnly = TRUE); first_arg = file(args[1])`` the first argument
-will be stored in the variable `first_arg`.
-
-The libraries of the tidyverse are available, see https://github.com/tidyverse/tidyverse.
-
-    ]]></help>
+    <expand macro="help_macro"/>
     <citations>
-        <citation type="doi">10.21105/joss.01686</citation>
+        <citation type="bibtex">
+            @misc{anaconda,
+            title={Anaconda Software Distribution},
+            url={https://docs.anaconda.com/},
+            journal={Anaconda Documentation},
+            version={Vers. 2-2.4.0}, 
+            publisher={Anaconda Inc.},
+            year={2020}
+            }
+        </citation>
     </citations>
 </tool>

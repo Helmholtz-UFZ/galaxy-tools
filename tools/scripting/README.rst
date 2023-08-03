@@ -18,3 +18,6 @@ Admins should consider the following points:
   It's advisable to use the ``--no-mount`` option to disable additional
   mounts that might be writable.
 - Maybe disable or limit network usage, eg. for singularity ``--network none``
+
+This tool has been inspired by the [scriptrunner](https://github.com/ARTbio/docker-scriptrunner/blob/master/scriptrunner.xml) tool
+which works with docker.

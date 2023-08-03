@@ -1,0 +1,420 @@
+<tool id="singularity_scriptrunner" name="scriptrunner" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0">
+    <description>singularity</description>
+    <command detect_errors="aggressive"><![CDATA[
+        #import re
+
+        ## cp script to JWD
+        mkdir script &&
+        cp '$script' script/script &&
+
+        mkdir inputs &&
+        #for $p in $parameters
+            #if $p.type_cond.type_sel == "data"
+                #if $p.type_cond.filename != ''
+                    #set fname = $p.type_cond.filename
+                #else
+                    #set fname=re.sub('[^\s\w\.]', '_', str($p.type_cond.param.element_identifier)) + "." + $p.type_cond.param.ext
+                #end if
+                ln -s '$p.type_cond.param' inputs/'$fname' &&
+            #end if
+        #end for
+
+        $image.fields.container_type
+        exec
+            ## --cpus 1 # disabled because rootless cgroups requires cgroups v2
+            ## --memory "\$((1024 * \${GALAY_MEMORY_MB:-8192}))" # not needed on EVE
+            ## bind Galaxy's file dir, otherwise we need to copy input file to JWD
+            --bind '$__app__.config.file_path:$__app__.config.file_path'
+            $image.fields.container_params
+        '$image.fields.image'
+        $image.fields.interpreter 'script/script'
+        #for $p in $parameters
+            #if $p.type_cond.type_sel == "data"
+                #if $p.type_cond.filename != ''
+                    #set fname = $p.type_cond.filename
+                #else
+                    #set fname=re.sub('[^\s\w\.]', '_', str($p.type_cond.param.element_identifier)) + "." + $p.type_cond.param.ext
+                #end if
+                inputs/'$fname'
+            #else
+                '$p.type_cond.param'
+            #end if
+        #end for
+    ]]></command>
+    <configfiles>
+        <configfile name="script">$code</configfile>
+    </configfiles>
+    <inputs>
+        <param name="interpreter" type="select" label="Interpreter">
+            <options from_data_table="scripting_images">
+                <column name="name" index="3"/>
+                <column name="value" index="3"/>
+                <filter type="regexp" column="4" value="singularity|apptainer"/>
+            </options>
+            <validator type="no_options" message="No interpreter available. Contact you Galaxy administrator." />
+        </param>
+        <param name="image" type="select" label="Image" >
+            <options from_data_table="scripting_images">
+                <filter type="regexp" column="4" value="singularity|apptainer"/>
+                <filter type="param_value" column="3" ref="interpreter"/>
+            </options>
+            <validator type="no_options" message="No interpreter / image is available. Contact you Galaxy administrator." />
+        </param>
+        <repeat name="parameters" title="Parameters" min="1" default="1" help="Supply one or more parameters">
+            <conditional name="type_cond">
+                <param name="type_sel" type="select" label="Parameter type">
+                    <option value="data">Dataset</option>
+                    <option value="text">Text</option>
+                    <!-- Not sure if int/float make sense .. can they be connected to text in WFs? -->
+                </param>
+                <when value="data">
+                    <param name="param" type="data" label="Dataset"/>
+                    <param name="filename" type="text" label="File name" help="Set if you want to access the data set with a specific file name. Only alphanumeric characters, dash and underscore are allowed (all other characters are replaced by an undercore). Default is Galaxy's data set name.">
+                        <sanitizer invalid_char="_">
+                            <valid initial="string.ascii_letters,string.digits">
+                                <add value="_" />
+                                <add value="-" />
+                                <add value="." />
+                            </valid>
+                        </sanitizer> 
+                        <!-- file names must not start with dash -->
+                        <validator type="regex" negate="true" message="Filenames must not start with a dash">^[-].*$</validator>
+                    </param>
+                </when>
+                <when value="text">
+                    <param name="param" type="text" label="Text parameter" help=""/>
+                </when>
+            </conditional>
+        </repeat>
+        <param name="code" type="text" area="true" label="Script to execute" help="">
+            <sanitizer>
+                <valid initial="string.printable"/>
+            </sanitizer>
+        </param>
+    </inputs>
+    <outputs>
+        <collection name="output" type="list" label="Outputs">
+            <discover_datasets pattern="__designation_and_ext__"/>
+        </collection>
+    </outputs>
+    <tests>
+        <!-- read tsv write csv -->
+        <test>
+            <param name="interpreter" value="python"/>
+            <param name="image" value="python_continuumio_anaconda"/>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="type_sel" value="data"/>
+                    <param name="param" value="test.tsv" ftype="tabular"/>
+                </conditional>
+            </repeat>
+            <param name="code" value='import sys; import pandas as pd; df = pd.read_csv(sys.argv[1], sep="\t"); df.to_csv("data.csv", index=False, sep=",");'/>
+            <output_collection name="output" type="list" count="1">
+                <element name="data" ftype="csv">
+                    <assert_contents>
+                        <has_line line="1,2" />
+                        <has_n_lines n="3"/>
+                        <has_n_columns n="2" sep=","/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+            <!-- but the data table this should use singularity and not use additional parameters to it (\-\-cleanenv) -->
+            <assert_command>
+                <has_text text="singularity"/>
+                <has_text text="--cleanenv"/>
+            </assert_command>
+        </test>
+        <!-- plot w matplotlib -->
+        <test>
+            <param name="interpreter" value="python"/>
+            <param name="image" value="python_continuumio_anaconda"/>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="param" value="test.tsv" ftype="tabular"/>
+                    <param name="filename" value="custom_name.tsv"/>
+                </conditional>
+            </repeat>
+            <param name="code" value='import sys; import pandas as pd; from matplotlib.backends.backend_pdf import PdfPages;  df = pd.read_csv(sys.argv[1], sep="\t"); fh = PdfPages("points.pdf"); plt = df.plot(); fh.savefig(); fh.close(); print(f"plotted {sys.argv[1]}")'/>
+            <output_collection name="output" type="list" count="1">
+                <element name="points" ftype="pdf">
+                    <assert_contents>
+                        <has_text text="PDF" />
+                    </assert_contents>
+                </element>
+            </output_collection>
+            <assert_stdout>
+                <has_line line="plotted inputs/custom_name.tsv"/>
+            </assert_stdout>
+        </test>
+        <!-- install libraries ("forbidden") -->
+        <test expect_failure="true">
+            <param name="interpreter" value="python"/>
+            <param name="image" value="python_continuumio_anaconda"/>
+            <param name="code" value='import pip; pip.main(["install", "biopython"]); import Bio'/>
+        </test>
+        <!-- read binary files (eg feather)  -->
+        <test>
+            <param name="interpreter" value="python"/>
+            <param name="image" value="python_continuumio_anaconda"/>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="param" value="test.h5" ftype="h5"/>
+                </conditional>
+            </repeat>
+            <param name="code" value='import sys; import os; import pandas as pd; df = pd.read_hdf(sys.argv[1]); df.to_csv("data.csv", index=False, sep=",");'/>
+            <output_collection name="output" type="list" count="1">
+                <element name="data" ftype="csv">
+                    <assert_contents>
+                        <has_line line="1,2" />
+                        <has_n_lines n="3"/>
+                        <has_n_columns n="2" sep=","/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+        </test>
+        <!-- parameters -->
+        <test>
+            <param name="interpreter" value="python"/>
+            <param name="image" value="python_continuumio_anaconda"/>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="type_sel" value="text"/>
+                    <param name="param" value="filename.csv"/>
+                </conditional>
+            </repeat>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="type_sel" value="text"/>
+                    <param name="param" value="some value"/>
+                </conditional>
+            </repeat>
+            <param name="code" value='import sys; fh = open(sys.argv[1], "w"); fh.write("Hello,world\n"); fh.write("Bye,world\n"); fh.close(); print(sys.argv[2]);'/>
+            <output_collection name="output" type="list" count="1">
+                <element name="filename" ftype="csv">
+                    <assert_contents>
+                        <has_line line="Hello,world"/>
+                        <has_n_lines n="2"/>
+                        <has_n_columns n="2" sep=","/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+            <assert_stdout>
+                <has_line line='some value'/>
+            </assert_stdout>
+        </test>
+
+        <!-- read tsv write csv -->
+        <test>
+            <param name="interpreter" value="Rscript"/>
+            <param name="image" value="r_rocker_tidyverse"/>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="param" value="test.tsv" ftype="tabular"/>
+                </conditional>
+            </repeat>
+            <param name="code" value='args = commandArgs(trailingOnly = TRUE); data = read.delim(args[1]); write.csv(data, "data.csv", row.names=FALSE)'/>
+            <output_collection name="output" type="list" count="1">
+                <element name="data" ftype="csv">
+                    <assert_contents>
+                        <has_line line="1,2" />
+                        <has_n_lines n="3"/>
+                        <has_n_columns n="2" sep=","/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+            <!-- but the data table this should use apptainer and not use any additional parameters to it -->
+            <assert_command>
+                <has_text text="apptainer"/>
+                <has_text text="--cleanenv" negate="true"/>
+            </assert_command>
+        </test>
+        <!-- use a tidyverse library -->
+        <test>
+            <param name="interpreter" value="Rscript"/>
+            <param name="image" value="r_rocker_tidyverse"/>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="param" value="test.tsv" ftype="tabular"/>
+                    <param name="filename" value="custom_name.tsv"/>
+                </conditional>
+            </repeat>
+            <param name="code" value='library(ggplot2); args = commandArgs(trailingOnly = TRUE); data = read.delim(args[1]); pdf("points.pdf"); ggplot(data, aes(x=A, y=B)) + geom_point(); dev.off(); print(paste("plotted", args[1]))'/>
+            <output_collection name="output" type="list" count="1">
+                <element name="points" ftype="pdf">
+                    <assert_contents>
+                        <has_text text="PDF" />
+                    </assert_contents>
+                </element>
+            </output_collection>
+            <assert_stdout>
+                <has_line line='[1] "plotted inputs/custom_name.tsv"'/>
+            </assert_stdout>
+        </test>
+        <!-- install libraries fails -->
+        <test expect_failure="true">
+            <param name="interpreter" value="Rscript"/>
+            <param name="image" value="r_rocker_tidyverse"/>
+            <param name="code" value='install.packages("maybe"); library(maybe); print("success")'/>
+        </test>
+        <test expect_failure="true">
+            <param name="interpreter" value="Rscript"/>
+            <param name="image" value="r_rocker_tidyverse"/>
+            <param name="code" value='install.packages("BiocManager"); BiocManager::install("multtest"); print("success")'/>
+        </test>
+        <!-- read binary files (eg rds) -->
+        <test>
+            <param name="interpreter" value="Rscript"/>
+            <param name="image" value="r_rocker_tidyverse"/>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="param" value="test.rds" ftype="rds"/>
+                </conditional>
+            </repeat>
+            <param name="code" value='args = commandArgs(trailingOnly = TRUE); data = readRDS(args[1]); write.csv(data, "data.csv", row.names=FALSE)'/>
+            <output_collection name="output" type="list" count="1">
+                <element name="data" ftype="csv">
+                    <assert_contents>
+                        <has_line line="1,2" />
+                        <has_n_lines n="3"/>
+                        <has_n_columns n="2" sep=","/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+        </test>
+        <!-- optional input and parameters -->
+        <test>
+            <param name="interpreter" value="Rscript"/>
+            <param name="image" value="r_rocker_tidyverse"/>
+            <repeat name="parameters">
+                <conditional name="type_cond"> 
+                    <param name="type_sel" value="text"/>
+                    <param name="param" value="filename.csv"/>
+                </conditional>
+            </repeat>
+            <repeat name="parameters">
+                <conditional name="type_cond"> 
+                    <param name="type_sel" value="text"/>
+                    <param name="param" value="some value"/>
+                </conditional>
+            </repeat>
+            <param name="code" value='args = commandArgs(trailingOnly = TRUE); fileConn = file(args[1]); writeLines(c("Hello,world","Bye,world"), fileConn); close(fileConn); print(args[2]);'/>
+            <output_collection name="output" type="list" count="1">
+                <element name="filename" ftype="csv">
+                    <assert_contents>
+                        <has_line line="Hello,world"/>
+                        <has_n_lines n="2"/>
+                        <has_n_columns n="2" sep=","/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+            <assert_stdout>
+                <has_line line='[1] "some value"'/>
+            </assert_stdout>
+        </test>
+
+        <!-- some tests with bash-->
+        <test>
+            <param name="interpreter" value="bash"/>
+            <param name="image" value="bash_continuumio_anaconda"/>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="param" value="test.tsv" ftype="tabular"/>
+                </conditional>
+            </repeat>
+            <param name="code" value="sed -e 's/\t/,/' $1 > data.csv"/>
+            <output_collection name="output" type="list" count="1">
+                <element name="data" ftype="csv">
+                    <assert_contents>
+                        <has_line line="1,2" />
+                        <has_n_lines n="3"/>
+                        <has_n_columns n="2" sep=","/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+        </test>
+
+        <!-- check that we can turn off networking -->
+        <test expect_failure="true">
+            <param name="interpreter" value="bash"/>
+            <param name="image" value="bash_continuumio_anaconda"/>
+            <repeat name="parameters">
+                <conditional name="type_cond">
+                    <param name="param" value="test.tsv" ftype="tabular"/>
+                </conditional>
+            </repeat>
+            <param name="code" value="curl -iL https://www.galaxyproject.org"/>
+            <output_collection name="output" type="list" count="1">
+                <element name="data" ftype="csv">
+                    <assert_contents>
+                        <has_line line="1,2" />
+                        <has_n_lines n="3"/>
+                        <has_n_columns n="2" sep=","/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+        </test>
+    </tests>
+    <help><![CDATA[
+**Warning**
+
+.. class:: warningmark
+
+**Make sure that you know what you are doing. When used wrong the tool may lead to
+data loss of files that you can write to.**
+
+.. class:: warningmark
+
+This tool is only intended to serve for single-use, ad-hoc exploratory analysis
+of data sets with small scripts. This is because the tool has a limited 
+reusuability (in particular on other Galaxy servers).
+
+.. class:: warningmark
+
+If you use this tool repeatedly with the same script and/or have the impression
+that other Galaxy users could profit from this script then contact your local
+Galaxy administrator or the Galaxy community, e.g. at https://github.com/galaxyproject/tools-iuc/,
+and ask if your script can be turned into a proper Galaxy tool.
+One of the main advantages of a proper Galaxy tool is that they are tested and
+maintained. Furthermore the whole Galaxy community may profit.
+
+**What it does**
+
+Executes an interpreted script (in a container). The available scripting
+languages (e.g. python, R, bash, etc) and containers are configured by the
+Galaxy administrator.
+
+An arbitrary number of data or text parameters can be given to the script.
+Data parameters are by default named like the datasets name and the datatype
+is used as extension. This can be overwritten with the filename parameter
+for the corresponding dataset.
+
+**Inputs**
+
+A python script can access data set parameters via the ``sys.argv`` list
+where the i-th parameter corresponds to the i-th list element (counting from 1).
+A tab delimited file, for instance, can be read with ``pandas`` as follows:
+
+::
+
+    import sys
+    import pandas as pd
+    df = pd.read_csv(sys.argv[1], sep="\t")
+
+In an R script the list obtained by ``args <- commandArgs(trailingOnly = TRUE);``
+contains (again the i-th list element contains the i-th parameter, starting from 1).
+Reading a tab separated file in R could be done as follows:
+            
+::
+
+    args <- commandArgs(trailingOnly = TRUE);
+    first_arg <- file(args[1])
+    df <- read.delim(args[1]);
+
+**Outputs**
+
+Output datasets are read from the current working directory and put into a
+single collection.  The collection elements will be named as the file names
+(without the extension). The file extension determines the datatype of the
+datasets (or Galaxy will try to autodetect the data type).
+    ]]></help>
+</tool>

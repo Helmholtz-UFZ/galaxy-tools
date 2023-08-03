@@ -1,0 +1,12 @@
+# id
+#   a unique id to be used
+# name
+#   name shown to the user
+# interpreter
+#   the interpreter that should be aplied to the user supplied scripts
+# container_type
+#   apptainer/singularity
+# container_params
+#   parameters to be passed to singularity
+#   --cleanenv --network none --no-mount bind-paths --cpus "\${GALAXY_SLOTS:-1}"
+# <id>\t<name>\t<image_name>\t<interpreter>\t<container_type>\t<container_params>

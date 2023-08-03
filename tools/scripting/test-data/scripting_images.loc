@@ -1,0 +1,10 @@
+# <id>	<name>	<image_name>	<interpreter>	<container_type>	<container_params>
+
+# docker://continuumio/anaconda3
+python_continuumio_anaconda	python (continuumio/anaconda)	/tmp/anaconda3_latest.sif	python	singularity	--cleanenv --network none --no-mount bind-paths
+
+# docker://rocker/tidyverse
+r_rocker_tidyverse	R (tidyverse)	/tmp/tidyverse_latest.sif	Rscript	apptainer	
+
+# docker://rocker/tidyverse
+bash_continuumio_anaconda	bash (continuumio/anaconda)	/tmp/anaconda3_latest.sif	bash	apptainer	--cleanenv --network none --no-mount bind-paths

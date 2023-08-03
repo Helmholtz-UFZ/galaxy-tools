@@ -1,0 +1,6 @@
+<tables>
+    <table name="scripting_images" comment_char="#" allow_duplicate_entries="False">
+        <columns>value, name, image, interpreter, container_type, container_params</columns>
+        <file path="${__HERE__}/test-data/scripting_images.loc" />
+    </table>
+</tables>

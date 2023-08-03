@@ -1,0 +1,7 @@
+<tables>
+    <!-- image and interpreter data table -->
+    <table name="scripting_images" comment_char="#" allow_duplicate_entries="False">
+        <columns>value, name, image, interpreter, container_type, container_params</columns>
+        <file path="tool-data/scripting_images.loc" />
+    </table>
+</tables>

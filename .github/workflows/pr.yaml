@@ -318,8 +318,10 @@ jobs:
       run: ln -s $(which apptainer) $(dirname apptainer)/singularity
     - name: Install containers
       run: |
-        singularity pull --dir /tmp docker://continuumio/anaconda3
-        singularity pull --dir /tmp docker://rocker/tidyverse
+        if [ grep scripting ${{ needs.setup.outputs.repository-list }} ]; then
+          singularity pull --dir /tmp docker://continuumio/anaconda3
+          singularity pull --dir /tmp docker://rocker/tidyverse
+        fi
 
     - name: Planemo test
       uses: galaxyproject/planemo-ci-action@v1

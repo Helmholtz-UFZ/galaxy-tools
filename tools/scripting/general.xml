@@ -1,5 +1,9 @@
 <tool id="singularity_scriptrunner" name="scriptrunner" version="0.1" profile="22.05">
     <description>singularity</description>
+    <creator>
+        <person givenName="Matthias" familyName="Bernt" email="m.bernt@ufz.de" />
+        <organization name="Helmholtz Centre for Environmental Research - UFZ" url="https://www.ufz.de/"/>
+    </creator>
     <command detect_errors="aggressive"><![CDATA[
         #import re
 

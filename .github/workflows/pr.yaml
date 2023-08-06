@@ -310,6 +310,17 @@ jobs:
     - name: Get number of CPU cores
       uses: SimenB/github-actions-cpu-cores@v1
       id: cpu-cores
+
+    # the following 3 steps are needed for testing the scripting tool
+    - name: Install Apptainer's singularity
+      uses: eWaterCycle/setup-apptainer@v2
+    - name: Symlink singularity
+      run: ln -s $(which apptainer) $(dirname apptainer)/singularity
+    - name: Install containers
+      run: |
+        singularity pull --dir /tmp docker://continuumio/anaconda3
+        singularity pull --dir /tmp docker://rocker/tidyverse
+
     - name: Planemo test
       uses: galaxyproject/planemo-ci-action@v1
       id: test

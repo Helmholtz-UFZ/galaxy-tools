@@ -1,0 +1,20 @@
+# the following six tab separated columns need to be set
+#
+# id
+#   a unique id to be used
+# name
+#   name shown to the user
+# image_name
+#   a path or URL to an image to use. Note that when using URLs
+#   it images will be pulled on the fly to the job working dir
+#   and the user executing the tools needs to take care of the
+#   image cache.
+# interpreter
+#   the interpreter that should be applied to the user supplied scripts
+# container_type
+#   apptainer/singularity
+# container_params
+#   parameters to be passed to singularity/apptainer
+#   --cleanenv --network none --no-mount bind-paths --cpus "\${GALAXY_SLOTS:-1}"
+#
+# <id>\t<name>\t<image_name>\t<interpreter>\t<container_type>\t<container_params>

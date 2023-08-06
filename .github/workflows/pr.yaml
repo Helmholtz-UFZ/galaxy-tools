@@ -318,7 +318,8 @@ jobs:
       run: ln -s $(which apptainer) $(dirname apptainer)/singularity
     - name: Install containers
       run: |
-        if [ grep scripting ${{ needs.setup.outputs.repository-list }} ]; then
+        echo "${{ needs.setup.outputs.repository-list }}" > repository_list.txt
+        if grep -q scripting repository_list.txt; then
           singularity pull --dir /tmp docker://continuumio/anaconda3
           singularity pull --dir /tmp docker://rocker/tidyverse
         fi

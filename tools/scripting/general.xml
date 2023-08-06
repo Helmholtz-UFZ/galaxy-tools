@@ -1,4 +1,4 @@
-<tool id="singularity_scriptrunner" name="scriptrunner" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0">
+<tool id="singularity_scriptrunner" name="scriptrunner" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.05">
     <description>singularity</description>
     <command detect_errors="aggressive"><![CDATA[
         #import re

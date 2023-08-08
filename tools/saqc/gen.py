@@ -2,9 +2,19 @@ import inspect
 import re
 import sys
 from copy import deepcopy
-from typing import get_args, get_origin, Any, Callable, Dict, ForwardRef, Literal, Optional, Sequence, Tuple, Union
-from types import UnionType
-
+from typing import (
+    get_args,
+    get_origin,
+    Any,
+    Callable,
+    Dict,
+    ForwardRef,
+    Literal,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 from galaxyxml.tool import Tool
 from galaxyxml.tool.parameters import (
@@ -25,25 +35,23 @@ from galaxyxml.tool.parameters import (
     SelectParam,
     TextParam,
     ValidatorParam,
-    When
+    When,
 )
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
 import saqc
-from saqc.core import DictOfSeries
-from saqc.funcs.curvefit import FILL_METHODS
-from saqc.funcs.drift import LinkageString 
+from saqc.core import SaQC, DictOfSeries
 from saqc.funcs.generic import GenericFunction
-from saqc.funcs.interpolation import INTERPOLATION_METHODS
 from saqc.lib.types import CurveFitter
 from typing_inspect import is_callable_type, is_union_type
+
 
 def _get_doc(doc_str: Optional[str]) -> str:
     if not doc_str:
         return ""
     doc_str = str(doc_str)
-    doc_str = [x for x in doc_str.split("\n") if x != '']
+    doc_str = [x for x in doc_str.split("\n") if x != ""]
     doc_str = doc_str[0]
     doc_str = doc_str.strip(" .,")
     return doc_str
@@ -64,27 +72,28 @@ def parse_docstring(method: Callable) -> Dict[str, str]:
     sections = {}
 
     # Regular expressions for sections and paragraphs
-    section_pattern = r'^([^\S\n]*)(?P<title>\S.*?)(\n\1([=-])+\n)'
+    section_pattern = r"^([^\S\n]*)(?P<title>\S.*?)(\n\1([=-])+\n)"
 
     # Extract sections and paragraphs
     section_matches = re.finditer(section_pattern, docstring, re.MULTILINE)
 
+    end = 0
+    title = ""
     for i, match in enumerate(section_matches):
         if i == 0 and match.start() > 0:
-            sections[''] = docstring[:match.start()]
+            sections[""] = docstring[: match.start()]
         else:
             sections[title] = docstring[end: match.start()]
-
-        title = match.group('title')
-        start = match.start()
+        title = match.group("title")
         end = match.end()
 
     return sections
 
+
 def parse_parameter_docs(sections: Dict[str, str]) -> Dict[str, str]:
     parameter_doc = {}
     parameters = sections.get("Parameters", "")
-    parameter_pattern = r'^([\S\n]+)( : .*)?$'
+    parameter_pattern = r"^([\S\n]+)( : .*)?$"
     for line in parameters.splitlines():
         match = re.match(parameter_pattern, line)
         if match:
@@ -92,9 +101,10 @@ def parse_parameter_docs(sections: Dict[str, str]) -> Dict[str, str]:
             parameter_doc[parameter] = []
         else:
             parameter_doc[parameter].append(line)
-    for pd in parameter_doc:
-        parameter_doc[pd] = "\n".join(parameter_doc[pd])
+    for key in parameter_doc:
+        parameter_doc[key] = "\n".join(parameter_doc[key])
     return parameter_doc
+
 
 def get_label_help(param_name, parameter_docs):
 
@@ -115,7 +125,7 @@ def get_label_help(param_name, parameter_docs):
     return label.strip(), help.strip()
 
 
-def get_modules() -> Tuple[str, 'module']:
+def get_modules() -> Tuple[str, "module"]:
     return inspect.getmembers(saqc.funcs, inspect.ismodule)
 
 
@@ -130,8 +140,8 @@ def get_methods(module):
         methods = inspect.getmembers(cls, inspect.isfunction)
         for method_name, method in methods:
             parameters = inspect.signature(method).parameters
-            if 'self' in parameters:
-                self_param = parameters['self']
+            if "self" in parameters:
+                self_param = parameters["self"]
                 if self_param.annotation == "'SaQC'":
                     methods_with_saqc.append(method)
     return methods_with_saqc
@@ -147,7 +157,7 @@ def get_method_params(method, module):
     for param_name, param in parameters.items():
 
         # TODO check if *kwargs* really not needed
-        if param_name in ['self', 'kwargs', 'store_kwargs', 'ax_kwargs']:
+        if param_name in ["self", "kwargs", "store_kwargs", "ax_kwargs"]:
             continue
         annotation = param.annotation
         if annotation is inspect.Parameter.empty:
@@ -158,7 +168,7 @@ def get_method_params(method, module):
 
         default = param.default
 
-        value=""
+        value = ""
         if param.default is not inspect.Parameter.empty:
             value = param.default
 
@@ -184,20 +194,40 @@ def get_method_params(method, module):
         # print(annotation, type(annotation), origin, args)
         if param_name in ["field", "target"]:
             if annotation != str:
-                parent = Repeat(name=f"{param_name}_repeat", title=f"{param_name}(s)", min=1)
+                parent = Repeat(
+                    name=f"{param_name}_repeat", title=f"{param_name}(s)", min=1
+                )
                 xml_params.append(parent)
             else:
-                parent = xml_params 
-            parent.append(TextParam(argument = param_name, value=value, optional=optional, **kwargs))
+                parent = xml_params
+            parent.append(
+                TextParam(argument=param_name, value=value, optional=optional, **kwargs)
+            )
         elif origin is None:
             if annotation == bool:
-                xml_params.append(BooleanParam(argument = param_name, truevalue="", checked=default, **kwargs))
+                xml_params.append(
+                    BooleanParam(
+                        argument=param_name, truevalue="", checked=default, **kwargs
+                    )
+                )
             elif annotation == str:
-                xml_params.append(TextParam(argument = param_name, value=value, optional=optional, **kwargs))
+                xml_params.append(
+                    TextParam(
+                        argument=param_name, value=value, optional=optional, **kwargs
+                    )
+                )
             elif annotation == int:
-                xml_params.append(IntegerParam(argument = param_name, value=value, optional=optional, **kwargs))
+                xml_params.append(
+                    IntegerParam(
+                        argument=param_name, value=value, optional=optional, **kwargs
+                    )
+                )
             elif annotation == float:
-                xml_params.append(FloatParam(argument = param_name, value=value, optional=optional, **kwargs))
+                xml_params.append(
+                    FloatParam(
+                        argument=param_name, value=value, optional=optional, **kwargs
+                    )
+                )
             elif (
                 annotation == GenericFunction
                 or annotation == CurveFitter
@@ -205,37 +235,69 @@ def get_method_params(method, module):
                 or annotation == slice
                 or annotation == mpl.axes.Axes
             ):
-                sys.stderr.write(f"Ignoring {annotation} simple parameter {param_name} ({method.__name__})\n")
+                sys.stderr.write(
+                    f"Ignoring {annotation} simple parameter {param_name} ({method.__name__})\n"
+                )
                 pass
             else:
-                exit(f"Unknown simple parameter type {annotation}: {param_name} {method.__name__}")
-        elif annotation == str | Tuple[str, str]: # window
-            txt = TextParam(argument = param_name, value=value, optional=optional, **kwargs)
+                exit(
+                    f"Unknown simple parameter type {annotation}: {param_name} {method.__name__}"
+                )
+        elif annotation == str | Tuple[str, str]:  # window
+            txt = TextParam(
+                argument=param_name, value=value, optional=optional, **kwargs
+            )
             # TODO make proper timedelta text
-            txt.append(ValidatorParam(type="regex", text="[\dDW:]+(,[\dDW:]+)$", message="needs to be a single timedelta or two comma separated timedeltas"))
+            txt.append(
+                ValidatorParam(
+                    type="regex",
+                    text=r"[\dDW:]+(,[\dDW:]+)$",
+                    message="needs to be a single timedelta or two comma separated timedeltas",
+                )
+            )
             xml_params.append(txt)
-        elif annotation == int | Tuple[int, int]: # periods
-            txt = TextParam(argument = param_name, value=value, optional=optional, **kwargs)
-            txt.append(ValidatorParam(type="regex", text="[\d]+(,[\d]+)$", message="needs to be a single number or two comma separated numbers"))
+        elif annotation == int | Tuple[int, int]:  # periods
+            txt = TextParam(
+                argument=param_name, value=value, optional=optional, **kwargs
+            )
+            txt.append(
+                ValidatorParam(
+                    type="regex",
+                    text=r"[\d]+(,[\d]+)$",
+                    message="needs to be a single number or two comma separated numbers",
+                )
+            )
             xml_params.append(txt)
         elif annotation == int | str and param_name in ["limit", "window"]:
-            cond = Conditional(name = f"{param_name}_cond")
-            options={}
+            cond = Conditional(name=f"{param_name}_cond")
+            options = {}
             if optional:
-                options['none'] = "None"
+                options["none"] = "None"
             options.update({"number": "number", "timedelta": "timedelta"})
-            cond.append(SelectParam(argument=f"{param_name}_select", label=f"{param_name} input mode", options=options))
+            cond.append(
+                SelectParam(
+                    argument=f"{param_name}_select",
+                    label=f"{param_name} input mode",
+                    options=options,
+                )
+            )
             if optional:
                 cond.append(When(value="none"))
             when = When(value="number")
             kwargs_number = deepcopy(kwargs)
             kwargs_number["help"] = "Number of values"
-            when.append(IntegerParam(argument = param_name, value=value, optional=optional, **kwargs_number))
+            when.append(
+                IntegerParam(
+                    argument=param_name, value=value, optional=optional, **kwargs_number
+                )
+            )
             cond.append(when)
             when = When(value="timedelta")
             kwargs_delta = deepcopy(kwargs)
             kwargs_delta["help"] = "Temporal extensions (offset string)"
-            txt = TextParam(argument = param_name, value=value, optional=optional, **kwargs_delta)
+            txt = TextParam(
+                argument=param_name, value=value, optional=optional, **kwargs_delta
+            )
             txt.append(ValidatorParam(type="regex", text="TODO$", message="TODO"))
             # TODO regex: see `pandas.rolling` for more information
             when.append(txt)
@@ -243,68 +305,127 @@ def get_method_params(method, module):
             xml_params.append(cond)
         elif annotation == float | str and param_name in ["cutoff", "freq"]:
             cond = Conditional(name=f"{param_name}_cond")
-            options={}
+            options = {}
             if optional:
-                options['none'] = "None"
+                options["none"] = "None"
             if param_name == "cutoff":
-                options.update({"number": "Give as multiple of sampling rate", "offset": "specify as offset"})
-                cond.append(SelectParam(name=f"{param_name}_select", label=f"{param_name} input mode", options=options))
+                options.update(
+                    {
+                        "number": "Give as multiple of sampling rate",
+                        "offset": "specify as offset",
+                    }
+                )
+                cond.append(
+                    SelectParam(
+                        name=f"{param_name}_select",
+                        label=f"{param_name} input mode",
+                        options=options,
+                    )
+                )
                 if optional:
                     cond.append(When(value="none"))
                 when = When(value="number")
                 kwargs_number = deepcopy(kwargs)
                 kwargs_number["help"] = "Multiple of sampling rate"
-                when.append(FloatParam(argument = param_name, value=value, optional=optional, **kwargs_number))
+                when.append(
+                    FloatParam(
+                        argument=param_name,
+                        value=value,
+                        optional=optional,
+                        **kwargs_number,
+                    )
+                )
                 cond.append(when)
             elif param_name == "freq":
-                options.update({"number": "Give as period length", "offset": "specify as offset"})
-                cond.append(SelectParam(name=f"{param_name}_select", label=f"{param_name} input mode", options=options))
+                options.update(
+                    {"number": "Give as period length", "offset": "specify as offset"}
+                )
+                cond.append(
+                    SelectParam(
+                        name=f"{param_name}_select",
+                        label=f"{param_name} input mode",
+                        options=options,
+                    )
+                )
                 if optional:
                     cond.append(When(value="none"))
                 when = When(value="number")
                 kwargs_number = deepcopy(kwargs)
                 kwargs_number["help"] = "Multiple of sampling rate"
-                when.append(FloatParam(argument = param_name, value=value, optional=optional, **kwargs_number))
+                when.append(
+                    FloatParam(
+                        argument=param_name,
+                        value=value,
+                        optional=optional,
+                        **kwargs_number,
+                    )
+                )
                 cond.append(when)
             else:
                 exit(f"Unknown 'float | str' parameter {param_name}")
             when = When(value="offset")
             kwargs_delta = deepcopy(kwargs)
             kwargs_delta["help"] = "offset frequency string"
-            txt = TextParam(argument = param_name, value=value, optional=optional, **kwargs_delta)
+            txt = TextParam(
+                argument=param_name, value=value, optional=optional, **kwargs_delta
+            )
             txt.append(ValidatorParam(type="regex", text="TODO$", message="TODO"))
             # TODO regex: see `pandas.rolling` for more information
             when.append(txt)
             cond.append(when)
             xml_params.append(cond)
         elif (
-            annotation == Literal['auto'] | float
-            or annotation == Literal['auto'] | float | Callable
+            annotation == Literal["auto"] | float
+            or annotation == Literal["auto"] | float | Callable
         ):
             cond = Conditional(name=f"{param_name}_cond")
-            options={'auto': 'automatic', 'linear': 'linear'}
-            if annotation == Literal['auto'] | float | Callable:
-                options['custom'] = 'custom'
-            cond.append(SelectParam(name=f"{param_name}_select", label=f"{param_name} mode", options=options))
+            options = {"auto": "automatic", "linear": "linear"}
+            if annotation == Literal["auto"] | float | Callable:
+                options["custom"] = "custom"
+            cond.append(
+                SelectParam(
+                    name=f"{param_name}_select",
+                    label=f"{param_name} mode",
+                    options=options,
+                )
+            )
             cond.append(When(value="auto"))
             linear_when = When(value="linear")
-            txt = FloatParam(argument = param_name, value=value, optional=optional, **kwargs)
+            txt = FloatParam(
+                argument=param_name, value=value, optional=optional, **kwargs
+            )
             cond.append(linear_when)
-            if annotation == Literal['auto'] | float | Callable:
+            if annotation == Literal["auto"] | float | Callable:
                 custom_when = When(value="custom")
-                txt = TextParam(argument = param_name, value=value, optional=optional, **kwargs)
+                txt = TextParam(
+                    argument=param_name, value=value, optional=optional, **kwargs
+                )
                 txt.append(ValidatorParam(type="regex", text="TODO$", message="TODO"))
                 custom_when.append(txt)
                 cond.append(custom_when)
             xml_params.append(cond)
-        elif annotation == Literal['valid', 'complete'] | list:
+        elif annotation == Literal["valid", "complete"] | list:
             cond = Conditional(name=f"{param_name}_cond")
-            options={'valid': 'valid', 'complete': 'complete', 'list': 'list', 'none': 'none'}
-            cond.append(SelectParam(name=f"{param_name}_select", label=f"{param_name} mode", options=options, default=default))
+            options = {
+                "valid": "valid",
+                "complete": "complete",
+                "list": "list",
+                "none": "none",
+            }
+            cond.append(
+                SelectParam(
+                    name=f"{param_name}_select",
+                    label=f"{param_name} mode",
+                    options=options,
+                    default=default,
+                )
+            )
             for option in options:
                 when = When(value=option)
-                if option == 'list':
-                    txt = TextParam(argument = param_name, value=value, optional=optional, **kwargs)
+                if option == "list":
+                    txt = TextParam(
+                        argument=param_name, value=value, optional=optional, **kwargs
+                    )
                     # txt.append(ValidatorParam(type="regex", text="TODO$", message="TODO"))
                 else:
                     when.append(HiddenParam(name=param_name, value="valid"))
@@ -313,47 +434,76 @@ def get_method_params(method, module):
         #     sys.stderr.write(f"TODO Ignoring {annotation} parameter {param_name} ({method.__name__})\n")
         elif is_callable_type(annotation):
             # set default to "" (otherwise potentially 'cryptic' default is shown)
-            # add default to help 
+            # add default to help
             kwargs["help"] += f"function {args} (default: {value})"
-            txt = TextParam(argument = param_name, value="", optional=optional, **kwargs)
+            txt = TextParam(argument=param_name, value="", optional=optional, **kwargs)
             # txt.append(ValidatorParam(type="regex", text="TODO$", message="TODO"))
             xml_params.append(txt)
         elif annotation == str | pd.Timedelta:
-            kwargs["help"] += " see: https://pandas.pydata.org/docs/user_guide/timedeltas.html#parsing"
-            txt = TextParam(argument = param_name, value=value, optional=optional, **kwargs)
+            kwargs[
+                "help"
+            ] += " see: https://pandas.pydata.org/docs/user_guide/timedeltas.html#parsing"
+            txt = TextParam(
+                argument=param_name, value=value, optional=optional, **kwargs
+            )
             txt.append(ValidatorParam(type="regex", text="TODO$", message="TODO"))
             xml_params.append(txt)
         elif origin is Literal:
             options = dict([(o, o) for o in args])
             xml_params.append(
-                SelectParam(argument = param_name, value=value, optional=optional, options=options, **kwargs)
+                SelectParam(
+                    argument=param_name,
+                    value=value,
+                    optional=optional,
+                    options=options,
+                    **kwargs,
+                )
             )
         elif (
-            annotation == Sequence[ForwardRef('SaQC')] | dict['SaQC', str | Sequence[str]]
+            annotation
+            == Sequence[ForwardRef("SaQC")] | dict["SaQC", str | Sequence[str]]
         ):
-            sys.stderr.write(f"TODO Ignoring {annotation} parameter {param_name} ({method.__name__})\n")
-        elif is_union and is_callable_type(args[0]) and args[1] == Literal['linear', 'exponential']:
+            sys.stderr.write(
+                f"TODO Ignoring {annotation} parameter {param_name} ({method.__name__})\n"
+            )
+        elif (
+            is_union
+            and is_callable_type(args[0])
+            and args[1] == Literal["linear", "exponential"]
+        ):
             cond = Conditional(name=f"{param_name}_cond")
-            options={'linear': 'linear', 'exponential': 'exponential', 'custom': 'custom'}
-            cond.append(SelectParam(name=f"{param_name}_select", label="Model fucntion", options=options))
+            options = {
+                "linear": "linear",
+                "exponential": "exponential",
+                "custom": "custom",
+            }
+            cond.append(
+                SelectParam(
+                    name=f"{param_name}_select", label="Model fucntion", options=options
+                )
+            )
             cond.append(When(value="linear"))
             cond.append(When(value="exponential"))
             custom_when = When(value="custom")
-            txt = TextParam(argument = param_name, value=value, optional=optional, **kwargs)
+            txt = TextParam(
+                argument=param_name, value=value, optional=optional, **kwargs
+            )
             # txt.append(ValidatorParam(type="regex", text="TODO$", message="TODO"))
             custom_when.append(txt)
             cond.append(custom_when)
             xml_params.append(cond)
         elif annotation == pd.Series | pd.DataFrame | DictOfSeries | list | np.ndarray:
             # TODO should be a list of fields
-            sys.stderr.write(f"TODO Ignoring {annotation} parameter {param_name} ({method.__name__})\n")
+            sys.stderr.write(
+                f"TODO Ignoring {annotation} parameter {param_name} ({method.__name__})\n"
+            )
         else:
             exit(f"Unknown parameter type {annotation}: {param_name} {method.__name__}")
     return xml_params
 
 
 def get_methods_conditional(methods, module):
-    method_conditional = Conditional(name = "method_cond", label="Method")
+    method_conditional = Conditional(name="method_cond", label="Method")
     method_select_options = []
     for method in methods:
         method_name = method.__name__
@@ -361,7 +511,9 @@ def get_methods_conditional(methods, module):
         if not method_doc:
             method_doc = method_name
         method_select_options.append((method_name, f"{method_name}: {method_doc}"))
-    method_select = SelectParam(name="method_select", label="Method", options=dict(method_select_options))
+    method_select = SelectParam(
+        name="method_select", label="Method", options=dict(method_select_options)
+    )
     method_conditional.append(method_select)
     for method in methods:
         method_name = method.__name__
@@ -372,10 +524,13 @@ def get_methods_conditional(methods, module):
                 method_when.append(p)
         except ValueError as e:
             # TODO mark somehow
-            sys.stderr.write(f"Skipping {method_name} in {module.__name__} due to {e}\n")
+            sys.stderr.write(
+                f"Skipping {method_name} in {module.__name__} due to {e}\n"
+            )
         method_conditional.append(method_when)
 
     return method_conditional
+
 
 # overwrite command
 command_override = """
@@ -392,7 +547,17 @@ saqc -c config.csv -d input.csv -o output.csv
 #   --log-level [DEBUG|INFO|WARNING]
 #                                   set output verbosity
 
-tool = Tool('SaQC', 'saqc', version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@", description="quality control pipelines for environmental sensor data", executable="saqc", macros=["macros.xml"], command_override=command_override, profile="22.01", version_command="python -c 'import saqc; print(saqc.__version__)'")
+tool = Tool(
+    "SaQC",
+    "saqc",
+    version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@",
+    description="quality control pipelines for environmental sensor data",
+    executable="saqc",
+    macros=["macros.xml"],
+    command_override=command_override,
+    profile="22.01",
+    version_command="python -c 'import saqc; print(saqc.__version__)'",
+)
 tool.help = "TODO"
 
 tool.configfiles = Configfiles()
@@ -403,8 +568,10 @@ inputs.append(DataParam(argument="--data", format="csv", label="Input table"))
 outputs = tool.outputs = Outputs()
 
 outputs.append(OutputData(name="output", format="csv", from_work_dir="output.csv"))
-plot_outputs = OutputCollection(name="plots", type="list", label="${tool.name} on ${on_string}: Plots")
-plot_outputs.append(DiscoverDatasets(pattern="(?P<name>.*)\.png", ext="png"))
+plot_outputs = OutputCollection(
+    name="plots", type="list", label="${tool.name} on ${on_string}: Plots"
+)
+plot_outputs.append(DiscoverDatasets(pattern=r"(?P<name>.*)\.png", ext="png"))
 # plot_outputs.append(OutputFilter(text="TODO"))
 outputs.append(plot_outputs)
 
@@ -412,14 +579,16 @@ modules = get_modules()
 
 module_repeat = Repeat(name="methods_repeat", title="Methods")
 inputs.append(module_repeat)
-module_conditional = Conditional(name = "module_cond", label="Module")
+module_conditional = Conditional(name="module_cond", label="Module")
 module_select_options = []
 for module_name, module in modules:
     module_doc = _get_doc(module.__doc__)
     if not module_doc:
         module_doc = module_name
     module_select_options.append((module_name, f"{module_name}: {module_doc}"))
-module_select = SelectParam(name="module_select", label="saqc module", options=dict(module_select_options))
+module_select = SelectParam(
+    name="module_select", label="saqc module", options=dict(module_select_options)
+)
 module_conditional.append(module_select)
 for module_name, module in modules:
     module_when = When(value=module_name)

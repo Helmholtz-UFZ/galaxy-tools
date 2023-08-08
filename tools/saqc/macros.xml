@@ -63,7 +63,12 @@
             </assert_contents>
         </output>
         <output_collection name="plots" type="list">
-            <element name="test" file="data.csv.plot.png" ftype="png" />
+            <element name="test" ftype="png">
+                <assert_contents>
+                    <has_text text="PNG"/>
+                    <has_size size="61k" delta="10k"/>
+                </assert_contents>
+            </element>
         </output_collection>
         <!-- <assert_command>
             <has_text text="SM2"/>

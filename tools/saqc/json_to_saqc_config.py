@@ -32,7 +32,6 @@ for r in params["methods_repeat"]:
         if isinstance(v, str):
             r[k] = f'"{v}"'
 
-
     if isinstance(field, list):
         print(f"{','.join(field)}; ", end="")
     else:
@@ -40,5 +39,3 @@ for r in params["methods_repeat"]:
     print(f"{method}(", end="")
     print(', '.join([f"{p[0]}={p[1]}" for p in r.items()]), end="")
     print(")", )
-
-

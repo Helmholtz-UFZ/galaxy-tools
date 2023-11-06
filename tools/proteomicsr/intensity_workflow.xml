@@ -1,4 +1,4 @@
-<tool id="proteomicsr_fc_workflow" name="proteomicsr: FC workflow" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="21.05">
+<tool id="proteomicsr_intensity_workflow" name="proteomicsr: intensity workflow" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="21.05">
     <macros>
         <import>macros.xml</import>
     </macros>
@@ -17,17 +17,24 @@ library(proteomicsr)
 #end if
 run_FC_workflow(
     sampleTable,
+    control_samples, ## should be a vector with sample names, which should be used as control samples, e.g. c("ctrl", "treatment1")
+    comparisons_relevant = NULL, ## if NULL, script continues with all possible comparisons. Otherwise, a vector should be provided, e.g. c("treatment1_vs_ctrl", "treatment2_vs_ctrl", "treatment2_vs_treatment1")
     sampleGenes = NULL,
     sampleMapping = NULL,
     remove_outliers = $remove_outliers,
     median_normalize = $median_normalize,
+    run_vsn = $run_vsn,
+    run_imputation = $run_imputation,
+    imp_fun = $imp_fun,
+    imp_q = $imp_q,
+    impute_completely_missing_only = $impute_completely_missing_only,
     number_replicates_reliable = $number_replicates_reliable,
     reliable_all_comparisons = $reliable_all_comparisons,
     alternative = "$alternative",
     var.equal = $var_equal,
     paired = $paired,
-    ## this only decides the output and column name should be hardcoded here?
-    pvalue_decision = "pvalue.adj",
+    ## this only decides the output and column name should be hardcoded here? - should be "pvalue" or "pvalueadj"
+    pvalue_decision = "$pvalue_decision",
     pvalue_adjustment = "$pvalue_adjustment",
     significance_cutoff = $significance_cutoff,
     color_up = "${color_up}FF",
@@ -53,9 +60,25 @@ If no sampleMapping dataframe is available, use sampleMapping = NULL, which is a
 -->
         <param argument="remove_outliers" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Remove outliers" help="Identified by the function identify_outliers() based on Mahalanobis distances"/>
         <param argument="median_normalize" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Apply median normalization" help=""/>
+        <param argument="run_vsn" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="true" label="Apply variance stabilization using the DEP package" help=""/>
+        <param argument="run_imputation" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Apply imputation using the DEP package" help="If TRUE, variance stabilization is performed anyway and also the parameters imp_fun, imp_q, and impute_completely_missing_only should be double-checked and adjusted if necessary"/>
+        <param argument="impute_completely_missing_only" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="true" label="Decide which missing data should be imputed." help=""/>
+        <param argument="imp_fun" type="select" label="Method for imputation" help="">
+            <option value="MLE">Maximum likelihood-based imputation method using the EM algorithm</option>
+            <option value="bpca">Bayesian missing value imputation</option>
+            <option value="knn">Nearest neighbour averaging</option>
+            <option value="QRILC"> Imputation of left-censored missing data using random draws from a truncated distribution with parameters estimated using quantile regression</option>
+            <option value="MinDet">Imputation of left-censored missing data using a deterministic minimal value approach</option>
+            <option value="MinProb" selected="true"> Imputation of left-censored missing data by random draws from a Gaussian distribution centred to a minimal value</option>
+            <option value="min">Replaces the missing values by the smallest non-missing value in the data</option>
+            <option value="zero">Replaces the missing values by 0</option>
+            <option value="nbavg">Average neighbour imputation for fractions collected along a fractionation/separation gradient</option>
+            <option value="none">No imputation</option>
+        <param argument="imp_q" type="float" value="0.01" min="0" max="1" label="q-th quantile for left-censored imputation" help="The minimal value observed is estimated as being the q-th quantile of the observed values in that sample."/>
+        </param>
         <param argument="number_replicates_reliable" type="integer" min="1" value="3" label="Number of replicates for reliable identification" help="Number of replicates for which quantitation data should be available to consider a protein reliably identified under the particular condition (i.e. in a sample)"/>
         <!--TODO formulation unclear, comparisons between what? Samples? -->
-        <param argument="reliable_all_comparisons" type="select" label="Required comparisons" help="Proteins are returned that are identified in the given number of replicates (number_replicates_reliable) in all/at least one comparison.">
+        <param argument="reliable_all_comparisons" type="select" label="Required comparisons" help="Candidates are returned that are identified in the given number of replicates (number_replicates_reliable) in all/at least one comparison.">
             <option value="FALSE">At least one</option>
             <option value="TRUE">All</option>
         </param>
@@ -68,6 +91,10 @@ If no sampleMapping dataframe is available, use sampleMapping = NULL, which is a
             <option value="greater">greater</option>
             <option value="less">less</option>
         </param>
+        <param argument="pvalue_decision" type="select" label="Choose whether to extract and visualize data based on adjusted p-values or raw p-values" help="">
+            <option value="pvalueadj" selected="true">adjusted p-values</option>
+            <option value="pvalue">raw p-values</option>
+        </param>
         <param argument="pvalue_adjustment" type="select" label="Method for p-value adjustment" help="">
             <option value="holm">Holm</option>
             <option value="hochberg">Hochberg</option>
@@ -77,11 +104,11 @@ If no sampleMapping dataframe is available, use sampleMapping = NULL, which is a
             <option value="fdr" selected="true">Benjamini &amp; Hochberg (BH/fdr)</option>
             <option value="none">None</option>
         </param>
-        <param argument="significance_cutoff" type="float" value="0.05" min="0" max="1" label="Significance cutoff" help="All proteins with lower value are considered significantly affected"/>
+        <param argument="significance_cutoff" type="float" value="0.05" min="0" max="1" label="Significance cutoff" help="All candidates with lower value are considered significantly affected"/>
         <!-- </section> -->
-        <param argument="color_up" type="color" value="#DC0000" label="Color for up-regulated proteins"/>
-        <param argument="color_down" type="color" value="#3C5488" label="Color for down-regulated proteins"/>
-        <param argument="color_none" type="color" value="#000000" label="Color for insignificant differential expression"/>
+        <param argument="color_up" type="color" value="#DC0000" label="Color for up-regulated candidates"/>
+        <param argument="color_down" type="color" value="#3C5488" label="Color for down-regulated candidates"/>
+        <param argument="color_none" type="color" value="#000000" label="Color for not significantly altered candidates"/>
         <param name="out_select" type="select" multiple="true">
             <option value="dat_calcuated">dat calculated TODO</option>
             <option value="plots" selected="true">Plots</option>

@@ -1,3 +1,9 @@
+"""
+Create a wrapper for SaQC from the SaQC sources.
+
+Usage: call from an environment with saqc (and typing_inspect, galaxyxml) installed
+"""
+
 import inspect
 import re
 import sys
@@ -42,7 +48,10 @@ import numpy as np
 import pandas as pd
 import saqc
 from saqc.core import SaQC, DictOfSeries
+from saqc.funcs.curvefit import FILL_METHODS
+from saqc.funcs.drift import LinkageString
 from saqc.funcs.generic import GenericFunction
+from saqc.funcs.interpolation import INTERPOLATION_METHODS
 from saqc.lib.types import CurveFitter
 from typing_inspect import is_callable_type, is_union_type
 
@@ -155,7 +164,7 @@ def get_method_params(method, module):
     xml_params = []
     parameters = inspect.signature(method).parameters
     for param_name, param in parameters.items():
-
+        # sys.stderr.write(f"{module} {method} {param_name}\n")
         # TODO check if *kwargs* really not needed
         if param_name in ["self", "kwargs", "store_kwargs", "ax_kwargs"]:
             continue
@@ -166,22 +175,31 @@ def get_method_params(method, module):
         origin = get_origin(annotation)
         args = get_args(annotation)
 
-        default = param.default
-
+        if param.default is inspect.Parameter.empty:
+            default = None
+        else:
+            default = param.default
+        
         value = ""
         if param.default is not inspect.Parameter.empty:
             value = param.default
 
         label, help = get_label_help(param_name, param_docs)
         kwargs = {"label": label, "help": help, "space_between_arg": "="}
+        
+        is_union = is_union_type(annotation)
 
+        # a parameter is optional if None is a valid value
+        # this should be the case if None is in the Union and 
+        # also if None is the default
         if param.default is None:
+            optional = True
+        elif is_union and any([a is type(None) for a in args]):
             optional = True
         else:
             optional = False
 
         # remove None (we just determined if the parameter is optional)
-        is_union = is_union_type(annotation)
         if is_union:
             args_wo_none = [a for a in args if a is not type(None)]
             if len(args_wo_none) == 1:
@@ -203,6 +221,7 @@ def get_method_params(method, module):
             parent.append(
                 TextParam(argument=param_name, value=value, optional=optional, **kwargs)
             )
+            #TODO should have a validator/sanitizer
         elif origin is None:
             if annotation == bool:
                 xml_params.append(
@@ -248,25 +267,26 @@ def get_method_params(method, module):
                 argument=param_name, value=value, optional=optional, **kwargs
             )
             # TODO make proper timedelta text
-            txt.append(
-                ValidatorParam(
-                    type="regex",
-                    text=r"[\dDW:]+(,[\dDW:]+)$",
-                    message="needs to be a single timedelta or two comma separated timedeltas",
-                )
-            )
+            # txt.append(
+            #     ValidatorParam(
+            #         type="regex",
+            #         text=r"[\dDW:]+(,[\dDW:]+)$",
+            #         message="needs to be a single timedelta or two comma separated timedeltas",
+            #     )
+            # )
             xml_params.append(txt)
         elif annotation == int | Tuple[int, int]:  # periods
             txt = TextParam(
                 argument=param_name, value=value, optional=optional, **kwargs
             )
-            txt.append(
-                ValidatorParam(
-                    type="regex",
-                    text=r"[\d]+(,[\d]+)$",
-                    message="needs to be a single number or two comma separated numbers",
-                )
-            )
+            # TODO 
+            # txt.append(
+            #     ValidatorParam(
+            #         type="regex",
+            #         text=r"[\d]+(,[\d]+)$",
+            #         message="needs to be a single number or two comma separated numbers",
+            #     )
+            # )
             xml_params.append(txt)
         elif annotation == int | str and param_name in ["limit", "window"]:
             cond = Conditional(name=f"{param_name}_cond")
@@ -281,8 +301,6 @@ def get_method_params(method, module):
                     options=options,
                 )
             )
-            if optional:
-                cond.append(When(value="none"))
             when = When(value="number")
             kwargs_number = deepcopy(kwargs)
             kwargs_number["help"] = "Number of values"
@@ -298,10 +316,17 @@ def get_method_params(method, module):
             txt = TextParam(
                 argument=param_name, value=value, optional=optional, **kwargs_delta
             )
-            txt.append(ValidatorParam(type="regex", text="TODO$", message="TODO"))
+            # TODO
+            # txt.append(
+            #     ValidatorParam(type="regex", text="TODO$", message="TODO")
+            # )
             # TODO regex: see `pandas.rolling` for more information
             when.append(txt)
             cond.append(when)
+            if optional:
+                when = When(value="none")
+                when.append(HiddenParam(name=param_name, value="__none__"))
+                cond.append(when)
             xml_params.append(cond)
         elif annotation == float | str and param_name in ["cutoff", "freq"]:
             cond = Conditional(name=f"{param_name}_cond")
@@ -369,10 +394,15 @@ def get_method_params(method, module):
             txt = TextParam(
                 argument=param_name, value=value, optional=optional, **kwargs_delta
             )
-            txt.append(ValidatorParam(type="regex", text="TODO$", message="TODO"))
+            # TODO 
+            # txt.append(ValidatorParam(type="regex", text="TODO$", message="TODO"))
             # TODO regex: see `pandas.rolling` for more information
             when.append(txt)
             cond.append(when)
+            if optional:
+                when = When(value="none")
+                when.append(HiddenParam(name=param_name, value="__none__"))
+                cond.append(when)
             xml_params.append(cond)
         elif (
             annotation == Literal["auto"] | float
@@ -382,6 +412,8 @@ def get_method_params(method, module):
             options = {"auto": "automatic", "linear": "linear"}
             if annotation == Literal["auto"] | float | Callable:
                 options["custom"] = "custom"
+            if optional:
+                options["none"] = "None"
             cond.append(
                 SelectParam(
                     name=f"{param_name}_select",
@@ -389,29 +421,47 @@ def get_method_params(method, module):
                     options=options,
                 )
             )
-            cond.append(When(value="auto"))
+            auto_when = When(value="auto")
+            auto_when.append(HiddenParam(name=param_name, value="auto"))
+            cond.append(auto_when)
             linear_when = When(value="linear")
-            txt = FloatParam(
-                argument=param_name, value=value, optional=optional, **kwargs
+            try:
+                fvalue = float(value)
+                cvalue = ""
+            except ValueError:
+                fvalue = ""
+                cvalue = value
+            linear_when.append(
+                FloatParam(argument=param_name, value=fvalue, optional=optional, **kwargs)
             )
             cond.append(linear_when)
             if annotation == Literal["auto"] | float | Callable:
                 custom_when = When(value="custom")
                 txt = TextParam(
-                    argument=param_name, value=value, optional=optional, **kwargs
+                    argument=param_name, value=cvalue, optional=optional, **kwargs
                 )
-                txt.append(ValidatorParam(type="regex", text="TODO$", message="TODO"))
+                # TODO
+                # txt.append(ValidatorParam(type="regex", text="TODO$", message="TODO"))
                 custom_when.append(txt)
                 cond.append(custom_when)
+            if optional:
+                when = When(value="none")
+                when.append(HiddenParam(name=param_name, value="__none__"))
+                cond.append(when)
             xml_params.append(cond)
-        elif annotation == Literal["valid", "complete"] | list:
+        elif (annotation == Literal["valid", "complete"] | list[str]) or (annotation == Union[Literal['valid', 'complete'], list[str]]):
+
             cond = Conditional(name=f"{param_name}_cond")
             options = {
                 "valid": "valid",
                 "complete": "complete",
                 "list": "list",
-                "none": "none",
             }
+            # TODO this is likely not correctly handled in json_to_saqc_config
+            # should be `None` instead of `"none"`
+            if optional:
+                options["none"] = "None"
+
             cond.append(
                 SelectParam(
                     name=f"{param_name}_select",
@@ -428,7 +478,11 @@ def get_method_params(method, module):
                     )
                     # txt.append(ValidatorParam(type="regex", text="TODO$", message="TODO"))
                 else:
-                    when.append(HiddenParam(name=param_name, value="valid"))
+                    when.append(HiddenParam(name=param_name, value=option))
+                cond.append(when)
+            if optional:
+                when = When(value="none")
+                when.append(HiddenParam(name=param_name, value="__none__"))
                 cond.append(when)
             xml_params.append(cond)
         #     sys.stderr.write(f"TODO Ignoring {annotation} parameter {param_name} ({method.__name__})\n")
@@ -446,7 +500,8 @@ def get_method_params(method, module):
             txt = TextParam(
                 argument=param_name, value=value, optional=optional, **kwargs
             )
-            txt.append(ValidatorParam(type="regex", text="TODO$", message="TODO"))
+            # TODO
+            # txt.append(ValidatorParam(type="regex", text="TODO$", message="TODO"))
             xml_params.append(txt)
         elif origin is Literal:
             options = dict([(o, o) for o in args])
@@ -477,9 +532,11 @@ def get_method_params(method, module):
                 "exponential": "exponential",
                 "custom": "custom",
             }
+            if optional:
+                options["none"] = "None"
             cond.append(
                 SelectParam(
-                    name=f"{param_name}_select", label="Model fucntion", options=options
+                    name=f"{param_name}_select", label="Model function", options=options
                 )
             )
             cond.append(When(value="linear"))
@@ -491,14 +548,18 @@ def get_method_params(method, module):
             # txt.append(ValidatorParam(type="regex", text="TODO$", message="TODO"))
             custom_when.append(txt)
             cond.append(custom_when)
+            if optional:
+                when = When(value="none")
+                when.append(HiddenParam(name=param_name, value="__none__"))
+                cond.append(when)
             xml_params.append(cond)
         elif annotation == pd.Series | pd.DataFrame | DictOfSeries | list | np.ndarray:
-            # TODO should be a list of fields
-            sys.stderr.write(
-                f"TODO Ignoring {annotation} parameter {param_name} ({method.__name__})\n"
-            )
+            # for instance mdata in flagtools.flagManual, should refer to a field
+            xml_params.append(TextParam(argument=param_name, value=value, optional=optional, **kwargs))
+            # TODO should have a validator/sanitizer
+            
         else:
-            exit(f"Unknown parameter type {annotation}: {param_name} {method.__name__}")
+            sys.stderr.write(f"Unknown parameter type {annotation}: {param_name} {method.__name__}\n")
     return xml_params
 
 
@@ -535,8 +596,15 @@ def get_methods_conditional(methods, module):
 # overwrite command
 command_override = """
 '$__tool_directory__'/json_to_saqc_config.py '$param_conf' > config.csv &&
-ln -s '$data' input.csv &&
-saqc -c config.csv -d input.csv -o output.csv
+#for $i, $d in enumerate($data)
+    ## TODO maybe link to element_identifier
+    ln -s '$d' '${i}.csv' &&
+#end for
+saqc --config config.csv 
+#for $i, $d in enumerate($data)
+    --data '${i}.csv' 
+#end for
+--outfile output.csv
 """
 #   -c, --config PATH               path to the configuration file  [required]
 #   -d, --data PATH                 path to the data file  [required]
@@ -563,7 +631,7 @@ tool.help = "TODO"
 tool.configfiles = Configfiles()
 tool.configfiles.append(ConfigfileDefaultInputs(name="param_conf"))
 inputs = tool.inputs = Inputs()
-inputs.append(DataParam(argument="--data", format="csv", label="Input table"))
+inputs.append(DataParam(argument="--data", format="csv", multiple=True, label="Input table"))
 
 outputs = tool.outputs = Outputs()
 
@@ -573,6 +641,8 @@ plot_outputs = OutputCollection(
 )
 plot_outputs.append(DiscoverDatasets(pattern=r"(?P<name>.*)\.png", ext="png"))
 # plot_outputs.append(OutputFilter(text="TODO"))
+outputs.append(OutputData(name="config", format="txt", from_work_dir="config.csv"))
+# TODO filter
 outputs.append(plot_outputs)
 
 modules = get_modules()

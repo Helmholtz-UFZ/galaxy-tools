@@ -16,11 +16,30 @@ library(proteomicsr)
 #else
     sampleTable <- read.delim("$sampleTable", header = TRUE, row.names = 1, sep = "\t")
 #end if
+#if $sampleGenes
+    #if $sampleGenes.ext == 'csv'
+        sampleGenes <- read.csv("$sampleGenes", row.names = 1)
+    #else
+        sampleGenes <- read.delim("$sampleGenes", header = TRUE, row.names = 1, sep = "\t")
+    #end if
+#else
+    sampleGenes <- NULL
+#end if
+#if $sampleMapping
+    #if $sampleMapping.ext == 'csv'
+        sampleMapping <- read.csv("$sampleMapping", row.names = 1)
+    #else
+        sampleMapping <- read.delim("$sampleMapping", header = TRUE, row.names = 1, sep = "\t")
+    #end if
+#else
+    sampleMapping <- NULL
+#end if
+
 
 null <- run_FC_workflow(
     sampleTable,
-    sampleGenes = NULL,  ## this would imply more output data sets!
-    sampleMapping = NULL,
+    sampleGenes = sampleGenes,  ## this would imply more output data sets!
+    sampleMapping = sampleMapping,
     remove_outliers = $remove_outliers,
     median_normalize = $median_normalize,
     number_replicates_reliable = $number_replicates_reliable,
@@ -40,10 +59,11 @@ null <- run_FC_workflow(
     </configfiles>
     <inputs>
         <param argument="sampleTable" type="data" format="csv,tabular" label="Sample table" help="Rows: unique identifiers (e.g. uniprot accessions), Columns: samples. Replicates should be indicated using _1, _2, .... Content should be numeric."/>
-<!--
-TODO @param sampleGenes A dataframe containing mapping of Accessions, which should be the rownames, and corresponding gene names, which should be stored in a column named Gene. Default: NULL. Thus, no accession-gene mapping is performed.
-TODO @param sampleMapping A dataframe, which can be used to relate different conditions to ggplot facets. The treatments, which should also appear in the sampleTable, have to be the rownames. The following columns should be present:
--->
+
+        <param argument="sampleGenes" type="data" format="csv,tabular" optional="true" label="Accession - Gene name mapping" help="An optional table conatining columns Accession and Gene"/>
+        <param argument="sampleMapping" type="data" format="csv,tabular" optional="true" label="Sample mapping" help="An optional table that is used to relate different
+        conditions to ggplot facets. See help."/>
+
         <param argument="remove_outliers" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Remove outliers" help="Identified by the function identify_outliers() based on Mahalanobis distances"/>
         <param argument="median_normalize" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Apply median normalization" help=""/>
         <param argument="number_replicates_reliable" type="integer" min="1" value="3" label="Number of replicates for reliable identification" help="Number of replicates for which quantitation data should be available to consider a protein reliably identified under the particular condition (i.e. in a sample)"/>
@@ -135,9 +155,104 @@ TODO @param sampleMapping A dataframe, which can be used to relate different con
             </output_collection>
             <output_collection name="plots" count="19" type="list"/>
         </test>
-        <!-- TODO tests w optional input datasets -->
+        <!-- tests with optional sampleGenes input -->
+        <test expect_num_outputs="3">
+            <param name="sampleTable" value="sampleTable.csv" ftype="csv"/>
+            <param name="sampleGenes" value="sampleGenes.csv" ftype="csv"/>
+            <param name="out_select" value="tables,plots"/>
+            <output name="dat_calculated">
+                <assert_contents>
+                    <has_n_lines n="4269"/>
+                    <has_n_columns sep="," n="35"/>
+                </assert_contents>
+            </output>
+            <output_collection name="output" count="9" type="list">
+                <element name="Mahalanobis_Outliers" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="25"/>
+                        <has_n_columns sep="," n="3"/>
+                    </assert_contents>
+                </element>
+                <element name="dat_log2" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="5058"/>
+                        <has_n_columns sep="," n="25"/>
+                    </assert_contents>
+                </element>
+                <element name="dat_reliable" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="4269"/>
+                        <has_n_columns sep="," n="25"/>
+                    </assert_contents>
+                </element>
+
+            </output_collection>
+            <output_collection name="plots" count="19" type="list"/>
+        </test>
+        <!-- tests with both optional inputs -->
+        <test expect_num_outputs="3">
+            <param name="sampleTable" value="sampleTable.csv" ftype="csv"/>
+            <param name="sampleGenes" value="sampleGenes.csv" ftype="csv"/>
+            <param name="sampleMapping" value="sampleMapping.csv" ftype="csv"/>
+            <param name="out_select" value="tables,plots"/>
+            <output name="dat_calculated">
+                <assert_contents>
+                    <has_n_lines n="4269"/>
+                    <has_n_columns sep="," n="35"/>
+                </assert_contents>
+            </output>
+            <output_collection name="output" count="9" type="list">
+                <element name="Mahalanobis_Outliers" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="25"/>
+                        <has_n_columns sep="," n="3"/>
+                    </assert_contents>
+                </element>
+                <element name="dat_log2" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="5058"/>
+                        <has_n_columns sep="," n="25"/>
+                    </assert_contents>
+                </element>
+                <element name="dat_reliable" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="4269"/>
+                        <has_n_columns sep="," n="25"/>
+                    </assert_contents>
+                </element>
+
+            </output_collection>
+            <output_collection name="plots" count="19" type="list"/>
+        </test>
     </tests>
     <help><![CDATA[
-        TODO: Fill in help.
+
+Fold change workflow
+
+1. Evaluating data quality
+2. Identification (and removal) of outliers (param: remove_outliers)
+3. Log2 transformation
+4. Optional: median normalization (param: median_normalize)
+5. Filtering for reliably identified candidates (param: number_replicates_reliable, reliable_all_comparisons)
+6. Principal component analysis of processed data
+7. Calculation of average log2 fold changes and (adjusted) p-values (param: alternative, var.equal, paired, pvalue_adjustment)
+8/ Visualization of the results (param: pvalue_decision, significance_cutoff, color_up, color_none, color_down)
+
+
+        TODO sampleMapping
+
+        A dataframe, which can be used to relate different
+        conditions to ggplot facets. The treatments, which should
+        also appear in the sampleTable, have to be the rownames. The
+        following columns should be present: "Xname" (the sample
+        name, which will be shown on the X-axis), "Order" (numbers
+        indicating the preferred order of the treatments/comparisons
+        on the X-axis - from left to right), Condition1 (character,
+        which will be used for the first level ggplot facet),
+        Condition2 (character, which will be used for the second
+        level ggplot facet). If no sampleMapping dataframe is
+        available, use sampleMapping = NULL, which is also the
+        default.
+
     ]]></help>
 </tool>

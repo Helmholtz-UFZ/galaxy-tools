@@ -139,6 +139,17 @@ null <- run_intensity_workflow(
         </test>
     </tests>
     <help><![CDATA[
-        TODO: Fill in help.
+
+Intensity workflow
+
+1. Evaluating data quality
+2. Identification (and removal) of outliers (param: remove_outliers)
+3. Log2 transformation 
+4. Optional: median normalization (param: median_normalize)
+5. Filtering for reliably identified candidates (param: number_replicates_reliable, reliable_all_comparisons)
+6. Optional: variance stabilization (param: run_vsn)
+7. Optional: imputation, which includes variance stabilization as data preparation step (param: run_imputation, imp_fun, imp_q, impute_completely_missing_only)
+8. Principal component analysis of processed dataCalculation of average log2 fold changes and (adjusted) p-values (param: control_samples, comparisons_relevant, alternative, var.equal, paired, pvalue_adjustment)
+9. Visualization of the results (param: pvalue_decision, significance_cutoff, color_up, color_none, color_down)
     ]]></help>
 </tool>

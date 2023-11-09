@@ -5,6 +5,7 @@
     <expand macro="requirements"/>
     <command detect_errors="exit_code"><![CDATA[
         Rscript '$rscript'
+        && mv Rdata/dat_calculated.csv .
     ]]></command>
     <configfiles>
         <configfile name="rscript"><![CDATA[
@@ -15,19 +16,24 @@ library(proteomicsr)
 #else
     sampleTable <- read.delim("$sampleTable", header = TRUE, row.names = 1, sep = "\t")
 #end if
-run_FC_workflow(
+
+#set controlSamples = 'c("' + '", "'.join(str($control_samples).split(",")) + '")'
+
+null <- run_intensity_workflow(
     sampleTable,
-    control_samples, ## should be a vector with sample names, which should be used as control samples, e.g. c("ctrl", "treatment1")
+    control_samples = $controlSamples, 
     comparisons_relevant = NULL, ## if NULL, script continues with all possible comparisons. Otherwise, a vector should be provided, e.g. c("treatment1_vs_ctrl", "treatment2_vs_ctrl", "treatment2_vs_treatment1")
     sampleGenes = NULL,
     sampleMapping = NULL,
     remove_outliers = $remove_outliers,
     median_normalize = $median_normalize,
     run_vsn = $run_vsn,
-    run_imputation = $run_imputation,
-    imp_fun = $imp_fun,
-    imp_q = $imp_q,
+#if $impute.run_imputation == "TRUE"
+    run_imputation = $impute.run_imputation,
+    imp_fun = $impute.imp_fun,
+    imp_q = $impute.imp_q,
     impute_completely_missing_only = $impute_completely_missing_only,
+#end if
     number_replicates_reliable = $number_replicates_reliable,
     reliable_all_comparisons = $reliable_all_comparisons,
     alternative = "$alternative",
@@ -45,37 +51,33 @@ run_FC_workflow(
     </configfiles>
     <inputs>
         <param argument="sampleTable" type="data" format="csv,tabular" label="Sample table" help="Rows: unique identifiers (e.g. uniprot accessions), Columns: samples. Replicates should be indicated using _1, _2, .... Content should be numeric."/>
-<!--
-    TODO Missing pipeline description
-    TODO Structure parameters with sections?
-    TODO Missing: description of outputs
-
-@param sampleGenes A dataframe containing mapping of Accessions, which should be the rownames, and corresponding gene names, which should be stored in a column named Gene. Default: NULL. Thus, no accession-gene mapping is performed.
-@param sampleMapping A dataframe, which can be used to relate different conditions to ggplot facets. The treatments, which should also appear in the sampleTable, have to be the rownames. The following columns should be present:
-"Xname" (the sample name, which will be shown on the X-axis),
-"Order" (numbers indicating the preferred order of the treatments/comparisons on the X-axis - from left to right),
-Condition1 (character, which will be used for the first level ggplot facet),
-Condition2 (character, which will be used for the second level ggplot facet).
-If no sampleMapping dataframe is available, use sampleMapping = NULL, which is also the default.
--->
+        <param argument="control_samples" type="text" label="Control samples" help="Comma separated list of sample names, as used in the input table"/>
         <param argument="remove_outliers" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Remove outliers" help="Identified by the function identify_outliers() based on Mahalanobis distances"/>
         <param argument="median_normalize" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Apply median normalization" help=""/>
         <param argument="run_vsn" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="true" label="Apply variance stabilization using the DEP package" help=""/>
-        <param argument="run_imputation" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Apply imputation using the DEP package" help="If TRUE, variance stabilization is performed anyway and also the parameters imp_fun, imp_q, and impute_completely_missing_only should be double-checked and adjusted if necessary"/>
-        <param argument="impute_completely_missing_only" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="true" label="Decide which missing data should be imputed." help=""/>
-        <param argument="imp_fun" type="select" label="Method for imputation" help="">
-            <option value="MLE">Maximum likelihood-based imputation method using the EM algorithm</option>
-            <option value="bpca">Bayesian missing value imputation</option>
-            <option value="knn">Nearest neighbour averaging</option>
-            <option value="QRILC"> Imputation of left-censored missing data using random draws from a truncated distribution with parameters estimated using quantile regression</option>
-            <option value="MinDet">Imputation of left-censored missing data using a deterministic minimal value approach</option>
-            <option value="MinProb" selected="true"> Imputation of left-censored missing data by random draws from a Gaussian distribution centred to a minimal value</option>
-            <option value="min">Replaces the missing values by the smallest non-missing value in the data</option>
-            <option value="zero">Replaces the missing values by 0</option>
-            <option value="nbavg">Average neighbour imputation for fractions collected along a fractionation/separation gradient</option>
-            <option value="none">No imputation</option>
-        <param argument="imp_q" type="float" value="0.01" min="0" max="1" label="q-th quantile for left-censored imputation" help="The minimal value observed is estimated as being the q-th quantile of the observed values in that sample."/>
-        </param>
+        <conditional name="impute">
+            <param argument="run_imputation" type="select" label="Apply imputation using the DEP package" help="If TRUE, variance stabilization is performed anyway and also the parameters imp_fun, imp_q, and impute_completely_missing_only should be double-checked and adjusted if necessary">
+                <option value="TRUE">TRUE</option>
+                <option value="FALSE" selected="true">FALSE</option>
+            </param>
+            <when value="TRUE">
+                <param argument="impute_completely_missing_only" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="true" label="Decide which missing data should be imputed." help=""/>
+                <param argument="imp_fun" type="select" label="Method for imputation" help="">
+                    <option value="MLE">Maximum likelihood-based imputation method using the EM algorithm</option>
+                    <option value="bpca">Bayesian missing value imputation</option>
+                    <option value="knn">Nearest neighbour averaging</option>
+                    <option value="QRILC"> Imputation of left-censored missing data using random draws from a truncated distribution with parameters estimated using quantile regression</option>
+                    <option value="MinDet">Imputation of left-censored missing data using a deterministic minimal value approach</option>
+                    <option value="MinProb" selected="true"> Imputation of left-censored missing data by random draws from a Gaussian distribution centred to a minimal value</option>
+                    <option value="min">Replaces the missing values by the smallest non-missing value in the data</option>
+                    <option value="zero">Replaces the missing values by 0</option>
+                    <option value="nbavg">Average neighbour imputation for fractions collected along a fractionation/separation gradient</option>
+                    <option value="none">No imputation</option>
+                </param>
+                <param argument="imp_q" type="float" value="0.01" min="0" max="1" label="q-th quantile for left-censored imputation" help="The minimal value observed is estimated as being the q-th quantile of the observed values in that sample."/>
+            </when>
+            <when value="FALSE"/>
+        </conditional>
         <param argument="number_replicates_reliable" type="integer" min="1" value="3" label="Number of replicates for reliable identification" help="Number of replicates for which quantitation data should be available to consider a protein reliably identified under the particular condition (i.e. in a sample)"/>
         <!--TODO formulation unclear, comparisons between what? Samples? -->
         <param argument="reliable_all_comparisons" type="select" label="Required comparisons" help="Candidates are returned that are identified in the given number of replicates (number_replicates_reliable) in all/at least one comparison.">
@@ -84,7 +86,6 @@ If no sampleMapping dataframe is available, use sampleMapping = NULL, which is a
         </param>
         <!-- TODO which variances? -->
         <param argument="var.equal" name="var_equal" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="true" label="Treat variances as equal" help="for t-test"/>
-        <!-- <section title="test" name="test"> -->
         <param argument="paired" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="true" label="Use paired t-test" help=""/>
         <param argument="alternative" type="select" label="Alternative hypothesis" help="">
             <option value="two.sided">two.sided</option>
@@ -105,53 +106,36 @@ If no sampleMapping dataframe is available, use sampleMapping = NULL, which is a
             <option value="none">None</option>
         </param>
         <param argument="significance_cutoff" type="float" value="0.05" min="0" max="1" label="Significance cutoff" help="All candidates with lower value are considered significantly affected"/>
-        <!-- </section> -->
         <param argument="color_up" type="color" value="#DC0000" label="Color for up-regulated candidates"/>
         <param argument="color_down" type="color" value="#3C5488" label="Color for down-regulated candidates"/>
         <param argument="color_none" type="color" value="#000000" label="Color for not significantly altered candidates"/>
         <param name="out_select" type="select" multiple="true">
-            <option value="dat_calcuated">dat calculated TODO</option>
-            <option value="plots" selected="true">Plots</option>
+            <option value="tables">Detailed tables</option>
+            <option value="plots">Plots</option>
         </param>
     </inputs>
     <outputs>
-        <!-- TODO make dat_calculated primary output -->
-        <!-- <data name="log"/> -->
-        <data name="dat_calculated" format="csv" from_work_dir="Rdata/dat_calculated.csv">
-            <filter>"dat_calculated" in out_select</filter>
+        <data name="dat_calculated" format="csv" from_work_dir="dat_calculated.csv">
         </data>
-        <collection name="output" type="list">
+        <collection name="output" type="list" label="${tool.name} on ${on_string}: additional tables">
             <discover_datasets pattern="__name_and_ext__" directory="Rdata"/>
+            <filter>out_select and "tables" in out_select</filter>
         </collection>
         <collection name="plots" type="list" label="${tool.name} on ${on_string}: plots">
             <discover_datasets pattern="__name_and_ext__" directory="Plots"/>
-            <filter>"plots" in out_selected</filter>
+            <filter>out_select and "plots" in out_select</filter>
         </collection>
     </outputs>
     <tests>
-        <test>
+        <test expect_num_outputs="1">
             <param name="sampleTable" value="sampleTable.csv" ftype="csv"/>
-            <output_collection name="output" count="3" type="list">
-                <!-- TODO there should be more outputs -->
-                <element name="dat_log2" ftype="csv">
-                    <assert_contents>
-                        <has_n_lines n="5058"/>
-                        <has_n_columns sep="," n="25"/>
-                    </assert_contents>
-                </element>
-                <element name="dat_reliable" ftype="csv">
-                    <assert_contents>
-                        <has_n_lines n="4269"/>
-                        <has_n_columns sep="," n="16"/>
-                    </assert_contents>
-                </element>
-                <element name="Mahalanobis_Outliers.csv" ftype="csv">
-                    <assert_contents>
-                        <has_n_lines n="25"/>
-                        <has_n_columns sep="," n="3"/>
-                    </assert_contents>
-                </element>
-            </output_collection>
+            <param name="control_samples" value="control_04h_plusLPS_vs_control_04h_noLPS"/>
+            <output name="dat_calculated">
+                <assert_contents>
+                    <has_n_lines n="4269"/>
+                    <has_n_columns sep="," n="31"/>
+                </assert_contents>
+            </output>
         </test>
     </tests>
     <help><![CDATA[

@@ -5,6 +5,7 @@
     <expand macro="requirements"/>
     <command detect_errors="exit_code"><![CDATA[
         Rscript '$rscript'
+        && mv Rdata/dat_calculated.csv .
     ]]></command>
     <configfiles>
         <configfile name="rscript"><![CDATA[
@@ -15,9 +16,10 @@ library(proteomicsr)
 #else
     sampleTable <- read.delim("$sampleTable", header = TRUE, row.names = 1, sep = "\t")
 #end if
-run_FC_workflow(
+
+null <- run_FC_workflow(
     sampleTable,
-    sampleGenes = NULL,
+    sampleGenes = NULL,  ## this would imply more output data sets!
     sampleMapping = NULL,
     remove_outliers = $remove_outliers,
     median_normalize = $median_normalize,
@@ -39,17 +41,8 @@ run_FC_workflow(
     <inputs>
         <param argument="sampleTable" type="data" format="csv,tabular" label="Sample table" help="Rows: unique identifiers (e.g. uniprot accessions), Columns: samples. Replicates should be indicated using _1, _2, .... Content should be numeric."/>
 <!--
-    TODO Missing pipeline description
-    TODO Structure parameters with sections?
-    TODO Missing: description of outputs
-
-@param sampleGenes A dataframe containing mapping of Accessions, which should be the rownames, and corresponding gene names, which should be stored in a column named Gene. Default: NULL. Thus, no accession-gene mapping is performed.
-@param sampleMapping A dataframe, which can be used to relate different conditions to ggplot facets. The treatments, which should also appear in the sampleTable, have to be the rownames. The following columns should be present:
-"Xname" (the sample name, which will be shown on the X-axis),
-"Order" (numbers indicating the preferred order of the treatments/comparisons on the X-axis - from left to right),
-Condition1 (character, which will be used for the first level ggplot facet),
-Condition2 (character, which will be used for the second level ggplot facet).
-If no sampleMapping dataframe is available, use sampleMapping = NULL, which is also the default.
+TODO @param sampleGenes A dataframe containing mapping of Accessions, which should be the rownames, and corresponding gene names, which should be stored in a column named Gene. Default: NULL. Thus, no accession-gene mapping is performed.
+TODO @param sampleMapping A dataframe, which can be used to relate different conditions to ggplot facets. The treatments, which should also appear in the sampleTable, have to be the rownames. The following columns should be present:
 -->
         <param argument="remove_outliers" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Remove outliers" help="Identified by the function identify_outliers() based on Mahalanobis distances"/>
         <param argument="median_normalize" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Apply median normalization" help=""/>
@@ -61,7 +54,6 @@ If no sampleMapping dataframe is available, use sampleMapping = NULL, which is a
         </param>
         <!-- TODO which variances? -->
         <param argument="var.equal" name="var_equal" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="true" label="Treat variances as equal" help="for t-test"/>
-        <!-- <section title="test" name="test"> -->
         <param argument="paired" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="true" label="Use paired t-test" help=""/>
         <param argument="alternative" type="select" label="Alternative hypothesis" help="">
             <option value="two.sided">two.sided</option>
@@ -82,34 +74,51 @@ If no sampleMapping dataframe is available, use sampleMapping = NULL, which is a
             <option value="none">None</option>
         </param>
         <param argument="significance_cutoff" type="float" value="0.05" min="0" max="1" label="Significance cutoff" help="All candidates with lower value are considered significantly affected"/>
-        <!-- </section> -->
         <param argument="color_up" type="color" value="#DC0000" label="Color for up-regulated candidates"/>
         <param argument="color_down" type="color" value="#3C5488" label="Color for down-regulated candidates"/>
         <param argument="color_none" type="color" value="#000000" label="Color for not significantly altered candidates"/>
-        <param name="out_select" type="select" multiple="true">
-            <option value="dat_calcuated">dat calculated TODO</option>
-            <option value="plots" selected="true">Plots</option>
+        <param name="out_select" type="select" multiple="true" optional="true" label="Optional outputs">
+            <option value="tables">Detailed tables</option>
+            <option value="plots">Plots</option>
         </param>
     </inputs>
     <outputs>
-        <!-- TODO make dat_calculated primary output -->
-        <!-- <data name="log"/> -->
-        <data name="dat_calculated" format="csv" from_work_dir="Rdata/dat_calculated.csv">
-            <filter>"dat_calculated" in out_select</filter>
-        </data>
-        <collection name="output" type="list">
+        <data name="dat_calculated" format="csv" from_work_dir="dat_calculated.csv"/>
+        <collection name="output" type="list" label="${tool.name} on ${on_string}: additional tables">
             <discover_datasets pattern="__name_and_ext__" directory="Rdata"/>
+            <filter>out_select and "tables" in out_select</filter>
         </collection>
         <collection name="plots" type="list" label="${tool.name} on ${on_string}: plots">
             <discover_datasets pattern="__name_and_ext__" directory="Plots"/>
-            <filter>"plots" in out_selected</filter>
+            <filter>out_select and "plots" in out_select</filter>
         </collection>
     </outputs>
     <tests>
-        <test>
+        <test expect_num_outputs="1">
             <param name="sampleTable" value="sampleTable.csv" ftype="csv"/>
-            <output_collection name="output" count="3" type="list">
-                <!-- TODO there should be more outputs -->
+            <output name="dat_calculated">
+                <assert_contents>
+                    <has_n_lines n="4269"/>
+                    <has_n_columns sep="," n="35"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test expect_num_outputs="3">
+            <param name="sampleTable" value="sampleTable.csv" ftype="csv"/>
+            <param name="out_select" value="tables,plots"/>
+            <output name="dat_calculated">
+                <assert_contents>
+                    <has_n_lines n="4269"/>
+                    <has_n_columns sep="," n="35"/>
+                </assert_contents>
+            </output>
+            <output_collection name="output" count="7" type="list">
+                <element name="Mahalanobis_Outliers" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="25"/>
+                        <has_n_columns sep="," n="3"/>
+                    </assert_contents>
+                </element>
                 <element name="dat_log2" ftype="csv">
                     <assert_contents>
                         <has_n_lines n="5058"/>
@@ -119,17 +128,14 @@ If no sampleMapping dataframe is available, use sampleMapping = NULL, which is a
                 <element name="dat_reliable" ftype="csv">
                     <assert_contents>
                         <has_n_lines n="4269"/>
-                        <has_n_columns sep="," n="16"/>
+                        <has_n_columns sep="," n="25"/>
                     </assert_contents>
                 </element>
-                <element name="Mahalanobis_Outliers.csv" ftype="csv">
-                    <assert_contents>
-                        <has_n_lines n="25"/>
-                        <has_n_columns sep="," n="3"/>
-                    </assert_contents>
-                </element>
+
             </output_collection>
+            <output_collection name="plots" count="19" type="list"/>
         </test>
+        <!-- TODO tests w optional input datasets -->
     </tests>
     <help><![CDATA[
         TODO: Fill in help.

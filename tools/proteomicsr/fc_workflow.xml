@@ -39,7 +39,7 @@ null <- run_FC_workflow(
     <tests>
         <test expect_num_outputs="1">
             <param name="sampleTable" value="sampleTable.csv" ftype="csv"/>
-            <output name="dat_calculated">
+            <output name="dat_calculated" value="dat_calculated.csv">
                 <assert_contents>
                     <has_n_lines n="4269"/>
                     <has_n_columns sep="," n="35"/>

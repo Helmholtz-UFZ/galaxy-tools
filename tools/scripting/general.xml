@@ -1,4 +1,4 @@
-<tool id="singularity_scriptrunner" name="scriptrunner" version="0.1" profile="22.05">
+<tool id="singularity_scriptrunner" name="scriptrunner" version="0.1.1" profile="22.05">
     <description>singularity</description>
     <creator>
         <person givenName="Matthias" familyName="Bernt" email="m.bernt@ufz.de" />
@@ -73,7 +73,7 @@
                 </param>
                 <when value="data">
                     <param name="param" type="data" format="data" label="Dataset"/>
-                    <param name="filename" type="text" label="File name" help="Set if you want to access the data set with a specific file name. Only alphanumeric characters, dash and underscore are allowed (all other characters are replaced by an undercore). Default is Galaxy's data set name.">
+                    <param name="filename" type="text" label="File name" help="Set if you want to access the data set with a specific file name (default is access via argument vector, see help). Data will be accessible at inputs/FILENAME, where FILENAME is the chosen file name. Only alphanumeric characters, dash and underscore are allowed (all other characters are replaced by an undercore). Default is Galaxy's data set name.">
                         <sanitizer invalid_char="_">
                             <valid initial="string.ascii_letters,string.digits">
                                 <add value="_" />

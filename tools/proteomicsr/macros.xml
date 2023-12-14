@@ -3,9 +3,9 @@
     <token name="@VERSION_SUFFIX@">0</token>
     <xml name="requirements">
         <requirements>
-            <!-- <requirement type="package" version="@TOOL_VERSION@">r-proteomicsr</requirement> -->
+            <requirement type="package" version="@TOOL_VERSION@">r-proteomicsr</requirement>
             <!-- <requirement type="package" version="1.34.2">bioconductor-biocparallel</requirement> -->
-            <requirement type="package" version="2.54.0">bioconductor-biomart</requirement>
+            <!-- <requirement type="package" version="2.54.0">bioconductor-biomart</requirement>
             <requirement type="package" version="0.4.15">r-circlize</requirement>
             <requirement type="package" version="3.4.0">r-classdiscovery</requirement>
             <requirement type="package" version="4.6.0">bioconductor-clusterprofiler</requirement>
@@ -26,9 +26,32 @@
             <requirement type="package" version="1.2.1">r-scales</requirement>
             <requirement type="package" version="1.4.8">r-splitstackshape</requirement>
             <requirement type="package" version="1.3.0">r-tidyr</requirement>
-            <requirement type="package" version="1.71">r-wgcna</requirement>
-            <!-- conda create -y \-\-quiet \-\-strict-channel-priority \-\-solver libmamba \-\-override-channels \-\-channel conda-forge \-\-channel bioconda \-\-channel defaults \-\-name mulled-v1-ae7b5d67288817380e96a0a05d9a35df3fb998d4ddbece72756032a7cb1710e5 bioconductor-biomart=2.54.0 r-circlize=0.4.15 r-classdiscovery=3.4.0 bioconductor-clusterprofiler=4.6.0 bioconductor-complexheatmap=2.14.0 r-corrplot=0.92 r-dendsort=0.3.4 bioconductor-dep=1.20.0 r-dynamictreecut=1.63_1 r-ggplot2=3.4.2 r-ggpubr=0.6.0 bioconductor-kinswingr r-mixomics=6.3.2 r-msigdbr=7.5.1 r-pheatmap=1.0.12 r-plyr=1.8.9 r-readr=2.1.4 r-reshape2=1.4.4 r-scales=1.2.1 r-splitstackshape=1.4.8 r-tidyr=1.3.0 r-wgcna=1.71 -->
-
+            <requirement type="package" version="1.71">r-wgcna</requirement> -->
+            <!-- conda create -y \-\-quiet \-\-strict-channel-priority \-\-solver libmamba \-\-override-channels \-\-channel conda-forge \-\-channel bioconda \-\-channel defaults \-\-name 
+                __r-proteomicsr@0.1.0 
+                "bioconductor-biomart=2.58.0" # needed update https://github.com/grimbough/biomaRt/issues/87
+                "bioconductor-clusterprofiler=4.10.0" #(newer needed, otherwise conflict with bioconductor-biomart)
+                "bioconductor-dep=1.24.0"  # same 
+                bioconductor-complexheatmap=2.18.0
+                bioconductor-kinswingr
+                r-circlize=0.4.15
+                r-classdiscovery=3.4.0
+                r-corrplot=0.92 r-dendsort=0.3.4
+                r-dynamictreecut=1.63_1
+                r-ggplot2=3.4.2
+                r-ggpubr=0.6.0
+                r-mixomics=6.3.2
+                r-msigdbr=7.5.1
+                r-pheatmap=1.0.12
+                r-plyr=1.8.9
+                r-readr=2.1.4
+                r-reshape2=1.4.4
+                r-scales=1.2.1
+                r-splitstackshape=1.4.8
+                r-tidyr=1.3.0
+                r-wgcna=1.71
+                "r-dbplyr<2.4"
+            -->
             <!-- <requirement type="package" version="3.0.0">r-ggsci</requirement> -->
             <!-- <requirement type="package" version="2.3">r-gridextra</requirement> -->
 
@@ -42,6 +65,10 @@
 #else
     sampleTable <- read.delim("$sampleTable", header = TRUE, row.names = 1, sep = "\t")
 #end if
+@READ_SAMPLE_GENES_MAPPING@
+    ]]></token>
+
+    <token name="@READ_SAMPLE_GENES_MAPPING@"><![CDATA[
 #if $sampleGenes
     #if $sampleGenes.ext == 'csv'
         sampleGenes <- read.csv("$sampleGenes", row.names = 1)
@@ -61,7 +88,7 @@
     sampleMapping <- NULL
 #end if
     ]]></token>
-    
+
     <token name="@COMMON_WF_PARAMETERS@"><![CDATA[
     sampleTable,
     sampleGenes = sampleGenes,  ## this implies more output data sets!
@@ -82,9 +109,7 @@
     ]]></token>
     <xml name="common_wf_paramerters">
         <param argument="sampleTable" type="data" format="csv,tabular" label="Sample table" help="Rows: unique identifiers (e.g. uniprot accessions), Columns: samples. Replicates should be indicated using _1, _2, .... Content should be numeric."/>
-        <param argument="sampleGenes" type="data" format="csv,tabular" optional="true" label="Accession - Gene name mapping" help="An optional table conatining columns Accession and Gene"/>
-        <param argument="sampleMapping" type="data" format="csv,tabular" optional="true" label="Sample mapping" help="An optional table that is used to relate different conditions to ggplot facets. See help."/>
-        
+        <expand macro="sample_genes_mapping"/>
         <param argument="remove_outliers" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Remove outliers" help="Identified by the function identify_outliers() based on Mahalanobis distances"/>
         <param argument="median_normalize" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Apply median normalization" help=""/>
 
@@ -123,6 +148,24 @@
         <param argument="color_none" type="color" value="#000000" label="Color for not significantly altered candidates"/>
     </xml>
 
+    <xml name="sample_genes_mapping">
+        <param argument="sampleGenes" type="data" format="csv,tabular" optional="true" label="Accession - Gene name mapping" help="An optional table conatining columns Accession and Gene"/>
+        <param argument="sampleMapping" type="data" format="csv,tabular" optional="true" label="Sample mapping" help="An optional table that is used to relate different conditions to ggplot facets. See help."/>
+    </xml>
+
+    <xml name="citations">
+        <citations>
+            <citation type="bibtex">@UNPUBLISHED{Linnarsson2016,
+                author = "Isabel Karkossa",
+                title = "proteomicsr",
+                publisher = {UFZ GitLab},
+                journal = {Git repository},
+                year = "2023"
+                note = "https://git.ufz.de/kratochv/proteomicsr"
+            }
+            </citation>
+        </citations>
+    </xml>
     <!-- TODO citations: helmholz codebase / doi -->
 
 

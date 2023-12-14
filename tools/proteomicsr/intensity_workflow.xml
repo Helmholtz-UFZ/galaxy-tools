@@ -100,4 +100,5 @@ Intensity workflow
 8. Principal component analysis of processed dataCalculation of average log2 fold changes and (adjusted) p-values (param: control_samples, comparisons_relevant, alternative, var.equal, paired, pvalue_adjustment)
 9. Visualization of the results (param: pvalue_decision, significance_cutoff, color_up, color_none, color_down)
     ]]></help>
+    <expand macro="citations"/>
 </tool>

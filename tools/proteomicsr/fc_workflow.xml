@@ -159,23 +159,22 @@ Fold change workflow
 5. Filtering for reliably identified candidates (param: number_replicates_reliable, reliable_all_comparisons)
 6. Principal component analysis of processed data
 7. Calculation of average log2 fold changes and (adjusted) p-values (param: alternative, var.equal, paired, pvalue_adjustment)
-8/ Visualization of the results (param: pvalue_decision, significance_cutoff, color_up, color_none, color_down)
+8. Visualization of the results (param: pvalue_decision, significance_cutoff, color_up, color_none, color_down)
 
+sampleMapping
 
-        TODO sampleMapping
-
-        A dataframe, which can be used to relate different
-        conditions to ggplot facets. The treatments, which should
-        also appear in the sampleTable, have to be the rownames. The
-        following columns should be present: "Xname" (the sample
-        name, which will be shown on the X-axis), "Order" (numbers
-        indicating the preferred order of the treatments/comparisons
-        on the X-axis - from left to right), Condition1 (character,
-        which will be used for the first level ggplot facet),
-        Condition2 (character, which will be used for the second
-        level ggplot facet). If no sampleMapping dataframe is
-        available, use sampleMapping = NULL, which is also the
-        default.
-
+A dataframe, which can be used to relate different
+conditions to ggplot facets. The treatments, which should
+also appear in the sampleTable, have to be the rownames. The
+following columns should be present: "Xname" (the sample
+name, which will be shown on the X-axis), "Order" (numbers
+indicating the preferred order of the treatments/comparisons
+on the X-axis - from left to right), Condition1 (character,
+which will be used for the first level ggplot facet),
+Condition2 (character, which will be used for the second
+level ggplot facet). If no sampleMapping dataframe is
+available, use sampleMapping = NULL, which is also the
+default.
     ]]></help>
+    <expand macro="citations"/>
 </tool>

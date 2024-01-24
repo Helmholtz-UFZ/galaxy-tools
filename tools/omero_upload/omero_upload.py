@@ -35,7 +35,7 @@ def import_omero_biotox(user, passw, pth, host='omero.intranet.ufz.de', port=406
 parser = argparse.ArgumentParser(prog='omero_upload', description='')
 parser.add_argument('--url', type=str, default="omero.intranet.ufz.de", help='URL')
 parser.add_argument('--port', type=int, default=4064, help='port')
-parser.add_argument('--username', type=str, help='username')
+parser.add_argument('--user', type=str, help='username')
 parser.add_argument('--password', type=str, help='password')
 parser.add_argument('--folder', type=str, help='folder')
 args = parser.parse_args()

@@ -25,11 +25,11 @@
         #end for
 
         python '$__tool_directory__'/omero_upload.py
-            --url '$omero_host'
+            --host $omero_host
             --port $omero_port
-            --user $__user__.extra_preferences.get('omero_account|username', "omero")
-            --password $__user__.extra_preferences.get('omero_account|password', "omero")
-            --folder folder > $log
+            --user $username.extra_preferences.get('omero_account|username', "root")
+            --passw $password.extra_preferences.get('omero_account|password', "omero")
+            --pth $folder
     ]]></command>
     <inputs>
         <param name="omero_host" type="text" label="OMERO host URL">
@@ -37,17 +37,20 @@
             <validator type="expression" message="No two dots (..) allowed">'..' not in value</validator>
         </param>
         <param name="omero_port" type="integer" value="4064" optional="false" label="OMERO host URL"/>
-        <param name="images" type="data" format="png,bmp" multiple="true" optional="false" label="Images"/>
-        <param name="_username" type="hidden" value=""/>
-        <param name="_password" type="hidden" value=""/>
+        <param name="folder" type="string" multiple="true" optional="false" label="Images"/>
+        <param name="username" type="hidden" value=""/>
+        <param name="password" type="hidden" value=""/>
     </inputs>
     <outputs>
         <data name="log" format="txt"/>
     </outputs>
     <tests>
         <test>
-            <param name="omero_host" value="localhost"/>
-            <param name="images" value="a1.bmp,b1.bmp"/>
+            <param name="omero_host" value="http://localhost:5080"/>
+            <param name="omero_port" value="6064"/>     
+            <param name="folder" value="test-data"/>
+            <param name="username" value="root"/>
+            <param name="password" value="omero"/>
             <output name="log" value="test.log"/>
         </test>
         <!-- Hint: You can use [ctrl+alt+t] after defining the inputs/outputs to auto-scaffold some basic test cases. -->

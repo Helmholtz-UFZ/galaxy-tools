@@ -20,7 +20,7 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mkdir folder &&
-        #for $image in $images:
+        #for $image in $folder:
             ln -s $image folder/'$image.element_identifier'.$image.ext &&
         #end for
 

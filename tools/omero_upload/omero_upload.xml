@@ -37,7 +37,7 @@
             <validator type="expression" message="No two dots (..) allowed">'..' not in value</validator>
         </param>
         <param name="omero_port" type="integer" value="4064" optional="false" label="OMERO host URL"/>
-        <param name="folder" type="text" multiple="true" optional="false" label="Images"/>
+        <param name="folder" type="data" format="bmp" multiple="true" optional="false" label="Images"/>
         <param name="username" type="hidden" value=""/>
         <param name="password" type="hidden" value=""/>
     </inputs>
@@ -48,7 +48,7 @@
         <test>
             <param name="omero_host" value="localhost"/>
             <param name="omero_port" value="6064"/>
-            <param name="folder" value="test-data"/>
+            <param name="folder" value="a1.bmp,a2.bmp"/>
             <param name="username" value="root"/>
             <param name="password" value="omero"/>
             <output name="log" value="test.log"/>

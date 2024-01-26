@@ -46,8 +46,8 @@
     </outputs>
     <tests>
         <test>
-            <param name="omero_host" value="http://localhost:5080"/>
-            <param name="omero_port" value="6064"/>     
+            <param name="omero_host" value="localhost"/>
+            <param name="omero_port" value="6064"/>
             <param name="folder" value="test-data"/>
             <param name="username" value="root"/>
             <param name="password" value="omero"/>

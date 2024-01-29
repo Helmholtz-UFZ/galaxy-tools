@@ -21,7 +21,7 @@
     <command detect_errors="exit_code"><![CDATA[
         mkdir folder &&
         #for $image in $folder:
-            ln -s $image folder/'$image.element_identifier'.$image.ext &&
+            ln -s '$image' folder/'$image.element_identifier'.$image.ext &&
         #end for
 
         python '$__tool_directory__'/omero_upload.py
@@ -29,7 +29,7 @@
             --port $omero_port
             --user $__user__.extra_preferences.get('omero_account|username', "root")
             --passw $__user__.extra_preferences.get('omero_account|password', "omero")
-            --pth $folder
+            --folder folder
     ]]></command>
     <inputs>
         <param name="omero_host" type="text" label="OMERO host URL">

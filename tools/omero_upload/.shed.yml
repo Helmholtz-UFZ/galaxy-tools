@@ -1,7 +1,8 @@
 categories:
-- Sequence Analysis
-description: obtain longest ORF in six-frame translations
-name: longorf
+- Image Analysis
+description: Upload images to an OMERO instance
+name: omero_upload
 owner: mbernt
-remote_repository_url: https://github.com/bernt-matthias/mb-galaxy-tools/blob/master/tools/longorf/
+remote_repository_url: https://github.com/ome/omero-py/
 type: unrestricted
+exclude: omero-docker-compose.yml

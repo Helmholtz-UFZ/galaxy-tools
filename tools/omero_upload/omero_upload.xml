@@ -25,10 +25,10 @@
         #end for
 
         python '$__tool_directory__'/omero_upload.py
-            --host $omero_host
+            --url $omero_host
             --port $omero_port
             --user $__user__.extra_preferences.get('omero_account|username', "root")
-            --passw $__user__.extra_preferences.get('omero_account|password', "omero")
+            --password $__user__.extra_preferences.get('omero_account|password', "omero")
             --folder folder
     ]]></command>
     <inputs>

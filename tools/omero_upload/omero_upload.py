@@ -13,7 +13,7 @@ from omero.gateway import BlitzGateway
 def import_omero_biotox(user, passw, pth, host='omero.intranet.ufz.de', port=4064):
     start_time = time.time()
     image_transferred = 0
-    with BlitzGateway(user, passw, host=host, port=port, secure=True) as conn:
+    conn = BlitzGateway(user, passw, host=host, port=port, secure=True)
     connected = conn.connect()
     if not connected:
         exit("Not connected to OMERO instance. Please retry")

@@ -5,4 +5,5 @@ name: omero_upload
 owner: mbernt
 remote_repository_url: https://github.com/ome/omero-py/
 type: unrestricted
-exclude: omero-docker-compose.yml
+exclude:
+- omero-docker-compose.yml

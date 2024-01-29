@@ -27,8 +27,8 @@
         python '$__tool_directory__'/omero_upload.py
             --host $omero_host
             --port $omero_port
-            --user $username.extra_preferences.get('omero_account|username', "root")
-            --passw $password.extra_preferences.get('omero_account|password', "omero")
+            --user $__user__.extra_preferences.get('omero_account|username', "root")
+            --passw $__user__.extra_preferences.get('omero_account|password', "omero")
             --pth $folder
     ]]></command>
     <inputs>

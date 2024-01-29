@@ -24,12 +24,19 @@
             ln -s '$image' folder/'$image.element_identifier'.$image.ext &&
         #end for
 
-        python '$__tool_directory__'/omero_upload.py
-            --url $omero_host
-            --port $omero_port
-            --user $__user__.extra_preferences.get('omero_account|username', "root")
-            --password $__user__.extra_preferences.get('omero_account|password', "omero")
-            --folder folder
+
+        omero import -f folder
+            -s $omero_host
+            -p $omero_port
+            -U $__user__.extra_preferences.get('omero_account|username', "root")
+            -w $__user__.extra_preferences.get('omero_account|password', "omero") 
+
+        ## python '$__tool_directory__'/omero_upload.py
+        ##     --url $omero_host
+        ##     --port $omero_port
+        ##     --user $__user__.extra_preferences.get('omero_account|username', "root")
+        ##     --password $__user__.extra_preferences.get('omero_account|password', "omero")
+        ##     --folder folder
     ]]></command>
     <inputs>
         <param name="omero_host" type="text" label="OMERO host URL">

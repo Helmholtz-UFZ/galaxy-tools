@@ -4,7 +4,7 @@
         <xref type="bio.tools"></xref>
     </xrefs>-->
     <macros>
-        <token name="@TOOL_VERSION@">2.1.0</token>
+        <token name="@TOOL_VERSION@">5.18.0</token>
         <token name="@VERSION_SUFFIX@">0</token>
     </macros>
     <!-- TODO: please annotate this tool with topics and operations from http://edamontology.org -->
@@ -16,7 +16,9 @@
         <edam_operation>operation_TODO</edam_operation>
     </edam_operations>-->
     <requirements>
-        <requirement type="package" version="@TOOL_VERSION@">ezomero</requirement>
+        <!-- <requirement type="package" version="@TOOL_VERSION@">ezomero</requirement> -->
+        <requirement type="package" version="@TOOL_VERSION@">omero-py</requirement>
+        <requirement type="package" version="21.0.2">openjdk</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mkdir folder &&

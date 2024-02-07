@@ -1,21 +1,14 @@
-<tool id="omero_upload" name="OMERO upload" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01" license="MIT">
+<tool id="omero_import" name="OMERO import" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01" license="MIT">
     <description></description>
-    <xrefs>
-        <xref type="bio.tools">omero</xref>
-    </xrefs>
     <macros>
         <token name="@TOOL_VERSION@">5.18.0</token>
         <token name="@VERSION_SUFFIX@">0</token>
     </macros>
-    <edam_topics>
-        <edam_topic>topic_0219</edam_topic>
-    </edam_topics>
-    <edam_operations>
-        <edam_operation>operation_3443</edam_operation>
-    </edam_operations>
+    <xrefs>
+        <xref type="bio.tools">omero</xref>
+    </xrefs>
     <requirements>
         <requirement type="package" version="@TOOL_VERSION@">omero-py</requirement>
-        <requirement type="package" version="21.0.2">openjdk</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mkdir folder &&
@@ -23,7 +16,7 @@
             ln -s '$image' folder/'$image.element_identifier'.$image.ext &&
         #end for
 
-        omero import -f folder
+        omero import folder
             -s $omero_host
             -p $omero_port
             -u $__user__.extra_preferences.get('omero_account|username', "root")

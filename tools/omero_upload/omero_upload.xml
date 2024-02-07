@@ -39,18 +39,21 @@
     </outputs>
     <tests>
         <test>
-            <param name="omero_host" value="localhost"/>
-            <param name="omero_port" value="4064"/>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
             <param name="folder" value="a1.bmp,b1.bmp"/>
             <param name="username" value="root"/>
             <param name="password" value="omero"/>
             <output name="log">
                 <assert_contents>
-                    <has_n_lines n="6"/>
-                    <has_text text="a1.bmp.bmp" n="2"/>
-                    <has_text text="b1.bmp.bmp" n="2"/>
+                    <has_n_lines n="2"/>
                 </assert_contents>
             </output>
+            <assert_stderr>
+                <has_text_matching expression="IMPORT_DONE.*a1.bmp.bmp"/>
+                <has_text_matching expression="IMPORT_DONE.*b1.bmp.bmp"/>
+                <has_text text="files uploaded, 2 filesets created, 2 images imported, 0 errors"/>
+            </assert_stderr>
         </test>
         <!-- Hint: You can use [ctrl+alt+t] after defining the inputs/outputs to auto-scaffold some basic test cases. -->
     </tests>

@@ -1,9 +1,11 @@
 categories:
 - Imaging
 description: Upload images to an OMERO instance
+long_description:
 name: omero_upload
 owner: mbernt
-remote_repository_url: https://github.com/ome/omero-py/
+remote_repository_url: https://github.com/bernt-matthias/mb-galaxy-tools/tree/main/tools/omero_upload
+homepage_url: https://github.com/ome/omero-py/
 type: unrestricted
 exclude:
 - omero-docker-compose.yml

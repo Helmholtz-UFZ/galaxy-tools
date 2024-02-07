@@ -39,7 +39,7 @@
     </outputs>
     <tests>
         <test>
-            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_host" value="localhost"/>
             <param name="omero_port" value="6064"/>
             <param name="folder" value="a1.bmp,b1.bmp"/>
             <param name="username" value="root"/>

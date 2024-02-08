@@ -165,7 +165,7 @@ jobs:
         fi
     # Start OMERO
     - name: Start OMERO
-      run: docker-compose -f tools/omero/omero-docker-compose.yml up -d
+      run: docker-compose -f .github/omero-docker-compose.yml up -d
 
     - name: Planemo test
       uses: galaxyproject/planemo-ci-action@v1

@@ -39,7 +39,7 @@
     </outputs>
     <tests>
         <test>
-            <param name="omero_host" value="localhost"/>
+            <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>
             <param name="folder" value="a1.bmp,b1.bmp"/>
             <param name="username" value="root"/>
@@ -59,24 +59,20 @@
     </tests>
     <help><![CDATA[
 
-.. class:: infomark
-
 **What it does**
 
-TODO: Fill in help in reStructuredText format (https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html)
-
-Usage
-.....
-
+Imports images to an OMERO server
 
 **Input**
 
+Images
 
 **Output**
 
+A log file
 
     ]]></help>
     <citations>
-        <!--<citation type="doi"> </citation>-->
+        <citation type="doi">10.1038/nmeth.1896</citation>
     </citations>
 </tool>

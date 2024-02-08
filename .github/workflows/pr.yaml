@@ -332,6 +332,7 @@ jobs:
       id: test
       with:
         mode: test
+        planemo-version: https://github.com/bernt-matthias/planemo.git@topic/docker-extra-args
         repository-list: ${{ needs.setup.outputs.repository-list }}
         galaxy-fork: ${{ env.GALAXY_FORK }}
         galaxy-branch: ${{ env.GALAXY_BRANCH }}

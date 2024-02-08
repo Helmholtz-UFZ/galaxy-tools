@@ -150,14 +150,33 @@ jobs:
       id: cpu-cores
     - name: Clean dotnet folder for space
       run: rm -Rf /usr/share/dotnet
+
+    # the following 3 steps are needed for testing the scripting tool
+    - name: Install Apptainer's singularity
+      uses: eWaterCycle/setup-apptainer@v2
+    - name: Symlink singularity
+      run: ln -s $(which apptainer) $(dirname apptainer)/singularity
+    - name: Install containers
+      run: |
+        echo "${{ needs.setup.outputs.repository-list }}" > repository_list.txt
+        if grep -q scripting repository_list.txt; then
+          singularity pull --dir /tmp docker://continuumio/anaconda3
+          singularity pull --dir /tmp docker://rocker/tidyverse
+        fi
+    # Start OMERO
+    - name: Start OMERO
+      run: docker-compose -f tools/omero/omero-docker-compose.yml up -d
+
     - name: Planemo test
       uses: galaxyproject/planemo-ci-action@v1
       id: test
       with:
         mode: test
+        planemo-version: git+https://github.com/bernt-matthias/planemo.git@topic/docker-extra-args
         repository-list: ${{ needs.setup.outputs.repository-list }}
         galaxy-fork: ${{ needs.setup.outputs.fork }}
         galaxy-branch: ${{ needs.setup.outputs.branch }}
+        additional-planemo-options: --docker_run_extra_arguments '--add-host=host.docker.internal:host-gateway'
         chunk: ${{ matrix.chunk }}
         chunk-count: ${{ needs.setup.outputs.chunk-count }}
         galaxy-slots: ${{ steps.cpu-cores.outputs.count }}

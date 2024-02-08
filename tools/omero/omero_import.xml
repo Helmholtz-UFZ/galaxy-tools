@@ -18,32 +18,55 @@
         #end for
 
         omero import folder
-            -s $omero_host
-            -p $omero_port
-            -u $__user__.extra_preferences.get('omero_account|username', "root")
-            -w $__user__.extra_preferences.get('omero_account|password', "omero") 
+
+        #if $predefined_cond.predefined_sel == 'yes'
+            -s $predefined_cond.omero_host.fields.server
+            -p $predefined_cond.omero_host.fields.port
+            -u $__user__.extra_preferences.get('omero_'+$predefined_cond.omero_host.fields.server+'|username', $test_username)
+            -w $__user__.extra_preferences.get('omero_'+$predefined_cond.omero_host.fields.server+'|password', $test_password)
+        #else
+            -s $predefined_cond.omero_host
+            -p $predefined_cond.omero_port
+            -u $__user__.extra_preferences.get('omero|username', $test_username)
+            -w $__user__.extra_preferences.get('omero|password', $test_password)
+        #end if
         > $log
     ]]></command>
     <inputs>
-        <param name="omero_host" type="text" label="OMERO host URL">
-            <validator type="regex" message="Enter a valid host location, for example, your.omero.server">^[a-zA-Z0-9._-]*$</validator>
-            <validator type="expression" message="No two dots (..) allowed">'..' not in value</validator>
-        </param>
-        <param name="omero_port" type="integer" value="4064" optional="false" label="OMERO host URL"/>
         <param name="folder" type="data" format="bmp" multiple="true" optional="false" label="Images"/>
-        <param name="username" type="hidden" value=""/>
-        <param name="password" type="hidden" value=""/>
+        <conditional name="predefined_cond">
+            <param name="predefined_sel" type="select" label="Use a predfinced OMERO server">
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </param>
+            <when value="yes">
+                <param name="omero_host" type="select" label="OMERO server">
+                    <options from_data_table="omero_servers"/>
+                    <validator type="no_options" message="No OMERO servers are defined. Contact your Galaxy administrator."/>
+                </param>
+            </when>
+            <when value="no">
+                <param name="omero_host" type="text" label="OMERO host URL">
+                    <validator type="regex" message="Enter a valid host location, for example, your.omero.server">^[a-zA-Z0-9._-]*$</validator>
+                </param>
+                <param name="omero_port" type="integer" value="4064" optional="false" label="OMERO host URL"/>
+            </when>
+        </conditional>
+        <param name="test_username" type="hidden" value=""/>
+        <param name="test_password" type="hidden" value=""/>
     </inputs>
     <outputs>
         <data name="log" format="txt"/>
     </outputs>
     <tests>
         <test>
-            <param name="omero_host" value="host.docker.internal"/>
-            <param name="omero_port" value="6064"/>
             <param name="folder" value="a1.bmp,b1.bmp"/>
-            <param name="username" value="root"/>
-            <param name="password" value="omero"/>
+            <conditional name="predefined_cond">
+                <param name="predefined_sel" value="yes"/>
+                <param name="omero_host" value="test_server"/>
+            </conditional>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
             <output name="log">
                 <assert_contents>
                     <has_n_lines n="2"/>
@@ -55,7 +78,26 @@
                 <has_text text="files uploaded, 2 filesets created, 2 images imported, 0 errors"/>
             </assert_stderr>
         </test>
-        <!-- Hint: You can use [ctrl+alt+t] after defining the inputs/outputs to auto-scaffold some basic test cases. -->
+        <test>
+            <param name="folder" value="a1.bmp,b1.bmp"/>
+            <conditional name="predefined_cond">
+                <param name="predefined_sel" value="no"/>
+                <param name="omero_host" value="host.docker.internal"/>
+                <param name="omero_port" value="6064"/>
+            </conditional>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="log">
+                <assert_contents>
+                    <has_n_lines n="2"/>
+                </assert_contents>
+            </output>
+            <assert_stderr>
+                <has_text_matching expression="IMPORT_DONE.*a1.bmp.bmp"/>
+                <has_text_matching expression="IMPORT_DONE.*b1.bmp.bmp"/>
+                <has_text text="files uploaded, 2 filesets created, 2 images imported, 0 errors"/>
+            </assert_stderr>
+        </test>
     </tests>
     <help><![CDATA[
 

@@ -336,6 +336,7 @@ jobs:
         repository-list: ${{ needs.setup.outputs.repository-list }}
         galaxy-fork: ${{ env.GALAXY_FORK }}
         galaxy-branch: ${{ env.GALAXY_BRANCH }}
+        additional-planemo-options: --docker_run_extra_arguments '--add-host=host.docker.internal:host-gateway'
         chunk: ${{ matrix.chunk }}
         chunk-count: ${{ needs.setup.outputs.chunk-count }}
         galaxy-slots: ${{ steps.cpu-cores.outputs.count }}

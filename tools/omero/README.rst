@@ -6,11 +6,8 @@ demo	OMERO demo server	demo.openmicroscopy.org	4064
 ```
 
 in the user_preferences file the admin needs to define a possibility for users to enter username and password.
-The name of the entry need to be the unique value from the data table prefixed by `omero_`.
+The name of the entry need to be the unique value from the data table prefixed by `omero_`::
 
-
-
-```
     omero_demo:
         description: Credentials for OMERO demo server
         inputs:
@@ -23,11 +20,9 @@ The name of the entry need to be the unique value from the data table prefixed b
               type: secret
               store: vault
               required: True
-```
 
-For users entering a manual omero server an entry
+For users entering a manual omero server an entry::
 
-```
     omero:
         description: Custom OMERO server credentials
         inputs:
@@ -40,4 +35,3 @@ For users entering a manual omero server an entry
               type: secret
               store: vault
               required: True
-```

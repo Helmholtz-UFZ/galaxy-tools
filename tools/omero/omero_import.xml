@@ -22,16 +22,21 @@
         #if $predefined_cond.predefined_sel == 'yes'
             -s $predefined_cond.omero_host.fields.server
             -p $predefined_cond.omero_host.fields.port
-            -u $__user__.extra_preferences.get('omero_'+$predefined_cond.omero_host.fields.server+'|username', $test_username)
-            -w $__user__.extra_preferences.get('omero_'+$predefined_cond.omero_host.fields.server+'|password', $test_password)
+            -u $__user__.extra_preferences.get('omero_'+$predefined_cond.omero_host.fields.value+'|username', $test_username)
         #else
             -s $predefined_cond.omero_host
             -p $predefined_cond.omero_port
             -u $__user__.extra_preferences.get('omero|username', $test_username)
-            -w $__user__.extra_preferences.get('omero|password', $test_password)
         #end if
         > $log
     ]]></command>
+    <environment_variables>
+        <environment_variable name="OMERO_PASSWORD"><![CDATA[#if $predefined_cond.predefined_sel == 'yes':
+$__user__.extra_preferences.get('omero_'+$predefined_cond.omero_host.fields.value+'|password', $test_password)
+#else
+$__user__.extra_preferences.get('omero|password', $test_password)
+#end if]]></environment_variable>
+    </environment_variables> 
     <inputs>
         <param name="folder" type="data" format="bmp" multiple="true" optional="false" label="Images"/>
         <conditional name="predefined_cond">
@@ -49,7 +54,7 @@
                 <param name="omero_host" type="text" label="OMERO host URL">
                     <validator type="regex" message="Enter a valid host location, for example, your.omero.server">^[a-zA-Z0-9._-]*$</validator>
                 </param>
-                <param name="omero_port" type="integer" value="4064" optional="false" label="OMERO host URL"/>
+                <param name="omero_port" type="integer" value="4064" optional="false" label="OMERO port"/>
             </when>
         </conditional>
         <param name="test_username" type="hidden" value=""/>

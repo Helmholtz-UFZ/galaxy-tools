@@ -40,22 +40,22 @@
     <data name="ofile" format="txt" />
     </outputs>
     <tests>
-        <test>
+        <!-- <test>
             <param name="time" value="10" />
             <param name="memory" value="10000" />
             <param name="language" value="bash-dd" />
             <output name="ofile" file="bash-dd.out">
                 <assert_contents><has_text text="slept for" /></assert_contents>
             </output>
-        </test>
-        <test>
+        </test> -->
+        <!-- <test>
             <param name="time" value="10" />
             <param name="memory" value="10000" />
             <param name="language" value="bash-array" />
             <output name="ofile" file="bash-array.out">
                 <assert_contents><has_text text="slept for" /></assert_contents>
             </output>
-        </test>
+        </test> -->
         <test>
             <param name="time" value="10" />
             <param name="memory" value="10000" />

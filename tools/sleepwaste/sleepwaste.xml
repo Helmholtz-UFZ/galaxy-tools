@@ -42,7 +42,7 @@
     <tests>
         <test>
             <param name="time" value="10" />
-            <param name="memory" value="10000000000" />
+            <param name="memory" value="10000" />
             <param name="language" value="bash-dd" />
             <output name="ofile" file="bash-dd.out">
                 <assert_contents><has_text text="slept for" /></assert_contents>
@@ -50,7 +50,7 @@
         </test>
         <test>
             <param name="time" value="10" />
-            <param name="memory" value="10000000000" />
+            <param name="memory" value="10000" />
             <param name="language" value="bash-array" />
             <output name="ofile" file="bash-array.out">
                 <assert_contents><has_text text="slept for" /></assert_contents>
@@ -58,7 +58,7 @@
         </test>
         <test>
             <param name="time" value="10" />
-            <param name="memory" value="10000000000" />
+            <param name="memory" value="10000" />
             <param name="language" value="python" />
             <output name="ofile" file="python.out">
                 <assert_contents><has_text text="slept for" /></assert_contents>
@@ -66,7 +66,7 @@
         </test>
         <test>
             <param name="time" value="10" />
-            <param name="memory" value="10000000000" />
+            <param name="memory" value="10000" />
             <param name="language" value="cpp" />
             <output name="ofile" file="cpp.out">
                 <assert_contents><has_text text="slept for" /></assert_contents>
@@ -74,7 +74,7 @@
         </test>
         <test>
             <param name="time" value="10" />
-            <param name="memory" value="10000000000" />
+            <param name="memory" value="10000" />
             <param name="language" value="c" />
             <output name="ofile" file="c.out">
                 <assert_contents><has_text text="slept for" /></assert_contents>
@@ -82,7 +82,7 @@
         </test>
         <test>
             <param name="time" value="10" />
-            <param name="memory" value="10000000000" />
+            <param name="memory" value="10000" />
             <param name="language" value="perl" />
             <output name="ofile" file="perl.out">
                 <assert_contents><has_text text="slept for" /></assert_contents>
@@ -90,7 +90,7 @@
         </test>
         <test>
             <param name="time" value="10" />
-            <param name="memory" value="10000000000" />
+            <param name="memory" value="10000" />
             <param name="language" value="java" />
             <output name="ofile" file="java.out">
                 <assert_contents><has_text text="slept for" /></assert_contents>

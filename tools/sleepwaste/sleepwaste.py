@@ -10,4 +10,4 @@ args = parser.parse_args()
 array = " "*(args.memory*1024*1024)
 time.sleep( args.time )
 
-print "slept for {time} s and {memory} MB".format( time = args.time, memory = args.memory )
+print("slept for {time} s and {memory} MB".format( time = args.time, memory = args.memory ))

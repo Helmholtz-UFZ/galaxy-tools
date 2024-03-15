@@ -1,0 +1,36 @@
+<tool id="baseline_1" name="Baseline Toxicity Calculator" version="0.1.0+galaxy0" python_template_version="3.5" profile="21.05">
+    <requirements>
+    </requirements>
+    <command detect_errors="exit_code">
+    <![CDATA[
+        python '$__tool_directory__/QSAR_gal.py' '$logDlipw' '$organism' '$output'
+    ]]>
+    </command>
+    <inputs>
+        <param argument="logDlipw" type="float" optional="false" label="logDlipw" help="The logDlipw value"/>
+        <param argument="organism" type="select" optional="false" label="organism" help="The organism for which to calculate log(1/EC)">
+            <option value="elegans">elegans</option>
+            <option value="daphnia">daphnia</option>
+            <option value="zebrafish">zebrafish</option>
+            <option value="xenopus">xenopus</option>
+            <option value="drosophila">drosophila</option>
+        </param>
+    </inputs>
+    <outputs>
+    	<data format="tabular" name="output" />
+    </outputs>
+    <tests>
+    <test>
+        <param name="logDlipw" value="0.1"/>
+        <param name="organism" value="elegans"/>
+        <output name="output" value="table.tsv" ftype="tabular"/>
+    </test>
+</tests>
+    <help>
+    ** What this tool do**
+Tool to calculate baseline toxicity for different organisms
+    </help>
+    <citations>
+        <citation type="doi">10.1016/j.jbiotec.2017.07.019</citation>
+    </citations>
+</tool>

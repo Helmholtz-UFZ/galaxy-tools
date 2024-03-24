@@ -11,7 +11,6 @@ parser.add_argument('--output', type=argparse.FileType('w'), help='Path for the 
 args = parser.parse_args()
 
 if args.function == 'calculate_baseline':
-    if args.csv_input is not None and args.output is not None:
         df = pd.read_csv(args.csv_input)
         df.iloc[:, 0] = df.iloc[:, 0].astype(int)
         df['C.elegans'] = 0.81 * df.iloc[:, 0] + 1.15
@@ -22,7 +21,6 @@ if args.function == 'calculate_baseline':
         df.to_csv(args.output, index=False)
 
 elif args.function == 'apply_linear_functions':
-    if args.csv_input is not None and args.functions_csv is not None and args.output is not None:
         df = pd.read_csv(args.csv_input)
         functions_df = pd.read_csv(args.functions_csv)
 

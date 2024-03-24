@@ -4,10 +4,10 @@ import argparse
 parser = argparse.ArgumentParser(description='Calculate baseline toxicity for different aquatic species')
 parser.add_argument('--function', type=str, choices=['calculate_baseline', 'apply_linear_functions'],
                     help='Function to execute')
-parser.add_argument('--csv_input', type=argparse.FileType('r'), help='Path to the input CSV file')
+parser.add_argument('--csv_input', type=argparse.FileType('r'), help='Path to the input csv file')
 parser.add_argument('--functions_csv', type=argparse.FileType('r'), default=None,
-                    help='Path to the CSV file containing functions (only for apply_linear_functions)')
-parser.add_argument('--output', type=argparse.FileType('w'), help='Path for the output CSV file')
+                    help='Path to the csv file containing functions (only for apply_linear_functions)')
+parser.add_argument('--output', type=argparse.FileType('w'), help='Path for the output csv file')
 args = parser.parse_args()
 
 if args.function == 'calculate_baseline':
@@ -26,7 +26,7 @@ elif args.function == 'apply_linear_functions':
 
 
         def parse_and_apply_equation(equation, x_values):
-            # Extract 'a' and 'b' from the equation string (assuming the format 'ax+b' or 'ax-b')
+            # Extract 'a' and 'b' from the equation  (assuming the format 'ax+b' or 'ax-b')
             parts = equation.replace('x', '').replace('+', ' ').replace('-', ' -').split()
             a = float(parts[0])
             b = float(parts[1]) if len(parts) > 1 else 0

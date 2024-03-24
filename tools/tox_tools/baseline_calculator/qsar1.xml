@@ -1,0 +1,45 @@
+<tool id="tox001" name="Baseline Toxicity Calculator" version="0.1.0+galaxy0" profile="21.05">
+    <requirements>
+        <requirement type="package" version="2.2.1">pandas</requirement>
+    </requirements>
+    <command detect_errors="aggressive"><![CDATA[
+    python '$__tool_directory__/qsar1.py'
+     --function '$function'
+     --csv_input '$csv_input'
+     --functions_csv '$function_csv'
+     --output '$output'
+    ]]></command>
+    <inputs>
+        <param name="function" type="select" label="Process to execute" help="Select pre-set QSAR models or personal linear functions">
+            <option value="calculate_baseline">Calculate_baseline</option>
+            <option value="apply_linear_functions">Apply_linear_functions</option>
+        </param>
+        <param name="csv_input" type="data" label="logD data input" format="tabular" help="Input your logD data as tabular file"/>
+        <param name="function_csv" type="data" optional="true" label="Personal linear functions input" format="tabular" help="Input your logD data as tabular fil"/>
+    </inputs>
+    <outputs>
+        <data name="output" format="tabular"/>
+    </outputs>
+        <tests>
+        <test>
+            <param name="function" value="calculate_baseline"/>
+            <param name="csv_input" value="qsar.tabular"/>
+            <param name="function_csv" value="functions.tabular"/>
+            <output name="output" value="qsar_result.tsv" ftype="tabular"/>
+        </test>
+        <test>
+            <param name="function" value="apply_linear_functions"/>
+            <param name="csv_input" value="qsar.tabular"/>
+            <param name="function_csv" value="functions.tabular"/>
+            <output name="output" value="qsar_result_2.tsv" ftype="tabular"/>
+        </test>
+    </tests>
+    <help>
+        Tool Features:
+        1) Calculate baseline toxicity (LC50) for 5 aquatic species. Results are given in mmol/liter
+        2) The user can also input its own linear function to predict toxicity
+    </help>
+    <citations>
+        <citation type="doi">10.1080/10629360902949153</citation>
+    </citations>
+</tool>

@@ -1,4 +1,5 @@
 import pandas as pd
+import re
 import argparse
 
 parser = argparse.ArgumentParser(description='Calculate baseline toxicity for different aquatic species')
@@ -27,9 +28,10 @@ elif args.function == 'apply_linear_functions':
 
         def parse_and_apply_equation(equation, x_values):
             # Extract 'a' and 'b' from the equation  (assuming the format 'ax+b' or 'ax-b')
-            parts = equation.replace('x', '').replace('+', ' ').replace('-', ' -').split()
-            a = float(parts[0])
-            b = float(parts[1]) if len(parts) > 1 else 0
+            pattern = re.compile(r'([+-]?\d*\.?\d*)x([+-]\d+)?')
+            match = pattern.search(equation)
+            a = float(match.group(1)) if match.group(1) not in ('', '+', '-') else 1.0
+            b = float(match.group(2)) if match.group(2) else 0
             return a * x_values + b
 
 

@@ -1,5 +1,6 @@
 import pandas as pd
 import argparse
+import re
 
 parser = argparse.ArgumentParser(description='Calculate baseline toxicity for different aquatic species')
 parser.add_argument('--function', type=str, choices=['calculate_baseline', 'apply_linear_functions'],
@@ -13,11 +14,10 @@ args = parser.parse_args()
 if args.function == 'calculate_baseline':
         df = pd.read_csv(args.csv_input)
         df.iloc[:, 0] = df.iloc[:, 0].astype(int)
-        df['C.elegans'] = 0.81 * df.iloc[:, 0] + 1.15
-        df['D.magna'] = 0.82 * df.iloc[:, 0] + 1.48
-        df['D.rerio'] = 0.99 * df.iloc[:, 0] + 0.78
-        df['X.laevis'] = 0.6093 * df.iloc[:, 0] + 2.117
-        df['D.melanogaster'] = 0.8245 * df.iloc[:, 0] + 0.5187
+        df['Caenorhabditis elegans [mol/L]'] = 10**(-(0.81 * df.iloc[:, 0] + 1.15))
+        df['Daphia magna [mol/L]'] = 10**(-(0.82 * df.iloc[:, 0] + 1.48))
+        df['Danio rerio [mol/L]'] = 10**(-(0.99 * df.iloc[:, 0] + 0.78))
+        df['Generic Human Cells [mol/L]'] = 0.026 / (10**df.iloc[:, 0]) * (1 + 10**(0.7*df.iloc[:, 0]+0.34) * 3 * 0.001 + 10**(3) * 0.07 * 0.001)
         df.to_csv(args.output, index=False)
 
 elif args.function == 'apply_linear_functions':
@@ -27,9 +27,10 @@ elif args.function == 'apply_linear_functions':
 
         def parse_and_apply_equation(equation, x_values):
             # Extract 'a' and 'b' from the equation  (assuming the format 'ax+b' or 'ax-b')
-            parts = equation.replace('x', '').replace('+', ' ').replace('-', ' -').split()
-            a = float(parts[0])
-            b = float(parts[1]) if len(parts) > 1 else 0
+            pattern = re.compile(r'([+-]?\d*\.?\d*)x([+-]\d+)?')
+            match = pattern.search(equation)
+            a = float(match.group(1)) if match.group(1) not in ('', '+', '-') else 1.0
+            b = float(match.group(2)) if match.group(2) else 0
             return a * x_values + b
 
 

@@ -24,14 +24,14 @@ if args.function == 'calculate_baseline':
 elif args.function == 'apply_linear_functions':
   df = pd.read_csv(args.csv_input)
   functions_df = pd.read_csv(args.functions_csv)
-        def parse_and_apply_equation(equation, x_values):
-            # Extract 'a' and 'b' from the equation  (assuming the format 'ax+b' or 'ax-b')
-            pattern = re.compile(r'([+-]?\d*\.?\d*)x([+-]\d+)?')
-            match = pattern.search(equation)
-            a = float(match.group(1)) if match.group(1) not in ('', '+', '-') else 1.0
-            b = float(match.group(2)) if match.group(2) else 0
-            return a * x_values + b
-        for i, row in functions_df.iterrows():
-            func = row['function']
-            df[f'result_{i}'] = parse_and_apply_equation(func, df['logD'])
-        df.to_csv(args.output, index=False)
+    def parse_and_apply_equation(equation, x_values):
+        # Extract 'a' and 'b' from the equation  (assuming the format 'ax+b' or 'ax-b')
+        pattern = re.compile(r'([+-]?\d*\.?\d*)x([+-]\d+)?')
+        match = pattern.search(equation)
+        a = float(match.group(1)) if match.group(1) not in ('', '+', '-') else 1.0
+        b = float(match.group(2)) if match.group(2) else 0
+        return a * x_values + b
+    for i, row in functions_df.iterrows():
+        func = row['function']
+        df[f'result_{i}'] = parse_and_apply_equation(func, df['logD'])
+    df.to_csv(args.output, index=False)

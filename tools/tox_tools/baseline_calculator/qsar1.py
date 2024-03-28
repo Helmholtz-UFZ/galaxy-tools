@@ -18,14 +18,12 @@ if args.function == 'calculate_baseline':
     df['Caenorhabditis elegans [mol/L]'] = 10 ** (-(0.81 * df.iloc[:, 0] + 1.15))
     df['Daphia magna [mol/L]'] = 10 ** (-(0.82 * df.iloc[:, 0] + 1.48))
     df['Danio rerio [mol/L]'] = 10 ** (-(0.99 * df.iloc[:, 0] + 0.78))
-    df['Generic Human Cells [mol/L]'] = 0.026 / (10 ** df.iloc[:, 0]) * (
-                1 + 10 ** (0.7 * df.iloc[:, 0] + 0.34) * 3 * 0.001 + 10 ** 3 * 0.07 * 0.001)
+    df['Generic Human Cells [mol/L]'] = 0.026 / (10 ** df.iloc[:, 0]) * (1 + 10 ** (0.7 * df.iloc[:, 0] + 0.34) * 3 * 0.001 + 10 ** 3 * 0.07 * 0.001)
     df.to_csv(args.output, index=False)
 
 elif args.function == 'apply_linear_functions':
     df = pd.read_csv(args.csv_input)
     functions_df = pd.read_csv(args.functions_csv)
-
 
     def parse_and_apply_equation(equation, x_values):
         # Extract 'a' and 'b' from the equation  (assuming the format 'ax+b' or 'ax-b')
@@ -34,7 +32,6 @@ elif args.function == 'apply_linear_functions':
         a = float(match.group(1)) if match.group(1) not in ('', '+', '-') else 1.0
         b = float(match.group(2)) if match.group(2) else 0
         return a * x_values + b
-
 
     for i, row in functions_df.iterrows():
         func = row['function']

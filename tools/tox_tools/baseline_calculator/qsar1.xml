@@ -1,0 +1,67 @@
+<tool id="tt_baseline" name="Baseline toxicity calculator" version="0.1.0+galaxy0">
+    <description>Toxicity prediction tool</description>
+    <creator>
+        <organization name="Helmholtz Centre for Environmental Research - UFZ, Department of Ecotoxicology" url ="https://www.ufz.de/index.php?en=34241"/>
+    </creator>
+    <requirements>
+        <requirement type="package" version="2.2.1">pandas</requirement>
+    </requirements>
+    <command detect_errors="aggressive"><![CDATA[
+    python '$__tool_directory__/qsar1.py'
+     --function '$function'
+     --csv_input '$csv_input'
+     #if $function == "apply_linear_functions"
+     --functions_csv '$function_csv'
+     #end if
+     --output '$output'
+    ]]></command>
+ <inputs>
+    <conditional name="function_cond">
+        <param name="function" type="select" label="Process to execute" help="Select pre-set QSAR models or personal linear functions">
+            <option value="calculate_baseline">Pre-defined QSARs</option>
+            <option value="apply_linear_functions">Personal Linear Functions</option>
+        </param>
+        <when value="calculate_baseline">
+        </when>
+        <when value="apply_linear_functions">
+            <param name="function_csv" type="data" label="Personal linear functions input" format="tabular" help="Input your logD data as tabular file"/>
+        </when>
+    </conditional>
+    <param name="csv_input" type="data" label="logD data input" format="tabular" help="Input your logD data as tabular file"/>
+</inputs>
+    <outputs>
+        <data name="output" format="tabular"/>
+    </outputs>
+        <tests>
+        <test>
+            <param name="function" value="calculate_baseline"/>
+            <param name="csv_input" value="qsar.tabular"/>
+            <output name="output" value="qsar_result.tsv" ftype="tabular"/>
+        </test>
+        <test>
+            <param name="function" value="apply_linear_functions"/>
+            <param name="csv_input" value="qsar.tabular"/>
+            <param name="function_csv" value="functions.tabular"/>
+            <output name="output" value="qsar_result_2.tsv" ftype="tabular"/>
+        </test>
+    </tests>
+    <help>
+        Features:
+        *calculate_baseline*
+        *** Estimate the EC50 for four different species. EC50 are expressed in mol/L ***
+        + Danio rerio log(1/EC50)= 0.99 * logDlipw + 0.78
+        + Caenorhabditis elegans log(1/EC50)= 0.81 * logDlipw + 1.15
+        + Daphnia magna log(1/EC50)= 0.82 * logDlipw + 1.48
+        + Generic Human Cell log(1/EC50)= 0.026 / (10**logDlipw) * (1 + 10**(0.7*logDlipw+0.34) * 3 * 0.001 + 10**(3) * 0.07 * 0.001)
+        *apply_linear_functions*
+        *** Estimate the EC50 or based on user input linear functions (assuming the format 'ax+b' or 'ax-b') ***
+
+        Input format: Tabular file with column  header and integers values for rows
+        Functions input: Tabular file with one column header and linear function in the format 'ax+b' or 'ax-b' for rows
+    </help>
+    <citations>
+    <citation type="doi">10.1021/acs.est.2c05217</citation>
+    <citation type="doi">10.1016/j.aquatox.2018.12.003</citation>
+    <citation type="doi">10.1016/S0048-9697(98)00157-0</citation>
+    </citations>
+</tool>

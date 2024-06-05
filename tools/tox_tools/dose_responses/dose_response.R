@@ -41,10 +41,10 @@ plot_dose_response <- function(model, data, ec_values, concentration_col, respon
     geom_vline(xintercept = ec_values$EC50[1], color = "purple", linetype = "dashed") +
     labs(title = "Dose-Response Curve", x = "Concentration", y = "Effect") +
     theme_minimal() +
-  theme(
-    panel.background = element_rect(fill = "white", color = NA),  # Set panel background to white
-    plot.background = element_rect(fill = "white", color = NA)    # Set plot background to white
-  )
+    theme(
+      panel.background = element_rect(fill = "white", color = NA),  # Set panel background to white
+      plot.background = element_rect(fill = "white", color = NA)    # Set plot background to white
+    )
   ggsave(filename = plot_file, plot = p, device = "jpeg")
 }
 

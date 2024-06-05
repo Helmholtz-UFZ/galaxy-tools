@@ -1,9 +1,9 @@
 categories:
   - Ecology
   - Text Manipulation
-description: Toxicity prediction using QSAR models
-long_description: Toxicity prediction using QSAR models. Possible to select pre-defined models as well as user inputs.
+description: Toxicity prediction tool - Dose response Curve
+long_description: Tool to perform dose-response analysis. The tool generates a dose-response plot, and calculates EC values (EC10, EC25, EC50).
 name: Dose Response Curve for Toxicological Risk Assessement
 owner: ufz
-homepage_url: https://github.com/bernt-matthias/mb-galaxy-tools
-remote_repository_url: https://github.com/bernt-matthias/mb-galaxy-tools/tools/tox_tools/baseline_calculator
+homepage_url: https://github.com/Helmholtz-UFZ/galaxy-tools
+remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/mb-galaxy-tools/tools/tox_tools/dose_responses

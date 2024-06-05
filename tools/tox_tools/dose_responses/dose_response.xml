@@ -22,10 +22,10 @@
     <inputs>
         <param name="input_csv" type="data" format="csv" label="Input CSV file"/>
         <param name="concentration_column" type="text" label="Concentration Column" help="Name of the column for concentration values"/>
-        <param name="response_column" type="text" label="Response Column" help="Name of the column for response values (e.g., lethal)"/>
+        <param name="response_column" type="text" label="Response Column" help="Name of the column for response values"/>
     </inputs>
     <outputs>
-        <data name="plot_output" format="jpg" label="Dose Response Plot"/>
+        <data name="plot_output" format="jpeg" label="Dose Response Plot"/>
         <data name="ec_output" format="csv" label="EC Values"/>
     </outputs>
             <tests>
@@ -33,22 +33,21 @@
             <param name="input_csv" value="test_summary.csv"/>
             <param name="concentration_column" value="concentration"/>
             <param name="response_column" value="lethal"/>
-            <output name="plot_output" value="plot.jpg" ftype="jpg"/>
-            <output name="ec_output" value="ec50.csv" ftype="csv"/>
+            <output name="plot_output" value="result.jpeg" ftype="jpeg"/>
+            <output name="ec_output" value="results_EC.csv" ftype="csv" />
         </test>
     </tests>
     <help><![CDATA[
-        This tool performs dose-response analysis on the provided CSV file, generates a dose-response plot, and calculates EC values (EC10, EC25, EC50).
+        This tool performs dose-response analysis on the provided CSV file,
+        generates a dose-response plot, and calculates EC values (EC10, EC25, EC50).
 
         - `input_csv`: A CSV file containing the dose-response data.
         - `concentration_column`: The name of the column in the CSV file that contains the concentration values.
-        - `response_column`: The name of the column in the CSV file that contains the response values (e.g., lethal)
+        - `response_column`: The name of the column in the CSV file that contains the response values
         - `plot_output`: A JPG image file of the dose-response plot.
         - `ec_output`: A CSV file containing the calculated EC values.
     ]]></help>
         <citations>
-    <citation type="doi">10.1021/acs.est.2c05217</citation>
-    <citation type="doi">10.1016/j.aquatox.2018.12.003</citation>
-    <citation type="doi">10.1016/S0048-9697(98)00157-0</citation>
+    <citation type="doi">10.1371/journal.pone.0146021</citation>
     </citations>
 </tool>

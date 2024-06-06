@@ -1,4 +1,4 @@
-<tool id="dr_curve" name="Dose Response Curve for Toxicological Risk Assessment" version="@TOOL_VERSION@.galaxy@VERSION_SUFFIX@">
+<tool id="dr_curve" name="Dose Response Curve for Toxicological Risk Assessment" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0">
     <description>Toxicity prediction tool -  Dose response Curve</description>
     <macros>
         <token name="@TOOL_VERSION@">3.0_1</token>

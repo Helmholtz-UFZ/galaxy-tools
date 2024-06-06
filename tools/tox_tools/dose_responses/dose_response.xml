@@ -1,4 +1,4 @@
-<tool id="dr_curve" name="Dose Response Curve for Toxicological Risk Assessement" version="0.1.0+galaxy0">
+<tool id="dr_curve" name="Dose Response Curve for Toxicological Risk Assessement" version="3.0_1.galaxy0">
     <description>Toxicity prediction tool -  Dose response Curve</description>
     <creator>
         <organization name="Helmholtz Centre for Environmental Research - UFZ, Department of Ecotoxicology"
@@ -21,7 +21,7 @@
     </command>
     <inputs>
         <param name="input_csv" type="data" format="tabular" label="Concentration - Response Tabular Input"/>
-        <param name="concentration_column" type="data_column" label="Concentration Column" help="Name of the column for concentration values"/>
+        <param name="concentration_column" type="data_column" data_ref="input_csv" label="Concentration Column" help="Name of the column for concentration values"/>
         <param name="response_column" type="data_column" label="Response Column" help="Name of the column for response values"/>
     </inputs>
     <outputs>

@@ -20,20 +20,20 @@
         ]]>
     </command>
     <inputs>
-        <param name="input_csv" type="data" format="csv" label="Input CSV file"/>
-        <param name="concentration_column" type="text" label="Concentration Column" help="Name of the column for concentration values"/>
-        <param name="response_column" type="text" label="Response Column" help="Name of the column for response values"/>
+        <param name="input_csv" type="data" format="tabular" label="Concentration - Response Tabular Input"/>
+        <param name="concentration_column" type="data_column" label="Concentration Column" help="Name of the column for concentration values"/>
+        <param name="response_column" type="data_column" label="Response Column" help="Name of the column for response values"/>
     </inputs>
     <outputs>
-        <data name="plot_output" format="jpeg" label="Dose Response Plot"/>
-        <data name="ec_output" format="csv" label="EC Values"/>
+        <data name="plot_output" format="jpg" label="Dose Response Plot"/>
+        <data name="ec_output" format="tabular" label="${tool.name} on ${on_string}: EC Values"/>
     </outputs>
-            <tests>
+        <tests>
         <test>
             <param name="input_csv" value="test_summary.csv"/>
             <param name="concentration_column" value="concentration"/>
             <param name="response_column" value="lethal"/>
-            <output name="plot_output" value="result.jpeg" ftype="jpeg"/>
+            <output name="plot_output" value="result.jpeg" ftype="jpg"/>
             <output name="ec_output" value="results_EC.csv" ftype="csv" />
         </test>
     </tests>

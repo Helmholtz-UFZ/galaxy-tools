@@ -3,12 +3,18 @@ library("ggplot2")
 
 fit_models <- function(data, concentration_col, response_col) {
   models <- list(
-    LL.2 = drm(data[[response_col]] ~ data[[concentration_col]], data = data, fct = LL.2(), type = "binomial"),
-    LL.3 = drm(data[[response_col]] ~ data[[concentration_col]], data = data, fct = LL.3(), type = "binomial"),
-    LL.4 = drm(data[[response_col]] ~ data[[concentration_col]], data = data, fct = LL.4(), type = "binomial"),
-    LL.5 = drm(data[[response_col]] ~ data[[concentration_col]], data = data, fct = LL.5(), type = "binomial"),
-    W1.4 = drm(data[[response_col]] ~ data[[concentration_col]], data = data, fct = W1.4(), type = "binomial"),
-    W2.4 = drm(data[[response_col]] ~ data[[concentration_col]], data = data, fct = W2.4(), type = "binomial")
+    LL.2 = drm(data[[response_col]] ~ data[[concentration_col]], data = data, 
+    fct = LL.2(), type = "binomial"),
+    LL.3 = drm(data[[response_col]] ~ data[[concentration_col]], data = data, 
+    fct = LL.3(), type = "binomial"),
+    LL.4 = drm(data[[response_col]] ~ data[[concentration_col]], data = data, 
+    fct = LL.4(), type = "binomial"),
+    LL.5 = drm(data[[response_col]] ~ data[[concentration_col]], data = data, 
+    fct = LL.5(), type = "binomial"),
+    W1.4 = drm(data[[response_col]] ~ data[[concentration_col]], data = data, 
+    fct = W1.4(), type = "binomial"),
+    W2.4 = drm(data[[response_col]] ~ data[[concentration_col]], data = data,
+    fct = W2.4(), type = "binomial")
   )
   return(models)
 }
@@ -28,31 +34,42 @@ calculate_ec_values <- function(model) {
 }
 
 # Function to plot dose-response curve using base R and save as JPG
-plot_dose_response <- function(model, data, ec_values, concentration_col, response_col, plot_file) {
-  concentration_grid <- seq(min(data[[concentration_col]]), max(data[[concentration_col]]), length.out = 100)
+plot_dose_response <- function(model, data, ec_values, concentration_col, 
+response_col, plot_file) {
+  concentration_grid <- seq(min(data[[concentration_col]]), 
+  max(data[[concentration_col]]), length.out = 100)
   prediction_data <- data.frame(concentration_grid)
   colnames(prediction_data) <- concentration_col
-  predicted_values <- predict(model, newdata = prediction_data, type = "response")
+  predicted_values <- predict(model, newdata = prediction_data, 
+  type = "response")
   prediction_data$response <- predicted_values
-  p <- ggplot(data, aes_string(x = concentration_col, y = response_col)) +
+  p <- ggplot(data, aes_string(x = concentration_col, 
+  y = response_col)) +
     geom_point(color = "red") +
-    geom_line(data = prediction_data, aes_string(x = concentration_col, y = "response"), color = "blue") +
-    geom_vline(xintercept = ec_values$EC10[1], color = "green", linetype = "dashed") +
-    geom_vline(xintercept = ec_values$EC50[1], color = "purple", linetype = "dashed") +
-    labs(title = "Dose-Response Curve", x = "Concentration", y = "Effect") +
+    geom_line(data = prediction_data, 
+    aes_string(x = concentration_col, y = "response"), color = "blue") +
+    geom_vline(xintercept = ec_values$EC10[1], 
+    color = "green", linetype = "dashed") +
+    geom_vline(xintercept = ec_values$EC50[1], 
+    color = "purple", linetype = "dashed") +
+    labs(title = "Dose-Response Curve", x = "Concentration", 
+    y = "Effect") +
     theme_minimal() +
     theme(
-      panel.background = element_rect(fill = "white", color = NA),  # Set panel background to white
-      plot.background = element_rect(fill = "white", color = NA)    # Set plot background to white
+      panel.background = element_rect(fill = "white", color = NA), 
+      plot.background = element_rect(fill = "white", color = NA)  
     )
-  ggsave(filename = plot_file, plot = p, device = "jpeg")
+
+  ggsave(filename = plot_file, plot = p, device = "jpg")
 }
 
-dose_response_analysis <- function(data, concentration_col, response_col, plot_file, ec_file) {
+dose_response_analysis <- function(data, concentration_col, 
+response_col, plot_file, ec_file) {
   models <- fit_models(data, concentration_col, response_col)
   best_model_info <- select_best_model(models)
   ec_values <- calculate_ec_values(best_model_info$model)
-  plot_dose_response(best_model_info$model, data, ec_values, concentration_col, response_col, plot_file)
+  plot_dose_response(best_model_info$model, data, ec_values, 
+  concentration_col, response_col, plot_file)
 
   ec_data <- data.frame(
     EC10 = ec_values$EC10[1],
@@ -74,4 +91,5 @@ ec_file <- args[5]
 
 # Perform dose-response analysis
 data <- read.csv(data_file, header = TRUE)
-dose_response_analysis(data, concentration_col, response_col, plot_file, ec_file)
+dose_response_analysis(data, concentration_col, response_col, 
+plot_file, ec_file)

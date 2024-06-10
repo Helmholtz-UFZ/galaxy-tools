@@ -54,7 +54,7 @@ jobs:
         echo 'base_ref: ${{ github.base_ref }}'
         echo 'event.before: ${{ github.event.before }}'
         echo 'event.after: ${{ github.event.after }}'
-        echo 'repository_owner ${{ github.repository_owner }}'
+        echo 'repository_owner: ${{ github.repository_owner }}'
     - name: Determine latest commit in the Galaxy repo
       id: get-galaxy-sha
       run: echo "galaxy-head-sha=$(git ls-remote https://github.com/${{ env.GALAXY_FORK }}/galaxy refs/heads/${{ env.GALAXY_BRANCH }} | cut -f1)" >> $GITHUB_OUTPUT
@@ -377,7 +377,7 @@ jobs:
   deploy:
     name: Deploy
     needs: [setup, lint, combine_outputs]
-    if: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' ) && github.repository_owner == 'bernt-matthias' }}
+    if: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' ) && github.repository_owner == 'Helmholtz-UFZ' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -414,7 +414,7 @@ jobs:
   deploy-report:
     name: Report deploy status
     needs: [deploy]
-    if: ${{ always() && needs.deploy.result != 'success' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' ) && github.repository_owner == 'bernt-matthias' }}
+    if: ${{ always() && needs.deploy.result != 'success' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' ) && github.repository_owner == 'Helmholtz-UFZ' }}
     runs-on: ubuntu-latest
     steps:
     # report to the PR if deployment failed

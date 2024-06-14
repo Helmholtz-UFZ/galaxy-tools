@@ -1,11 +1,15 @@
-<tool id="dr_curve" name="Dose Response Curve for Toxicological Risk Assessement" version="0.1.0+galaxy0">
-    <description> Toxicity prediction tool - Dose response Curve</description>
+<tool id="dr_curve" name="Dose Response Curve for Toxicological Risk Assessment" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0">
+    <description>Toxicity prediction tool -  Dose response Curve</description>
+    <macros>
+        <token name="@TOOL_VERSION@">3.0_1</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
     <creator>
         <organization name="Helmholtz Centre for Environmental Research - UFZ, Department of Ecotoxicology"
                       url ="https://www.ufz.de/index.php?en=34241"/>
     </creator>
     <requirements>
-        <requirement type="package" version="3.0_1">r-drc</requirement>
+        <requirement type="package" version="@TOOL_VERSION@">r-drc</requirement>
         <requirement type="package" version="4.3.3">r-base</requirement>
         <requirement type="package" version="3.5.1">r-ggplot2</requirement>
     </requirements>
@@ -20,20 +24,20 @@
         ]]>
     </command>
     <inputs>
-        <param name="input_csv" type="data" format="csv" label="Input CSV file"/>
-        <param name="concentration_column" type="text" label="Concentration Column" help="Name of the column for concentration values"/>
-        <param name="response_column" type="text" label="Response Column" help="Name of the column for response values"/>
+        <param name="input_csv" type="data" format="tabular" label="Concentration - Response Tabular Input"/>
+        <param name="concentration_column" type="data_column" data_ref="input_csv" label="Concentration Column" help="Name of the column for concentration values"/>
+        <param name="response_column" type="data_column" label="Response Column" help="Name of the column for response values"/>
     </inputs>
     <outputs>
-        <data name="plot_output" format="jpeg" label="Dose Response Plot"/>
-        <data name="ec_output" format="csv" label="EC Values"/>
+        <data name="plot_output" format="jpg" label="Dose Response Plot"/>
+        <data name="ec_output" format="tabular" label="${tool.name} on ${on_string}: EC Values"/>
     </outputs>
-            <tests>
+        <tests>
         <test>
-            <param name="input_csv" value="test_summary.csv"/>
+            <param name="input_csv" value="test_summary.tsv"/>
             <param name="concentration_column" value="concentration"/>
             <param name="response_column" value="lethal"/>
-            <output name="plot_output" value="result.jpeg" ftype="jpeg"/>
+            <output name="plot_output" value="result.jpeg" ftype="jpg"/>
             <output name="ec_output" value="results_EC.csv" ftype="csv" />
         </test>
     </tests>

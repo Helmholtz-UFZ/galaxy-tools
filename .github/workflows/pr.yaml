@@ -304,6 +304,17 @@ jobs:
           singularity pull --dir /tmp docker://continuumio/anaconda3
           singularity pull --dir /tmp docker://rocker/tidyverse
         fi
+    # download or create large test data via script
+    - name: create test data
+      run: |
+           echo '${{ needs.setup.outputs.repository-list }}' > repository_list.txt
+           while read repo
+           do
+               if [ -x $repo/test-data.sh ]; then
+                   cd $repo
+                   ./test-data.sh
+               fi
+           done < repository_list.txt
 
     - name: Planemo test
       uses: galaxyproject/planemo-ci-action@v1

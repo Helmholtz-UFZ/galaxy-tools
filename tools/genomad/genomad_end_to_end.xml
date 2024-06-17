@@ -1,4 +1,4 @@
-<tool id="genomad_end_to_end" name="geNomad: end-to-end" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0" license="MIT">
+<tool id="genomad_end_to_end" name="geNomad" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0" license="MIT">
     <description>identify virus and plasmid genomes from nucleotide sequences</description>
     <macros>
         <token name="@TOOL_VERSION@">1.8.0</token>
@@ -168,6 +168,8 @@
 
 geNomad is a tool that identifies virus and plasmid genomes from nucleotide sequences.
 For details on the function refer to the citation or https://portal.nersc.gov/genomad/index.html.
+
+This Galaxy tool executed the ent-to-end geNomad workflow.
 
 Usage
 .....

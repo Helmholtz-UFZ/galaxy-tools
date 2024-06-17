@@ -1,0 +1,13 @@
+creating of a smaller reference database: https://github.com/apcamargo/genomad/issues/104#issuecomment-2170949010
+
+- Download reference db v1.7
+- store in dir genomad_db in test-data
+- run test and get ids with `awk -v FS="\t" 'NR>1 && $9!="NA" {print $9}' output/sequence_annotate/sequence_genes.tsv | sort -u > markers
+- join -1 2 -2 1 genomad_db/genomad_db.lookup markers | cut -d" " -f 2 | sort -u -n > sorted_markers
+- cd genomad_db 
+- `mmseqs createsubdb ~/projects/tools-iuc/tools/genomad/test-data/sorted_markers genomad_db genomad_microdb`
+- mv genomad_microdb.index genomad_db.index
+- mv genomad_microdb.dbtype genomad_db.dbtype
+- mv genomad_microdb genomad_db
+- genomad_microdb*
+

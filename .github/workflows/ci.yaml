@@ -150,6 +150,31 @@ jobs:
       id: cpu-cores
     - name: Clean dotnet folder for space
       run: rm -Rf /usr/share/dotnet
+
+    # the following 3 steps are needed for testing the scripting tool
+    - name: Install Apptainer's singularity
+      uses: eWaterCycle/setup-apptainer@v2
+    - name: Symlink singularity
+      run: ln -s $(which apptainer) $(dirname apptainer)/singularity
+    - name: Install containers
+      run: |
+        echo "${{ needs.setup.outputs.repository-list }}" > repository_list.txt
+        if grep -q scripting repository_list.txt; then
+          singularity pull --dir /tmp docker://continuumio/anaconda3
+          singularity pull --dir /tmp docker://rocker/tidyverse
+        fi
+    # download or create large test data via script
+    - name: create test data
+      run: |
+           echo '${{ needs.setup.outputs.repository-list }}' > repository_list.txt
+           while read repo
+           do
+               if [ -x $repo/test-data.sh ]; then
+                   cd $repo
+                   ./test-data.sh
+               fi
+           done < repository_list.txt
+
     - name: Planemo test
       uses: galaxyproject/planemo-ci-action@v1
       id: test

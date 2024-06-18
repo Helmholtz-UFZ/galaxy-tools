@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<tool id="genomad_build_database" name="geNomad" tool_type="manage_data" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+    <description>database builder</description>
+    <macros>
+        <token name="@TOOL_VERSION@">1.8.0</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@PROFILE@">22.01</token>
+    </macros>
+    <requirements>
+        <requirement type="package" version="1.21.4">wget</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        set -eo pipefail; 
+        wget -O - 
+            ## #if $version == "test"
+            ##     https://zenodo.org/records/11945948/files/genomad_microdb.tar.gz?download=1
+            ## #else
+                https://zenodo.org/records/10594875/files/genomad_db_v${version}.tar.gz?download=1
+            ## #end if
+        | tar -xzv &&
+        cp '$dmjson' '$out_file'
+    ]]></command>
+    <configfiles>
+        <configfile name="dmjson"><![CDATA[
+{
+  "data_tables":{
+    "genomad":[
+      {
+        "path":"genomad_db",
+        "name":"Version $version",
+        "value":"$version"
+      }
+    ]
+  }
+}]]>
+        </configfile>
+    </configfiles>
+    <inputs>
+        <param name="version" type="select" multiple="false" label="Database Version" help="Download the chosen version from https://zenodo.org/records/10594875">
+            <option value="1.7">1.7</option>
+            <!-- <option value="test">test</option> -->
+        </param>
+    </inputs>
+    <outputs>
+        <data name="out_file" format="data_manager_json" />
+    </outputs>
+    <tests>
+        <test expect_num_outputs="1">
+            <param name="version" value="1.7" />
+            <output name="out_file">
+                <assert_contents>
+                    <has_text text='"value":"1.7"'/>
+                    <has_text text='"name":"Version 1.7"'/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+Download and extract geNomad database from https://zenodo.org/records/10594875
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1186/gb-2014-15-3-r46</citation>
+    </citations>
+</tool>

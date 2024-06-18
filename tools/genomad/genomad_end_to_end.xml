@@ -62,7 +62,8 @@
         <param argument="INPUT" type="data" format="fasta" label="Input sequences" help="geNomad will work for isolate genomes, metagenomes, and metatranscriptomes"/>
         <param name="DATABASE" type="select" label="Reference data" help="">
             <options from_data_table="genomad"/>
-            <validator type="in_range" min="@MIN_DB_VERSION@"/>
+            <!-- TODO needs to be activated with https://github.com/galaxyproject/galaxy/pull/18411
+                <validator type="in_range" min="@MIN_DB_VERSION@"/> -->
         </param>
         <conditional name="filter_cond">
             <param name="filtering_preset" type="select" label="Filtering presets" help="After classification, sequences are further filtered to remove possible false positives. The --conservative preset makes those filters even more aggressive, resulting in more restricted sets of plasmid and virus, containing only sequences whose classification is strongly supported. The --relaxed preset disables all post-classification filters.">

@@ -1,0 +1,18 @@
+categories:
+- Metagenomics
+description: VirSorter2 applies a multi-classifier, expert-guided approach to detect diverse DNA and RNA virus genomes.
+long_description: |
+  VirSorter2 applies a multi-classifier, expert-guided approach to detect diverse DNA and RNA virus genomes.
+name: virsorter
+owner: ufz
+homepage_url: https://github.com/jiarong/VirSorter2/
+remote_repository_url: https://github.com/Helmholtz-UFZ/ufz-galaxy-tools/blob/main/tools/virsorter
+type: unrestricted
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: "Wrapper for virsorter function: {{ tool_name }}."
+suite:
+  name: "suite_virsorter"
+  description: "A suite of tools that brings the virsorter project into Galaxy."
+  long_description: |
+    VirSorter2 applies a multi-classifier, expert-guided approach to detect diverse DNA and RNA virus genomes.

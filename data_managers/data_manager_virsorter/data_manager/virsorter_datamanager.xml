@@ -12,6 +12,7 @@
     </macros>
     <requirements>
         <requirement type="package" version="@TOOL_VERSION@">virsorter</requirement>
+        <requirement type="package" version="1.21.4">wget</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         virsorter setup -d db -j \${GALAXY_SLOTS:-1} --skip-deps-install &&

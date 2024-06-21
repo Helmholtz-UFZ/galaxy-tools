@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<tool id="virsorter_build_database" name="virsorter" tool_type="manage_data" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+    <description>database builder</description>
+    <macros>
+        <token name="@TOOL_VERSION@">2.2.4</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@PROFILE@">22.01</token>
+        <!-- zenodo ID and therebut the version of the reference data is hardcoded in the current version virsorter:
+             https://github.com/jiarong/VirSorter2/blob/c0dcac53f3373244bf1bd552a7c2104d53802df7/virsorter/rules/setup.smk#L13 
+             check and update the DB version when updating the VS version -->
+        <token name="@VIRSORTER_DB_VERSION@">0.4</token>
+    </macros>
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">virsorter</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        virsorter setup -d db -j \${GALAXY_SLOTS:-1} --skip-deps-install &&
+        cp '$dmjson' '$out_file'
+    ]]></command>
+    <configfiles>
+        <configfile name="dmjson"><![CDATA[
+{
+  "data_tables":{
+    "virsorter":[
+      {
+        "path":"db",
+        "name":"Version @VIRSORTER_DB_VERSION@",
+        "value":"@VIRSORTER_DB_VERSION@"
+      }
+    ]
+  }
+}]]>
+        </configfile>
+    </configfiles>
+    <inputs/>
+    <outputs>
+        <data name="out_file" format="data_manager_json" />
+    </outputs>
+    <tests>
+        <test expect_num_outputs="1">
+            <output name="out_file">
+                <assert_contents>
+                    <has_text text='"value":"@VIRSORTER_DB_VERSION@"'/>
+                    <has_text text='"name":"Version @VIRSORTER_DB_VERSION@"'/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+Download and extract virsorter database version @VIRSORTER_DB_VERSION@ from zenodo (https://zenodo.org/records/10594875)
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1186/gb-2014-15-3-r46</citation>
+    </citations>
+</tool>

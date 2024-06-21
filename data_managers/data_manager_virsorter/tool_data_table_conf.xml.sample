@@ -1,0 +1,8 @@
+<tables>
+    <!-- virsorter reference data  -->
+    <table name="virsorter" comment_char="#">
+        <!-- value should be the version (https://zenodo.org/records/4297575)  -->
+        <columns>value, name, path</columns>
+        <file path="tool-data/virsorter.loc" />
+    </table>
+</tables>

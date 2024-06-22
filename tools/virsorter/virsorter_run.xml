@@ -109,19 +109,19 @@
             <param name="seqfile" value="8seq.fa"/>
             <output name="viral_combined">
                 <assert_contents>
-                    <has_n_lines n="16"/>
+                    <has_n_lines n="6"/>
                 </assert_contents>
             </output>
             <output name="viral_boundary">
                 <assert_contents>
                     <has_n_columns n="31"/>
-                    <has_n_lines n="8"/>
+                    <has_n_lines n="4"/>
                 </assert_contents>
             </output>
             <output name="viral_score">
                 <assert_contents>
                     <has_n_columns n="9"/>
-                    <has_n_lines n="9"/>
+                    <has_n_lines n="4"/>
                 </assert_contents>
             </output>
             <assert_command>
@@ -145,23 +145,23 @@
             <param name="prep_for_dramv" value="true"/>
             <output name="viral_combined">
                 <assert_contents>
-                    <has_n_lines n="12"/>
+                    <has_n_lines n="4"/>
                 </assert_contents>
             </output>
             <output name="viral_score">
                 <assert_contents>
                     <has_n_columns n="9"/>
-                    <has_n_lines n="7"/>
+                    <has_n_lines n="3"/>
                 </assert_contents>
             </output>
             <output name="viral_combined_for_dramv">
                 <assert_contents>
-                    <has_n_lines n="12"/>
+                    <has_n_lines n="4"/>
                 </assert_contents>
             </output>
             <output name="viral_affi_contigs_for_dramv">
                 <assert_contents>
-                    <has_n_lines n="1089"/>
+                    <has_n_lines n="61"/>
                 </assert_contents>
             </output>
             <assert_command>

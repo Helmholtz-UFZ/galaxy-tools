@@ -2,7 +2,7 @@
 <tool id="virsorter_build_database" name="virsorter" tool_type="manage_data" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
     <description>database builder</description>
     <macros>
-        <token name="@TOOL_VERSION@">2.2.4</token>
+        <token name="@TOOL_VERSION@">2.2.4</token>  <!-- when updating make sure to double check the db version -->
         <token name="@VERSION_SUFFIX@">0</token>
         <token name="@PROFILE@">22.01</token>
         <!-- zenodo ID and therebut the version of the reference data is hardcoded in the current version virsorter:
@@ -13,6 +13,7 @@
     <requirements>
         <requirement type="package" version="@TOOL_VERSION@">virsorter</requirement>
         <requirement type="package" version="1.21.4">wget</requirement>
+        <requirement type="package" version="2.7.0">pulp</requirement> <!-- needs to be pinned, because the old-ish snakemake used in vs2 struggles with https://github.com/snakemake/snakemake/issues/2607 -->
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         virsorter setup -d db -j \${GALAXY_SLOTS:-1} --skip-deps-install &&

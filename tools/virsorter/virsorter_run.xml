@@ -27,6 +27,8 @@
         <requirement type="package" version="1.2.5">pandas</requirement>
         <requirement type="package" version="0.13.2">seaborn</requirement>
         <requirement type="package" version="1.23.5">numpy</requirement>
+        <!-- additional pin (the datamanager failed because of this .. so I'm adding this just be sure) -->
+        <requirement type="package" version="2.7.0">pulp</requirement> <!-- needs to be pinned, because the old-ish snakemake used in vs2 struggles with https://github.com/snakemake/snakemake/issues/2607 -->
     </requirements>
     <version_command><![CDATA[virsorter --version 2> /dev/null | grep "^virsorter" | cut -d" " -f3]]></version_command>
     <command detect_errors="exit_code"><![CDATA[

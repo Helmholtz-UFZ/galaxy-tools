@@ -7,7 +7,9 @@
         <token name="@PROFILE@">22.01</token>
         <!-- zenodo ID and therebut the version of the reference data is hardcoded in the current version virsorter:
              https://github.com/jiarong/VirSorter2/blob/c0dcac53f3373244bf1bd552a7c2104d53802df7/virsorter/rules/setup.smk#L13 
-             check and update the DB version when updating the VS version -->
+             check and update the DB version when updating the VS version 
+             might also change/improve in the future https://github.com/jiarong/VirSorter2/issues/205#issuecomment-2184184977
+             -->
         <token name="@VIRSORTER_DB_VERSION@">0.4</token>
     </macros>
     <requirements>

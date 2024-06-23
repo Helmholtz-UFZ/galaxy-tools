@@ -193,7 +193,7 @@ The default score cutoff (0.5) works well known viruses (RefSeq). For the real e
 
 **Output**
 
-identified viral **sequences**, including two types:
+identified viral **sequences**, including the following types:
 
 - full sequences identified as viral (identified with suffix ``||full``);
 - partial sequences identified as viral (identified with suffix ``||{i}_partial``); here ``{i}`` can be numbers starting from 0 to max number of viral fragments found in that contig;

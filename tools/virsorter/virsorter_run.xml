@@ -80,7 +80,7 @@
         <param argument="--seqname-suffix-off" type="boolean" truevalue="--" falsevalue="" checked="false" label="Do not add suffix to sequence names" help="By default suffix:  ||full, ||{i}_partial, ||lt2gene is appended. ote that this might cause partial seqs from the same contig to have the same name; this option is could be used when you are sure there is one partial sequence at max from each contig" />
         <param argument="--prep-for-dramv" type="boolean" truevalue="--prep-for-dramv" falsevalue="" checked="false" label="Generate viral seqfile and viral-affi-contigs for DRAMv" />
         <conditional name="provirus_cond">
-            <param argument="--provirus-off" type="select" label="Extract provirus after classifying full contigs" help="">
+            <param argument="--provirus-off" type="select" label="Extract provirus after classifying full contigs" help="Should only be done if you need results fast and not interested in provirus.">
                 <option value="--provirus-off">No provirus extraction</option>
                 <option value="" selected="true">provirus extraction</option>
             </param>

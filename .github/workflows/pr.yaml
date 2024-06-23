@@ -298,7 +298,7 @@ jobs:
     - name: Symlink singularity
       run: ln -s $(which apptainer) $(dirname apptainer)/singularity
     # download or create large test data via script
-    - name: create test data
+    - name: Create test data
       run: |
           set -x
           pip install planemo > /dev/null
@@ -308,7 +308,7 @@ jobs:
           cat tool_list_chunk.txt | sed 's@/[^/]*$@@' | sort -i > repository_list_chunk.txt
           while read repo
           do
-              echo $repo
+              echo "executing test-data.sh for $repo"
               if [ -x $repo/test-data.sh ]; then
                   cd $repo
                   ./test-data.sh

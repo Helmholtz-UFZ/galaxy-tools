@@ -85,7 +85,7 @@
                 <option value="" selected="true">provirus extraction</option>
             </param>
             <when value="--provirus-off">
-                <param argument="--max-orf-per-seq" type="integer" min="-1" value="-1" label="Max number of orf used for computing taxonomic feature" help="" />
+                <param argument="--max-orf-per-seq" type="integer" min="-1" value="-1" label="Max number of orf used for computing taxonomic feature" help=" This option subsamples ORFs if a sequence has more ORFs than the number provided" />
             </when>
             <when value=""/>
         </conditional>

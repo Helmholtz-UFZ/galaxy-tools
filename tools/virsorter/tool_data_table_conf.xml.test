@@ -1,6 +1,6 @@
 <tables>
     <table name="virsorter" comment_char="#">
-        <columns>value, name, path</columns>
+        <columns>value, name, virsorter_version, path</columns>
         <file path="${__HERE__}/test-data/virsorter.loc" />
     </table>
 </tables>

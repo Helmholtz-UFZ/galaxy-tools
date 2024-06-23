@@ -27,6 +27,7 @@
       {
         "path":"db",
         "name":"Version @VIRSORTER_DB_VERSION@",
+        "virsorter_version":"@TOOL_VERSION@",
         "value":"@VIRSORTER_DB_VERSION@"
       }
     ]

@@ -2,7 +2,7 @@
 <tables>
     <!-- Locations of indexes for virsorter, since reference data seems not to be versioned we use the download date as version -->
     <table name="virsorter" comment_char="#">
-        <columns>value, name, path</columns>
+        <columns>value, name, virsorter_version, path</columns>
         <file path="tool-data/virsorter.loc" />
     </table>
 </tables>

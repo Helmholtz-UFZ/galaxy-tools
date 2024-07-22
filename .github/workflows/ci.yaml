@@ -7,7 +7,7 @@ on:
     types: [run-all-tool-tests-command]
 env:
   GALAXY_FORK: galaxyproject
-  GALAXY_BRANCH: release_24.0
+  GALAXY_BRANCH: release_24.1
   MAX_CHUNKS: 40
 jobs:
   setup:
@@ -150,6 +150,30 @@ jobs:
       id: cpu-cores
     - name: Clean dotnet folder for space
       run: rm -Rf /usr/share/dotnet
+
+    # the following 2 steps are needed for testing the scripting tool
+    - name: Install Apptainer's singularity
+      uses: eWaterCycle/setup-apptainer@v2
+    - name: Symlink singularity
+      run: ln -s $(which apptainer) $(dirname apptainer)/singularity
+    # download or create large test data via script
+    - name: Create test data
+      run: |
+          set -x
+          pip install planemo > /dev/null
+          echo '${{ needs.setup.outputs.repository-list }}' > repository_list.txt
+          mapfile -t REPO_ARRAY < repository_list.txt
+          planemo ci_find_tools --chunk_count "${{ needs.setup.outputs.chunk-count }}" --chunk "${{ matrix.chunk }}" --output tool_list_chunk.txt "${REPO_ARRAY[@]}"
+          cat tool_list_chunk.txt | sed 's@/[^/]*$@@' | sort -i > repository_list_chunk.txt
+          while read repo
+          do
+              echo "executing test-data.sh for $repo"
+              if [ -x $repo/test-data.sh ]; then
+                  cd $repo
+                  ./test-data.sh
+              fi
+          done < repository_list_chunk.txt
+
     - name: Planemo test
       uses: galaxyproject/planemo-ci-action@v1
       id: test
@@ -200,6 +224,7 @@ jobs:
       with:
         mode: combine
         html-report: true
+        markdown-report: true
     - uses: actions/upload-artifact@v4
       with:
         name: 'All tool test results'

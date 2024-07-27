@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<tables>
+    <table name="omero_servers" comment_char="#">
+        <columns>value, name, server, port</columns>
+        <file path="${__HERE__}/test-data/omero_servers.loc" />
+    </table>
+</tables>

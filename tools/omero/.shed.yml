@@ -1,0 +1,11 @@
+categories:
+- Imaging
+description: Import images to an OMERO instance
+long_description: Import images to an OMERO.server from Galaxy
+name: omero_upload
+owner: mbernt
+remote_repository_url: https://github.com/bernt-matthias/mb-galaxy-tools/tree/main/tools/omero_upload
+homepage_url: https://github.com/ome/omero-py/
+type: unrestricted
+exclude:
+- omero-docker-compose.yml

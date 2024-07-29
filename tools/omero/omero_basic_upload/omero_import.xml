@@ -16,8 +16,8 @@
         mkdir folder &&
         #for $image in $folder:
             #set image = $image
-            #set image_identifier = re.sub('[^\s\w\-\.]', '_', str($image.element_identifier))
-            ln -s '${image}' folder/'${image_identifier}' &&
+            #set image_identifier = re.sub('[^\s\w\-]', '_', str($image.element_identifier))
+            ln -s '${image}' folder/'${image_identifier}.$image.ext' &&
         #end for
 
         omero import folder -T Dataset:name:$dataset_name

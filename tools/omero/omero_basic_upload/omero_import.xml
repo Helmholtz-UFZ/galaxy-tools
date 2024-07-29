@@ -47,7 +47,7 @@
             <param name="folder" value="input1.tif,input2.tif"/>
             <param name="dataset_name" value="galaxy_test_upload"/>
             <param name="omero_host" value="host.docker.internal"/>
-            <param name="omero_port" value="4064"/>
+            <param name="omero_port" value="6064"/>
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>
             <output name="log" value="omero_output.txt" ftype="txt">

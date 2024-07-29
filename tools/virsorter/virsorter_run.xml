@@ -1,0 +1,233 @@
+<tool id="virsorter" name="VirSorter" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0" license="MIT">
+    <description>identify DNA and RNA virus</description>
+    <macros>
+        <token name="@TOOL_VERSION@">2.2.4</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">virsorter</xref>
+    </xrefs>
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">virsorter</requirement>
+        <!-- virsorter (virsorter setup -d db -j 4) creates a conda env yaml (and conda env)
+            that is used by the snakemake pipeline. in the tool we disable the use of the conda env. 
+            
+            the following are the pinned requirements used in the conda env that would be created by the setup 
+          -->
+        <requirement type="package" version="1548">last</requirement>
+        <requirement type="package" version="0.3.3">ncbi-genome-download</requirement>
+        <requirement type="package" version="0.16.12">ruamel.yaml</requirement>
+        <requirement type="package" version="2.6.3">prodigal</requirement>
+        <requirement type="package" version="1.1.3">screed</requirement>
+        <requirement type="package" version="3.4">hmmer</requirement>
+        <requirement type="package" version="0.22.1">scikit-learn</requirement>
+        <requirement type="package" version="0.7.0">imbalanced-learn</requirement>
+        <requirement type="package" version="1.2.5">pandas</requirement>
+        <requirement type="package" version="0.13.2">seaborn</requirement>
+        <requirement type="package" version="1.23.5">numpy</requirement>
+        <!-- additional pin (the datamanager failed because of this .. so I'm adding this just be sure) -->
+        <requirement type="package" version="2.7.0">pulp</requirement> <!-- needs to be pinned, because the old-ish snakemake used in vs2 struggles with https://github.com/snakemake/snakemake/issues/2607 -->
+    </requirements>
+    <version_command><![CDATA[virsorter --version 2> /dev/null | grep "^virsorter" | cut -d" " -f3]]></version_command>
+    <command detect_errors="exit_code"><![CDATA[
+        virsorter run all
+            --db-dir '$db_dir.fields.path'
+            --seqfile '$seqfile'
+            --include-groups '#echo ",".join($include_groups)#'
+            --jobs \${GALAXY_SLOTS:-4}
+            --min-score $min_score
+            --min-length $min_length
+            $keep_original_seq
+            $exclude_lt2gene
+            $prep_for_dramv
+            $high_confidence_only
+            $hallmark_required
+            $hallmark_required_on_short
+            $viral_gene_required
+            $viral_gene_enrich_off
+            $seqname_suffix_off
+            $provirus_cond.provirus_off
+            #if $provirus_cond.provirus_off != ""
+              --max-orf-per-seq $provirus_cond.max_orf_per_seq
+            #end if
+            --tmpdir \${TEMP:-\$_GALAXY_JOB_TMP_DIR}
+            --rm-tmpdir
+            --use-conda-off
+    ]]></command>
+    <inputs>
+        <param argument="--db-dir" type="select" label="Reference database">
+            <options from_data_table="virsorter">
+                <validator type="no_options" message="Built-in reference data is not available. Contact the Galaxy admin." />
+            </options>
+        </param>
+        <param argument="--seqfile" type="data" format="fasta,fasta.gz,fasta.bz2,fastqsanger,fastqsanger.gz,fastqsanger.bz2" label="Sequences" help="" />
+        <param argument="--include-groups" type="select" multiple="true" optional="false" label="Viral groups" help="Classifiers for these groups will be used">
+            <option value="dsDNAphage" selected="true">dsDNAphage</option>
+            <option value="NCLDV">NCLDV</option>
+            <option value="RNA">RNA</option>
+            <option value="ssDNA" selected="true">ssDNA</option>
+            <option value="lavidaviridae">lavidaviridae</option>
+        </param>
+        <param argument="--min-score" type="float" min="0" max="1" value="0.5" label="Minimal score" help="to be identified as viral" />
+        <param argument="--min-length" type="integer" min="0" value="0" label="Minimal sequence length" help="All sequences shorter than this will be removed" />
+        <param argument="--keep-original-seq" type="boolean" truevalue="--keep-original-seq" falsevalue="" checked="false" label="Keep the original sequences" help="keep the original sequences instead of trimmed; By default, the untranslated regions at both ends of identified viral seqs are trimmed; circular sequences are modified to remove overlap between both ends and adjusted for the gene splitted into two ends;" />
+        <param argument="--exclude-lt2gene" type="boolean" truevalue="--exclude-lt2gene" falsevalue="" checked="false" label="Exclude short sequences" help="short seqs (less than 2 genes) does not have any scores, but those with hallmark genes are included as viral by default; use this option to exclude them" />
+        <param argument="--high-confidence-only" type="boolean" truevalue="--high-confidence-only" falsevalue="" checked="false" label="Only output high confidence viral sequences" help="this is equivalent to screening final-viral-score.tsv with the following criteria: (max_score >= 0.9) OR (max_score >=0.7 AND hallmark >= 1)" />
+        <param argument="--hallmark-required" type="boolean" truevalue="--hallmark-required" falsevalue="" checked="false" label="Require hallmark gene on all viral sequences" help="" />
+        <param argument="--hallmark-required-on-short" type="boolean" truevalue="--hallmark-required-on-short" falsevalue="" checked="false" label="Require hallmark gene on short viral sequences" help="By default sequences with less than 3kb are termed short. This can reduce false positives at reasonable cost of sensitivity" />
+        <param argument="--viral-gene-required" type="boolean" truevalue="--viral-gene-required" falsevalue="" checked="false" label="Require viral genes annotated" help="Removing putative viral seqs with no genes annotated; this can reduce false positives at reasonable cost of sensitivity" />
+        <param argument="--viral-gene-enrich-off" type="boolean" truevalue="--viral-gene-enrich-off" falsevalue="" checked="false" label="Do not require more viral than cellular genes for calling full sequence viral" help="this is useful when only using VirSorter2 to produce DRAMv input with viral sequence identified from other tools, or those trimmed by checkV" />
+        <param argument="--seqname-suffix-off" type="boolean" truevalue="--" falsevalue="" checked="false" label="Do not add suffix to sequence names" help="By default suffix:  ||full, ||{i}_partial, ||lt2gene is appended. ote that this might cause partial seqs from the same contig to have the same name; this option is could be used when you are sure there is one partial sequence at max from each contig" />
+        <param argument="--prep-for-dramv" type="boolean" truevalue="--prep-for-dramv" falsevalue="" checked="false" label="Generate viral seqfile and viral-affi-contigs for DRAMv" />
+        <conditional name="provirus_cond">
+            <param argument="--provirus-off" type="select" label="Extract provirus after classifying full contigs" help="Should only be done if you need results fast and not interested in provirus.">
+                <option value="--provirus-off">No provirus extraction</option>
+                <option value="" selected="true">provirus extraction</option>
+            </param>
+            <when value="--provirus-off">
+                <param argument="--max-orf-per-seq" type="integer" min="-1" value="-1" label="Max number of orf used for computing taxonomic feature" help=" This option subsamples ORFs if a sequence has more ORFs than the number provided" />
+            </when>
+            <when value=""/>
+        </conditional>
+    </inputs>
+    <outputs>
+        <data name="viral_combined" format="fasta" from_work_dir="final-viral-combined.fa" label="${tool.name} on ${on_string}: sequences"/>
+        <data name="viral_score" format="tabular" from_work_dir="final-viral-score.tsv" label="${tool.name} on ${on_string}: scores"/>
+        <data name="viral_boundary" format="tabular" from_work_dir="final-viral-boundary.tsv" label="${tool.name} on ${on_string}: boundary information">
+            <filter>not prep_for_dramv</filter><!-- seems that this is not created when this switch is triggered -->
+        </data>
+        <data name="viral_combined_for_dramv" format="fasta" from_work_dir="for-dramv/final-viral-combined-for-dramv.fa" label="${tool.name} on ${on_string}: sequences for DRAMv">
+            <filter>prep_for_dramv</filter>
+        </data>
+        <data name="viral_affi_contigs_for_dramv" format="txt" from_work_dir="for-dramv/viral-affi-contigs-for-dramv.tab" label="${tool.name} on ${on_string}: affi contigs for DRAMv">
+            <filter>prep_for_dramv</filter>
+        </data>
+    </outputs>
+    <tests>
+        <test expect_num_outputs="3">
+            <param name="db_dir" value="0.4"/>
+            <param name="seqfile" value="8seq.fa"/>
+            <output name="viral_combined">
+                <assert_contents>
+                    <has_n_lines n="6"/>
+                </assert_contents>
+            </output>
+            <output name="viral_boundary">
+                <assert_contents>
+                    <has_n_columns n="31"/>
+                    <has_n_lines n="4"/>
+                </assert_contents>
+            </output>
+            <output name="viral_score">
+                <assert_contents>
+                    <has_n_columns n="9"/>
+                    <has_n_lines n="4"/>
+                </assert_contents>
+            </output>
+            <assert_command>
+                <has_text text="--min-length 0"/>
+                <has_text text="--provirus-off" negate="true"/>
+                <has_text text="--max-orf-per-seq" negate="true"/>
+            </assert_command>
+        </test>
+
+        <!-- test generation of extra outputs for DRAMv
+             and some other parameters that might speedup the test -->
+
+        <test expect_num_outputs="4">
+            <param name="db_dir" value="0.4"/>
+            <param name="seqfile" value="8seq.fa"/>
+            <param name="min_length" value="1500"/>
+            <conditional name="provirus_cond">
+                <param name="provirus_off" value="--provirus-off"/>
+                <param name="max_orf_per_seq" value="20"/>
+            </conditional>
+            <param name="prep_for_dramv" value="true"/>
+            <output name="viral_combined">
+                <assert_contents>
+                    <has_n_lines n="4"/>
+                </assert_contents>
+            </output>
+            <output name="viral_score">
+                <assert_contents>
+                    <has_n_columns n="9"/>
+                    <has_n_lines n="3"/>
+                </assert_contents>
+            </output>
+            <output name="viral_combined_for_dramv">
+                <assert_contents>
+                    <has_n_lines n="4"/>
+                </assert_contents>
+            </output>
+            <output name="viral_affi_contigs_for_dramv">
+                <assert_contents>
+                    <has_n_lines n="61"/>
+                </assert_contents>
+            </output>
+            <assert_command>
+                <has_text text="--min-length 1500"/>
+                <has_text text="--provirus-off"/>
+                <has_text text="--max-orf-per-seq 20"/>
+            </assert_command>
+        </test>
+
+    </tests>
+    <help><![CDATA[
+
+.. class:: infomark
+
+**What it does**
+
+VirSorter2 applies a multi-classifier, expert-guided approach to detect diverse DNA and RNA virus genomes.
+
+
+Usage
+.....
+
+
+**Input**
+
+A fasta sequence.
+
+The default score cutoff (0.5) works well known viruses (RefSeq). For the real environmental data, we can expect to get false positives (non-viral) with the default cutoff. Generally, samples with more host (e.g. bulk metaG) and unknown sequences (e.g. soil) tends to have more false positives. We find a score cutoff of 0.9 work well as a cutoff for high confidence hits, but there are also many viral hits with score <0.9. It's difficult to separate the viral and non-viral hits by score alone. So we recommend using the default score cutoff (0.5) for maximal sensitivity and then applying a quality checking step using checkV. Here is a tutorial of [viral identification SOP](https://www.protocols.io/view/viral-sequence-identification-sop-with-virsorter2-btv8nn9w) used in Sullivan Lab.
+
+**Output**
+
+identified viral **sequences**, including the following types:
+
+- full sequences identified as viral (identified with suffix ``||full``);
+- partial sequences identified as viral (identified with suffix ``||{i}_partial``); here ``{i}`` can be numbers starting from 0 to max number of viral fragments found in that contig;
+- short (less than two genes) sequences with hallmark genes identified as viral (identified with suffix ``||lt2gene``);
+
+Note that suffix `||full`, `||lt2gene` and `||{i}_partial` have been added to original sequence names to differentiate sub-sequences in case of multiple viral subsequences found in one contig. Partial sequences can be treated as proviruses since they are extracted from longer host sequences. Full sequences, however, can be proviruses or free virus since it can be a short fragment sequenced from a provirus region. Moreover, "full" sequences are just sequences with strong viral signal as a whole ("nearly full" is more accurate). They might be trimmed due to partial gene overhang at ends, duplicate segments from circular genomes, and an end trimming step for all identified viral sequences to find the optimal viral segments (longest within 95% of peak score by default). Again, the "full" sequences trimmed by the end trimming step should not be interpreted as provirus, since genes that have low impact on score, such as unknown gene or genes shared by host and virus, could be trimmed. If you prefer the full sequences (ending with ||full) not to be trimmed and leave it to specialized tools such as checkV, you can use `--keep-original-seq` option.
+
+**Scores**: This table can be used for further screening of results. It includes the following columns:
+
+- sequence name
+- score of each viral sequences across groups (multiple columns)
+- max score across groups
+- max score group
+- contig length
+- hallmark gene count
+- viral gene %
+- nonviral gene %
+
+**Boundary** information: This is a intermediate file that 
+1) might have extra records compared to other two files and should be ignored;
+2) do not include the viral sequences with < 2 gene but have >= 1 hallmark gene;
+3) the group and trim_pr are intermediate results and might not match the max_group and max_score respectively in the Scores output.
+Only some of the columns in this file might be useful:
+
+- seqname: original sequence name
+- trim_orf_index_start, trim_orf_index_end: start and end ORF index on orignal sequence of identified viral sequence
+- trim_bp_start, trim_bp_end: start and end position on orignal sequence of identified viral sequence
+- trim_pr: score of final trimmed viral sequence
+- partial: full sequence as viral or partial sequence as viral; this is defined when a full sequence has score > score cutoff, it is full (0), or else any viral sequence extracted within it is partial (1)
+- pr_full: score of the original sequence
+- hallmark_cnt: hallmark gene count
+- group: the classifier of viral group that gives high score; this should NOT be used as reliable classification
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1186/s40168-020-00990-y</citation>
+    </citations>
+</tool>

@@ -1,0 +1,237 @@
+<tool id="genomad_end_to_end" name="geNomad" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0" license="MIT">
+    <description>identify virus and plasmid genomes from nucleotide sequences</description>
+    <macros>
+        <token name="@TOOL_VERSION@">1.8.0</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@MIN_DB_VERSION@">1.2</token>  <!-- https://portal.nersc.gov/genomad/__data__/releases.txt -->
+        <xml name="summary_output_macro" tokens="type">
+            <data name="summary_@TYPE@_fna" format="fasta" from_work_dir="output/sequence_summary/sequence_@TYPE@.fna" label="${tool.name} on ${on_string}: @TYPE@ fasta"/>
+            <data name="summary_@TYPE@_genes" format="tabular" from_work_dir="output/sequence_summary/sequence_@TYPE@_genes.tsv" label="${tool.name} on ${on_string}: @TYPE@ genes">
+                <actions>
+                    <action name="column_names" type="metadata" default="gene,start,end,length,strand,gc_content,genetic_code,rbs_motif,marker,evalue,bitscore,uscg,plasmid_hallmark,virus_hallmark,taxid,taxname,annotation_conjscan,annotation_amr,annotation_accessions,annotation_description"/>
+                </actions>
+            </data>
+            <data name="summary_@TYPE@_proteins" format="fasta" from_work_dir="output/sequence_summary/sequence_@TYPE@_proteins.faa" label="${tool.name} on ${on_string}: @TYPE@ proteins fasta"/>
+            <data name="summary_@TYPE@_summary" format="tabular" from_work_dir="output/sequence_summary/sequence_@TYPE@_summary.tsv" label="${tool.name} on ${on_string}: @TYPE@ summary">
+                <actions>
+                    <action name="column_names" type="metadata" default="seq_name,length,topology,coordinates,n_genes,genetic_code,virus_score,fdr,n_hallmarks,marker_enrichment,taxonomy" />
+                </actions>
+            </data>
+        </xml>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">genomad</xref>
+    </xrefs>
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">genomad</requirement>
+    </requirements>
+    <version_command><![CDATA[genomad end-to-end --version | cut -f 3 -d " "]]></version_command>
+    <command detect_errors="exit_code"><![CDATA[
+        ## symlink sequence (to make output directory names predictable)
+        ln -s '$INPUT' sequence.fa &&
+        mkdir output/ &&
+        genomad end-to-end
+            $filter_cond.filtering_preset
+            #if $filter_cond.filtering_preset == ''
+                --min-score $filter_cond.min_score
+                --max-fdr $filter_cond.max_fdr
+                --min-plasmid-marker-enrichment $filter_cond.min_plasmid_marker_enrichment
+                --min-virus-marker-enrichment $filter_cond.min_virus_marker_enrichment
+                --min-plasmid-hallmarks $filter_cond.min_plasmid_hallmarks
+                --min-plasmid-hallmarks-short-seqs $filter_cond.min_plasmid_hallmarks_short_seqs
+                --min-virus-hallmarks $filter_cond.min_virus_hallmarks
+                --min-virus-hallmarks-short-seqs $filter_cond.min_virus_hallmarks_short_seqs
+                --max-uscg $filter_cond.max_uscg
+            #end if
+            --threads \${GALAXY_SLOTS:-4}
+            $basic.disable_find_proviruses
+            $basic.disable_nn_classification
+            $basic.enable_score_calibration
+            $annotation.conservative_taxonomy
+            --sensitivity $annotation.sensitivity
+            --splits $annotation.splits
+            $provirus.skip_integrase_identification
+            $provirus.skip_trna_identification
+            --composition $score.composition
+            $score.force_auto
+            sequence.fa
+            output/
+            '$DATABASE.fields.path'
+    ]]></command>
+    <inputs>
+        <param argument="INPUT" type="data" format="fasta" label="Input sequences" help="geNomad will work for isolate genomes, metagenomes, and metatranscriptomes"/>
+        <param name="DATABASE" type="select" label="Reference data" help="">
+            <options from_data_table="genomad"/>
+            <!-- TODO needs to be activated with https://github.com/galaxyproject/galaxy/pull/18411
+                <validator type="in_range" min="@MIN_DB_VERSION@"/> -->
+        </param>
+        <conditional name="filter_cond">
+            <param name="filtering_preset" type="select" label="Filtering presets" help="After classification, sequences are further filtered to remove possible false positives. The --conservative preset makes those filters even more aggressive, resulting in more restricted sets of plasmid and virus, containing only sequences whose classification is strongly supported. The --relaxed preset disables all post-classification filters.">
+                <option value="--conservative">Conservative (--conservative)</option>
+                <option value="--relaxed">Relaxed (--relaxed)</option>
+                <option value="">Manual</option>
+            </param>
+            <when value="--conservative"/>
+            <when value="--relaxed"/>
+            <when value="">
+                <param argument="--min-score" type="float" min="0" max="1" value="0.7" label="Minimum score to flag a sequence as virus or plasmid" help=""/>
+                <param argument="--max-fdr" type="float" min="0" max="1" value="0.1" label="Maximum false discovery rate" help="This option will be ignored if the scores were not calibrated"/>
+                <param argument="--min-plasmid-marker-enrichment" type="float" value="0.1" label="Minimum allowed value for the plasmid marker enrichment score" help="This enrichment score represents the total enrichment of plasmid markers in the sequence. Sequences with multiple plasmid markers will have higher values than the ones that encode few or no markers. This option will be ignored if the annotation module was not executed." />
+                <param argument="--min-virus-marker-enrichment" type="float" value="0.0" label="Minimum allowed value for the virus marker enrichment score" help="This enrichment score represents the total enrichment of virus markers in the sequence. Sequences with multiple virus markers will have higher values than the ones that encode few or no markers. This option will be ignored if the annotation module was not executed." />
+                <param argument="--min-plasmid-hallmarks" type="integer" min="0" value="0" label="minimum number of plasmid hallmarks in the identified plasmids" help="this option will be ignored if the annotation module was not executed." />
+                <param argument="--min-plasmid-hallmarks-short-seqs" type="integer" min="0" value="1" label="minimum number of plasmid hallmarks in plasmids shorter than 2,500 bp" help="this option will be ignored if the annotation module was not executed." />
+                <param argument="--min-virus-hallmarks" type="integer" min="0" value="0" label="minimum number of virus hallmarks in the identified viruses" help="this option will be ignored if the annotation module was not executed." />
+                <param argument="--min-virus-hallmarks-short-seqs" type="integer" min="0" value="1" label="minimum number of virus hallmarks in viruses shorter than 2,500 bp" help="this option will be ignored if the annotation module was not executed." />
+                <param argument="--max-uscg" type="integer" value="4" label="Maximum allowed number of universal single copy genes (USCGs) in a virus or a plasmid." help="Sequences with more than this number of USCGs will not be classified as viruses or plasmids, regardless of their score. This option will be ignored if the annotation module was not executed." />
+            </when>
+        </conditional>
+        <section name="basic" title="basic options" expanded="true">
+            <param argument="--disable-find-proviruses" type="boolean" truevalue="" falsevalue="--disable-find-proviruses" checked="true" label="Execute the find-proviruses module" help="" />
+            <param argument="--disable-nn-classification" type="boolean" truevalue="" falsevalue="--disable-nn-classification" checked="true" label="Execute the find-proviruses module" help="" />
+            <param argument="--enable-score-calibration" type="boolean" truevalue="--enable-score-calibration" falsevalue="" checked="false" label="Execute the score-calibration module" help="" />
+        </section>
+        <section name="annotation" title="annotation options" expanded="true">
+            <param argument="--conservative-taxonomy" type="boolean" truevalue="--conservative-taxonomy" falsevalue="" checked="false" label="More conservative virus taxonomic assignment" help="This might reduce the amount of genomes assigned to the family level, but will decrease the rate of family misassignment" />
+            <param argument="--sensitivity" type="float" min="0" value="4.2" label="MMseqs2 marker search sensitivity" help="Higher values will annotate more proteins, but the search will be slower and consume more memory" />
+            <param argument="--splits" type="integer" min="0" value="0" label="Split the data for the MMseqs2 search." help="Higher values will reduce memory usage, but will make the search slower. If the MMseqs2 search is failing, try to increase the number of splits. Consult you Galaxy admin if more memory may be used" />
+        </section>
+        <section name="provirus" title="find-proviruses options" expanded="true">
+            <param argument="--skip-integrase-identification" type="boolean" truevalue="--skip-integrase-identification" falsevalue="" checked="false" label="Disable provirus boundary extension using nearby integrases" />
+            <param argument="--skip-trna-identification" type="boolean" truevalue="--skip-trna-identification" falsevalue="" checked="false" label="Disable provirus boundary extension using nearby tRNAs" />
+        </section>
+        <section name="score" title="score-calibration options" expanded="true">
+            <param argument="--composition" type="select" label="Method for estimating sample composition" >
+                <option value="auto" selected="true">auto</option>
+                <option value="metagenome">metagenome</option>
+                <option value="virom">virom</option>
+            </param>
+            <param argument="--force-auto" type="boolean" truevalue="--force-auto" falsevalue="" checked="false" label="Force automatic composition estimation" help="regardless of the sample size" />
+        </section>
+    </inputs>
+    <outputs>
+        <expand macro="summary_output_macro" type="plasmid"/>
+        <expand macro="summary_output_macro" type="virus"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="INPUT" value="GCF_009025895.1_ASM902589v1_genomic.fna" ftype="fasta"/>
+            <param name="DATABASE" value="1.2"/>
+            <section name="annotation">
+                <param name="splits" value="8"/><!-- needed for low mem CI-->
+            </section>
+            <output name="summary_plasmid_fna">
+                <assert_contents>
+                    <has_line_matching expression="^>.*" n="5"/>
+                </assert_contents>
+            </output>
+            <output name="summary_plasmid_genes">
+                <assert_contents>
+                    <has_n_lines n="336"/>
+                    <has_n_columns n="20"/>
+                </assert_contents>
+            </output>
+            <output name="summary_plasmid_proteins">
+                <assert_contents>
+                    <has_line_matching expression="^>.*" n="335"/>
+                </assert_contents>
+            </output>
+            <output name="summary_plasmid_summary">
+                <assert_contents>
+                    <has_n_lines n="6"/>
+                    <has_n_columns n="11"/>
+                </assert_contents>
+            </output>
+            <output name="summary_virus_fna">
+                <assert_contents>
+                    <has_line_matching expression="^>.*" n="1"/>
+                </assert_contents>
+            </output>
+            <output name="summary_virus_genes">
+                <assert_contents>
+                    <has_n_lines n="58"/>
+                    <has_n_columns n="20"/>
+                </assert_contents>
+            </output>
+            <output name="summary_virus_proteins">
+                <assert_contents>
+                    <has_line_matching expression="^>.*" n="57"/>
+                </assert_contents>
+            </output>
+            <output name="summary_virus_summary">
+                <assert_contents>
+                    <has_n_lines n="2"/>
+                    <has_n_columns n="11"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+
+geNomad is a tool that identifies virus and plasmid genomes from nucleotide sequences.
+For details on the function refer to the citation or https://portal.nersc.gov/genomad/index.html.
+
+This Galaxy tool executed the ent-to-end geNomad workflow.
+
+Usage
+.....
+
+
+**Input**
+
+Any FASTA file containing nucleotide sequences as input. geNomad will work for isolate genomes, metagenomes, and metatranscriptomes.
+In addition you need to select a reference database that has to be installed by your Galaxy admin.
+
+
+**Output**
+
+plasmid/virus summary with the following columns
+
+* seq_name: The identifier of the sequence in the input FASTA file. Proviruses will have the following name scheme: <sequence_identifier>|provirus_<start_coordinate>_<end_coordinate>.
+* length: Length of the sequence (or the provirus, in the case of integrated viruses).
+* topology: Topology of the viral sequence. Possible values are: No terminal repeats, DTR (direct terminal repeats), ITR (inverted terminal repeats), or Provirus (viruses integrated in host genomes).
+* coordinates: 1-indexed coordinates of the provirus region within host sequences. Will be NA for viruses that were not predicted to be integrated.
+* n_genes: Number of genes encoded in the sequence.
+* genetic_code: Predicted genetic code. Possible values are: 11 (standard code for Bacteria and Archaea), 4 (recoded TGA stop codon), or 15 (recoded TAG stop codon).
+* virus_score: A measure of how confident geNomad is that the sequence is a virus. Sequences that have scores close to 1.0 are more likely to be viruses than the ones that have lower scores.
+* fdr: The estimated false discovery rate (FDR) of the classification (that is, the expected proportion of false positives among the sequences up to this row). To estimate FDRs geNomad requires score calibration, which is turned off by default. Therefore, this column will only contain NA values in this example.
+* n_hallmarks: Number of genes that matched a hallmark geNomad marker. Hallmarks are genes that were previously associated with viral function and their presence is a strong indicative that the sequence is indeed a virus.
+* marker_enrichment: A score that represents the total enrichment of viral markers in the sequence. The value goes as the number of virus markers in the sequence increases, so sequences with multiple markers will have higher score. Chromosome and plasmid markers will reduce the score.
+* taxonomy: Taxonomic assignment of the virus genome. Lineages follow the taxonomy contained in ICTV's VMR number 19. Viruses can be taxonomically assigned up to the family level, but not to specific genera or species within that family. The taxonomy is presented with a fixed number of fields (corresponding to taxonomic ranks) separated by semicolons, with empty fields left blank.
+
+The virus specific summary misses the coordinates and taxonomy columns and there are wto additional columns:
+
+* conjugation_genes genes that might be involved in conjugation. It's important to note that the presence of such genes is not sufficient to tell whether a given plasmid is conjugative or mobilizible. If you are interested in identifying conjugative plasmids, we recommend you to analyze the plasmids you identified using geNomad with CONJscan.
+* amr_genes genes annotated with antimicrobial resistance function. You can check the specific functions associated with each accession in AMRFinderPlus website.
+
+
+plasmid/virus genes: During its execution, geNomad annotates the genes encoded by the input sequences using a database of chromosome, plasmid, and virus-specific markers. The <prefix>_virus_genes.tsv file summarizes the annotation of the genes encoded by the identified viruses.
+
+* gene: Identifier of the gene (<sequence_name>_<gene_number>). Usually, gene numbers start with 1 (first gene in the sequence). However, genes encoded by prophages integrated in the middle of the host chromosome may start with a different number, depending on it's position within the chromosome.
+* start: 1-indexed start coordinate of the gene.
+* end: 1-indexed end coordinate of the gene.
+* length: Length of the gene locus (in base pairs).
+* strand: Strand that encodes the gene. Can be 1 (direct strand) or -1 (reverse strand).
+* gc_content: GC content of the gene locus.
+* genetic_code: Predicted genetic code (see details in the explanation of the summary file).
+* rbs_motif: Detected motif of the ribosome-binding site.
+* marker: Best matching geNomad marker. If this gene doesn't match any markers, the value will be NA.
+* evalue: E-value of the alignment between the protein encoded by the gene and the best matching geNomad marker.
+* bitscore: Bitscore of the alignment between the protein encoded by the gene and the best matching geNomad marker.
+* uscg: Whether the marker assigned to this gene corresponds to a universal single-copy gene (UCSG, as defined in BUSCO v5). These genes are expected to be found in chromosomes and are rare in plasmids and viruses. Can be 1 (gene is USCG) or 0 (gene is not USCG).
+* plasmid_hallmark: Whether the marker assigned to this gene represents a plasmid hallmark.
+* virus_hallmark: Whether the marker assigned to this gene represents a virus hallmark.
+* taxid: Taxonomic identifier of the marker assigned to this gene (you can ignore this as it is meant to be used internally by geNomad).
+* taxname: Name of the taxon associated with the assigned geNomad marker. In this example, we can see that the annotated proteins are all characteristic of Caudoviricetes (which is why the provirus was assigned to this class).
+* annotation_conjscan: If the marker that matched the gene is a conjugation-related gene (as defined in CONJscan) this field will show which CONJscan acession was assigned to the marker.
+* annotation_amr: If the marker that matched the gene was annotated with an antimicrobial resistance (AMR) function (as defined in NCBIfam-AMRFinder), this field will show which NCBIfam acession was assigned to the marker.
+* annotation_accessions: Some of the geNomad markers are functionally annotated. This column tells you which entries in Pfam, TIGRFAM, COG, and KEGG were assigned to the marker.
+* annotation_description: A text describing the function assigned to the marker.
+
+
+plasmid/virus genes/proteins: gives the nucleotide and aminoaced sequences of the annotated genes
+
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1038/s41587-023-01953-y</citation>
+    </citations>
+</tool>

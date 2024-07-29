@@ -1,0 +1,16 @@
+categories:
+- Imaging
+name: omero_upload
+description: Import images to an OMERO instance
+long_description: Import images to an OMERO.server from Galaxy
+owner: ufz
+remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/omero/omero_basic_upload
+homepage_url: https://github.com/ome/omero-py/
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: "Wrapper command line tools of the omero-py package: {{ tool_name }}."
+suite:
+  name: "suite_omero_py"
+  description: "A suite of tools that brings the omery-py project into Galaxy."
+  long_description: |
+    OMERO.py provides an interface to the OMERO.blitz server.

@@ -1,0 +1,103 @@
+<tool id="omero_metadata_import" name="OMERO Metadata Import" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@"
+      profile="20.01" license="MIT">
+    <description> with ezomero </description>
+    <macros>
+        <token name="@TOOL_VERSION@">5.18.0</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">omero</xref>
+    </xrefs>
+    <requirements>
+        <requirement type="package" version="3.0.1">ezomero</requirement>
+        <requirement type="package" version="2.2.2">pandas</requirement>
+        <requirement type="package" version="21.0.2">openjdk</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        python $__tool_directory__/omero_metadata_upload.py
+        --user $__user__.extra_preferences.get('omero|username', $test_username)
+        --pws $__user__.extra_preferences.get('omero|password', $test_password)
+        --host $omero_host
+        --port $omero_port
+        --obj_type $obj_type
+        --ann_type $ann_type
+        --ann_file $ann_file
+        --an_name $an_name
+        --log_file $log
+        #if $object_id == "existing_object"
+            --did "$did"
+        #end if
+    ]]></command>
+    <inputs>
+        <param argument="omero_host" type="text" optional="false" label="host" help="OMERO host"/>
+        <param argument="omero_port" type="integer" optional="false" value="4064" label="port" help="OMERO port"/>
+        <param argument="obj_type" type="select" optional="true" label="obj_type" help="Type of OMERO object">
+            <option value="project">Project</option>
+            <option value="screen">Screen</option>
+            <option value="dataset">Dataset</option>
+            <option value="image">Image</option>
+        </param>
+        <conditional name="object_id">
+        <param name="object_id_selection" type="select">
+            <option value="new_object">Pre-defined QSARs</option>
+            <option value="existing_object">Personal Linear Functions</option>
+        </param>
+        <when value="new_object">
+        </when>
+        <when value="existing_object">
+            <param name="did" type="integer" value="1409"/>
+        </when>
+        </conditional>
+        <param argument="ann_type" type="select" optional="false" label="ann_type" help="Annotation type">
+            <option value="table">Table</option>
+            <option value="KV">KV</option>
+        </param>
+        <param argument="ann_file" type="text" optional="false" label="ann_file" help="Path to the annotation file"/>
+        <param argument="an_name" type="text" optional="false" label="an_name" help="Namespace or title for the annotation"/>
+        <param name="test_username" type="hidden" value=""/>
+        <param name="test_password" type="hidden" value=""/>
+    </inputs>
+    <outputs>
+        <data name="log" format="txt"/>
+    </outputs>
+        <tests>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="project"/>
+            <param name="ann_type" value="table"/>
+            <param name="object_id_selection" value="new_object"/>
+            <param name="ann_file" value="metadata.tsv"/>
+            <param name="an_name" value="KV_Test"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="log" value="table_import_log.txt" ftype="txt">
+                <assert_contents>
+                    <has_text text="SUCCESS: Successfully uploaded metadata for project"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="dataset"/>
+            <param name="ann_type" value="KV"/>
+            <param name="object_id_selection" value="new_object"/>
+            <param name="ann_file" value="metadata.tsv"/>
+            <param name="an_name" value="Table_Test"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="log" value="KV_import_log.txt" ftype="txt">
+                <assert_contents>
+                    <has_text text="SUCCESS: Successfully uploaded metadata for dataset"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help>
+        Here we need to add some help
+    </help>
+    <citations>
+        <citation type="doi">10.1038/nmeth.1896</citation>
+    </citations>
+</tool>

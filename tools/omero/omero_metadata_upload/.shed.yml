@@ -1,0 +1,16 @@
+categories:
+- Imaging
+name: omero_metadata_upload
+description: Add metadata to an object stored in an OMERO.server using ezomero
+long_description: Create project, dataset, screen and/or attach metadata to an object stored in an OMERO.server
+owner: ufz
+remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/omero/omero_metadata_upload
+homepage_url: https://github.com/TheJacksonLaboratory/ezomero
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: "Wrapper command line tools of the omero-py package: {{ tool_name }}."
+suite:
+  name: "suite_omero_py"
+  description: "A suite of tools that brings the omero-py project into Galaxy."
+  long_description: |
+    OMERO.py provides an interface to the OMERO.blitz server.

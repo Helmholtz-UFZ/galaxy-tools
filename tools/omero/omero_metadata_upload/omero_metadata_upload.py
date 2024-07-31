@@ -24,11 +24,11 @@ def metadata_import_ezo(user, pws, host, port, obj_type, did=None, ann_type="tab
 
     def log_error(message):
         with open(log_file, 'w') as f:
-            f.write(f"{datetime.now()} - ERROR: {message}\n")
+            f.write(f"ERROR: {message}\n")
 
     def log_success(message):
         with open(log_file, 'w') as f:
-            f.write(f"{datetime.now()} - SUCCESS: {message}\n")
+            f.write(f"SUCCESS: {message}\n")
 
     try:
         df = pd.read_csv(ann_file, delimiter='\t')

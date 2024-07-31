@@ -24,23 +24,23 @@
         --ann_file $ann_file
         --an_name $an_name
         --log_file $log
-        #if $object_id == "existing_object"
+        #if $object_id_selection == "existing_object"
             --did "$did"
         #end if
     ]]></command>
     <inputs>
         <param argument="omero_host" type="text" optional="false" label="host" help="OMERO host"/>
         <param argument="omero_port" type="integer" optional="false" value="4064" label="port" help="OMERO port"/>
-        <param argument="obj_type" type="select" optional="true" label="obj_type" help="Type of OMERO object">
+        <param argument="obj_type" type="select" optional="true" label="OMERO Object" help="Select the target OMERO object">
             <option value="project">Project</option>
             <option value="screen">Screen</option>
             <option value="dataset">Dataset</option>
             <option value="image">Image</option>
         </param>
         <conditional name="object_id">
-        <param name="object_id_selection" type="select">
-            <option value="new_object">Pre-defined QSARs</option>
-            <option value="existing_object">Personal Linear Functions</option>
+        <param name="object_id_selection" type="select" help="Create a new OMERO object or target an existing one">
+            <option value="new_object">Create new OMERO object</option>
+            <option value="existing_object">Target an existing OMERO object</option>
         </param>
         <when value="new_object">
         </when>
@@ -48,12 +48,12 @@
             <param name="did" type="integer" value="1409"/>
         </when>
         </conditional>
-        <param argument="ann_type" type="select" optional="false" label="ann_type" help="Annotation type">
-            <option value="table">Table</option>
-            <option value="KV">KV</option>
+        <param argument="ann_type" type="select" optional="false" label="Annotation type" help="Select annotation format">
+            <option value="table">An OMERO Table</option>
+            <option value="KV">OMERO Key-Value Pairs</option>
         </param>
-        <param argument="ann_file" type="text" optional="false" label="ann_file" help="Path to the annotation file"/>
-        <param argument="an_name" type="text" optional="false" label="an_name" help="Namespace or title for the annotation"/>
+        <param argument="ann_file" type="data" format="tabular" optional="false" label="Annotation file" help="Select annotation file"/>
+        <param argument="an_name" type="text" optional="false" label="Annotation Name" help="Annotation name"/>
         <param name="test_username" type="hidden" value=""/>
         <param name="test_password" type="hidden" value=""/>
     </inputs>
@@ -68,10 +68,10 @@
             <param name="ann_type" value="table"/>
             <param name="object_id_selection" value="new_object"/>
             <param name="ann_file" value="metadata.tsv"/>
-            <param name="an_name" value="KV_Test"/>
+            <param name="an_name" value="Table_Test"/>
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>
-            <output name="log" value="table_import_log.txt" ftype="txt">
+            <output name="log" value="output_table_import.txt" ftype="txt">
                 <assert_contents>
                     <has_text text="SUCCESS: Successfully uploaded metadata for project"/>
                 </assert_contents>
@@ -84,10 +84,27 @@
             <param name="ann_type" value="KV"/>
             <param name="object_id_selection" value="new_object"/>
             <param name="ann_file" value="metadata.tsv"/>
-            <param name="an_name" value="Table_Test"/>
+            <param name="an_name" value="KV_Test"/>
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>
-            <output name="log" value="KV_import_log.txt" ftype="txt">
+            <output name="log" value="output_KV_import.txt" ftype="txt">
+                <assert_contents>
+                    <has_text text="SUCCESS: Successfully uploaded metadata for dataset"/>
+                </assert_contents>
+            </output>
+        </test>
+            <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="dataset"/>
+            <param name="ann_type" value="KV"/>
+            <param name="object_id_selection" value="existing_object"/>
+            <param name="did" value="1"/>
+            <param name="ann_file" value="metadata.tsv"/>
+            <param name="an_name" value="Additional_KV_Values"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="log" value="output_target_import.txt" ftype="txt">
                 <assert_contents>
                     <has_text text="SUCCESS: Successfully uploaded metadata for dataset"/>
                 </assert_contents>
@@ -95,7 +112,13 @@
         </test>
     </tests>
     <help>
-        Here we need to add some help
+        - This tool allows the import metadata (Table and K/V pairs) into user pre-defined OMERO.server
+
+        - Metadata can be attached to an existing OMERO object (Project, Dataset, Screen or Image)
+
+        - Optionally, a new OMERO object can be created before uploading the metadata
+
+        - If the dataset does not exist, a new one will be created
     </help>
     <citations>
         <citation type="doi">10.1038/nmeth.1896</citation>

@@ -5,8 +5,8 @@ import ezomero as ez
 import pandas as pd
 
 
-def metadata_import_ezo(user, pws, host, port, obj_type, did=None, ann_type="table", ann_file=None, an_name=None, log_file='metadata_import_log.txt'):
-
+def metadata_import_ezo(user, pws, host, port, obj_type, did=None, ann_type="table", ann_file=None, an_name=None,
+                        log_file='metadata_import_log.txt'):
     def upload_metadata(conn, obj_type, did, data_dict, df, ann_type, an_name):
         try:
             if ann_type == "KV":
@@ -69,8 +69,6 @@ def metadata_import_ezo(user, pws, host, port, obj_type, did=None, ann_type="tab
 
     except Exception as e:
         log_error(f"Connection error: {str(e)}")
-
-
 
 
 if __name__ == "__main__":

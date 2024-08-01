@@ -29,18 +29,18 @@
         #end if
     ]]></command>
     <inputs>
-        <param argument="omero_host" type="text" optional="false" label="host" help="OMERO host"/>
-        <param argument="omero_port" type="integer" optional="false" value="4064" label="port" help="OMERO port"/>
-        <param argument="obj_type" type="select" optional="true" label="OMERO Object" help="Select the target OMERO object">
+        <param argument="omero_host" type="text" optional="false" label="OMERO host URL"/>
+        <param argument="omero_port" type="integer" optional="false" value="4064" label="OMERO port"/>
+        <param argument="obj_type" type="select" optional="true" label="Target Object Type">
             <option value="project">Project</option>
             <option value="screen">Screen</option>
             <option value="dataset">Dataset</option>
             <option value="image">Image</option>
         </param>
         <conditional name="object_id">
-        <param name="object_id_selection" type="select" help="Create a new OMERO object or target an existing one">
-            <option value="new_object">Create new OMERO object</option>
-            <option value="existing_object">Target an existing OMERO object</option>
+        <param name="object_id_selection" type="select" label="Selection"  help="Create a new OMERO object or target an existing one">
+            <option value="new_object">Create new object</option>
+            <option value="existing_object">Target an existing object</option>
         </param>
         <when value="new_object">
         </when>
@@ -49,11 +49,11 @@
         </when>
         </conditional>
         <param argument="ann_type" type="select" optional="false" label="Annotation type" help="Select annotation format">
-            <option value="table">An OMERO Table</option>
-            <option value="KV">OMERO Key-Value Pairs</option>
+            <option value="table">Table</option>
+            <option value="KV">Key-Value Pairs</option>
         </param>
         <param argument="ann_file" type="data" format="tabular" optional="false" label="Annotation file" help="Select annotation file"/>
-        <param argument="an_name" type="text" optional="false" label="Annotation Name" help="Annotation name"/>
+        <param argument="an_name" type="text" optional="false" label="Annotation Name"/>
         <param name="test_username" type="hidden" value=""/>
         <param name="test_password" type="hidden" value=""/>
     </inputs>
@@ -112,13 +112,35 @@
         </test>
     </tests>
     <help>
-        - This tool allows the import metadata (Table and K/V pairs) into user pre-defined OMERO.server
+Description
+-----------
 
-        - Metadata can be attached to an existing OMERO object (Project, Dataset, Screen or Image)
+Tool to import metadata (Table and K/V pairs) into user pre-defined OMERO.server.
+Metadata can be attached to an existing OMERO object (Project, Dataset, Screen, or Image).
+Optionally, a new OMERO object can be created before uploading the metadata.
+If the object does not exist, a new one will be created.
 
-        - Optionally, a new OMERO object can be created before uploading the metadata
+**Tabular metadata file example**
 
-        - If the dataset does not exist, a new one will be created
+- Table
+
+  +------------+---------------+---------------+
+  | image_id   | attribute_1   | attribute_2   |
+  +============+===============+===============+
+  | 235        | 0             | 1             |
+  +------------+---------------+---------------+
+  | 564        | 1             | 1             |
+  +------------+---------------+---------------+
+  | 120        | 0             | 1             |
+  +------------+---------------+---------------+
+
+- Key-Value Pairs
+
+  +--------+---------+----------+
+  | Key1   | Key2    | Key3     |
+  +========+=========+==========+
+  | Value1 | Value2  | Value3   |
+  +--------+---------+----------+
     </help>
     <citations>
         <citation type="doi">10.1038/nmeth.1896</citation>

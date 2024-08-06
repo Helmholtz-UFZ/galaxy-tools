@@ -164,9 +164,10 @@ jobs:
           singularity pull --dir /tmp docker://rocker/tidyverse
         fi
 
-    # Start OMERO
     - name: Start OMERO
-      run: docker-compose -f .github/omero-docker-compose.yml up -d
+      uses: sudo-bot/action-docker-compose@latest
+      with:
+        cli-args: "-f .github/omero-docker-compose.yml up -d"
 
     # download or create large test data via script
     - name: Create test data

@@ -60,7 +60,7 @@
     <outputs>
         <data name="log" format="txt"/>
     </outputs>
-        <tests>
+    <tests>
         <test>
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>

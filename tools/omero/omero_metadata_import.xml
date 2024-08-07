@@ -42,10 +42,9 @@
             <option value="new_object">Create new object</option>
             <option value="existing_object">Target an existing object</option>
         </param>
-        <when value="new_object">
-        </when>
+        <when value="new_object"/>
         <when value="existing_object">
-            <param name="did" type="integer" value="1409"/>
+            <param name="did" type="integer" value="" optional="false" label="Object ID"/>
         </when>
         </conditional>
         <param argument="ann_type" type="select" optional="false" label="Annotation type" help="Select annotation format">
@@ -115,7 +114,7 @@
 Description
 -----------
 
-Tool to import metadata (Table and K/V pairs) into user pre-defined OMERO.server.
+Tool to import metadata (Table and K/V pairs) into user defined OMERO.server.
 Metadata can be attached to an existing OMERO object (Project, Dataset, Screen, or Image).
 Optionally, a new OMERO object can be created before uploading the metadata.
 If the object does not exist, a new one will be created.

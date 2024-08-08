@@ -187,7 +187,7 @@ jobs:
         PID=$(omero obj new Project name='test_prj')
         DID=$(omero obj new Dataset name='test_dts')
         omero obj new ProjectDatasetLink parent=$PID child=$DID
-        omero import -d $DID .github/omero-dummy
+        omero import -d $DID .github/dummy-dts-omero
         echo "Created the dummy dataset into OMERO"
 
     # download or create large test data via script

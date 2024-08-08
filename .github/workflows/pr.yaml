@@ -305,11 +305,31 @@ jobs:
           singularity pull --dir /tmp docker://rocker/tidyverse
         fi
 
-    # Start OMERO
+      # Start OMERO
     - name: Start OMERO
       uses: sudo-bot/action-docker-compose@latest
       with:
         cli-args: "-f .github/omero-docker-compose.yml up -d"
+
+      # Setup environment
+    - name: Set up Python environment for omero-py
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11.0'
+
+      # Upload a dummy dataset in OMERO
+    - name: Install dependencies and upload a OMERO dummy dataset
+      run: |
+        echo "Waiting for OMERO to be ready..."
+        sleep 60
+        pip install https://github.com/glencoesoftware/zeroc-ice-py-linux-x86_64/releases/download/20240202/zeroc_ice-3.6.5-cp311-cp311-manylinux_2_28_x86_64.whl
+        pip install omero-py==5.19.4
+        omero login -s localhost -u root -w omero -p 6064
+        PID=$(omero obj new Project name='test_prj')
+        DID=$(omero obj new Dataset name='test_dts')
+        omero obj new ProjectDatasetLink parent=$PID child=$DID
+        omero import -d $DID .github/omero-dummy
+        echo "Created the dummy dataset into OMERO"
 
     # download or create large test data via script
     - name: Create test data

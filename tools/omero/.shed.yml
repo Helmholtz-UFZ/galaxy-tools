@@ -1,8 +1,8 @@
 categories:
 - Imaging
 name: omero_upload
-description: Import images and metadata into an OMERO.server using omero-py
-long_description: Tool to import images into a target dataset in OMERO
+description: Import images, region of interest, metadata into an OMERO.server using omero-py
+long_description: Tool to import and link different objects into OMERO
 owner: ufz
 remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/omero
 homepage_url: https://github.com/ome/omero-py/

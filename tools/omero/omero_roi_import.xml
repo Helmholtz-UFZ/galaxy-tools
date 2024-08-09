@@ -36,10 +36,10 @@
     </outputs>
     <tests>
         <test>
-            <param name="omero_host" value="localhost"/>
-            <param name="omero_port" value="4064"/>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
             <param name="id" value="1"/>
-            <param name="input" value="/home/massei/Documents/01_Projects/09_NFDI4BIOIMAGE/08_OMERO_UFZ_Python/mb-galaxy-tools/tools/omero/test-data/input_roi.tsv"/>
+            <param name="input" value="input_roi.tsv"/>
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>
             <output name="log" value="output_table_roi.txt" ftype="txt">

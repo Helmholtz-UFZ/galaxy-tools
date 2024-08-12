@@ -5,10 +5,12 @@ from ezomero import post_roi, connect
 from ezomero.rois import Ellipse, Label, Line, Point, Polygon, Polyline, Rectangle
 import pandas as pd
 
+
 def parse_color(color_str):
     if not color_str:
         return None
     return tuple(map(int, re.findall(r'\d+', color_str)))
+
 
 def parse_points(points_str):
     if not points_str:
@@ -18,6 +20,7 @@ def parse_points(points_str):
     points = points_str.split("),(")
     points = [point.strip("()") for point in points]  # Remove any remaining parentheses
     return [tuple(map(float, point.split(','))) for point in points]
+
 
 def create_shape(row):
     shape_type = row['shape']
@@ -111,6 +114,7 @@ def create_shape(row):
         )
     return shape
 
+
 def main(input_file, conn, image_id, log_file):
     # Open log file
     with open(log_file, 'w') as log:
@@ -131,6 +135,7 @@ def main(input_file, conn, image_id, log_file):
                 msg = f"Skipping row {index + 1}: Unable to create shape"
                 print(msg)
                 log.write(msg + "\n")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

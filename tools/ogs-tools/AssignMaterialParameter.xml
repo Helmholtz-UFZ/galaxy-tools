@@ -1,0 +1,50 @@
+<tool id="assign_material_parameter" name="Assign Material Parameter" version="0.1.0+galaxy0" python_template_version="3.5" profile="21.05">
+    <description>
+        Assign material parameters to a VTK Unstructured Grid based on a CSV file.
+    </description>
+    <requirements>
+        <requirement type="package" version="5.9.0">paraview</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+    python3 AssignMaterialParameter.py --input_file "$input_file" --csv_file "$csv_file" --output_file "$output_file"
+    ]]></command>
+    <inputs>
+        <param name="input_file" type="data" format="vtk" label="Input VTK File"/>
+        <param name="csv_file" type="data" format="csv" label="CSV File with Material Parameters"/>
+    </inputs>
+    <outputs>
+        <data name="output_file" format="vtk" label="Output VTK File with Assigned Material Parameters"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="input_file" value="input.vtk"/>
+            <param name="csv_file" value="parameters.csv"/>
+            <output name="output_file" file="output.vtk"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+        ## Paraview Grid Calculation Tool
+
+        This tool processes unstructured grid files and calculates specific properties such as permeability and mass flux within the grid. It is based on a Paraview script environment and uses Python scripts to process the input file and output the calculated results.
+
+        ### Inputs
+        - **Input Unstructured Grid File**: An unstructured grid file (e.g., `.vtu`) that contains the geometric model on which the calculations will be performed.
+
+        ### Outputs
+        - **Output File**: The output file contains the calculated results, such as the effective permeability and mass flux found in the unstructured grid. It is stored in a binary format suitable for further analysis in Paraview.
+
+        ### Example of Use
+        1. Upload your unstructured grid file.
+        2. Specify the path where the output file should be saved.
+        3. Run the tool to perform the calculations and save the results as an output file.
+
+        ### Requirements
+        This tool requires Paraview and the associated Python modules to read the grid file and perform the necessary calculations.
+
+        ### Developer Notes
+        This tool uses a Paraview Python script to calculate the cell centers in the unstructured grid and perform simulations based on them. It can be used for various applications, including fluid mechanics analysis and material characterization.
+    ]]></help>
+    <citations>
+        <citation type="doi">Ahrens, James, Geveci, Berk, Law, Charles, ParaView: An End-User Tool for Large Data Visualization, Visualization Handbook, Elsevier, 2005, ISBN-13: 9780123875822</citation>
+    </citations>
+</tool>

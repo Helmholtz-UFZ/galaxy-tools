@@ -1,0 +1,47 @@
+<tool id="merge_prefixed_arrays" name="Merge Prefixed Arrays" version="0.1.0+galaxy0" python_template_version="3.5" profile="21.05">
+    <description>
+        This tool processes tensor data from a VTU file, reconstructing the tensor field based on the specified dimension (2D or 3D).
+    </description>
+    <requirements>
+        <requirement type="package" version="2.7">python</requirement>
+        <requirement type="package" version="8.2">vtk</requirement>
+        <requirement type="package" version="1.0" >sys</requirement>
+        <requirement type="package" version="1.0">exit</requirement>
+        <requirement type="package" version="1.0" >argv</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+    python2 mergePrefixedArrays.py $dimension $field_name $input_file $output_file
+    ]]></command>
+    <inputs>
+        <param name="dimension" type="integer" label="Dimension" help="The dimension of the tensor data (2 or 3)" />
+        <param name="field_name" type="text" label="Field Name" help="The base name of the tensor field arrays in the input file" />
+        <param name="input_file" type="data" format="vtu" label="Input VTU file" help="The input VTU file containing the tensor data arrays" />
+        <param name="output_file" type="data" format="vtu" label="Output VTU file" help="The VTU file that will be generated" />
+    </inputs>
+    <outputs>
+        <data name="output_vtu" format="vtu" label="Generated Output VTU file"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="dimension" value="2"/>
+            <param name="field_name" value="Tensor"/>
+            <param name="input_file" value="test_data/input_2d.vtu"/>
+            <param name="output_file" value="output_test_2d.vtu"/>
+            <output name="output_vtu" file="test_data/expected_output_2d.vtu" compare="diff"/>
+        </test>
+    </tests>    
+    <help><![CDATA[
+        This tool processes tensor data from a VTU file. It reconstructs the tensor field using the specified dimension (2D or 3D) and saves the updated VTU file.
+        **Inputs**:
+        - **Dimension**: The dimension of the tensor data. Must be either 2 or 3.
+        - **Field Name**: The base name of the tensor field arrays in the input VTU file.
+        - **Input VTU file**: The VTU file containing the original tensor data arrays.
+        - **Output VTU file**: The VTU file that will be created with the reconstructed tensor field.
+
+        **Outputs**:
+        - **Generated Output VTU file**: The VTU file with the reconstructed tensor field.
+    ]]></help>
+    <citations>
+        <citation type="doi">10.5281/zenodo.11652195</citation>
+    </citations>
+</tool>

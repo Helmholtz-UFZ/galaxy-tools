@@ -1,0 +1,56 @@
+<tool id="prepare_inhomogeneous_permeability" name="Prepare Inhomogeneous Permeability" version="0.1.0+galaxy0" python_template_version="3.5" profile="21.05">
+    <description>
+        Computes the effective permeability and mass flux for a given mesh. The script uses provided CSV profiles for permeability and velocity,
+        calculates the properties, and adds them to the mesh.
+    </description>
+    <requirements>
+        <requirement type="package" version="5.9.0">pvpython</requirement>
+        <requirement type="package" version="5.9.1">paraview</requirement>
+        <requirement type="package" version="1.25.0">numpy</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        pvpython prepare-inhomogeneous-permeability.py --input "$input" --output "$output"
+        
+    ]]></command>
+    <inputs>
+        <param argument="--input" type="text" optional="false" label="input"/>
+        <param argument="--output" type="text" optional="false" label="output"/>
+
+    </inputs>
+    <outputs>
+        <data name="output_data" format="vtu" label="Mesh with Permeability and Mass Flux Properties"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="input" value="test_data/input_mesh.vtu"/>
+            <param name="output" value="test_data/output_mesh_with_properties.vtu"/>
+            
+            <output name="output_data" file="test_data/expected_output_mesh_with_properties.vtu" compare="diff"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+        ## Paraview Grid Calculation Tool
+
+        This tool processes unstructured grid files and calculates specific properties such as permeability and mass flux within the grid. It is based on a Paraview script environment and uses Python scripts to process the input file and output the calculated results.
+
+        ### Inputs
+        - **Input Unstructured Grid File**: An unstructured grid file (e.g., `.vtu`) that contains the geometric model on which the calculations will be performed.
+
+        ### Outputs
+        - **Output File**: The output file contains the calculated results, such as the effective permeability and mass flux found in the unstructured grid. It is stored in a binary format suitable for further analysis in Paraview.
+
+        ### Example of Use
+        1. Upload your unstructured grid file.
+        2. Specify the path where the output file should be saved.
+        3. Run the tool to perform the calculations and save the results as an output file.
+
+        ### Requirements
+        This tool requires Paraview and the associated Python modules to read the grid file and perform the necessary calculations.
+
+        ### Developer Notes
+        This tool uses a Paraview Python script to calculate the cell centers in the unstructured grid and perform simulations based on them. It can be used for various applications, including fluid mechanics analysis and material characterization.
+    ]]></help>
+    <citations>
+        <citation type="doi">Ahrens, James, Geveci, Berk, Law, Charles, ParaView: An End-User Tool for Large Data Visualization, Visualization Handbook, Elsevier, 2005, ISBN-13: 9780123875822</citation>
+    </citations>
+</tool>

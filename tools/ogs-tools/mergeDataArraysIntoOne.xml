@@ -1,0 +1,54 @@
+<tool id="merge_data_arrays_into_one" name="Merge Data Arrays Into One" version="0.1.0+galaxy0" python_template_version="3.5" profile="21.05">
+    <description>
+        Merges multiple cell data arrays into a single cell data array in a VTU file.
+    </description>
+    <requirements>
+        <requirement type="package" version="2.7">python</requirement>
+        <requirement type="package" version="8.2">vtk</requirement>
+        <requirement type="package" version="1.0" >sys</requirement>
+        <requirement type="package" version="1.0">exit</requirement>
+        <requirement type="package" version="1.0" >argv</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+    python2 mergeCellDataArrays.py $input_file $scalar1 $scalar2 $scalar3 $scalar4 $scalar5 $scalar6 $scalar7 $scalar8 $scalar9 $scalar10 
+            $scalar11 $scalar12 $scalar13 $scalar14 $scalar15 $scalar16 $scalar17 $scalar18 $scalar19 $scalar20 $new_array_name $output_file
+
+    ]]></command>
+    <inputs>
+        <param name="input_file" type="data" format="vtu" label="Input VTU file" help="The input VTU file containing the cell data arrays" />
+        <param name="output_file" type="data" format="vtu" label="Output VTU file" help="The VTU file that will be generated" />
+        <param name="new_array_name" type="text" label="Name for New Array" help="Name for the new merged cell data array" />
+        <repeat name="scalar" title="scalar">
+            <param name="array" type="text" label="Cell Data Array" help="Name of a cell data array to merge" optional="true"/>
+        </repeat>
+    </inputs>
+    <outputs>
+        <data name="output_vtu" format="vtu" label="Generated Output VTU file" />
+    </outputs>
+    <tests>
+        <test>
+            <param name="input_file" value="test_data/input.vtu"/>
+            <param name="output_file" value="output_test.vtu"/>
+            <param name="array" value="Array1"/>
+            <param name="array" value="Array2"/>
+            <param name="array" value="Array3"/>
+            <param name="array" value="Array4"/>
+            <param name="new_array_name" value="MergedArray"/>         
+            <output name="output_vtu" file="test_data/expected_output.vtu" compare="diff"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+        This tool takes an input VTU file and merges multiple cell data arrays into a single cell data array. The new array is added to the VTU file and saved as the output file.
+        **Inputs**:
+        - **Input VTU file**: The VTU file containing the cell data arrays.
+        - **First to Twentieth Cell Data Array**: Names of cell data arrays to merge. Leave unused fields empty.
+        - **Name for New Array**: The name of the new merged cell data array.
+        - **Output VTU file**: The VTU file with the new merged cell data array.
+
+        **Outputs**:
+        - **Generated Output VTU file**: The VTU file with the new merged cell data array.
+    ]]></help>
+    <citations>
+        <citation type="doi">10.5281/zenodo.11652195</citation>
+    </citations>
+</tool>

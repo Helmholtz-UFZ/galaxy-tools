@@ -1,0 +1,71 @@
+<tool id="bankfull_discharge" name="Calculate Bankfull Discharge and Wetted Perimeter" version="0.1.0+galaxy0" python_template_version="3.5" profile="21.05">
+    <description>
+        Calculate the river discharge at bankfull conditions and the bankfull width.
+    </description>
+    <requirements>
+        <requirement type="package" version="5.13">mhm</requirement>
+        <requirement type="package" version="3.8">python</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        python3 __init__.py bankfull
+        -i "${input}" 
+        -o "${output}"
+        -r "${return_period}" 
+        -v "${var}"
+        #if $wetted_perimeter:
+            --wetted_perimeter
+        #end if
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" format="netcdf" label="Input NetCDF file with discharge data" />
+        <param name="output" type="data" format="netcdf" label="Output NetCDF file" />
+        <param name="return_period" type="float" value="1.5" label="Return Period (years)" help="The return period of the flood in years." />
+        <param name="var" type="text" value="Qrouted" label="Variable name for routed streamflow in the NetCDF file" help="Name of the variable in the input file." />
+        <param name="wetted_perimeter" type="boolean" optional="true" checked="false" label="Estimate Wetted Perimeter" help="Check to additionally estimate the wetted perimeter." />
+    </inputs>
+    <outputs>
+        <data name="output_data" format="netcdf" label="Output NetCDF file" />
+    </outputs>
+    <tests>
+        <test>
+            <param name="input" value="input.nc" />
+            <param name="output" value="output.nc" />
+            <param name="return_period" value="1.5" />
+            <param name="var" value="Qrouted" />
+            <output name="output_data" file="output.nc" />
+        </test>
+        <test>
+            <param name="input" value="input.nc" />
+            <param name="output" value="output_wetted.nc" />
+            <param name="return_period" value="1.5" />
+            <param name="var" value="Qrouted" />
+            <param name="wetted_perimeter" value="true" />
+            <output name="output_data" file="output.nc" />
+        </test>
+    </tests>
+
+    <help><![CDATA[
+        This tool calculates the river discharge at bankfull conditions and the bankfull width. 
+        The bankfull discharge is determined as the yearly peak flow with a recurrence interval 
+        given by "return_period", which is 1.5 years by default. The wetted perimeter is estimated 
+        from bankfull discharge with Lacey's formula.
+
+        **Inputs:**
+        - **Input NetCDF file**: The path of the mRM NetCDF file with the discharge data.
+        - **Return Period**: The return period of the flood in years (default: 1.5 years).
+        - **Variable Name**: The name of the variable for routed streamflow in the NetCDF file (default: "Qrouted").
+        - **Estimate Wetted Perimeter**: Check this option to estimate the wetted perimeter.
+
+        **Outputs:**
+        - **Output NetCDF file**: The path of the output NetCDF file. This file will contain the calculated bankfull discharge (`Q_bkfl`) and, if requested, the wetted perimeter (`P_bkfl`).
+
+        **Example Workflow in Galaxy:**
+        1. Upload your NetCDF input file and configure the tool settings. 
+        2. Set the "Return Period" and "Variable Name" as needed.
+        3. Choose whether to estimate the wetted perimeter.
+        4. Run the tool to get the output NetCDF file with the bankfull discharge and, if selected, the wetted perimeter.
+    ]]></help>
+    <citations>
+        <citation type="doi">placeholder</citation>
+    </citations>
+</tool>

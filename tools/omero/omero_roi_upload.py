@@ -1,9 +1,9 @@
 import argparse
 import re
 
-from ezomero import post_roi, connect
-from ezomero.rois import Ellipse, Label, Line, Point, Polygon, Polyline, Rectangle
 import pandas as pd
+from ezomero import connect,post_roi
+from ezomero.rois import Ellipse, Label, Line, Point, Polygon, Polyline, Rectangle
 
 
 def parse_color(color_str):

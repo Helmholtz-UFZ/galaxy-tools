@@ -43,7 +43,7 @@ jobs:
       commit-range: ${{ steps.discover.outputs.commit-range }}
     strategy:
       matrix:
-        python-version: ['3.11']
+        python-version: ['3.11.9']
     steps:
     - name: Print github context properties
       run: |
@@ -110,7 +110,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.11']
+        python-version: ['3.11.9']
     steps:
     - uses: actions/checkout@v4
       with:
@@ -156,7 +156,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.11']
+        python-version: ['3.11.9']
     steps:
     - uses: actions/checkout@v4
       with:
@@ -257,7 +257,7 @@ jobs:
       fail-fast: false
       matrix:
         chunk: ${{ fromJson(needs.setup.outputs.chunk-list) }}
-        python-version: ['3.11']
+        python-version: ['3.11.9']
     services:
       postgres:
         image: postgres:11
@@ -358,7 +358,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.11']
+        python-version: ['3.11.9']
     steps:
     - uses: actions/download-artifact@v4
       with:
@@ -404,7 +404,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.11']
+        python-version: ['3.11.9']
     steps:
     - uses: actions/checkout@v4
       with:

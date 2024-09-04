@@ -25,8 +25,8 @@
         omero import folder -T Dataset:name:$dataset_name
             -s $omero_host
             -p $omero_port
-            -u $__user__.extra_preferences.get('omero|username', $test_username)
-            -w $__user__.extra_preferences.get('omero|password', $test_password)
+            -u $__user__.extra_preferences.get('omero_account|username', $test_username)
+            -w $__user__.extra_preferences.get('omero_account|password', $test_password)
         > $log &&
 
         omero logout

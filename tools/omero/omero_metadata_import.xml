@@ -15,8 +15,8 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         python $__tool_directory__/omero_metadata_upload.py
-        --user $__user__.extra_preferences.get('omero|username', $test_username)
-        --pws $__user__.extra_preferences.get('omero|password', $test_password)
+        --user $__user__.extra_preferences.get('omero_account|username', $test_username)
+        --pws $__user__.extra_preferences.get('omero_account|username', $test_password)
         --host $omero_host
         --port $omero_port
         --obj_type $obj_type

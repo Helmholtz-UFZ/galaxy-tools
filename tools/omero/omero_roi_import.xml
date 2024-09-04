@@ -17,8 +17,8 @@
         python $__tool_directory__/omero_roi_upload.py
         --input_file $input
         --image_id $id
-        --user $__user__.extra_preferences.get('omero|username', $test_username)
-        --psw $__user__.extra_preferences.get('omero|password', $test_password)
+        --user $__user__.extra_preferences.get('omero_account|username', $test_username)
+        --psw $__user__.extra_preferences.get('omero_account|password', $test_password)
         --host $omero_host
         --port $omero_port
         --log_file $log

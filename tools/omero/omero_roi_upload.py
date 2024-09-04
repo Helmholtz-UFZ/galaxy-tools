@@ -2,7 +2,7 @@ import argparse
 import re
 
 import pandas as pd
-from ezomero import connect,post_roi
+from ezomero import connect, post_roi
 from ezomero.rois import Ellipse, Label, Line, Point, Polygon, Polyline, Rectangle
 
 

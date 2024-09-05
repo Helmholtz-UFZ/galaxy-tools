@@ -1,0 +1,18 @@
+name: Merge Data Arrays
+owner: ufz
+description: Merges two scalar arrays into a 2D vector array in a VTU file
+long_description: |
+    This tool takes an input VTU file, merges two scalar arrays into a 2D vector array, and outputs a new VTU file.
+categories:
+- Assembly
+remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/ogs-tools
+homepage_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/ogs-tools
+type: unrestricted
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: Merges two scalar arrays into a 2D vector array in a VTU file
+suite:
+  name: Merge Data Arrays
+  description: Merges two scalar arrays into a 2D vector array in a VTU file
+  long_description: |
+      This tool takes an input VTU file, merges two scalar arrays into a 2D vector array, and outputs a new VTU file.

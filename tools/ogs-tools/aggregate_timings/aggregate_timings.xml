@@ -1,6 +1,6 @@
 <tool id="aggregate_timings" name="Aggregate Timings" version="0.1.0+galaxy0" python_template_version="3.5" profile="21.05">
     <description>
-        Konvertiert JSON-Dateien in CSV.
+        Converts .json to .csv data.
     </description>
     <requirements>
         <requirement type="package" version="3.9">python</requirement>

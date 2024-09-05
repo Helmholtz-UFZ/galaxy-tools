@@ -1,0 +1,24 @@
+name: Bankfull Discharge
+owner: ufz
+description: Bankfull discharge calculation.
+long_description: |
+    This tool calculates the river discharge at bankfull conditions and the bankfull width. 
+    The bankfull discharge is determined as the yearly peak flow with a recurrence interval 
+    given by "return_period", which is 1.5 years by default. The wetted perimeter is estimated 
+    from bankfull discharge with Lacey's formula.
+categories:
+- Ecology
+remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/mhm-tools
+homepage_url: https://git.ufz.de/mhm/
+type: unrestricted
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: "Wrapper for bankfull discharge calculation function: {{ tool_name }}."
+suite:
+  name: Bankfull Discharge
+  description: Calculate Bankfull Discharge and Wetted Perimeter.
+  long_description: |
+      This tool calculates the river discharge at bankfull conditions and the bankfull width. 
+      The bankfull discharge is determined as the yearly peak flow with a recurrence interval 
+      given by "return_period", which is 1.5 years by default. The wetted perimeter is estimated 
+      from bankfull discharge with Lacey's formula.

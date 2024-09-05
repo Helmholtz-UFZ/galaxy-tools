@@ -1,7 +1,6 @@
 <tool id="compute_time_shares" name="Compute Time Shares" version="0.1.0+galaxy0" python_template_version="3.5" profile="21.05">
     <description>
-        Dieses Tool verarbeitet eine Logdatei, extrahiert Zeitdaten und gibt die kumulativen Werte aus. 
-        Optional kann die Ausgabe auch im JSON-Format gespeichert werden.
+        This tool processes a log file, extracts time data, and outputs the cumulative values. Optionally, the output can also be saved in JSON format.
       </description>
     <requirements> 
         <requirement type="package" version="3.9">python</requirement>

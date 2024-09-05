@@ -1,0 +1,18 @@
+name: Merge Data Arrays Into One
+owner: ufz
+description: Merges multiple cell data arrays into a single cell data array in a VTU file.
+long_description: |
+    This tool takes an input VTU file and merges multiple cell data arrays into a single cell data array. The new array is added to the VTU file and saved as the output file.
+categories:
+- Assembly
+remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/ogs-tools
+homepage_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/ogs-tools
+type: unrestricted
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: Merges data arrays into one array
+suite:
+  name: Merge Data Arrays Into One
+  description: Merges multiple cell data arrays into a single cell data array in a VTU file.
+  long_description: |
+      This tool takes an input VTU file and merges multiple cell data arrays into a single cell data array. The new array is added to the VTU file and saved as the output file.

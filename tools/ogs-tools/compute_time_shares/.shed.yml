@@ -1,0 +1,18 @@
+name: Compute Time Shares
+owner: ufz
+description: This tool processes a log file, extracts time data, and outputs the cumulative values. Optionally, the output can also be saved in JSON format.
+long_description: |
+    This tool processes a log file to compute and aggregate time data by category. It extracts lines containing the keyword `[time]`, calculates cumulative times for each category, and can optionally save the results in a JSON file.
+categories:
+- Data Export
+remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/ogs-tools
+homepage_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/ogs-tools
+type: unrestricted
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: This tool processes a log file, extracts time data, and outputs the cumulative values. Optionally, the output can also be saved in JSON format.
+suite:
+  name: Compute Time Shares
+  description: This tool processes a log file, extracts time data, and outputs the cumulative values. Optionally, the output can also be saved in JSON format.
+  long_description: |
+      This tool processes a log file to compute and aggregate time data by category. It extracts lines containing the keyword `[time]`, calculates cumulative times for each category, and can optionally save the results in a JSON file.

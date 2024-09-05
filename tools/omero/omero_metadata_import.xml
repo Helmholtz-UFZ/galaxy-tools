@@ -3,7 +3,7 @@
     <description> with ezomero </description>
     <macros>
         <token name="@TOOL_VERSION@">5.18.0</token>
-        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@VERSION_SUFFIX@">1</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -11,6 +11,7 @@
     <requirements>
         <requirement type="package" version="3.0.1">ezomero</requirement>
         <requirement type="package" version="2.2.2">pandas</requirement>
+        <!-- openjdk is needed: https://github.com/conda-forge/omero-py-feedstock/pull/16 -->
         <requirement type="package" version="21.0.2">openjdk</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
@@ -29,7 +30,10 @@
         #end if
     ]]></command>
     <inputs>
-        <param argument="omero_host" type="text" optional="false" label="OMERO host URL"/>
+        <param name="omero_host" type="text" label="OMERO host URL">
+            <validator type="regex" message="Enter a valid host location, for example, your.omero.server">^[a-zA-Z0-9._-]*$</validator>
+            <validator type="expression" message="No two dots (..) allowed">'..' not in value</validator>
+        </param>
         <param argument="omero_port" type="integer" optional="false" value="4064" label="OMERO port"/>
         <param argument="obj_type" type="select" optional="true" label="Target Object Type">
             <option value="project">Project</option>

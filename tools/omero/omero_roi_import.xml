@@ -3,7 +3,7 @@
     <description> with ezomero </description>
     <macros>
         <token name="@TOOL_VERSION@">5.18.0</token>
-        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@VERSION_SUFFIX@">1</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -11,22 +11,26 @@
     <requirements>
         <requirement type="package" version="3.0.1">ezomero</requirement>
         <requirement type="package" version="2.2.2">pandas</requirement>
+        <!-- openjdk is needed: https://github.com/conda-forge/omero-py-feedstock/pull/16 -->
         <requirement type="package" version="21.0.2">openjdk</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python $__tool_directory__/omero_roi_upload.py
-        --input_file $input
-        --image_id $id
-        --user $__user__.extra_preferences.get('omero_account|username', $test_username)
-        --psw $__user__.extra_preferences.get('omero_account|password', $test_password)
-        --host $omero_host
-        --port $omero_port
-        --log_file $log
+        python '$__tool_directory__/omero_roi_upload.py'  
+        --input_file '$input'  
+        --image_id $id  
+        --user '$__user__.extra_preferences.get("omero_account|username", $test_username)'  
+        --psw '$__user__.extra_preferences.get("omero_account|password", $test_password)'  
+        --host '$omero_host'  
+        --port $omero_port  
+        --log_file '$log'  
     ]]></command>
     <inputs>
         <param argument="input" type="data" format="tabular" optional="false" label="Tab File with ROIs" help="Select ROIs Tabular file"/>
         <param argument="id" type="integer" optional="false" label="Image ID where annotate the ROIs"/>
-        <param argument="omero_host" type="text" optional="false" label="OMERO host URL"/>
+        <param name="omero_host" type="text" label="OMERO host URL">
+            <validator type="regex" message="Enter a valid host location, for example, your.omero.server">^[a-zA-Z0-9._-]*$</validator>
+            <validator type="expression" message="No two dots (..) allowed">'..' not in value</validator>
+        </param>
         <param argument="omero_port" type="integer" optional="false" value="4064" label="OMERO port"/>
         <param name="test_username" type="hidden" value=""/>
         <param name="test_password" type="hidden" value=""/>

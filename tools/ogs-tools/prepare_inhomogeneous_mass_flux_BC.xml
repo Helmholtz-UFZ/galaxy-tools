@@ -1,0 +1,76 @@
+<tool id="prepare_inhomogeneous_mass_flux_BC" name="Prepare Inhomogeneous Mass Flux BC" version="0.1.0+galaxy0" python_template_version="3.5" profile="21.05">
+    <description>
+        Generate an inhomogeneous node-based mass flux field along a slice through a mesh.
+    </description>
+    <requirements>
+        <requirement type="package" version="5.9.0">pvpython</requirement>
+        <requirement type="package" version="5.9.0">paraview</requirement>
+        <requirement type="package" version="1.19.2">numpy</requirement>
+        <requirement type="package" version="1.7.1">scipy</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        pvpython prepare-inhomogeneous-mass-flux-BC.py \
+            --input "$input" \
+            --output "$output" \
+            --profile "$profile" \
+            --total-flux "$total_flux" \
+            --slice-normal $slice_normal \
+            --slice-origin $slice_origin
+        ]]></command>
+    <inputs>
+        <param argument="--input" type="text" optional="false" label="input"/>
+        <param argument="--output" type="text" optional="false" label="output"/>
+        <param argument="--profile" type="text" optional="false" label="profile"/>
+        <param argument="--total-flux" type="float" optional="false" label="total_flux"/>
+        <repeat name="slice_normal_repeat" title="slice_normal_repeat" max="3">
+            <param argument="--slice-normal" type="float" optional="false" label="slice_normal"/>
+        </repeat>
+        <repeat name="slice_origin_repeat" title="slice_origin_repeat" max="3">
+            <param argument="--slice-origin" type="float" optional="false" label="slice_origin"/>
+        </repeat>
+
+    </inputs>
+    <outputs>
+        <data name="output_data" format="xml" label="Output VTU file" />
+    </outputs>
+    <tests>
+        <test>
+            <param name="input" value="test_data/input_mesh.vtu"/>
+            <param name="output" value="test_data/output.vtu"/>
+            <param name="profile" value="test_data/smooth_velocity_profile.csv"/>
+            <param name="total_flux" value="5.0"/>
+            <param name="slice_normal" value="0.0 1.0 0.0"/>
+            <param name="slice_origin" value="0.0 0.0 0.0"/>
+
+            <output name="output_data" file="test_data/expected_output.vtu" compare="diff"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+        This tool processes `VTU` files in ParaView to perform the following tasks:
+
+        **Inputs:**
+        - **Input VTU file (`--input`)**: The input VTU file containing the cell data arrays that will be processed.
+        - **Output VTU file (`--output`)**: The VTU file that will be generated after processing.
+        - **Profile (`--profile`)**: A CSV file containing velocity profile data for mass flux computation. This file should have two columns: radial distance and velocity.
+        - **Total Flux (`--total-flux`)**: The target total mass flux value (in kg/s) that the output flux should match.
+        - **Slice Normal (`--slice-normal`)**: The normal vector of the slicing plane. Provide three float values (x, y, z).
+        - **Slice Origin (`--slice-origin`)**: The origin point of the slicing plane. Provide three float values (x, y, z).
+
+        **Functionality:**
+        - Reads an input VTU file and adds point IDs to the data.
+        - Creates a slice through the data based on the provided normal vector and origin.
+        - Converts the sliced data to an unstructured grid.
+        - Computes the mass flux using the provided profile and scales it to match the desired total flux.
+        - Saves the processed data into the specified output VTU file.
+
+        **Notes:**
+        - Ensure that the profile CSV file has the correct format with two columns for radial distance and velocity.
+        -  The slicing plane's normal vector and origin should be provided in the correct format for accurate slicing.
+
+        **Output:**
+        - The resulting VTU file will contain the processed data with added mass flux information.
+    ]]></help>
+     <citations>
+        <citation type="doi">Ahrens, James, Geveci, Berk, Law, Charles, ParaView: An End-User Tool for Large Data Visualization, Visualization Handbook, Elsevier, 2005, ISBN-13: 9780123875822</citation>
+    </citations>
+</tool>

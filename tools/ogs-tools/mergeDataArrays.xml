@@ -1,0 +1,49 @@
+<tool id="merge_data_arrays" name="Merge Data Arrays" version="0.1.0+galaxy0" python_template_version="3.5" profile="21.05">
+    <description>
+        Merges two scalar arrays into a 2D vector array in a VTU file</description>
+    <requirements>
+        <requirement type="package" version="2.7">python</requirement>
+        <requirement type="package" version="8.2">vtk</requirement>
+        <requirement type="package" version="1.0" >sys</requirement>
+        <requirement type="package" version="1.0">exit</requirement>
+        <requirement type="package" version="1.0" >argv</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        python2 mergeDataArrays.py $input_file $scalar1 $scalar2 $vector_2d $output_file
+    ]]></command>
+    <inputs>
+        <param name="input_file" type="data" format="vtu" label="Input VTU file" help="The input VTU file containing the scalar arrays" />
+        <param name="output_file" type="data" format="vtu" label="Output VTU file" help="The output VTU file with the new 2D vector array" />
+        <param name="vector_2d" type="text" label="Output 2D Vector Array" help="Name of the output 2D vector array" />
+        <param name="scalar1" type="text" label="First Scalar Array" help="Name of the first scalar array to merge" />
+        <param name="scalar2" type="text" label="Second Scalar Array" help="Name of the second scalar array to merge" />
+    </inputs>
+    <outputs>
+        <data name="output_vtu" format="vtu" label="Output VTU file" />
+    </outputs>
+    <tests>
+        <test>
+            <param name="input_file" value="test_input.vtu"/>
+            <output name="output_vtu" file="test_output.vtu" compare="diff"/>
+            <param name="vector_2d" value="Vector2D"/>
+            <param name="scalar1" value="Scalar1"/>
+            <param name="scalar2" value="Scalar2"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+        This tool takes an input VTU file, merges two scalar arrays into a 2D vector array, and outputs a new VTU file.
+
+        **Inputs**:
+        - **Input VTU file**: The VTU file containing the scalar arrays.
+        - **First Scalar Array**: The name of the first scalar array to merge.
+        - **Second Scalar Array**: The name of the second scalar array to merge.
+        - **Output 2D Vector Array**: The name of the output 2D vector array.
+
+        **Outputs**:
+        -   **Output VTU file**: The VTU file with the new 2D vector array.
+    ]]></help>
+    <citations>
+        <citation type="doi">10.5281/zenodo.11652195</citation>
+    </citations>
+
+</tool>

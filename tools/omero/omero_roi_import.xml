@@ -3,7 +3,7 @@
     <description> with ezomero </description>
     <macros>
         <token name="@TOOL_VERSION@">5.18.0</token>
-        <token name="@VERSION_SUFFIX@">1</token>
+        <token name="@VERSION_SUFFIX@">2</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -26,7 +26,7 @@
     ]]></command>
     <inputs>
         <param argument="input" type="data" format="tabular" optional="false" label="Tab File with ROIs" help="Select ROIs Tabular file"/>
-        <param argument="id" type="integer" optional="false" label="Image ID where annotate the ROIs"/>
+        <param argument="id" type="integer" value="" optional="false" label="Image ID where annotate the ROIs"/>
         <param name="omero_host" type="text" label="OMERO host URL">
             <validator type="regex" message="Enter a valid host location, for example, your.omero.server">^[a-zA-Z0-9._-]*$</validator>
             <validator type="expression" message="No two dots (..) allowed">'..' not in value</validator>

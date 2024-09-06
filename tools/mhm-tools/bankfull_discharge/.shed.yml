@@ -1,4 +1,4 @@
-name: bankfull_discharge
+name: suite_bankfull_discharge
 owner: ufz
 description: Bankfull discharge calculation.
 long_description: |
@@ -15,7 +15,7 @@ auto_tool_repositories:
   name_template: "{{ tool_id }}"
   description_template: "Wrapper for bankfull discharge calculation function: {{ tool_name }}."
 suite:
-  name: bankfull_discharge
+  name: suite_bankfull_discharge
   description: Calculate Bankfull Discharge and Wetted Perimeter.
   long_description: |
       This tool calculates the river discharge at bankfull conditions and the bankfull width. 

@@ -22,7 +22,7 @@ auto_tool_repositories:
   name_template: "{{ tool_id }}"
   description_template: Various Tools for OpenGeoSys
 suite:
-  name: OGS Tools
+  name: suite_ogs_tools
   description: Various Tools for OpenGeoSys
   long_description: |
       Aggregate Timings:                    Converts .json to .csv data.

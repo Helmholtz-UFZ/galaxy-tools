@@ -1,0 +1,112 @@
+<tool id="vibrant" name="VIBRANT" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01" license="MIT">
+    <description></description>
+    <macros>
+        <token name="@TOOL_VERSION@">1.2.1</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">TODO</xref>
+    </xrefs>
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">vibrant</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        ln -s '$input' 'input.fas' &&
+
+        VIBRANT_run.py
+            -i 'input.fas'
+            $protein
+            -d '$database.fields.path'/databases/
+            -m '$database.fields.path'/files/
+            -l $l
+            -o $o
+            $virome
+            -t "\${GALAXY_SLOTS:-1}"
+            -no_plot
+    ]]></command>
+    <inputs>
+        <param argument="-i" name="input" type="data" format="fasta" label="Input fasta file"/>
+        <param argument="-f" name="protein" type="boolean" truevalue="-f prot" falsevalue="-f nucl" checked="false" label="Input is protein" help="By default nucleotide sequence is assumed"/>
+        <param argument="-d" name="database" type="select" label="Reference data">
+            <options from_data_table="vibrant"/>
+        </param>
+        <param argument="-l" type="integer" value="1000" min="1000" label="Minumum scaffold length" help="VIBRANT will only consider scaffolds greater than or equal to this value"/>
+        <param argument="-o" type="integer" value="4" min="4" label="Minumum number of ORFs" help="VIBRANT will only consider scaffolds with at least this number of ORFs"/>
+        <param argument="-virome" type="boolean" truevalue="--virome" falsevalue="" checked="false" label="Input is virome" help="This flag should be used cautiously. This will edit VIBRANT's sensitivity if the input dataset is a virome and not mixed metagenome. That is, if you expect the vast majority of your input scaffolds to be viruses then -virome can be used to remove obvious non-viral scaffolds. This will have no effect on runtime."/>
+    </inputs>
+    <outputs>
+        <data name="phages_combined_fna" format="fasta" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_combined.fna" label="${tool.name} on ${on_string}: Virus genomes"/>
+        <data name="phages_combined_txt" format="txt" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_combined.txt" label="${tool.name} on ${on_string}: Virus genomes list"/>
+        <data name="phages_combined_gbk" format="genbank" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_combined.gbk" label="${tool.name} on ${on_string}: Virus genomes genbank">
+            <filter>not protein</filter>
+        </data>
+    </outputs>
+    <tests>
+        <!-- Tests for vibrant are commented. To run them
+            - uncomment test
+            - download-db.sh tools/vibrant/test-data/db/ -->
+        <!-- <test expect_num_outputs="3">
+            <param name="input" value="mixed_example.fasta"/>
+            <param name="database" value="test"/>
+            <output name="phages_combined_fna">
+                <assert_contents>
+                    <has_text text=">" n="4"/>
+                    <has_n_lines n="8"/>
+                </assert_contents>
+            </output>
+            <output name="phages_combined_txt">
+                <assert_contents>
+                    <has_n_lines n="4"/>
+                </assert_contents>
+            </output>
+            <output name="phages_combined_gbk">
+                <assert_contents>
+                    <has_line line="//" n="3"/>
+                </assert_contents>
+            </output>
+        </test> -->
+    </tests>
+    <help><![CDATA[
+
+.. class:: infomark
+
+**What it does**
+
+VIBRANT is a tool for automated recovery and annotation of bacterial and
+archaeal viruses, determination of genome completeness, and characterization of
+viral community function from metagenomic assemblies. VIBRANT uses neural
+networks of protein annotation signatures and genomic features to maximize
+identification of highly diverse partial or complete viral genomes as well as
+excise integrated proviruses.
+
+- Uses neural network machine learning of protein annotation signatures
+- Asigns novel 'v-score' for determining the virus-like nature of all annotations
+- Determines genome completeness
+- Characterizes viral community function by metabolic analysis
+- Identifies auxiliary metabolic genes (AMGs)
+- Excises integrated viral genomes from host scaffolds
+- Performs well in diverse environments
+- Recovers novel and abundant viral genomes
+- Built for dsDNA, ssDNA and RNA viruses
+
+VIBRANT uses three databases for identifying viruses and characterizing virome metabolic potential:
+
+- KEGG (March release): https://www.genome.jp/kegg/ (FTP: ftp://ftp.genome.jp/pub/db/kofam/archives/2019-03-20/)
+- Pfam (v32): https://pfam.xfam.org (FTP: ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam32.0/)
+- VOG (release 94): http://vogdb.org/ (FTP: http://fileshare.csb.univie.ac.at/vog/vog94/)
+
+Usage
+.....
+
+
+**Input**
+
+
+**Output**
+
+
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1186/s40168-020-00867-0</citation>
+    </citations>
+</tool>

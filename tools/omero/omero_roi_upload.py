@@ -2,6 +2,7 @@ import argparse
 import re
 
 import pandas as pd
+import numpy as np
 from ezomero import connect, post_roi
 from ezomero.rois import Ellipse, Label, Line, Point, Polygon, Polyline, Rectangle
 
@@ -35,6 +36,7 @@ def create_shape(row):
             z=row.get('z'),
             c=row.get('c'),
             t=row.get('t'),
+            label = row.get('label'),
             fill_color=parse_color(row.get('fill_color')),
             stroke_color=parse_color(row.get('stroke_color')),
             stroke_width=row.get('stroke_width')
@@ -60,7 +62,7 @@ def create_shape(row):
             y2=row['y2'],
             markerStart=row.get('markerStart', None),
             markerEnd=row.get('markerEnd', None),
-            label=row.get('label', None),
+            label=row.get('label'),
             z=row.get('z'),
             c=row.get('c'),
             t=row.get('t'),
@@ -75,6 +77,7 @@ def create_shape(row):
             z=row.get('z'),
             c=row.get('c'),
             t=row.get('t'),
+            label = row.get('label'),
             fill_color=parse_color(row.get('fill_color')),
             stroke_color=parse_color(row.get('stroke_color')),
             stroke_width=row.get('stroke_width')
@@ -85,6 +88,7 @@ def create_shape(row):
             z=row.get('z'),
             c=row.get('c'),
             t=row.get('t'),
+            label = row.get('label'),
             fill_color=parse_color(row.get('fill_color')),
             stroke_color=parse_color(row.get('stroke_color')),
             stroke_width=row.get('stroke_width')
@@ -95,6 +99,7 @@ def create_shape(row):
             z=row.get('z'),
             c=row.get('c'),
             t=row.get('t'),
+            label = row.get('label'),
             fill_color=parse_color(row.get('fill_color')),
             stroke_color=parse_color(row.get('stroke_color')),
             stroke_width=row.get('stroke_width')
@@ -108,6 +113,7 @@ def create_shape(row):
             z=row.get('z'),
             c=row.get('c'),
             t=row.get('t'),
+            label = row.get('label'),
             fill_color=parse_color(row.get('fill_color')),
             stroke_color=parse_color(row.get('stroke_color')),
             stroke_width=row.get('stroke_width')
@@ -119,6 +125,8 @@ def main(input_file, conn, image_id, log_file):
     # Open log file
     with open(log_file, 'w') as log:
         df = pd.read_csv(input_file, sep='\t')
+        # Replace nan to none
+        df = df.replace({np.nan: None})
         for index, row in df.iterrows():
             msg = f"Processing row {index + 1}/{len(df)}: {row.to_dict()}"
             print(msg)

@@ -66,7 +66,7 @@
             <param name="input" value="input_roi_minimal.tsv"/>
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>
-            <output name="log" value="output_table_roi.txt" ftype="txt">
+            <output name="log" value="output_table_roi_minimal.txt" ftype="txt">
                 <assert_contents>
                     <has_text text="ROI ID: 8 for row 1"/>
                 </assert_contents>

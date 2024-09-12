@@ -2,8 +2,8 @@ import argparse
 import json
 import re
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 from ezomero import connect, post_roi
 from ezomero.rois import Ellipse, Label, Line, Point, Polygon, Polyline, Rectangle
 
@@ -37,7 +37,7 @@ def create_shape(row):
             z=row.get('z'),
             c=row.get('c'),
             t=row.get('t'),
-            label = row.get('label'),
+            label=row.get('label'),
             fill_color=parse_color(row.get('fill_color')),
             stroke_color=parse_color(row.get('stroke_color')),
             stroke_width=row.get('stroke_width')
@@ -78,7 +78,7 @@ def create_shape(row):
             z=row.get('z'),
             c=row.get('c'),
             t=row.get('t'),
-            label = row.get('label'),
+            label=row.get('label'),
             fill_color=parse_color(row.get('fill_color')),
             stroke_color=parse_color(row.get('stroke_color')),
             stroke_width=row.get('stroke_width')
@@ -89,7 +89,7 @@ def create_shape(row):
             z=row.get('z'),
             c=row.get('c'),
             t=row.get('t'),
-            label = row.get('label'),
+            label=row.get('label'),
             fill_color=parse_color(row.get('fill_color')),
             stroke_color=parse_color(row.get('stroke_color')),
             stroke_width=row.get('stroke_width')
@@ -100,7 +100,7 @@ def create_shape(row):
             z=row.get('z'),
             c=row.get('c'),
             t=row.get('t'),
-            label = row.get('label'),
+            label=row.get('label'),
             fill_color=parse_color(row.get('fill_color')),
             stroke_color=parse_color(row.get('stroke_color')),
             stroke_width=row.get('stroke_width')
@@ -114,7 +114,7 @@ def create_shape(row):
             z=row.get('z'),
             c=row.get('c'),
             t=row.get('t'),
-            label = row.get('label'),
+            label=row.get('label'),
             fill_color=parse_color(row.get('fill_color')),
             stroke_color=parse_color(row.get('stroke_color')),
             stroke_width=row.get('stroke_width')

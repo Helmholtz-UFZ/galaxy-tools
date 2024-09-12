@@ -1,4 +1,5 @@
 import argparse
+import json
 import re
 
 import pandas as pd
@@ -151,17 +152,19 @@ if __name__ == "__main__":
     parser.add_argument("--input_file", help="Path to the input tabular file.")
     parser.add_argument("--image_id", type=int, required=True, help="ID of the image to which the ROI will be linked")
     parser.add_argument("--host", type=str, required=True, help="OMERO server host")
-    parser.add_argument("--user", type=str, required=True, help="OMERO username")
-    parser.add_argument("--psw", type=str, required=True, help="OMERO password")
+    parser.add_argument("--credential-file", dest="credential_file", type=str, required=True, help="Credential file (JSON file with username and password for OMERO)")
     parser.add_argument("--port", type=int, default=4064, help="OMERO server port")
     parser.add_argument("--log_file", type=str, default="process.txt", help="Log file path")
 
     args = parser.parse_args()
 
+    with open(args.credential_file, 'r') as f:
+        crds = json.load(f)
+
     conn = connect(
         host=args.host,
-        user=args.user,
-        password=args.psw,
+        user=crds['username'],
+        password=crds['password'],
         port=args.port,
         group="",
         secure=True

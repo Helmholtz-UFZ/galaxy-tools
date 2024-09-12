@@ -1,4 +1,5 @@
 import argparse
+import json
 from datetime import datetime
 
 import ezomero as ez
@@ -73,8 +74,7 @@ def metadata_import_ezo(user, pws, host, port, obj_type, did=None, ann_type="tab
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Import metadata into OMERO.')
-    parser.add_argument('--user', required=True, help='OMERO username')
-    parser.add_argument('--pws', required=True, help='OMERO password')
+    parser.add_argument("--credential-file", dest="credential_file", type=str, required=True, help="Credential file (JSON file with username and password for OMERO)")
     parser.add_argument('--host', required=True, help='OMERO host')
     parser.add_argument('--port', required=True, type=int, help='OMERO port')
     parser.add_argument('--obj_type', required=True, choices=['project', 'screen', 'dataset', 'image'],
@@ -87,6 +87,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    metadata_import_ezo(user=args.user, pws=args.pws, host=args.host, port=args.port,
+    with open(args.credential_file, 'r') as f:
+        crds = json.load(f)
+
+    metadata_import_ezo(user=crds['username'], pws=crds['password'], host=args.host, port=args.port,
                         obj_type=args.obj_type, did=args.did, ann_type=args.ann_type,
                         ann_file=args.ann_file, an_name=args.an_name, log_file=args.log_file)

@@ -15,15 +15,22 @@
         <requirement type="package" version="21.0.2">openjdk</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python '$__tool_directory__/omero_roi_upload.py'  
-        --input_file '$input'  
-        --image_id $id  
-        --user '$__user__.extra_preferences.get("omero_account|username", $test_username)'  
-        --psw '$__user__.extra_preferences.get("omero_account|password", $test_password)'  
-        --host '$omero_host'  
-        --port $omero_port  
-        --log_file '$log'  
+        python '$__tool_directory__/omero_roi_upload.py'
+        --input_file '$input'
+        --image_id $id
+        --credential-file '$credentials'
+        --host '$omero_host'
+        --port $omero_port
+        --log_file '$log'
     ]]></command>
+    <configfiles>
+        <configfile name="credentials"><![CDATA[
+{
+    "username": "$__user__.extra_preferences.get('omero_account|username', $test_username)",
+    "password": "$__user__.extra_preferences.get('omero_account|password', $test_password)"
+}
+        ]]></configfile>
+    </configfiles>
     <inputs>
         <param argument="input" type="data" format="tabular" optional="false" label="Tab File with ROIs" help="Select ROIs Tabular file"/>
         <param argument="id" type="integer" value="" optional="false" label="Image ID where annotate the ROIs"/>

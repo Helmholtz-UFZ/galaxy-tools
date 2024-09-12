@@ -16,8 +16,7 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         python $__tool_directory__/omero_metadata_upload.py
-        --user $__user__.extra_preferences.get('omero_account|username', $test_username)
-        --pws $__user__.extra_preferences.get('omero_account|username', $test_password)
+        --credential-file '$credentials'
         --host $omero_host
         --port $omero_port
         --obj_type $obj_type
@@ -29,6 +28,14 @@
             --did "$did"
         #end if
     ]]></command>
+    <configfiles>
+        <configfile name="credentials"><![CDATA[
+{
+    "username": "$__user__.extra_preferences.get('omero_account|username', $test_username)",
+    "password": "$__user__.extra_preferences.get('omero_account|password', $test_password)"
+}
+        ]]></configfile>
+    </configfiles>
     <inputs>
         <param name="omero_host" type="text" label="OMERO host URL">
             <validator type="regex" message="Enter a valid host location, for example, your.omero.server">^[a-zA-Z0-9._-]*$</validator>

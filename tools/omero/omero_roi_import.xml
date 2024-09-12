@@ -3,7 +3,7 @@
     <description> with ezomero </description>
     <macros>
         <token name="@TOOL_VERSION@">5.18.0</token>
-        <token name="@VERSION_SUFFIX@">2</token>
+        <token name="@VERSION_SUFFIX@">3</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -15,15 +15,22 @@
         <requirement type="package" version="21.0.2">openjdk</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python '$__tool_directory__/omero_roi_upload.py'  
-        --input_file '$input'  
-        --image_id $id  
-        --user '$__user__.extra_preferences.get("omero_account|username", $test_username)'  
-        --psw '$__user__.extra_preferences.get("omero_account|password", $test_password)'  
-        --host '$omero_host'  
-        --port $omero_port  
-        --log_file '$log'  
+        python '$__tool_directory__/omero_roi_upload.py'
+        --input_file '$input'
+        --image_id $id
+        --credential-file '$credentials'
+        --host '$omero_host'
+        --port $omero_port
+        --log_file '$log'
     ]]></command>
+    <configfiles>
+        <configfile name="credentials"><![CDATA[
+{
+    "username": "$__user__.extra_preferences.get('omero_account|username', $test_username)",
+    "password": "$__user__.extra_preferences.get('omero_account|password', $test_password)"
+}
+        ]]></configfile>
+    </configfiles>
     <inputs>
         <param argument="input" type="data" format="tabular" optional="false" label="Tab File with ROIs" help="Select ROIs Tabular file"/>
         <param argument="id" type="integer" value="" optional="false" label="Image ID where annotate the ROIs"/>
@@ -52,6 +59,19 @@
                 </assert_contents>
             </output>
         </test>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="id" value="1"/>
+            <param name="input" value="input_roi_minimal.tsv"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="log" value="output_table_roi_minimal.txt" ftype="txt">
+                <assert_contents>
+                    <has_text text="ROI ID: 8 for row 1"/>
+                </assert_contents>
+            </output>
+        </test>
     </tests>
     <help>
 
@@ -62,7 +82,7 @@ Tool to upload Regions of Interest (ROIs) to an OMERO server based on shape data
 in a tabular format (TSV file). The tool reads the shape information from the TSV file, creates the
 corresponding ROIs in OMERO, and links them to a specified image.
 
-**Column Headers**:
+**Column Headers** (not all columns are required for all shapes):
 
         - shape, x, y, x_rad, y_rad, width, height, label, fontSize, x1, y1, x2, y2, points, fill_color, stroke_color, stroke_width, z, c, t, roi_name, roi_description
 
@@ -74,6 +94,10 @@ corresponding ROIs in OMERO, and links them to a specified image.
 
     The columns **x**, **y**, **x_rad**, **y_rad**, **width**, and **height** specify the position and dimensions of the shapes, where applicable. For example, Ellipse uses x, y, x_rad, and y_rad, while Rectangle uses x, y, width, and height.
 
+- *Label*:
+
+    Any ROI can be labelled using the column **label**, this label will appear on the OMERO web interface.
+
 - *Text Labels*:
 
     The **label** and **fontSize** columns are used for the Label shape, specifying the text content and font size.
@@ -84,11 +108,11 @@ corresponding ROIs in OMERO, and links them to a specified image.
 
 - *Point Coordinates*:
 
-    The **points** column is used for defining multiple points in shapes like Polygon and Polyline. The points are listed as coordinate pairs.
+    The **points** column is used for defining multiple points in shapes like Polygon and Polyline. The points are listed as coordinate pairs, like '(300,300),(350,350),(300,400)'
 
 - *Colors*:
 
-    The **fill_color** and **stroke_color** columns define the fill and stroke colors of the shapes in RGBA format.
+    The **fill_color** and **stroke_color** columns define the fill and stroke colors of the shapes in RGBA format, like '(0,255,255,128)'.
 
 - *Stroke Width*:
 
@@ -100,7 +124,7 @@ corresponding ROIs in OMERO, and links them to a specified image.
 
 - *ROI Identification*:
 
-    The **roi_name** and **roi_description** columns provide a name and description for each ROI, allowing for easy identification and documentation within OMERO.
+    The **roi_name** and **roi_description** columns provide a name and description for each ROI, allowing for easy identification and documentation within OMERO however they do not appear on the OMERO web interface.
 
     </help>
     <citations>

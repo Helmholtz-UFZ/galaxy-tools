@@ -25,12 +25,18 @@
         omero import folder -T Dataset:name:$dataset_name
             -s $omero_host
             -p $omero_port
-            -u $__user__.extra_preferences.get('omero_account|username', $test_username)
-            -w $__user__.extra_preferences.get('omero_account|password', $test_password)
+            -u "\$OMERO_USER"
+            -w "\$OMERO_PASSWORD"
         > $log &&
 
         omero logout
     ]]></command>
+    <configfiles>
+        <configfile name="credentials"><![CDATA[
+export OMERO_USER="$__user__.extra_preferences.get('omero_account|username', $test_username)"
+export OMERO_PASSWORD="$__user__.extra_preferences.get('omero_account|password', $test_password)"
+        ]]></configfile>
+    </configfiles>
     <inputs>
         <param name="folder" type="data" format="avi,bmp,btf,cif,csv,eps,fits,fli,gif,hdr,html,jp2,jpg,mov,mrc,ndpi,nhdr,nrrd,ome.tiff,par,pbm,pcx,pgm,png,ppm,psd,scn,sif,svs,tf2,tf8,tif,tif,tiff,top,txt,vms,wav,xml,zip" multiple="true" optional="false" label="Images to import into OMERO"/>
         <param name="dataset_name" type="text" optional="false" label="Target Dataset Name"/>

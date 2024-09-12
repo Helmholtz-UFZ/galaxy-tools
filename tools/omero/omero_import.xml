@@ -22,6 +22,7 @@
             ln -s '${image}' folder/'${image_identifier}.$image.ext' &&
         #end for
 
+        source '$credentials' &&
         omero import folder -T Dataset:name:$dataset_name
             -s $omero_host
             -p $omero_port

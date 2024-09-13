@@ -298,7 +298,7 @@ Figures:
   sequences for this file to be present. The represented numbers can be found in
   the *run log file*.
 - quality: bar plot of number of viruses per genome quality category. Possible
-  x-axis categories are high, medium and low quality draft, and *complete
+  x-axis categories are high, medium and low quality draft, and complete
   circular. Any category may not be present if no viruses were identified for that
   category.
 - sizes: histogram of genome sizes of identified viruses
@@ -369,7 +369,7 @@ Useful tab-delimited files for predicted viruses
 - Coordinates of integrated provirus: Scaffold/genome coordinate information of
   each integrated provirus that was excised from a host scaffold. This dataset
   provides the location of the putative provirus by both protein and nucleotide
-  coordinates. All viral scaffolds are respective of those with "fragment_" in the
+  coordinates. All viral scaffolds are respective of those with "fragment\_" in the
   name.
 - Predictions of the neural network classifier: List summarizing predictions
   made by the neural network machine learning classiﬁer. Will contain both viruses

@@ -1,0 +1,55 @@
+<tool id="vibrant_build_database" name="vibrant" tool_type="manage_data" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+    <description>database builder</description>
+    <macros>
+        <token name="@TOOL_VERSION@">1.2.1</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@PROFILE@">22.01</token>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">VIBRANT</xref>
+    </xrefs>
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">vibrant</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        set -eo pipefail; 
+        download-db.sh vibrant_db &&
+        cp '$dmjson' '$out_file'
+    ]]></command>
+    <configfiles>
+        <configfile name="dmjson"><![CDATA[
+{
+  "data_tables":{
+    "vibrant":[
+      {
+        "path":"vibrant_db",
+        "name":"Version @TOOL_VERSION@",
+        "version":"@TOOL_VERSION@",
+        "value":"@TOOL_VERSION@"
+      }
+    ]
+  }
+}]]>
+        </configfile>
+    </configfiles>
+    <inputs/>
+    <outputs>
+        <data name="out_file" format="data_manager_json" />
+    </outputs>
+    <tests>
+        <!-- <test expect_num_outputs="1">
+            <output name="out_file">
+                <assert_contents>
+                    <has_text text='"value":"@TOOL_VERSION@"'/>
+                    <has_text text='"name":"Version @TOOL_VERSION@"'/>
+                </assert_contents>
+            </output>
+        </test> -->
+    </tests>
+    <help><![CDATA[
+Download and vibrant reference data using https://raw.githubusercontent.com/AnantharamanLab/VIBRANT/master/databases/VIBRANT_setup.py
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1186/s40168-020-00867-0</citation>
+    </citations>
+</tool>

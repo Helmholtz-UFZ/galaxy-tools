@@ -5,12 +5,13 @@
         <token name="@VERSION_SUFFIX@">0</token>
     </macros>
     <xrefs>
-        <xref type="bio.tools">TODO</xref>
+        <xref type="bio.tools">VIBRANT</xref>
     </xrefs>
     <requirements>
         <requirement type="package" version="@TOOL_VERSION@">vibrant</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
+        ## link input in order to have a predictable output name
         ln -s '$input' 'input.fas' &&
 
         VIBRANT_run.py
@@ -22,7 +23,6 @@
             -o $o
             $virome
             -t "\${GALAXY_SLOTS:-1}"
-            -no_plot
     ]]></command>
     <inputs>
         <param argument="-i" name="input" type="data" format="fasta" label="Input fasta file"/>
@@ -33,21 +33,194 @@
         <param argument="-l" type="integer" value="1000" min="1000" label="Minumum scaffold length" help="VIBRANT will only consider scaffolds greater than or equal to this value"/>
         <param argument="-o" type="integer" value="4" min="4" label="Minumum number of ORFs" help="VIBRANT will only consider scaffolds with at least this number of ORFs"/>
         <param argument="-virome" type="boolean" truevalue="--virome" falsevalue="" checked="false" label="Input is virome" help="This flag should be used cautiously. This will edit VIBRANT's sensitivity if the input dataset is a virome and not mixed metagenome. That is, if you expect the vast majority of your input scaffolds to be viruses then -virome can be used to remove obvious non-viral scaffolds. This will have no effect on runtime."/>
+        <param name="outputs" type="select" multiple="true" optional="false" label="Outputs" help="Outputs marked with \* are not available for protein input. ">
+            <option value="log_run">Run log file</option>
+            <option value="figures" selected="true">Figures</option>
+            <option value="phages_circular_fna">Circular virus genomes *</option>
+            <option value="phages_combined_faa">Virus encoded proteins</option>
+            <option value="phages_combined_ffn">Virus encoded genes *</option>
+            <option value="phages_combined_fna" selected="true">All virus genomes (fasta) *</option>
+            <option value="phages_combined_gbk" selected="true">All virus genomes (genbank) *</option>
+            <option value="phages_combined_txt" selected="true">All virus genome names</option>
+            <option value="phages_lysogenic_faa">Lysogenic virus encoded proteins</option>
+            <option value="phages_lysogenic_ffn">Lysogenic virus encoded genes *</option>
+            <option value="phages_lysogenic_fna">Lysogenic virus genomes (fasta) *</option>
+            <option value="phages_lytic_faa">Lytic virus encoded proteins</option>
+            <option value="phages_lytic_ffn">Lytic virus encoded genes *</option>
+            <option value="phages_lytic_fna">Lytic virus genomes (fasta) *</option>
+            <option value="AMG_counts">All predicted virus AMGs</option>
+            <option value="AMG_individuals">Individual predicted virus AMGs by protein and its respective genome</option>
+            <option value="AMG_pathways">Summary of the present KEGG metabolic pathways corresponding to virus AMGs</option>
+            <option value="annotations">Annotations and associated information for KEGG, Pfam and VOG</option>
+            <option value="complete_circular">Virus genomes that were predicted to be circular and therefore complete genomes *</option>
+            <option value="figure_PCA">Scaffold coordinatesfor each viral scaffold on the PCA plot</option>
+            <option value="genbank_table">Single annotation used for all predicted virus proteins</option>
+            <option value="genome_quality">Predicted genome quality and type</option>
+            <option value="integrated_prophage_coordinates">Scaffold/genome coordinate information of each integrated provirus that was excised from a host scaffold</option>
+            <option value="machine">Summary of predictions made by the neural network machine learning classifier.</option>
+            <option value="summary_normalized">Complete annotation normalized summary metrics for each predicted virus genome</option>
+            <option value="summary_results">Complete annotation summary metrics for each predicted virus genome</option>
+        </param>
     </inputs>
     <outputs>
-        <data name="phages_combined_fna" format="fasta" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_combined.fna" label="${tool.name} on ${on_string}: Virus genomes"/>
-        <data name="phages_combined_txt" format="txt" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_combined.txt" label="${tool.name} on ${on_string}: Virus genomes list"/>
-        <data name="phages_combined_gbk" format="genbank" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_combined.gbk" label="${tool.name} on ${on_string}: Virus genomes genbank">
-            <filter>not protein</filter>
+        <data name="log_run" format="txt" from_work_dir="VIBRANT_log_run_input.log" label="${tool.name} on ${on_string}: Run log file">
+            <filter>"log_run" in outputs</filter>
         </data>
+        <collection name="figures" type="list" format="pdf" label="${tool.name} on ${on_string}: Figures">
+            <discover_datasets directory="VIBRANT_input/VIBRANT_figures_input" pattern="VIBRANT_figure_(?P&lt;designation&gt;.*)_input\.pdf"/>
+            <filter>"figures" in outputs and not protein</filter>
+        </collection>
+        <!-- files form VIBRANT_phages_input  FASTA and associated files for predicted viruses. -->
+        <data name="phages_circular_fna" format="fasta" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_circular.fna" label="${tool.name} on ${on_string}: Circular virus genomes">
+            <filter>"phages_circular_fna" in outputs and not protein</filter>
+        </data>
+        <data name="phages_combined_faa" format="fasta" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_combined.faa" label="${tool.name} on ${on_string}: Virus encoded proteins">
+            <filter>"phages_combined_faa" in outputs</filter>
+        </data>
+        <data name="phages_combined_ffn" format="fasta" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_combined.ffn" label="${tool.name} on ${on_string}: Virus encoded genes">
+            <filter>"phages_combined_ffn" in outputs and not protein</filter>
+        </data>
+        <data name="phages_combined_fna" format="fasta" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_combined.fna" label="${tool.name} on ${on_string}: Virus genomes">
+            <filter>"phages_combined_fna" in outputs and not protein</filter>
+        </data>
+        <data name="phages_combined_gbk" format="genbank" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_combined.gbk" label="${tool.name} on ${on_string}: Virus genomes genbank">
+            <filter>"phages_combined_gbk" in outputs and not protein</filter>
+        </data>
+        <data name="phages_combined_txt" format="txt" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_combined.txt" label="${tool.name} on ${on_string}: Virus genome names">
+            <filter>"phages_combined_txt" in outputs</filter>
+        </data>
+        <data name="phages_lysogenic_faa" format="txt" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_lysogenic.faa" label="${tool.name} on ${on_string}: Lysogenic virus encoded proteins">
+            <filter>"phages_lysogenic_faa" in outputs</filter>
+        </data>
+        <data name="phages_lysogenic_ffn" format="txt" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_lysogenic.ffn" label="${tool.name} on ${on_string}: Lysogenic virus encoded genes">
+            <filter>"phages_lysogenic_ffn" in outputs and not protein</filter>
+        </data>
+        <data name="phages_lysogenic_fna" format="txt" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_lysogenic.fna" label="${tool.name} on ${on_string}: Lysogenic virus genomes">
+            <filter>"phages_lysogenic_fna" in outputs and not protein</filter>
+        </data>
+        <data name="phages_lytic_faa" format="txt" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_lytic.faa" label="${tool.name} on ${on_string}: Lytic virus encoded proteins">
+            <filter>"phages_lytic_faa" in outputs</filter>
+        </data>
+        <data name="phages_lytic_ffn" format="txt" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_lytic.ffn" label="${tool.name} on ${on_string}: Lytic virus encoded genes">
+            <filter>"phages_lytic_ffn" in outputs and not protein</filter>
+        </data>
+        <data name="phages_lytic_fna" format="txt" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_lytic.fna" label="${tool.name} on ${on_string}: Lytic virus genomes">
+            <filter>"phages_lytic_fna" in outputs and not protein</filter>
+        </data>
+        <data name="AMG_counts" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_AMG_counts_input.tsv" label="${tool.name} on ${on_string}: Predicted virus AMGs">
+            <filter>"AMG_counts" in outputs</filter>
+        </data>
+        <data name="AMG_individuals" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_AMG_individuals_input.tsv" label="${tool.name} on ${on_string}: Individual predicted virus AMGs">
+            <filter>"AMG_individuals" in outputs</filter>
+        </data>
+        <data name="AMG_pathways" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_AMG_pathways_input.tsv" label="${tool.name} on ${on_string}: KEGG metabolic pathways corresponding to virus AMGs">
+            <filter>"AMG_pathways" in outputs</filter>
+        </data>
+        <data name="annotations" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT__input.tsv" label="${tool.name} on ${on_string}: Annotations for KEGG, Pfam and VOG">
+            <filter>"annotations" in outputs</filter>
+        </data>
+        <data name="complete_circular" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_complete_circular_input.tsv" label="${tool.name} on ${on_string}: Complete circular genomes ">
+            <filter>"complete_circular" in outputs and not protein</filter>
+        </data>
+        <data name="figure_PCA" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_figure_PCA_input.tsv" label="${tool.name} on ${on_string}: Scaffold coordinates on the PCA plot">
+            <filter>"figure_PCA" in outputs</filter>
+        </data>
+        <data name="genbank_table" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_genbank_table_input.tsv" label="${tool.name} on ${on_string}: Single annotation used for all predicted virus proteins">
+            <filter>"genbank_table" in outputs</filter>
+        </data>
+        <data name="genome_quality" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_genome_quality_input.tsv" label="${tool.name} on ${on_string}: Predicted genome quality and type">
+            <filter>"genome_quality" in outputs</filter>
+        </data>
+        <data name="integrated_prophage_coordinates" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_integrated_prophage_coordinates_input.tsv" label="${tool.name} on ${on_string}: Coordinates of integrated provirus">
+            <filter>"integrated_prophage_coordinates" in outputs</filter>
+        </data>
+        <data name="machine" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_machine_input.tsv" label="${tool.name} on ${on_string}: Predictions of the neural network classifier">
+            <filter>"machine" in outputs</filter>
+        </data>
+        <data name="summary_normalized" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_summary_normalized_input.tsv" label="${tool.name} on ${on_string}: Normalized summary metrics">
+            <filter>"summary_normalized" in outputs</filter>
+        </data>
+        <data name="summary_results" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_summary_results_input.tsv" label="${tool.name} on ${on_string}: Summary metrics">
+            <filter>"summary_results" in outputs</filter>
+        </data>
+        <!-- files from VIBRANT_results_input. Folder containing useful tab-delimited files -->
+        <!--
+        ├── input.prodigal.faa  Prodigal predicted proteins for all input scaffolds.
+        ├── input.prodigal.ffn                     genes for all input scaffolds
+        ├── input.prodigal.gff                     gff file for all input scaffolds
+        ├── VIBRANT_figures_input                   Folder containing PDF figures summarizing outputs
+        │   ├── VIBRANT_figure_pathways_input.pdf   Graphical summary (bar plot) of KEGG pathways for identified viral AMG
+        │   ├── VIBRANT_figure_PCA_input.pdf        PCA plot summarizing predicted viruses
+        │   ├── VIBRANT_figure_phages_input.pdf     Graphical summary (nested bubble plot) for ratio of total input scaffolds (outside), number of scaffolds that were greater than or equal to minimum size restrictions (middle), and number of identified viruses (inside). Must have at least 10 input sequences for this file to be present. The represented numbers can be found in the run log file (#20)
+        │   ├── VIBRANT_figure_quality_input.pdf    Graphical summary (bar plot) of number of viruses per genome quality category
+        │   └── VIBRANT_figure_sizes_input.pdf       Graphical summary (histogram) of genome sizes of identified viruses
+        ├── VIBRANT_HMM_tables_parsed_input     Folder containing parsed HMM table raw outputs. Any one of the contained files may be empty. This folder is likely not of use but contains non-redundant annotation information. Contains both virus and non-virus annotation
+        │   ├── input.KEGG_hmmtbl_parse.tsv     KEGG parsed HMM table raw outputs.
+        │   ├── input.Pfam_hmmtbl_parse.tsv     Pfam parsed HMM table raw outputs
+        │   └── input.VOG_hmmtbl_parse.tsv      VOG parsed HMM table raw outputs
+        ├── VIBRANT_HMM_tables_unformatted_input    Folder containing non-parsed (unformatted) HMM complete raw outputs. Any one of the contained files may be empty. This folder is likely not of use but contains complete annotation information. Contains both virus and non-virus annotations:
+        │   ├── input_unformatted_KEGG.hmmtbl   
+        │   ├── input_unformatted_Pfam.hmmtbl
+        │   └── input_unformatted_VOG.hmmtbl
+        ├── VIBRANT_log_annotation_input.log    Annotation log file. This log will be empty unless an error was encountered during the annotation component of VIBRANT
+        ├── VIBRANT_log_run_input.log           Run log file. Contains information about the command used, the total runtime, date of run, version of VIBRANT, and summary of values used in file #8. This log file is more of a run and output summary file, though in the event of an error the message will be displayed in this log file
+        ├── VIBRANT_phages_input                Folder containing FASTA and associated files for predicted viruses. Any one of the contained files may be empty if no viruses fit the criteria. Lysogenic viruses are determined by any virus scaffold excised from a larger scaffold or any that encodes an integrase. Lytic viruses are all others. For identified viruse 
+        │   ├── input.phages_circular.fna       All virus genomes identified as circular.
+        │   ├── input.phages_combined.faa       All virus encoded proteins.
+        │   ├── input.phages_combined.ffn       All virus encoded genes
+        │   ├── input.phages_combined.fna       All virus genomes
+        │   ├── input.phages_combined.gbk       All virus genomes GenBank format file for .
+        │   ├── input.phages_combined.txt       List of names (FASTA definition lines) for all virus genomes.
+        │   ├── input.phages_lysogenic.faa      Virus encoded proteins for predicted lysogenic viruses
+        │   ├── input.phages_lysogenic.ffn      Virus encoded genes for predicted lysogenic viruses
+        │   ├── input.phages_lysogenic.fna      Virus genomes for predicted lysogenic viruses
+        │   ├── input.phages_lytic.faa          Virus encoded proteins for predicted lytic viruses
+        │   ├── input.phages_lytic.ffn          Virus encoded genes for predicted lytic viruses
+        │   └── input.phages_lytic.fna          Virus genomes for predicted lytic viruses
+        └── VIBRANT_results_input               Folder containing useful tab-delimited files for predicted viruses.
+            ├── VIBRANT_AMG_counts_input.tsv                         List of all predicted virus AMGs (by KEGG KO) and the total number of each. Summary of file VIBRANT_AMG_individuals_input
+            ├── VIBRANT_AMG_individuals_input.tsv                    List of individual predicted virus AMGs by protein and its respective genome. AMGs are determined by KEGG annotation but Pfam annotation is also given if applicable. 
+            ├── VIBRANT_AMG_pathways_input.tsv                       List summarizing the present KEGG metabolic pathways (by KEGG map entry) corresponding to virus AMGs.
+            ├── VIBRANT_annotations_input.tsv                       38 Complete list of annotations and associated information for KEGG, Pfam and VOG for all predicted viruses.
+            ├── VIBRANT_complete_circular_input.tsv                 39 Virus genomes that were predicted to be circular and therefore complete genomes.
+            ├── VIBRANT_figure_PCA_input.tsv                        40 Coordinate information for each viral scaffold on the PCA plot
+            ├── VIBRANT_genbank_table_input.tsv                     41 List of the single annotation used for all predicted virus proteins. Annotations are chosen based on best score hit.
+            ├── VIBRANT_genome_quality_input.tsv                    42 List summarizing the predicted genome quality and type (lytic/lysogenic) for all predicted viruses. 
+            ├── VIBRANT_integrated_prophage_coordinates_input.tsv   43 Scaffold/genome coordinate information of each integrated provirus that was excised from a host scaffold.
+            ├── VIBRANT_machine_input.tsv                           44 List summarizing predictions made by the neural network machine learning classifier.
+            ├── VIBRANT_summary_normalized_input.tsv                45 Normalized version of file VIBRANT_summary_results_input
+            └── VIBRANT_summary_results_input.tsv                   46 List of complete annotation summary metrics for each predicted virus genome.  -->
     </outputs>
     <tests>
         <!-- Tests for vibrant are commented. To run them
             - uncomment test
             - download-db.sh tools/vibrant/test-data/db/ -->
-        <!-- <test expect_num_outputs="3">
+        <!-- <test expect_num_outputs="4">
             <param name="input" value="mixed_example.fasta"/>
             <param name="database" value="test"/>
+            <output_collection name="figures" count="5"/>
+            <output name="phages_combined_fna">
+                <assert_contents>
+                    <has_text text=">" n="4"/>
+                    <has_n_lines n="8"/>
+                </assert_contents>
+            </output>
+            <output name="phages_combined_txt">
+                <assert_contents>
+                    <has_n_lines n="4"/>
+                </assert_contents>
+            </output>
+            <output name="phages_combined_gbk">
+                <assert_contents>
+                    <has_line line="//" n="3"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test expect_num_outputs="25">
+            <param name="input" value="mixed_example.fasta"/>
+            <param name="database" value="test"/>
+            <param name="outputs" value="figures,phages_circular_fna,phages_combined_faa,phages_combined_ffn,phages_combined_fna,phages_combined_gbk,phages_combined_txt,phages_lysogenic_faa,phages_lysogenic_ffn,phages_lysogenic_fna,phages_lytic_faa,phages_lytic_ffn,phages_lytic_fna,AMG_counts,AMG_individuals,AMG_pathways,annotations,complete_circular,figure_PCA,genbank_table,genome_quality,integrated_prophage_coordinates,machine,summary_normalized,summary_results"/>
+            <output_collection name="figures" count="5"/>
             <output name="phages_combined_fna">
                 <assert_contents>
                     <has_text text=">" n="4"/>
@@ -92,18 +265,157 @@ excise integrated proviruses.
 VIBRANT uses three databases for identifying viruses and characterizing virome metabolic potential:
 
 - KEGG (March release): https://www.genome.jp/kegg/ (FTP: ftp://ftp.genome.jp/pub/db/kofam/archives/2019-03-20/)
-- Pfam (v32): https://pfam.xfam.org (FTP: ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam32.0/)
+- Pfam (v32): https://www.ebi.ac.uk/interpro/ (FTP: ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam32.0/)
 - VOG (release 94): http://vogdb.org/ (FTP: http://fileshare.csb.univie.ac.at/vog/vog94/)
 
 Usage
 .....
 
-
 **Input**
 
+FASTA formated nucleotide or amino acid sequences. Note that for amino acid
+input *Input is protein* needs to be checked.
 
 **Output**
 
+Run log file: Contains information about the command used, the total runtime,
+date of run, version of VIBRANT, and summary of values used in the figure
+dataset *phages*. This log ﬁle is more of a run and output summary dataset, though
+in the event of an error the message will be displayed in this log dataset.
+
+Figures:
+
+- pathways: bar plot of KEGG pathways for identified viral AMGs
+- PCA: principal component analysis of predicted viruses, contains information
+  on quality, lifestyle, circular/linear, size and general relationships of viral
+  scaffolds. A PCA plot will only be generated if at least 3 viral scaffolds are
+  identified. Based on the *Normalized summary metrics* output dataset and
+  *Scaffold coordinates on the PCA plot* provides coordinate information for each
+  scaffold.
+- phages: Nested bubble plot for ratio of total input scaffolds (outside),
+  number of scaffolds that were greater than or equal to minimum size restrictions
+  (middle), and number of identified viruses (inside). Must have at least 10 input
+  sequences for this file to be present. The represented numbers can be found in
+  the *run log file*.
+- quality: bar plot of number of viruses per genome quality category. Possible
+  x-axis categories are high, medium and low quality draft, and *complete
+  circular. Any category may not be present if no viruses were identified for that
+  category.
+- sizes: histogram of genome sizes of identified viruses
+
+FASTA and associated files for predicted viruses
+
+- Circular virus genomes: All virus genomes identified as circular
+- Virus encoded protein: All virus encoded proteins. Note: any lysogenic virus
+  that has been excised from a host scaffold will have the term "fragment" and a
+  number appended to the original name to indicate that it does not represent the
+  entire scaffold. This file () will contain only the excised fragment.
+- Virus encoded genes: All virus encoded genes
+- Virus genomes: All virus genomes
+- Virus genomes genbank: GenBank format file for all virus genomes
+- Virus genome names: List of names (FASTA definition lines) for all virus
+  genomes. Note: This file may not entirely match the original input sequence
+  names due to fragmentation of scaﬀolds.
+- Lysogenic/Lytic virus encoded proteins:  Virus encoded proteins for predicted lysogenic/lytic viruses (subset of the above datasets).
+- Lysogenic/Lytic virus encoded gene: Virus encoded genes for predicted lysogenic/lytic viruses (subset of the above datasets).
+- Lysogenic/Lytic virus genomes: Virus genomes for predicted lysogenic/lytic viruses (subset of the above datasets).
+
+Useful tab-delimited files for predicted viruses
+
+- Predicted virus AMGs: List of all predicted virus AMGs (by KEGG KO) and the
+  total number of each. Summary of file *Individual predicted virus AMGs*. File
+  may be empty.
+- Individual predicted virus AMGs: List of individual predicted virus AMGs by
+  protein and its respective genome. AMGs are determined by KEGG annotation but
+  Pfam annotation is also given if applicable. See file *Predicted virus AMGs* for
+  summary. File may be empty.
+- KEGG metabolic pathways corresponding to virus AMGs: List summarizing the
+  present KEGG metabolic pathways (by KEGG map entry) corresponding to virus AMGs.
+  See dataset *Individual predicted virus AMGs* for individual AMGs. File may be
+  empty. See this link for detailed information regarding KEGG metabolic pathways:
+  https://www.genome.jp/kegg/pathway.html.
+- Annotations for KEGG, Pfam and VOG: Complete list of annotations and
+  associated information for KEGG, Pfam and VOG for all predicted viruses.
+
+  - Blank rows indicate proteins that were not given an annotation.
+  - Annotation names can be found in columns KO/KO name, Pfam/Pfam name and VOG/VOG name.
+  - Column AMG will indicate if the annotation was considered an AMG or not (blank).
+  - Columns for evalue and score refer to the annotation confidences generated
+    by HMMsearch. Evalues are provided, but scores are used as the cutoff for
+    annotations (must have a score of at least 40).
+  - Columns for v-score refer to the VIBRANT-specific virus-like score
+    associated with each KO, Pfam and VOG. Briefly: scores of
+
+    - 0 indicate very low or no relatedness to viruses
+    - 0.01 - 0.1 indicates low relatedness;
+    - 0.1 - 1 indicates moderate relatedness;
+    - 1 - 5 indicates significant relatedness;
+    - 5 - 10 indicates substantial relatedness;
+    - 10 (max) for most cases indicates viral hallmark genes
+
+- Complete circular genomes: Virus genomes that were predicted to be circular
+  and therefore complete genomes. File may be empty. Circularization is determined
+  by a kmer-based search between each end of the viral predicted genome. There
+  must be at least a 20bp identical match.
+- Scaffold coordinates on the PCA plot: Coordinate information for each viral scaffold on the PCA plot
+- Single annotation used for all predicted virus proteins: List of the single
+  annotation used for all predicted virus proteins. Annotations are chosen based
+  on best score hit. This dataset is used to generate dataset *Virus genomes*
+- Predicted genome quality and type: List summarizing the predicted genome
+  quality and type (lytic/lysogenic) for all predicted viruses. Qualities may be
+  fragment, low, medium or high quality draft. Complete circular genomes, if
+  applicable, are listed at the end and are redundant. That is, any complete
+  circular genome will also be given a quality.
+- Coordinates of integrated provirus: Scaffold/genome coordinate information of
+  each integrated provirus that was excised from a host scaffold. This dataset
+  provides the location of the putative provirus by both protein and nucleotide
+  coordinates. All viral scaffolds are respective of those with "fragment_" in the
+  name.
+- Predictions of the neural network classifier: List summarizing predictions
+  made by the neural network machine learning classiﬁer. Will contain both viruses
+  and nonviruses. This dataset is likely not of use but can be informative for
+  checking outputs. There are curation steps following the classiifer to validate
+  predictions, so predictions in this file may not exactly match the final output.
+  File may be empty if the classiﬁer was not used.
+- Normalized summary metrics: Normalized version of the *Summary metrics*
+  dataset. This normalized version was used to construct the PCA plot and is also
+  the data read into the neural network classifier. Total proteins per scaffold
+  are normalized as log10 of total proteins, and all other metrics per scaffold
+  are normalized by dividing the original metric by the original number of encoded
+  proteins
+- Summary metrics: List of complete annotation summary metrics for each
+  predicted virus genome. The most useful metrics will be columns 1 through 8. All
+  metrics shown, if applicable, were used for the neural network machine learning
+  classifier. Explanations of each column:
+
+  - scaffold: the name of the predicted virus
+  - total genes: total number of predicted open reading frames
+  - all KEGG: total number of KEGG annotations
+  - KEGG v-score: sum of all KEGG annotation v-scores
+  - all Pfam: total number of Pfam annotations
+  - Pfam v-score: total number of Pfam annotations
+  - all VOG: total number of VOG annotations
+  - VOG v-score: total number of VOG annotations
+  - KEGG int-rep: total number of KEGG integration related annotations (e.g., integrase, replicase, transposase). Useful for separating plasmids, mobile genetic elements and viruses
+  - KEGG zero: total number of KEGG annotations that had a v-score of zero
+  - Pfam int-rep: total number of Pfam integration related annotations (e.g., integrase, replicase, transposase). Useful for separating plasmids, mobile genetic elements and viruses
+  - Pfam zero: total number of KEGG annotations that had a v-score of zero
+  - VOG redoxin: total number of VOG redoxin related annotations (e.g., glutaredoxin, thioredoxin). Useful for separating viruses from bacteria/archaea because redoxins are common amongst viruses and therefore are given a high v-score, but are also common amongst bacteria/archaea
+  - VOG rec-tran: total number of VOG integration related annotations that are not integrase (e.g., replicase, transposase). Useful for separating plasmids, mobile genetic elements and viruses
+  - VOG int: total number of VOG integrase related annotations. Used to identify putative lysogenic viruses. Also useful for separating plasmids, mobile genetic elements and viruses
+  - VOG RnR: total number of VOG ribonucleotide reductase (RnR) related annotations. Useful for separating viruses from bacteria/archaea because RnRs are common amongst viruses and therefore are given a high v-score, but are also common amongst bacteria/archaea
+  - VOG DNA: total number of VOG nucleotide (DNA/RNA) replication related annotations. Useful for separating viruses from bacteria/archaea because nucleotide replication proteins are common amongst viruses and therefore are given a high v-score, but are also common amongst bacteria/archaea. This is also a metric used for predicting viral completeness (along with VOG special) because genome replication is an essential process
+  - KEGG restriction: total number of KEGG restriction nuclease related annotations. Useful for separating plasmids, mobile genetic elements and viruses
+  - KEGG toxin: total number of KEGG toxin/anti-toxin related annotations. Useful for separating plasmids, mobile genetic elements and viruses
+  - VOG special: total number of VOG hallmark annotations (e.g., virion structural proteins, holin/lysin, terminase). This is a metric used for predicting viral completeness (along with VOG DNA)
+  - annotation check: the number of proteins annotated by KEGG, Pfam and VOG
+  - p\_v check: the number of proteins annotated by Pfam and VOG only
+  - p\_k check: the number of proteins annotated by KEGG and Pfam only
+  - k\_v check: the number of proteins annotated by KEGG and VOG only
+  - k check: the number of proteins annotated by KEGG only
+  - p check: the number of proteins annotated by Pfam only
+  - v check: the number of proteins annotated by VOG only
+  - h check: the number of proteins not annotated
 
     ]]></help>
     <citations>

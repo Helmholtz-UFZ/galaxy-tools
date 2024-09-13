@@ -1,0 +1,18 @@
+categories:
+- Metagenomics
+description: Assess quality of single-contig viral genomes
+long_description: |
+  CheckV is a fully automated command-line pipeline for assessing the quality of single-contig viral genomes, including identification of host contamination for integrated proviruses, estimating completeness for genome fragments, and identification of closed genomes.
+name: checkv
+owner: ufz
+homepage_url: https://bitbucket.org/berkeleylab/checkv/
+remote_repository_url: https://github.com/Helmholtz-UFZ/ufz-galaxy-tools/blob/main/tools/checkv/
+type: unrestricted
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: "Wrapper for checkv function: {{ tool_name }}."
+suite:
+  name: "suite_checkv"
+  description: "A suite of tools that brings the checkv project into Galaxy."
+  long_description: |
+    CheckV is a fully automated command-line pipeline for assessing the quality of single-contig viral genomes, including identification of host contamination for integrated proviruses, estimating completeness for genome fragments, and identification of closed genomes.

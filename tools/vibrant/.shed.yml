@@ -1,0 +1,31 @@
+categories:
+- Metagenomics
+description: Virus Identification By iteRative ANnoTation
+long_description: |
+  VIBRANT is a tool for automated recovery and annotation of bacterial and
+  archaeal viruses, determination of genome completeness, and characterization
+  of viral community function from metagenomic assemblies. VIBRANT uses neural
+  networks of protein annotation signatures and genomic features to maximize
+  identification of highly diverse partial or complete viral genomes as well as
+  excise integrated proviruses.
+
+  -  Uses neural network machine learning of protein annotation signatures
+  -  Asigns novel 'v-score' for determining the virus-like nature of all annotations
+  -  Determines genome completeness
+  -  Characterizes viral community function by metabolic analysis
+  -  Identifies auxiliary metabolic genes (AMGs)
+  -  Excises integrated viral genomes from host scaffolds
+  -  Performs well in diverse environments
+  -  Recovers novel and abundant viral genomes
+  -  Built for dsDNA, ssDNA and RNA viruses
+
+  VIBRANT uses three databases for identifying viruses and characterizing virome metabolic potential:
+
+    KEGG (March release): https://www.genome.jp/kegg/
+    Pfam (v32): https://pfam.xfam.org
+    VOG (release 94): http://vogdb.org)
+name: vibrant
+owner: ufz
+homepage_url: https://github.com/AnantharamanLab/VIBRANT
+remote_repository_url: https://github.com/Helmholtz-UFZ/ufz-galaxy-tools/blob/main/tools/vibrant
+type: unrestricted

@@ -1,0 +1,186 @@
+<tool id="checkv_end_to_end" name="CheckV end to end" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01" license="MIT">
+    <description></description>
+    <macros>
+        <token name="@TOOL_VERSION@">1.0.3</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">checkv</xref>
+    </xrefs>
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">checkv</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        checkv end_to_end
+            '$input'
+            output
+            -d '$reference.fields.path'
+            --remove_tmp
+            -t "\${GALAXY_SLOTS:-1}"
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" format="fasta,fasta.gz,fasta.bz2" label="Input nucleotide sequences in FASTA format"/>
+        <param name="reference" type="select" label="CheckV reference data">
+            <options from_data_table="checkv">
+                <validator type="no_options" message="No reference data available. Contact your Galaxy admin"/>
+            </options>
+        </param>
+        <param name="optional_outputs" type="select" optional="true" multiple="true" label="Optional outputs">
+            <option value="completeness">Overview of how completeness was estimated</option>
+            <option value="contamination"></option>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="quality_summary" format="tabular" from_work_dir="output/quality_summary.tsv" label="${tool.name} on ${on_string}: Quality summary"/>
+        <data name="completeness" format="tabular" from_work_dir="output/completeness.tsv" label="${tool.name} on ${on_string}: Completeness">
+            <filter>optional_outputs and "completeness" in optional_outputs</filter>
+        </data>
+        <data name="contamination" format="tabular" from_work_dir="output/contamination.tsv" label="${tool.name} on ${on_string}: Contamination">
+            <filter>optional_outputs and "contamination" in optional_outputs</filter>
+        </data>
+        <data name="complete_genomes" format="tabular" from_work_dir="output/complete_genomes.tsv" label="${tool.name} on ${on_string}: Complete Genomes"/>
+        <data name="proviruses" format="fasta" from_work_dir="output/proviruses.fna" label="${tool.name} on ${on_string}: Proviruses"/>
+        <data name="viruses" format="fasta" from_work_dir="output/viruses.fna" label="${tool.name} on ${on_string}: Viruses"/>
+    </outputs>
+    <tests>
+        <!-- <test expect_num_outputs="4">
+            <param name="input" value="test_sequences.fna"/>
+            <param name="reference" value="1.5"/>
+            <output name="quality_summary">
+                <assert_contents>
+                    <has_n_columns n="14"/>
+                    <has_n_lines n="41"/>
+                </assert_contents>
+            </output>
+            <output name="complete_genomes">
+                <assert_contents>
+                    <has_n_columns n="11"/>
+                    <has_n_lines n="6"/>
+                </assert_contents>
+            </output>
+            <output name="viruses">
+                <assert_contents>
+                    <has_line_matching expression="^>.*" n="39"/>
+                </assert_contents>
+            </output>
+            <output name="proviruses">
+                <assert_contents>
+                    <has_line_matching expression="^>.*" n="1"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test expect_num_outputs="6">
+            <param name="input" value="test_sequences.fna"/>
+            <param name="reference" value="1.5"/>
+            <param name="optional_outputs" value="completeness,contamination"/>
+            <output name="quality_summary">
+                <assert_contents>
+                    <has_n_columns n="14"/>
+                    <has_n_lines n="41"/>
+                </assert_contents>
+            </output>
+            <output name="completeness">
+                <assert_contents>
+                    <has_n_columns n="15"/>
+                    <has_n_lines n="41"/>
+                </assert_contents>
+            </output>
+            <output name="contamination">
+                <assert_contents>
+                    <has_n_columns n="14"/>
+                    <has_n_lines n="41"/>
+                </assert_contents>
+            </output>
+            <output name="complete_genomes">
+                <assert_contents>
+                    <has_n_columns n="11"/>
+                    <has_n_lines n="6"/>
+                </assert_contents>
+            </output>
+            <output name="viruses">
+                <assert_contents>
+                    <has_line_matching expression="^>.*" n="39"/>
+                </assert_contents>
+            </output>
+            <output name="proviruses">
+                <assert_contents>
+                    <has_line_matching expression="^>.*" n="1"/>
+                </assert_contents>
+            </output>
+        </test> -->
+    </tests>
+    <help><![CDATA[
+
+.. class:: infomark
+
+**What it does**
+
+CheckV is a fully automated command-line pipeline for assessing the quality of single-contig viral genomes, including identification of host contamination for integrated proviruses, estimating completeness for genome fragments, and identification of closed genomes.
+
+There are 4 steps:
+
+1. Remove host contamination on proviruses
+   - Genes are first annotated as viral or microbial based on comparison to a custom database of HMMs
+   -  CheckV scans over the contig (5' to 3') comparing gene annotations and GC content between a pair of adjacent gene windows
+   -  This information is used to compute a score at each intergenic position and identify host-virus breakpoints
+   -  Works best for contigs that are mostly viral
+
+2. Estimate genome completeness
+
+   - Proteins are first compared to the CheckV genome database using AAI (average amino acid identity)
+   - After identifying the top hits, completeness is computed as a ratio between the contig length (or viral region length for proviruses) and the length of matched reference
+   - A confidence level is reported based on the strength of the alignment
+   - Generally, high- and medium-confidence estimates are quite accurate
+   - Less frequently, your viral genome may not have a close match to the CheckV database; in these cases CheckV estimates the completeness based on the viral HMMs identified on the contig
+   - Based on the HMMs found, CheckV returns the estimated range for genome completeness (e.g. 35% to 60% completeness), which represents the 90% confidence interval based on the distribution of lengths of reference genomes with the same viral HMMs
+
+3.: Predict closed genomes
+
+    - Direct terminal repeats (DTRs)
+        - Repeated sequence of >20-bp at start/end of contig
+        - Most trusted signature in our experience
+        - May indicate circular genome or linear genome replicated from a circular template (i.e. concatamer)
+    - Proviruses
+        - Viral region with predicted host boundaries at 5' and 3' ends (see panel A)
+        - Note: CheckV will not detect proviruses if host regions have already been removed (e.g. using VIBRANT or VirSorter)
+    - Inverted terminal repeats (ITRs)
+        - Repeated sequence of >20-bp at start/end of contig (3' repeat is inverted)
+        - Least trusted signature
+    - For all the methods above, CheckV also checks whether the contig is approximately the correct sequence length based on estimated completeness; this is important because terminal repeats can represent artifacts of metagenomic assembly
+
+4. Summarize quality.
+
+   - Based on the results of 1-3, CheckV generates a report file and assigns query contigs to one of five quality tiers (consistent with and expand upon the MIUViG quality tiers):
+
+     - Complete
+     - High-quality (>90% completeness)
+     - Medium-quality (50-90% completeness)
+     - Low-quality (<50% completeness)
+     - Undetermined quality
+
+
+Usage
+.....
+
+
+**Input**
+
+- Viral contigs in fasta (or gz, bz2 compressed fasta).
+- CheckV reference data
+
+**Output**
+
+- Quality Summary: Tabular file showing integrated results from the three main modules and should be the main output referred to.
+- Complete genomes: Tabular overview of putative complete genomes identified.
+- Viruses: Virus sequences
+- Proviruses: Provirus sequences
+
+Optional outputs:
+
+- Completeness: detailed overview of how completeness was estimated
+- Contamination:  detailed overview of how contamination was estimated
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1038/s41587-020-00774-7</citation>
+    </citations>
+</tool>

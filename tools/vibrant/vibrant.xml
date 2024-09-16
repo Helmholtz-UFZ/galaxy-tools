@@ -17,15 +17,15 @@
         VIBRANT_run.py
             -i 'input.fas'
             $protein
-            -d '$database.fields.path'/databases/
-            -m '$database.fields.path'/files/
+            -d '${database.fields.path}/databases/'
+            -m '${database.fields.path}/files/'
             -l $l
             -o $o
             $virome
             -t "\${GALAXY_SLOTS:-1}"
     ]]></command>
     <inputs>
-        <param argument="-i" name="input" type="data" format="fasta" label="Input fasta file"/>
+        <param argument="-i" name="input" type="data" format="fasta" label="Input FASTA file"/>
         <param argument="-f" name="protein" type="boolean" truevalue="-f prot" falsevalue="-f nucl" checked="false" label="Input is protein" help="By default nucleotide sequence is assumed"/>
         <param argument="-d" name="database" type="select" label="Reference data">
             <options from_data_table="vibrant"/>

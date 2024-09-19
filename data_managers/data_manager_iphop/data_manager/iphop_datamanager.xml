@@ -1,0 +1,60 @@
+<tool id="iphop_build_database" name="iPHoP" tool_type="manage_data" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+    <description>database builder</description>
+    <macros>
+        <token name="@TOOL_VERSION@">1.3.3</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@PROFILE@">22.01</token>
+    </macros>
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">iphop</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        iphop download
+            --db_dir db/
+            --db_version $db_version
+            --full_verify
+            --no_prompt
+        cp '$dmjson' '$out_file'
+    ]]></command>
+    <configfiles>
+        <configfile name="dmjson"><![CDATA[
+{
+  "data_tables":{
+    "checkv":[
+      {
+        "path":"db",
+        "name":"Version $db_version",
+        "version":"$db_version",
+        "value":"$db_version"
+      }
+    ]
+  }
+}]]>
+        </configfile>
+    </configfiles>
+    <inputs>
+        <param name="db_version" type="select" multiple="false" label="Database Version">
+            <option value="iPHoP_db_Aug23_rw">iPHoP_db_Aug23_rw</option>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="out_file" format="data_manager_json" />
+    </outputs>
+    <tests>
+        <test expect_num_outputs="1">
+            <param name="db_version" value="iPHoP_db_Aug23_rw" />
+            <output name="out_file">
+                <assert_contents>
+                    <has_text text='"value":"iPHoP_db_Aug23_rw"'/>
+                    <has_text text='"name":"Version iPHoP_db_Aug23_rw"'/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+Download and extract iPHoP reference data
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1371/journal.pbio.3002083</citation>
+    </citations>
+</tool>

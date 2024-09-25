@@ -9,11 +9,12 @@
         <requirement type="package" version="@TOOL_VERSION@">iphop</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
+        mkdir db &&
         iphop download
             --db_dir db/
             --db_version $db_version
-            --full_verify
-            --no_prompt
+            ## --full_verify  https://bitbucket.org/srouxjgi/iphop/issues/114/db-download-verification-error
+            --no_prompt &&
         cp '$dmjson' '$out_file'
     ]]></command>
     <configfiles>

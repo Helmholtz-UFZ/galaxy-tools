@@ -1,0 +1,18 @@
+categories:
+- Metagenomics
+description: Integrated Phage Host Prediction
+long_description: |
+  Integrated Phage Host Prediction: an automated command-line pipeline for predicting host genus of novel bacteriophages and archaeoviruses based on their genome sequences.
+name: iphop
+owner: ufz
+homepage_url: https://bitbucket.org/srouxjgi/iphop/
+remote_repository_url: https://github.com/Helmholtz-UFZ/ufz-galaxy-tools/blob/main/tools/iphop/
+type: unrestricted
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: "Wrapper for iphop function: {{ tool_name }}."
+suite:
+  name: "suite_iphop"
+  description: "A suite of tools that brings the iphop project into Galaxy."
+  long_description: |
+    Integrated Phage Host Prediction: an automated command-line pipeline for predicting host genus of novel bacteriophages and archaeoviruses based on their genome sequences.

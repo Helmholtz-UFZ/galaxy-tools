@@ -72,5 +72,5 @@ response_col <- args[3]
 plot_file <- args[4]
 ec_file <- args[5]
 
-data <- read.table(data_file, header = TRUE, sep = "\t")
+data <- read.table(data_file, sep = "\t")
 dose_response_analysis(data, concentration_col, response_col, plot_file, ec_file)

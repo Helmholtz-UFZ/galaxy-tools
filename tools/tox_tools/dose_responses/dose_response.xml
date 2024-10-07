@@ -35,8 +35,8 @@
         <tests>
         <test>
             <param name="input_csv" value="test_summary.tsv"/>
-            <param name="concentration_column" value="concentration"/>
-            <param name="response_column" value="lethal"/>
+            <param name="concentration_column" value="1"/>
+            <param name="response_column" value="0"/>
             <output name="plot_output" value="result.jpeg" ftype="jpg"/>
             <output name="ec_output" value="results_EC.csv" ftype="csv" />
         </test>

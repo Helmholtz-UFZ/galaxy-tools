@@ -117,6 +117,7 @@
     </outputs>
     <tests>
         <test>
+            <param name="license" value="true"/>
             <param name="INPUT" value="GCF_009025895.1_ASM902589v1_genomic.fna" ftype="fasta"/>
             <param name="DATABASE" value="1.2"/>
             <section name="annotation">

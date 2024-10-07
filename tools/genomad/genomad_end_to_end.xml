@@ -2,7 +2,7 @@
     <description>identify virus and plasmid genomes from nucleotide sequences</description>
     <macros>
         <token name="@TOOL_VERSION@">1.8.0</token>
-        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@VERSION_SUFFIX@">1</token>
         <token name="@MIN_DB_VERSION@">1.2</token>  <!-- https://portal.nersc.gov/genomad/__data__/releases.txt -->
         <xml name="summary_output_macro" tokens="type">
             <data name="summary_@TYPE@_fna" format="fasta" from_work_dir="output/sequence_summary/sequence_@TYPE@.fna" label="${tool.name} on ${on_string}: @TYPE@ fasta"/>
@@ -59,6 +59,7 @@
             '$DATABASE.fields.path'
     ]]></command>
     <inputs>
+        <param name="license" type="boolean" checked="false" label="Agree with license" help="geNomad is free to use for internal use, research &amp; development, non-commercial use, purposes only. License is linked in the help below."/>
         <param argument="INPUT" type="data" format="fasta" label="Input sequences" help="geNomad will work for isolate genomes, metagenomes, and metatranscriptomes"/>
         <param name="DATABASE" type="select" label="Reference data" help="">
             <options from_data_table="genomad"/>
@@ -172,6 +173,8 @@ For details on the function refer to the citation or https://portal.nersc.gov/ge
 
 This Galaxy tool executed the ent-to-end geNomad workflow.
 
+geNomad is free to use for internal use, research &amp; development, non-commercial use, purposes **only**. Check out the full `License`_.
+
 Usage
 .....
 
@@ -229,6 +232,8 @@ plasmid/virus genes: During its execution, geNomad annotates the genes encoded b
 
 
 plasmid/virus genes/proteins: gives the nucleotide and aminoaced sequences of the annotated genes
+
+.. _License: https://raw.githubusercontent.com/apcamargo/genomad/refs/heads/main/LICENSE
 
     ]]></help>
     <citations>

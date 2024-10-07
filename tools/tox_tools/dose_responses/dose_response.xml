@@ -26,7 +26,7 @@
     <inputs>
         <param name="input_csv" type="data" format="tabular" label="Concentration - Response Tabular Input"/>
         <param name="concentration_column" type="data_column" data_ref="input_csv" label="Concentration Column" help="Name of the column for concentration values"/>
-        <param name="response_column" type="data_column" label="Response Column" help="Name of the column for response values"/>
+        <param name="response_column" type="data_column" data_ref="input_csv" label="Response Column" help="Name of the column for response values"/>
     </inputs>
     <outputs>
         <data name="plot_output" format="jpg" label="Dose Response Plot"/>

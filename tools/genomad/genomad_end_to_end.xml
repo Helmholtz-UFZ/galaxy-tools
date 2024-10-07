@@ -59,7 +59,9 @@
             '$DATABASE.fields.path'
     ]]></command>
     <inputs>
-        <param name="license" type="boolean" checked="false" label="Agree with license" help="geNomad is free to use for internal use, research &amp; development, non-commercial use, purposes only. License is linked in the help below."/>
+        <param name="license" type="boolean" checked="false" label="Agree with geNomad license?" help="geNomad is free to use for internal use, research &amp; development, non-commercial use, purposes only.">
+            <validator type="expression" message="You need to agree to the geNomad license in order to use this tool. License is linked in the help below.">value</validator>
+        </param>
         <param argument="INPUT" type="data" format="fasta" label="Input sequences" help="geNomad will work for isolate genomes, metagenomes, and metatranscriptomes"/>
         <param name="DATABASE" type="select" label="Reference data" help="">
             <options from_data_table="genomad"/>

@@ -1,8 +1,8 @@
 """Command line interface for mhm-tools."""
 import argparse
 
-from .. import __version__
 from . import _bankfull
+from .. import __version__
 
 
 class Formatter(

@@ -9,11 +9,11 @@
         <requirement type="package" version="0.1">ogs</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        ln -s "$input_file" input_file.msh &&
+        ln -s '$input_file' input_file.msh &&
         msh2vtu input_file.msh 
-            -o "$output_path" 
-            -p "$prefix" 
-            -d "$dim" 
+            -o '$output_path' 
+            -p '$prefix' 
+            -d '$dim' 
             #if $delz == "true"
                 -z
             #end if
@@ -29,23 +29,27 @@
             #if $ascii == "true"
                 -a
             #end if
-            -l "$log_level"
+            -l '$log_level'
     ]]></command>
     <inputs>
-        <param name="input_file" type="data" format="GMSH" label="Input GMSH File"/>
-        <param name="output_path" type="text" label="Output Path" optional="true"/>
-        <param name="prefix" type="text" label="Filename Prefix" />
-        <param name="dim" type="select" value="1" label="Mesh Dimension">
+        <param name="input_file" type="data" format="GMSH" label="Input GMSH File"  argument=""/>
+        <param name="output_path" type="text" label="Output Path" optional="true" argument="-o">
+            <validator type="regex">^(?!.*[\u003C\u003E]).*\..+$</validator>
+        </param>
+        <param name="prefix" type="text" label="Filename Prefix" argument="-p">
+            <validator type="regex">^(?!.*[\u003C\u003E])[a-zA-Z0-9_]+$</validator>
+        </param>
+        <param name="dim" type="select" value="1" label="Mesh Dimension" argument="-d">
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
         </param>
-        <param name="delz" type="boolean" value="false" label="Delete Z Coordinate" optional="true"/>
-        <param name="swapxy" type="boolean" value="false" label="Swap XY Coordinates" optional="true"/>
-        <param name="reindex" type="boolean" value="false" label="Reindex" optional="true"/>
-        <param name="keep_ids" type="boolean" value="false" label="Keep IDs" optional="true"/>
-        <param name="ascii" type="boolean" value="false" label="ASCII Output" optional="true"/>
-        <param name="log_level" type="select" value="DEBUG" label="Log Level">
+        <param name="delz" type="boolean" value="false" label="Delete Z Coordinate" optional="true" argument="-z"/>
+        <param name="swapxy" type="boolean" value="false" label="Swap XY Coordinates" optional="true" argument="-s"/>
+        <param name="reindex" type="boolean" value="false" label="Reindex" optional="true" argument="-r"/>
+        <param name="keep_ids" type="boolean" value="false" label="Keep IDs" optional="true" argument="-k"/>
+        <param name="ascii" type="boolean" value="false" label="ASCII Output" optional="true" argument="-a"/>
+        <param name="log_level" type="select" value="DEBUG" label="Log Level" argument="-l">
             <option value="DEBUG">DEBUG</option>
             <option value="INFO">INFO</option>
             <option value="WARNING">WARNING</option>

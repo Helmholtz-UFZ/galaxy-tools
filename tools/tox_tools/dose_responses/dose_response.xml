@@ -1,5 +1,5 @@
 <tool id="dr_curve" name="Dose Response Curve for Toxicological Risk Assessment" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0">
-    <description>wit drc</description>
+    <description>for Toxicological Risk Assessment</description>
     <macros>
         <token name="@TOOL_VERSION@">3.0.1</token>
         <token name="@VERSION_SUFFIX@">1</token>
@@ -37,7 +37,12 @@
             <param name="input_csv" value="drc_input.tsv"/>
             <param name="concentration_column" value="1"/>
             <param name="response_column" value="2"/>
-            <output name="plot_output" value="drc_image_output.jpeg" ftype="jpg"/>
+            <output name="plot_output" ftype="jpg">
+                <assert_contents>
+                    <has_image_width width="480"/>
+                    <has_image_height height="480"/>
+                </assert_contents>
+            </output>
             <output name="ec_output" value="drc_EC_output.tsv" ftype="tabular" />
         </test>
     </tests>

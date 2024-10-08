@@ -45,7 +45,9 @@ plot_dose_response <- function(model, data, ec_values, concentration_col, respon
             plot.background = element_rect(fill = "white", color = NA)
         )
 
-    ggsave(filename = paste0("./test-data/", plot_file), plot = p, device = "jpg")
+    jpeg(filename = plot_file)
+    print(p)
+    dev.off()
 }
 
 dose_response_analysis <- function(data, concentration_col, response_col, plot_file, ec_file) {
@@ -61,7 +63,7 @@ dose_response_analysis <- function(data, concentration_col, response_col, plot_f
         EC25 = ec_values$EC25[1],
         EC50 = ec_values$EC50[1]
     )
-    write.table(paste0("./test-data/",ec_data), ec_file, sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
+    write.table(ec_data, ec_file, sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
 
     return(list(best_model = best_model_info$name, ec_values = ec_values))
 }

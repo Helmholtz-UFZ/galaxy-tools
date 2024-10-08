@@ -15,7 +15,7 @@
     </requirements>
     <command detect_errors="aggressive">
         <![CDATA[
-        Rscript $__tool_directory__/dose_response.R
+        Rscript '$__tool_directory__'/dose_response.R
             '$input_csv'
             '$concentration_column'
             '$response_column'

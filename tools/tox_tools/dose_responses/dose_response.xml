@@ -1,8 +1,8 @@
 <tool id="dr_curve" name="Dose Response Curve for Toxicological Risk Assessment" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0">
-    <description>Toxicity prediction tool - Dose response Curve</description>
+    <description>for Toxicological Risk Assessment</description>
     <macros>
-        <token name="@TOOL_VERSION@">3.0_1</token>
-        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@TOOL_VERSION@">3.0.1</token>
+        <token name="@VERSION_SUFFIX@">1</token>
     </macros>
     <creator>
         <organization name="Helmholtz Centre for Environmental Research - UFZ, Department of Ecotoxicology"
@@ -26,7 +26,7 @@
     <inputs>
         <param name="input_csv" type="data" format="tabular" label="Concentration - Response Tabular Input"/>
         <param name="concentration_column" type="data_column" data_ref="input_csv" label="Concentration Column" help="Name of the column for concentration values"/>
-        <param name="response_column" type="data_column" label="Response Column" help="Name of the column for response values"/>
+        <param name="response_column" type="data_column" data_ref="input_csv" label="Response Column" help="Name of the column for response values"/>
     </inputs>
     <outputs>
         <data name="plot_output" format="jpg" label="Dose Response Plot"/>
@@ -34,22 +34,27 @@
     </outputs>
         <tests>
         <test>
-            <param name="input_csv" value="test_summary.tsv"/>
-            <param name="concentration_column" value="concentration"/>
-            <param name="response_column" value="lethal"/>
-            <output name="plot_output" value="result.jpeg" ftype="jpg"/>
-            <output name="ec_output" value="results_EC.csv" ftype="csv" />
+            <param name="input_csv" value="drc_input.tsv"/>
+            <param name="concentration_column" value="1"/>
+            <param name="response_column" value="2"/>
+            <output name="plot_output" ftype="jpg">
+                <assert_contents>
+                    <has_image_width width="480"/>
+                    <has_image_height height="480"/>
+                </assert_contents>
+            </output>
+            <output name="ec_output" value="drc_EC_output.tsv" ftype="tabular" />
         </test>
     </tests>
     <help><![CDATA[
         This tool performs dose-response analysis on the provided CSV file,
         generates a dose-response plot, and calculates EC values (EC10, EC25, EC50).
 
-        - `input_csv`: A CSV file containing the dose-response data.
+        - `input_csv`: A TSV file containing the dose-response data.
         - `concentration_column`: The name of the column in the CSV file that contains the concentration values.
         - `response_column`: The name of the column in the CSV file that contains the response values
         - `plot_output`: A JPG image file of the dose-response plot.
-        - `ec_output`: A CSV file containing the calculated EC values.
+        - `ec_output`: A tabular file containing the calculated EC values.
     ]]></help>
         <citations>
     <citation type="doi">10.1371/journal.pone.0146021</citation>

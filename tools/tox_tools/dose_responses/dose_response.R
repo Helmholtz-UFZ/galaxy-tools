@@ -49,6 +49,8 @@ plot_dose_response <- function(model, data, ec_values, concentration_col, respon
 }
 
 dose_response_analysis <- function(data, concentration_col, response_col, plot_file, ec_file) {
+    concentration_col <- colnames(data)[as.integer(concentration_col)]
+    response_col <- colnames(data)[as.integer(response_col)]
     models <- fit_models(data, concentration_col, response_col)
     best_model_info <- select_best_model(models)
     ec_values <- calculate_ec_values(best_model_info$model)
@@ -59,7 +61,7 @@ dose_response_analysis <- function(data, concentration_col, response_col, plot_f
         EC25 = ec_values$EC25[1],
         EC50 = ec_values$EC50[1]
     )
-    write.csv(ec_data, ec_file, row.names = FALSE)
+    write.table(ec_data, ec_file, sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
 
     return(list(best_model = best_model_info$name, ec_values = ec_values))
 }
@@ -72,5 +74,5 @@ response_col <- args[3]
 plot_file <- args[4]
 ec_file <- args[5]
 
-data <- read.table(data_file, sep = "\t")
+data <- read.csv(data_file, header = TRUE, sep = "\t")
 dose_response_analysis(data, concentration_col, response_col, plot_file, ec_file)

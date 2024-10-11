@@ -1,4 +1,4 @@
-<tool id="omero_get_id" name="OMERO IDs" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@"
+<tool id="omero_get_id" name="OMERO get IDs" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@"
       profile="20.01" license="MIT">
     <description> with ezomero </description>
     <macros>
@@ -18,8 +18,8 @@
         --credential-file '$credentials'
         --host $omero_host
         --port $omero_port
-        --obj_type $obj_type
-        --id $did
+        --obj_type $cond_obj_type.obj_type
+        --id $cond_obj_type.did
         --tsv_file $tsv
     ]]></command>
     <configfiles>
@@ -36,16 +36,35 @@
             <validator type="expression" message="No two dots (..) allowed">'..' not in value</validator>
         </param>
         <param argument="omero_port" type="integer" optional="false" value="4064" label="OMERO port"/>
-        <param argument="obj_type" type="select" optional="false" label="Type of object to fetch: dataset,
-        image, annotation, project, ROI, or table.">
-            <option value="project">Project</option>
-            <option value="dataset">Screen</option>
-            <option value="image">Dataset</option>
-            <option value="annotation">Image</option>
-            <option value="roi">ROI</option>
-            <option value="table">Table</option>
-        </param>
-        <param name="did" type="integer" value="" optional="false" label="ID of the specific OMERO object."/>
+        <conditional name="cond_obj_type">
+            <param argument="obj_type" type="select" optional="false" label="Type of object to fetch: dataset,
+            image, annotation, project, ROI, or table.">
+                <option value="project">Project</option>
+                <option value="dataset">Dataset</option>
+                <option value="image">Image</option>
+                <option value="annotation">Annotation</option>
+                <option value="roi">ROI</option>
+                <option value="table">Table</option>
+            </param>
+            <when value="project">
+                <param name="did" type="hidden" value="0"/>
+            </when>
+            <when value="dataset">
+                <param name="did" type="integer" value="" optional="false" label="ID of the parent project."/>
+            </when>
+            <when value="image">
+                <param name="did" type="integer" value="" optional="false" label="ID of the parent dataset."/>
+            </when>
+            <when value="annotation">
+                <param name="did" type="integer" value="" optional="false" label="ID of the image."/>
+            </when>
+            <when value="roi">
+                <param name="did" type="integer" value="" optional="false" label="ID of the image."/>
+            </when>
+            <when value="table">
+                <param name="did" type="integer" value="" optional="false" label="ID of the image."/>
+            </when>
+        </conditional>
         <param name="test_username" type="hidden" value=""/>
         <param name="test_password" type="hidden" value=""/>
     </inputs>
@@ -57,7 +76,6 @@
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>
             <param name="obj_type" value="project"/>
-            <param name="did" value="1"/>
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>
             <output name="tsv" value="output_ids_project.tsv" ftype="tabular">

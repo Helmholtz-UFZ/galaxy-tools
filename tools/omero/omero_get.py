@@ -74,10 +74,13 @@ if __name__ == "__main__":
     parser.add_argument('--obj_type', required=True,
                         help="Type of object to fetch: dataset, image, annotation, project, roi, or table.")
     parser.add_argument('--id', required=False,
-                        help="ID of the specific OMERO object.")
+                        help="ID of the OMERO object attached to this object (project id for dataset, dataset id for image, image id for annotation, roi, or table). This is ignored for project.")
     parser.add_argument('--tsv_file', default='id_list.tsv', required=True,
                         help="Output TSV file path.")
     args = parser.parse_args()
+
+    if args.id is None and args.obj_type != "project":
+        raise ValueError(f"ID is required for {args.obj_type}")
 
     with open(args.credential_file, 'r') as f:
         crds = json.load(f)

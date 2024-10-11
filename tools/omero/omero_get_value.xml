@@ -14,17 +14,17 @@
         <requirement type="package" version="21.0.2">openjdk</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python $__tool_directory__/omero_get_value.py
+        python '$__tool_directory__'/omero_get_value.py
         --credential-file '$credentials'
-        --host $omero_host
+        --host '$omero_host'
         --port $omero_port
-        --obj_type $obj_type
+        --obj_type '$obj_type'
         #if $ids_input.ids_format == "values":
             --ids str($ids_input.ids).replace(',', ' ')
         #else:
-            --ids_path $ids_input.ids_path
+            --ids_path '$ids_input.ids_path'
         #end if
-        --tsv_file $tsv
+        --tsv_file '$tsv'
     ]]></command>
     <configfiles>
         <configfile name="credentials"><![CDATA[

@@ -14,14 +14,14 @@
         <requirement type="package" version="21.0.2">openjdk</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python $__tool_directory__/omero_get_id.py
+        python '$__tool_directory__'/omero_get_id.py
         --credential-file '$credentials'
-        --host $omero_host
+        --host '$omero_host'
         --port $omero_port
-        --final_obj_type $cond_obj_type.final_obj_type
-        --parent_obj_type $cond_obj_type.parent_obj_type
+        --final_obj_type '$cond_obj_type.final_obj_type'
+        --parent_obj_type '$cond_obj_type.parent_obj_type'
         --parent_id $cond_obj_type.parent_id
-        --tsv_file $tsv
+        --tsv_file '$tsv'
     ]]></command>
     <configfiles>
         <configfile name="credentials"><![CDATA[

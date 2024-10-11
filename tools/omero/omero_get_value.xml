@@ -66,7 +66,23 @@
         <data name="tsv" format="tabular"/>
     </outputs>
     <tests>
-        <!-- TODO -->
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="Tag"/>
+            <conditional name="ids_input">
+                <param name="ids_format" value="value"/>
+                <param name="ids" value="1"/>
+            </conditional>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="tsv" ftype="tabular">
+                <assert_contents>
+                    <has_text text="test_tag"/>
+                    <has_n_lines n="1"/>
+                </assert_contents>
+            </output>
+        </test>
     </tests>
     <help>
 Description

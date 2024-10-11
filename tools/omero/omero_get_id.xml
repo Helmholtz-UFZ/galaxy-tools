@@ -113,7 +113,9 @@
         <test>
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>
-            <param name="obj_type" value="project"/>
+            <conditional name="cond_obj_type">
+                <param name="final_obj_type" value="Project"/>
+            </conditional>
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>
             <output name="tsv" value="output_ids_project.tsv" ftype="tabular">
@@ -126,8 +128,11 @@
         <test>
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>
-            <param name="obj_type" value="dataset"/>
-            <param name="did" value="1"/>
+            <conditional name="cond_obj_type">
+                <param name="final_obj_type" value="Dataset"/>
+                <param name="parent_obj_type" value="Project"/>
+                <param name="parent_id" value="1"/>
+            </conditional>
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>
             <output name="tsv" value="output_ids_dataset.tsv" ftype="tabular">
@@ -140,13 +145,33 @@
         <test>
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>
-            <param name="obj_type" value="image"/>
-            <param name="did" value="1"/>
+            <conditional name="cond_obj_type">
+                <param name="final_obj_type" value="Image"/>
+                <param name="parent_obj_type" value="Dataset"/>
+                <param name="parent_id" value="1"/>
+            </conditional>
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>
             <output name="tsv" value="output_ids_image.tsv" ftype="tabular">
                 <assert_contents>
                     <has_text text="Image IDs"/>
+                    <has_text text="1"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <conditional name="cond_obj_type">
+                <param name="final_obj_type" value="Tag"/>
+                <param name="parent_obj_type" value="Image"/>
+                <param name="parent_id" value="1"/>
+            </conditional>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="tsv" ftype="tabular">
+                <assert_contents>
+                    <has_text text="Tag IDs"/>
                     <has_text text="1"/>
                 </assert_contents>
             </output>

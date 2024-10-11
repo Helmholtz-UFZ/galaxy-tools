@@ -77,7 +77,7 @@ if __name__ == "__main__":
     parser.add_argument('--obj_type', required=True,
                         help="Type of object to fetch: Annotation, Table or Tag.")
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('--ids', nargs = '+', type = int,
+    group.add_argument('--ids', nargs='+', type=int,
                        help="IDs of the OMERO objects.")
     group.add_argument('--ids_path',
                        help="File with IDs of the OMERO objects (one per line).")

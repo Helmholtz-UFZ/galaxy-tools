@@ -11,7 +11,6 @@
     <command detect_errors="exit_code"><![CDATA[
         ln -s '$input_file' input_file.msh &&
         msh2vtu input_file.msh 
-            -o '$output_path' 
             -p '$prefix' 
             -d '$dim' 
             #if $delz == "true"
@@ -32,14 +31,11 @@
             -l '$log_level'
     ]]></command>
     <inputs>
-        <param name="input_file" type="data" format="GMSH" label="Input GMSH File"  argument=""/>
-        <param name="output_path" type="text" label="Output Path" optional="true" argument="-o">
-            <validator type="regex">^(?!.*[\u003C\u003E]).*\..+$</validator>
-        </param>
+        <param name="input_file" type="data" format="GMSH" label="Input GMSH File"/>
         <param name="prefix" type="text" label="Filename Prefix" argument="-p">
             <validator type="regex">^(?!.*[\u003C\u003E])[a-zA-Z0-9_]+$</validator>
         </param>
-        <param name="dim" type="select" value="1" label="Mesh Dimension" argument="-d">
+        <param name="dim" type="select" label="Mesh Dimension" argument="-d">
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
@@ -61,8 +57,7 @@
     </outputs>
     <tests>
         <test>
-            <param name="input_file" value="examples/msh/geolayers_2d.msh"/>
-            <param name="output_path" value="/output"/>
+            <param name="input_file" value="/home/stehling/.venv/lib/python3.10/site-packages/ogstools/msh2vtu/test-data/geolayers_2d.msh"/>
             <param name="prefix" value="test"/>
             <param name="dim" value="3"/>
             <param name="delz" value="False"/>

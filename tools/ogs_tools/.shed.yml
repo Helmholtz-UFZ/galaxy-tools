@@ -1,4 +1,4 @@
-name: msh2vtu
+name: suite_ogs_tools
 owner: ufz
 description: Convert GMSH mesh files to VTU format using various options for mesh processing.
 long_description: |
@@ -13,7 +13,7 @@ auto_tool_repositories:
   name_template: "{{ tool_id }}"
   description_template: "Wrapper for bankfull discharge calculation function: {{ tool_name }}."
 suite:
-  name: smsh2vtu
+  name: suite_ogs_tools
   description: Convert GMSH mesh files to VTU format using various options for mesh processing.
   long_description: |
     This Galaxy tool converts GMSH mesh files (`*.msh`) into VTU format (`*.vtu`) using the OpenGeoSys (OGS) utility. 

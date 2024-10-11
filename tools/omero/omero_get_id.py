@@ -57,7 +57,7 @@ def get_ids_ezo(user, pws, host, port, final_obj_type, parent_obj_type, parent_i
                 elif parent_obj_type == "Well":
                     args['well'] = parent_id
                 elif parent_obj_type != "All":
-                    raise ValueError(f"Object set as parent_obj_type is not compatible")
+                    raise ValueError("Object set as parent_obj_type is not compatible")
                 ds_ims = ez.get_image_ids(conn, **args)
                 write_ids_to_tsv(ds_ims, "Image IDs")
                 return ds_ims
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.parent_id is None and args.parent_obj_type != "All":
-        raise ValueError(f"ID is only optional is you use `--parent_obj_type All`")
+        raise ValueError("ID is only optional is you use `--parent_obj_type All`")
 
     if args.final_obj_type == "Roi" and args.parent_obj_type != "Image":
         raise ValueError("Roi IDs can only be retrived from images, use `--parent_obj_type Image`")

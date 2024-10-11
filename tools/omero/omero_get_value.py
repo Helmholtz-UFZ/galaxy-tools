@@ -49,7 +49,7 @@ def get_object_ezo(user, pws, host, port, obj_type, ids, tsv_file):
                     tags.append(ez.get_tag(conn, tag_id))
                 # Sort the tags for consistency:
                 tags.sort
-                write_ids_to_tsv(tags, "Tags")
+                write_values_to_tsv(tags, "Tags")
                 return tags
             elif obj_type == "Table":
                 if len(ids) > 1:

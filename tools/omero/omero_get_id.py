@@ -16,18 +16,6 @@ def get_ids_ezo(user, pws, host, port, final_obj_type, parent_obj_type, parent_i
                 writer.writerow([header])  # Write the header
             for item in data:
                 writer.writerow([item])  # Write each ID
-
-    # Function to write tabular file from a dictionary ezomero output
-    def write_dict_to_tsv(data, headers):
-        with open(tsv_file, 'a+', newline='') as f:
-            f.seek(0)
-            is_empty = f.tell() == 0  # Check if file is empty
-            writer = csv.writer(f, delimiter='\t')
-            if is_empty:
-                writer.writerow(headers)  # Write the headers
-            for key, value in data.items():
-                writer.writerow([key, value])  # Write each key-value pair
-
     try:
         with ez.connect(user, pws, "", host, port, secure=True) as conn:
             if final_obj_type == "Project":
@@ -110,7 +98,7 @@ if __name__ == "__main__":
     if args.final_obj_type == "Roi" and args.parent_obj_type != "Image":
         raise ValueError("Roi IDs can only be retrived from images, use `--parent_obj_type Image`")
 
-    if args.parent_obj_type == "All" and not args.final_obj_type in ["Image", "Dataset", "Project"]:
+    if args.parent_obj_type == "All" and args.final_obj_type not in ["Image", "Dataset", "Project"]:
         raise ValueError("Only Images, Datasets and Projects is compatible with `--parent_obj_type All`")
 
     with open(args.credential_file, 'r') as f:

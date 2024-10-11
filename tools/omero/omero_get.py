@@ -39,7 +39,11 @@ def get_object_ezo(user, pws, host, port, obj_type, id=None, tsv_file="id_list.t
                 write_ids_to_tsv(ds_ims, "Image IDs")
                 return ds_ims
             elif obj_type == "annotation":
-                ma_dict = ez.get_map_annotation(conn, int(id))
+                map_annot_ids = ez.get_map_annotation_ids(conn, "Image", int(id))
+                ma_dict = {}
+                for maid in map_annot_ids:
+                    current_ma_dict = ez.get_map_annotation(conn, maid)
+                    ma_dict = {**ma_dict, **current_ma_dict}
                 write_dict_to_tsv(ma_dict, ["Annotation ID", "Annotation Value"])
                 return ma_dict
             elif obj_type == "project":

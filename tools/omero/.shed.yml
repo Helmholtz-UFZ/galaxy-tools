@@ -1,8 +1,8 @@
 categories:
 - Imaging
 name: omero_upload
-description: Import images, region of interest, metadata into an OMERO.server using omero-py
-long_description: Tool to import and link different objects into OMERO
+description: Interact with an OMERO.server using omero-py and ezomero.
+long_description:  This set of tool allows to import images and metadata into an OMERO.server.
 owner: ufz
 remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/omero
 homepage_url: https://github.com/ome/omero-py/
@@ -13,4 +13,4 @@ suite:
   name: "suite_omero_py"
   description: "A suite of tools that brings the omero-py and ezomero project into Galaxy."
   long_description: |
-    OMERO.py provides an interface to the OMERO.blitz server.
+    OMERO.py and ezomero provides an interface to the OMERO.blitz server.

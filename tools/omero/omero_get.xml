@@ -1,0 +1,118 @@
+<tool id="omero_get_id" name="OMERO IDs" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@"
+      profile="20.01" license="MIT">
+    <description> with ezomero </description>
+    <macros>
+        <token name="@TOOL_VERSION@">5.18.0</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">omero</xref>
+    </xrefs>
+    <requirements>
+        <requirement type="package" version="3.0.1">ezomero</requirement>
+        <!-- openjdk is needed: https://github.com/conda-forge/omero-py-feedstock/pull/16 -->
+        <requirement type="package" version="21.0.2">openjdk</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        python $__tool_directory__/omero_get.py
+        --credential-file '$credentials'
+        --host $omero_host
+        --port $omero_port
+        --obj_type $obj_type
+        --id $did
+        --tsv_file $tsv
+    ]]></command>
+    <configfiles>
+        <configfile name="credentials"><![CDATA[
+{
+    "username": "$__user__.extra_preferences.get('omero_account|username', $test_username)",
+    "password": "$__user__.extra_preferences.get('omero_account|password', $test_password)"
+}
+        ]]></configfile>
+    </configfiles>
+    <inputs>
+        <param name="omero_host" type="text" label="OMERO host URL">
+            <validator type="regex" message="Enter a valid host location, for example, your.omero.server">^[a-zA-Z0-9._-]*$</validator>
+            <validator type="expression" message="No two dots (..) allowed">'..' not in value</validator>
+        </param>
+        <param argument="omero_port" type="integer" optional="false" value="4064" label="OMERO port"/>
+        <param argument="obj_type" type="select" optional="false" label="Type of object to fetch: dataset,
+        image, annotation, project, ROI, or table.">
+            <option value="project">Project</option>
+            <option value="dataset">Screen</option>
+            <option value="image">Dataset</option>
+            <option value="annotation">Image</option>
+            <option value="roi">ROI</option>
+            <option value="table">Table</option>
+        </param>
+        <param name="did" type="integer" value="" optional="false" label="ID of the specific OMERO object."/>
+        <param name="test_username" type="hidden" value=""/>
+        <param name="test_password" type="hidden" value=""/>
+    </inputs>
+    <outputs>
+        <data name="tsv" format="tabular"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="project"/>
+            <param name="did" value="1"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="tsv" value="output_ids_project.tsv" ftype="tabular">
+                <assert_contents>
+                    <has_text text="Project IDs"/>
+                    <has_text text="1"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="dataset"/>
+            <param name="did" value="1"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="tsv" value="output_ids_dataset.tsv" ftype="tabular">
+                <assert_contents>
+                    <has_text text="Dataset IDs"/>
+                    <has_text text="1"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="image"/>
+            <param name="did" value="1"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="tsv" value="output_ids_image.tsv" ftype="tabular">
+                <assert_contents>
+                    <has_text text="Image IDs"/>
+                    <has_text text="1"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help>
+Description
+-----------
+
+Tool to fetch project, dataset, images and ROIs IDs user defined OMERO.server.
+Additionally, this tool fetch attachments and tables linked to an Image
+
+Options:
+Project -> Project IDs present in the OMERO.server
+Dataset -> Dataset IDs present in a specific Project
+Image -> Image IDs present in a specific Dataset
+Annotation -> Annotation File (Key-Value Pairs) linked to an Image
+ROI -> ROI IDs linked to an Image
+Table -> Table linked to an Image
+
+    </help>
+    <citations>
+        <citation type="doi">10.1038/nmeth.1896</citation>
+    </citations>
+</tool>

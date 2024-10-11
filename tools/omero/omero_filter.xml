@@ -1,0 +1,102 @@
+<tool id="omero_filter_id" name="OMERO IDs" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@"
+      profile="20.01" license="MIT">
+    <description> with ezomero </description>
+    <macros>
+        <token name="@TOOL_VERSION@">5.18.0</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">omero</xref>
+    </xrefs>
+    <requirements>
+        <requirement type="package" version="3.0.1">ezomero</requirement>
+        <!-- openjdk is needed: https://github.com/conda-forge/omero-py-feedstock/pull/16 -->
+        <requirement type="package" version="21.0.2">openjdk</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        python $__tool_directory__/omero_filter.py
+        --credential-file '$credentials'
+        --host $omero_host
+        --port $omero_port
+        --filter $filter
+        --value1 $value1
+        --id $did
+        --tsv_file $tsv
+        #if $filter == "KP"
+        --value2 $value2
+        #end if
+
+    ]]></command>
+    <configfiles>
+        <configfile name="credentials"><![CDATA[
+{
+    "username": "$__user__.extra_preferences.get('omero_account|username', $test_username)",
+    "password": "$__user__.extra_preferences.get('omero_account|password', $test_password)"
+}
+        ]]></configfile>
+    </configfiles>
+    <inputs>
+        <param name="omero_host" type="text" label="OMERO host URL">
+            <validator type="regex" message="Enter a valid host location, for example, your.omero.server">^[a-zA-Z0-9._-]*$</validator>
+            <validator type="expression" message="No two dots (..) allowed">'..' not in value</validator>
+        </param>
+        <param argument="omero_port" type="integer" optional="false" value="4064" label="OMERO port"/>
+        <param argument="filter" type="select" optional="true" label="Select filter">
+            <option value="filename">Project</option>
+            <option value="KP">Screen</option>
+            <option value="tag">Dataset</option>
+        </param>
+        <param argument="value1" type="text" optional="false" label="First filter criteria (i.e. filename)"/>
+        <param argument="value2" type="text" optional="true" label="Second filter criteria (just valid for KP search)"/>
+        <param name="did" type="text" optional="false" label="List of images IDs"/>
+        <param name="test_username" type="hidden" value=""/>
+        <param name="test_password" type="hidden" value=""/>
+    </inputs>
+    <outputs>
+        <data name="tsv" format="tabular"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="filter" value="filename"/>
+            <param name="value1" value="sample_image_2.jpg"/>
+            <param name="did" value="1,2"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="tsv" value="output_filter_filename.tsv" ftype="tabular">
+                <assert_contents>
+                    <has_text text="Images with filename sample_image_2.jpg"/>
+                    <has_text text="2"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="filter" value="tag"/>
+            <param name="value1" value="test_tag"/>
+            <param name="did" value="1,2"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="tsv" value="output_filter_tag.tsv" ftype="tabular">
+                <assert_contents>
+                    <has_text text="Images with tag test_tag"/>
+                    <has_text text="1"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help>
+Description
+-----------
+
+Tool to filter images IDs by filename, Key-Value Pairs and Tag value.
+For Key-Value Pairs search, two values are required (Value1 = Key, Value2 = Pair).
+IDs are a list of image IDs which can be fetched using the omero_get tool.
+
+    </help>
+    <citations>
+        <citation type="doi">10.1038/nmeth.1896</citation>
+    </citations>
+</tool>

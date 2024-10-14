@@ -1,0 +1,199 @@
+<tool id="omero_get_id" name="OMERO get IDs" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@"
+      profile="20.01" license="MIT">
+    <description> with ezomero </description>
+    <macros>
+        <token name="@TOOL_VERSION@">5.18.0</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">omero</xref>
+    </xrefs>
+    <requirements>
+        <requirement type="package" version="3.0.1">ezomero</requirement>
+        <!-- openjdk is needed: https://github.com/conda-forge/omero-py-feedstock/pull/16 -->
+        <requirement type="package" version="21.0.2">openjdk</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        python '$__tool_directory__'/omero_get_id.py
+        --credential-file '$credentials'
+        --host '$omero_host'
+        --port $omero_port
+        --final_obj_type '$cond_obj_type.final_obj_type'
+        --parent_obj_type '$cond_obj_type.parent_obj_type'
+        --parent_id $cond_obj_type.parent_id
+        --tsv_file '$tsv'
+    ]]></command>
+    <configfiles>
+        <configfile name="credentials"><![CDATA[
+{
+    "username": "$__user__.extra_preferences.get('omero_account|username', $test_username)",
+    "password": "$__user__.extra_preferences.get('omero_account|password', $test_password)"
+}
+        ]]></configfile>
+    </configfiles>
+    <inputs>
+        <param name="omero_host" type="text" label="OMERO host URL">
+            <validator type="regex" message="Enter a valid host location, for example, your.omero.server">^[a-zA-Z0-9._-]*$</validator>
+            <validator type="expression" message="No two dots (..) allowed">'..' not in value</validator>
+        </param>
+        <param argument="omero_port" type="integer" optional="false" value="4064" label="OMERO port"/>
+        <conditional name="cond_obj_type">
+            <param argument="final_obj_type" type="select" optional="false" label="Type of object to fetch ID:">
+                <option value="Project">All Project IDs</option>
+                <option value="Dataset">Dataset IDs</option>
+                <option value="Image">Image IDs</option>
+                <option value="Annotation">Annotation IDs (key values)</option>
+                <option value="Tag">Tag IDs</option>
+                <option value="Roi">ROI IDs</option>
+                <option value="Table">Table IDs</option>
+            </param>
+            <when value="Project">
+                <param name="parent_obj_type" type="hidden" value="All"/>
+                <param name="parent_id" type="hidden" value="0"/>
+            </when>
+            <when value="Dataset">
+                <param name="parent_obj_type" type="select" label="Which datasets?">
+                    <option value="All">All datasets</option>
+                    <option value="Project">Only datasets from a Project</option>
+                </param>
+                <param name="parent_id" type="integer" value="0" optional="false" label="ID of the project (leave 0 if you selected All)."/>
+            </when>
+            <when value="Image">
+                <param name="parent_obj_type" type="select" label="Which images?">
+                    <option value="All">All images</option>
+                    <option value="Project">Only images from a Project</option>
+                    <option value="Dataset">Only images from a Dataset</option>
+                    <option value="Plate">Only images from a Plate</option>
+                    <option value="Well">Only images from a Well</option>
+                </param>
+                <param name="parent_id" type="integer" value="0" optional="false" label="ID of the parent object above (leave 0 if you selected All)."/>
+            </when>
+            <when value="Annotation">
+                <param name="parent_obj_type" type="select" label="Of which type of object?">
+                    <option value="Project">Annotations from a Project</option>
+                    <option value="Dataset">Annotations from a Dataset</option>
+                    <option value="Plate">Annotations from a Plate</option>
+                    <option value="Well">Annotations from a Well</option>
+                    <option value="Image">Annotations from an Image</option>
+                </param>
+                <param name="parent_id" type="integer" value="0" optional="false" label="ID of the object above."/>
+            </when>
+            <when value="Tag">
+                <param name="parent_obj_type" type="select" label="Of which type of object?">
+                    <option value="Project">Tags from a Project</option>
+                    <option value="Dataset">Tags from a Dataset</option>
+                    <option value="Plate">Tags from a Plate</option>
+                    <option value="Well">Tags from a Well</option>
+                    <option value="Image">Tags from an Image</option>
+                </param>
+                <param name="parent_id" type="integer" value="0" optional="false" label="ID of the object above."/>
+            </when>
+            <when value="Roi">
+                <param name="parent_obj_type" type="hidden" value="Image"/>
+                <param name="parent_id" type="integer" value="0" optional="false" label="ID of the image from which you want to get ROI IDs."/>
+            </when>
+            <when value="Table">
+                <param name="parent_obj_type" type="select" label="Of which type of object?">
+                    <option value="Project">Table from a Project</option>
+                    <option value="Dataset">Table from a Dataset</option>
+                    <option value="Plate">Table from a Plate</option>
+                    <option value="Well">Table from a Well</option>
+                    <option value="Image">Table from an Image</option>
+                </param>
+                <param name="parent_id" type="integer" value="0" optional="false" label="ID of the object above."/>
+            </when>
+        </conditional>
+        <param name="test_username" type="hidden" value=""/>
+        <param name="test_password" type="hidden" value=""/>
+    </inputs>
+    <outputs>
+        <data name="tsv" format="tabular"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <conditional name="cond_obj_type">
+                <param name="final_obj_type" value="Project"/>
+            </conditional>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="tsv" value="output_ids_project.tsv" ftype="tabular">
+                <assert_contents>
+                    <has_text text="Project IDs"/>
+                    <has_text text="1"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <conditional name="cond_obj_type">
+                <param name="final_obj_type" value="Dataset"/>
+                <param name="parent_obj_type" value="Project"/>
+                <param name="parent_id" value="1"/>
+            </conditional>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="tsv" value="output_ids_dataset.tsv" ftype="tabular">
+                <assert_contents>
+                    <has_text text="Dataset IDs"/>
+                    <has_text text="1"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <conditional name="cond_obj_type">
+                <param name="final_obj_type" value="Image"/>
+                <param name="parent_obj_type" value="Dataset"/>
+                <param name="parent_id" value="1"/>
+            </conditional>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="tsv" value="output_ids_image.tsv" ftype="tabular">
+                <assert_contents>
+                    <has_text text="Image IDs"/>
+                    <has_text text="1"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <conditional name="cond_obj_type">
+                <param name="final_obj_type" value="Tag"/>
+                <param name="parent_obj_type" value="Image"/>
+                <param name="parent_id" value="1"/>
+            </conditional>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="tsv" ftype="tabular">
+                <assert_contents>
+                    <has_text text="Tag IDs"/>
+                    <has_text text="1"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help>
+Description
+-----------
+
+Tool to fetch project, dataset, images, annotations, tags, table and ROIs IDs user defined OMERO.server.
+
+Options:
+Project -> Project IDs present in the OMERO.server
+Dataset -> Dataset IDs present in a specific Project or in the server
+Image -> Image IDs present in a specific Dataset or Project or Well or Plate or in the server
+Annotation (Key-Value Pairs) -> Annotation IDs linked to an Image or Dataset or Project or Well or Plate
+Tag -> Tag IDs linked to an Image or Dataset or Project or Well or Plate
+ROI -> ROI IDs linked to an Image
+Table -> Table linked to an Image or Dataset or Project or Well or Plate
+
+    </help>
+    <citations>
+        <citation type="doi">10.1038/nmeth.1896</citation>
+    </citations>
+</tool>

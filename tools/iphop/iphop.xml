@@ -18,7 +18,7 @@
             --db_dir '$db_dir.fields.path'
             --num_threads "\${GALAXY_SLOTS:-1}"
             --min_score $min_score &&
-        mv 'output/Host_prediction_to_genome_m${min_score}.csv' "output/Host_prediction_to_genome.csv" &&
+        mv 'output/Host_prediction_to_genome_m${min_score}.csv' output/Host_prediction_to_genome.csv &&
         mv 'output/Host_prediction_to_genus_m${min_score}.csv' "output/Host_prediction_to_genus.csv"
     ]]></command>
     <inputs>

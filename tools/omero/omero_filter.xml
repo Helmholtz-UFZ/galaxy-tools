@@ -71,7 +71,7 @@
                 </param>
                 <param name="value2"  value="" optional="true" type="hidden" label="Not necessary filter"/>
                 <param name="did" type="text" label="List of images IDs">
-                    <validator type="regex" message="Enter a valid list of IDs (i.e. 2,45,56,67)">^\d+(,\d+)*$</validator>
+                    <validator type="regex" message="Enter a valid list of IDs (i.e. 2,45,56,67)">^(\d+)(,\d+)*$</validator>
                 </param>
             </when>
         </conditional>

@@ -19,9 +19,8 @@ def filter_ids_ezo(user, pws, host, port, filter, id, value1, value2=None, tsv_f
             for item in data:
                 writer.writerow([item])  # Write each ID
 
-    try:
         with ez.connect(user, pws, "", host, port, secure=True) as conn:
-            try:
+
                 if filter == "filename":
                     fn_ids = ez.filter_by_filename(conn, id, value1)
                     write_ids_to_tsv(fn_ids)
@@ -38,13 +37,7 @@ def filter_ids_ezo(user, pws, host, port, filter, id, value1, value2=None, tsv_f
                     return tg_dict
 
                 else:
-                    raise ValueError(f"Unsupported object type: {filter}")
-
-            except ValueError as ve:
-                sys.exit(f"ValueError: {str(ve)}")
-
-    except Exception as e:
-        sys.exit(f"Connection error: {str(e)}")
+                    sys.exit(f"Unsupported object type: {filter}")
 
 
 # Argument parsing

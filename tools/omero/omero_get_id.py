@@ -1,6 +1,7 @@
 import argparse
 import csv
 import json
+import sys
 
 import ezomero as ez
 
@@ -13,9 +14,8 @@ def get_ids_ezo(user, pws, host, port, final_obj_type, parent_obj_type, parent_i
             writer = csv.writer(f, delimiter='\t')
             for item in data:
                 writer.writerow([item])  # Write each ID
-    try:
         with ez.connect(user, pws, "", host, port, secure=True) as conn:
-            try:
+
                 if final_obj_type == "Project":
                     proj_ids = ez.get_project_ids(conn)
                     write_ids_to_tsv(proj_ids)
@@ -72,13 +72,7 @@ def get_ids_ezo(user, pws, host, port, final_obj_type, parent_obj_type, parent_i
                     return file_ann_ids
 
                 else:
-                    raise ValueError(f"Unsupported object type: {final_obj_type}")
-
-            except ValueError as ve:
-                sys.exit(f"ValueError: {str(ve)}")
-
-    except Exception as e:
-        sys.exit(f"Connection error: {str(e)}")
+                    sys.exit(f"Unsupported object type: {filter}")
 
 
 # Argument parsing

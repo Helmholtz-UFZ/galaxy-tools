@@ -19,25 +19,25 @@ def filter_ids_ezo(user, pws, host, port, filter, id, value1, value2=None, tsv_f
             for item in data:
                 writer.writerow([item])  # Write each ID
 
-        with ez.connect(user, pws, "", host, port, secure=True) as conn:
+    with ez.connect(user, pws, "", host, port, secure=True) as conn:
 
-                if filter == "filename":
-                    fn_ids = ez.filter_by_filename(conn, id, value1)
-                    write_ids_to_tsv(fn_ids)
-                    return fn_ids
+        if filter == "filename":
+            fn_ids = ez.filter_by_filename(conn, id, value1)
+            write_ids_to_tsv(fn_ids)
+            return fn_ids
 
-                elif filter == "KP":
-                    kp_ims = ez.filter_by_kv(conn, id, value1, value2)
-                    write_ids_to_tsv(kp_ims)
-                    return kp_ims
+        elif filter == "KP":
+            kp_ims = ez.filter_by_kv(conn, id, value1, value2)
+            write_ids_to_tsv(kp_ims)
+            return kp_ims
 
-                elif filter == "tag":
-                    tg_dict = ez.filter_by_tag_value(conn, id, value1)
-                    write_ids_to_tsv(tg_dict)
-                    return tg_dict
+        elif filter == "tag":
+            tg_dict = ez.filter_by_tag_value(conn, id, value1)
+            write_ids_to_tsv(tg_dict)
+            return tg_dict
 
-                else:
-                    sys.exit(f"Unsupported object type: {filter}")
+        else:
+            sys.exit(f"Unsupported object type: {filter}")
 
 
 # Argument parsing
@@ -57,7 +57,7 @@ if __name__ == "__main__":
                         help="First searching values - Filename, Key, Tag")
     parser.add_argument('--value2', required=False,
                         help="Second searching values - Value (necessary just for Key-Value Pairs filter")
-    parser.add_argument('--tsv_file', default='filter_list.tsv', 
+    parser.add_argument('--tsv_file', default='filter_list.tsv',
                         help="Output TSV file path.")
     args = parser.parse_args()
 

@@ -52,7 +52,7 @@
             </param>
             <when value="values">
                 <param argument="--ids" type="text" value="" label="ID(s) of the object(s) to fetch on OMERO separated by comma">
-                    <validator type="regex">[0-9]+(,[0-9]+)*</validator>
+                    <validator type="regex">^\d+(,\d+)*$</validator>
                 </param>
             </when>
             <when value="file">

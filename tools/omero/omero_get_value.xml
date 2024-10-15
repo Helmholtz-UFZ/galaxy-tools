@@ -79,7 +79,7 @@
             <output name="tsv" ftype="tabular">
                 <assert_contents>
                     <has_text text="test_tag"/>
-                    <has_n_lines n="1"/>
+                    <has_n_lines n="2"/>
                 </assert_contents>
             </output>
         </test>

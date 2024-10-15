@@ -13,72 +13,72 @@ def get_ids_ezo(user, pws, host, port, final_obj_type, parent_obj_type, parent_i
             writer = csv.writer(f, delimiter='\t')
             for item in data:
                 writer.writerow([item])  # Write each ID
-try:
-    with ez.connect(user, pws, "", host, port, secure=True) as conn:
-        try:
-            if final_obj_type == "Project":
-                proj_ids = ez.get_project_ids(conn)
-                write_ids_to_tsv(proj_ids)
-                return proj_ids
+    try:
+        with ez.connect(user, pws, "", host, port, secure=True) as conn:
+            try:
+                if final_obj_type == "Project":
+                    proj_ids = ez.get_project_ids(conn)
+                    write_ids_to_tsv(proj_ids)
+                    return proj_ids
 
-            elif final_obj_type == "Dataset":
-                args = {'project': None}
-                if parent_obj_type == "Project":
-                    args['project'] = parent_id
-                ds_ids = ez.get_dataset_ids(conn, **args)
-                write_ids_to_tsv(ds_ids)
-                return ds_ids
+                elif final_obj_type == "Dataset":
+                    args = {'project': None}
+                    if parent_obj_type == "Project":
+                        args['project'] = parent_id
+                    ds_ids = ez.get_dataset_ids(conn, **args)
+                    write_ids_to_tsv(ds_ids)
+                    return ds_ids
 
-            elif final_obj_type == "Image":
-                args = {
-                    'project': None,
-                    'dataset': None,
-                    'plate': None,
-                    'well': None
-                }
-                if parent_obj_type == "Project":
-                    args['project'] = parent_id
-                elif parent_obj_type == "Dataset":
-                    args['dataset'] = parent_id
-                elif parent_obj_type == "Plate":
-                    args['plate'] = parent_id
-                elif parent_obj_type == "Well":
-                    args['well'] = parent_id
-                elif parent_obj_type != "All":
-                    raise ValueError("Object set as parent_obj_type is not compatible")
-                
-                ds_ims = ez.get_image_ids(conn, **args)
-                write_ids_to_tsv(ds_ims)
-                return ds_ims
+                elif final_obj_type == "Image":
+                    args = {
+                        'project': None,
+                        'dataset': None,
+                        'plate': None,
+                        'well': None
+                    }
+                    if parent_obj_type == "Project":
+                        args['project'] = parent_id
+                    elif parent_obj_type == "Dataset":
+                        args['dataset'] = parent_id
+                    elif parent_obj_type == "Plate":
+                        args['plate'] = parent_id
+                    elif parent_obj_type == "Well":
+                        args['well'] = parent_id
+                    elif parent_obj_type != "All":
+                        raise ValueError("Object set as parent_obj_type is not compatible")
 
-            elif final_obj_type == "Annotation":
-                map_annot_ids = ez.get_map_annotation_ids(conn, parent_obj_type, parent_id)
-                write_ids_to_tsv(map_annot_ids)
-                return map_annot_ids
+                    ds_ims = ez.get_image_ids(conn, **args)
+                    write_ids_to_tsv(ds_ims)
+                    return ds_ims
 
-            elif final_obj_type == "Tag":
-                tag_ids = ez.get_tag_ids(conn, parent_obj_type, parent_id)
-                write_ids_to_tsv(tag_ids)
-                return tag_ids
+                elif final_obj_type == "Annotation":
+                    map_annot_ids = ez.get_map_annotation_ids(conn, parent_obj_type, parent_id)
+                    write_ids_to_tsv(map_annot_ids)
+                    return map_annot_ids
 
-            elif final_obj_type == "Roi":
-                roi_ids = ez.get_roi_ids(conn, parent_id)
-                write_ids_to_tsv(roi_ids)
-                return roi_ids
+                elif final_obj_type == "Tag":
+                    tag_ids = ez.get_tag_ids(conn, parent_obj_type, parent_id)
+                    write_ids_to_tsv(tag_ids)
+                    return tag_ids
 
-            elif final_obj_type == "Table":
-                file_ann_ids = ez.get_file_annotation_ids(conn, parent_obj_type, parent_id)
-                write_ids_to_tsv(file_ann_ids)
-                return file_ann_ids
+                elif final_obj_type == "Roi":
+                    roi_ids = ez.get_roi_ids(conn, parent_id)
+                    write_ids_to_tsv(roi_ids)
+                    return roi_ids
 
-            else:
-                raise ValueError(f"Unsupported object type: {final_obj_type}")
+                elif final_obj_type == "Table":
+                    file_ann_ids = ez.get_file_annotation_ids(conn, parent_obj_type, parent_id)
+                    write_ids_to_tsv(file_ann_ids)
+                    return file_ann_ids
 
-        except ValueError as ve:
-            sys.exit(f"ValueError: {str(ve)}")
+                else:
+                    raise ValueError(f"Unsupported object type: {final_obj_type}")
 
-except Exception as e:
-    sys.exit(f"Connection error: {str(e)}")
+            except ValueError as ve:
+                sys.exit(f"ValueError: {str(ve)}")
+
+    except Exception as e:
+        sys.exit(f"Connection error: {str(e)}")
 
 
 # Argument parsing

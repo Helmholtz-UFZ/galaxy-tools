@@ -1,4 +1,4 @@
-<tool id="omero_filter_id" name="OMERO IDs" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@"
+<tool id="omero_filter" name="OMERO IDs" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@"
       profile="20.01" license="MIT">
     <description> with ezomero </description>
     <macros>
@@ -14,16 +14,16 @@
         <requirement type="package" version="21.0.2">openjdk</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python $__tool_directory__/omero_filter.py
+        python '$__tool_directory__'/omero_filter.py
         --credential-file '$credentials'
         --host $omero_host
         --port $omero_port
         --filter $filter
-        --value1 $value1
+        --value1 '$value1'
         --id $did
-        --tsv_file $tsv
+        --tsv_file '$tsv'
         #if $filter == "KP"
-        --value2 $value2
+        --value2 '$value2'
         #end if
 
     ]]></command>
@@ -40,15 +40,36 @@
             <validator type="regex" message="Enter a valid host location, for example, your.omero.server">^[a-zA-Z0-9._-]*$</validator>
             <validator type="expression" message="No two dots (..) allowed">'..' not in value</validator>
         </param>
-        <param argument="omero_port" type="integer" optional="false" value="4064" label="OMERO port"/>
-        <param argument="filter" type="select" optional="true" label="Select filter">
-            <option value="filename">Project</option>
-            <option value="KP">Screen</option>
-            <option value="tag">Dataset</option>
-        </param>
-        <param argument="value1" type="text" optional="false" label="First filter criteria (i.e. filename)"/>
-        <param argument="value2" type="text" optional="true" label="Second filter criteria (just valid for KP search)"/>
-        <param name="did" type="text" optional="false" label="List of images IDs"/>
+        <param name="omero_port" type="integer" optional="false" value="4064" label="OMERO port"/>
+        <conditional name = "filter_type">
+            <param name="filter" type="select" optional="false" label="Filter type to apply:">
+                <option value="filename">Filename</option>
+                <option value="KP">Key-Value</option>
+                <option value="tag">Tag</option>
+            </param>
+            <when value="filename">
+                <param name="value1" type="text" label="Filename to search among the image IDs"/>
+                    <validator type="regex" message="Enter a valid filename to search in the OMERO server">^[\w\-. ]+$</validator>
+                <param name="value2" type="text" value="" type="hidden" label="Not necessary filter"/>
+                <param name="did" type="text" label="List of images IDs"/>
+                    <validator type="regex" message="Enter a valid list of IDs (i.e. 2,45,56,67)">^\d+(,\d+)*$</validator>
+            </when>
+            <when value="KP">
+                <param name="value1" type="text" label="Key Value to search among the image IDs"/>
+                    <validator type="regex" message="Enter a valid Key to search in the OMERO server">^[\w\-. ]+$</validator>
+                <param name="value2" type="text" type="hidden" label="Pair Values to search among images IDs"/>
+                    <validator type="regex" message="Enter a valid Key to search in the OMERO server">^[\w\-. ]+$</validator>
+                <param name="did" type="text" label="List of images IDs"/>
+                    <validator type="regex" message="Enter a valid list of IDs (i.e. 2,45,56,67)">^\d+(,\d+)*$</validator>
+            </when>
+            <when value="tag">
+                <param name="value1" type="text" label="Tag to search among the images IDs"/>
+                    <validator type="regex" message="Enter a valid Key to search in the OMERO server">^[\w\-. ]+$</validator>
+                <param name="value2" type="text" value="" optional="true" type="hidden" label="Not necessary filter"/>
+                <param name="did" type="text" label="List of images IDs"/>
+                    <validator type="regex" message="Enter a valid list of IDs (i.e. 2,45,56,67)">^\d+(,\d+)*$</validator>
+            </when>
+        </conditional>
         <param name="test_username" type="hidden" value=""/>
         <param name="test_password" type="hidden" value=""/>
     </inputs>
@@ -59,30 +80,34 @@
         <test>
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>
-            <param name="filter" value="filename"/>
-            <param name="value1" value="sample_image_2.jpg"/>
-            <param name="did" value="1,2"/>
+            <conditional name="filter_type">
+                <param name="filter" value="filename"/>
+                <param name="value1" value="sample_image_2.jpg"/>
+                <param name="did" value="1,2"/>
+            </conditional>
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>
             <output name="tsv" value="output_filter_filename.tsv" ftype="tabular">
                 <assert_contents>
-                    <has_text text="Images with filename sample_image_2.jpg"/>
                     <has_text text="2"/>
+                    <has_n_columns n="1"/>
                 </assert_contents>
             </output>
         </test>
         <test>
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>
-            <param name="filter" value="tag"/>
-            <param name="value1" value="test_tag"/>
-            <param name="did" value="1,2"/>
+            <conditional name="filter_type">
+                <param name="filter" value="tag"/>
+                <param name="value1" value="test_tag"/>
+                <param name="did" value="1,2"/>
+            </conditional>
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>
             <output name="tsv" value="output_filter_tag.tsv" ftype="tabular">
                 <assert_contents>
-                    <has_text text="Images with tag test_tag"/>
                     <has_text text="1"/>
+                    <has_n_columns n="1"/>
                 </assert_contents>
             </output>
         </test>

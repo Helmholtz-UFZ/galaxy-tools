@@ -1,6 +1,7 @@
 import argparse
 import csv
 import json
+import sys
 
 import ezomero as ez
 
@@ -8,23 +9,17 @@ import ezomero as ez
 def get_object_ezo(user, pws, host, port, obj_type, ids, tsv_file):
     # Function to write tabular file from the ezomero output
     def write_values_to_tsv(data, header):
-        with open(tsv_file, 'a+', newline='') as f:
-            f.seek(0)
-            is_empty = f.tell() == 0  # Check if file is empty
+        with open(tsv_file, 'w', newline='') as f:
             writer = csv.writer(f, delimiter='\t')
-            if is_empty:
-                writer.writerow([header])  # Write the header
+            writer.writerow([header])  # Write the header
             for item in data:
                 writer.writerow([item])  # Write each value
 
     # Function to write tabular file from a dictionary ezomero output
     def write_dict_to_tsv(data, headers):
-        with open(tsv_file, 'a+', newline='') as f:
-            f.seek(0)
-            is_empty = f.tell() == 0  # Check if file is empty
+        with open(tsv_file, 'w', newline='') as f:
             writer = csv.writer(f, delimiter='\t')
-            if is_empty:
-                writer.writerow(headers)  # Write the headers
+            writer.writerow(headers)  # Write the headers
             for key, value in data.items():
                 writer.writerow([key, value])  # Write each key-value pair
 
@@ -34,35 +29,31 @@ def get_object_ezo(user, pws, host, port, obj_type, ids, tsv_file):
             for row in data:
                 f.write('\t'.join([str(val) for val in row]) + '\n')
 
-    try:
-        with ez.connect(user, pws, "", host, port, secure=True) as conn:
-            if obj_type == "Annotation":
-                ma_dict = {}
-                for maid in ids:
-                    current_ma_dict = ez.get_map_annotation(conn, maid)
-                    ma_dict = {**ma_dict, **current_ma_dict}
-                write_dict_to_tsv(ma_dict, ["Annotation ID", "Annotation Value"])
-                return ma_dict
-            elif obj_type == "Tag":
-                tags = []
-                for tag_id in ids:
-                    tags.append(ez.get_tag(conn, tag_id))
-                # Sort the tags for consistency:
-                tags.sort
-                write_values_to_tsv(tags, "Tags")
-                return tags
-            elif obj_type == "Table":
-                if len(ids) > 1:
-                    raise ValueError("Only one table can be exported at a time")
-                table = ez.get_table(conn, ids[0])
-                write_table_to_tsv(table)
-                return table
-            else:
-                raise ValueError(f"Unsupported object type: {obj_type}")
+    with ez.connect(user, pws, "", host, port, secure=True) as conn:
+        if obj_type == "Annotation":
+            ma_dict = {}
+            for maid in ids:
+                current_ma_dict = ez.get_map_annotation(conn, maid)
+                ma_dict = {**ma_dict, **current_ma_dict}
+            write_dict_to_tsv(ma_dict, ["Annotation ID", "Annotation Value"])
+            return ma_dict
+        elif obj_type == "Tag":
+            tags = []
+            for tag_id in ids:
+                tags.append(ez.get_tag(conn, tag_id))
+            # Sort the tags for consistency:
+            tags.sort
+            write_values_to_tsv(tags, "Tags")
+            return tags
+        elif obj_type == "Table":
+            if len(ids) > 1:
+                raise ValueError("Only one table can be exported at a time")
+            table = ez.get_table(conn, ids[0])
+            write_table_to_tsv(table)
+            return table
 
-    except Exception as e:
-        print(f"Connection error: {str(e)}")
-        return None
+        else:
+            sys.exit(f"Unsupported object type: {filter}")
 
 
 # Argument parsing

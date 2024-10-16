@@ -34,15 +34,15 @@
                 <option value="MACCS">MACCS</option>
             </param>
             <param label="Fingerprint Size" argument="--fpSize"
-                   type="integer" value="2048" optional="true"
+                   type="integer" min="1" value="2048" optional="true"
                    help="Length of the fingerprint that should be generated."/>
             <param label="Compress Fingerprints"
-                   argument="--compressFeatures" type="boolean" truevalue="--compressFeatures" falsevalue=""
+                   argument="--compressFeatures" type="boolean"
                    checked="false"
                    help="Compress the fingerprints using an autoencoder.
                    Needs a path of a trained autoencoder or needs the trainAC also set to True."/>
             <param label="Multi-Label Classification" argument="--enableMultiLabel"
-                   type="boolean" truevalue="--enableMultiLabel" falsevalue=""
+                   type="boolean"
                    checked="false"
                    help="Train multi-label classification model."/>
         </section>
@@ -60,7 +60,7 @@
                    type="integer" value="1" min="1" optional="true"
                    help="Number of folds for cross-validation."/>
             <param label="Train FNN" argument="--trainFNN"
-                   type="boolean" truevalue="--trainFNN" falsevalue="" checked="true"
+                   type="boolean" checked="true"
                    help="Deactivates the FNN training."/>
             <param label="Sample Down" argument="--sampleDown"
                    type="boolean"
@@ -68,29 +68,39 @@
             <param label="Sample Fraction Ones" argument="--sampleFractionOnes"
                    type="float" min="0" max="1" value="0.5" optional="true"
                    help="This is the desired fraction 1s/0s.only works if --sampleDown is enabled"/>
-            <param argument="--epochs" type="integer" value="100" optional="true" label="epochs"
+            <param label="Epochs" argument="--epochs"
+                   type="integer" min="1" value="100" optional="true"
                    help="Number of epochs for the FNN training"/>
-            <param argument="--lossFunction" type="select" optional="true" label="lossFunction"
+            <param label="Loss Function" argument="--lossFunction"
+                   type="select" optional="true"
                    help="Loss function for FNN training. mse - mean squared error, bce - binary cross entropy.">
-                <option value="mse">Mse</option>
-                <option value="bce" selected="true">Bce</option>
+                <option value="mse">MSE</option>
+                <option value="bce" selected="true">BCE</option>
                 <option value="focal">Focal</option>
             </param>
-            <param argument="--optimizer" type="select" optional="true" label="optimizer" help="Optimizer of the FNN.">
+            <param label="Optimizer" argument="--optimizer"
+                   type="select" optional="true"
+                   help="Optimizer of the FNN.">
                 <option value="Adam" selected="true">Adam</option>
                 <option value="SGD">Sgd</option>
             </param>
-            <param argument="--batchSize" type="integer" value="128" optional="true" label="batchSize"
+            <param label="Batch Size" argument="--batchSize"
+                   type="integer" min="1" value="128" optional="true"
                    help="Batch size in FNN training."/>
-            <param argument="--l2reg" type="float" value="0.001" optional="true" label="l2reg"
+            <param label="L2 Regularization" argument="--l2reg"
+                   type="float" min="0" value="0.001" optional="true"
                    help="Value for l2 kernel regularizer."/>
-            <param argument="--dropout" type="float" value="0.2" optional="true" label="dropout"
+            <param label="Dropout" argument="--dropout"
+                   type="float" min="0" max="1" value="0.2" optional="true"
                    help="The fraction of data that is dropped out in each dropout layer."/>
-            <param argument="--learningRate" type="float" value="2.2e-05" optional="true" label="learningRate"
+            <param label="Learning Rate" argument="--learningRate"
+                   type="float" min="0" value="2.2e-05" optional="true"
                    help="Learning rate size in FNN training."/>
-            <param argument="--learningRateDecay" type="float" value="0.96" optional="true" label="learningRateDecay"
-                   help="Learning rate size in FNN training."/>
-            <param argument="--activationFunction" type="select" optional="true" label="activationFunction"
+            <param label="Learning Rate Decay" argument="--learningRateDecay"
+                   type="float" min="0" max="1" value="0.96" optional="true"
+                   help="Learning rate decay in FNN training."/>
+            <param label="Activation Function" argument="--activationFunction"
+                   type="select" optional="true"
                    help="The activation function of the FNN.">
                 <option value="relu" selected="true">Relu</option>
                 <option value="selu">Selu</option>
@@ -98,14 +108,14 @@
         </section>
         <conditional name="autoencoder">
             <param label="Train Autoencoder" argument="--trainAC"
-                   type="boolean" truevalue="--trainAC" falsevalue="" checked="true"
+                   type="boolean" checked="true"
                    help="Trains the autoencoder."/>
-            <when value="">
+            <when value="false">
                 <param label="Encoder Weights File" argument="--ecWeightsFile"
                        type="data" format="hdf5" optional="true"
                        help="The .hdf5 file of a trained encoder"/>
             </when>
-            <when value="--trainAC">
+            <when value="true">
                 <param label="Autoencoder Type" argument="--aeType"
                        type="select" optional="true"
                        help="Autoencoder type, variational or deterministic.">
@@ -113,10 +123,10 @@
                     <option value="deterministic" selected="true">Deterministic</option>
                 </param>
                 <param label="Epochs" argument="--aeEpochs"
-                       type="integer" value="100" optional="true"
+                       type="integer" min="1" value="100" optional="true"
                        help="Number of epochs for autoencoder training."/>
                 <param label="Batch Size" argument="--aeBatchSize"
-                       type="integer" value="512" optional="true"
+                       type="integer" min="1" value="512" optional="true"
                        help="Batch size in autoencoder training."/>
                 <param label="Learning Rate" argument="--aeLearningRate"
                        type="float" min="0" value="0.001" optional="true"
@@ -147,7 +157,7 @@
                     <option value="selu">SELU</option>
                 </param>
                 <param label="Visualize Latent Space" argument="--visualizeLatent"
-                       type="boolean" truevalue="--visualizeLatent" falsevalue="" checked="false"
+                       type="boolean" checked="false"
                        help="UMAP the latent space for exploration."/>
             </when>
         </conditional>
@@ -224,4 +234,8 @@
     <help><![CDATA[
     TODO: Fill in help.
     ]]></help>
+    <citations>
+        <citation type="doi">https://doi.org/10.1093/bioinformatics/btad713</citation>
+        <citation type="doi">https://doi.org/10.1093/bib/bbac257</citation>
+    </citations>
 </tool>

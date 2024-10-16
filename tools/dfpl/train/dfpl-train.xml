@@ -10,8 +10,6 @@
     ]]></command>
     <configfiles>
         <inputs name="inputs" data_style="paths"/>
-        <configfile name="parse_json"><![CDATA[
-]]></configfile>
     </configfiles>
     <inputs>
         <section name="model_configuration" title="Model Configuration" expanded="true">

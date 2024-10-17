@@ -232,7 +232,25 @@
         </test>
     </tests>
     <help><![CDATA[
-    TODO: Fill in help.
+    This tool is the train mode of `DeepFPLearn <https://github.com/yigbt/deepFPlearn>`_.
+    It's equivalent to running ``dfpl train`` from the command line.
+
+    The train mode is used to train models to predict the association of molecular structures to biological targets.
+    The encoding of the molecules is done based on molecular fingerprints.
+
+    The training data contains three targets and you may train models for each with this tool.
+
+    The tool will generate the following outputs:
+
+    - the trained models as a ``.zip`` file including
+
+      - the weights of the trained FNN, if selected
+
+      - the weights of the trained autoencoder, if selected
+
+    - the training histories as tabular data (``.csv``)
+
+    - the training histories as a plot (``.svg``)
     ]]></help>
     <citations>
         <citation type="doi">https://doi.org/10.1093/bioinformatics/btad713</citation>

@@ -5,8 +5,7 @@
     <command detect_errors="exit_code"><![CDATA[
     python '$__tool_directory__/flatten_json.py' '$inputs' > config.json
     && dfpl train --configFile config.json
-    && zip -r model_weights.zip output/*_model autoencoder/*_autoencoder
-    && mv model_weights.zip '$output_model_weights'
+    && zip -r - output/*_model autoencoder/*_autoencoder > '$output_model_weights'
     ]]></command>
     <configfiles>
         <inputs name="inputs" data_style="paths"/>

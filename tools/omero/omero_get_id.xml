@@ -2,6 +2,7 @@
       profile="20.01" license="MIT">
     <description> with ezomero </description>
     <macros>
+        <import>macros.xml</import>
         <token name="@TOOL_VERSION@">5.18.0</token>
         <token name="@VERSION_SUFFIX@">0</token>
     </macros>
@@ -24,19 +25,10 @@
         --tsv_file '$tsv'
     ]]></command>
     <configfiles>
-        <configfile name="credentials"><![CDATA[
-{
-    "username": "$__user__.extra_preferences.get('omero_account|username', $test_username)",
-    "password": "$__user__.extra_preferences.get('omero_account|password', $test_password)"
-}
-        ]]></configfile>
+        <expand macro="credentials"/>
     </configfiles>
     <inputs>
-        <param name="omero_host" type="text" label="OMERO host URL">
-            <validator type="regex" message="Enter a valid host location, for example, your.omero.server">^[a-zA-Z0-9._-]*$</validator>
-            <validator type="expression" message="No two dots (..) allowed">'..' not in value</validator>
-        </param>
-        <param argument="omero_port" type="integer" optional="false" value="4064" label="OMERO port"/>
+        <expand macro="host_port"/>
         <conditional name="cond_obj_type">
             <param argument="final_obj_type" type="select" optional="false" label="Type of object to fetch ID:">
                 <option value="Project">All Project IDs</option>
@@ -103,8 +95,6 @@
                 <param name="parent_id" type="integer" value="0" optional="false" label="ID of the object above."/>
             </when>
         </conditional>
-        <param name="test_username" type="hidden" value=""/>
-        <param name="test_password" type="hidden" value=""/>
     </inputs>
     <outputs>
         <data name="tsv" format="tabular"/>

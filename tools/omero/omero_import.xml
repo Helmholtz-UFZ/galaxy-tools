@@ -1,6 +1,7 @@
 <tool id="omero_import" name="OMERO Image Import" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01" license="MIT">
     <description> with omero-py </description>
     <macros>
+        <import>macros.xml</import>
         <token name="@TOOL_VERSION@">5.18.0</token>
         <token name="@VERSION_SUFFIX@">2</token>
     </macros>
@@ -39,15 +40,9 @@ export OMERO_PASSWORD="$__user__.extra_preferences.get('omero_account|password',
         ]]></configfile>
     </configfiles>
     <inputs>
+        <expand macro="host_port"/>
         <param name="folder" type="data" format="avi,bmp,btf,cif,csv,eps,fits,fli,gif,hdr,html,jp2,jpg,mov,mrc,ndpi,nhdr,nrrd,ome.tiff,par,pbm,pcx,pgm,png,ppm,psd,scn,sif,svs,tf2,tf8,tif,tif,tiff,top,txt,vms,wav,xml,zip" multiple="true" optional="false" label="Images to import into OMERO"/>
         <param name="dataset_name" type="text" optional="false" label="Target Dataset Name"/>
-        <param name="omero_host" type="text" label="OMERO host URL">
-            <validator type="regex" message="Enter a valid host location, for example, your.omero.server">^[a-zA-Z0-9._-]*$</validator>
-            <validator type="expression" message="No two dots (..) allowed">'..' not in value</validator>
-        </param>
-        <param name="omero_port" type="integer" value="4064" optional="false" label="OMERO port"/>
-        <param name="test_username" type="hidden" value=""/>
-        <param name="test_password" type="hidden" value=""/>
     </inputs>
     <outputs>
         <data name="log" format="txt"/>

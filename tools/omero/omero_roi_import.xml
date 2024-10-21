@@ -2,6 +2,7 @@
       profile="20.01" license="MIT">
     <description> with ezomero </description>
     <macros>
+        <import>macros.xml</import>
         <token name="@TOOL_VERSION@">5.18.0</token>
         <token name="@VERSION_SUFFIX@">3</token>
     </macros>
@@ -24,23 +25,12 @@
         --log_file '$log'
     ]]></command>
     <configfiles>
-        <configfile name="credentials"><![CDATA[
-{
-    "username": "$__user__.extra_preferences.get('omero_account|username', $test_username)",
-    "password": "$__user__.extra_preferences.get('omero_account|password', $test_password)"
-}
-        ]]></configfile>
+        <expand macro="credentials"/>
     </configfiles>
     <inputs>
+        <expand macro="host_port"/>
         <param argument="input" type="data" format="tabular" optional="false" label="Tab File with ROIs" help="Select ROIs Tabular file"/>
         <param argument="id" type="integer" value="" optional="false" label="Image ID where annotate the ROIs"/>
-        <param name="omero_host" type="text" label="OMERO host URL">
-            <validator type="regex" message="Enter a valid host location, for example, your.omero.server">^[a-zA-Z0-9._-]*$</validator>
-            <validator type="expression" message="No two dots (..) allowed">'..' not in value</validator>
-        </param>
-        <param argument="omero_port" type="integer" optional="false" value="4064" label="OMERO port"/>
-        <param name="test_username" type="hidden" value=""/>
-        <param name="test_password" type="hidden" value=""/>
     </inputs>
     <outputs>
         <data name="log" format="txt"/>

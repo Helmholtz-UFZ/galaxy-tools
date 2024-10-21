@@ -20,7 +20,7 @@
 
         source '$credentials' &&
         omero import folder -T Dataset:name:$dataset_name
-            -s $omero_host
+            -s '$omero_host'
             -p $omero_port
             -u "\$OMERO_USER"
         > $log &&

@@ -11,8 +11,7 @@
     <command detect_errors="exit_code"><![CDATA[
         python '$__tool_directory__'/omero_get_id.py
         --credential-file '$credentials'
-        --host '$omero_host'
-        --port $omero_port
+        @HOST_PORT@
         --final_obj_type '$cond_obj_type.final_obj_type'
         --parent_obj_type '$cond_obj_type.parent_obj_type'
         --parent_id $cond_obj_type.parent_id

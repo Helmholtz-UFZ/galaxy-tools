@@ -11,8 +11,7 @@
     <command detect_errors="exit_code"><![CDATA[
         python '$__tool_directory__/omero_get_value.py'
         --credential-file '$credentials'
-        --host '$omero_host'
-        --port '$omero_port'
+        @HOST_PORT@
         --obj_type '$obj_type'
         #if $ids_input.ids_format == "values"
             --ids ${str($ids_input.ids).replace(',', ' ')}

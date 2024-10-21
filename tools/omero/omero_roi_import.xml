@@ -13,8 +13,7 @@
         --input_file '$input'
         --image_id $id
         --credential-file '$credentials'
-        --host '$omero_host'
-        --port $omero_port
+        @HOST_PORT@
         --log_file '$log'
     ]]></command>
     <configfiles>

@@ -3,7 +3,7 @@
     <macros>
         <import>macros.xml</import>
         <token name="@TOOL_VERSION@">5.18.0</token>
-        <token name="@VERSION_SUFFIX@">2</token>
+        <token name="@VERSION_SUFFIX@">3</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -28,7 +28,6 @@
             -s $omero_host
             -p $omero_port
             -u "\$OMERO_USER"
-            -w "\$OMERO_PASSWORD"
         > $log &&
 
         omero logout

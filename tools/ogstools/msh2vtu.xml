@@ -1,0 +1,100 @@
+
+<tool id="msh2vtu" name="ogstools msh2vtu" version="0.1.0+galaxy0" profile="21.05">
+    <description>
+        Convert msh to vtu/vtk.
+    </description>
+    <requirements>
+        <requirement type="package" version="0.0.3">ogstools</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        ln -s '$input_file' input_file.msh &&
+        msh2vtu input_file.msh 
+            -d '$dim' 
+            $delz $swapxy $reindex $keep_ids $ascii
+            -l '$log_level'
+    ]]></command>
+    <inputs>
+        <param name="input_file" type="data" format="GMSH" label="Input GMSH File"/>
+        <param name="dim" type="select" label="Mesh Dimension" argument="-d">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+        </param>
+        <param name="delz" type="boolean" value="false" truevalue="-z" falsevalue="" label="Delete Z Coordinate" optional="true" argument="-z"/>
+        <param name="swapxy" type="boolean" value="false" truevalue="-s" falsevalue="" label="Swap XY Coordinates" optional="true" argument="-s"/>
+        <param name="reindex" type="boolean" value="false" truevalue="-r" falsevalue="" label="Reindex" optional="true" argument="-r"/>
+        <param name="keep_ids" type="boolean" value="false" truevalue="-k" falsevalue="" label="Keep IDs" optional="true" argument="-k"/>
+        <param name="ascii" type="boolean" value="false" truevalue="-a" falsevalue="" label="ASCII Output" optional="true" argument="-a"/>
+        <param name="log_level" type="select" label="Log Level" argument="-l">
+            <option value="ERROR" selected="true">ERROR</option>
+            <option value="DEBUG">DEBUG</option>
+            <option value="INFO">INFO</option>
+            <option value="WARNING">WARNING</option>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="boundary" format="xml" from_work_dir="input_file_boundary.vtu" />
+        <data name="domain" format="xml" from_work_dir="input_file_domain.vtu" />
+        <data name="physical_group_Bottom" format="xml" from_work_dir="input_file_physical_group_Bottom.vtu" />
+        <data name="physical_group_Left" format="xml" from_work_dir="input_file_physical_group_Left.vtu" />
+        <data name="physical_group_Right" format="xml" from_work_dir="input_file_physical_group_Right.vtu" />
+        <data name="physical_group_RockBed" format="xml" from_work_dir="input_file_physical_group_RockBed.vtu" />
+        <data name="physical_group_SedimentLayer1" format="xml" from_work_dir="input_file_physical_group_SedimentLayer1.vtu" />
+        <data name="physical_group_SedimentLayer2" format="xml" from_work_dir="input_file_physical_group_SedimentLayer2.vtu" />
+        <data name="physical_group_SedimentLayer3" format="xml" from_work_dir="input_file_physical_group_SedimentLayer3.vtu" />
+        <data name="physical_group_Top" format="xml" from_work_dir="input_file_physical_group_Top.vtu" />
+    </outputs>
+    <tests>
+        <test>
+            <param name="input_file" value="geolayers_2d.msh"/>
+            <param name="dim" value="2"/>
+            <param name="delz" value="True"/>
+            <param name="swapxy" value="True"/>
+            <param name="reindex" value="True"/>
+            <param name="keep_ids" value="True"/>
+            <param name="ascii" value="True"/>
+            <param name="log_level" value="DEBUG"/>
+            <output name="boundary" file="input_file_boundary.vtu"/>
+            <output name="domain" file="input_file_domain.vtu"/>
+            <output name="physical_group_Bottom" file="input_file_physical_group_Bottom.vtu"/>
+            <output name="physical_group_Left" file="input_file_physical_group_Left.vtu"/>
+            <output name="physical_group_Right" file="input_file_physical_group_Right.vtu"/>
+            <output name="physical_group_RockBed" file="input_file_physical_group_RockBed.vtu"/>
+            <output name="physical_group_SedimentLayer1" file="input_file_physical_group_SedimentLayer1.vtu"/>
+            <output name="physical_group_SedimentLayer2" file="input_file_physical_group_SedimentLayer2.vtu"/>
+            <output name="physical_group_SedimentLayer3" file="input_file_physical_group_SedimentLayer3.vtu"/>
+            <output name="physical_group_Top" file="input_file_physical_group_Top.vtu"/> 
+        </test>
+    </tests>
+    <help><![CDATA[
+    **Overview:**
+
+This Galaxy tool converts GMSH mesh files (`*.msh`) into VTU format (`*.vtu`) using the OpenGeoSys (OGS) utility. The tool offers several options for mesh processing, such as deleting the Z coordinate, swapping XY coordinates, reindexing nodes, and keeping original IDs.
+
+**Inputs:**
+
+1. **Input GMSH File:** The GMSH mesh file to be converted.
+2. **Output Path:** (Optional) Specify the output path where the VTU file will be saved. If not specified, the current working directory is used.
+3. **Filename Prefix:** Prefix to be added to the output filename.
+4. **Mesh Dimension (dim):** Select the desired mesh dimension (0, 1, 2, or 3). Default is `0`.
+5. **Delete Z Coordinate (delz):** Boolean flag to remove the Z coordinate from the mesh. Set to `True` to enable.
+6. **Swap XY Coordinates (swapxy):** Boolean flag to swap the X and Y coordinates. Set to `True` to enable.
+7. **Reindex:** Boolean flag to reindex the nodes. Set to `True` to enable.
+8. **Keep IDs:** Boolean flag to keep the original node and cell IDs. Set to `True` to enable.
+9. **ASCII Output:** Boolean flag to output the file in ASCII format instead of binary. Set to `True` to enable.
+10. **Log Level:** Set the level of logging details (DEBUG, INFO, WARNING, ERROR). Default is `DEBUG`.
+
+**Outputs:**
+
+- **Output VTU File:** The converted mesh file in VTU format.
+
+**Usage Notes:**
+
+- This tool requires that the input file is in GMSH format (`*.msh`).
+- The resulting output will be a VTU file (`*.vtu`) that can be used with visualization tools and other software supporting the VTU format.
+- The output directory must be writable; otherwise, the tool will fail to save the output file.
+    ]]></help>
+<citations> 
+    <citation type="doi">10.5281/zenodo.13685289</citation>
+</citations>
+</tool>

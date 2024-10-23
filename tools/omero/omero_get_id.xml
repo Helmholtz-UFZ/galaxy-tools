@@ -171,6 +171,11 @@ Tag -> Tag IDs linked to an Image or Dataset or Project or Well or Plate
 ROI -> ROI IDs linked to an Image
 Table -> Table linked to an Image or Dataset or Project or Well or Plate
 
+**OMERO-suite Security Diclaimer:** To utilize the OMERO tools, the user must trust Galaxy instances.
+The configuration file, which contains your OMERO password and username, is stored in the job working directory.
+This directory only exists during the runtime of the job and should only be accessible by the system user that runs the job.
+However, please be aware that your username and password may be exposed to users with administrative rights.
+We are working on increasing the security of the OMERO suite
     </help>
     <citations>
         <citation type="doi">10.1038/nmeth.1896</citation>

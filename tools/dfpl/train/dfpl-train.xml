@@ -6,7 +6,8 @@
         <requirement type="package" version="@TOOL_VERSION@">deepfplearn</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-    python '$__tool_directory__/flatten_json.py' '$inputs' > config.json
+    python '$__tool_directory__/flatten_json.py' '$inputs'
+    && python '$__tool_directory__/flatten_json.py' '$inputs' > config.json
     && dfpl train --configFile config.json
     && zip -r - output/*_model autoencoder/*_autoencoder > '$output_model_weights'
     ]]></command>
@@ -38,11 +39,6 @@
             <param label="Fingerprint Size" argument="--fpSize"
                    type="integer" min="1" value="2048" optional="true"
                    help="Length of the fingerprint that should be generated."/>
-            <param label="Compress Fingerprints"
-                   argument="--compressFeatures" type="boolean"
-                   checked="false"
-                   help="Compress the fingerprints using an autoencoder.
-                   Needs a path of a trained autoencoder or needs the trainAC also set to True."/>
             <param label="Multi-Label Classification" argument="--enableMultiLabel"
                    type="boolean"
                    checked="false"
@@ -109,58 +105,73 @@
             </param>
         </section>
         <conditional name="autoencoder">
-            <param label="Train Autoencoder" argument="--trainAC"
+            <param label="Autoencoder" name="use_autoencoder"
                    type="boolean" checked="true"
-                   help="Trains the autoencoder."/>
-            <when value="false">
-                <param label="Encoder Weights File" argument="--ecWeightsFile"
-                       type="data" format="hdf5" optional="true"
-                       help="The .hdf5 file of a trained encoder"/>
-            </when>
+                   help="If an autoencoder should be used at all."/>
             <when value="true">
-                <param label="Autoencoder Type" argument="--aeType"
-                       type="select" optional="true"
-                       help="Autoencoder type, variational or deterministic.">
-                    <option value="variational">Variational</option>
-                    <option value="deterministic" selected="true">Deterministic</option>
-                </param>
-                <param label="Epochs" argument="--aeEpochs"
-                       type="integer" min="1" value="100" optional="true"
-                       help="Number of epochs for autoencoder training."/>
-                <param label="Batch Size" argument="--aeBatchSize"
-                       type="integer" min="1" value="512" optional="true"
-                       help="Batch size in autoencoder training."/>
-                <param label="Learning Rate" argument="--aeLearningRate"
-                       type="float" min="0" value="0.001" optional="true"
-                       help="Learning rate for autoencoder training."/>
-                <param label="Learning Rate Decay" argument="--aeLearningRateDecay"
-                       type="float" value="0.96" min="0" max="1" optional="true"
-                       help="Learning rate decay for autoencoder training."/>
-                <param label="Split Type" argument="--aeSplitType"
-                       type="select" optional="true"
-                       help="Set how the data is split for the autoencoder">
-                    <option value="scaffold_balanced">Scaffold Balanced</option>
-                    <option value="random" selected="true">Random</option>
-                    <option value="molecular_weight">Molecular Weight</option>
-                </param>
-                <param label="FNN Type" argument="--fnnType"
-                       type="select" optional="true"
-                       help="The type of the feedforward neural network.">
-                    <option value="FNN" selected="true">FNN</option>
-                    <option value="SNN">SNN</option>
-                </param>
-                <param label="Fingerprint Size" argument="--encFPSize"
-                       type="integer" min="1" value="256" optional="true"
-                       help="Size of encoded fingerprint (z-layer of autoencoder)."/>
-                <param label="Activation Function" argument="--aeActivationFunction"
-                       type="select" optional="true"
-                       help="The activation function of the autoencoder.">
-                    <option value="relu" selected="true">ReLU</option>
-                    <option value="selu">SELU</option>
-                </param>
-                <param label="Visualize Latent Space" argument="--visualizeLatent"
-                       type="boolean" checked="false"
-                       help="UMAP the latent space for exploration."/>
+                <param label="Compress Fingerprints"
+                       argument="--compressFeatures" type="boolean"
+                       checked="false"
+                       help="Compress the fingerprints using an autoencoder.
+                   Needs a path of a trained autoencoder or needs the trainAC also set to True."/>
+                <conditional name="train-autoencoder">
+                    <param label="Train or Load Autoencoder" argument="--trainAC"
+                           type="select" checked="true"
+                           help="Select if a new autoencoder should be trained or if you want to provide the weights of a trained autoencoder yourself.">
+                        <option value="true">Train new autoencoder</option>
+                        <option value="false">Load autoencoder from file</option>
+                    </param>
+                    <when value="false">
+                        <param label="Encoder Weights File" argument="--ecWeightsFile"
+                               type="data" format="hdf5"
+                               help="The .hdf5 file of a trained encoder."/>
+                    </when>
+                    <when value="true">
+                        <param label="Autoencoder Type" argument="--aeType"
+                               type="select" optional="true"
+                               help="Autoencoder type, variational or deterministic.">
+                            <option value="variational">Variational</option>
+                            <option value="deterministic" selected="true">Deterministic</option>
+                        </param>
+                        <param label="Epochs" argument="--aeEpochs"
+                               type="integer" min="1" value="100" optional="true"
+                               help="Number of epochs for autoencoder training."/>
+                        <param label="Batch Size" argument="--aeBatchSize"
+                               type="integer" min="1" value="512" optional="true"
+                               help="Batch size in autoencoder training."/>
+                        <param label="Learning Rate" argument="--aeLearningRate"
+                               type="float" min="0" value="0.001" optional="true"
+                               help="Learning rate for autoencoder training."/>
+                        <param label="Learning Rate Decay" argument="--aeLearningRateDecay"
+                               type="float" value="0.96" min="0" max="1" optional="true"
+                               help="Learning rate decay for autoencoder training."/>
+                        <param label="Split Type" argument="--aeSplitType"
+                               type="select" optional="true"
+                               help="Set how the data is split for the autoencoder">
+                            <option value="scaffold_balanced">Scaffold Balanced</option>
+                            <option value="random" selected="true">Random</option>
+                            <option value="molecular_weight">Molecular Weight</option>
+                        </param>
+                        <param label="FNN Type" argument="--fnnType"
+                               type="select" optional="true"
+                               help="The type of the feedforward neural network.">
+                            <option value="FNN" selected="true">FNN</option>
+                            <option value="SNN">SNN</option>
+                        </param>
+                        <param label="Fingerprint Size" argument="--encFPSize"
+                               type="integer" min="1" value="256" optional="true"
+                               help="Size of encoded fingerprint (z-layer of autoencoder)."/>
+                        <param label="Activation Function" argument="--aeActivationFunction"
+                               type="select" optional="true"
+                               help="The activation function of the autoencoder.">
+                            <option value="relu" selected="true">ReLU</option>
+                            <option value="selu">SELU</option>
+                        </param>
+                        <param label="Visualize Latent Space" argument="--visualizeLatent"
+                               type="boolean" checked="false"
+                               help="UMAP the latent space for exploration."/>
+                    </when>
+                </conditional>
             </when>
         </conditional>
         <section title="Logging" name="logging_configuration" expanded="false">

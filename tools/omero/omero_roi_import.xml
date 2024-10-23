@@ -108,6 +108,7 @@ corresponding ROIs in OMERO, and links them to a specified image.
 
     The **roi_name** and **roi_description** columns provide a name and description for each ROI, allowing for easy identification and documentation within OMERO however they do not appear on the OMERO web interface.
 
+@SECURITY_DISCLAIMER@
     </help>
     <citations>
         <citation type="doi">10.1038/nmeth.1896</citation>

@@ -182,17 +182,17 @@
                 <option value="1">1: Some additional output</option>
                 <option value="2">2: Full additional output</option>
             </param>
-            <section name="tracking_configuration" title="Weights &amp; Biases" expanded="true">
-                <param label="Target"
-                       argument="--wabTarget" type="text" optional="true"
-                       help="Which endpoint to use for tracking performance via Weights &amp; Biases. Should match the column name."/>
-                <param label="Track FNN" argument="--wabTracking"
-                       type="boolean"
-                       help="Track FNN performance via Weights &amp; Biases."/>
-                <param label="Track Autoencoder" argument="--aeWabTracking"
-                       type="boolean"
-                       help="Track autoencoder performance via Weights &amp; Biases."/>
-            </section>
+<!--            <section name="tracking_configuration" title="Weights &amp; Biases" expanded="true">-->
+<!--                <param label="Target"-->
+<!--                       argument="&#45;&#45;wabTarget" type="text" optional="true"-->
+<!--                       help="Which endpoint to use for tracking performance via Weights &amp; Biases. Should match the column name."/>-->
+<!--                <param label="Track FNN" argument="&#45;&#45;wabTracking"-->
+<!--                       type="boolean"-->
+<!--                       help="Track FNN performance via Weights &amp; Biases."/>-->
+<!--                <param label="Track Autoencoder" argument="&#45;&#45;aeWabTracking"-->
+<!--                       type="boolean"-->
+<!--                       help="Track autoencoder performance via Weights &amp; Biases."/>-->
+<!--            </section>-->
         </section>
     </inputs>
     <outputs>

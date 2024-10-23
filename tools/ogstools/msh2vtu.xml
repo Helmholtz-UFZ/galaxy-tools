@@ -33,16 +33,16 @@
         </param>
     </inputs>
     <outputs>
-        <data name="boundary" format="xml" from_work_dir="input_file_boundary.vtu" />
-        <data name="domain" format="xml" from_work_dir="input_file_domain.vtu" />
-        <data name="physical_group_Bottom" format="xml" from_work_dir="input_file_physical_group_Bottom.vtu" />
-        <data name="physical_group_Left" format="xml" from_work_dir="input_file_physical_group_Left.vtu" />
-        <data name="physical_group_Right" format="xml" from_work_dir="input_file_physical_group_Right.vtu" />
-        <data name="physical_group_RockBed" format="xml" from_work_dir="input_file_physical_group_RockBed.vtu" />
-        <data name="physical_group_SedimentLayer1" format="xml" from_work_dir="input_file_physical_group_SedimentLayer1.vtu" />
-        <data name="physical_group_SedimentLayer2" format="xml" from_work_dir="input_file_physical_group_SedimentLayer2.vtu" />
-        <data name="physical_group_SedimentLayer3" format="xml" from_work_dir="input_file_physical_group_SedimentLayer3.vtu" />
-        <data name="physical_group_Top" format="xml" from_work_dir="input_file_physical_group_Top.vtu" />
+        <data name="boundary" format="xml" label="${tool.name}: boundary" from_work_dir="input_file_boundary.vtu" />
+        <data name="domain" format="xml" label="${tool.name}: domain" from_work_dir="input_file_domain.vtu" />
+        <data name="physical_group_Bottom" format="xml" label="${tool.name}: physical_group_Bottom" from_work_dir="input_file_physical_group_Bottom.vtu" />
+        <data name="physical_group_Left" format="xml" label="${tool.name}: physical_group_Left" from_work_dir="input_file_physical_group_Left.vtu" />
+        <data name="physical_group_Right" format="xml" label="${tool.name}: physical_group_Right" from_work_dir="input_file_physical_group_Right.vtu" />
+        <data name="physical_group_RockBed" format="xml" label="${tool.name}: physical_group_RockBed" from_work_dir="input_file_physical_group_RockBed.vtu" />
+        <data name="physical_group_SedimentLayer1" format="xml" label="${tool.name}: physical_group_SedimentLayer1" from_work_dir="input_file_physical_group_SedimentLayer1.vtu" />
+        <data name="physical_group_SedimentLayer2" format="xml" label="${tool.name}: physical_group_SedimentLayer2" from_work_dir="input_file_physical_group_SedimentLayer2.vtu" />
+        <data name="physical_group_SedimentLayer3" format="xml" label="${tool.name}: physical_group_SedimentLayer3" from_work_dir="input_file_physical_group_SedimentLayer3.vtu" />
+        <data name="physical_group_Top" format="xml" label="${tool.name}: physical_group_Top" from_work_dir="input_file_physical_group_Top.vtu" />
     </outputs>
     <tests>
         <test>

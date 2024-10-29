@@ -104,9 +104,11 @@
 Description
 -----------
 
-Tool to filter images IDs by filename, Key-Value Pairs and Tag value.
-For Key-Value Pairs search, two values are required (Value1 = Key, Value2 = Pair).
-IDs are a list of image IDs which can be fetched using the omero_get tool.
+- Tool to filter images IDs by filename, Key-Value Pairs and Tag value.
+- For Key-Value Pairs search, two values are required (Value1 = Key, Value2 = Pair).
+- IDs are a list of image IDs which can be fetched using the omero_get tool.
+
+@SECURITY_DISCLAIMER@
 
     </help>
     <citations>

@@ -162,15 +162,23 @@ Description
 
 Tool to fetch project, dataset, images, annotations, tags, table and ROIs IDs user defined OMERO.server.
 
-Options:
+**Options**:
+
 Project -> Project IDs present in the OMERO.server
+
 Dataset -> Dataset IDs present in a specific Project or in the server
+
 Image -> Image IDs present in a specific Dataset or Project or Well or Plate or in the server
+
 Annotation (Key-Value Pairs) -> Annotation IDs linked to an Image or Dataset or Project or Well or Plate
+
 Tag -> Tag IDs linked to an Image or Dataset or Project or Well or Plate
+
 ROI -> ROI IDs linked to an Image
+
 Table -> Table linked to an Image or Dataset or Project or Well or Plate
 
+@SECURITY_DISCLAIMER@
     </help>
     <citations>
         <citation type="doi">10.1038/nmeth.1896</citation>

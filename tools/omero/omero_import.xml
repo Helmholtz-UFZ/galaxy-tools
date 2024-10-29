@@ -67,6 +67,8 @@ export OMERO_PASSWORD="$__user__.extra_preferences.get('omero_account|password',
         - The user can define an existing dataset name where the images will be imported
 
         - If the dataset does not exist, a new one will be created
+
+@SECURITY_DISCLAIMER@
     </help>
     <citations>
         <citation type="doi">10.1038/nmeth.1896</citation>

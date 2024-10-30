@@ -33,7 +33,7 @@
             <validator type="regex" message="Enter a valid compound name">^([A-Z][a-z]?\d*|\d+|[+-])+</validator>
         </param>
         <param name="concentration_unit" type="text" label="Concentration Unit">
-            <validator type="regex" message="Enter a valid concentration unit">^\[(\S+/\S+)\]</validator>
+            <validator type="regex" message="Enter a valid concentration unit">^\(\S+/\S+)\</validator>
         </param>
     </inputs>
     <outputs>
@@ -45,7 +45,7 @@
             <param name="input_csv" value="drc_input.tsv"/>
             <param name="concentration_column" value="1"/>
             <param name="response_column" value="2"/>
-            <param name="compound_name" value="test_chemical"/>
+            <param name="compound_name" value="test-chemical"/>
             <param name="concentration_unit" value="mg/L"/>
             <output name="plot_output" ftype="jpg">
                 <assert_contents>

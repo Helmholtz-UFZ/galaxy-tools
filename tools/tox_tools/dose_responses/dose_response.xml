@@ -30,11 +30,11 @@
         <param name="concentration_column" type="data_column" data_ref="input_csv" label="Concentration Column" help="Name of the column for concentration values"/>
         <param name="response_column" type="data_column" data_ref="input_csv" label="Response Column" help="Name of the column for response values"/>
         <param name="compound_name" type="text" label="Compound Name" help="Name of the compound to analyze">
-            <validator type="regex" message="Enter a valid compound name">([A-Z][a-z]?\d*|\d+|[+-])+</validator>
+            <validator type="regex" message="Enter a valid compound name">^([A-Z][a-z]?\d*|\d+|[+-])+</validator>
         </param>
         <param name="concentration_unit" type="text" label="Concentration Unit">
-        <validator type="regex" message="Enter a valid concentration unit">\[(\S+/\S+)\]</validator>
-    </param>
+            <validator type="regex" message="Enter a valid concentration unit">^\[(\S+/\S+)\]</validator>
+        </param>
     </inputs>
     <outputs>
         <data name="plot_output" format="jpg" label="${tool.name} on ${on_string}: ${compound_name} - Dose Response Plot"/>

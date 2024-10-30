@@ -4,7 +4,7 @@
         Convert msh to vtu/vtk.
     </description>
     <requirements>
-        <requirement type="package" version="0.0.3">ogstools</requirement>
+        <requirement type="package" version="0.4.0">ogstools</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         ln -s '$input_file' input_file.msh &&

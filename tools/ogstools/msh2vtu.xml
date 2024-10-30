@@ -69,30 +69,26 @@
     <help><![CDATA[
     **Overview:**
 
-This Galaxy tool converts GMSH mesh files (`*.msh`) into VTU format (`*.vtu`) using the OpenGeoSys (OGS) utility. The tool offers several options for mesh processing, such as deleting the Z coordinate, swapping XY coordinates, reindexing nodes, and keeping original IDs.
+        msh2vtu is a application that converts a Gmsh (.msh) file for use in OGS by extracting domain-, boundary- and physical group-submeshes and saves them in a set of files in the vtu format.
+        Supported element types:
+        - lines (linear and quadratic) in 1D
+        - triangles and quadrilaterals (linear and quadratic) in 2D
+        - tetra- and hexahedrons (linear and quadratic) in 3D
 
-**Inputs:**
+    **Inputs:**
 
-1. **Input GMSH File:** The GMSH mesh file to be converted.
-2. **Output Path:** (Optional) Specify the output path where the VTU file will be saved. If not specified, the current working directory is used.
-3. **Filename Prefix:** Prefix to be added to the output filename.
-4. **Mesh Dimension (dim):** Select the desired mesh dimension (0, 1, 2, or 3). Default is `0`.
-5. **Delete Z Coordinate (delz):** Boolean flag to remove the Z coordinate from the mesh. Set to `True` to enable.
-6. **Swap XY Coordinates (swapxy):** Boolean flag to swap the X and Y coordinates. Set to `True` to enable.
-7. **Reindex:** Boolean flag to reindex the nodes. Set to `True` to enable.
-8. **Keep IDs:** Boolean flag to keep the original node and cell IDs. Set to `True` to enable.
-9. **ASCII Output:** Boolean flag to output the file in ASCII format instead of binary. Set to `True` to enable.
-10. **Log Level:** Set the level of logging details (DEBUG, INFO, WARNING, ERROR). Default is `DEBUG`.
+        1. **Input GMSH File:** The GMSH (.msh) file to be converted.
+        2. **Mesh Dimension (dim):** Select the desired mesh dimension (1, 2, or 3).
+        3. **Delete Z Coordinate (delz):** Boolean flag to remove the Z coordinate from the mesh (for 2D meshes with z=0).
+        4. **Swap XY Coordinates (swapxy):** Boolean flag to swap the X and Y coordinates.
+        5. **Reindex (reindex):** Renumber physical group / region / Material IDs to be renumbered beginning with zero.
+        6. **Keep IDs (keep_ids):** By default, rename gmsh:physical to MaterialIDs and change type of corresponding cell data to INT32. If True, this is skipped.
+        7. **ASCII Output (ascii):** Boolean flag to output the file in ASCII format instead of binary.
+        8. **Log Level (log_level):** Set the level of logging details (DEBUG, INFO, WARNING, ERROR).
 
-**Outputs:**
+    **Outputs:**
 
-- **Output VTU File:** The converted mesh file in VTU format.
-
-**Usage Notes:**
-
-- This tool requires that the input file is in GMSH format (`*.msh`).
-- The resulting output will be a VTU file (`*.vtu`) that can be used with visualization tools and other software supporting the VTU format.
-- The output directory must be writable; otherwise, the tool will fail to save the output file.
+        **Output VTU Files:** The converted mesh file as a set of files with VTU format.
     ]]></help>
 <citations> 
     <citation type="doi">10.5281/zenodo.13685289</citation>

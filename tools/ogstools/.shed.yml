@@ -1,9 +1,10 @@
 name: suite_ogs_tools
 owner: ufz
-description: Convert GMSH mesh files to VTU format using various options for mesh processing.
+description: A suite of tools for ogs.
 long_description: |
-    This Galaxy tool converts GMSH mesh files (`*.msh`) into VTU format (`*.vtu`) using the OpenGeoSys (OGS) utility. 
-    The tool offers several options for mesh processing, such as deleting the Z coordinate, swapping XY coordinates, reindexing nodes, and keeping original IDs.
+     Contains at the moment just file format converter.
+      -msh2vtu converts .msh to .vtu/ .vtk
+      -shp2msh converts .shp to .vtu/ .vtk
 categories:
 - Ecology
 remote_repository_url: https://gitlab.opengeosys.org/ogs/tools/ogstools
@@ -11,10 +12,11 @@ homepage_url: https://www.opengeosys.org/
 type: unrestricted
 auto_tool_repositories:
   name_template: "{{ tool_id }}"
-  description_template: "Wrapper for bankfull discharge calculation function: {{ tool_name }}."
+  description_template: A suite of tools for ogs.
 suite:
   name: suite_ogs_tools
-  description: Convert GMSH mesh files to VTU format using various options for mesh processing.
+  description: A suite of tools for ogs.
   long_description: |
-    This Galaxy tool converts GMSH mesh files (`*.msh`) into VTU format (`*.vtu`) using the OpenGeoSys (OGS) utility. 
-    The tool offers several options for mesh processing, such as deleting the Z coordinate, swapping XY coordinates, reindexing nodes, and keeping original IDs.
+    Contains at the moment just file format converter.
+      -msh2vtu converts .msh to .vtu/ .vtk
+      -shp2msh converts .shp to .vtu/ .vtk

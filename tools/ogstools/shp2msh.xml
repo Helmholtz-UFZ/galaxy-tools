@@ -40,9 +40,21 @@
         </test>
     </tests>
     <help><![CDATA[
-        This tool takes a shapefile as input and creates a mesh using either the Triangle or GMSH method.
-        The cellsize can be optionally specified, and the shapefile can be simplified before meshing.
-        Output data has the format .vtu/ .vtk.
+        **Overview:**
+            This tool takes a shapefile (.shp) as input and creates a mesh using either the Triangle or GMSH method.
+            The cellsize can be optionally specified, and the shapefile can be simplified before meshing.
+            Output data has the format .vtu/ .vtk.
+
+        **Inputs:**
+
+            1. **Input Shape File:** The .shp file to be converted.
+            2. **Cellsize:** Select the desired cellsize min=40.
+            3. **Meshing:** Choose either triangle or gmsh.
+            4. **Simplify:** Either the shapefiles are kept unchanged or they can be simplified. Choose between original and simplified.
+
+        **Outputs:**
+
+            **Output VTU Files:** The converted mesh as a VTU file.
     ]]></help>
     <citations>
         <citation type="doi">10.5281/zenodo.13685289</citation>

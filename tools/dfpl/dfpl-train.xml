@@ -6,8 +6,10 @@
         <requirement type="package" version="@TOOL_VERSION@">deepfplearn</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-    python '$__tool_directory__/flatten_json.py' '$inputs'
-    && python '$__tool_directory__/flatten_json.py' '$inputs' > config.json
+    cat '$inputs'
+    | python '$__tool_directory__/json_flatten.py'
+    | python '$__tool_directory__/json_train.py'
+    > config.json
     && dfpl train --configFile config.json
     && zip -r - output/*_model autoencoder/*_autoencoder > '$output_model_weights'
     ]]></command>

@@ -1,0 +1,83 @@
+<tool id="phabox_votu" name="PhaBOX votu" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.1" license="MIT">
+    <description>vOTU grouping</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">phabox</xref>
+    </xrefs>
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">phabox</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        phabox2 --task votu
+            @GENERAL@
+            @VOTU@
+    ]]></command>
+    <inputs>
+        <expand macro="general"/>
+        <expand macro="votu"/>
+    </inputs>
+    <outputs>
+        <data name="votu_ani" format="tabular" from_work_dir="output/final_prediction/ANI_based_vOTU.tsv" label="${tool.name} on ${on_string}: ANI based vOTUs">
+            <filter>votu["mode_cond"]["mode"] == "ANI"</filter>
+        </data>
+        <data name="votu_aai" format="tabular" from_work_dir="output/final_prediction/AAI_based_vOTU.tsv" label="${tool.name} on ${on_string}: AAI based vOTUs">
+            <filter>votu["mode_cond"]["mode"] == "AAI"</filter>
+        </data>
+    </outputs>
+    <tests>
+        <test expect_num_outputs="1">
+            <param name="dbdir" value="phaboxdb"/>
+            <param name="contigs" value="example_contigs.fa"/>
+            <output name="votu_aai">
+                <assert_contents>
+                    <has_line line="Accesssion&#9;vOTU&#9;Representative&#9;Length"/>
+                    <has_n_lines n="11"/>
+                    <has_n_columns n="4"/>
+                </assert_contents>
+            </output>
+            <assert_command>
+                <has_text text="--mode ANI"/>
+                <has_text text="--ani"/>
+            </assert_command>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="dbdir" value="phaboxdb"/>
+            <param name="contigs" value="example_contigs.fa"/>
+            <section name="votu">
+                <conditional name="mode_cond">
+                    <param name="mode" value="AAI"/>
+                </conditional>
+            </section>
+            <output name="votu_aai">
+                <assert_contents>
+                    <has_line line="Accession&#9;Length&#9;vOTU&#9;Representative"/>
+                    <has_n_lines n="11"/>
+                    <has_n_columns n="4"/>
+                </assert_contents>
+            </output>
+            <assert_command>
+                <has_text text="--mode AAI"/>
+                <has_text text="--aai"/>
+            </assert_command>
+        </test>
+    </tests>
+    <help><![CDATA[
+
+Cluster into viral OTUs.
+
+**Output**
+
+A tabular dataset with the following columns:
+
+- Accession: the accession or the name of the input contigs.
+- vOTU: the cluster ID.
+- Representative: the representative genome.
+- Length: the length of input contigs.
+
+    ]]></help>
+    <expand macro="citations">
+        <citation type="doi">10.1093/bib/bbac487</citation>
+    </expand>
+</tool>

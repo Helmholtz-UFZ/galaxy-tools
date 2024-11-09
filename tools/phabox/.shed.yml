@@ -1,0 +1,24 @@
+categories:
+- Metagenomics
+description: Identify and analyze phage contigs in metagenomic data
+long_description: |
+  PhaBOX can comprehensively identify and analyze phage contigs in metagenomic
+  data. It supports integrated phage analysis, including phage contig
+  identification from the metagenomic assembly, lifestyle prediction, taxonomic
+  classification, and host prediction. 
+name: phabox
+owner: ufz
+homepage_url: https://github.com/KennthShang/PhaBOX
+remote_repository_url: https://github.com/Helmholtz-UFZ/ufz-galaxy-tools/blob/main/tools/phabox
+type: unrestricted
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: "Wrapper for phabox task: {{ tool_name }}."
+suite:
+  name: "suite_phabox"
+  description: "A suite of tools that brings the phabox project into Galaxy."
+  long_description: |
+    PhaBOX can comprehensively identify and analyze phage contigs in metagenomic
+    data. It supports integrated phage analysis, including phage contig
+    identification from the metagenomic assembly, lifestyle prediction, taxonomic
+    classification, and host prediction. 

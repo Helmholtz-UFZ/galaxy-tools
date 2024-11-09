@@ -1,0 +1,57 @@
+<tool id="phabox_phamer" name="PhaBOX phamer" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.1" license="MIT">
+    <description>Virus identification</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">phabox</xref>
+    </xrefs>
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">phabox</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        phabox2 --task phamer
+            @GENERAL@
+            @PHAMER@
+    ]]></command>
+    <inputs>
+        <expand macro="general"/>
+        <expand macro="phamer"/>
+    </inputs>
+    <outputs>
+        <data name="phamer_out" format="tabular" from_work_dir="output/final_prediction/phamer_prediction.tsv"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="dbdir" value="phaboxdb"/>
+            <param name="contigs" value="example_contigs.fa"/>
+            <output name="phamer_out">
+                <assert_contents>
+                    <has_line line="Accession&#9;Length&#9;Pred&#9;Proportion&#9;PhaMerScore&#9;PhaMerConfidence"/>
+                    <has_n_lines n="11"/> <!-- 1 per input sequence-->
+                    <has_n_columns n="6"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+
+Identify phage contigs from metagenomics data.
+
+**Output**:
+
+A tabular dataset with the following columns:
+
+- Accession: the accession or the name of the input contigs.
+- Length: the length of input contigs.
+- Pred: virus or non-virus.
+- Proportion: the proportion of the proteins that can be aligned to the virus database (from 0 to 1).
+- PhaMerScore: the prediction score given by the deep learning model.
+- PhaMerConfidence: the confidence of prediction, determined by both Proportion and PhaMerScore (high-confidence, medium-confidence, low-confidence, lower than reject threshold (according to the --reject parameter, default: 0.1)).
+  For the virus with low-confidence or lower than reject threshold, we recommend you to run the contamination task to check their sequence quality.
+
+    ]]></help>
+    <expand macro="citations">
+        <citation type="doi">10.1093/bib/bbac258</citation>
+    </expand>
+</tool>

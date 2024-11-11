@@ -146,6 +146,10 @@
             #end for
             --mcov $tree.mcov
             --mpident $tree.mpident
+            ## constructing the MSA and building the tree
+            ## (the program would use mafft and fasttree)
+            ## can be done more flexibly in Galaxy
+            ## (leavinh this here to ensure it won't be implemented)
             ## --msa Y
             ## --tree Y
     ]]></token>

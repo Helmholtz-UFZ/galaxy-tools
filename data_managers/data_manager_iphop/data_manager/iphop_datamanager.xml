@@ -2,7 +2,7 @@
     <description>database builder</description>
     <macros>
         <token name="@TOOL_VERSION@">1.3.3</token>
-        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@VERSION_SUFFIX@">1</token>
         <token name="@PROFILE@">22.01</token>
     </macros>
     <requirements>
@@ -21,7 +21,7 @@
         <configfile name="dmjson"><![CDATA[
 {
   "data_tables":{
-    "checkv":[
+    "iphop":[
       {
         "path":"db",
         "name":"Version $db_version",

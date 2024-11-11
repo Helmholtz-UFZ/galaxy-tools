@@ -35,14 +35,13 @@
     <help><![CDATA[
 Classify the lifestyles of phages.
 
+
+@COMMON_INPUT_DOC@
+
 **Output**:
 
-A tabular dataset with the following columns:
-
-- Accession: the accession or the name of the input contigs.
-- Length: the length of input contigs.
-- TYPE: virulent or temperate (virus).
-- PhaTYPScore: the prediction score given by the deep learning model.
+@COMMON_OUTPUT_DOC@
+@PHATYP_OUTPUT_DOC@
     ]]></help>
     <expand macro="citations">
         <citation type="doi">10.1093/bib/bbac487</citation>

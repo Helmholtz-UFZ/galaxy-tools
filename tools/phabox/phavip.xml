@@ -43,7 +43,6 @@
             <param name="supp_outputs" value="gene_annotation"/>
             <output name="out">
                 <assert_contents>
-                    
                     <has_line line="Accession&#9;Length&#9;Protein_num&#9;Annotated_num&#9;Annotation_rate"/>
                     <has_n_lines n="11"/>
                     <has_n_columns n="5"/>
@@ -63,12 +62,12 @@
 Please note that running task end_to_end, phamer, phagcn, phatyp, and cherry, will automatically run phavip.
 The output files are the same but the supplementary files will be dumped into the corresponding task.
 
+
+@COMMON_INPUT_DOC@
+
 **Output**
 
-A tabular dataset with the following columns:
-
-- Accession: the accession or the name of the input contigs.
-- Length: the length of input contigs.
+@COMMON_OUTPUT_DOC@
 - Protein_num: total number of predicted proteins.
 - Annotated_num: number of proteins that have significant alignments.
 - Annotation_rate: percentage of proteins that have annotations.

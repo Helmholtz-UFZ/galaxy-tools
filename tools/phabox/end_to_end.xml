@@ -33,49 +33,6 @@
         <expand macro="supp_out" task="phamer"/>
         <expand macro="supp_out" task="phagcn"/>
         <expand macro="supp_out" task="cherry"/>
-        <!-- final_prediction
-        ├── final_prediction_summary.tsv
-        ├── phamer_supplementary
-        │   ├── all_predicted_contigs.fa
-        │   ├── all_predicted_protein.fa
-        │   ├── gene_annotation.tsv         || outputs of phavip
-        │   ├── predicted_virus.fa
-        │   ├── predicted_virus_protein.fa
-        │   ├── alignment_results.tab
-        │   └── uncertain_sequences_for_contamination_task.fa      || please run contamination task
-        ├── phagcn_supplementary
-        │   ├── phagcn_network_edges.tsv
-        │   └── phagcn_network_nodes.tsv
-        ├── cherry_supplementary
-        │   ├── cherry_network_edges.tsv
-        │   └── cherry_network_nodes.tsv
-        └── phatyp_supplementary
-
-
-        ├── final_prediction
-        │   ├── cherry_prediction.tsv
-        │   ├── cherry_supplementary
-        │   │   ├── cherry_network_edges.tsv
-        │   │   ├── cherry_network_nodes.tsv
-        │   │   └── CRISPRs_alignment_DB.tsv
-        │   ├── final_prediction_summary.tsv
-        │   ├── phagcn_prediction.tsv
-        │   ├── phagcn_supplementary
-        │   │   ├── phagcn_network_edges.tsv
-        │   │   └── phagcn_network_nodes.tsv
-        │   ├── phamer_prediction.tsv
-        │   ├── phamer_supplementary
-        │   │   ├── alignment_results.tab
-        │   │   ├── all_predicted_contigs.fa
-        │   │   ├── all_predicted_protein.fa
-        │   │   ├── gene_annotation.tsv
-        │   │   ├── predicted_virus.fa
-        │   │   ├── predicted_virus_protein.fa
-        │   │   └── uncertain_sequences_for_contamination_task.fa
-        │   ├── phatyp_prediction.tsv
-        │   ├── phatyp_supplementary
-        │   └── phavip_prediction.tsv -->
-    
     </outputs>
     <tests>
         <test expect_num_outputs="1">
@@ -96,23 +53,24 @@
 
 **What it does**
 
-Runs the phabox2 pipeline
+Runs the phabox2 pipeline, i.e. it runs
 
-- phamer
-- phagcn
-- cherry
-- phatyp
+- phamer: Virus identification
+- phagcn: Taxonomic classification
+- phatyp: Lifestyle prediction
+- cherry: Host prediction
 
-Usage
-.....
+The outputs of the separate tools are joined into one big table.
 
-
-**Input**
-
+@COMMON_INPUT_DOC@
 
 **Output**
 
-
+@COMMON_OUTPUT_DOC@
+@PHAMER_OUTPUT_DOC@
+@PHAGCN_OUTPUT_DOC@
+@PHATYP_OUTPUT_DOC@
+@CHERRY_OUTPUT_DOC@
     ]]></help>
     <expand macro="citations"/>
 </tool>

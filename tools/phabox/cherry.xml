@@ -40,18 +40,13 @@
     <help><![CDATA[
 Predict hosts for viruses.
 
+
+@COMMON_INPUT_DOC@
+
 **Output**
 
-A tabular dataset with the following columns:
-
-- Accession: the accession or the name of the input contigs.
-- Length: the length of input contigs.
-- Host: the predicted host (NCBI taxonomy) of the contigs. '-' means unknown host.
-- CHERRYScore: the predicted score from the model.
-- Method:
-    - CRISPR-based(MAG): CRISPRs alignment results from provided MAG (if any)
-    - CRISPR-based(DB): CRISPRs alignment results from database.
-    - AAI-based: predicting host based on virus-simil
+@COMMON_OUTPUT_DOC@
+@CHERRY_OUTPUT_DOC@
     ]]></help>
     <expand macro="citations">
         <citation type="doi">10.1093/bib/bbac182</citation>

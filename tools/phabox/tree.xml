@@ -42,7 +42,10 @@
         </test>
     </tests>
     <help><![CDATA[
-Get marker genes that can be used for phylogentic tree construction.
+Get sequences of specific marker genes that can be used for phylogentic tree construction.
+
+@COMMON_INPUT_DOC@
+
     ]]></help>
     <expand macro="citations"/>
 </tool>

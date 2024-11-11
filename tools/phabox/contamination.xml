@@ -38,12 +38,12 @@
 
 Check for contaminations / proviruses.
 
+
+@COMMON_INPUT_DOC@
+
 **Output**:
 
-A tabular dataset with the following columns:
-
-- Accession: the accession or the name of the input contigs.
-- Length: the length of input contigs.
+@COMMON_OUTPUT_DOC@
 - Total_genes: number of genes in the contigs (predicted by prodigal-gv)
 - Viral_genes: number of viral marker genes
 - Prokaryotic_genes: number of prokaryotic marker genes

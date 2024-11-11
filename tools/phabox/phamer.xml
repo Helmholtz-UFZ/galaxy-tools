@@ -38,18 +38,12 @@
 
 Identify phage contigs from metagenomics data.
 
+@COMMON_INPUT_DOC@
+
 **Output**:
 
-A tabular dataset with the following columns:
-
-- Accession: the accession or the name of the input contigs.
-- Length: the length of input contigs.
-- Pred: virus or non-virus.
-- Proportion: the proportion of the proteins that can be aligned to the virus database (from 0 to 1).
-- PhaMerScore: the prediction score given by the deep learning model.
-- PhaMerConfidence: the confidence of prediction, determined by both Proportion and PhaMerScore (high-confidence, medium-confidence, low-confidence, lower than reject threshold (according to the --reject parameter, default: 0.1)).
-  For the virus with low-confidence or lower than reject threshold, we recommend you to run the contamination task to check their sequence quality.
-
+@COMMON_OUTPUT_DOC@
+@PHAMER_OUTPUT_DOC@
     ]]></help>
     <expand macro="citations">
         <citation type="doi">10.1093/bib/bbac258</citation>

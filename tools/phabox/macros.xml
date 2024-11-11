@@ -158,4 +158,46 @@
             <filter>supplements and "@TASK@" in supplements</filter>
         </collection>
     </xml>
+
+    <token name="@COMMON_OUTPUT_DOC@"><![CDATA[
+A tabular dataset with the following columns:
+
+- Accession: the accession or the name of the input contigs.
+- Length: the length of input contigs.
+    ]]></token>
+    <token name="@PHAMER_OUTPUT_DOC@"><![CDATA[
+- Pred: virus or non-virus.
+- Proportion: the proportion of the proteins that can be aligned to the virus database (from 0 to 1).
+- PhaMerScore: the prediction score given by the deep learning model.
+- PhaMerConfidence: the confidence of prediction, determined by both Proportion and PhaMerScore (high-confidence, medium-confidence, low-confidence, lower than reject threshold (according to the --reject parameter, default: 0.1)).
+  For the virus with low-confidence or lower than reject threshold, we recommend you to run the contamination task to check their sequence quality.
+    ]]></token>
+    <token name="@PHAGCN_OUTPUT_DOC@"><![CDATA[
+- Lineage: the predicted taxonomy lineage (NCBI version) of the contigs. Each rank is separated by the ';'.
+- PhaGCNScore: the predicted score for each rank in the lineage. Each rank is separated by the ';'.
+- Genus: whether the contig has a genus level name ('-' means unknown).
+- GenusCluster: if the Genus is '-', the program will assign a genus-level grouping result: group_idx (idx = 1, 2, 3, ...) or singleton. This can be viewed as genus-level OTUs based on the average shared protein identities between sequences.
+    ]]></token>
+    <token name="@PHATYP_OUTPUT_DOC@"><![CDATA[
+- TYPE: virulent or temperate (virus).
+- PhaTYPScore: the prediction score given by the deep learning model.
+    ]]></token>
+    <token name="@CHERRY_OUTPUT_DOC@"><![CDATA[
+- Host: the predicted host (NCBI taxonomy) of the contigs. '-' means unknown host.
+- CHERRYScore: the predicted score from the model.
+- Method:
+    - CRISPR-based(MAG): CRISPRs alignment results from provided MAG (if any)
+    - CRISPR-based(DB): CRISPRs alignment results from database.
+    - AAI-based: predicting host based on virus-simil
+- Host_NCBI_lineage
+- Host_GTDB_lineage
+    ]]></token>
+
+    <token name="@COMMON_INPUT_DOC@"><![CDATA[
+**Input**
+
+- Contig sequences in FASTA format
+- Optionally own predicted protein sequences can be given (by default the tool will use prodigal and diamond blastp for the prediction)
+    ]]></token>
+
 </macros>

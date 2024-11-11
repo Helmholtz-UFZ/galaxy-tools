@@ -67,14 +67,14 @@
 
 Cluster into viral OTUs.
 
+
+@COMMON_INPUT_DOC@
+
 **Output**
 
-A tabular dataset with the following columns:
-
-- Accession: the accession or the name of the input contigs.
+@COMMON_OUTPUT_DOC@
 - vOTU: the cluster ID.
 - Representative: the representative genome.
-- Length: the length of input contigs.
 
     ]]></help>
     <expand macro="citations">

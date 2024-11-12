@@ -1,0 +1,76 @@
+<tool id="phabox_end_to_end" name="PhaBOX end to end" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.1" license="MIT">
+    <description></description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">phabox</xref>
+    </xrefs>
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">phabox</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        @CRISPR_PRE@
+        phabox2 --task end_to_end
+            @GENERAL@
+            @PHAMER@
+            @NETWORK@
+            @CRISPR@
+    ]]></command>
+    <inputs>
+        <expand macro="general"/>
+        <expand macro="phamer"/>
+        <expand macro="network"/>
+        <expand macro="crispr"/>
+        <param name="supplements" type="select" optional="true" multiple="true" label="Output supplementary collections">
+            <option value="phamer">phamer</option>
+            <option value="phagcn">phagcn</option>
+            <option value="cherry">cherry</option>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="end_to_end_out" format="tabular" from_work_dir="output/final_prediction/final_prediction_summary.tsv"/>
+        <expand macro="supp_out" task="phamer"/>
+        <expand macro="supp_out" task="phagcn"/>
+        <expand macro="supp_out" task="cherry"/>
+    </outputs>
+    <tests>
+        <test expect_num_outputs="1">
+            <param name="dbdir" value="phaboxdb"/>
+            <param name="contigs" value="example_contigs.fa"/>
+            <output name="end_to_end_out">
+                <assert_contents>
+                    <has_n_lines n="11"/>
+                    <has_n_columns n="17"/>
+                    <has_text text="Accession&#9;Length&#9;Pred&#9;Proportion&#9;PhaMerScore&#9;PhaMerConfidence&#9;Lineage&#9;PhaGCNScore&#9;Genus&#9;GenusCluster&#9;TYPE&#9;PhaTYPScore&#9;Host&#9;CHERRYScore&#9;Method&#9;Host_NCBI_lineage&#9;Host_GTDB_lineage"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+
+.. class:: infomark
+
+**What it does**
+
+Runs the phabox2 pipeline, i.e. it runs
+
+- phamer: Virus identification
+- phagcn: Taxonomic classification
+- phatyp: Lifestyle prediction
+- cherry: Host prediction
+
+The outputs of the separate tools are joined into one big table.
+
+@COMMON_INPUT_DOC@
+
+**Output**
+
+@COMMON_OUTPUT_DOC@
+@PHAMER_OUTPUT_DOC@
+@PHAGCN_OUTPUT_DOC@
+@PHATYP_OUTPUT_DOC@
+@CHERRY_OUTPUT_DOC@
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

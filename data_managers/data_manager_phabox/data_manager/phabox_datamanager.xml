@@ -13,8 +13,8 @@
     <command detect_errors="exit_code"><![CDATA[
         wget https://github.com/KennthShang/PhaBOX/releases/download/v2/phabox_db_v@DB_VERSION@.zip &&
         unzip phabox_db_v@DB_VERSION@.zip &&
-        mkdir -p '$out_file.extra_file_path' &&
-        mv "phabox_db_v@DB_VERSION@" '$out_file.extra_file_path' &&
+        mkdir -p '$out_file.extra_files_path' &&
+        mv "phabox_db_v@DB_VERSION@" '$out_file.extra_files_path' &&
         cp '$dmjson' '$out_file'
     ]]></command>
     <configfiles>

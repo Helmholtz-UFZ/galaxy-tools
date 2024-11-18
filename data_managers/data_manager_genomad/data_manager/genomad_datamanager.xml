@@ -18,8 +18,8 @@
                 https://zenodo.org/records/10594875/files/genomad_db_v${version}.tar.gz?download=1
             ## #end if
         | tar -xzv &&
-        mkdir -p '$out_file.extra_file_path' &&
-        mv genomad_db '$out_file.extra_file_path' &&
+        mkdir -p '$out_file.extra_files_path' &&
+        mv genomad_db '$out_file.extra_files_path' &&
         cp '$dmjson' '$out_file'
     ]]></command>
     <configfiles>

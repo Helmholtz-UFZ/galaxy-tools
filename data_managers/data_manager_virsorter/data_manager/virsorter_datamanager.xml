@@ -18,8 +18,8 @@
         <requirement type="package" version="2.7.0">pulp</requirement> <!-- needs to be pinned, because the old-ish snakemake used in vs2 struggles with https://github.com/snakemake/snakemake/issues/2607 -->
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        mkdir -p '$out_file.extra_file_path'/db &&
-        virsorter setup -d '$out_file.extra_file_path'/db -j \${GALAXY_SLOTS:-1} --skip-deps-install &&
+        mkdir -p '$out_file.extra_files_path'/db &&
+        virsorter setup -d '$out_file.extra_files_path'/db -j \${GALAXY_SLOTS:-1} --skip-deps-install &&
         cp '$dmjson' '$out_file'
     ]]></command>
     <configfiles>

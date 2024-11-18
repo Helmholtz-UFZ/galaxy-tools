@@ -16,8 +16,8 @@
         cd checkv-db-v${version}/genome_db/ &&
         diamond makedb --in checkv_reps.faa --db checkv_reps &&
         cd - &&
-        mkdir -p '$out_file.extra_file_path' &&
-        mv checkv-db-v${version} '$out_file.extra_file_path'/checkv-db &&
+        mkdir -p '$out_file.extra_files_path' &&
+        mv checkv-db-v${version} '$out_file.extra_files_path'/checkv-db &&
         cp '$dmjson' '$out_file'
     ]]></command>
     <configfiles>

@@ -13,8 +13,8 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         set -eo pipefail; 
-        mkdir -p '$out_file.extra_file_path'/vibrant_db &&
-        download-db.sh '$out_file.extra_file_path'/vibrant_db &&
+        mkdir -p '$out_file.extra_files_path'/vibrant_db &&
+        download-db.sh '$out_file.extra_files_path'/vibrant_db &&
         cp '$dmjson' '$out_file'
     ]]></command>
     <configfiles>

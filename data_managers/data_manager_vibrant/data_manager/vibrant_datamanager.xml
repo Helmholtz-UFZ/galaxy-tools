@@ -2,7 +2,7 @@
     <description>database builder</description>
     <macros>
         <token name="@TOOL_VERSION@">1.2.1</token>
-        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@VERSION_SUFFIX@">1</token>
         <token name="@PROFILE@">22.01</token>
     </macros>
     <xrefs>
@@ -13,7 +13,8 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         set -eo pipefail; 
-        download-db.sh vibrant_db &&
+        mkdir -p '$out_file.extra_files_path'/vibrant_db &&
+        download-db.sh '$out_file.extra_files_path'/vibrant_db &&
         cp '$dmjson' '$out_file'
     ]]></command>
     <configfiles>

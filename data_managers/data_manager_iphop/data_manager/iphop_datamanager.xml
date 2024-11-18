@@ -2,16 +2,16 @@
     <description>database builder</description>
     <macros>
         <token name="@TOOL_VERSION@">1.3.3</token>
-        <token name="@VERSION_SUFFIX@">1</token>
+        <token name="@VERSION_SUFFIX@">2</token>
         <token name="@PROFILE@">22.01</token>
     </macros>
     <requirements>
         <requirement type="package" version="@TOOL_VERSION@">iphop</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        mkdir db &&
+        mkdir -p '$out_file.extra_files_path'/db &&
         iphop download
-            --db_dir db/
+            --db_dir '$out_file.extra_files_path'/db
             --db_version $db_version
             ## --full_verify  https://bitbucket.org/srouxjgi/iphop/issues/114/db-download-verification-error
             --no_prompt &&

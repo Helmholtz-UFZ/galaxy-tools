@@ -3,9 +3,9 @@
     <description>database builder</description>
     <macros>
         <token name="@TOOL_VERSION@">2.2.4</token>  <!-- when updating make sure to double check the db version -->
-        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@VERSION_SUFFIX@">1</token>
         <token name="@PROFILE@">22.01</token>
-        <!-- zenodo ID and therebut the version of the reference data is hardcoded in the current version virsorter:
+        <!-- zenodo ID and the version of the reference data is hardcoded in the current version virsorter:
              https://github.com/jiarong/VirSorter2/blob/c0dcac53f3373244bf1bd552a7c2104d53802df7/virsorter/rules/setup.smk#L13 
              check and update the DB version when updating the VS version 
              might also change/improve in the future https://github.com/jiarong/VirSorter2/issues/205#issuecomment-2184184977
@@ -18,7 +18,8 @@
         <requirement type="package" version="2.7.0">pulp</requirement> <!-- needs to be pinned, because the old-ish snakemake used in vs2 struggles with https://github.com/snakemake/snakemake/issues/2607 -->
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        virsorter setup -d db -j \${GALAXY_SLOTS:-1} --skip-deps-install &&
+        mkdir -p '$out_file.extra_file_path'/db &&
+        virsorter setup -d '$out_file.extra_file_path'/db -j \${GALAXY_SLOTS:-1} --skip-deps-install &&
         cp '$dmjson' '$out_file'
     ]]></command>
     <configfiles>

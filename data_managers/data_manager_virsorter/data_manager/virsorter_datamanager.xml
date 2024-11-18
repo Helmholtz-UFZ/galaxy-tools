@@ -19,7 +19,11 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mkdir -p '$out_file.extra_files_path'/db &&
-        virsorter setup -d '$out_file.extra_files_path'/db -j \${GALAXY_SLOTS:-1} --skip-deps-install &&
+        #if $test == "true"
+            touch '$out_file.extra_files_path'/db/test &&
+        #else
+            virsorter setup -d '$out_file.extra_files_path'/db -j \${GALAXY_SLOTS:-1} --skip-deps-install &&
+        #end if
         cp '$dmjson' '$out_file'
     ]]></command>
     <configfiles>
@@ -38,12 +42,15 @@
 }]]>
         </configfile>
     </configfiles>
-    <inputs/>
+    <inputs>
+        <param name="test" type="hidden"/>
+    </inputs>
     <outputs>
         <data name="out_file" format="data_manager_json" />
     </outputs>
     <tests>
         <test expect_num_outputs="1">
+            <param name="test" value="true"/>
             <output name="out_file">
                 <assert_contents>
                     <has_text text='"value":"@VIRSORTER_DB_VERSION@"'/>
@@ -51,6 +58,15 @@
                 </assert_contents>
             </output>
         </test>
+        <!-- 10GB test data seem to be to much for CI. but this test should be executed locally for updates
+        <test expect_num_outputs="1">
+            <output name="out_file">
+                <assert_contents>
+                    <has_text text='"value":"@VIRSORTER_DB_VERSION@"'/>
+                    <has_text text='"name":"Version @VIRSORTER_DB_VERSION@"'/>
+                </assert_contents>
+            </output>
+        </test> -->
     </tests>
     <help><![CDATA[
 Download and extract virsorter database version @VIRSORTER_DB_VERSION@ from zenodo (https://zenodo.org/records/4269607)

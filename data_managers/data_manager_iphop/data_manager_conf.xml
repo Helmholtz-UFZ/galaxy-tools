@@ -8,9 +8,9 @@
                 <column name="path" output_ref="out_file">
                     <move type="directory">
                         <source>${path}</source>
-                        <target base="${GALAXY_DATA_MANAGER_DATA_PATH}">iphop/${path}</target>
+                        <target base="${GALAXY_DATA_MANAGER_DATA_PATH}">iphop/${version}</target>
                     </move>
-                    <value_translation>${GALAXY_DATA_MANAGER_DATA_PATH}/iphop/${path}</value_translation>
+                    <value_translation>${GALAXY_DATA_MANAGER_DATA_PATH}/iphop/${version}</value_translation>
                     <value_translation type="function">abspath</value_translation>
                 </column>
             </output>

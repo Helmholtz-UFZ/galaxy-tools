@@ -3,7 +3,7 @@
     <description>database builder</description>
     <macros>
         <token name="@TOOL_VERSION@">2.2.4</token>  <!-- when updating make sure to double check the db version -->
-        <token name="@VERSION_SUFFIX@">1</token>
+        <token name="@VERSION_SUFFIX@">2</token>
         <token name="@PROFILE@">22.01</token>
         <!-- zenodo ID and the version of the reference data is hardcoded in the current version virsorter:
              https://github.com/jiarong/VirSorter2/blob/c0dcac53f3373244bf1bd552a7c2104d53802df7/virsorter/rules/setup.smk#L13 

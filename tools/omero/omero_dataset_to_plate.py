@@ -1,9 +1,9 @@
-import re
 import argparse
-from collections import defaultdict
+import re
 import json
 
 import omero
+from collections import defaultdict
 from omero.gateway import BlitzGateway
 from omero.rtypes import rint, rstring
 
@@ -14,7 +14,7 @@ def convert_dataset_to_plate(host, user, pws, port, dataset_id,
     Connect to OMERO server, convert a dataset to a plate using the specified regex for extracting well positions,
     optionally link the plate to a screen.
     """
-    conn = BlitzGateway(user, pws, host=host, port=port)
+    conn = BlitzGateway(user, pws, host=host, port=port, secure=True)
     if not conn.connect():
         raise ConnectionError("Failed to connect to OMERO server")
 

@@ -1,9 +1,9 @@
 import argparse
-import re
 import json
+import re
+from collections import defaultdict
 
 import omero
-from collections import defaultdict
 from omero.gateway import BlitzGateway
 from omero.rtypes import rint, rstring
 

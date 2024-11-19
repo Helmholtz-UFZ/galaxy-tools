@@ -34,7 +34,7 @@
            <param name="test_password" value="omero"/>
            <output name="log" value="dataset_conversion_log.txt" ftype="txt">
                <assert_contents>
-                   <has_text text="(SUCCESS: Images from Dataset 2 successfully added to Plate 1)"/>
+                   <has_text text="(SUCCESS: Images from Dataset 1 successfully added to Plate 1)"/>
                </assert_contents>
            </output>
        </test>

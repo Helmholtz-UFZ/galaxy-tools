@@ -191,9 +191,6 @@ jobs:
         omero tag create --name test_tag --desc 'description of my_tag'
         omero tag link Image:1 1
         echo "Created the dummy dataset into OMERO"
-        DID_HCS=$(omero obj new Dataset name='test_hcs_dts')
-        omero import -d $DID_HCS .github/dummy-hcs-omero
-        echo "Created the hcs dummy dataset into OMERO"
 
     # download or create large test data via script
     - name: Create test data

@@ -9,7 +9,7 @@ from omero.rtypes import rint, rstring
 
 
 def convert_dataset_to_plate(host, user, pws, port, dataset_id,
-                             log_file='metadata_import_log.txt'):
+                             log_file):
     """
     Connect to OMERO server, convert a dataset to a plate using the specified regex for extracting well positions,
     optionally link the plate to a screen.
@@ -18,13 +18,9 @@ def convert_dataset_to_plate(host, user, pws, port, dataset_id,
     if not conn.connect():
         raise ConnectionError("Failed to connect to OMERO server")
 
-    def log_error(message):
-        with open(log_file, 'w') as f:
-            f.write(f"ERROR: {message}\n")
-
-    def log_success(message):
-        with open(log_file, 'w') as f:
-            f.write(f"SUCCESS: {message}\n")
+    def log_message(message, status="INFO"):
+        with open(log_file, 'f') as f:
+            f.write(f"{status}: {message}\n")
 
     try:
         regex = r"(?:^|[_-])([A-Z])(\d{1,2})(?:[_-]|$)"
@@ -38,6 +34,8 @@ def convert_dataset_to_plate(host, user, pws, port, dataset_id,
         plate.name = rstring(dataset.getName())
         plate = update_service.saveAndReturnObject(plate)
 
+        log_message(f"Created plate with ID {plate.id.val} for dataset '{dataset.getName()}'.")
+
         # Extract well positions from filenames and group images
         images = list(dataset.listChildren())
         grouped_images = defaultdict(list)
@@ -47,6 +45,8 @@ def convert_dataset_to_plate(host, user, pws, port, dataset_id,
                 row_str, col = match.groups()
                 row, col = ord(row_str) - ord('A'), int(col) - 1
                 grouped_images[(row, col)].append(image)
+            else:
+                log_message(f"Image '{image.getName()}' does not match the regex.", "WARNING")
 
         # Add images to wells
         for (row, col), imgs_in_group in grouped_images.items():
@@ -63,15 +63,17 @@ def convert_dataset_to_plate(host, user, pws, port, dataset_id,
 
             try:
                 update_service.saveObject(well)
+                log_message(f"Successfully added images to well {chr(row + ord('A'))}{col + 1}.")
             except Exception as e:
-                log_error(f"Failed to add images to well {chr(row + ord('A'))}{col + 1}: {e}")
+                log_message(f"Failed to add images to well {chr(row + ord('A'))}{col + 1}: {e}", "ERROR")
                 return False
 
-        log_success(f"Images from Dataset {dataset_id} successfully added to Plate {plate.id.val}.")
+        log_message(f"Images from Dataset {dataset_id} successfully added to Plate {plate.id.val}.", "SUCCESS")
         conn.close()
 
     except Exception as e:
-        log_error(f"Connection error: {str(e)}")
+        log_message(f"An error occurred: {str(e)}", "ERROR")
+        conn.close()
 
 
 if __name__ == "__main__":

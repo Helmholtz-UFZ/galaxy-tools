@@ -19,7 +19,7 @@ def convert_dataset_to_plate(host, user, pws, port, dataset_id,
         raise ConnectionError("Failed to connect to OMERO server")
 
     def log_message(message, status="INFO"):
-        with open(log_file, 'w') as f:
+        with open(log_file, 'a') as f:
             f.write(f"{status}: {message}\n")
 
     try:

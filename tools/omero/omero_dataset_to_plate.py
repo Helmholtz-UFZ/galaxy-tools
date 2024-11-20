@@ -34,7 +34,7 @@ def convert_dataset_to_plate(host, user, pws, port, dataset_id,
         plate.name = rstring(dataset.getName())
         plate = update_service.saveAndReturnObject(plate)
 
-        log_message(f"Created plate with ID {plate.id.val} for dataset '{dataset.getName()}'.")
+        log_message(f"Created plate with ID {plate.id.val} for dataset '{dataset.getName()}'")
 
         # Extract well positions from filenames and group images
         images = list(dataset.listChildren())
@@ -63,12 +63,12 @@ def convert_dataset_to_plate(host, user, pws, port, dataset_id,
 
             try:
                 update_service.saveObject(well)
-                log_message(f"Successfully added images to well {chr(row + ord('A'))}{col + 1}.")
+                log_message(f"Successfully added images to well {chr(row + ord('A'))}{col + 1}")
             except Exception as e:
                 log_message(f"Failed to add images to well {chr(row + ord('A'))}{col + 1}: {e}", "ERROR")
                 return False
 
-        log_message(f"Images from Dataset {dataset_id} successfully added to Plate {plate.id.val}.", "SUCCESS")
+        log_message(f"Images from Dataset {dataset_id} successfully added to Plate {plate.id.val}", "SUCCESS")
         conn.close()
 
     except Exception as e:

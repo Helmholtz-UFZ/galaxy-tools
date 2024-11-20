@@ -34,6 +34,9 @@
            <param name="test_password" value="omero"/>
            <output name="log" value="dataset_conversion_log.txt" ftype="txt">
                <assert_contents>
+                   <has_text text="INFO: Created plate with ID 2 for dataset 'test_hcs_dts'."/>
+                   <has_text text="INFO: Successfully added images to well A03."/>
+                   <has_text text="INFO: Successfully added images to well H11."/>
                    <has_text text="SUCCESS: Images from Dataset 2 successfully added to Plate 1"/>
                </assert_contents>
            </output>

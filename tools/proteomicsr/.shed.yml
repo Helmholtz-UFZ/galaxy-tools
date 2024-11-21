@@ -1,0 +1,37 @@
+categories:
+- Proteomics
+description: Analysis Pipeline for Label-Based and Label-Free Proteomics Data
+long_description: |
+  Provided are functions suitable for the analysis of mass spectrometry-based
+  proteomics data, providing global information on protein abundance and
+  abundances of post-translational modifications (PTMs). However, at least in
+  parts, this package can be also used to analyse other omics, e.g. metabolomics
+  and transcriptomics. The package includes processing of fold changes (e.g.
+  from TMT or SILAC experiments) and intensities (e.g. from LFQ experiments).
+  Processing includes checking reproducibility (PCAs, correlation bubble plots,
+  sample-2-sample distance plots), identification of outliers (based on
+  Mahalanobis distance), log2 transformation, median normalization, filtering
+  for reliably identified proteins/sites, variance stabilization (based on the
+  'DEP' package), imputation (based on the 'DEP' package), calculation of
+  average log2(fold changes), p-values, and adjusted p-values. These basic
+  results are visualized (volcano plots, stacked bar charts of significant
+  changes, numbers of identified proteins). Enrichment analyses (using
+  'clusterProfiler') are conducted based on the gene sets stored in the MSigDB
+  (using 'msigdbr') and are visualized subsequently. Also enrichment results
+  obtained using the 'Ingenuity Pathway Analysis' tool (Qiagen) are visualized.
+  Weighted Gene Correlation Network Analysis ('WGCNA', including module
+  formation, module-trait correlation, identification of hub genes/key drivers,
+  visualization of results) is conducted. For PTM data, site intensities are
+  extracted based on Proteome Discoverer's Peptide Isoform table. Furthermore,
+  kinase enrichment for phosphoproteomics data using 'KinSwingR' can be
+  conducted.
+homepage_url: https://git.ufz.de/kratochv/proteomicsr
+owner: mbernt
+remote_repository_url: https://github.com/bernt-matthias/mb-galaxy-tools/tree/master/tools/proteomicsr
+type: unrestricted
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: "{{ tool_name }} (from the proteomicsr tool suite)"
+suite:
+  name: "suite_proteomicsr"
+  description: Analysis Pipeline for Label-Based and Label-Free Proteomics Data

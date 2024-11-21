@@ -1,4 +1,4 @@
-<tool id="singularity_scriptrunner" name="scriptrunner" version="0.1" profile="22.05">
+<tool id="singularity_scriptrunner" name="scriptrunner" version="0.1.1" profile="22.05">
     <description>singularity</description>
     <creator>
         <person givenName="Matthias" familyName="Bernt" email="m.bernt@ufz.de" />
@@ -44,6 +44,7 @@
                 '$p.type_cond.param'
             #end if
         #end for
+        | tee '$log'
     ]]></command>
     <configfiles>
         <configfile name="script">$code</configfile>
@@ -73,7 +74,7 @@
                 </param>
                 <when value="data">
                     <param name="param" type="data" format="data" label="Dataset"/>
-                    <param name="filename" type="text" label="File name" help="Set if you want to access the data set with a specific file name. Only alphanumeric characters, dash and underscore are allowed (all other characters are replaced by an undercore). Default is Galaxy's data set name.">
+                    <param name="filename" type="text" label="File name" help="Set if you want to access the data set with a specific file name (default is access via argument vector, see help). Data will be accessible at inputs/FILENAME, where FILENAME is the chosen file name. Only alphanumeric characters, dash and underscore are allowed (all other characters are replaced by an undercore). Default is Galaxy's data set name.">
                         <sanitizer invalid_char="_">
                             <valid initial="string.ascii_letters,string.digits">
                                 <add value="_" />
@@ -97,7 +98,8 @@
         </param>
     </inputs>
     <outputs>
-        <collection name="output" type="list" label="Outputs">
+        <data name="log" format="txt" label="${tool.name} on ${on_string}: Log"/>
+        <collection name="output" type="list" label="${tool.name} on ${on_string}: Outputs">
             <discover_datasets pattern="__designation_and_ext__"/>
         </collection>
     </outputs>
@@ -122,6 +124,11 @@
                     </assert_contents>
                 </element>
             </output_collection>
+            <output name="log">
+                <assert_contents>
+                    <has_n_lines n="0"/>
+                </assert_contents>
+            </output>
             <!-- but the data table this should use singularity and not use additional parameters to it (\-\-cleanenv) -->
             <assert_command>
                 <has_text text="singularity"/>
@@ -146,6 +153,11 @@
                     </assert_contents>
                 </element>
             </output_collection>
+            <output name="log">
+                <assert_contents>
+                    <has_n_lines n="0"/>
+                </assert_contents>
+            </output>
             <assert_stdout>
                 <has_line line="plotted inputs/custom_name.tsv"/>
             </assert_stdout>
@@ -166,6 +178,11 @@
                 </conditional>
             </repeat>
             <param name="code" value='import sys; import os; import pandas as pd; df = pd.read_hdf(sys.argv[1]); df.to_csv("data.csv", index=False, sep=",");'/>
+            <output name="log">
+                <assert_contents>
+                    <has_n_lines n="0"/>
+                </assert_contents>
+            </output>
             <output_collection name="output" type="list" count="1">
                 <element name="data" ftype="csv">
                     <assert_contents>
@@ -202,6 +219,12 @@
                     </assert_contents>
                 </element>
             </output_collection>
+            <output name="log">
+                <assert_contents>
+                    <has_n_lines n="1"/>
+                    <has_line line="some value"/>
+                </assert_contents>
+            </output>
             <assert_stdout>
                 <has_line line='some value'/>
             </assert_stdout>
@@ -226,6 +249,12 @@
                     </assert_contents>
                 </element>
             </output_collection>
+            <output name="log">
+                <assert_contents>
+                    <has_n_lines n="1"/>
+                    <has_line line="some value"/>
+                </assert_contents>
+            </output>
             <!-- but the data table this should use apptainer and not use any additional parameters to it -->
             <assert_command>
                 <has_text text="apptainer"/>
@@ -250,6 +279,12 @@
                     </assert_contents>
                 </element>
             </output_collection>
+            <output name="log">
+                <assert_contents>
+                    <has_n_lines n="1"/>
+                    <has_line line='[1] "plotted inputs/custom_name.tsv"'/>
+                </assert_contents>
+            </output>
             <assert_stdout>
                 <has_line line='[1] "plotted inputs/custom_name.tsv"'/>
             </assert_stdout>
@@ -275,6 +310,12 @@
                 </conditional>
             </repeat>
             <param name="code" value='args = commandArgs(trailingOnly = TRUE); data = readRDS(args[1]); write.csv(data, "data.csv", row.names=FALSE)'/>
+            <output name="log">
+                <assert_contents>
+                    <has_n_lines n="1"/>
+                    <has_line line='[1] "plotted inputs/custom_name.tsv"'/>
+                </assert_contents>
+            </output>
             <output_collection name="output" type="list" count="1">
                 <element name="data" ftype="csv">
                     <assert_contents>
@@ -311,6 +352,19 @@
                     </assert_contents>
                 </element>
             </output_collection>
+            <output name="log">
+                <assert_contents>
+                    <has_n_lines n="1"/>
+                    <has_line line='[1] "plotted inputs/custom_name.tsv"'/>
+                </assert_contents>
+            </output>
+
+            <output name="log">
+                <assert_contents>
+                    <has_n_lines n="1"/>
+                    <has_line line='[1] "plotted inputs/custom_name.tsv"'/>
+                </assert_contents>
+            </output>
             <assert_stdout>
                 <has_line line='[1] "some value"'/>
             </assert_stdout>
@@ -335,6 +389,12 @@
                     </assert_contents>
                 </element>
             </output_collection>
+            <output name="log">
+                <assert_contents>
+                    <has_n_lines n="1"/>
+                    <has_line line='[1] "plotted inputs/custom_name.tsv"'/>
+                </assert_contents>
+            </output>
         </test>
 
         <!-- check that we can turn off networking -->

@@ -14,6 +14,8 @@
        @HOST_PORT@
        --dataset_id '$dataset_id'
        --log_file '$log'
+       --mapping_file '$mapping'
+       --delete_dataset '$delete_dataset'
    ]]></command>
    <configfiles>
        <expand macro="credentials"/>
@@ -21,6 +23,8 @@
    <inputs>
        <expand macro="host_port"/>
        <param name="dataset_id" type="integer" optional="false" label="Dataset ID to convert to a plate"/>
+       <param name="mapping" type="data" format= "tabular" optional="false" label="Mapping file"/>
+       <param name="delete_dataset" type="boolean" truevalue="True" falsevalue="False" checked="false" label="Delete Dataset" help="Delete dataset after import"/>
    </inputs>
    <outputs>
        <data name="log" format="txt"/>
@@ -32,15 +36,30 @@
            <param name="dataset_id" value="2"/>
            <param name="test_username" value="root"/>
            <param name="test_password" value="omero"/>
+           <param name="mapping" value="mapping.tsv"/>
+           <param name="delete_dataset" value="True"/>
            <output name="log" value="dataset_conversion_log.txt" ftype="txt">
                <assert_contents>
-                   <has_text text="INFO: Created plate with ID 1 for dataset 'test_hcs_dts'"/>
+                   <has_text text="SUCCESS: Images from Dataset 2 successfully added to Plate 1"/>
                </assert_contents>
            </output>
        </test>
    </tests>
    <help>
-       @SECURITY_DISCLAIMER@
+Description
+-----------
+- Tool to convert an existing dataset to a plate in OMERO
+- The tool is taking as input a mapping tabular file with Filename and Well Position:
+  +------------+---------------+
+  | Filename   | Well          |
+  +============+===============+
+  | image1.tiff| A2            |
+  +------------+---------------+
+  | image2.tiff| B5            |
+  +------------+---------------+
+  | image3.tiff| H12           |
+  +------------+---------------+
+@SECURITY_DISCLAIMER@
    </help>
    <citations>
        <citation type="doi">10.1038/nmeth.1896</citation>

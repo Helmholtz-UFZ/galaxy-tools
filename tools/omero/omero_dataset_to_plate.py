@@ -2,78 +2,95 @@ import argparse
 import json
 import re
 from collections import defaultdict
+import csv
+import sys
 
 import omero
 from omero.gateway import BlitzGateway
 from omero.rtypes import rint, rstring
 
 
-def convert_dataset_to_plate(host, user, pws, port, dataset_id,
-                             log_file):
+def convert_dataset_to_plate(host, user, pws, port, dataset_id, log_file, mapping_file, delete_dataset):
     """
-    Connect to OMERO server, convert a dataset to a plate using the specified regex for extracting well positions,
-    optionally link the plate to a screen.
+    Connect to OMERO server, convert a dataset to a plate using the specified well mapping file
     """
     conn = BlitzGateway(user, pws, host=host, port=port, secure=True)
     if not conn.connect():
-        raise ConnectionError("Failed to connect to OMERO server")
+        sys.exit("ERROR: Failed to connect to OMERO server")
 
     def log_message(message, status="INFO"):
         with open(log_file, 'a') as f:
             f.write(f"{status}: {message}\n")
 
-    try:
-        regex = r"(?:^|[_-])([A-Z])(\d{1,2})(?:[_-]|$)"
-        dataset = conn.getObject("Dataset", dataset_id)
-        if dataset is None:
-            raise ValueError("Dataset not found")
+    dataset = conn.getObject("Dataset", dataset_id)
+    if dataset is None:
+        conn.close()
+        sys.exit("ERROR: Dataset not found")
 
-        update_service = conn.getUpdateService()
+    update_service = conn.getUpdateService()
+    plate = omero.model.PlateI()
+    plate.name = rstring(dataset.getName())
+    plate = update_service.saveAndReturnObject(plate)
 
-        plate = omero.model.PlateI()
-        plate.name = rstring(dataset.getName())
-        plate = update_service.saveAndReturnObject(plate)
+    image_to_well_mapping = {}
+    if mapping_file:
+        with open(mapping_file, 'r') as f:
+            reader = csv.DictReader(f, delimiter='\t')
+            for row in reader:
+                filename = row['Filename']
+                well = row['Well']
+                match = re.match(r"([A-Z])(\d+)", well)
+                if match:
+                    row_char, col = match.groups()
+                    row = ord(row_char.upper()) - ord('A')
+                    col = int(col) - 1
+                    image_to_well_mapping[filename] = (row, col)
+                else:
+                    conn.close()
+                    sys.exit(f"Invalid well format '{well}' for file '{filename}'")
 
-        log_message(f"Created plate with ID {plate.id.val} for dataset '{dataset.getName()}'")
+    images = list(dataset.listChildren())
+    if not images:
+        conn.close()
+        sys.exit("ERROR: No images found in dataset")
 
-        # Extract well positions from filenames and group images
-        images = list(dataset.listChildren())
-        grouped_images = defaultdict(list)
-        for image in images:
-            match = re.search(regex, image.getName())
-            if match:
-                row_str, col = match.groups()
-                row, col = ord(row_str) - ord('A'), int(col) - 1
+    grouped_images = defaultdict(list)
+    for image in images:
+        image_name = image.getName()
+        if image_to_well_mapping:
+            if image_name in image_to_well_mapping:
+                row, col = image_to_well_mapping[image_name]
                 grouped_images[(row, col)].append(image)
             else:
-                log_message(f"Image '{image.getName()}' does not match the regex.", "WARNING")
+                conn.close()
+                sys.exit(f"Image '{image_name}' not found in mapping file.")
+        else:
+            conn.close()
+            sys.exit("ERROR: No mapping file provided")
 
-        # Add images to wells
-        for (row, col), imgs_in_group in grouped_images.items():
-            well = omero.model.WellI()
-            well.plate = omero.model.PlateI(plate.id.val, False)
-            well.column = rint(col)
-            well.row = rint(row)
+    for (row, col), imgs_in_group in grouped_images.items():
+        well = omero.model.WellI()
+        well.plate = omero.model.PlateI(plate.id.val, False)
+        well.column = rint(col)
+        well.row = rint(row)
 
-            for image in imgs_in_group:
-                ws = omero.model.WellSampleI()
-                ws.image = omero.model.ImageI(image.id, False)
-                ws.well = well
-                well.addWellSample(ws)
+        for image in imgs_in_group:
+            ws = omero.model.WellSampleI()
+            ws.image = omero.model.ImageI(image.id, False)
+            ws.well = well
+            well.addWellSample(ws)
 
-            try:
-                update_service.saveObject(well)
-                log_message(f"Successfully added images to well {chr(row + ord('A'))}{col + 1}")
-            except Exception as e:
-                log_message(f"Failed to add images to well {chr(row + ord('A'))}{col + 1}: {e}", "ERROR")
-                return False
+        try:
+            update_service.saveObject(well)
+        except:
+            conn.close()
+            sys.exit("ERROR: Failed to update plate for dataset '{}'".format(dataset.getName()))
 
-        log_message(f"Images from Dataset {dataset_id} successfully added to Plate {plate.id.val}", "SUCCESS")
-        conn.close()
-
-    except Exception as e:
-        log_message(f"An error occurred: {str(e)}", "ERROR")
-        conn.close()
+    if delete_dataset is True:
+        obj_del = [dataset_id]
+        conn.deleteObjects("Dataset", obj_del, wait = True)
+    log_message(f"Images from Dataset {dataset_id} successfully added to Plate {plate.id.val}", "SUCCESS")
+    conn.close()
 
 
 if __name__ == "__main__":
@@ -83,11 +100,24 @@ if __name__ == "__main__":
     parser.add_argument('--host', required=True, help='OMERO host')
     parser.add_argument('--port', required=True, type=int, help='OMERO port')
     parser.add_argument('--dataset_id', type=int, required=True, help="Dataset ID to convert plate")
-    parser.add_argument('--log_file', default='metadata_import_log.txt', help='Path to the log file')
+    parser.add_argument('--log_file', default='metadata_import_log.txt',
+                        help='Path to the log file')
+    parser.add_argument('--mapping_file',
+                        help='Tabular file mapping filenames to well positions (2 columns: filename, Well)')
+    parser.add_argument('--delete_dataset', required=True, type=bool,
+                        help='Delete the original dataset or not')
     args = parser.parse_args()
 
     with open(args.credential_file, 'r') as f:
         crds = json.load(f)
 
-    convert_dataset_to_plate(user=crds['username'], pws=crds['password'], host=args.host, port=args.port,
-                             dataset_id=args.dataset_id, log_file=args.log_file)
+    convert_dataset_to_plate(
+        user=crds['username'],
+        pws=crds['password'],
+        host=args.host,
+        port=args.port,
+        dataset_id=args.dataset_id,
+        log_file=args.log_file,
+        mapping_file=args.mapping_file,
+        delete_dataset=args.delete_dataset
+    )

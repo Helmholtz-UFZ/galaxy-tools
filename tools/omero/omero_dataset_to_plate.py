@@ -1,9 +1,10 @@
 import argparse
+import csv
 import json
 import re
-from collections import defaultdict
-import csv
 import sys
+from collections import defaultdict
+
 
 import omero
 from omero.gateway import BlitzGateway
@@ -19,8 +20,8 @@ def convert_dataset_to_plate(host, user, pws, port, dataset_id, log_file, mappin
         sys.exit("ERROR: Failed to connect to OMERO server")
 
     def log_message(message, status="INFO"):
-        with open(log_file, 'a') as f:
-            f.write(f"{status}: {message}\n")
+        with open(log_file, 'w') as f:
+            f.write(f"{message}\n")
 
     dataset = conn.getObject("Dataset", dataset_id)
     if dataset is None:
@@ -28,10 +29,13 @@ def convert_dataset_to_plate(host, user, pws, port, dataset_id, log_file, mappin
         sys.exit("ERROR: Dataset not found")
 
     update_service = conn.getUpdateService()
+
+    # Create a Plate
     plate = omero.model.PlateI()
     plate.name = rstring(dataset.getName())
     plate = update_service.saveAndReturnObject(plate)
 
+    # Parse the mapping file
     image_to_well_mapping = {}
     if mapping_file:
         with open(mapping_file, 'r') as f:
@@ -49,11 +53,13 @@ def convert_dataset_to_plate(host, user, pws, port, dataset_id, log_file, mappin
                     conn.close()
                     sys.exit(f"Invalid well format '{well}' for file '{filename}'")
 
+    # List the dataset children
     images = list(dataset.listChildren())
     if not images:
         conn.close()
         sys.exit("ERROR: No images found in dataset")
 
+    # Compare images in the mapping file and in the dataset
     grouped_images = defaultdict(list)
     for image in images:
         image_name = image.getName()
@@ -68,6 +74,7 @@ def convert_dataset_to_plate(host, user, pws, port, dataset_id, log_file, mappin
             conn.close()
             sys.exit("ERROR: No mapping file provided")
 
+    # Assign images to the well based on the mapping file
     for (row, col), imgs_in_group in grouped_images.items():
         well = omero.model.WellI()
         well.plate = omero.model.PlateI(plate.id.val, False)
@@ -86,9 +93,10 @@ def convert_dataset_to_plate(host, user, pws, port, dataset_id, log_file, mappin
             conn.close()
             sys.exit("ERROR: Failed to update plate for dataset '{}' due to: {}".format(dataset.getName(), str(e)))
 
+    # Close the connection and, in case, delete the dataset
     if delete_dataset is True:
         conn.deleteObjects("Dataset", [dataset_id], wait=True)
-    log_message(f"Images from Dataset {dataset_id} successfully added to Plate {plate.id.val}", "SUCCESS")
+    log_message(f"Images from Dataset {dataset_id} successfully added to Plate {plate.id.val}")
     conn.close()
 
 

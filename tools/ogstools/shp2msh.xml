@@ -1,10 +1,12 @@
-<tool id="shp2msh" name="ogstools shp2msh" version="0.1.0+galaxy0" profile="21.05">
+<tool id="shp2msh" name="ogstools shp2msh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
     <description>
         Convert shp to vtu.
     </description>
-    <requirements>
-        <requirement type="package" version="0.4.0">ogstools</requirement>
-    </requirements>
+    <macros>
+        <import>macros.xml</import>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <expand macro="ogsTools_requirements"/>
     <command detect_errors="exit_code"><![CDATA[
         export SHAPE_RESTORE_SHX=YES &&    
         ln -s '$input_shp' input.shp &&
@@ -56,7 +58,5 @@
 
             **Output VTU Files:** The converted mesh as a VTU file.
     ]]></help>
-    <citations>
-        <citation type="doi">10.5281/zenodo.13685289</citation>
-    </citations>
+    <expand macro="ogs_citation"/>
 </tool>

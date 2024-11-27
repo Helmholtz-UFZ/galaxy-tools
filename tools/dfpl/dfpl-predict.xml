@@ -7,7 +7,7 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
     set -euxo pipefail
-    ; cp '$fnn_weights' model_weights.hdf5
+    ; cp '$fnn_weights' model_weights.h5
     ; cp '$autoencoder_weights' encoder_weights.h5
     ; cat '$inputs'
     | python '$__tool_directory__/json_flatten.py'
@@ -74,7 +74,7 @@
             <param name="aeType" value="deterministic"/>
             <param name="compressFeatures" value="true"/>
             <param name="inputFile" value="S_dataset.csv"/>
-            <param name="fnn_weights" value="model_weights.hdf5"/>
+            <param name="fnn_weights" value="model_weights.h5"/>
             <param name="autoencoder_weights" value="encoder_weights.h5"/>
         </test>
     </tests>

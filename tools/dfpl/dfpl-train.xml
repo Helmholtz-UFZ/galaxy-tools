@@ -15,7 +15,7 @@
     ; mkdir -p 'model'
     ; dfpl train --configFile config.json
     ; cp 'autoencoder/encoder_weights.h5' '$output_autoencoder_weights'
-    ; cp 'model/${model_configuration.target}/model_weights.hdf5' '$output_model_weights'
+    ; cp 'model/${model_configuration.target}/model_weights.h5' '$output_model_weights'
     ]]></command>
     <configfiles>
         <inputs name="inputs" data_style="paths"/>

@@ -13,9 +13,7 @@
     > config.json
     ; mkdir -p 'autoencoder'
     ; mkdir -p 'model'
-    ; tree -nX
     ; dfpl train --configFile config.json
-    ; tree -nX
     ; cp 'autoencoder/encoder_weights.h5' '$output_autoencoder_weights'
     ; cp 'model/${model_configuration.target}/model_weights.hdf5' '$output_model_weights'
     ]]></command>
@@ -143,7 +141,7 @@
                             <option value="deterministic" selected="true">Deterministic</option>
                         </param>
                         <param label="Epochs" argument="--aeEpochs"
-                               type="integer" min="1" value="100" optional="true"
+                               type="integer" min="5" value="100" optional="true"
                                help="Number of epochs for autoencoder training."/>
                         <param label="Batch Size" argument="--aeBatchSize"
                                type="integer" min="1" value="512" optional="true"
@@ -224,7 +222,7 @@
             <param name="compressFeatures" value="true"/>
             <param name="encFPSize" value="256"/>
             <param name="aeSplitType" value="random"/>
-            <param name="aeEpochs" value="2"/>
+            <param name="aeEpochs" value="5"/>
             <param name="aeBatchSize" value="351"/>
             <param name="aeActivationFunction" value="relu"/>
             <param name="aeLearningRate" value="0.001"/>

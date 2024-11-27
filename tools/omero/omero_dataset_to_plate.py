@@ -21,7 +21,7 @@ def convert_dataset_to_plate(host, user, pws, port, dataset_id, log_file, mappin
 
     def log_message(message, status="INFO"):
         with open(log_file, 'w') as f:
-            f.write(f"{message}\n")
+            f.write(f"{message}")
 
     dataset = conn.getObject("Dataset", dataset_id)
     if dataset is None:

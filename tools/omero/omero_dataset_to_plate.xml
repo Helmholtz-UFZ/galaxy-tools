@@ -9,7 +9,7 @@
    </xrefs>
    <expand macro="omeropy_requirements"/>
    <command detect_errors="exit_code"><![CDATA[
-       python $__tool_directory__/omero_dataset_to_plate.py
+       python '$__tool_directory__/omero_dataset_to_plate.py'
        --credential-file '$credentials'
        @HOST_PORT@
        --dataset_id '$dataset_id'

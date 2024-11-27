@@ -40,7 +40,7 @@
            <param name="delete_dataset" value="True"/>
            <output name="log" value="dataset_conversion_log.txt" ftype="txt">
                <assert_contents>
-                   <has_text text="SUCCESS: Images from Dataset 2 successfully added to Plate 1"/>
+                   <has_text text="Images from Dataset 2 successfully added to Plate 1"/>
                </assert_contents>
            </output>
        </test>

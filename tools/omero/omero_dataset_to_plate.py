@@ -82,13 +82,12 @@ def convert_dataset_to_plate(host, user, pws, port, dataset_id, log_file, mappin
 
         try:
             update_service.saveObject(well)
-        except:
+        except ValueError as e:
             conn.close()
-            sys.exit("ERROR: Failed to update plate for dataset '{}'".format(dataset.getName()))
+            sys.exit("ERROR: Failed to update plate for dataset '{}' due to: {}".format(dataset.getName(), str(e)))
 
     if delete_dataset is True:
-        obj_del = [dataset_id]
-        conn.deleteObjects("Dataset", obj_del, wait = True)
+        conn.deleteObjects("Dataset", [dataset_id], wait=True)
     log_message(f"Images from Dataset {dataset_id} successfully added to Plate {plate.id.val}", "SUCCESS")
     conn.close()
 

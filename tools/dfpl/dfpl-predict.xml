@@ -7,14 +7,12 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
     set -euxo pipefail
-    ; cp '$fnn_weights' model_weights.h5
-    ; cp '$autoencoder_weights' encoder_weights.h5
+    ; ln -s '$fnn_weights' model_weights.h5
+    ; ln -s '$autoencoder_weights' encoder_weights.h5
     ; cat '$inputs'
     | python '$__tool_directory__/json_flatten.py'
     | python '$__tool_directory__/json_predict.py'
     > config.json
-    ; cat config.json
-    ; file '$files.inputFile'
     ; dfpl predict --configFile config.json
     ; cp predictions.csv '$outputFile'
     ]]></command>

@@ -1,6 +1,6 @@
 <tool id="dfpl-predict" name="dfpl predict" version="@TOOL_VERSION@+galaxy0" profile="23.0">
     <macros>
-        <token name="@TOOL_VERSION@">2.0</token>
+        <token name="@TOOL_VERSION@">2.1</token>
     </macros>
     <requirements>
         <requirement type="package" version="@TOOL_VERSION@">deepfplearn</requirement>
@@ -76,6 +76,15 @@
             <param name="inputFile" value="S_dataset.csv"/>
             <param name="fnn_weights" value="model_weights.h5"/>
             <param name="autoencoder_weights" value="encoder_weights.h5"/>
+            <output name="outputFile">
+                <assert_contents>
+                    <has_n_lines n="7249"/>
+                    <has_n_columns n="10" sep=","/>
+                </assert_contents>
+            </output>
+            <assert_stderr>
+                <has_text text="Prediction successful"/>
+            </assert_stderr>
         </test>
     </tests>
     <help><![CDATA[

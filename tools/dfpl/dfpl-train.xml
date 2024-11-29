@@ -1,6 +1,6 @@
 <tool id="dfpl-train" name="dfpl train" version="@TOOL_VERSION@+galaxy0" profile="23.0">
     <macros>
-        <token name="@TOOL_VERSION@">2.0</token>
+        <token name="@TOOL_VERSION@">2.1</token>
     </macros>
     <requirements>
         <requirement type="package" version="@TOOL_VERSION@">deepfplearn</requirement>
@@ -251,6 +251,19 @@
             <param name="aeWabTracking" value="false"/>
             <param name="wabTracking" value="false"/>
             <!--            todo: add tests for svg, csv -->
+            <output name="output_model_weights">
+                <assert_contents>
+                     <has_size size="1K" delta="100"/>
+                </assert_contents>
+            </output>
+            <output name="output_autoencoder_weights">
+                <assert_contents>
+                     <has_size size="2K" delta="100"/>
+                </assert_contents>
+            </output>
+            <assert_stderr>
+                <has_text text="Evaluating trained model"/>
+            </assert_stderr>
         </test>
     </tests>
     <help><![CDATA[

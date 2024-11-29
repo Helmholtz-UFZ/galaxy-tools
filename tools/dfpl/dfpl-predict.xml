@@ -1,4 +1,5 @@
-<tool id="dfpl-predict" name="dfpl predict" version="@TOOL_VERSION@+galaxy0" profile="23.0">
+<tool id="dfpl-predict" name="deepFPlearn predict" version="@TOOL_VERSION@+galaxy0" profile="23.0">
+    <description>association of molecular structures to biological targets</description>
     <macros>
         <import>macros.xml</import>
     </macros>

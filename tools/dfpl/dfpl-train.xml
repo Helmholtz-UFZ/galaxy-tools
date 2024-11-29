@@ -6,16 +6,16 @@
         <requirement type="package" version="@TOOL_VERSION@">deepfplearn</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-    set -euxo pipefail
-    ; cat '$inputs'
-    | python '$__tool_directory__/json_flatten.py'
-    | python '$__tool_directory__/json_train.py'
-    > config.json
-    ; mkdir -p 'autoencoder'
-    ; mkdir -p 'model'
-    ; dfpl train --configFile config.json
-    ; cp 'autoencoder/encoder_weights.h5' '$output_autoencoder_weights'
-    ; cp 'model/${model_configuration.target}/model_weights.h5' '$output_model_weights'
+    set -o pipefail;
+    cat '$inputs'
+       | python '$__tool_directory__/json_flatten.py'
+       | python '$__tool_directory__/json_train.py'
+       > config.json &&
+    mkdir -p 'autoencoder' &&
+    mkdir -p 'model' &&
+    dfpl train --configFile config.json &&
+    cp 'autoencoder/encoder_weights.h5' '$output_autoencoder_weights' &&
+    cp 'model/${model_configuration.target}/model_weights.h5' '$output_model_weights'
     ]]></command>
     <configfiles>
         <inputs name="inputs" data_style="paths"/>

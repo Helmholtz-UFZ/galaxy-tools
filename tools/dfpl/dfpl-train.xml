@@ -1,10 +1,8 @@
 <tool id="dfpl-train" name="dfpl train" version="@TOOL_VERSION@+galaxy0" profile="23.0">
     <macros>
-        <token name="@TOOL_VERSION@">2.1</token>
+        <import>macros.xml</import>
     </macros>
-    <requirements>
-        <requirement type="package" version="@TOOL_VERSION@">deepfplearn</requirement>
-    </requirements>
+    <expand macro="requirements"/>
     <command detect_errors="exit_code"><![CDATA[
     set -o pipefail;
     cat '$inputs'
@@ -302,8 +300,5 @@
 
     - the training histories as a plot (``.svg``)
     ]]></help>
-    <citations>
-        <citation type="doi">https://doi.org/10.1093/bioinformatics/btad713</citation>
-        <citation type="doi">https://doi.org/10.1093/bib/bbac257</citation>
-    </citations>
+    <expand macro="citations"/>
 </tool>

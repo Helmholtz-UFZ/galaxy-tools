@@ -115,11 +115,13 @@
         </section>
         <conditional name="autoencoder">
             <param label="Compress Fingerprints with Autoencoder"
-                   argument="--compressFeatures" type="boolean"
-                   checked="false"
+                   argument="--compressFeatures" type="select"
                    help="Compress the fingerprints using an autoencoder.
                    Either uses an already trained autoencoder (requires a weights file)
-                   or creates and trains a new autoencoder."/>
+                   or creates and trains a new autoencoder.">
+                  <option value="true">Yes</option>
+                  <option value="false" selected="true">No</option>
+              </param>
             <when value="true">
                 <conditional name="train-autoencoder">
                     <param label="Load / Train Autoencoder" argument="--trainAC"
@@ -180,6 +182,7 @@
                     </when>
                 </conditional>
             </when>
+            <when value="false"/>
         </conditional>
         <section title="Logging" name="logging_configuration" expanded="false">
             <param label="Verbosity Level" argument="--verbose"
@@ -215,41 +218,51 @@
     </outputs>
     <tests>
         <test>
-            <param name="inputFile" value="S_dataset.csv"/>
-            <param name="target" value="Aromatase"/>
-            <param name="verbose" value="2"/>
-            <param name="trainAC" value="true"/>
-            <param name="compressFeatures" value="true"/>
-            <param name="encFPSize" value="256"/>
-            <param name="aeSplitType" value="random"/>
-            <param name="aeEpochs" value="5"/>
-            <param name="aeBatchSize" value="351"/>
-            <param name="aeActivationFunction" value="relu"/>
-            <param name="aeLearningRate" value="0.001"/>
-            <param name="aeLearningRateDecay" value="0.0001"/>
-            <param name="aeType" value="deterministic"/>
-            <param name="type" value="smiles"/>
-            <param name="fpType" value="topological"/>
-            <param name="fpSize" value="2048"/>
-            <param name="split_type" value="random"/>
-            <param name="enableMultiLabel" value="false"/>
-            <param name="sampleFractionOnes" value="0"/>
-            <param name="sampleDown" value="false"/>
-            <param name="trainFNN" value="true"/>
-            <param name="kFolds" value="1"/>
-            <param name="threshold" value="0.5"/>
-            <param name="testSize" value="0.2"/>
-            <param name="fnnType" value="FNN"/>
-            <param name="optimizer" value="Adam"/>
-            <param name="lossFunction" value="bce"/>
-            <param name="epochs" value="10"/>
-            <param name="batchSize" value="128"/>
-            <param name="activationFunction" value="selu"/>
-            <param name="dropout" value="0.0107"/>
-            <param name="learningRate" value="2.2e-06"/>
-            <param name="l2reg" value="0.001"/>
-            <param name="aeWabTracking" value="false"/>
-            <param name="wabTracking" value="false"/>
+            <section name="model_configuration">
+                <param name="inputFile" value="S_dataset.csv"/>
+                <param name="target" value="Aromatase"/>
+                <param name="type" value="smiles"/>
+                <param name="fpType" value="topological"/>
+                <param name="fpSize" value="2048"/>
+                <param name="enableMultiLabel" value="false"/>
+                <param name="threshold" value="0.5"/>
+            </section>
+            <section name="training_configuration">
+                <param name="split_type" value="random"/>
+                <param name="sampleFractionOnes" value="0"/>
+                <param name="sampleDown" value="false"/>
+                <param name="trainFNN" value="true"/>
+                <param name="kFolds" value="1"/>
+                <param name="testSize" value="0.2"/>
+                <param name="optimizer" value="Adam"/>
+                <param name="lossFunction" value="bce"/>
+                <param name="epochs" value="10"/>
+                <param name="batchSize" value="128"/>
+                <param name="activationFunction" value="selu"/>
+                <param name="dropout" value="0.0107"/>
+                <param name="learningRate" value="2.2e-06"/>
+                <param name="l2reg" value="0.001"/>
+            </section>
+            <conditional name="autoencoder">
+                <param name="compressFeatures" value="true"/>
+                <conditional name="train-autoencoder">
+                <param name="trainAC" value="true"/>
+                <param name="encFPSize" value="256"/>
+                <param name="aeSplitType" value="random"/>
+                <param name="aeEpochs" value="5"/>
+                <param name="aeBatchSize" value="351"/>
+                <param name="aeActivationFunction" value="relu"/>
+                <param name="aeLearningRate" value="0.001"/>
+                <param name="aeLearningRateDecay" value="0.0001"/>
+                <param name="aeType" value="deterministic"/>
+                <param name="fnnType" value="FNN"/>
+            </conditional>
+            </conditional>
+            <!-- <param name="aeWabTracking" value="false"/>
+            <param name="wabTracking" value="false"/> -->
+            <section name="logging_configuration">
+                <param name="verbose" value="2"/>
+            </section>
             <!--            todo: add tests for svg, csv -->
             <output name="output_model_weights">
                 <assert_contents>

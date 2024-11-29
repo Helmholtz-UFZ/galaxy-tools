@@ -69,13 +69,17 @@
     </outputs>
     <tests>
         <test>
-            <param name="type" value="smiles"/>
-            <param name="fpType" value="topological"/>
-            <param name="aeType" value="deterministic"/>
-            <param name="compressFeatures" value="true"/>
-            <param name="inputFile" value="S_dataset.csv"/>
-            <param name="fnn_weights" value="model_weights.h5"/>
-            <param name="autoencoder_weights" value="encoder_weights.h5"/>
+            <section name="general_configuration">
+                <param name="type" value="smiles"/>
+                <param name="fpType" value="topological"/>
+                <param name="aeType" value="deterministic"/>
+                <param name="compressFeatures" value="true"/>
+            </section>
+            <section name="files">
+                <param name="inputFile" value="S_dataset.csv"/>
+                <param name="fnn_weights" value="model_weights.h5"/>
+                <param name="autoencoder_weights" value="encoder_weights.h5"/>
+            </section>
             <output name="outputFile">
                 <assert_contents>
                     <has_n_lines n="7249"/>

@@ -27,7 +27,9 @@
                    help="The file containing the data for training in comma separated CSV format. The first column should be smiles."/>
             <param label="Target" name="target"
                    type="text" optional="false"
-                   help="The target column in the input file that should be trained for."/>
+                   help="The target column in the input file that should be trained for.">
+                <validator type="empty_field" message="A column name must be specified"/>
+            </param>
             <param label="Chemical Representation" argument="--type"
                    type="select" optional="true"
                    help="Type of the chemical representation.">

@@ -22,7 +22,7 @@
     <inputs>
         <expand macro="host_port"/>
         <param argument="input" type="data" format="tabular" optional="false" label="Tab File with ROIs" help="Select ROIs Tabular file"/>
-        <param argument="id" type="integer" value="" optional="false" label="Image ID where annotate the ROIs"/>
+        <param argument="id" type="integer" value="" optional="false" min = "1" label="Image ID where annotate the ROIs"/>
     </inputs>
     <outputs>
         <data name="log" format="txt"/>

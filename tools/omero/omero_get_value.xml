@@ -41,7 +41,7 @@
                 </param>
             </when>
             <when value="file">
-                <param argument="--ids_path" type="data" format="txt,tabular" label="Dataset with ID(s) of the object(s) to fetch on OMERO (one per line)"/>
+                <param argument="--ids_path" type="data" format="txt,tabular" min="1" label="Dataset with ID(s) of the object(s) to fetch on OMERO (one per line)"/>
             </when>
         </conditional>
     </inputs>

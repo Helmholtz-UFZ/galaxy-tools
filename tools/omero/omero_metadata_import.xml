@@ -35,13 +35,13 @@
             <option value="image">Image</option>
         </param>
         <conditional name="object_id">
-        <param name="object_id_selection" type="select" label="Selection"  help="Create a new OMERO object or target an existing one">
+        <param name="object_id_selection" type="select" label="Selection" help="Create a new OMERO object or target an existing one">
             <option value="new_object">Create new object</option>
             <option value="existing_object">Target an existing object</option>
         </param>
         <when value="new_object"/>
         <when value="existing_object">
-            <param name="did" type="integer" value="" optional="false" label="Object ID"/>
+            <param name="did" type="integer" value="0" min = "1" optional="false" label="Object ID"/>
         </when>
         </conditional>
         <param argument="ann_type" type="select" optional="false" label="Annotation type" help="Select annotation format">

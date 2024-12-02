@@ -30,6 +30,8 @@
             <option value="project">Project</option>
             <option value="screen">Screen</option>
             <option value="dataset">Dataset</option>
+            <option value="plate">Plate</option>
+            <option value="well">Well</option>
             <option value="image">Image</option>
         </param>
         <conditional name="object_id">

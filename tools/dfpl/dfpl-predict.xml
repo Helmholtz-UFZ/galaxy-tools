@@ -1,6 +1,6 @@
 <tool id="dfpl-predict" name="dfpl predict" version="@TOOL_VERSION@+galaxy0" profile="23.0">
     <macros>
-        <token name="@TOOL_VERSION@">2.0</token>
+        <token name="@TOOL_VERSION@">2.1</token>
     </macros>
     <requirements>
         <requirement type="package" version="@TOOL_VERSION@">deepfplearn</requirement>

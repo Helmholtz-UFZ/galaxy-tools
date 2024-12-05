@@ -1,21 +1,20 @@
-<tool id="dfpl-train" name="dfpl train" version="@TOOL_VERSION@+galaxy0" profile="23.0">
+<tool id="dfpl-train" name="deepFPlearn train" version="@TOOL_VERSION@+galaxy0" profile="23.0">
+    <description>model to predict association of molecular structures to biological targets</description>
     <macros>
-        <token name="@TOOL_VERSION@">2.1</token>
+        <import>macros.xml</import>
     </macros>
-    <requirements>
-        <requirement type="package" version="@TOOL_VERSION@">deepfplearn</requirement>
-    </requirements>
+    <expand macro="requirements"/>
     <command detect_errors="exit_code"><![CDATA[
-    set -euxo pipefail
-    ; cat '$inputs'
-    | python '$__tool_directory__/json_flatten.py'
-    | python '$__tool_directory__/json_train.py'
-    > config.json
-    ; mkdir -p 'autoencoder'
-    ; mkdir -p 'model'
-    ; dfpl train --configFile config.json
-    ; cp 'autoencoder/encoder_weights.h5' '$output_autoencoder_weights'
-    ; cp 'model/${model_configuration.target}/model_weights.h5' '$output_model_weights'
+    set -o pipefail;
+    cat '$inputs'
+       | python '$__tool_directory__/json_flatten.py'
+       | python '$__tool_directory__/json_train.py'
+       > config.json &&
+    mkdir -p 'autoencoder' &&
+    mkdir -p 'model' &&
+    dfpl train --configFile config.json &&
+    cp 'autoencoder/encoder_weights.h5' '$output_autoencoder_weights' &&
+    cp 'model/${model_configuration.target}/model_weights.h5' '$output_model_weights'
     ]]></command>
     <configfiles>
         <inputs name="inputs" data_style="paths"/>
@@ -24,38 +23,40 @@
         <section name="model_configuration" title="Model Configuration" expanded="true">
             <param label="Input File" argument="--inputFile"
                    type="data" format="csv" optional="false"
-                   help="The file containing the data for training in comma separated CSV format. The first column should be smiles."/>
+                   help="The file containing the data for training in comma separated CSV format. The first column should be smiles"/>
             <param label="Target" name="target"
                    type="text" optional="false"
-                   help="The target column in the input file that should be trained for."/>
+                   help="The target column in the input file that should be trained for">
+                <validator type="empty_field" message="A column name must be specified"/>
+            </param>
             <param label="Chemical Representation" argument="--type"
                    type="select" optional="true"
-                   help="Type of the chemical representation.">
+                   help="Type of the chemical representation">
                 <option value="fp" selected="true">fp</option>
                 <option value="smiles">smiles</option>
             </param>
             <param label="Classification Threshold" argument="--threshold"
                    type="float" min="0" max="1" value="0.5" optional="true"
-                   help="Threshold for binary classification."/>
+                   help="Threshold for binary classification"/>
             <param label="Fingerprint Type"
                    argument="--fpType"
                    optional="true"
                    type="select"
-                   help="The type of fingerprint to be generated/used in input file.">
+                   help="The type of fingerprint to be generated/used in input file">
                 <option value="topological" selected="true">topological</option>
                 <option value="MACCS">MACCS</option>
             </param>
             <param label="Fingerprint Size" argument="--fpSize"
                    type="integer" min="1" value="2048" optional="true"
-                   help="Length of the fingerprint that should be generated."/>
+                   help="Length of the fingerprint that should be generated"/>
             <param label="Multi-Label Classification" argument="--enableMultiLabel"
                    type="boolean"
                    checked="false"
-                   help="Train multi-label classification model."/>
+                   help="Train multi-label classification model"/>
         </section>
         <section name="training_configuration" title="Training Configuration" expanded="true">
             <param argument="--split_type" type="select" optional="true" label="split_type"
-                   help="Set how the data is split for the feedforward neural network.">
+                   help="Set how the data is split for the feedforward neural network">
                 <option value="scaffold_balanced">Scaffold_balanced</option>
                 <option value="random" selected="true">Random</option>
                 <option value="molecular_weight">Molecular_weight</option>
@@ -65,13 +66,13 @@
                    help="Fraction of the dataset that should be used for testing"/>
             <param label="kFolds Cross-Validation" argument="--kFolds"
                    type="integer" value="1" min="1" optional="true"
-                   help="Number of folds for cross-validation."/>
+                   help="Number of folds for cross-validation"/>
             <param label="Train FNN" argument="--trainFNN"
                    type="boolean" checked="true"
-                   help="Deactivates the FNN training."/>
+                   help="Deactivates the FNN training"/>
             <param label="Sample Down" argument="--sampleDown"
                    type="boolean"
-                   help="Down sampling of the 0-valued samples."/>
+                   help="Down sampling of the 0-valued samples"/>
             <param label="Sample Fraction Ones" argument="--sampleFractionOnes"
                    type="float" min="0" max="1" value="0.5" optional="true"
                    help="This is the desired fraction 1s/0s.only works if --sampleDown is enabled"/>
@@ -80,78 +81,80 @@
                    help="Number of epochs for the FNN training"/>
             <param label="Loss Function" argument="--lossFunction"
                    type="select" optional="true"
-                   help="Loss function for FNN training. mse - mean squared error, bce - binary cross entropy.">
+                   help="Loss function for FNN training. mse - mean squared error, bce - binary cross entropy">
                 <option value="mse">MSE</option>
                 <option value="bce" selected="true">BCE</option>
                 <option value="focal">Focal</option>
             </param>
             <param label="Optimizer" argument="--optimizer"
                    type="select" optional="true"
-                   help="Optimizer of the FNN.">
+                   help="Optimizer of the FNN">
                 <option value="Adam" selected="true">Adam</option>
                 <option value="SGD">Sgd</option>
             </param>
             <param label="Batch Size" argument="--batchSize"
                    type="integer" min="1" value="128" optional="true"
-                   help="Batch size in FNN training."/>
+                   help="Batch size in FNN training"/>
             <param label="L2 Regularization" argument="--l2reg"
                    type="float" min="0" value="0.001" optional="true"
-                   help="Value for l2 kernel regularizer."/>
+                   help="Value for l2 kernel regularizer"/>
             <param label="Dropout" argument="--dropout"
                    type="float" min="0" max="1" value="0.2" optional="true"
-                   help="The fraction of data that is dropped out in each dropout layer."/>
+                   help="The fraction of data that is dropped out in each dropout layer"/>
             <param label="Learning Rate" argument="--learningRate"
                    type="float" min="0" value="2.2e-05" optional="true"
-                   help="Learning rate size in FNN training."/>
+                   help="Learning rate size in FNN training"/>
             <param label="Learning Rate Decay" argument="--learningRateDecay"
                    type="float" min="0" max="1" value="0.96" optional="true"
-                   help="Learning rate decay in FNN training."/>
+                   help="Learning rate decay in FNN training"/>
             <param label="Activation Function" argument="--activationFunction"
                    type="select" optional="true"
-                   help="The activation function of the FNN.">
+                   help="The activation function of the FNN">
                 <option value="relu" selected="true">Relu</option>
                 <option value="selu">Selu</option>
             </param>
         </section>
         <conditional name="autoencoder">
             <param label="Compress Fingerprints with Autoencoder"
-                   argument="--compressFeatures" type="boolean"
-                   checked="false"
+                   argument="--compressFeatures" type="select"
                    help="Compress the fingerprints using an autoencoder.
                    Either uses an already trained autoencoder (requires a weights file)
-                   or creates and trains a new autoencoder."/>
+                   or creates and trains a new autoencoder">
+                  <option value="true">Yes</option>
+                  <option value="false" selected="true">No</option>
+              </param>
             <when value="true">
                 <conditional name="train-autoencoder">
                     <param label="Load / Train Autoencoder" argument="--trainAC"
                            type="select" checked="true"
-                           help="Select if a new autoencoder should be trained or if you want to provide the weights of a trained autoencoder yourself.">
+                           help="Select if a new autoencoder should be trained or if you want to provide the weights of a trained autoencoder yourself">
                         <option value="true">Train new autoencoder</option>
                         <option value="false">Load autoencoder from file</option>
                     </param>
                     <when value="false">
                         <param label="Encoder Weights File" argument="--ecWeightsFile"
                                type="data" format="h5"
-                               help="The .hdf5 file of a trained encoder."/>
+                               help="The .hdf5 file of a trained encoder"/>
                     </when>
                     <when value="true">
                         <param label="Autoencoder Type" argument="--aeType"
                                type="select" optional="true"
-                               help="Autoencoder type, variational or deterministic.">
+                               help="Autoencoder type, variational or deterministic">
                             <option value="variational">Variational</option>
                             <option value="deterministic" selected="true">Deterministic</option>
                         </param>
                         <param label="Epochs" argument="--aeEpochs"
                                type="integer" min="5" value="100" optional="true"
-                               help="Number of epochs for autoencoder training."/>
+                               help="Number of epochs for autoencoder training"/>
                         <param label="Batch Size" argument="--aeBatchSize"
                                type="integer" min="1" value="512" optional="true"
-                               help="Batch size in autoencoder training."/>
+                               help="Batch size in autoencoder training"/>
                         <param label="Learning Rate" argument="--aeLearningRate"
                                type="float" min="0" value="0.001" optional="true"
-                               help="Learning rate for autoencoder training."/>
+                               help="Learning rate for autoencoder training"/>
                         <param label="Learning Rate Decay" argument="--aeLearningRateDecay"
                                type="float" value="0.96" min="0" max="1" optional="true"
-                               help="Learning rate decay for autoencoder training."/>
+                               help="Learning rate decay for autoencoder training"/>
                         <param label="Split Type" argument="--aeSplitType"
                                type="select" optional="true"
                                help="Set how the data is split for the autoencoder">
@@ -161,30 +164,31 @@
                         </param>
                         <param label="FNN Type" argument="--fnnType"
                                type="select" optional="true"
-                               help="The type of the feedforward neural network.">
+                               help="The type of the feedforward neural network">
                             <option value="FNN" selected="true">FNN</option>
                             <option value="SNN">SNN</option>
                         </param>
                         <param label="Fingerprint Size" argument="--encFPSize"
                                type="integer" min="1" value="256" optional="true"
-                               help="Size of encoded fingerprint (z-layer of autoencoder)."/>
+                               help="Size of encoded fingerprint (z-layer of autoencoder)"/>
                         <param label="Activation Function" argument="--aeActivationFunction"
                                type="select" optional="true"
-                               help="The activation function of the autoencoder.">
+                               help="The activation function of the autoencoder">
                             <option value="relu" selected="true">ReLU</option>
                             <option value="selu">SELU</option>
                         </param>
                         <param label="Visualize Latent Space" argument="--visualizeLatent"
                                type="boolean" checked="false"
-                               help="UMAP the latent space for exploration."/>
+                               help="UMAP the latent space for exploration"/>
                     </when>
                 </conditional>
             </when>
+            <when value="false"/>
         </conditional>
         <section title="Logging" name="logging_configuration" expanded="false">
             <param label="Verbosity Level" argument="--verbose"
                    type="select" optional="true"
-                   help="Verbosity level of output.">
+                   help="Verbosity level of output">
                 <option value="0">0: No additional output</option>
                 <option value="1">1: Some additional output</option>
                 <option value="2">2: Full additional output</option>
@@ -192,13 +196,13 @@
 <!--            <section name="tracking_configuration" title="Weights &amp; Biases" expanded="true">-->
 <!--                <param label="Target"-->
 <!--                       argument="&#45;&#45;wabTarget" type="text" optional="true"-->
-<!--                       help="Which endpoint to use for tracking performance via Weights &amp; Biases. Should match the column name."/>-->
+<!--                       help="Which endpoint to use for tracking performance via Weights &amp; Biases. Should match the column name"/>-->
 <!--                <param label="Track FNN" argument="&#45;&#45;wabTracking"-->
 <!--                       type="boolean"-->
-<!--                       help="Track FNN performance via Weights &amp; Biases."/>-->
+<!--                       help="Track FNN performance via Weights &amp; Biases"/>-->
 <!--                <param label="Track Autoencoder" argument="&#45;&#45;aeWabTracking"-->
 <!--                       type="boolean"-->
-<!--                       help="Track autoencoder performance via Weights &amp; Biases."/>-->
+<!--                       help="Track autoencoder performance via Weights &amp; Biases"/>-->
 <!--            </section>-->
         </section>
     </inputs>
@@ -215,42 +219,65 @@
     </outputs>
     <tests>
         <test>
-            <param name="inputFile" value="S_dataset.csv"/>
-            <param name="target" value="Aromatase"/>
-            <param name="verbose" value="2"/>
-            <param name="trainAC" value="true"/>
-            <param name="compressFeatures" value="true"/>
-            <param name="encFPSize" value="256"/>
-            <param name="aeSplitType" value="random"/>
-            <param name="aeEpochs" value="5"/>
-            <param name="aeBatchSize" value="351"/>
-            <param name="aeActivationFunction" value="relu"/>
-            <param name="aeLearningRate" value="0.001"/>
-            <param name="aeLearningRateDecay" value="0.0001"/>
-            <param name="aeType" value="deterministic"/>
-            <param name="type" value="smiles"/>
-            <param name="fpType" value="topological"/>
-            <param name="fpSize" value="2048"/>
-            <param name="split_type" value="random"/>
-            <param name="enableMultiLabel" value="false"/>
-            <param name="sampleFractionOnes" value="0"/>
-            <param name="sampleDown" value="false"/>
-            <param name="trainFNN" value="true"/>
-            <param name="kFolds" value="1"/>
-            <param name="threshold" value="0.5"/>
-            <param name="testSize" value="0.2"/>
-            <param name="fnnType" value="FNN"/>
-            <param name="optimizer" value="Adam"/>
-            <param name="lossFunction" value="bce"/>
-            <param name="epochs" value="10"/>
-            <param name="batchSize" value="128"/>
-            <param name="activationFunction" value="selu"/>
-            <param name="dropout" value="0.0107"/>
-            <param name="learningRate" value="2.2e-06"/>
-            <param name="l2reg" value="0.001"/>
-            <param name="aeWabTracking" value="false"/>
-            <param name="wabTracking" value="false"/>
+            <section name="model_configuration">
+                <param name="inputFile" value="S_dataset.csv"/>
+                <param name="target" value="Aromatase"/>
+                <param name="type" value="smiles"/>
+                <param name="fpType" value="topological"/>
+                <param name="fpSize" value="2048"/>
+                <param name="enableMultiLabel" value="false"/>
+                <param name="threshold" value="0.5"/>
+            </section>
+            <section name="training_configuration">
+                <param name="split_type" value="random"/>
+                <param name="sampleFractionOnes" value="0"/>
+                <param name="sampleDown" value="false"/>
+                <param name="trainFNN" value="true"/>
+                <param name="kFolds" value="1"/>
+                <param name="testSize" value="0.2"/>
+                <param name="optimizer" value="Adam"/>
+                <param name="lossFunction" value="bce"/>
+                <param name="epochs" value="10"/>
+                <param name="batchSize" value="128"/>
+                <param name="activationFunction" value="selu"/>
+                <param name="dropout" value="0.0107"/>
+                <param name="learningRate" value="2.2e-06"/>
+                <param name="l2reg" value="0.001"/>
+            </section>
+            <conditional name="autoencoder">
+                <param name="compressFeatures" value="true"/>
+                <conditional name="train-autoencoder">
+                <param name="trainAC" value="true"/>
+                <param name="encFPSize" value="256"/>
+                <param name="aeSplitType" value="random"/>
+                <param name="aeEpochs" value="5"/>
+                <param name="aeBatchSize" value="351"/>
+                <param name="aeActivationFunction" value="relu"/>
+                <param name="aeLearningRate" value="0.001"/>
+                <param name="aeLearningRateDecay" value="0.0001"/>
+                <param name="aeType" value="deterministic"/>
+                <param name="fnnType" value="FNN"/>
+            </conditional>
+            </conditional>
+            <!-- <param name="aeWabTracking" value="false"/>
+            <param name="wabTracking" value="false"/> -->
+            <section name="logging_configuration">
+                <param name="verbose" value="2"/>
+            </section>
             <!--            todo: add tests for svg, csv -->
+            <output name="output_model_weights">
+                <assert_contents>
+                     <has_size size="1K" delta="100"/>
+                </assert_contents>
+            </output>
+            <output name="output_autoencoder_weights">
+                <assert_contents>
+                     <has_size size="2K" delta="100"/>
+                </assert_contents>
+            </output>
+            <assert_stderr>
+                <has_text text="Evaluating trained model"/>
+            </assert_stderr>
         </test>
     </tests>
     <help><![CDATA[
@@ -274,8 +301,5 @@
 
     - the training histories as a plot (``.svg``)
     ]]></help>
-    <citations>
-        <citation type="doi">https://doi.org/10.1093/bioinformatics/btad713</citation>
-        <citation type="doi">https://doi.org/10.1093/bib/bbac257</citation>
-    </citations>
+    <expand macro="citations"/>
 </tool>

@@ -1,0 +1,209 @@
+<macros>
+
+<xml name="requirements">
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">saqc</requirement>
+    </requirements>
+</xml>
+
+<token name="@TOOL_VERSION@">2.4.1</token>
+<token name="@VERSION_SUFFIX@">0</token>
+
+<xml name="citations"/>
+
+<xml name="saqc_tests">
+<tests>
+    <!-- https://rdm-software.pages.ufz.de/saqc/gettingstarted/TutorialCLI.html#get-toy-data-and-configuration
+    varname;test
+    SM2    ;flagRange(min=10, max=60)
+    SM2    ;flagMAD(window="30d", z=3.5)
+    SM2    ;plot() -->
+    <test>
+        <param name="data" value="test1/data.csv" ftype="csv"/>
+        <repeat name="methods_repeat">
+            <conditional name="module_cond">
+                <param name="module_select" value="outliers"/>
+                <conditional name="method_cond">
+                    <param name="method_select" value="flagRange"/>
+                    <param name="field" value="SM2"/>
+                    <param name="min" value="10"/>
+                    <param name="max" value="60"/>
+                </conditional>
+            </conditional>
+        </repeat>
+        <repeat name="methods_repeat">
+            <conditional name="module_cond">
+                <param name="module_select" value="outliers"/>
+                <conditional name="method_cond">
+                    <param name="method_select" value="flagMAD"/>
+                    <param name="field" value="SM2"/>
+                    <param name="center" value="false"/>
+                    <conditional name="window_cond">
+                        <param name="window_select" value="timedelta"/>
+                        <param name="window" value="30d"/>
+                    </conditional>
+                    <param name="z" value="3.5"/>
+                </conditional>
+            </conditional>
+        </repeat>
+        <repeat name="methods_repeat">
+            <conditional name="module_cond">
+                <param name="module_select" value="tools"/>
+                <conditional name="method_cond">
+                    <!-- plot names should be determined automatically -->
+                    <param name="path" value="test"/>
+                    <param name="method_select" value="plot"/>
+                    <param name="field" value="SM2"/>
+                </conditional>
+            </conditional>
+        </repeat>
+        <output name="output" value="test1/out.csv" ftype="csv"/>
+        <output name="config" ftype="txt">
+            <assert_contents>
+                <has_n_lines n="4"/>
+                <has_n_columns n="2" sep=";"/>
+                <has_line_matching expression="SM2; flagRange\(min=10.*, max=60.*\)"/>
+                <has_line_matching expression='SM2; flagMAD\(window=\"30d\", z=3\.5.*\)'/>
+            </assert_contents>
+        </output>
+        <output_collection name="plots" type="list">
+            <element name="test" ftype="png">
+                <assert_contents>
+                    <has_text text="PNG"/>
+                    <has_size value="150k" delta="10k"/>
+                </assert_contents>
+            </element>
+        </output_collection>
+    </test>
+
+    <!-- data.csv sind die eigentlichen Observationsdaten, maint.csv händisch geführte Einträge über Wartungsarbeiten an den Senoren. Aufgerufen wird das dann mit-->
+    <test>
+        <!-- 
+        SAK254 ; flagManual(mdata="maint", method="closed")
+        SAK254 ; flagRange(min=1, max=200)
+        SAK254 ; flagConstants(thresh=0, window="4h")
+        SAK254 ; flagByStatLowPass(func="var", window="8h", sub_window="2h", thresh=0.19)
+        SAK254 ; flagUniLOF(thresh=2.2)
+        SAK254 ; flagIsolated(gap_window="30min", group_window="1h") -->
+
+        <param name="data" value="test2/data.csv,test2/maint.csv" ftype="csv"/>
+        <repeat name="methods_repeat">
+            <conditional name="module_cond">
+                <param name="module_select" value="flagtools"/>
+                <conditional name="method_cond">
+                    <param name="method_select" value="flagManual"/>
+                    <param name="field" value="SAK254"/>
+                    <param name="mdata" value="maint"/>
+                    <param name="method" value="closed"/>
+                </conditional>
+            </conditional>
+        </repeat>
+        <repeat name="methods_repeat">
+            <conditional name="module_cond">
+                <param name="module_select" value="outliers"/>
+                <conditional name="method_cond">
+                    <param name="method_select" value="flagRange"/>
+                    <param name="field" value="SAK254"/>
+                    <param name="min" value="1"/>
+                    <param name="max" value="200"/>
+                 </conditional>
+            </conditional>
+        </repeat>
+        <repeat name="methods_repeat">
+            <conditional name="module_cond">
+                <param name="module_select" value="constants"/>
+                <conditional name="method_cond">
+                    <param name="method_select" value="flagConstants"/>
+                    <param name="field" value="SAK254"/>
+                    <param name="thresh" value="0"/>
+                    <conditional name="window_cond">
+                        <param name="window_select" value="timedelta"/>
+                        <param name="window" value="4h"/>
+                    </conditional>
+                 </conditional>
+            </conditional>
+        </repeat>
+        <repeat name="methods_repeat">
+            <conditional name="module_cond">
+                <param name="module_select" value="noise"/>
+                <conditional name="method_cond">
+                    <param name="method_select" value="flagByStatLowPass"/>
+                    <param name="field" value="SAK254"/>
+                    <param name="func" value="var"/>
+                    <param name="window" value="8h"/>
+                    <param name="sub_window" value="2h"/>
+                    <param name="thresh" value="0.19"/>
+                 </conditional>
+            </conditional>
+        </repeat>
+        <repeat name="methods_repeat">
+            <conditional name="module_cond">
+                <param name="module_select" value="outliers"/>
+                <conditional name="method_cond">
+                <param name="method_select" value="flagUniLOF"/>
+                    <param name="field" value="SAK254"/>
+                    <conditional name="thresh_cond">
+                        <param name="thresh_select" value="linear"/>
+                        <param name="thresh" value="2.2"/>
+                    </conditional>
+                 </conditional>
+            </conditional>
+        </repeat>
+        <repeat name="methods_repeat">
+            <conditional name="module_cond">
+                <param name="module_select" value="breaks"/>
+                <conditional name="method_cond">
+                    <param name="method_select" value="flagIsolated"/>
+                    <param name="field" value="SAK254"/>
+                    <param name="gap_window" value="30min"/>
+                    <param name="group_window" value="1h"/>
+                </conditional>
+            </conditional>
+        </repeat>
+        <output name="config" ftype="txt">
+            <assert_contents>
+                <!-- <has_n_lines n="4"/> -->
+                <has_n_columns n="2" sep=";"/>
+                <has_line_matching expression='SAK254; flagManual\(mdata=\"maint\", method=\"closed\".*\)'/>
+                <has_line_matching expression='SAK254; flagRange\(min=1.*, max=200.*\)'/>
+                <has_line_matching expression='SAK254; flagConstants\(thresh=0.*, window=\"4h\".*\)'/>
+                <has_line_matching expression='SAK254; flagByStatLowPass\(func="var", window=\"8h\", thresh=0.19, sub_window=\"2h\".*\)'/>
+                <has_line_matching expression='SAK254; flagUniLOF\(.*thresh=2.2.*\)'/>
+                <has_line_matching expression='SAK254; flagIsolated\(gap_window=\"30min\", group_window=\"1h\".*\)'/>
+            </assert_contents>
+        </output>
+        <output name="output" value="test2/out.csv" ftype="csv">
+            <!-- <assert_contents>
+                <has_n_lines n="14696"/>
+                <has_n_columns n="7" sep=","/>
+                <has_text text=",UNFLAGGED,"/>
+            </assert_contents> -->
+        </output>
+    </test>
+    <!-- docs/resources/data/config_ci.csv
+
+# SM2;align(freq="15Min", method="nshift")
+# '.*';flagRange(min=10, max=60)
+SM2;flagMissing()
+# SM2;flagRange(min=10, max=60)
+# SM2;flagMAD(window="30d", z=3.5) -->
+
+    <!-- <test>
+        <repeat name="methods_repeat">
+            <conditional name="module_cond">
+                <param name="module_select"  value="interpolation"/>
+                <conditional name="method_cond">
+                    <param name="method_select"  value="align"/>
+                    <param name="field"  value="SM2"/>
+                    <param name="freq" value="15Min"/>
+                    <param name="method" value="polynomial"/>
+                </conditional>
+            </conditional>
+        </repeat>
+        <assert_command>
+            <has_text text="SM2"/>
+        </assert_command>
+    </test> -->
+</tests>
+</xml>
+</macros>

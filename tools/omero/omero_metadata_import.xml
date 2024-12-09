@@ -1,0 +1,144 @@
+<tool id="omero_metadata_import" name="OMERO Metadata Import" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@" license="MIT">
+    <description> with ezomero </description>
+    <macros>
+        <import>macros.xml</import>
+        <token name="@VERSION_SUFFIX@">3</token>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">omero</xref>
+    </xrefs>
+    <expand macro="ezomero_requirements"/>
+    <command detect_errors="exit_code"><![CDATA[
+        python $__tool_directory__/omero_metadata_upload.py
+        --credential-file '$credentials'
+        @HOST_PORT@
+        --obj_type $obj_type
+        --ann_type $ann_type
+        --ann_file $ann_file
+        --an_name $an_name
+        --log_file $log
+        #if $object_id_selection == "existing_object"
+            --did "$did"
+        #end if
+    ]]></command>
+    <configfiles>
+        <expand macro="credentials"/>
+    </configfiles>
+    <inputs>
+        <expand macro="host_port"/>
+        <param argument="obj_type" type="select" optional="true" label="Target Object Type">
+            <option value="project">Project</option>
+            <option value="screen">Screen</option>
+            <option value="dataset">Dataset</option>
+            <option value="image">Image</option>
+        </param>
+        <conditional name="object_id">
+        <param name="object_id_selection" type="select" label="Selection"  help="Create a new OMERO object or target an existing one">
+            <option value="new_object">Create new object</option>
+            <option value="existing_object">Target an existing object</option>
+        </param>
+        <when value="new_object"/>
+        <when value="existing_object">
+            <param name="did" type="integer" value="" optional="false" label="Object ID"/>
+        </when>
+        </conditional>
+        <param argument="ann_type" type="select" optional="false" label="Annotation type" help="Select annotation format">
+            <option value="table">Table</option>
+            <option value="KV">Key-Value Pairs</option>
+        </param>
+        <param argument="ann_file" type="data" format="tabular" optional="false" label="Annotation file" help="Select annotation file"/>
+        <param argument="an_name" type="text" optional="false" label="Annotation Name"/>
+    </inputs>
+    <outputs>
+        <data name="log" format="txt"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="project"/>
+            <param name="ann_type" value="table"/>
+            <param name="object_id_selection" value="new_object"/>
+            <param name="ann_file" value="metadata.tsv"/>
+            <param name="an_name" value="Table_Test"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="log" value="output_table_import.txt" ftype="txt">
+                <assert_contents>
+                    <has_text text="SUCCESS: Successfully uploaded metadata for project"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="dataset"/>
+            <param name="ann_type" value="KV"/>
+            <param name="object_id_selection" value="new_object"/>
+            <param name="ann_file" value="metadata.tsv"/>
+            <param name="an_name" value="KV_Test"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="log" value="output_KV_import.txt" ftype="txt">
+                <assert_contents>
+                    <has_text text="SUCCESS: Successfully uploaded metadata for dataset"/>
+                </assert_contents>
+            </output>
+        </test>
+            <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="dataset"/>
+            <param name="ann_type" value="KV"/>
+            <param name="object_id_selection" value="existing_object"/>
+            <param name="did" value="1"/>
+            <param name="ann_file" value="metadata.tsv"/>
+            <param name="an_name" value="Additional_KV_Values"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="log" value="output_target_import.txt" ftype="txt">
+                <assert_contents>
+                    <has_text text="SUCCESS: Successfully uploaded metadata for dataset"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help>
+Description
+-----------
+
+Tool to import metadata (Table and K/V pairs) into user defined OMERO.server.
+Metadata can be attached to an existing OMERO object (Project, Dataset, Screen, or Image).
+Optionally, a new OMERO object can be created before uploading the metadata.
+If the object does not exist, a new one will be created.
+
+**Tabular metadata file example**
+
+- Table
+
+  +------------+---------------+---------------+
+  | image_id   | attribute_1   | attribute_2   |
+  +============+===============+===============+
+  | 235        | 0             | 1             |
+  +------------+---------------+---------------+
+  | 564        | 1             | 1             |
+  +------------+---------------+---------------+
+  | 120        | 0             | 1             |
+  +------------+---------------+---------------+
+
+- Key-Value Pairs
+
+  +--------+---------+----------+
+  | Key1   | Key2    | Key3     |
+  +========+=========+==========+
+  | Value1 | Value2  | Value3   |
+  +--------+---------+----------+
+
+
+
+@SECURITY_DISCLAIMER@
+    </help>
+    <citations>
+        <citation type="doi">10.1038/nmeth.1896</citation>
+    </citations>
+</tool>

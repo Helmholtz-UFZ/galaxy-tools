@@ -7,12 +7,12 @@ on:
     types: [run-all-tool-tests-command]
 env:
   GALAXY_FORK: galaxyproject
-  GALAXY_BRANCH: release_23.2
+  GALAXY_BRANCH: release_24.1
   MAX_CHUNKS: 40
 jobs:
   setup:
     name: Setup cache and determine changed repositories
-    if: ${{ github.repository_owner == 'bernt-matthias' }}
+    if: ${{ github.repository_owner == 'Helmholtz-UFZ' }}
     runs-on: ubuntu-latest
     outputs:
       galaxy-head-sha: ${{ steps.get-galaxy-sha.outputs.galaxy-head-sha }}
@@ -27,12 +27,12 @@ jobs:
     steps:
     - name: Add reaction
       if: ${{ github.event.client_payload.slash_command.command == 'run-all-tool-tests' }}
-      uses: peter-evans/create-or-update-comment@v2
+      uses: peter-evans/create-or-update-comment@v4
       with:
         token: ${{ secrets.PAT }}
         repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
         comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
-        reaction-type: hooray
+        reactions: hooray
     - name: Set galaxy fork and branch
       id: get-fork-branch
       run: |
@@ -43,11 +43,11 @@ jobs:
     - name: Determine latest commit in the Galaxy repo
       id: get-galaxy-sha
       run: echo "galaxy-head-sha=$(git ls-remote https://github.com/${{ steps.get-fork-branch.outputs.fork }}/galaxy refs/heads/${{ steps.get-fork-branch.outputs.branch }} | cut -f1)" >> $GITHUB_OUTPUT
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Cache .cache/pip
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       id: cache-pip
       with:
         path: ~/.cache/pip
@@ -56,7 +56,7 @@ jobs:
     # are not available as wheels, pip will build a wheel for them, which can be cached.
     - name: Install wheel
       run: pip install wheel
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 1
     - name: Fake a Planemo run to update cache and determine commit range, repositories, and chunks
@@ -84,14 +84,14 @@ jobs:
       matrix:
         python-version: ['3.11']
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 1
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Cache .cache/pip
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       id: cache-pip
       with:
         path: ~/.cache/pip
@@ -103,8 +103,8 @@ jobs:
         mode: lint
         repository-list: ${{ needs.setup.outputs.repository-list }}
         tool-list: ${{ needs.setup.outputs.tool-list }}
-        additional-planemo-options: --biocontainers -s tests,output,inputs,help,general,command,citations,tool_xsd,xml_order,tool_urls,shed_metadata
-    - uses: actions/upload-artifact@v3
+        additional-planemo-options: --biocontainers -s stdio,tests,output,inputs,help,general,command,citations,tool_xsd,xml_order,tool_urls,shed_metadata,urls,readme,shed_yaml,repository_dependencies,tool_dependencies_actions,tool_dependencies_sha256sum,tool_dependencies_xsd,expansion
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: 'Tool linting output'
@@ -133,23 +133,83 @@ jobs:
     steps:
     # checkout the repository
     # and use it as the current working directory
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 1
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Cache .cache/pip
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       id: cache-pip
       with:
         path: ~/.cache/pip
         key: pip_cache_py_${{ matrix.python-version }}_gxy_${{ needs.setup.outputs.galaxy-head-sha }}
     - name: Get number of CPU cores
-      uses: SimenB/github-actions-cpu-cores@v1
+      uses: SimenB/github-actions-cpu-cores@v2
       id: cpu-cores
     - name: Clean dotnet folder for space
       run: rm -Rf /usr/share/dotnet
+
+    # the following 2 steps are needed for testing the scripting tool
+    - name: Install Apptainer's singularity
+      uses: eWaterCycle/setup-apptainer@v2
+    - name: Symlink singularity
+      run: ln -s $(which apptainer) $(dirname apptainer)/singularity
+    - name: Install containers
+      run: |
+        echo "${{ needs.setup.outputs.repository-list }}" > repository_list.txt
+        if grep -q scripting repository_list.txt; then
+          singularity pull --dir /tmp docker://continuumio/anaconda3
+          singularity pull --dir /tmp docker://rocker/tidyverse
+        fi
+
+      # Start OMERO
+    - name: Start OMERO
+      uses: sudo-bot/action-docker-compose@latest
+      with:
+        cli-args: "-f .github/omero-docker-compose.yml up -d"
+
+      # Setup environment
+    - name: Set up Python environment for omero-py
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11.0'
+
+      # Upload a dummy dataset in OMERO
+    - name: Install dependencies and upload a OMERO dummy dataset
+      run: |
+        echo "Waiting for OMERO to be ready..."
+        sleep 60
+        pip install https://github.com/glencoesoftware/zeroc-ice-py-linux-x86_64/releases/download/20240202/zeroc_ice-3.6.5-cp311-cp311-manylinux_2_28_x86_64.whl
+        pip install omero-py==5.19.4
+        omero login -s localhost -u root -w omero -p 6064
+        PID=$(omero obj new Project name='test_prj')
+        DID=$(omero obj new Dataset name='test_dts')
+        omero obj new ProjectDatasetLink parent=$PID child=$DID
+        omero import -d $DID .github/dummy-dts-omero
+        omero tag create --name test_tag --desc 'description of my_tag'
+        omero tag link Image:1 1
+        echo "Created the dummy dataset into OMERO"
+
+    # download or create large test data via script
+    - name: Create test data
+      run: |
+          set -x
+          pip install planemo > /dev/null
+          echo '${{ needs.setup.outputs.repository-list }}' > repository_list.txt
+          mapfile -t REPO_ARRAY < repository_list.txt
+          planemo ci_find_tools --chunk_count "${{ needs.setup.outputs.chunk-count }}" --chunk "${{ matrix.chunk }}" --output tool_list_chunk.txt "${REPO_ARRAY[@]}"
+          cat tool_list_chunk.txt | sed 's@/[^/]*$@@' | sort -i > repository_list_chunk.txt
+          while read repo
+          do
+              echo "executing test-data.sh for $repo"
+              if [ -x $repo/test-data.sh ]; then
+                  cd $repo
+                  ./test-data.sh
+              fi
+          done < repository_list_chunk.txt
+
     - name: Planemo test
       uses: galaxyproject/planemo-ci-action@v1
       id: test
@@ -158,12 +218,13 @@ jobs:
         repository-list: ${{ needs.setup.outputs.repository-list }}
         galaxy-fork: ${{ needs.setup.outputs.fork }}
         galaxy-branch: ${{ needs.setup.outputs.branch }}
+        additional-planemo-options: --docker_run_extra_arguments '--add-host=host.docker.internal:host-gateway'
         chunk: ${{ matrix.chunk }}
         chunk-count: ${{ needs.setup.outputs.chunk-count }}
         galaxy-slots: ${{ steps.cpu-cores.outputs.count }}
         # Limit each test to 15 minutes
         test_timeout: 900
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: 'Tool test output ${{ matrix.chunk }}'
         path: upload
@@ -182,14 +243,14 @@ jobs:
     # This job runs on Linux
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         path: artifacts
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Cache .cache/pip
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       id: cache-pip
       with:
         path: ~/.cache/pip
@@ -200,10 +261,12 @@ jobs:
       with:
         mode: combine
         html-report: true
-    - uses: actions/upload-artifact@v3
+        markdown-report: true
+    - uses: actions/upload-artifact@v4
       with:
         name: 'All tool test results'
         path: upload
+    - run: cat upload/tool_test_output.md >> $GITHUB_STEP_SUMMARY
     - name: Create URL to the run output
       if: ${{ github.event.client_payload.slash_command.command == 'run-all-tool-tests' }}
       id: vars
@@ -211,7 +274,7 @@ jobs:
 
     - name: Create comment
       if: ${{ github.event.client_payload.slash_command.command == 'run-all-tool-tests' }}
-      uses: peter-evans/create-or-update-comment@v2
+      uses: peter-evans/create-or-update-comment@v4
       with:
         token: ${{ secrets.PAT }}
         repository: ${{ github.event.client_payload.github.payload.repository.full_name }}

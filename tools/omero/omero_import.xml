@@ -1,0 +1,76 @@
+<tool id="omero_import" name="OMERO Image Import" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@" license="MIT">
+    <description> with omero-py </description>
+    <macros>
+        <import>macros.xml</import>
+        <token name="@VERSION_SUFFIX@">3</token>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">omero</xref>
+    </xrefs>
+    <expand macro="omeropy_requirements"/>
+    <command detect_errors="exit_code"><![CDATA[
+        #import re
+
+        mkdir folder &&
+        #for $image in $folder:
+            #set image = $image
+            #set image_identifier = re.sub('[^\s\w\-]', '_', str($image.element_identifier))
+            ln -s '${image}' folder/'${image_identifier}.$image.ext' &&
+        #end for
+
+        source '$credentials' &&
+        omero import folder -T Dataset:name:$dataset_name
+            -s '$omero_host'
+            -p $omero_port
+            -u "\$OMERO_USER"
+        > $log &&
+
+        omero logout
+    ]]></command>
+    <configfiles>
+        <configfile name="credentials"><![CDATA[
+export OMERO_USER="$__user__.extra_preferences.get('omero_account|username', $test_username)"
+export OMERO_PASSWORD="$__user__.extra_preferences.get('omero_account|password', $test_password)"
+        ]]></configfile>
+    </configfiles>
+    <inputs>
+        <expand macro="host_port"/>
+        <param name="folder" type="data" format="avi,bmp,btf,cif,csv,eps,fits,fli,gif,hdr,html,jp2,jpg,mov,mrc,ndpi,nhdr,nrrd,ome.tiff,par,pbm,pcx,pgm,png,ppm,psd,scn,sif,svs,tf2,tf8,tif,tif,tiff,top,txt,vms,wav,xml,zip" multiple="true" optional="false" label="Images to import into OMERO"/>
+        <param name="dataset_name" type="text" optional="false" label="Target Dataset Name"/>
+    </inputs>
+    <outputs>
+        <data name="log" format="txt"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="folder" value="input1.tif,input2.tif"/>
+            <param name="dataset_name" value="galaxy_test_upload"/>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="log" value="omero_output.txt" ftype="txt">
+                <assert_contents>
+                    <has_n_lines n="2"/>
+                </assert_contents>
+            </output>
+            <assert_stderr>
+                <has_text_matching expression="IMPORT_DONE.*input1.tif"/>
+                <has_text_matching expression="IMPORT_DONE.*input2.tif"/>
+                <has_text text="files uploaded, 2 filesets created, 2 images imported, 0 errors"/>
+            </assert_stderr>
+        </test>
+    </tests>
+    <help>
+        - This tool allows the import of images into a user-defined OMERO server
+
+        - The user can define an existing dataset name where the images will be imported
+
+        - If the dataset does not exist, a new one will be created
+
+@SECURITY_DISCLAIMER@
+    </help>
+    <citations>
+        <citation type="doi">10.1038/nmeth.1896</citation>
+    </citations>
+</tool>

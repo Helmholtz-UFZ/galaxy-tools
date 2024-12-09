@@ -1,0 +1,58 @@
+<tool id="phabox_contamination" name="PhaBOX contamination" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.1" license="MIT">
+    <description>Contamination/provirus detection</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">phabox</xref>
+    </xrefs>
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">phabox</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        phabox2 --task contamination
+            @GENERAL@
+            @CONTAMINATION@
+    ]]></command>
+    <inputs>
+        <expand macro="general"/>
+        <expand macro="contamination"/>
+    </inputs>
+    <outputs>
+        <data name="out" format="tabular" from_work_dir="output/final_prediction/contamination_prediction.tsv"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="dbdir" value="phaboxdb"/>
+            <param name="contigs" value="example_contigs.fa"/>
+            <output name="out">
+                <assert_contents>
+                    <has_line line="Accession&#9;Length&#9;Total_genes&#9;Viral_genes&#9;Prokaryotic_genes&#9;Kmer_freq&#9;Contamination&#9;Provirus&#9;Pure_viral"/>
+                    <has_n_lines n="11"/>
+                    <has_n_columns n="9"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+
+Check for contaminations / proviruses.
+
+
+@COMMON_INPUT_DOC@
+
+**Output**:
+
+@COMMON_OUTPUT_DOC@
+- Total_genes: number of genes in the contigs (predicted by prodigal-gv)
+- Viral_genes: number of viral marker genes
+- Prokaryotic_genes: number of prokaryotic marker genes
+- Kmer_freq: average frequency of 20-mer. This is a value to estimate the copy number of the genes; usually, the Kmer_freq of 99.9% virus is less than 1.25.
+- Contamination:
+- Provirus: Whether the sequence is a provirus
+- Pure_viral: High quality or Medium quality or Low quality
+
+
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

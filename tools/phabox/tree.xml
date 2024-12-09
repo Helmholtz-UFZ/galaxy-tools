@@ -1,0 +1,51 @@
+<tool id="phabox_tree" name="PhaBOX tree" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.1" license="MIT">
+    <description>Build phylogenetic trees based on marker genes</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">phabox</xref>
+    </xrefs>
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">phabox</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        phabox2 --task tree
+            @GENERAL@
+            @TREE@
+    ]]></command>
+    <inputs>
+        <expand macro="general"/>
+        <expand macro="tree"/>
+    </inputs>
+    <outputs>
+        <collection name="marker_genes" format="fasta" type="list">
+            <discover_datasets pattern="finded_marker_(?P&lt;designation&gt;.+)_conbined_db.fa" directory="output/final_prediction/tree_supplementary"/>
+        </collection>
+    </outputs>
+    <tests>
+        <test expect_num_outputs="1">
+            <param name="dbdir" value="phaboxdb"/>
+            <param name="contigs" value="example_contigs.fa"/>
+            <output_collection name="marker_genes" count="2">
+                <element name="portal">
+                    <assert_contents>
+                        <has_text text=">" n="4176"/>
+                    </assert_contents>
+                </element>
+                <element name="terl">
+                    <assert_contents>
+                        <has_text text=">" n="4570"/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+        </test>
+    </tests>
+    <help><![CDATA[
+Get sequences of specific marker genes that can be used for phylogentic tree construction.
+
+@COMMON_INPUT_DOC@
+
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

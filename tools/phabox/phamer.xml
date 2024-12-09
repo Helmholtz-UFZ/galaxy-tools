@@ -1,0 +1,51 @@
+<tool id="phabox_phamer" name="PhaBOX phamer" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.1" license="MIT">
+    <description>Virus identification</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">phabox</xref>
+    </xrefs>
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">phabox</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        phabox2 --task phamer
+            @GENERAL@
+            @PHAMER@
+    ]]></command>
+    <inputs>
+        <expand macro="general"/>
+        <expand macro="phamer"/>
+    </inputs>
+    <outputs>
+        <data name="phamer_out" format="tabular" from_work_dir="output/final_prediction/phamer_prediction.tsv"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="dbdir" value="phaboxdb"/>
+            <param name="contigs" value="example_contigs.fa"/>
+            <output name="phamer_out">
+                <assert_contents>
+                    <has_line line="Accession&#9;Length&#9;Pred&#9;Proportion&#9;PhaMerScore&#9;PhaMerConfidence"/>
+                    <has_n_lines n="11"/> <!-- 1 per input sequence-->
+                    <has_n_columns n="6"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+
+Identify phage contigs from metagenomics data.
+
+@COMMON_INPUT_DOC@
+
+**Output**:
+
+@COMMON_OUTPUT_DOC@
+@PHAMER_OUTPUT_DOC@
+    ]]></help>
+    <expand macro="citations">
+        <citation type="doi">10.1093/bib/bbac258</citation>
+    </expand>
+</tool>

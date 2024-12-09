@@ -5,11 +5,10 @@
     <token name="@PROFILE@">21.05</token>
     <token name="@VERSION_SUFFIX@">0</token>
     
-    <xml name="ogsTools_requirements">
-        <requirements>
+    <xml name="ogs_requirement">
             <requirement type="package" version="@OGSTOOLS_VERSION@">ogstools</requirement>
             <yield/>
-        </requirements>
+        
     </xml>
 
     <xml name="ogs_citation">

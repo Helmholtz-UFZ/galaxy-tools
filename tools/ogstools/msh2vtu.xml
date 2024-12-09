@@ -1,14 +1,15 @@
 
 <tool id="msh2vtu" name="ogstools msh2vtu" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
     <description>
-        Convert msh to vtu/vtk.
+        Convert msh to UnstructuredGrid (vtk)
     </description>
     <macros>
         <import>macros.xml</import>
         <token name="@VERSION_SUFFIX@">0</token>
     </macros>
-    <expand macro="ogsTools_requirements"/>
-    
+    <requirements>
+        <expand macro="ogs_requirement"/>
+    </requirements>      
     <command detect_errors="exit_code"><![CDATA[
         ln -s '$input_file' input_file.msh &&
         msh2vtu input_file.msh 
@@ -18,10 +19,10 @@
     ]]></command>
     <inputs>
         <param name="input_file" type="data" format="GMSH" label="Input GMSH File"/>
-        <param name="dim" type="select" label="Mesh Dimension" argument="-d">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
+        <param name="dim" type="select" label="Set dimensionality of the mesh" argument="-d">
+            <option value="1">1D</option>
+            <option value="2">2D</option>
+            <option value="3">3D</option>
         </param>
         <param name="delz" type="boolean" value="false" truevalue="-z" falsevalue="" label="Delete Z Coordinate" optional="true" argument="-z"/>
         <param name="swapxy" type="boolean" value="false" truevalue="-s" falsevalue="" label="Swap XY Coordinates" optional="true" argument="-s"/>

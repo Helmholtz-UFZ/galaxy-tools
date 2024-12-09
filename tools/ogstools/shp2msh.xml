@@ -1,12 +1,14 @@
 <tool id="shp2msh" name="ogstools shp2msh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
     <description>
-        Convert shp to vtu.
+        Convert shp to msh
     </description>
     <macros>
         <import>macros.xml</import>
         <token name="@VERSION_SUFFIX@">0</token>
     </macros>
-    <expand macro="ogsTools_requirements"/>
+    <requirements>
+        <expand macro="ogs_requirement"/>
+    </requirements>  
     <command detect_errors="exit_code"><![CDATA[
         export SHAPE_RESTORE_SHX=YES &&    
         ln -s '$input_shp' input.shp &&
@@ -18,7 +20,7 @@
         '$simplify'
     ]]></command>
     <inputs>
-        <param name="input_shp" type="data" format="shp" label="shp input data" argument="-i"/>
+        <param name="input_shp" type="data" format="shp" label="Input SHP File" argument="-i"/>
         <param name="cellsize" type="float" min="40" optional="true" label="cellsize" argument="-c"/>
         <param name="meshing" type="select"  label="meshing">
             <option value="triangle" selected="true">Triangle</option>
@@ -39,6 +41,12 @@
             <param name="meshing" value= "triangle"/>
             <param name="simplify" value="simplified"/>
             <output name="output" value="output.vtu"/>
+        </test>
+        <test>
+            <param name="input_shp" value="circle.shp"/>
+            <param name="meshing" value= "gmsh"/>
+            <param name="simplify" value="original"/>
+            <output name="output" value="output2.vtu"/>
         </test>
     </tests>
     <help><![CDATA[

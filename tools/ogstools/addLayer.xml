@@ -1,6 +1,6 @@
 <tool id="addLayer" name="ogstools addLayer" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
     <description>
-        Adds a layer to an existing mesh.
+        Adds a layer to an existing mesh
     </description>
     <macros>
         <import>macros.xml</import>

@@ -1,5 +1,4 @@
 <macros>
-    <!-- for historic reasons the omero-py version is used as the version for all tools -->
     <token name="@TOOL_VERSION@">6.5.3</token>
     <token name="@PROFILE@">21.05</token>
     <token name="@VERSION_SUFFIX@">0</token>
@@ -7,12 +6,17 @@
     <xml name="ogs_requirement">
             <requirement type="package" version="@TOOL_VERSION@">ogs</requirement>
             <yield/>
-        
     </xml>
 
     <xml name="ogs_citation">
         <citations> 
             <citation type="doi">10.5281/zenodo.13685289</citation>
         </citations>
+    </xml>
+
+    <xml name="creator">
+        <creator>
+            <organization name="Helmholtz Centre for Environmental Research - UFZ" url ="https://www.ufz.de/"/>
+        </creator>
     </xml>
 </macros>

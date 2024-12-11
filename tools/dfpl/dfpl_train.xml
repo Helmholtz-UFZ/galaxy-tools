@@ -114,17 +114,20 @@
             </param>
         </section>
         <conditional name="autoencoder">
-            <param label="Compress Fingerprints with Autoencoder"
-                   argument="--compressFeatures" type="boolean"
-                   checked="false"
+            <param label="Compress Fingerprints with Autoencoder" argument="--compressFeatures"
+                   type="select"
                    help="Compress the fingerprints using an autoencoder.
                    Either uses an already trained autoencoder (requires a weights file)
-                   or creates and trains a new autoencoder."/>
+                   or creates and trains a new autoencoder.">
+                <option value="true">Compress fingerprints</option>
+                <option value="false">Use raw fingerprints</option>
+            </param>
             <when value="true">
                 <conditional name="train-autoencoder">
                     <param label="Load / Train Autoencoder" argument="--trainAC"
-                           type="select" checked="true"
-                           help="Select if a new autoencoder should be trained or if you want to provide the weights of a trained autoencoder yourself.">
+                           type="select"
+                           help="Select if a new autoencoder should be trained
+                           or if you want to provide the weights of a trained autoencoder yourself.">
                         <option value="true">Train new autoencoder</option>
                         <option value="false">Load autoencoder from file</option>
                     </param>
@@ -179,6 +182,8 @@
                                help="UMAP the latent space for exploration."/>
                     </when>
                 </conditional>
+            </when>
+            <when value="false">
             </when>
         </conditional>
         <section title="Logging" name="logging_configuration" expanded="false">

@@ -6,6 +6,9 @@ d = json.load(stdin)
 d["py/object"] = "dfpl.options.Options"
 d["outputDir"] = "./model/"
 d["ecModelDir"] = "./autoencoder/"
-d["trainAC"] = bool(d["trainAC"] == "true")  # because this is actually a <select> tag that provides string values
+
+# <select> tags provide string values -> parse to boolean
+d["trainAC"] = bool(d["trainAC"] == "true")
+d["compressFeatures"] = bool(d["compressFeatures"] == "true")
 
 print(json.dumps(d))

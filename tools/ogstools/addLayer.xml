@@ -24,7 +24,7 @@
     <inputs> 
         <param name="input_mesh" type="data" format="vtkxml" label="Input Mesh File" argument="-i"/>
         <param name="layer_thickness" type="float" label="Layer Thickness" argument="-t"/>
-        <param name="add_layer_on_bottom" type="boolean" value="false" truevalue="--add-layer-on-bottom" falsevalue="" label="Add Layer To Bottom" argument="--add-layer-on-bottom"/>
+        <param name="add_layer_on_bottom" type="boolean" value="false" truevalue="--add-layer-on-bottom" falsevalue="" label="Add Layer To Bottom"/>
          <conditional name="material_option">
             <param name="material_id" type="select" label="Material ID Option">
                 <option value="none" selected="true">None</option>
@@ -34,10 +34,10 @@
             <when value="none">
             </when>
             <when value="copy">
-                <param name="copy_material_ids" type="boolean" truevalue="--copy-material-ids" falsevalue="" label="Copy/Save Material IDs" argument="--copy-material-ids"/>
+                <param name="copy_material_ids" type="boolean" truevalue="--copy-material-ids" falsevalue="" label="Copy/Save Material IDs"/>
             </when>
             <when value="set">
-                <param name="set_material_id" type="integer" label="Set Material IDs" argument="--set-material-id"/>
+                <param name="set_material_id" type="integer" label="Set Material IDs"/>
             </when>
         </conditional>
     </inputs>

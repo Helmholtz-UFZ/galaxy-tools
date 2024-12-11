@@ -20,3 +20,4 @@ suite:
       -msh2vtu converts .msh to .vtu/ .vtk
       -shp2msh converts .shp to .vtu/ .vtk
       -AddLayer adds a new layer to a existing .vtu/ .vtk file
+      -generateStructuredmesh creates a mesh defined by the user

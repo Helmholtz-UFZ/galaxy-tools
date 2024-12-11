@@ -1,0 +1,70 @@
+<tool id="shp2msh" name="ogstools shp2msh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+    <description>
+        Convert shp to msh
+    </description>
+    <macros>
+        <import>macros.xml</import>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <requirements>
+        <expand macro="ogs_requirement"/>
+    </requirements>  
+    <command detect_errors="exit_code"><![CDATA[
+        export SHAPE_RESTORE_SHX=YES &&    
+        ln -s '$input_shp' input.shp &&
+        shp2msh --input input.shp --output output.vtu
+        #if str($cellsize)!="":
+            --cellsize '$cellsize'
+        #end if
+        '$meshing'
+        '$simplify'
+    ]]></command>
+    <inputs>
+        <param name="input_shp" type="data" format="shp" label="Input SHP File" argument="-i"/>
+        <param name="cellsize" type="float" min="40" optional="true" label="cellsize" argument="-c"/>
+        <param name="meshing" type="select"  label="meshing">
+            <option value="triangle" selected="true">Triangle</option>
+            <option value="gmsh">Gmsh</option>
+        </param>
+        <param name="simplify" type="select" label="simplify">
+            <option value="simplified">Simplified</option>
+            <option value="original" selected="true">Original</option>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="output" format="xml" from_work_dir="output.vtu"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="input_shp" value="circle.shp"/>
+            <param name="cellsize" value="500.0"/>
+            <param name="meshing" value= "triangle"/>
+            <param name="simplify" value="simplified"/>
+            <output name="output" value="output.vtu"/>
+        </test>
+        <test>
+            <param name="input_shp" value="circle.shp"/>
+            <param name="meshing" value= "gmsh"/>
+            <param name="simplify" value="original"/>
+            <output name="output" value="output2.vtu"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+        **Overview:**
+            This tool takes a shapefile (.shp) as input and creates a mesh using either the Triangle or GMSH method.
+            The cellsize can be optionally specified, and the shapefile can be simplified before meshing.
+            Output data has the format .vtu/ .vtk.
+
+        **Inputs:**
+
+            1. **Input Shape File:** The .shp file to be converted.
+            2. **Cellsize:** Select the desired cellsize min=40.
+            3. **Meshing:** Choose either triangle or gmsh.
+            4. **Simplify:** Either the shapefiles are kept unchanged or they can be simplified. Choose between original and simplified.
+
+        **Outputs:**
+
+            **Output VTU Files:** The converted mesh as a VTU file.
+    ]]></help>
+    <expand macro="ogs_citation"/>
+</tool>

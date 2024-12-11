@@ -1,0 +1,14 @@
+<macros>
+    <token name="@TOOL_VERSION@">2.1</token>
+    <xml name="requirements">
+        <requirements>
+            <requirement type="package" version="@TOOL_VERSION@">deepfplearn</requirement>
+        </requirements>
+    </xml>
+    <xml name="citations">
+        <citations>
+            <citation type="doi">https://doi.org/10.1093/bioinformatics/btad713</citation>
+            <citation type="doi">https://doi.org/10.1093/bib/bbac257</citation>
+        </citations>
+    </xml>
+</macros>

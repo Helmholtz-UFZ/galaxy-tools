@@ -1,12 +1,11 @@
 <macros>
     <!-- for historic reasons the omero-py version is used as the version for all tools -->
-    <token name="@TOOL_VERSION@">0.1.0</token>
-    <token name="@OGSTOOLS_VERSION@">0.4.0</token>
+    <token name="@TOOL_VERSION@">0.4.0</token>
     <token name="@PROFILE@">21.05</token>
     <token name="@VERSION_SUFFIX@">0</token>
     
     <xml name="ogs_requirement">
-            <requirement type="package" version="@OGSTOOLS_VERSION@">ogstools</requirement>
+            <requirement type="package" version="@TOOL_VERSION@">ogstools</requirement>
             <yield/>
         
     </xml>

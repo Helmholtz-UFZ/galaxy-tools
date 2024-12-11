@@ -4,7 +4,7 @@ from sys import stdin
 d = json.load(stdin)
 
 # The directory where the full model of the fnn is loaded from.
-d["fnnModelDir"] = "" # 'dfpl predict' looks for "model_weights.h5" in this directory
+d["fnnModelDir"] = ""  # 'dfpl predict' looks for "model_weights.h5" in this directory
 del d["fnn_weights"]
 
 # The encoder file where it is loaded from, to compress the fingerprints.

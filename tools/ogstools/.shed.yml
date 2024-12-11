@@ -2,9 +2,7 @@ name: suite_ogs_tools
 owner: ufz
 description: A suite of tools for OpenGeoSys (ogs)
 long_description: |
-     Contains at the moment just file format converter.
-      -msh2vtu converts .msh to .vtu/ .vtk
-      -shp2msh converts .shp to .vtu/ .vtk
+     A suite of tools for ogs.
 categories:
 - Ecology
 remote_repository_url: https://gitlab.opengeosys.org/ogs/tools/ogstools
@@ -17,7 +15,4 @@ suite:
   name: suite_ogs_tools
   description: A suite of tools for ogs.
   long_description: |
-      -msh2vtu converts .msh to .vtu/ .vtk
-      -shp2msh converts .shp to .vtu/ .vtk
-      -AddLayer adds a new layer to a existing .vtu/ .vtk file
-      -generateStructuredmesh creates a mesh defined by the user
+     A suite of tools for ogs.

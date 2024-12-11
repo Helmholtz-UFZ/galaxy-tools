@@ -256,6 +256,11 @@
 <!--            <param name="aeWabTracking" value="false"/>-->
 <!--            <param name="wabTracking" value="false"/>-->
             <!--            todo: add tests for svg, csv -->
+            <output name="output_model_weights">
+                <assert_contents>
+                    <has_h5_keys keys="alpha_dropout_18,alpha_dropout_19,alpha_dropout_20,dense_30,dense_31,dense_32,dense_33,top_level_model_weights"/>
+                </assert_contents>
+            </output>
         </test>
     </tests>
     <help><![CDATA[

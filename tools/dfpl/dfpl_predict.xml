@@ -76,6 +76,12 @@
             <param name="inputFile" value="S_dataset.csv"/>
             <param name="fnn_weights" value="model_weights.h5"/>
             <param name="autoencoder_weights" value="encoder_weights.h5"/>
+            <output name="outputFile">
+                <assert_contents>
+                    <has_n_columns n="10" sep=","/>
+                    <has_line n="1" line=",smiles,AR,ER,GR,Aromatase,TR,PPARg,ED,predicted"/>
+                </assert_contents>
+            </output>
         </test>
     </tests>
     <help><![CDATA[

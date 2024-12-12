@@ -6,6 +6,7 @@
         <import>macros.xml</import>
         <token name="@VERSION_SUFFIX@">0</token>
     </macros>
+    <expand macro="creator"/>
     <requirements>
         <expand macro="ogs_requirement"/>
     </requirements>  
@@ -67,5 +68,4 @@
             **Output VTU Files:** The converted mesh as a VTU file.
     ]]></help>
     <expand macro="ogs_citation"/>
-    <expand macro="creator"/>
 </tool>

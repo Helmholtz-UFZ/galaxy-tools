@@ -61,7 +61,7 @@
     </inputs>
     <outputs>
         <data name="outputFile"
-              label="${tool.name} on {on_string}: predicted values"
+              label="${tool.name} on ${on_string}: predicted values"
               format="csv" />
     </outputs>
     <tests>

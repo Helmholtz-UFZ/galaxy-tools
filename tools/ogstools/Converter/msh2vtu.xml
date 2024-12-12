@@ -8,9 +8,7 @@
         <token name="@VERSION_SUFFIX@">0</token>
     </macros>
     <expand macro="creator"/>
-    <requirements>
-        <expand macro="ogs_requirement"/>
-    </requirements>      
+    <expand macro="requirements"/>
     <command detect_errors="exit_code"><![CDATA[
         ln -s '$input_file' input_file.msh &&
         msh2vtu input_file.msh 

@@ -88,7 +88,7 @@
               <param argument="min_periods" type="text" value="" optional="false" label="Minimum number of observations in a window required to perform the changepoint" help="test. If it is a tuple of two int, the first refer to the backward-,&#10;    the second to the forward-facing window."/>
               <param argument="reduce_window" type="text" optional="true" label="The sliding window search method is not an exact CP search method and usually" help="there won't be detected a single changepoint, but a &quot;region&quot; of change around&#10;    a changepoint. If `reduce_window` is given, for every window of size&#10;    `reduce_window`, there will be selected the value with index `reduce_func(x,&#10;    y)` and the others will be dropped. If `reduce_window` is None, the reduction&#10;    window size equals the twin window size, the changepoints have been detected&#10;    with."/>
               <param argument="reduce_func" type="text" value="" optional="false" label="A function that must return an index value upon input of two arrays x and y" help="First input parameter will hold the result from the stat_func evaluation for&#10;    every reduction window. Second input parameter holds the result from the&#10;    thresh_func evaluation. The default reduction function just selects the value&#10;    that maximizes the stat_func.function ([&lt;class 'numpy.ndarray'&gt;, &lt;class 'numpy.ndarray'&gt;], &lt;class 'float'&gt;) (default: &lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7fb9ff491e40&gt;)"/>
-              <param argument="model_by_resids" type="boolean" label="If True, the results of `stat_funcs` are written, otherwise the regime labels" help="" checked="false" truevalue="" falsevalue=""/>
+              <param argument="model_by_resids" type="boolean" label="If True, the results of `stat_funcs` are written, otherwise the regime labels" help="" checked="false"/>
             </when>
             <when value="flagChangePoints">
               <param argument="field" type="text" value="" optional="false" label="Variable to process" help=""/>
@@ -245,7 +245,7 @@
               <param argument="field" type="text" value="" optional="false" label="Variable to process" help=""/>
               <param argument="cluster_field" type="text" value="" optional="false" label="A string denoting the field in data, holding the cluster label for the data you want" help="to correct."/>
               <param argument="tolerance" type="text" optional="true" label="If an offset string is passed, a data chunk of length `offset` right at the" help="start and right at the end is ignored when fitting the model. This is to account&#10;    for the unreliability of data near the changepoints of regimes."/>
-              <param argument="epoch" type="boolean" label="If True, use &quot;seconds from epoch&quot; as x input to the model func, instead of" help="&quot;seconds from regime start&quot;." checked="false" truevalue="" falsevalue=""/>
+                <param argument="epoch" type="boolean" label="If True, use &quot;seconds from epoch&quot; as x input to the model func, instead of" help="&quot;seconds from regime start&quot;." checked="false" />
             </when>
             <when value="flagDriftFromNorm">
               <repeat name="field_repeat" title="field(s)" min="1">
@@ -439,7 +439,7 @@
                 <option value="backward">backward</option>
                 <option value="both">both</option>
               </param>
-              <param argument="overwrite" type="boolean" label="If set to True, existing flags will be cleared" help="" checked="false" truevalue="" falsevalue=""/>
+              <param argument="overwrite" type="boolean" label="If set to True, existing flags will be cleared" help="" checked="false"/>
             </when>
             <when value="interpolate">
               <param argument="field" type="text" value="" optional="false" label="Variable to process" help=""/>
@@ -498,7 +498,7 @@
                 </when>
               </conditional>
               <param argument="func" type="text" value="" optional="false" label="The function used for aggregation" help="function ([&lt;class 'pandas.core.series.Series'&gt;], &lt;class 'float'&gt;) (default: &lt;function median at 0x7fba139720c0&gt;)"/>
-              <param argument="center" type="boolean" label="Center the window around the value" help="" checked="true" truevalue="" falsevalue=""/>
+              <param argument="center" type="boolean" label="Center the window around the value" help="" checked="true" />
               <param argument="min_periods" type="integer" value="0" optional="false" label="Minimum number of valid (not np" help="computed."/>
               <param argument="flag" type="float" value="-inf" optional="false" label="The flag value the function uses to mark observations" help=""/>
             </when>
@@ -736,7 +736,7 @@
               </conditional>
               <param argument="min_periods" type="integer" value="11" optional="false" label="Only effective if :py:attr:`threshing` is set to ``'stray'`` and :py:attr:`partition` is an integer" help="Minimum number of periods per :py:attr:`partition` that have to be present for a valid outlier&#10;    detection to be made in this partition."/>
               <param argument="stray_range" type="text" optional="true" label="If not ``None``, it is tried to reduce the stray result onto single outlier components" help="of the input :py:attr:`field`. The offset string denotes the range of the&#10;    temporal surrounding to include into the MAD testing while trying to reduce&#10;    flags."/>
-              <param argument="drop_flagged" type="boolean" label="Only effective when :py:attr:`stray_range` is not ``None``" help="values from the temporal surroundings." checked="false" truevalue="" falsevalue=""/>
+              <param argument="drop_flagged" type="boolean" label="Only effective when :py:attr:`stray_range` is not ``None``" help="values from the temporal surroundings." checked="false"/>
               <param argument="thresh" type="float" value="3.5" optional="false" label="Only effective when :py:attr:`stray_range` is not ``None``" help="controlling wheather the MAD score is considered referring to an outlier or&#10;    not. Higher values result in less rigid flagging. The default value is widely&#10;    considered apropriate in the literature."/>
               <param argument="min_periods_r" type="integer" value="1" optional="false" label="Only effective when :py:attr:`stray_range` is not ``None``" help="necessary in an interval to actually perform the reduction step."/>
               <param argument="flag" type="float" value="255.0" optional="false" label="The flag value the function uses to mark observations" help=""/>
@@ -841,7 +841,7 @@
               <param argument="min_periods" type="integer" optional="true" label="Minimum number of valid meassurements in a scoring window, to consider the resulting score valid" help=""/>
               <param argument="model_func" type="text" value="" optional="false" label="Function to calculate the center moment in every window" help="function ([numpy.ndarray | pandas.core.series.Series], &lt;class 'float'&gt;) (default: &lt;function nanmean at 0x7fba1372a0c0&gt;)"/>
               <param argument="norm_func" type="text" value="" optional="false" label="Function to calculate the scaling for every window" help="function ([numpy.ndarray | pandas.core.series.Series], &lt;class 'float'&gt;) (default: &lt;function nanstd at 0x7fba1372ade0&gt;)"/>
-              <param argument="center" type="boolean" label="Weather or not to center the target value in the scoring window" help="target value is the last value in the window." checked="true" truevalue="" falsevalue=""/>
+              <param argument="center" type="boolean" label="Weather or not to center the target value in the scoring window" help="target value is the last value in the window." checked="true" />
               <param argument="flag" type="float" value="255.0" optional="false" label="The flag value the function uses to mark observations" help=""/>
             </when>
           </conditional>
@@ -877,9 +877,9 @@
                 <option value="auto">auto</option>
               </param>
               <param argument="freq" type="text" optional="true" label="Projection range" help=""/>
-              <param argument="drop" type="boolean" label="Remove :py:attr:`field` if ``True``" help="" checked="false" truevalue="" falsevalue=""/>
-              <param argument="squeeze" type="boolean" label="Squueze the history into a single column if ``True``" help="" checked="false" truevalue="" falsevalue=""/>
-              <param argument="overwrite" type="boolean" label="Overwrite existing flags if ``True``" help="" checked="false" truevalue="" falsevalue=""/>
+              <param argument="drop" type="boolean" label="Remove :py:attr:`field` if ``True``" help="" checked="false" />
+              <param argument="squeeze" type="boolean" label="Squueze the history into a single column if ``True``" help="" checked="false" />
+              <param argument="overwrite" type="boolean" label="Overwrite existing flags if ``True``" help="" checked="false" />
             </when>
             <when value="linear">
               <param argument="field" type="text" value="" optional="false" label="Variable to process" help=""/>
@@ -947,7 +947,7 @@
               </conditional>
               <param argument="func" type="text" value="" optional="false" label="Function to roll with" help="function ([&lt;class 'pandas.core.series.Series'&gt;], &lt;class 'numpy.ndarray'&gt;) (default: &lt;function mean at 0x7fba13a1f100&gt;)"/>
               <param argument="min_periods" type="integer" value="0" optional="false" label="The minimum number of periods to get a valid value" help=""/>
-              <param argument="center" type="boolean" label="If True, center the rolling window" help="" checked="true" truevalue="" falsevalue=""/>
+              <param argument="center" type="boolean" label="If True, center the rolling window" help="" checked="true" />
             </when>
           </conditional>
         </when>
@@ -973,7 +973,7 @@
               </conditional>
               <param argument="func" type="text" value="" optional="false" label="Function to roll with" help="function ([&lt;class 'pandas.core.series.Series'&gt;], &lt;class 'numpy.ndarray'&gt;) (default: &lt;function mean at 0x7fba13a1f100&gt;)"/>
               <param argument="min_periods" type="integer" value="0" optional="false" label="The minimum number of periods to get a valid value" help=""/>
-              <param argument="center" type="boolean" label="If True, center the rolling window" help="" checked="true" truevalue="" falsevalue=""/>
+              <param argument="center" type="boolean" label="If True, center the rolling window" help="" checked="true" />
             </when>
             <when value="rolling">
               <param argument="field" type="text" value="" optional="false" label="Variable to process" help=""/>
@@ -991,7 +991,7 @@
               </conditional>
               <param argument="func" type="text" value="" optional="false" label="Function to roll with" help="function ([&lt;class 'pandas.core.series.Series'&gt;], &lt;class 'numpy.ndarray'&gt;) (default: &lt;function mean at 0x7fba13a1f100&gt;)"/>
               <param argument="min_periods" type="integer" value="0" optional="false" label="The minimum number of periods to get a valid value" help=""/>
-              <param argument="center" type="boolean" label="If True, center the rolling window" help="" checked="true" truevalue="" falsevalue=""/>
+              <param argument="center" type="boolean" label="If True, center the rolling window" help="" checked="true" />
             </when>
           </conditional>
         </when>
@@ -1102,7 +1102,7 @@
               <param argument="window" type="text" optional="true" label="Size of the window" help="by an integer, denoting the windows number of periods.&#10;    `NaN` measurements also count as periods.&#10;    If `None` is passed, All data points share the same scoring window, which than equals the whole&#10;    data."/>
               <param argument="norm_func" type="text" value="" optional="false" label="Function to calculate the scaling for every window" help="function () (default: &lt;function nanstd at 0x7fba1372ade0&gt;)"/>
               <param argument="model_func" type="text" value="" optional="false" label="Function to calculate the center moment in every window" help="function () (default: &lt;function nanmean at 0x7fba1372a0c0&gt;)"/>
-              <param argument="center" type="boolean" label="Weather or not to center the target value in the scoring window" help="target value is the last value in the window." checked="true" truevalue="" falsevalue=""/>
+              <param argument="center" type="boolean" label="Weather or not to center the target value in the scoring window" help="target value is the last value in the window." checked="true" />
               <param argument="min_periods" type="integer" optional="true" label="Minimum number of valid meassurements in a scoring window, to consider the resulting score valid" help=""/>
             </when>
           </conditional>
@@ -1119,7 +1119,7 @@
             <when value="copyField">
               <param argument="field" type="text" value="" optional="false" label="field" help=""/>
               <param argument="target" type="text" value="" optional="false" label="target" help=""/>
-              <param argument="overwrite" type="boolean" label="overwrite" help="" checked="false" truevalue="" falsevalue=""/>
+              <param argument="overwrite" type="boolean" label="overwrite" help="" checked="false" />
             </when>
             <when value="dropField">
               <param argument="field" type="text" value="" optional="false" label="field" help=""/>
@@ -1165,7 +1165,7 @@
               <param argument="selection_field" type="text" optional="true" label="Only effective if mode == &quot;mask_var&quot;" help="Fieldname of the column, holding the data that is to be used as mask. (must be boolean series)&#10;    Neither the series` length nor its labels have to match data[field]`s index and length. An inner join of the&#10;    indices will be calculated and values get masked where the values of the inner join are ``True``."/>
               <param argument="start" type="text" optional="true" label="Only effective if mode == &quot;seasonal&quot;" help="String denoting starting point of every period. Formally, it has to be a truncated instance of &quot;mm-ddTHH:MM:SS&quot;.&#10;    Has to be of same length as `end` parameter.&#10;    See examples section below for some examples."/>
               <param argument="end" type="text" optional="true" label="Only effective if mode == &quot;periodic&quot;" help="String denoting starting point of every period. Formally, it has to be a truncated instance of &quot;mm-ddTHH:MM:SS&quot;.&#10;    Has to be of same length as `end` parameter.&#10;    See examples section below for some examples."/>
-              <param argument="closed" type="boolean" label="Wheather or not to include the mask defining bounds to the mask" help="" checked="true" truevalue="" falsevalue=""/>
+              <param argument="closed" type="boolean" label="Wheather or not to include the mask defining bounds to the mask" help="" checked="true" />
             </when>
           </conditional>
         </when>

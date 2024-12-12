@@ -7,6 +7,8 @@ d = json.load(stdin)
 d["fnnModelDir"] = ""  # 'dfpl predict' looks for "model_weights.h5" in this directory
 del d["fnn_weights"]
 
+d["compressFeatures"] = bool(d["compressFeatures"] == "true")
+
 # The encoder file where it is loaded from, to compress the fingerprints.
 d["ecModelDir"] = ""
 d["ecWeightsFile"] = "encoder_weights.h5"

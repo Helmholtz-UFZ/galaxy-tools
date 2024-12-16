@@ -7,9 +7,8 @@ def convert_xlsx_to_tsv(input_file, sheet_name, output):
     try:
         # Read the specified sheet and convert them to tsv
         df = pd.read_excel(input_file, sheet_name=sheet_name)
-        output_filename = f"{sheet_name}.tsv"
         df.to_csv(output, sep='\t', index=False)
-        print(f"Converted sheet '{sheet_name}' from {input_file} to {output_filename}")
+        print(f"Extracted sheet '{sheet_name}' from {input_file}")
 
     except Exception as e:
         print(f"Failed to convert sheet '{sheet_name}' from {input_file}: {e}")

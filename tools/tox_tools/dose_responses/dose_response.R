@@ -4,6 +4,7 @@ library(ggplot2)
 fit_models <- function(data, concentration_col, response_col) {
     models <- list(
         LL.2 = drm(data[[response_col]] ~ data[[concentration_col]], data = data, fct = LL.2(), type = "binomial"),
+        LL.4 = drm(data[[response_col]] ~ data[[concentration_col]], data = data, fct = LL.4(), type = "binomial"),
         W1.4 = drm(data[[response_col]] ~ data[[concentration_col]], data = data, fct = W1.4(), type = "binomial"),
         W2.4 = drm(data[[response_col]] ~ data[[concentration_col]], data = data, fct = W2.4(), type = "binomial"),
         BC.5 = drm(data[[response_col]] ~ data[[concentration_col]], data = data, fct = BC.5(), type = "binomial")
@@ -60,7 +61,7 @@ plot_dose_response <- function(model, data, ec_values, concentration_col, respon
         )
 
     # Save the plot to a file
-    jpeg(filename = plot_file)
+    jpeg(filename = plot_file, width = 480, height = 480, res = 72)
     print(p)
     dev.off()
 }

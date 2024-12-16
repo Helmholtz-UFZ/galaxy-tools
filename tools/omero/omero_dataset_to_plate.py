@@ -108,8 +108,8 @@ if __name__ == "__main__":
                         help='Path to the log file')
     parser.add_argument('--mapping_file',
                         help='Tabular file mapping filenames to well positions (2 columns: filename, Well)')
-    parser.add_argument('--delete_dataset', required=True, type=bool,
-                        help='Delete the original dataset or not')
+    parser.add_argument('--delete_dataset', action='store_true',
+                        help='Flag to delete the original dataset')
     args = parser.parse_args()
 
     with open(args.credential_file, 'r') as f:

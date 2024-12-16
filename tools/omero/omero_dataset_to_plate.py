@@ -70,9 +70,6 @@ def convert_dataset_to_plate(host, user, pws, port, dataset_id, log_file, mappin
             else:
                 conn.close()
                 sys.exit(f"Image '{image_name}' not found in mapping file.")
-        else:
-            conn.close()
-            sys.exit("ERROR: No mapping file provided")
 
     # Assign images to the well based on the mapping file
     for (row, col), imgs_in_group in grouped_images.items():

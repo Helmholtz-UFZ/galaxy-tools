@@ -15,7 +15,7 @@
        --dataset_id '$dataset_id'
        --log_file '$log'
        --mapping_file '$mapping'
-       @delete_dataset@
+       '$delete_dataset'
    ]]></command>
    <configfiles>
        <expand macro="credentials"/>

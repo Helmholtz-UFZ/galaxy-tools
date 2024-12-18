@@ -5,7 +5,7 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[python -c 'import saqc; print(saqc.__version__)']]></version_command>
-  <command><![CDATA[
+   <command detect_errors="exit_code"><![CDATA[
   ln -s '$config' config.csv &&
   #for $i, $d in enumerate($data)
       ln -s '$d' '${i}.csv' &&

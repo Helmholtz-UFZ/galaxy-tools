@@ -11,7 +11,6 @@
   <command><![CDATA[
   ln -s '$config' config.csv &&
   #for $i, $d in enumerate($data)
-      ## TODO maybe link to element_identifier
       ln -s '$d' '${i}.csv' &&
   #end for
   saqc -c config.csv
@@ -42,7 +41,10 @@
             hidden="false"/>
   </outputs>
   <expand macro="saqc_tests"/>
-  <help><![CDATA[TODO]]></help>
+  <help><![CDATA[
+  This tool runs the SaQC quality control pipeline specified by a config file on the input data.
+  Just upload your data and a config file, and the tool will run the SaQC pipeline on the data.
+]]></help>
   <expand macro="citations"/>
 </tool>
 

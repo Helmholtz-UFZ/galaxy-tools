@@ -1,5 +1,9 @@
 <tool id="dfpl_predict" name="deepFPlearn predict" version="@TOOL_VERSION@+galaxy0" profile="23.0">
     <description>association of molecular structures to biological targets</description>
+    <creator>
+        <organization name="Helmholtz Centre for Environmental Research - UFZ, Research Data Management"
+                      url ="https://www.ufz.de/index.php?en=45348"/>
+    </creator>
     <macros>
         <import>macros.xml</import>
     </macros>

@@ -41,7 +41,7 @@
                 <option value="MACCS">MACCS</option>
             </param>
         </section>
-        <conditional name="autoencoder" title="General Configuration" expanded="true">
+        <conditional name="autoencoder">
             <param label="Compress Fingerprints with Autoencoder" argument="--compressFeatures"
                    type="select"
                    help="Compress the fingerprints using a trained autoencoder (requires a weights file)">
@@ -80,8 +80,10 @@
             </section>
             <param name="compressFeatures" value="true"/>
 <!--            <param name="autoencoder_weights" value="encoder_weights.h5"/>-->
-            <param name="autoencoder_weights" location="https://zenodo.org/api/records/14514397/files/encoder_weights.h5/content"/>
-            <param name="aeType" value="deterministic"/>
+            <conditional name="autoencoder">
+                <param name="autoencoder_weights" location="https://zenodo.org/api/records/14514397/files/encoder_weights.h5/content"/>
+                <param name="aeType" value="deterministic"/>
+            </conditional>
 <!--            <param name="fnn_weights" value="model_weights.h5"/>-->
             <param name="fnn_weights" location="https://zenodo.org/api/records/14514397/files/model_weights.h5/content"/>
             <output name="outputFile">

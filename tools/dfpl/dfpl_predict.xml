@@ -91,9 +91,9 @@
                     <has_line n="1" line=",smiles,AR,ER,GR,Aromatase,TR,PPARg,ED,predicted"/>
                 </assert_contents>
             </output>
-            <assert_stderr>
+            <assert_stdout>
                 <has_text text="Prediction successful"/>
-            </assert_stderr>
+            </assert_stdout>
         </test>
     </tests>
     <help><![CDATA[

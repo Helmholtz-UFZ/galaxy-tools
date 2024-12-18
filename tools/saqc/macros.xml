@@ -15,14 +15,4 @@
     </citations>
 </xml>
 
-<xml name="saqc_tests">
-<tests>
-    <test>
-        <!-- https://rdm-software.pages.ufz.de/saqc/cookbooks/MultivariateFlagging.html -->
-        <param name="data" value="data.csv,maint.csv" ftype="csv"/>
-        <param name="config" value="config.txt" ftype="txt"/>
-        <output name="output" value="out.csv" ftype="csv"/>
-    </test>
-</tests>
-</xml>
 </macros>

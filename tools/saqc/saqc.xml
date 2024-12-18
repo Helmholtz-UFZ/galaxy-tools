@@ -37,7 +37,14 @@
             from_work_dir="output.csv"
             hidden="false"/>
   </outputs>
-  <expand macro="saqc_tests"/>
+  <tests>
+    <test>
+      <!-- https://rdm-software.pages.ufz.de/saqc/cookbooks/MultivariateFlagging.html -->
+      <param name="data" value="data.csv,maint.csv" ftype="csv"/>
+      <param name="config" value="config.txt" ftype="txt"/>
+      <output name="output" value="out.csv" ftype="csv"/>
+    </test>
+  </tests>
   <help><![CDATA[
   This tool runs the SaQC quality control pipeline specified by a config file on the input data.
   Just upload your data and a config file, and the tool will run the SaQC pipeline on the data.

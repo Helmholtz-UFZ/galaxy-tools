@@ -9,7 +9,11 @@
 <token name="@TOOL_VERSION@">2.4.1</token>
 <token name="@VERSION_SUFFIX@">0</token>
 
-<xml name="citations"/>
+<xml name="citations">
+    <citations>
+        <citation type="doi">https://doi.org/10.1016/j.envsoft.2023.105809</citation>
+    </citations>
+</xml>
 
 <xml name="field">
 <!-- todo: dynamically select from columns in data -->

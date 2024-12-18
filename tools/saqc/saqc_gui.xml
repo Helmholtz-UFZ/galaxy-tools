@@ -1221,7 +1221,10 @@
       </collection>
   </outputs>
   <expand macro="saqc_tests"/>
-  <help><![CDATA[TODO]]></help>
+  <help><![CDATA[
+  This tool runs a SaQC quality control pipeline on the uploaded input data.
+  The pipeline can be configured by adding multiple methods.
+]]></help>
   <expand macro="citations"/>
 </tool>
 

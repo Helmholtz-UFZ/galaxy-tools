@@ -4,9 +4,6 @@
     <import>macros.xml</import>
   </macros>
   <expand macro="requirements"/>
-  <stdio>
-    <exit_code range="1:" level="fatal"/>
-  </stdio>
   <version_command><![CDATA[python -c 'import saqc; print(saqc.__version__)']]></version_command>
   <command><![CDATA[
   ln -s '$config' config.csv &&

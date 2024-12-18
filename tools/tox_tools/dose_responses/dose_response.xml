@@ -2,7 +2,7 @@
     <description>for Toxicological Risk Assessment</description>
     <macros>
         <token name="@TOOL_VERSION@">3.0.1</token>
-        <token name="@VERSION_SUFFIX@">2</token>
+        <token name="@VERSION_SUFFIX@">3</token>
     </macros>
     <creator>
         <organization name="Helmholtz Centre for Environmental Research - UFZ, Department of Ecotoxicology"
@@ -26,13 +26,13 @@
         ]]>
     </command>
     <inputs>
-        <param name="input_csv" type="data" format="tabular" label="Concentration - Response Tabular Input"/>
-        <param name="concentration_column" type="data_column" data_ref="input_csv" label="Concentration Column" help="Name of the column for concentration values"/>
-        <param name="response_column" type="data_column" data_ref="input_csv" label="Response Column" help="Name of the column for response values"/>
+        <param name="input_csv" type="data" format="tabular" label="Dose-Response Tabular Input"/>
+        <param name="concentration_column" type="data_column" data_ref="input_csv" label="Dose/Concentration Column Index" help="Index of the column for concentration values"/>
+        <param name="response_column" type="data_column" data_ref="input_csv" label="Response Column Index" help="Index of the column for response values"/>
         <param name="compound_name" type="text" label="Compound Name" help="Name of the compound to analyze">
             <validator type="regex" message="Enter a valid compound name">^^[a-zA-Z0-9\[\]()_-]+$</validator>
         </param>
-        <param name="concentration_unit" type="text" label="Concentration Unit">
+        <param name="concentration_unit" type="text" label="Concentration Unit (i.e. mg/L, µM)">
             <validator type="regex" message="Enter a valid concentration unit">^(\S+/\S+)</validator>
         </param>
     </inputs>
@@ -43,11 +43,11 @@
         <tests>
         <test>
             <param name="input_csv" value="drc_input.tsv"/>
-            <param name="concentration_column" value="1"/>
-            <param name="response_column" value="2"/>
+            <param name="concentration_column" value="2"/>
+            <param name="response_column" value="3"/>
             <param name="compound_name" value="test-chemical"/>
             <param name="concentration_unit" value="mg/L"/>
-            <output name="plot_output" ftype="jpg">
+            <output name="plot_output" value="image_output.jpg" ftype="jpg">
                 <assert_contents>
                     <has_image_width width="480"/>
                     <has_image_height height="480"/>

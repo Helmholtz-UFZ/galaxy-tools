@@ -78,14 +78,12 @@
                 <param name="type" value="smiles"/>
                 <param name="fpType" value="topological"/>
             </section>
-<!--            <param name="autoencoder_weights" value="encoder_weights.h5"/>-->
             <conditional name="autoencoder">
                 <param name="compressFeatures" value="true"/>
-                <param name="autoencoder_weights" location="https://zenodo.org/api/records/14514397/files/encoder_weights.h5/content"/>
+                <param name="autoencoder_weights" value="encoder_weights.h5" location="https://zenodo.org/api/records/14514397/files/encoder_weights.h5/content"/>
                 <param name="aeType" value="deterministic"/>
             </conditional>
-<!--            <param name="fnn_weights" value="model_weights.h5"/>-->
-            <param name="fnn_weights" location="https://zenodo.org/api/records/14514397/files/model_weights.h5/content"/>
+            <param name="fnn_weights" value="model_weights.h5" location="https://zenodo.org/api/records/14514397/files/model_weights.h5/content"/>
             <output name="outputFile">
                 <assert_contents>
                     <has_n_lines n="7249"/>

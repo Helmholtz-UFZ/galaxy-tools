@@ -271,9 +271,9 @@
                     <has_h5_keys keys="alpha_dropout_18,alpha_dropout_19,alpha_dropout_20,dense_30,dense_31,dense_32,dense_33,top_level_model_weights"/>
                 </assert_contents>
             </output>
-            <assert_stderr>
+            <assert_stdout>
                 <has_text text="Evaluating trained model"/>
-            </assert_stderr>
+            </assert_stdout>
         </test>
     </tests>
     <help><![CDATA[

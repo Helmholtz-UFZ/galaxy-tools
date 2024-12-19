@@ -2,7 +2,7 @@
     <description> with ezomero </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@VERSION_SUFFIX@">1</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -41,7 +41,7 @@
                 </param>
             </when>
             <when value="file">
-                <param argument="--ids_path" type="data" format="txt,tabular" min="1" label="Dataset with ID(s) of the object(s) to fetch on OMERO (one per line)"/>
+                <param argument="--ids_path" type="data" format="txt,tabular" label="Dataset with ID(s) of the object(s) to fetch on OMERO (one per line)"/>
             </when>
         </conditional>
     </inputs>

@@ -3,10 +3,11 @@
     <token name="@PROFILE@">23.0</token>
     <token name="@VERSION_SUFFIX@">0</token>
     
-    <xml name="ogs_requirement">
+    <xml name="requirements">
+        <requirements>
             <requirement type="package" version="@TOOL_VERSION@">ogstools</requirement>
             <yield/>
-        
+        </requirements>
     </xml>
 
     <xml name="ogs_citation">

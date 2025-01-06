@@ -7,9 +7,8 @@
         <import>macros.xml</import>
         <token name="@VERSION_SUFFIX@">0</token>
     </macros>
-    <requirements>
-        <expand macro="ogs_requirement"/>
-    </requirements>      
+    <expand macro="creator"/>
+    <expand macro="requirements"/>
     <command detect_errors="exit_code"><![CDATA[
         ln -s '$input_file' input_file.msh &&
         msh2vtu input_file.msh 
@@ -95,5 +94,4 @@
         **Output VTU Files:** The converted mesh file as a set of files with VTU format.
     ]]></help>
     <expand macro="ogs_citation"/>
-    <expand macro="creator"/>
 </tool>

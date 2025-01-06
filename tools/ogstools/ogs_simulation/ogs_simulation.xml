@@ -8,9 +8,9 @@
     </macros>
     <requirements>
         <expand macro="ogs_requirement"/>
-        <requirement type="python_package" version=">=2.13.6">pybind11</requirement> 
-        <requirement type="python_package" version=">=1.2.5">tclap</requirement>
-        <requirement type="python_package" version=">=2.2.0rc1">numpy</requirement>
+        <requirement type="package" version=">=2.13.6">pybind11</requirement> 
+        <requirement type="package" version=">=1.2.5">tclap</requirement>
+        <requirement type="package" version=">=2.2.0rc1">numpy</requirement>
     </requirements>        
     <command detect_errors="exit_code"><![CDATA[            TODO Output directory löschen??
         ogs 
@@ -32,7 +32,7 @@
         
     ]]></command>
     <inputs>
-        <param name="project_file" type="data" label="Project File (.prj)" argument="--project-file"/>
+        <param name="project_file" format="prj" type="data" label="Project File (.prj)"/>
         <param name="output_directory" type="text" label="Output Directory" value="./output"/>
         <param name="log_level" type="select" label="Log Level" optional="true">
             <option value="none">None</option>
@@ -42,11 +42,11 @@
             <option value="debug">Debug</option>
             <option value="all">All</option>
         </param>
-        <param name="enable_fpe" type="boolean" optional="true" argument="--enable-fpe"/>
+        <param name="enable_fpe" type="boolean" optional="true"/>
         <param name="unbuffered_cout_arg" type="boolean"  optional="true" argument="--unbuffered-std-out"/>
         
-        <param name="xml_patch_files" type="data" label="XML Patch Files" optional="true" multiple="true" argument="--xml-patch"/>
-        <param name="config_warnings_nonfatal" type="boolean" default="false" argument="nonfatal_arg"/>
+        <param name="xml_patch_files" type="data" format="xml" label="XML Patch Files" optional="true" multiple="true"/>
+        <param name="config_warnings_nonfatal" type="boolean"/>
     </inputs>
     <outputs>
     <data name="log_file" format="txt" label="Simulation Log" />
@@ -54,6 +54,22 @@
             <discover_datasets pattern="__output_directory__/.*\.vtu" directory="output_directory" visible="true" />
         </data>
     </outputs>
+    <tests>
+    <test>
+        <param name="project_file" value="test_project.prj" />
+        <param name="output_directory" value="./test_output" />
+        <param name="log_level" value="info" />
+        <param name="enable_fpe" value="true" />
+        <param name="config_warnings_nonfatal" value="true" />
+
+        <output name="log_file" file="test_output/simulation.log" />
+        <output_collection name="simulation_results">
+            <element name="result1" file="test_output/result1.vtu" />
+            <element name="result2" file="test_output/result2.vtu" />
+        </output_collection>
+    </test>
+</tests>
+
     <help><![CDATA[
         **Overview:**
 

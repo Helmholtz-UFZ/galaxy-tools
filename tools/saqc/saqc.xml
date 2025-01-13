@@ -1,5 +1,5 @@
 <tool name="SaQC" id="saqc" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
-  <description>quality control pipelines for environmental sensor data</description>
+  <description>quality control for time series</description>
   <creator>
     <organization name="Helmholtz Centre for Environmental Research - UFZ, Research Data Management"
                   url ="https://www.ufz.de/index.php?en=45348"/>

@@ -32,7 +32,7 @@
     </outputs>
     <tests>
         <test>
-            <param name="input_mesh" value="SGrid_Test.vtu"/>
+            <param name="input_mesh" value="AmmerSubsurfaceCoarse.vtu"/>
             <param name="x_component" value="1.0"/>
             <param name="y_component" value="1.0"/>
             <param name="z_component" value="0.0"/>

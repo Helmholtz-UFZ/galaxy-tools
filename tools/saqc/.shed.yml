@@ -3,7 +3,7 @@ categories:
 description:  System for automated Quality Control
 long_description: Anomalies and errors are the rule not the exception when working with time series data. This is especially true, if such data originates from in-situ measurements of environmental properties. Almost all applications, however, implicily rely on data, that complies with some definition of 'correct'. In order to infer reliable data products and tools, there is no alternative to quality control. SaQC provides all the building blocks to comfortably bridge the gap between 'usually faulty' and 'expected to be corrected' in a accessible, consistent, objective and reproducible way.
 name: saqc
-owner: mbernt
+owner: ufz
 remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/blob/main/tools/saqc/
 homepage_url: https://git.ufz.de/rdm-software/saqc
 type: unrestricted

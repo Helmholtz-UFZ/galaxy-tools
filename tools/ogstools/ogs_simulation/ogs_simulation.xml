@@ -12,28 +12,19 @@
         <requirement type="package" version=">=1.2.5">tclap</requirement>
         <requirement type="package" version=">=2.2.0rc1">numpy</requirement>
     </requirements>        
-    <command detect_errors="exit_code"><![CDATA[            TODO Output directory löschen??
-        ogs 
-        --project-file '${project_file}' 
-        --output-directory '${output_directory}' 
+    <command detect_errors="exit_code"><![CDATA[           
+        ogs '${project_file}'         
         #if $log_level: 
         --log-level '${log_level}' 
+        #end if     
+        #if $xml_patch_files:
+            #for $file in $xml_patch_files:
+                --xml-patch '${file}' 
+            #end for
         #end if 
-        #if $enable_fpe:
-        --enable-fpe 
-        #end if
-        unbuffered_cout_arg      
-        #if $xml_patch_files: 
-        --xml-patch "${xml_patch_files}" 
-        #end if 
-        --write-prj
-        config-warnings-nonfatal
-        
-        
     ]]></command>
     <inputs>
         <param name="project_file" format="prj" type="data" label="Project File (.prj)"/>
-        <param name="output_directory" type="text" label="Output Directory" value="./output"/>
         <param name="log_level" type="select" label="Log Level" optional="true">
             <option value="none">None</option>
             <option value="error">Error</option>
@@ -42,33 +33,35 @@
             <option value="debug">Debug</option>
             <option value="all">All</option>
         </param>
-        <param name="enable_fpe" type="boolean" optional="true"/>
-        <param name="unbuffered_cout_arg" type="boolean"  optional="true" argument="--unbuffered-std-out"/>
         
         <param name="xml_patch_files" type="data" format="xml" label="XML Patch Files" optional="true" multiple="true"/>
-        <param name="config_warnings_nonfatal" type="boolean"/>
     </inputs>
     <outputs>
-    <data name="log_file" format="txt" label="Simulation Log" />
-        <data name="simulation_results" format="collection" label="Simulation Results">
-            <discover_datasets pattern="__output_directory__/.*\.vtu" directory="output_directory" visible="true" />
-        </data>
+        <data name="log_file" format="txt" label="Simulation Log" />
+        <collection name="simulation_results" type="list" label="Simulation Results">
+        <discover_datasets pattern="__name_and_ext__" directory="outputs" visible="true"/>
+    </collection>
     </outputs>
     <tests>
-    <test>
-        <param name="project_file" value="test_project.prj" />
-        <param name="output_directory" value="./test_output" />
-        <param name="log_level" value="info" />
-        <param name="enable_fpe" value="true" />
-        <param name="config_warnings_nonfatal" value="true" />
-
-        <output name="log_file" file="test_output/simulation.log" />
-        <output_collection name="simulation_results">
-            <element name="result1" file="test_output/result1.vtu" />
-            <element name="result2" file="test_output/result2.vtu" />
+        <test>
+            <param name="project_file" value="square_1e0_neumann.prj" />
+            <param name="log_level" value="info" />
+            <param name="xml_patch_files" value="square_1e0.xml,square_neumann.xml"/>
+            <output name="log_file" file="simulation.log" />
+            <output_collection name="simulation_results" type="list">
+            <element name="output_2">
+                <assert_contents>
+                    <has_text_matching expression=".* type=&quot;Float64&quot; Name=&quot;v&quot;.*NumberOfComponents=&quot;2&quot;.*RangeMin=&quot;0&quot;.*RangeMax=&quot;0&quot;.*offset=&quot;124&quot;.*" />
+                </assert_contents>
+            </element>
+            <element name="output_1">
+                <assert_contents>
+                    <has_text_matching expression=".* type=&quot;Float64&quot; Name=&quot;v&quot;.*NumberOfComponents=&quot;2&quot;.*RangeMin=&quot;7.4734174504e-17&quot;.*RangeMax=&quot;1.0606601718&quot;.*offset=&quot;136&quot;.*" />
+                </assert_contents>
+            </element>
         </output_collection>
-    </test>
-</tests>
+        </test>
+    </tests>
 
     <help><![CDATA[
         **Overview:**

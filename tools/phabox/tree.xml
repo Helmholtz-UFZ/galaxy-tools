@@ -20,7 +20,7 @@
     </inputs>
     <outputs>
         <collection name="marker_genes" format="fasta" type="list">
-            <discover_datasets pattern="finded_marker_(?P&lt;designation&gt;.+)_conbined_db.fa" directory="output/final_prediction/tree_supplementary"/>
+            <discover_datasets pattern="found_marker_(?P&lt;designation&gt;.+)_combined_db.fa" directory="output/final_prediction/tree_supplementary"/>
         </collection>
     </outputs>
     <tests>

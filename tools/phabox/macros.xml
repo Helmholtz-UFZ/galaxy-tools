@@ -1,5 +1,5 @@
 <macros>
-    <token name="@TOOL_VERSION@">2.1.5</token>
+    <token name="@TOOL_VERSION@">2.1.10</token>
     <token name="@VERSION_SUFFIX@">0</token>
     <xml name="citations">
         <citations>
@@ -44,7 +44,7 @@
             <param argument="--aai" type="float" value="75" min="0" max="100" label="Average amino acids identity"/>
             <param argument="--share" type="float" value="15" min="0" max="100" label="Minimum shared number of proteins"/>
             <param argument="--pcov" type="float" value="80" min="0" max="100" label="Protein-based coverage"/>
-            <!-- \-\-draw not recommended top be used according to CLI help -->
+            <!-- \-\-draw not recommended to be used according to CLI help -->
         </section>
     </xml>
     <token name="@NETWORK@"><![CDATA[
@@ -62,6 +62,7 @@
                 <option value="blastn">blastn</option>
                 <option value="blastn-short">blastn-short</option>
             </param>
+            <param argument="--magonly" type="boolean" truevalue="--magonly Y" falsevalue="--magonly N" label="Only predicting host based on the provided MAGs" help="Default is to predict the host based on the MAGs and the reference database"/>
         </section>
     </xml>
     <token name="@CRISPR_PRE@"><![CDATA[
@@ -80,6 +81,7 @@
             --cpident $crispr.cpident
             --ccov $crispr.cpident
             --blast $crispr.blast
+            $magonly
     ]]></token>
 
     <xml name="contamination">
@@ -181,6 +183,7 @@ A tabular dataset with the following columns:
 - PhaGCNScore: the predicted score for each rank in the lineage. Each rank is separated by the ';'.
 - Genus: whether the contig has a genus level name ('-' means unknown).
 - GenusCluster: if the Genus is '-', the program will assign a genus-level grouping result: group_idx (idx = 1, 2, 3, ...) or singleton. This can be viewed as genus-level OTUs based on the average shared protein identities between sequences.
+- Prokaryotic virus (Bacteriophages and Archaeal virus): Y/N
     ]]></token>
     <token name="@PHATYP_OUTPUT_DOC@"><![CDATA[
 - TYPE: virulent or temperate (virus).

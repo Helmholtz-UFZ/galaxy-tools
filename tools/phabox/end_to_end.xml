@@ -41,8 +41,22 @@
             <output name="end_to_end_out">
                 <assert_contents>
                     <has_n_lines n="11"/>
-                    <has_n_columns n="17"/>
-                    <has_text text="Accession&#9;Length&#9;Pred&#9;Proportion&#9;PhaMerScore&#9;PhaMerConfidence&#9;Lineage&#9;PhaGCNScore&#9;Genus&#9;GenusCluster&#9;TYPE&#9;PhaTYPScore&#9;Host&#9;CHERRYScore&#9;Method&#9;Host_NCBI_lineage&#9;Host_GTDB_lineage"/>
+                    <has_n_columns n="18"/>
+                    <has_text text="Accession&#9;Length&#9;Pred&#9;Proportion&#9;PhaMerScore&#9;PhaMerConfidence&#9;Lineage&#9;PhaGCNScore&#9;Genus&#9;GenusCluster&#9;Prokaryotic virus (Bacteriophages and Archaeal virus)&#9;TYPE&#9;PhaTYPScore&#9;Host&#9;CHERRYScore&#9;Method&#9;Host_NCBI_lineage&#9;Host_GTDB_lineage"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="dbdir" value="phaboxdb"/>
+            <param name="contigs" value="consensus02.fna"/>
+            <section name="phamer">
+                <param name="reject" value="0.1"/>
+            </section>
+            <output name="end_to_end_out">
+                <assert_contents>
+                    <has_n_lines n="18"/>
+                    <has_n_columns n="18"/>
+                    <has_text text="Accession&#9;Length&#9;Pred&#9;Proportion&#9;PhaMerScore&#9;PhaMerConfidence&#9;Lineage&#9;PhaGCNScore&#9;Genus&#9;GenusCluster&#9;Prokaryotic virus (Bacteriophages and Archaeal virus)&#9;TYPE&#9;PhaTYPScore&#9;Host&#9;CHERRYScore&#9;Method&#9;Host_NCBI_lineage&#9;Host_GTDB_lineage"/>
                 </assert_contents>
             </output>
         </test>

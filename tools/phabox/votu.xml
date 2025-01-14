@@ -52,7 +52,7 @@
             </section>
             <output name="votu_aai">
                 <assert_contents>
-                    <has_line line="Accession&#9;Length&#9;vOTU&#9;Representative"/>
+                    <has_line line="Accession&#9;vOTU&#9;Representative&#9;Length"/>
                     <has_n_lines n="11"/>
                     <has_n_columns n="4"/>
                 </assert_contents>

@@ -1,4 +1,4 @@
-<tool id="extractsurface" name="OGS extractSurface" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+<tool id="extractsurface" name="OGS ExtractSurface" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
     <description>
         Extracts a 2D surface from a 3D mesh.
     </description>
@@ -9,7 +9,6 @@
     <requirements>
         <expand macro="ogs_requirement"/>
     </requirements>
-    <expand macro="ogs_citation"/>
     <expand macro="creator"/>
     <command detect_errors="exit_code"><![CDATA[
         ln -s '$input_mesh' input.vtu &&
@@ -26,7 +25,7 @@
         <param name="x_component" type="float" label="X Component of Normal" help="X component of the normal vector"/>
         <param name="y_component" type="float" label="Y Component of Normal" help="Y component of the normal vector"/>
         <param name="z_component" type="float" label="Z Component of Normal" help="Z component of the normal vector"/>
-        <param name="angle" type="float" label="Angle" optional="true" help="Tolerated angle between given normal and element normal (in degrees)"/>
+        <param name="angle" type="float" label="Angle" optional="true" min="0" max="360" help="Tolerated angle between given normal and element normal (in degrees)"/>
         <param name="ascii_output" type="boolean" value="false" optional="true" truevalue="--ascii-output" falsevalue="" label="ASCII Output" help="Output VTU in ASCII format instead of binary"/>
     </inputs>
     <outputs>
@@ -60,4 +59,5 @@
          **Extracted Surface Mesh:** The 2D surface mesh saved in VTU format, containing original IDs for nodes, elements, and faces. These IDs are useful for boundary conditions or source terms in simulations.
     
     ]]></help>
+    <expand macro="ogs_citation"/>
 </tool>

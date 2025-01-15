@@ -1,0 +1,49 @@
+<tool id="extractboundary" name="OGS extractBoundary" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+    <description>
+        Extracts a boundary from a mesh.
+    </description>
+    <macros>
+        <import>macros.xml</import>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <requirements>
+        <expand macro="ogs_requirement"/>
+    </requirements>
+        
+        <expand macro="creator"/>
+    <command detect_errors="exit_code"><![CDATA[
+    ln -s '$input_mesh' input.vtu &&
+        ExtractBoundary -i input.vtu -o outputExtractBoundary.vtu $ascii_output
+    ]]></command>
+    <inputs>
+        <param name="input_mesh" type="data" format="vtkxml" label="Input Mesh File" help="The 3D mesh file (in VTU or MSH format) from which the boundary will be extracted." />
+        <param name="ascii_output" type="boolean" optional="true" value="false" truevalue="--ascii-output" falsevalue="" label="ASCII Output" help="If selected, the output mesh will be saved in ASCII format instead of binary." />
+    </inputs>
+    <outputs>
+        <data name="output_mesh" format="vtkxml" label="Extracted Boundary Mesh" from_work_dir="outputExtractBoundary.vtu"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="input_mesh" value="cube_1x1x1_hex_1e3_layers_10.vtu"/>
+            <param name="ascii_output" value="true"/>
+            <output name="output_mesh" value="outputExtractBoundary.vtu"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+       **Overview:**
+
+            This tool extracts the boundary of a 3D mesh file. The boundary is defined as the set of surface elements that form the outer layer of the mesh. The tool supports input and output in VTU or MSH formats and offers an option to save results in ASCII format for human readability.
+
+        **Inputs:**
+
+            1. **Input Mesh:** The 3D mesh file (in VTU or MSH format) from which the boundary will be extracted.
+            2. **ASCII Output:** A flag to save the output mesh in human-readable ASCII format instead of the default binary format.
+
+        **Outputs:**
+
+            1. **Extracted Boundary Mesh:** The boundary mesh saved in VTU format.
+
+        **Usage Example:**
+    ]]></help>
+    <expand macro="ogs_citation"/>
+</tool>

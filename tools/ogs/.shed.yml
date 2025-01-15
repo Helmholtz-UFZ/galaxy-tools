@@ -12,7 +12,7 @@ auto_tool_repositories:
   name_template: "{{ tool_id }}"
   description_template: A suite of tools for OpenGeoSys (ogs)
 suite:
-  name: suite_ogs_tools
+  name: suite_ogs
   description: A suite of tools for ogs.
   long_description: |
      A suite of tools for ogs.

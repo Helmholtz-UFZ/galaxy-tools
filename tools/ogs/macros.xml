@@ -6,7 +6,6 @@
     <xml name="ogs_requirement">
             <requirement type="package" version="@TOOL_VERSION@">ogs</requirement>
             <yield/>
-        
     </xml>
 
     <xml name="ogs_citation">
@@ -14,7 +13,10 @@
             <citation type="doi">10.5281/zenodo.13685289</citation>
         </citations>
     </xml>
+
+    <xml name="creator">
         <creator>
             <organization name="Helmholtz Centre for Environmental Research - UFZ" url ="https://www.ufz.de/"/>
         </creator>
+    </xml>
 </macros>

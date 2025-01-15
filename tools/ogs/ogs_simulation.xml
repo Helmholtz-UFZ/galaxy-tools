@@ -1,0 +1,85 @@
+<tool id="ogs_simulation" name="ogstools_ogs_simulation" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+    <description>
+        Runs an OGS simulation.
+    </description>
+    <macros>
+        <import>macros.xml</import>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <requirements>
+        <expand macro="ogs_requirement"/>
+        <requirement type="package" version=">=2.13.6">pybind11</requirement> 
+        <requirement type="package" version=">=1.2.5">tclap</requirement>
+        <requirement type="package" version=">=2.2.0rc1">numpy</requirement>
+    </requirements>        
+    <command detect_errors="exit_code"><![CDATA[           
+        ogs '${project_file}'         
+        #if $log_level: 
+        --log-level '${log_level}' 
+        #end if     
+        #if $xml_patch_files:
+            #for $file in $xml_patch_files:
+                --xml-patch '${file}' 
+            #end for
+        #end if 
+    ]]></command>
+    <inputs>
+        <param name="project_file" format="prj" type="data" label="Project File (.prj)"/>
+        <param name="log_level" type="select" label="Log Level" optional="true">
+            <option value="none">None</option>
+            <option value="error">Error</option>
+            <option value="warn">Warning</option>
+            <option value="info" selected="true">Info</option>
+            <option value="debug">Debug</option>
+            <option value="all">All</option>
+        </param>
+        
+        <param name="xml_patch_files" type="data" format="xml" label="XML Patch Files" optional="true" multiple="true"/>
+    </inputs>
+    <outputs>
+        <data name="log_file" format="txt" label="Simulation Log" />
+        <collection name="simulation_results" type="list" label="Simulation Results">
+        <discover_datasets pattern="__name_and_ext__" directory="outputs" visible="true"/>
+    </collection>
+    </outputs>
+    <tests>
+        <test>
+            <param name="project_file" value="square_1e0_neumann.prj" />
+            <param name="log_level" value="info" />
+            <param name="xml_patch_files" value="square_1e0.xml,square_neumann.xml"/>
+            <output name="log_file" file="simulation.log" />
+            <output_collection name="simulation_results" type="list">
+            <element name="output_2">
+                <assert_contents>
+                    <has_text_matching expression=".* type=&quot;Float64&quot; Name=&quot;v&quot;.*NumberOfComponents=&quot;2&quot;.*RangeMin=&quot;0&quot;.*RangeMax=&quot;0&quot;.*offset=&quot;124&quot;.*" />
+                </assert_contents>
+            </element>
+            <element name="output_1">
+                <assert_contents>
+                    <has_text_matching expression=".* type=&quot;Float64&quot; Name=&quot;v&quot;.*NumberOfComponents=&quot;2&quot;.*RangeMin=&quot;7.4734174504e-17&quot;.*RangeMax=&quot;1.0606601718&quot;.*offset=&quot;136&quot;.*" />
+                </assert_contents>
+            </element>
+        </output_collection>
+        </test>
+    </tests>
+
+    <help><![CDATA[
+        **Overview:**
+
+            This tool runs an OpenGeoSys (OGS) simulation with support for Python boundary conditions and enhanced CLI argument parsing. The simulation uses a project file and optional XML patch files to define and adjust simulation parameters dynamically.
+
+        **Inputs:**
+
+            1. **Project File:** The main project file (.prj) that defines the simulation setup.
+            2. **Output Directory:** The directory where the simulation results and logs will be saved. Default is `./output`.
+            3. **Log Level:** Sets the verbosity of logs. Options include `none`, `error`, `warn`, `info` (default), `debug`, and `all`.
+            4. **XML Patch Files:** Optional XML files for modifying the project file configuration at runtime.
+            5. **Enable Floating Point Exceptions:** Enables detection of floating-point exceptions (only for non-Windows platforms).
+
+        **Outputs:**
+
+            1. **Log File:** Contains all log messages generated during the simulation.
+            2. **Simulation Results:** Includes output files such as VTU and other simulation results saved in the specified output directory.
+    ]]></help>
+    <expand macro="ogs_citation"/>
+</tool>

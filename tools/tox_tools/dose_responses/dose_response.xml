@@ -65,6 +65,18 @@
         - `response_column`: The name of the column in the CSV file that contains the response values
         - `plot_output`: A JPG image file of the dose-response plot.
         - `ec_output`: A tabular file containing the calculated EC values.
+
+        **IMPORTANT**: First column of the input must contain the replicate number. A simple input table might look as the following:
+          +------------+---------------+---------------+
+          | rep        | conc          | resp   |
+          +============+===============+===============+
+          | 1          | 0             | 0             |
+          +------------+---------------+---------------+
+          | 2          | 10            | 50            |
+          +------------+---------------+---------------+
+          | 1          | 5             | 10            |
+          +------------+---------------+---------------+
+        
     ]]></help>
         <citations>
     <citation type="doi">10.1371/journal.pone.0146021</citation>

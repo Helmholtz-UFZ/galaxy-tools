@@ -19,6 +19,7 @@
             '$input_csv'
             '$concentration_column'
             '$response_column'
+            '$replicate_column'
             '$plot_output'
             '$ec_output'
             '$compound_name'
@@ -29,6 +30,7 @@
         <param name="input_csv" type="data" format="tabular" label="Dose-Response Tabular Input"/>
         <param name="concentration_column" type="data_column" data_ref="input_csv" label="Dose/Concentration Column Index" help="Index of the column for concentration values"/>
         <param name="response_column" type="data_column" data_ref="input_csv" label="Response Column Index" help="Index of the column for response values"/>
+        <param name="replicate_column" type="data_column" data_ref="input_csv" label="Replicate Column Index" help="Index of the column for replicate values"/>
         <param name="compound_name" type="text" label="Compound Name" help="Name of the compound to analyze">
             <validator type="regex" message="Enter a valid compound name">^^[a-zA-Z0-9\[\]()_-]+$</validator>
         </param>
@@ -45,6 +47,7 @@
             <param name="input_csv" value="drc_input.tsv"/>
             <param name="concentration_column" value="2"/>
             <param name="response_column" value="3"/>
+            <param name="replicate_column" value="1"/>
             <param name="compound_name" value="test-chemical"/>
             <param name="concentration_unit" value="mg/L"/>
             <output name="plot_output" value="image_output.jpg" ftype="jpg">
@@ -57,14 +60,30 @@
         </test>
     </tests>
     <help><![CDATA[
-        This tool performs dose-response analysis on the provided CSV file,
-        generates a dose-response plot, and calculates EC values (EC10, EC25, EC50).
+        This tool performs dose-response analysis on the provided CSV/TSV file,
+        generates a dose-response plot, and calculates three Effect Concentrations (EC) values (EC10, EC25, EC50).
+        The tool further calculate the AIC and the model summary.
 
-        - `input_csv`: A TSV file containing the dose-response data.
-        - `concentration_column`: The name of the column in the CSV file that contains the concentration values.
-        - `response_column`: The name of the column in the CSV file that contains the response values
-        - `plot_output`: A JPG image file of the dose-response plot.
-        - `ec_output`: A tabular file containing the calculated EC values.
+        The tool need three inputs from the CSV/TSV file:
+        - One column with the replicate number
+        - One column with concentrations values
+        - One column with biological response
+
+        An exemplary input might look like:
+
+      +------------+---------------+---------------+
+      | rep        | conc          | resp          |
+      +============+===============+===============+
+      | 1          | 0             | 0             |
+      +------------+---------------+---------------+
+      | 2          | 10            | 50            |
+      +------------+---------------+---------------+
+      | 1          | 5             | 10            |
+      +------------+---------------+---------------+
+
+        **NOTE: Input Table must have column headers!**
+
+
     ]]></help>
         <citations>
     <citation type="doi">10.1371/journal.pone.0146021</citation>

@@ -53,7 +53,8 @@ plot_dose_response <- function(model, data, ec_values, concentration_col, respon
         labs(
             title = paste(compound_name, "- Dose-Response Curve"),
             x = paste("Dose [", concentration_unit, "]"),
-            y = "Response %"
+            y = "Response %",
+            colour = "Replicate Number"
         ) +
         theme_minimal() +
         theme(

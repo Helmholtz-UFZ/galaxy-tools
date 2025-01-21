@@ -45,7 +45,7 @@ plot_dose_response <- function(model, data, ec_values, concentration_col, respon
 
     # Create the plot
     p <- ggplot(data, aes_string(x = concentration_col, y = response_col)) +
-        geom_point(aes(colour = replicate_col)) + # Original data points
+        geom_point(aes_string(colour = replicate_col)) + # Original data points
         geom_line(data = prediction_data, aes_string(x = concentration_col, y = response_col), color = "blue") + # Predicted curve
         geom_ribbon(data = prediction_data, aes_string(x = concentration_col, ymin = "lower", ymax = "upper"), alpha = 0.2, fill = "blue") + # Confidence intervals
         geom_vline(xintercept = ec_values$EC10[1], color = "green", linetype = "dashed") +
@@ -54,7 +54,7 @@ plot_dose_response <- function(model, data, ec_values, concentration_col, respon
             title = paste(compound_name, "- Dose-Response Curve"),
             x = paste("Dose [", concentration_unit, "]"),
             y = "Response %",
-            colour = "Replicate Number"
+            colour = "Replicates"
         ) +
         theme_minimal() +
         theme(

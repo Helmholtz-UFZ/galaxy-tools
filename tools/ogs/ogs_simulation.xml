@@ -11,18 +11,25 @@
     </requirements> 
     <expand macro="creator"/>       
     <command detect_errors="exit_code"><![CDATA[           
+        #for $file in $xml_patch_files:
+            ln -s $file $file.element_identifier &&
+        #end for
+        
         ogs '${project_file}'         
         #if $log_level: 
         --log-level '${log_level}' 
         #end if     
-        #if $xml_patch_files:
-            #for $file in $xml_patch_files:
-                --xml-patch '${file}' 
-            #end for
-        #end if 
+        
+        #for $file in $xml_patch_files:
+            --xml-patch $file.element_identifier 
+        #end for
+       
     ]]></command>
     <inputs>
         <param name="project_file" format="prj" type="data" label="Project File (.prj)"/>
+
+        <param name="xml_patch_files" type="data_collection" collection_type="list" label="XML Patch Files"/>
+
         <param name="log_level" type="select" label="Log Level" optional="true">
             <option value="none">None</option>
             <option value="error">Error</option>
@@ -31,8 +38,6 @@
             <option value="debug">Debug</option>
             <option value="all">All</option>
         </param>
-        
-        <param name="xml_patch_files" type="data" format="xml" label="XML Patch Files" optional="true" multiple="true"/>
     </inputs>
     <outputs>
         <data name="log_file" format="txt" label="Simulation Log" />
@@ -43,8 +48,8 @@
     <tests>
         <test>
             <param name="project_file" value="square_1e0_neumann.prj" />
-            <param name="log_level" value="info" />
             <param name="xml_patch_files" value="square_1e0.xml,square_neumann.xml"/>
+            <param name="log_level" value="info" />
             <output name="log_file" file="simulation.log" />
             <output_collection name="simulation_results" type="list">
                 <element name="output_2">

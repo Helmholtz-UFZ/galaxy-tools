@@ -1,0 +1,52 @@
+<tool id="identifysubdomains" name="OGS IdentifySubdomains" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+    <description>
+        Checks if subdomain meshes are part of the bulk mesh and annotates them with bulk node and element IDs.
+    </description>
+    <macros>
+        <import>macros.xml</import>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <requirements>
+        <expand macro="ogs_requirement"/>
+    </requirements>
+        <expand macro="creator"/>
+    <command detect_errors="exit_code"><![CDATA[
+        ln -s '$bulk_mesh' input.vtu &&
+        ##ln -s '$subdomain_meshes' submesh.vtu &&
+        identifySubdomains -m input.vtu -s $search_length -o output_ -- 
+        #for $file in  $subdomain_meshes:
+            $file 
+        #end for  
+         
+    ]]></command>
+    <inputs>
+        <param name="bulk_mesh" type="data" format="vtkxml" label="Bulk Mesh File" help="The bulk mesh file in VTU format."/>
+        <param name="subdomain_meshes" type="data" format="vtkxml" multiple="true" label="Subdomain Mesh Files" help="One or more subdomain mesh files in VTU format."/>
+        <param name="search_length" type="float" label="Search Length" help="Search radius for the node search algorithm."/>
+    </inputs>
+    <outputs>
+        <data name="output_mesh" format="vtkxml" label="Annotated Subdomain Meshes" from_work_dir="output_quater_circle.vtu"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="bulk_mesh" value="disc_with_hole.vtu"/>
+            <param name="subdomain_meshes" value="quater_circle.vtu"/>
+            <param name="search_length" value="1e-06"/>
+            <output name="output_mesh" file="output_quater_circle.vtu"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+        **Overview:**
+
+        This tool checks if subdomain meshes are part of a given bulk mesh and annotates them with bulk node and element IDs. The results are written to new subdomain mesh files with the specified output prefix.
+
+        **Inputs:**
+        1. **Bulk Mesh File:** The primary bulk mesh file in VTU format.
+        2. **Subdomain Mesh Files:** One or more subdomain mesh files in VTU format.
+        3. **Search Length:** The radius for the node search algorithm.
+
+        **Outputs:**
+        - Annotated Subdomain Meshes: The subdomain meshes annotated with bulk node and element IDs.
+    ]]></help>
+    <expand macro="ogs_citation"/>
+</tool>

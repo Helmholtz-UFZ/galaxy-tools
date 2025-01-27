@@ -11,11 +11,18 @@
     </requirements>
         <expand macro="creator"/>
     <command detect_errors="exit_code"><![CDATA[
+        #import re 
+
         ln -s '$bulk_mesh' input.vtu &&
-        ##ln -s '$subdomain_meshes' submesh.vtu &&
+        #for $file in $subdomain_meshes:
+            #set $identifier= re.sub(r'[^\w\-.]', '_', $file.element_identifier)
+            ln -s '$file' '$identifier' &&
+        #end for
+
         identifySubdomains -m input.vtu -s $search_length -o output_ -- 
         #for $file in  $subdomain_meshes:
-            $file 
+            #set $identifier= re.sub(r'[^\w\-.]', '_', $file.element_identifier)
+            '$identifier' 
         #end for  
          
     ]]></command>

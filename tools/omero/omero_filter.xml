@@ -1,0 +1,117 @@
+<tool id="omero_filter" name="OMERO IDs" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@" license="MIT">
+    <description> with ezomero </description>
+    <macros>
+        <import>macros.xml</import>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">omero</xref>
+    </xrefs>
+    <expand macro="ezomero_requirements"/>
+    <command detect_errors="exit_code"><![CDATA[
+        python '$__tool_directory__'/omero_filter.py
+        --credential-file '$credentials'
+        @HOST_PORT@
+        --filter $filter
+        --value1 '$value1'
+        --id $did
+        --tsv_file '$tsv'
+        #if $filter == "KP"
+        --value2 '$value2'
+        #end if
+
+    ]]></command>
+    <configfiles>
+        <expand macro="credentials"/>
+    </configfiles>
+    <inputs>
+        <expand macro="host_port"/>
+        <conditional name = "filter_type">
+            <param name="filter" type="select" optional="false" label="Filter type to apply:">
+                <option value="filename">Filename</option>
+                <option value="KP">Key-Value</option>
+                <option value="tag">Tag</option>
+            </param>
+            <when value="filename">
+                <param name="value1" type="text" label="Filename to search among the image IDs">
+                    <validator type="regex" message="Enter a valid filename to search in the OMERO server">^[\w\-. ]+$</validator>
+                </param>
+                <param name="value2"  value="" type="hidden" label="Not necessary filter"/>
+                <param name="did" type="text" label="List of images IDs">
+                    <validator type="regex" message="Enter a valid list of IDs (i.e. 2,45,56,67)">^\d+(,\d+)*$</validator>
+                </param>
+            </when>
+            <when value="KP">
+                <param name="value1" type="text" label="Key Value to search among the image IDs">
+                    <validator type="regex" message="Enter a valid Key to search in the OMERO server">^[\w\-. ]+$</validator>
+                </param>
+                <param name="value2" type="hidden" label="Pair Values to search among images IDs"/>
+                <param name="did" type="text" label="List of images IDs">
+                    <validator type="regex" message="Enter a valid list of IDs (i.e. 2,45,56,67)">^\d+(,\d+)*$</validator>
+                </param>
+            </when>
+            <when value="tag">
+                <param name="value1" type="text" label="Tag to search among the images IDs">
+                    <validator type="regex" message="Enter a valid Key to search in the OMERO server">^[\w\-. ]+$</validator>
+                </param>
+                <param name="value2"  value="" optional="true" type="hidden" label="Not necessary filter"/>
+                <param name="did" type="text" label="List of images IDs">
+                    <validator type="regex" message="Enter a valid list of IDs (i.e. 2,45,56,67)">^(\d+)(,\d+)*$</validator>
+                </param>
+            </when>
+        </conditional>
+    </inputs>
+    <outputs>
+        <data name="tsv" format="tabular"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <conditional name="filter_type">
+                <param name="filter" value="filename"/>
+                <param name="value1" value="sample_image_2.jpg"/>
+                <param name="did" value="1,2"/>
+            </conditional>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="tsv" value="output_filter_filename.tsv" ftype="tabular">
+                <assert_contents>
+                    <has_text text="1"/>
+                    <has_n_columns n="1"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <conditional name="filter_type">
+                <param name="filter" value="tag"/>
+                <param name="value1" value="test_tag"/>
+                <param name="did" value="1,2"/>
+            </conditional>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="tsv" value="output_filter_tag.tsv" ftype="tabular">
+                <assert_contents>
+                    <has_text text="1"/>
+                    <has_n_columns n="1"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help>
+Description
+-----------
+
+- Tool to filter images IDs by filename, Key-Value Pairs and Tag value.
+- For Key-Value Pairs search, two values are required (Value1 = Key, Value2 = Pair).
+- IDs are a list of image IDs which can be fetched using the omero_get tool.
+
+@SECURITY_DISCLAIMER@
+
+    </help>
+    <citations>
+        <citation type="doi">10.1038/nmeth.1896</citation>
+    </citations>
+</tool>

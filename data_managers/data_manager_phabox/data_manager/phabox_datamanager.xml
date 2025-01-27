@@ -1,0 +1,56 @@
+<tool id="phabox_build_database" name="PhaBOX" tool_type="manage_data" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+    <description>database builder</description>
+    <macros>
+        <token name="@TOOL_VERSION@">2.1.5</token>
+        <token name="@DB_VERSION@">2</token>
+        <token name="@VERSION_SUFFIX@">2</token>
+        <token name="@PROFILE@">22.01</token>
+    </macros>
+    <requirements>
+        <requirement type="package" version="6.0">unzip</requirement>
+        <requirement type="package" version="1.21.4">wget</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        wget https://github.com/KennthShang/PhaBOX/releases/download/v2/phabox_db_v@DB_VERSION@.zip &&
+        unzip phabox_db_v@DB_VERSION@.zip &&
+        mkdir -p '$out_file.extra_files_path' &&
+        mv "phabox_db_v@DB_VERSION@" '$out_file.extra_files_path' &&
+        cp '$dmjson' '$out_file'
+    ]]></command>
+    <configfiles>
+        <configfile name="dmjson"><![CDATA[
+{
+  "data_tables":{
+    "phabox":[
+      {
+        "path":"phabox_db_v@DB_VERSION@",
+        "name":"Version @DB_VERSION@",
+        "version":"@DB_VERSION@",
+        "value":"@DB_VERSION@"
+      }
+    ]
+  }
+}]]>
+        </configfile>
+    </configfiles>
+    <inputs/>
+    <outputs>
+        <data name="out_file" format="data_manager_json" />
+    </outputs>
+    <tests>
+        <test expect_num_outputs="1">
+            <output name="out_file">
+                <assert_contents>
+                    <has_text text='"value":"@DB_VERSION@"'/>
+                    <has_text text='"name":"Version 2'/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+Download and extract PhaBOX reference data. The current tool version is used for versioning. For the user only the major version is shown
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1093/bioadv/vbad101</citation>
+    </citations>
+</tool>

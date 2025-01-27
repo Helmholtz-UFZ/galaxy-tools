@@ -1,0 +1,15 @@
+categories:
+- Computational chemistry
+- Machine Learning
+name: dfpl
+description: Galaxy wrapper for deepFPlearn.
+long_description: Link molecular structures of chemicals with multiple targets.
+owner: ufz
+remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/dfpl
+homepage_url: https://github.com/yigbt/deepFPlearn
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: "Wrapper command line tools of the deepfplearn package: {{ tool_name }}."
+suite:
+  name: "suite_dfpl"
+  description: "A suite of deepFPlearn commands."

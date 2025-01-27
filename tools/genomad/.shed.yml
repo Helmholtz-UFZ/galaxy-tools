@@ -6,7 +6,7 @@ long_description: |
 name: genomad
 owner: ufz
 homepage_url: https://github.com/apcamargo/genomad/
-remote_repository_url: https://github.com/Helmholtz-UFZ/ufz-galaxy-tools/blob/main/tools/longorf/
+remote_repository_url: https://github.com/Helmholtz-UFZ/ufz-galaxy-tools/blob/main/tools/genomad/
 type: unrestricted
 auto_tool_repositories:
   name_template: "{{ tool_id }}"

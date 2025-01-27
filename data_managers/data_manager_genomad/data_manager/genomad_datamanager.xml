@@ -3,7 +3,7 @@
     <description>database builder</description>
     <macros>
         <token name="@TOOL_VERSION@">1.8.0</token>
-        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@VERSION_SUFFIX@">2</token>
         <token name="@PROFILE@">22.01</token>
     </macros>
     <requirements>
@@ -18,6 +18,8 @@
                 https://zenodo.org/records/10594875/files/genomad_db_v${version}.tar.gz?download=1
             ## #end if
         | tar -xzv &&
+        mkdir -p '$out_file.extra_files_path' &&
+        mv genomad_db '$out_file.extra_files_path' &&
         cp '$dmjson' '$out_file'
     ]]></command>
     <configfiles>

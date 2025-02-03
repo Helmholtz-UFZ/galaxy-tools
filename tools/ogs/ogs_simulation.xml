@@ -1,6 +1,6 @@
 <tool id="ogs_simulation" name="ogstools_ogs_simulation" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
     <description>
-        Runs an OGS simulation.
+        Runs an OGS simulation
     </description>
     <macros>
         <import>macros.xml</import>
@@ -35,7 +35,7 @@
        -o output
     ]]></command>
     <inputs>
-        <param name="project_file" format="prj" type="data" label="Project File (.prj)"/>
+        <param name="project_file" format="prj" type="data" label="Project File"/>
         <param name="project_files" format="data" type="data_collection" collection_type="list" label="Project Files"/>
         <param name="xml_patch_files" format="xml" type="data_collection" collection_type="list" label="XML Patch Files"/>
 
@@ -103,11 +103,10 @@
         **Inputs:**
 
             1. **Project File:** The main project file (.prj) that defines the simulation setup.
-            2. **Output Directory:** The directory where the simulation results and logs will be saved. Default is `./output`.
-            3. **Log Level:** Sets the verbosity of logs. Options include `none`, `error`, `warn`, `info` (default), `debug`, and `all`.
-            4. **XML Patch Files:** Optional XML files for modifying the project file configuration at runtime.
-            5. **Enable Floating Point Exceptions:** Enables detection of floating-point exceptions (only for non-Windows platforms).
-
+            2. **Project Files:**
+            3. **XML Patch Files:** Optional XML files for modifying the project file configuration at runtime.
+            4. **Log Level:** Sets the verbosity of logs. Options include `none`, `error`, `warn`, `info` (default), `debug`, and `all`.
+           
         **Outputs:**
 
             1. **Log File:** Contains all log messages generated during the simulation.

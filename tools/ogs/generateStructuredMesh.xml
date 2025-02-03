@@ -1,4 +1,4 @@
-<tool id="generatestructuredmesh" name="OGS GenerateStructuredMesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+<tool id="ogs_generatestructuredmesh" name="OGS GenerateStructuredMesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
     <description>
         Generation of simple meshes
     </description>

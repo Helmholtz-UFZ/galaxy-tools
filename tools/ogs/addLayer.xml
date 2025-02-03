@@ -1,4 +1,4 @@
-<tool id="addlayer" name="OGS AddLayer" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+<tool id="ogs_addlayer" name="OGS AddLayer" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
     <description>
         Adds a layer to an existing mesh
     </description>

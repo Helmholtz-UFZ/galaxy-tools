@@ -2,9 +2,9 @@ name: suite_ogs
 owner: ufz
 description: A suite of tools for OpenGeoSys (ogs)
 long_description: |
-     A suite of tools for ogs.
+     A suite of tools for ogs
 categories:
-- Ecology
+- Geo Science
 remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/ogs/
 homepage_url: https://gitlab.opengeosys.org/ogs/ogs
 type: unrestricted
@@ -13,6 +13,6 @@ auto_tool_repositories:
   description_template: A suite of tools for OpenGeoSys (ogs)
 suite:
   name: suite_ogs
-  description: A suite of tools for ogs.
+  description: A suite of tools for ogs
   long_description: |
-     A suite of tools for ogs.
+     A suite of tools for ogs

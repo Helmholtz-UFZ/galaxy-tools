@@ -49,22 +49,11 @@
         <configfile name="script">$code</configfile>
     </configfiles>
     <inputs>
-        <param name="interpreter" type="select" label="Interpreter">
-            <options from_data_table="scripting_images">
-                <column name="name" index="3"/>
-                <column name="value" index="3"/>
-                <filter type="regexp" column="4" value="singularity|apptainer"/>
-            </options>
-            <validator type="no_options" message="No interpreter available. Contact you Galaxy administrator." />
-        </param>
         <param name="image" type="select" label="Image" >
-            <options from_data_table="scripting_images">
-                <filter type="regexp" column="4" value="singularity|apptainer"/>
-                <filter type="param_value" column="3" ref="interpreter"/>
-            </options>
-            <validator type="no_options" message="No interpreter / image is available. Contact you Galaxy administrator." />
+            <options from_data_table="scripting_images"/>
+            <validator type="no_options" message="No image is available. Contact you Galaxy administrator." />
         </param>
-        <repeat name="parameters" title="Parameters" min="1" default="1" help="Supply one or more parameters">
+        <repeat name="parameters" title="Parameters" min="0" default="1" help="Supply parameters">
             <conditional name="type_cond">
                 <param name="type_sel" type="select" label="Parameter type">
                     <option value="data">Dataset</option>
@@ -104,15 +93,14 @@
     <tests>
         <!-- read tsv write csv -->
         <test>
-            <param name="interpreter" value="python"/>
-            <param name="image" value="python_continuumio_anaconda"/>
+            <param name="image" value="python_python"/>
             <repeat name="parameters">
                 <conditional name="type_cond">
                     <param name="type_sel" value="data"/>
                     <param name="param" value="test.tsv" ftype="tabular"/>
                 </conditional>
             </repeat>
-            <param name="code" value='import sys; import pandas as pd; df = pd.read_csv(sys.argv[1], sep="\t"); df.to_csv("data.csv", index=False, sep=",");'/>
+            <param name="code" value='import sys, subprocess; subprocess.check_call([sys.executable, "-m", "pip", "install", "pandas", "matplotlib"]); import pandas as pd; df = pd.read_csv(sys.argv[1], sep="\t"); df.to_csv("data.csv", index=False, sep=",");'/>
             <output_collection name="output" type="list" count="1">
                 <element name="data" ftype="csv">
                     <assert_contents>
@@ -130,15 +118,14 @@
         </test>
         <!-- plot w matplotlib -->
         <test>
-            <param name="interpreter" value="python"/>
-            <param name="image" value="python_continuumio_anaconda"/>
+            <param name="image" value="python_python"/>
             <repeat name="parameters">
                 <conditional name="type_cond">
                     <param name="param" value="test.tsv" ftype="tabular"/>
                     <param name="filename" value="custom_name.tsv"/>
                 </conditional>
             </repeat>
-            <param name="code" value='import sys; import pandas as pd; from matplotlib.backends.backend_pdf import PdfPages;  df = pd.read_csv(sys.argv[1], sep="\t"); fh = PdfPages("points.pdf"); plt = df.plot(); fh.savefig(); fh.close(); print(f"plotted {sys.argv[1]}")'/>
+            <param name="code" value='import sys, subprocess; subprocess.check_call([sys.executable, "-m", "pip", "install", "pandas", "matplotlib"]); import pandas as pd; from matplotlib.backends.backend_pdf import PdfPages;  df = pd.read_csv(sys.argv[1], sep="\t"); fh = PdfPages("points.pdf"); plt = df.plot(); fh.savefig(); fh.close(); print(f"plotted {sys.argv[1]}")'/>
             <output_collection name="output" type="list" count="1">
                 <element name="points" ftype="pdf">
                     <assert_contents>
@@ -151,21 +138,20 @@
             </assert_stdout>
         </test>
         <!-- install libraries ("forbidden") -->
-        <test expect_failure="true">
-            <param name="interpreter" value="python"/>
-            <param name="image" value="python_continuumio_anaconda"/>
+        <test expect_failure="false">
+            <param name="image" value="python_python_noinstall"/>
+            <repeat name="parameters"/>
             <param name="code" value='import pip; pip.main(["install", "biopython"]); import Bio'/>
         </test>
         <!-- read binary files (eg feather)  -->
         <test>
-            <param name="interpreter" value="python"/>
-            <param name="image" value="python_continuumio_anaconda"/>
+            <param name="image" value="python_python"/>
             <repeat name="parameters">
                 <conditional name="type_cond">
                     <param name="param" value="test.h5" ftype="h5"/>
                 </conditional>
             </repeat>
-            <param name="code" value='import sys; import os; import pandas as pd; df = pd.read_hdf(sys.argv[1]); df.to_csv("data.csv", index=False, sep=",");'/>
+            <param name="code" value='import sys, subprocess; subprocess.check_call([sys.executable, "-m", "pip", "install", "pandas", "matplotlib", "tables"]); import os; import pandas as pd; df = pd.read_hdf(sys.argv[1]); df.to_csv("data.csv", index=False, sep=",");'/>
             <output_collection name="output" type="list" count="1">
                 <element name="data" ftype="csv">
                     <assert_contents>
@@ -178,8 +164,7 @@
         </test>
         <!-- parameters -->
         <test>
-            <param name="interpreter" value="python"/>
-            <param name="image" value="python_continuumio_anaconda"/>
+            <param name="image" value="python_python"/>
             <repeat name="parameters">
                 <conditional name="type_cond">
                     <param name="type_sel" value="text"/>
@@ -192,7 +177,7 @@
                     <param name="param" value="some value"/>
                 </conditional>
             </repeat>
-            <param name="code" value='import sys; fh = open(sys.argv[1], "w"); fh.write("Hello,world\n"); fh.write("Bye,world\n"); fh.close(); print(sys.argv[2]);'/>
+            <param name="code" value='import sys, subprocess; subprocess.check_call([sys.executable, "-m", "pip", "install", "pandas", "matplotlib"]);  fh = open(sys.argv[1], "w"); fh.write("Hello,world\n"); fh.write("Bye,world\n"); fh.close(); print(sys.argv[2]);'/>
             <output_collection name="output" type="list" count="1">
                 <element name="filename" ftype="csv">
                     <assert_contents>
@@ -209,14 +194,13 @@
 
         <!-- read tsv write csv -->
         <test>
-            <param name="interpreter" value="Rscript"/>
             <param name="image" value="r_rocker_tidyverse"/>
             <repeat name="parameters">
                 <conditional name="type_cond">
                     <param name="param" value="test.tsv" ftype="tabular"/>
                 </conditional>
             </repeat>
-            <param name="code" value='args = commandArgs(trailingOnly = TRUE); data = read.delim(args[1]); write.csv(data, "data.csv", row.names=FALSE)'/>
+            <param name="code" value='args = commandArgs(trailingOnly = TRUE); install.packages("data.table", lib=Sys.getenv("R_LIBS_USER")); library(data.table); data = read.delim(args[1]); write.csv(data, "data.csv", row.names=FALSE)'/>
             <output_collection name="output" type="list" count="1">
                 <element name="data" ftype="csv">
                     <assert_contents>
@@ -228,13 +212,12 @@
             </output_collection>
             <!-- but the data table this should use apptainer and not use any additional parameters to it -->
             <assert_command>
-                <has_text text="apptainer"/>
-                <has_text text="--cleanenv" negate="true"/>
+                <has_text_matching expression="apptainer|singularity"/>
+                <has_text text="--cleanenv"/>
             </assert_command>
         </test>
         <!-- use a tidyverse library -->
         <test>
-            <param name="interpreter" value="Rscript"/>
             <param name="image" value="r_rocker_tidyverse"/>
             <repeat name="parameters">
                 <conditional name="type_cond">
@@ -255,19 +238,16 @@
             </assert_stdout>
         </test>
         <!-- install libraries fails -->
-        <test expect_failure="true">
-            <param name="interpreter" value="Rscript"/>
+        <test expect_failure="false">
             <param name="image" value="r_rocker_tidyverse"/>
             <param name="code" value='install.packages("maybe"); library(maybe); print("success")'/>
         </test>
-        <test expect_failure="true">
-            <param name="interpreter" value="Rscript"/>
+        <test expect_failure="false">
             <param name="image" value="r_rocker_tidyverse"/>
             <param name="code" value='install.packages("BiocManager"); BiocManager::install("multtest"); print("success")'/>
         </test>
         <!-- read binary files (eg rds) -->
         <test>
-            <param name="interpreter" value="Rscript"/>
             <param name="image" value="r_rocker_tidyverse"/>
             <repeat name="parameters">
                 <conditional name="type_cond">
@@ -287,7 +267,6 @@
         </test>
         <!-- optional input and parameters -->
         <test>
-            <param name="interpreter" value="Rscript"/>
             <param name="image" value="r_rocker_tidyverse"/>
             <repeat name="parameters">
                 <conditional name="type_cond"> 
@@ -318,8 +297,7 @@
 
         <!-- some tests with bash-->
         <test>
-            <param name="interpreter" value="bash"/>
-            <param name="image" value="bash_continuumio_anaconda"/>
+            <param name="image" value="bash_python"/>
             <repeat name="parameters">
                 <conditional name="type_cond">
                     <param name="param" value="test.tsv" ftype="tabular"/>
@@ -338,15 +316,14 @@
         </test>
 
         <!-- check that we can turn off networking -->
-        <test expect_failure="true">
-            <param name="interpreter" value="bash"/>
-            <param name="image" value="bash_continuumio_anaconda"/>
+        <test expect_failure="false">
+            <param name="image" value="bash_rocker_tidyverse"/>
             <repeat name="parameters">
                 <conditional name="type_cond">
                     <param name="param" value="test.tsv" ftype="tabular"/>
                 </conditional>
             </repeat>
-            <param name="code" value="curl -iL https://www.galaxyproject.org"/>
+            <param name="code" value="wget https://www.galaxyproject.org"/>
         </test>
     </tests>
     <help><![CDATA[
@@ -411,5 +388,23 @@ Output datasets are read from the current working directory and put into a
 single collection.  The collection elements will be named as the file names
 (without the extension). The file extension determines the datatype of the
 datasets (or Galaxy will try to autodetect the data type).
+
+**Custom 3rd party packages or libraries**
+
+Installation of 3rd party software might work depending on the container
+and the 3rd party software. For python and R the following can work. In characters
+of problems contact your Galaxy administrator.
+
+To install two packages ``PACKAGE1`` and ``PACKAGE2`` in python:
+
+::
+    import sys, subprocess
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "PACKAGE1", "PACKAGE2"]);
+
+For R scripts the following will install two libraries ``LIBRARY1`` and ``LIBRARY2``:
+
+::
+    install.packages(c("LIBRARY1", "LIBRARY2"), lib=Sys.getenv("R_LIBS_USER"));
+
     ]]></help>
 </tool>

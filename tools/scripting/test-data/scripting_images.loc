@@ -1,10 +1,17 @@
 # <id>	<name>	<image_name>	<interpreter>	<container_type>	<container_params>
 
-# docker://continuumio/anaconda3
-python_continuumio_anaconda	python (continuumio/anaconda)	/tmp/anaconda3_latest.sif	python	singularity	--cleanenv --network none --no-mount bind-paths
+# docker://python_3.10
+python_python	python (python)	/tmp/python_3.10-slim.sif	python	mkdir -p "$HOME/.local/lib/python3.10/site-packages" && singularity	--no-home --cleanenv --home $HOME --env PYTHONUSERBASE="$HOME/.local"
+
+# docker://python_3.10
+python_python_noinstall	python (python no install)	/tmp/python_3.10-slim.sif	python	singularity	--no-home --cleanenv
+
 
 # docker://rocker/tidyverse
-r_rocker_tidyverse	R (tidyverse)	/tmp/tidyverse_latest.sif	Rscript	apptainer	
+r_rocker_tidyverse	R (tidyverse)	/tmp/tidyverse_latest.sif	Rscript	mkdir -p "$HOME/custom_R_library" && singularity	--no-home --cleanenv --home $HOME --env R_LIBS_USER="$HOME/custom_R_library" 
+
+bash_rocker_tidyverse	bash (R tidyverse)	/tmp/tidyverse_latest.sif	bash	singularity	--no-home --cleanenv --home $HOME 
+
 
 # docker://rocker/tidyverse
-bash_continuumio_anaconda	bash (continuumio/anaconda)	/tmp/anaconda3_latest.sif	bash	apptainer	--cleanenv --network none --no-mount bind-paths
+bash_python	bash (python)	/tmp/python_3.10-slim.sif	bash	singularity	--no-home --cleanenv --home $HOME

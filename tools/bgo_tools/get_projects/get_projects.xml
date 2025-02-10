@@ -6,9 +6,9 @@
         <requirement type="package" version="2.0.37">sqlalchemy</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python '$__tool_directory__'/get_projects.py
-        --credentials-file '$credentials'
-        --login-name '$login'
+        python $__tool_directory__/get_projects.py
+        --credentials-file $credentials
+        --login-name $login
         --output-file $projects
     ]]></command>
     <inputs>
@@ -28,7 +28,7 @@
     <help><![CDATA[
 **What it does**
 
-This tool quries the Lambda-Miner database for the users projects.
+This tool queries the Lambda-Miner database for the users projects.
 
 **Input**
 

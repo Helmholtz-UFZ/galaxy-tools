@@ -1,9 +1,10 @@
-import unittest
-from unittest.mock import MagicMock, Mock, patch
-import pandas as pd
-import sqlalchemy as db
 import argparse
-from get_projects import get_arguments, get_engine, get_user_id, get_projects_with_sample_count, main
+import unittest
+
+from unittest.mock import patch
+
+from get_projects import get_arguments, get_engine
+
 
 class TestScriptFunctions(unittest.TestCase):
 
@@ -39,6 +40,7 @@ class TestScriptFunctions(unittest.TestCase):
         database_url = "postgresql://test_user:test_password@localhost:5432/test_db"
         mock_create_engine.assert_called_once_with(database_url, echo=False)
         self.assertEqual(engine, mock_create_engine.return_value)
+
 
 if __name__ == "__main__":
     unittest.main()

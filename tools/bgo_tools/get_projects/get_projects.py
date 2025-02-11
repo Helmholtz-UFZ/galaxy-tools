@@ -1,7 +1,9 @@
 import argparse
-import sqlalchemy as db
-import pandas as pd
 from json import load
+
+import pandas as pd
+import sqlalchemy as db
+
 
 def get_arguments() -> argparse.Namespace:
     """
@@ -18,7 +20,7 @@ def get_arguments() -> argparse.Namespace:
     parser.add_argument(
         "-c",
         "--credentials-file",
-         dest="credentials_file",
+        dest="credentials_file",
         type=str,
         required=True,
         help="Credential file in JSON format including dialect, user, password, host, port, and database"
@@ -51,7 +53,7 @@ def get_engine(credentials_path: str, echo: bool = False) -> db.engine.Engine:
     """
     Create and return a SQLAlchemy engine based on the supplied credentials.
 
-    The engine is created using the data from the supplied credentials file, 
+    The engine is created using the data from the supplied credentials file,
     which should be in JSON format and include the following keys:
         dialect, user, password, host, port, database
 
@@ -75,6 +77,7 @@ def get_engine(credentials_path: str, echo: bool = False) -> db.engine.Engine:
 
     return db.create_engine(database_url, echo=echo)
 
+
 def get_user_id(connection, metadata, login: str) -> int:
     """
     Retrieve the user_id for a given login.
@@ -96,6 +99,7 @@ def get_user_id(connection, metadata, login: str) -> int:
 
     # Return the user_id as an integer if found, otherwise return None.
     return int(result) if result else None
+
 
 def get_projects_with_sample_count(connection, metadata, user_id):
     """
@@ -142,6 +146,7 @@ def get_projects_with_sample_count(connection, metadata, user_id):
 
     # Execute the query, fetch the results, and return the DataFrame.
     return pd.DataFrame(connection.execute(query).fetchall())
+
 
 def main():
 
@@ -201,6 +206,7 @@ def main():
     except Exception as e:
 
         print(f"An unexpected error occurred: {e}")
+
 
 if __name__ == "__main__":
     main()

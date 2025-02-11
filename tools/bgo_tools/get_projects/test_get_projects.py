@@ -1,6 +1,5 @@
 import argparse
 import unittest
-
 from unittest.mock import patch
 
 from get_projects import get_arguments, get_engine

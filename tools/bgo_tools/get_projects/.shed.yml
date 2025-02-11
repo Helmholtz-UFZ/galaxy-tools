@@ -1,5 +1,11 @@
 name: lm_get_projects
-owner: wurz
-description: This tool quries the Lambda-Miner database for the users projects
+owner: ufz
+description: Get Lambda-Miner project information
 remote_repository_url: https://github.com/jw44lavo/galaxy-tools/blob/bgo/tools/bgo_tools/get_projects/
 type: unrestricted
+long_description: |
+  This tool queries the Lambda-Miner database for information on the users projects.
+homepage_url: https://lambda-miner-project.pages.ufz.de/lambda-miner-workflows/
+categories:
+    - Database
+    - Lambda-Miner

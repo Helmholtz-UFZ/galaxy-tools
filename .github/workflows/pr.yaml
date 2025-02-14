@@ -304,6 +304,17 @@ jobs:
           singularity pull --dir /tmp docker://continuumio/anaconda3
           singularity pull --dir /tmp docker://rocker/tidyverse
         fi
+    
+    # Set up the lambda-miner database
+    - name: Build Docker image (from app/ directory)
+      run: |
+        docker build -t lmdb_image -f .github/lambdaminer/Dockerfile .github/lambdaminer
+
+    - name: Start and verify Docker container
+      run: |
+        docker run -p 5400:5400 --name lmdb_container -d lmdb_image
+        sleep 10 # wait for the container to start
+        docker exec -i lmdb_container psql -U lmdb_adm -d lmdb -c "SELECT * FROM public.instrument;"
 
       # Start OMERO
     - name: Start OMERO

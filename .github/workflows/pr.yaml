@@ -309,7 +309,7 @@ jobs:
     - name: Create a database in the postgres for lambda-miner
       run: |
         PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE lambda_miner;"
-        PGPASSWORD=postgres psql -h localhost -U postgres -d lambda_miner -q -f ./.github/lambda_miner_database/build.sql
+        PGPASSWORD=postgres psql -h localhost -U postgres -d lambda_miner -q -f ./.github/lambdaminer/build.sql
         PGPASSWORD=postgres psql -h localhost -U postgres -d lambda_miner -c "SELECT * FROM public.instrument;"
 
       # Start OMERO

@@ -306,15 +306,11 @@ jobs:
         fi
     
     # Set up the lambda-miner database
-    - name: Build Docker image (from app/ directory)
+    - name: Create a database in the postgres for lambda-miner
       run: |
-        docker build -t lmdb_image -f .github/lambdaminer/Dockerfile .github/lambdaminer
-
-    - name: Start and verify Docker container
-      run: |
-        docker run -p 5400:5400 --name lmdb_container -d lmdb_image
-        sleep 10 # wait for the container to start
-        docker exec -i lmdb_container psql -U lmdb_adm -d lmdb -c "SELECT * FROM public.instrument;"
+        PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE lambda_miner;"
+        PGPASSWORD=postgres psql -h localhost -U postgres -d lambda_miner -q -f ./.github/lambda_miner_database/build.sql
+        PGPASSWORD=postgres psql -h localhost -U postgres -d lambda_miner -c "SELECT * FROM public.instrument;"
 
       # Start OMERO
     - name: Start OMERO

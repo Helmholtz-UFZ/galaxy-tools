@@ -15,18 +15,18 @@
 
 -- Reference data
 
-\i ./.github/lambaminer/data/reference_data/chemical_formula_config.sql
+\i ./.github/lambdaminer/data/reference_data/chemical_formula_config.sql
 
 
 -- Test data
 
-\i ./.github/lambaminer/data/test_data/instrument.sql
+\i ./.github/lambdaminer/data/test_data/instrument.sql
 
 
 /*
 *   Journal (recent changes)
 */
 
-\i ./.github/lambaminer/journal/240325-0_drop-table-ufz-user-role.sql
-\i ./.github/lambaminer/journal/240508-0_new-calibration-function.sql
-\i ./.github/lambaminer/journal/240521-0_geo-distance-function.sql
+\i ./.github/lambdaminer/journal/240325-0_drop-table-ufz-user-role.sql
+\i ./.github/lambdaminer/journal/240508-0_new-calibration-function.sql
+\i ./.github/lambdaminer/journal/240521-0_geo-distance-function.sql

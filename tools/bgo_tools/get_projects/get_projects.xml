@@ -21,7 +21,7 @@
     <tests>
         <test>
             <param name="credentials" value="test_credentials.json"/>
-            <param name="login" value="dummy_ext"/>
+            <param name="login" value="dummy_bgo"/>
             <output name="projects" file="test_projects.csv" ftype="csv" compare="contains"/>
         </test>
     </tests>

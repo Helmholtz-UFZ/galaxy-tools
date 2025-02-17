@@ -163,9 +163,6 @@ jobs:
     - name: Create a database in the postgres for lambda-miner
       run: |
         PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE lmdb;"
-
-    - name: Build the lambda-miner and run a test
-      run: |
         PGPASSWORD=postgres psql -h localhost -U postgres -d lmdb -q -f ./.github/lambdaminer/build.sql
         sleep 10
         PGPASSWORD=postgres psql -h localhost -U postgres -d lmdb -c "SELECT * FROM public.instrument;"

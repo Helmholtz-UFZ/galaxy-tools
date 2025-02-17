@@ -2,7 +2,7 @@
     <description> with ezomero </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">3</token>
+        <token name="@VERSION_SUFFIX@">4</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -41,7 +41,7 @@
             </param>
             <when value="new_object"/>
             <when value="existing_object">
-                <param name="did" type="integer" min = "1" optional="false" label="Object ID"/>
+                <param name="did" type="integer" min="1" value="" optional="false" label="Object ID"/>
             </when>
         </conditional>
         <param argument="ann_type" type="select" optional="false" label="Annotation type" help="Select annotation format">

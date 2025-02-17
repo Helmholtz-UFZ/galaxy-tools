@@ -312,21 +312,33 @@ jobs:
         PGPASSWORD=postgres psql -h localhost -U postgres -d lmdb -q -f ./.github/lambdaminer/build.sql
         sleep 10
         PGPASSWORD=postgres psql -h localhost -U postgres -d lmdb -c "SELECT * FROM public.instrument;"
-
+        
+    - name: Check if the OMERO folder changed before starting OMERO
+      id: check_changes
+      run: |
+        if git diff --quiet HEAD^ HEAD -- ./tools/omero; then
+            echo "changed=false" >> $GITHUB_ENV
+        else
+            echo "changed=true" >> $GITHUB_ENV
+        fi
+        
       # Start OMERO
     - name: Start OMERO
+      if: env.changed == 'true'
       uses: sudo-bot/action-docker-compose@latest
       with:
         cli-args: "-f .github/omero-docker-compose.yml up -d"
 
       # Setup environment
     - name: Set up Python environment for omero-py
+      if: env.changed == 'true'
       uses: actions/setup-python@v4
       with:
         python-version: '3.11.0'
 
       # Upload a dummy dataset in OMERO
     - name: Install dependencies and upload a OMERO dummy dataset
+      if: env.changed == 'true'
       run: |
         echo "Waiting for OMERO to be ready..."
         sleep 60

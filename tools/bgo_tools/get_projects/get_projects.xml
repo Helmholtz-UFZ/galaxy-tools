@@ -2,7 +2,6 @@
     <requirements>
         <requirement type="package" version="2.2.3">pandas</requirement>
         <requirement type="package" version="2.9.10">psycopg2</requirement>
-        <requirement type="package" version="3.11">python</requirement>
         <requirement type="package" version="2.0.37">sqlalchemy</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[

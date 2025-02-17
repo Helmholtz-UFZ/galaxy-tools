@@ -304,6 +304,14 @@ jobs:
           singularity pull --dir /tmp docker://continuumio/anaconda3
           singularity pull --dir /tmp docker://rocker/tidyverse
         fi
+    
+      # Set up the lambda-miner database
+    - name: Create a database in the postgres for lambda-miner
+      run: |
+        PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE lmdb;"
+        PGPASSWORD=postgres psql -h localhost -U postgres -d lmdb -q -f ./.github/lambdaminer/build.sql
+        sleep 10
+        PGPASSWORD=postgres psql -h localhost -U postgres -d lmdb -c "SELECT * FROM public.instrument;"
 
       # Start OMERO
     - name: Start OMERO

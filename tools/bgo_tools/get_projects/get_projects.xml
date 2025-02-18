@@ -1,7 +1,7 @@
 <tool id="lm_get_projects" name="Get LMDB Projects" version="0.1.0+galaxy0" profile="21.05">
     <requirements>
         <requirement type="package" version="2.2.2">pandas</requirement>
-        <requirement type="package" version="2.9.10">psycopg2</requirement>
+        <requirement type="package" version="2.9.9">psycopg2</requirement>
         <requirement type="package" version="2.0.37">sqlalchemy</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[

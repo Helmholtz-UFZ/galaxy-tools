@@ -15,13 +15,13 @@
         <param name="login" optional="false" type="text" label="UFZ Login Name" help="Lambda-Miner login name which equals the UFZ login name."/>
     </inputs>
     <outputs>
-        <data name="projects" format="tabular" label="Projects"/>
+        <data name="projects" format="csv" label="Projects"/>
     </outputs>
     <tests>
         <test>
             <param name="credentials" value="test_credentials.json"/>
             <param name="login" value="dummy_bgo"/>
-            <output name="projects" file="test_projects.csv" ftype="csv" compare="contains"/>
+            <output name="projects" value="test_projects.csv" compare="contains"/>
         </test>
     </tests>
     <help><![CDATA[

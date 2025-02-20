@@ -1,0 +1,1 @@
+d["extra_metrics"] = d["extra_metrics"].split(',') #wandelt durch , separierten string in liste um 

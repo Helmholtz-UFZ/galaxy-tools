@@ -42,10 +42,8 @@
                 </param>
             </when>
             <when value="KP">
-                <param name="value1" type="text" label="Key Value to search among the image IDs">
-                    <validator type="regex" message="Enter a valid Key to search in the OMERO server">^[\w\-. ]+$</validator>
-                </param>
-                <param name="value2" type="hidden" label="Pair Values to search among images IDs"/>
+                <param name="value1" type="text" label="Key Value to search among the image IDs"/>
+                <param name="value2" type="text" label="Pair Values to search among images IDs"/>
                 <param name="did" type="text" label="List of images IDs">
                     <validator type="regex" message="Enter a valid list of IDs (i.e. 2,45,56,67)">^\d+(,\d+)*$</validator>
                 </param>

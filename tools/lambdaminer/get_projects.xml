@@ -1,0 +1,45 @@
+<tool id="lm_get_projects" name="Get LMDB Projects" version="0.1.0+galaxy0" profile="21.05">
+    <requirements>
+        <requirement type="package" version="2.2.2">pandas</requirement>
+        <requirement type="package" version="2.9.9">psycopg2</requirement>
+        <requirement type="package" version="2.0.37">sqlalchemy</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #if $test != ""
+            export LAMBDAMINER_CREDENTIALS="$__tool_directory__/test-data/test_credentials.json";
+        #end if
+        python '$__tool_directory__/get_projects.py'
+        --login-name '$__user_name__'
+        --output-file '$projects'
+    ]]></command>
+    <inputs>
+        <param name="test" type="hidden"/>
+        <param name="login" type="text"/>
+    </inputs>
+    <outputs>
+        <data name="projects" format="csv" label="Projects"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="login" value="dummy_bgo"/>
+            <param name="test" value="True"/>
+            <output name="projects" value="test_projects.csv" compare="contains"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+**What it does**
+
+This tool queries the Lambda-Miner database for the users projects.
+
+**Input**
+
+There is no input necessary from the user. The tool connects to the Lambda-Miner database and uses the users login name to query it.
+
+**Output**
+
+CSV file containing the projects (id, name, sample count) corresponding to the user.]]>
+    </help>
+    <citations>
+        <citation type="doi">10.5194/egusphere-egu24-15782</citation>
+    </citations>
+</tool>

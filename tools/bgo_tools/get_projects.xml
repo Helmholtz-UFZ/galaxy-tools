@@ -5,22 +5,24 @@
         <requirement type="package" version="2.0.37">sqlalchemy</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python $__tool_directory__/get_projects.py
-        --credentials-file $credentials
-        --login-name $login
-        --output-file $projects
+        #if $test != ""
+            export LAMBDAMINER_CREDENTIALS="$__tool_directory__/test-data/test_credentials.json";
+        #end if
+        python '$__tool_directory__/get_projects.py'
+        --login-name '$__user_name__'
+        --output-file '$projects'
     ]]></command>
     <inputs>
-        <param type="data" format="json" name="credentials" label="Credentials File" help="LMDB credentials file containing..." optional="false"/>
-        <param name="login" optional="false" type="text" label="UFZ Login Name" help="Lambda-Miner login name which equals the UFZ login name."/>
+        <param name="test" type="hidden"/>
+        <param name="login" type="text"/>
     </inputs>
     <outputs>
         <data name="projects" format="csv" label="Projects"/>
     </outputs>
     <tests>
         <test>
-            <param name="credentials" value="test_credentials.json"/>
             <param name="login" value="dummy_bgo"/>
+            <param name="test" value="True"/>
             <output name="projects" value="test_projects.csv" compare="contains"/>
         </test>
     </tests>

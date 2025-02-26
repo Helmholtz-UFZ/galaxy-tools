@@ -1,5 +1,6 @@
 import argparse
 from json import load
+import os
 
 import pandas as pd
 import sqlalchemy as db
@@ -22,8 +23,12 @@ def get_arguments() -> argparse.Namespace:
         "--credentials-file",
         dest="credentials_file",
         type=str,
-        required=True,
-        help="Credential file in JSON format including dialect, user, password, host, port, and database"
+        required=False, # Optional
+        help=(
+            "Credential file in JSON format including dialect, user, password, host, port, and "
+            "database. If not provided, the environment variable LAMBDAMINER_CREDENTIALS will be "
+            "used."
+        )
     )
 
     # Add argument for the login name
@@ -42,11 +47,47 @@ def get_arguments() -> argparse.Namespace:
         "--output-file",
         dest="output",
         type=str,
-        required=True,
-        help="Path to the output file"
+        default="projects.csv",
+        help="Specifiy the output file path including the file name (default: 'projects.csv')"
+    )
+
+    # Add argument for the type
+    parser.add_argument(
+        "-t",
+        "--type",
+        choices=["generic", "import", "calibration", "assignment", "validation", "export"],
+        default="generic",
+        help="Specify the workflow type (default: 'generic')"
     )
 
     return parser.parse_args()
+
+
+def parse_check_args(args):
+    """
+    Parse and validate command line arguments.
+
+    Following actions are performed:
+    - Check of the existence of the specified directory in the output path.
+    - Assignment the correct credentials file to the arguments.
+
+    :param args: command line arguments.
+    :type args: argparse.Namespace
+    :raises FileNotFoundError: If the specified directory in the output path does not exist.
+    """
+    
+    # Extract the directory part of the specified output path
+    dir_path = os.path.dirname(args.output) or "."
+
+    # Check if the directory exists and raise error if not
+    if not os.path.isdir(dir_path):
+        raise FileNotFoundError(f"Error: The directory does not exist: {dir_path}")
+
+    # Get environment variable LAMBDAMINER_CREDENTIALS
+    envar_credentials = os.getenv("LAMBDAMINER_CREDENTIALS")
+
+    # Use the provided argument or fallback to the environment variable
+    args.credentials_file = args.credentials_file or envar_credentials
 
 
 def get_engine(credentials_path: str, echo: bool = False) -> db.engine.Engine:
@@ -150,13 +191,13 @@ def get_projects_with_sample_count(connection, metadata, user_id):
 
 def main():
 
-    args = None
+    # Parse command-line arguments
+    args = get_arguments()
+
+    # Parse and check the specified command line arguments
+    parse_check_args(args)
 
     try:
-
-        # Parse command-line arguments
-        args = get_arguments()
-
         # Load credentials and create the database engine
         engine = get_engine(args.credentials_file)
 

@@ -1,6 +1,7 @@
 import argparse
-from json import load
 import os
+from json import load
+
 
 import pandas as pd
 import sqlalchemy as db
@@ -23,7 +24,7 @@ def get_arguments() -> argparse.Namespace:
         "--credentials-file",
         dest="credentials_file",
         type=str,
-        required=False, # Optional
+        required=False,  # Optional
         help=(
             "Credential file in JSON format including dialect, user, password, host, port, and "
             "database. If not provided, the environment variable LAMBDAMINER_CREDENTIALS will be "
@@ -75,7 +76,7 @@ def parse_check_args(args):
     :type args: argparse.Namespace
     :raises FileNotFoundError: If the specified directory in the output path does not exist.
     """
-    
+
     # Extract the directory part of the specified output path
     dir_path = os.path.dirname(args.output) or "."
 

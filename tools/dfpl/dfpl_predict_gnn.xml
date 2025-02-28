@@ -9,82 +9,79 @@
     </macros>                                               
     <expand macro="requirements"/>                          
     <command detect_errors="exit_code"><![CDATA[
-    set -o pipefail;
-
-    cat '$inputs'
+        set -o pipefail;
+        cat '$inputs'
         | python '$__tool_directory__/json_flatten.py'
         | python '$__tool_directory__/json_predict_gnn.py'
         > config.json &&
-    dfpl predictgnn --configFile config.json &&
-    cp preds_dmpnn/DMPNN_preds.csv '$outputFile' ##pfad zu output? wurde in example angegeben finde aber keinen output der passt
+        dfpl predictgnn --configFile config.json      
 
     ]]></command>
     <configfiles>
         <inputs name="inputs" data_style="paths"/> 
     </configfiles>
     <inputs>
-        
-        <section title="Input Data" name="input-data" expanded="true">
-            <param label="Config File" argument="--configFile" type="data" format="csv" help="The file containing the data for training in"/>  
-            <param argument="--checkpoint_path" type="data" format="zip" optional="true" multiple="True" help="Model checkpoint as .zip"/>
-            <!-- data_path = test_path also nur eines nutzen oder das andere in json mit ="" oder überschreibt dies??????? -->
-            <param argument="--data_path" type="data" format="csv" optional="true" help="Path to CSV file containing testing data for which predictions will be made"/> 
-            <!-- bei smiles_columns eventuell text parameter eventuell in jsonpredictGNN prozessieren tool erwartet evetnuell mit , getrennte eingaben-->
-            <param argument="--smiles_columns" type="integer" multiple="true" min="1" max="8" help="List of names of the columns containing SMILES strings. By default, uses the first number_of_molecules columns." />
+        <!-- multiple inputs?:  (checkpoints_pathS) smiles_columns !!! , -->
+        <!-- features_path und atomDescriptors format=unknown    wegen beidem mal mit jana zusammen setzen--> 
+        <section title="Input Data" name="input-data" expanded="true">  
+            <param argument="--checkpoint_path" type="data" format="zip" optional="true" help="Model checkpoint as .zip"/>
+            <!-- <param argument="\-\-data_path" type="data" format="csv" optional="true" help="CSV file containing testing data for which predictions will be made"/> -->
+            <param argument="--test_path" type="data" format="csv" optional="true" help="CSV file with smiles"/> 
+            <param argument="--smiles_columns" type="text" optional="true" help="List of names of the columns containing SMILES strings. Insert the numbers of the columns separated with ','">
+                <validator type="regex" message="bullshit">^[a-zA-Z0-9._-]*$</validator>
+            </param>
         </section>
-        <section title="Advanced Settings" name="advanced_settings" expanded="true">
-            <!-- <param argument="\-\-gpu" type="integer" min="0" optional="true" help="Which GPU to use"/> -->
-            <!-- <param argument="\-\-no_cuda" type="boolean" value="False" optional="true" help="Turn off cuda"/> in jsonpredictgnn einfach auf true setzen hardcode-->  
-            <!-- <param argument="num_workers" min="0" type="integer" optional="true" help="Number of workers for the parallel data loading 0 means sequential"/> in json predictgnn damit zeihen : sys.env.get("GALAXY_SLOTS", "1") -->
-            <param argument="--no_cache" type="boolean" truevalue="--no_cache" falsevalue="" optional="true" help="Turn off caching mol2graph computation"/>
-            <param argument="--no_cache_mol" type="boolean" truevalue="--no_cache_mol" falsevalue="" optional="true" help="Whether to not cache the RDKit molecule for each SMILES string to reduce memory usage cached by default"/>
-            <param argument="--empty_cache" type="boolean" truevalue="--empty_cache" falsevalue="" optional="true" help="Whether to empty all caches before training or predicting. This is necessary if multiple jobs are run within a single script and the atom or bond features change"/>
-            <!-- features_path und atomDescriptors format=unknown    wegen beidem mal mit jana zusammen setzen-->
-            <!-- <param argument="features_path" type="data" format="csv" optional="true" multiple="True" help="Path to features to use in FNN (instead of features_generator)"/> -->
-            <!-- <param argument="\-\-atom_descriptors_path" type="data" optional="true" format="csv" help="Path to the extra atom descriptors."/> -->
-            <param argument="--use_compound_names" type="boolean" truevalue="--use_compound_names" falsevalue="" value="False" help="Use when test data file contains compound names in addition to SMILES strings"/>
-            <param argument="--no_features_scaling" type="boolean" optional="true" truevalue="--no_features_scaling" falsevalue="" value="False" help="Turn off scaling of features"/>
-            <param argument="--max_data_size" type="integer" min="1" optional="true" help="Maximum number of data points to load"/>
-            <param argument="--atom_descriptors" type="select" optional="true" help="Use atom descriptors.">
+        <section title="Advanced Settings" name="advanced_settings" expanded="true"> 
+            <param argument="--empty_cache" type="boolean" optional="true" help="Whether to empty all caches before training or predicting. This is necessary if multiple jobs are run within a single script and the atom or bond features change"/>
+            <param argument="--no_cache" type="boolean" optional="true" help="Turn off caching mol2graph computation"/> 
+            <param argument="--no_cache_mol" type="boolean" optional="true" help="Whether to not cache the RDKit molecule for each SMILES string to reduce memory usage cached by default"/>
+            
+            <param argument="--no_features_scaling" type="boolean" optional="true" value="False" help="Turn off scaling of features"/>
+            <!-- atom_descriptors UND atom_descriptors_path müssen entweder beide gesetzt werden oder dürfen gar nicht im wrap autauchen (egal ob feature oder descriptor ausgewählt ist)-->
+            <!-- <param argument="\-\-atom_descriptors" type="select" help="Use atom descriptors."> 
                 <option value="feature">Feature</option>
                 <option value="descriptor" selected="true">Descriptor</option>
             </param>
+            <param argument="\-\-atom_descriptors_path" type="data" format="csv" help="File with extra atom descriptors"/> -->
+            
             
             <param argument="--bond_features_size" type="integer" min="1" optional="true" help="Size of the extra bond descriptors that will be used as bond features to featurize a given molecule." />
             <param argument="--batch_size" type="integer" label="Batch Size" optional="true" value="50" help="Batch size for training." />
         </section>
     </inputs>
     <outputs>
-        <data name="outputFile" label="${tool.name} on ${on_string}: predicted values" format="csv" />
+        <data name="outputFile" label="${tool.name} on ${on_string}: predicted values" format="csv" from_work_dir="DMPNN_preds.csv"/>
     </outputs>
     <tests>
         <test>
             <section name="input-data">
-                <param name="data_path" value="S_dataset.csv"/>
-                <param name="checkpoint_path" value=""/>    <!-- welcher wert????? -->
-                <param name="smiles_columns" value="1"/> 
+                <!-- <param name="data_path" value="S_dataset.csv"/> -->
+                <param name="test_path" value="smiles.csv"/>
+                <param name="checkpoint_path" value="dmpnn-random/fold_0/model_0/model.pt"/> 
+                <param name="smiles_columns" value="smiles"/>
             </section>
             <section name="advanced_settings">
+                <param name="empty_cache" value="true"/>
                 <param name="no_cache" value="true"/>
                 <param name="no_cache_mol" value="true"/>
-                <param name="empty_cache" value="true"/>
-                <param name="use_compound_names" value="true"/>
+                 
+                
+                <!-- <param name="atom_descriptors" value="descriptor"/> -->
+                <param name="no_features_scaling" value="false"/>
+                <param name="bond_features_size" value="100"/>
                 <param name="batch_size" value="32"/>
-                <param name="atom_descriptors" value="feature"/>
-                <param name="bond_features_size" value="10"/>
-                <param name="no_cuda" value="true"/>
-                <param name="max_data_size" value="1"/>
+
             </section>
             
             <output name="outputFile">
                 <assert_contents>
-                    <has_n_lines n="7249"/>
-                    <has_n_columns n="10" sep=","/>
-                    <has_line n="1" line="id,smiles,AR,ER,GR,Aromatase,TR,PPARg,ED,predicted"/>
+                    <has_n_lines n="7"/>
+                    <has_n_columns n="8" sep=","/>
+                    <has_text text="smiles,AR,ER,GR,Aromatase,TR,PPARg,ED"/>
                 </assert_contents>
             </output>
             <assert_stdout>
-                <has_text text="Prediction successful"/>
+                <has_text text="Saving predictions"/>
             </assert_stdout>
         </test>
     </tests>

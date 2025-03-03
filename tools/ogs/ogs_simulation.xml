@@ -48,7 +48,7 @@
         </param>
     </inputs>
     <outputs>
-        <collection name="simulation_results" type="list" label="Simulation Results">
+        <collection name="simulation_results" type="list">
             <discover_datasets pattern="(?P&lt;designation&gt;.*\.pvd)" directory="output" visible="true"/>
             <discover_datasets pattern="(?P&lt;designation&gt;.*\.vtu)" format="vtkxml" directory="output" visible="true"/>
         </collection>

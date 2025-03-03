@@ -3,9 +3,9 @@
     <description>database builder</description>
     <macros>
         <token name="@TOOL_VERSION@">2.2.4</token>  <!-- when updating make sure to double check the db version -->
-        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@VERSION_SUFFIX@">1</token>
         <token name="@PROFILE@">22.01</token>
-        <!-- zenodo ID and therebut the version of the reference data is hardcoded in the current version virsorter:
+        <!-- zenodo ID and the version of the reference data is hardcoded in the current version virsorter:
              https://github.com/jiarong/VirSorter2/blob/c0dcac53f3373244bf1bd552a7c2104d53802df7/virsorter/rules/setup.smk#L13 
              check and update the DB version when updating the VS version 
              might also change/improve in the future https://github.com/jiarong/VirSorter2/issues/205#issuecomment-2184184977
@@ -18,7 +18,12 @@
         <requirement type="package" version="2.7.0">pulp</requirement> <!-- needs to be pinned, because the old-ish snakemake used in vs2 struggles with https://github.com/snakemake/snakemake/issues/2607 -->
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        virsorter setup -d db -j \${GALAXY_SLOTS:-1} --skip-deps-install &&
+        mkdir -p '$out_file.extra_files_path'/db &&
+        #if $test == "true"
+            touch '$out_file.extra_files_path'/db/test &&
+        #else
+            virsorter setup -d '$out_file.extra_files_path'/db -j \${GALAXY_SLOTS:-1} --skip-deps-install &&
+        #end if
         cp '$dmjson' '$out_file'
     ]]></command>
     <configfiles>
@@ -37,12 +42,15 @@
 }]]>
         </configfile>
     </configfiles>
-    <inputs/>
+    <inputs>
+        <param name="test" type="hidden"/>
+    </inputs>
     <outputs>
         <data name="out_file" format="data_manager_json" />
     </outputs>
     <tests>
         <test expect_num_outputs="1">
+            <param name="test" value="true"/>
             <output name="out_file">
                 <assert_contents>
                     <has_text text='"value":"@VIRSORTER_DB_VERSION@"'/>
@@ -50,9 +58,18 @@
                 </assert_contents>
             </output>
         </test>
+        <!-- 10GB test data seem to be to much for CI. but this test should be executed locally for updates
+        <test expect_num_outputs="1">
+            <output name="out_file">
+                <assert_contents>
+                    <has_text text='"value":"@VIRSORTER_DB_VERSION@"'/>
+                    <has_text text='"name":"Version @VIRSORTER_DB_VERSION@"'/>
+                </assert_contents>
+            </output>
+        </test> -->
     </tests>
     <help><![CDATA[
-Download and extract virsorter database version @VIRSORTER_DB_VERSION@ from zenodo (https://zenodo.org/records/10594875)
+Download and extract virsorter database version @VIRSORTER_DB_VERSION@ from zenodo (https://zenodo.org/records/4269607)
     ]]></help>
     <citations>
         <citation type="doi">10.1186/s40168-020-00990-y</citation>

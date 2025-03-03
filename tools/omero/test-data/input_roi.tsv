@@ -1,0 +1,8 @@
+shape	x	y	x_rad	y_rad	label	fontSize	x1	y1	x2	y2	points	width	height	fill_color	stroke_color	stroke_width	z	c	t	roi_name	roi_description
+Ellipse	50.0	50.0	20.0	10.0										(255,0,0,128)	(0,0,0,255)	2	0	0	0	Example ROI	This is an example ROI
+Label	100.0	100.0			Test Label	12.0								(255,255,255,0)	(0,0,255,255)	1	0	0	0	Example ROI	This is an example ROI
+Line							200.0	200.0	250.0	250.0				(0,255,0,128)	(0,0,0,255)	2	0	1	0	Example ROI	This is an example ROI
+Point	150.0	150.0												(0,0,255,128)	(255,0,0,255)	3	0	2	0	Example ROI	This is an example ROI
+Polygon											(300,300),(350,350),(300,400)			(255,255,0,128)	(0,0,0,255)	2	1	0	0	Example ROI	This is an example ROI
+Polyline											(400,400),(450,450),(400,500)			(0,255,255,128)	(0,0,0,255)	3	0	0	0	Example ROI	This is an example ROI
+Rectangle	500.0	500.0										100.0	50.0	(255,0,255,128)	(0,0,0,255)	2	0	0	0	Example ROI	This is an example ROI

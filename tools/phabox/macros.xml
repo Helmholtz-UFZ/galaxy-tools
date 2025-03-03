@@ -1,0 +1,207 @@
+<macros>
+    <token name="@TOOL_VERSION@">2.1.5</token>
+    <token name="@VERSION_SUFFIX@">0</token>
+    <xml name="citations">
+        <citations>
+            <citation type="doi">10.1093/bioadv/vbad101</citation>
+            <yield/>
+        </citations>
+    </xml>
+
+    <xml name="general">
+        <param argument="--dbdir" type="select" label="Phabox2 database">
+            <options from_data_table="phabox"/>
+        </param>
+        <param argument="--contigs" type="data" format="fasta" optional="false" label="Contig sequences"/>
+        <param argument="--proteins" type="data" format="fasta" optional="true" label="Predicted proteins"/>
+        <param argument="--len" type="integer" value="3000" min="0" label="Minimum contig length" help="Contigs with length smaller than this value will not proceed"/>
+    </xml>
+    <token name="@GENERAL@"><![CDATA[
+            --dbdir '$dbdir.fields.path'
+            --outpth output/        
+            --contigs '$contigs'
+        #if $proteins
+            --proteins  '$proteins'
+        #end if
+            --midfolder intermediate/
+            --len $len
+            --threads "\${GALAXY_SLOTS:-1}"
+    ]]></token>
+
+
+    <xml name="phamer">
+        <section name="phamer" title="Options for virus identification" help="">
+            <param argument="--reject" type="float" value="10" min="0" max="20" label="Minimum known proteins percentage" help="Reject sequences in which the percent proteins aligned to known phages is smaller than the value"/>
+        </section>
+    </xml>
+    <token name="@PHAMER@"><![CDATA[
+            --reject $phamer.reject
+    ]]></token>
+
+
+    <xml name="network">
+        <section name="network" title="Options for virus-virus connections" help="The options below are used to generate a network for virus-virus connections. The current parameters are optimized for the ICTV 2024 and are highly accurate for grouping genus-level vOTUs. When making changes, make sure you understand what they are.">
+            <param argument="--aai" type="float" value="75" min="0" max="100" label="Average amino acids identity"/>
+            <param argument="--share" type="float" value="15" min="0" max="100" label="Minimum shared number of proteins"/>
+            <param argument="--pcov" type="float" value="80" min="0" max="100" label="Protein-based coverage"/>
+            <!-- \-\-draw not recommended top be used according to CLI help -->
+        </section>
+    </xml>
+    <token name="@NETWORK@"><![CDATA[
+            --aai $network.aai
+            --share $network.share
+            --pcov $network.pcov
+    ]]></token>
+
+    <xml name="crispr">
+        <section name="crispr" title="Options used to predict CRISPRs based on MAGs" help="">
+            <param argument="--bfolder" type="data" format="true" optional="true" label="MAGS"/>
+            <param argument="--cpident" type="float" value="90" min="90" max="100" label="Alignment identity for CRISPRs"/>
+            <param argument="--ccov" type="float" value="90" min="0" max="100" label="Alignment coverage for CRISPRs"/>
+            <param argument="--blast" type="select" label="BLAST program for CRISPRs" help="blastn-short will lead to more sensitive results but require more time to execute the program">
+                <option value="blastn">blastn</option>
+                <option value="blastn-short">blastn-short</option>
+            </param>
+        </section>
+    </xml>
+    <token name="@CRISPR_PRE@"><![CDATA[
+        #if $crispr.bfolder
+            mkdir bfolder &&
+            #for b in $crispr.bfolder
+                #set bname = re.sub('[^\w\-_\.]', '_', $b.element_identifier)
+                ln -s '$b' '$bname' &&
+            #end for
+        #end if
+    ]]></token>
+    <token name="@CRISPR@"><![CDATA[
+        #if $crispr.bfolder
+            --bfolder bfolder
+        #end if
+            --cpident $crispr.cpident
+            --ccov $crispr.cpident
+            --blast $crispr.blast
+    ]]></token>
+
+    <xml name="contamination">
+        <section name="contamination" title="Options for contamination detection" help="">
+            <param argument="--sensitive" type="boolean" truevalue="--sensitive Y" falsevalue="--sensitive N" label="Sensitive search for prokaryotic genes" help="Enabling this will lead to more sensitive results but require more time to execute the program"/>
+        </section>
+    </xml>
+    <token name="@CONTAMINATION@"><![CDATA[
+           $contamination.sensitive
+    ]]></token>
+
+    <xml name="aai">
+        <param argument="--aai" type="float" value="75" min="0" max="100" label="Average amino acids identity for AAI based genus grouping"/>
+    </xml>
+
+    <xml name="votu">
+        <section name="votu" title="Options vOTU grouping" help="">
+            <conditional name="mode_cond">
+                <param argument="--mode" type="select" label="Clustering mode" >
+                    <option value="ANI">ANI</option>
+                    <option value="AAI">AAI</option>
+                </param>
+                <when value="ANI">
+                    <param argument="--ani" type="float" value="95" min="0" max="100" label="Alignment identity for ANI-based clustering"/>
+                    <param argument="--tcov" type="float" value="85" min="0" max="100" label="Alignment coverage for ANI-based clustering"/>
+                </when>
+                <when value="AAI">
+                    <param argument="--aai" type="float" value="75" min="0" max="100" label="Average amino acids identity for AAI based genus grouping"/>
+                    <param argument="--pcov" type="float" value="80" min="0" max="100" label="Protein-level coverage for AAI based genus grouping"/>
+                    <param argument="--share" type="float" value="15" min="0" max="100" label="Minimum shared number of proteins for AAI based genus grouping"/>
+                </when>
+            </conditional>
+        </section>
+    </xml>
+    <token name="@VOTU@"><![CDATA[
+            --mode $votu.mode_cond.mode
+        #if $votu.mode_cond.mode == "AAI"
+            --aai $votu.mode_cond.aai
+            --pcov $votu.mode_cond.pcov
+            --share $votu.mode_cond.share
+        #else if $votu.mode_cond.mode == "ANI"
+            --ani $votu.mode_cond.ani
+            --tcov $votu.mode_cond.tcov
+        #end if
+    ]]></token>
+
+    <xml name="tree">
+        <section name="tree" title="Options for tree building" help="">
+            <param argument="--marker" type="select" multiple="true" label="Markers used to generate tree" help="Using combinations of these markers can improve the accuracy of the tree. But will decrease the number of sequences in the tree. Numbers in parentheses give the percentage of prokaryotic viruses that have the corresponding protein.">
+                <option value="endolysin">endolysin (91)</option>
+                <option value="holin">holin (75)</option>
+                <option value="head">marjor head (77)</option>
+                <option value="portal" selected="true">portal (84) </option>
+                <option value="terl" selected="true">terminase large subunit (92)</option>
+            </param>
+            <param argument="--mcov" type="float" value="50" min="0" max="100" label="Alignment coverage for matching marker genes"/>
+            <param argument="--mpident" type="float" value="25" min="0" max="100" label="Alignment identitiy for matching marker genes"/>
+        </section>
+    </xml>
+    <token name="@TREE@"><![CDATA[
+            --marker 
+            #for m in $tree.marker
+                $m
+            #end for
+            --mcov $tree.mcov
+            --mpident $tree.mpident
+            ## constructing the MSA and building the tree
+            ## (the program would use mafft and fasttree)
+            ## can be done more flexibly in Galaxy
+            ## (leavinh this here to ensure it won't be implemented)
+            ## --msa Y
+            ## --tree Y
+    ]]></token>
+
+    <xml name="supp_out" tokens="task">
+        <collection name="@TASK@_supp_out" type="list" label="${tool.name} on ${on_string}: @TASK@ supplement">
+            <discover_datasets pattern="(?P&lt;designation&gt;.+).fa" format="fasta" directory="output/final_prediction/@TASK@_supplementary"/>
+            <discover_datasets pattern="(?P&lt;designation&gt;.+).tsv" format="tabular" directory="output/final_prediction/@TASK@_supplementary"/>
+            <discover_datasets pattern="(?P&lt;designation&gt;.+).tab" format="tabular" directory="output/final_prediction/@TASK@_supplementary"/>
+            <filter>supplements and "@TASK@" in supplements</filter>
+        </collection>
+    </xml>
+
+    <token name="@COMMON_OUTPUT_DOC@"><![CDATA[
+A tabular dataset with the following columns:
+
+- Accession: the accession or the name of the input contigs.
+- Length: the length of input contigs.
+    ]]></token>
+    <token name="@PHAMER_OUTPUT_DOC@"><![CDATA[
+- Pred: virus or non-virus.
+- Proportion: the proportion of the proteins that can be aligned to the virus database (from 0 to 1).
+- PhaMerScore: the prediction score given by the deep learning model.
+- PhaMerConfidence: the confidence of prediction, determined by both Proportion and PhaMerScore (high-confidence, medium-confidence, low-confidence, lower than reject threshold (according to the --reject parameter, default: 0.1)).
+  For the virus with low-confidence or lower than reject threshold, we recommend you to run the contamination task to check their sequence quality.
+    ]]></token>
+    <token name="@PHAGCN_OUTPUT_DOC@"><![CDATA[
+- Lineage: the predicted taxonomy lineage (NCBI version) of the contigs. Each rank is separated by the ';'.
+- PhaGCNScore: the predicted score for each rank in the lineage. Each rank is separated by the ';'.
+- Genus: whether the contig has a genus level name ('-' means unknown).
+- GenusCluster: if the Genus is '-', the program will assign a genus-level grouping result: group_idx (idx = 1, 2, 3, ...) or singleton. This can be viewed as genus-level OTUs based on the average shared protein identities between sequences.
+    ]]></token>
+    <token name="@PHATYP_OUTPUT_DOC@"><![CDATA[
+- TYPE: virulent or temperate (virus).
+- PhaTYPScore: the prediction score given by the deep learning model.
+    ]]></token>
+    <token name="@CHERRY_OUTPUT_DOC@"><![CDATA[
+- Host: the predicted host (NCBI taxonomy) of the contigs. '-' means unknown host.
+- CHERRYScore: the predicted score from the model.
+- Method:
+    - CRISPR-based(MAG): CRISPRs alignment results from provided MAG (if any)
+    - CRISPR-based(DB): CRISPRs alignment results from database.
+    - AAI-based: predicting host based on virus-simil
+- Host_NCBI_lineage
+- Host_GTDB_lineage
+    ]]></token>
+
+    <token name="@COMMON_INPUT_DOC@"><![CDATA[
+**Input**
+
+- Contig sequences in FASTA format
+- Optionally own predicted protein sequences can be given (by default the tool will use prodigal and diamond blastp for the prediction)
+    ]]></token>
+
+</macros>

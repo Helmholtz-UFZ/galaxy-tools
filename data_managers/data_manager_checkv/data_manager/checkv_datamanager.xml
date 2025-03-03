@@ -1,0 +1,64 @@
+<tool id="checkv_build_database" name="CheckV" tool_type="manage_data" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+    <description>database builder</description>
+    <macros>
+        <token name="@TOOL_VERSION@">1.0.3</token>
+        <token name="@VERSION_SUFFIX@">2</token>
+        <token name="@PROFILE@">22.01</token>
+    </macros>
+    <requirements>
+        <!-- DM only needs diamon (which comes with checkv) -->
+        <requirement type="package" version="@TOOL_VERSION@">checkv</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        set -eo pipefail; 
+        wget https://portal.nersc.gov/CheckV/checkv-db-v${version}.tar.gz &&
+        tar -zxvf checkv-db-v${version}.tar.gz &&
+        cd checkv-db-v${version}/genome_db/ &&
+        diamond makedb --in checkv_reps.faa --db checkv_reps &&
+        cd - &&
+        mkdir -p '$out_file.extra_files_path' &&
+        mv checkv-db-v${version} '$out_file.extra_files_path'/checkv-db &&
+        cp '$dmjson' '$out_file'
+    ]]></command>
+    <configfiles>
+        <configfile name="dmjson"><![CDATA[
+{
+  "data_tables":{
+    "checkv":[
+      {
+        "path":"checkv-db/",
+        "name":"Version $version",
+        "version":"$version",
+        "value":"$version"
+      }
+    ]
+  }
+}]]>
+        </configfile>
+    </configfiles>
+    <inputs>
+        <param name="version" type="select" multiple="false" label="Database Version">
+            <option value="1.5">1.5</option>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="out_file" format="data_manager_json" />
+    </outputs>
+    <tests>
+        <!-- <test expect_num_outputs="1">
+            <param name="version" value="1.5" />
+            <output name="out_file">
+                <assert_contents>
+                    <has_text text='"value":"1.5"'/>
+                    <has_text text='"name":"Version 1.5"'/>
+                </assert_contents>
+            </output>
+        </test> -->
+    </tests>
+    <help><![CDATA[
+Download and extract CheckV reference data from https://portal.nersc.gov/CheckV/
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1038/s41587-020-00774-7</citation>
+    </citations>
+</tool>

@@ -43,7 +43,7 @@ jobs:
       commit-range: ${{ steps.discover.outputs.commit-range }}
     strategy:
       matrix:
-        python-version: ['3.11']
+        python-version: ['3.10']
     steps:
     - name: Print github context properties
       run: |
@@ -110,7 +110,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.11']
+        python-version: ['3.10']
     steps:
     - uses: actions/checkout@v4
       with:
@@ -156,7 +156,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.11']
+        python-version: ['3.10']
     steps:
     - uses: actions/checkout@v4
       with:
@@ -257,7 +257,7 @@ jobs:
       fail-fast: false
       matrix:
         chunk: ${{ fromJson(needs.setup.outputs.chunk-list) }}
-        python-version: ['3.11']
+        python-version: ['3.10']
     services:
       postgres:
         image: postgres:11
@@ -329,6 +329,8 @@ jobs:
         DID=$(omero obj new Dataset name='test_dts')
         omero obj new ProjectDatasetLink parent=$PID child=$DID
         omero import -d $DID .github/dummy-dts-omero
+        omero tag create --name test_tag --desc 'description of my_tag'
+        omero tag link Image:1 1
         echo "Created the dummy dataset into OMERO"
 
     # download or create large test data via script
@@ -380,7 +382,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.11']
+        python-version: ['3.10']
     steps:
     - uses: actions/download-artifact@v4
       with:
@@ -426,7 +428,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.11']
+        python-version: ['3.10']
     steps:
     - uses: actions/checkout@v4
       with:

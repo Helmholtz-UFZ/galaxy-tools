@@ -1,2 +1,18 @@
-EC10	EC25	EC50
-5.08340659604631	10.6579575265526	22.3456566952853
+Metric	Value
+chemical_name	test-chemical
+EC10	4.33426721357793
+EC25	9.27203754541479
+EC50	19.8351130669244
+AIC	15.2903874500298
+
+Model Summary:
+
+Model fitted: Log-logistic (ED50 as parameter) with lower limit at 0 and upper limit at 1 (2 parms)
+
+Parameter estimates:
+
+              Estimate Std. Error t-value p-value  
+b:(Intercept) -1.44469    0.78675 -1.8363 0.06632 .
+e:(Intercept) 19.83511   10.50871  1.8875 0.05909 .
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1

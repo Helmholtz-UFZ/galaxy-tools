@@ -15,9 +15,8 @@
         AddLayer -i input.vtu -o output.vtu -t '$layer_thickness'
         $add_layer_on_bottom
         #if str($material_option.material_id) == "copy":
-            $copy_material_ids
-        #end if    
-        #if str($material_option.material_id) == "set":
+            --copy-material-ids
+        #elif str($material_option.material_id) == "set":
             --set-material-id $material_option.set_material_id
         #end if
         
@@ -31,11 +30,7 @@
                 <option value="copy">Copy existing material IDs</option>
                 <option value="set">Set a specific material ID</option>
             </param>
-            <when value="none">
-            </when>
-            <when value="copy">
-                <param name="copy_material_ids" type="boolean" truevalue="--copy-material-ids" falsevalue="" label="Copy/Save Material IDs"/>
-            </when>
+            <when value="copy"/>
             <when value="set">
                 <param name="set_material_id" type="integer" label="Set Material IDs"/>
             </when>
@@ -64,11 +59,9 @@
             1. **Input Mesh File (`input_mesh`)**  The VTU file containing the existing mesh to which a new layer will be added.  
             2. **Layer Thickness (`layer_thickness`)**  Specifies the thickness of the new layer to be added. The default value is `10.0`.  
             3. **Add Layer to Bottom (`add_layer_on_bottom`)**  If selected, the layer is added to the bottom of the mesh. Otherwise, it is added to the top.  
-            4. **Material ID Option (`material_option`)**  Determines how material IDs for the new layer are managed:  
-                - `None`: No material ID modifications are applied.  
+            4. **Material ID Option (`material_option`)**  Determines how material IDs for the new layer are managed:
                 - `Copy`: Copies existing material IDs to the new layer.  
                 - `Set`: Sets a specific material ID for the new layer.  
-
         **Outputs:**
 
 1.          **Output Mesh File (`output_mesh`)**  The resulting mesh file in VTU format with the added layer.  

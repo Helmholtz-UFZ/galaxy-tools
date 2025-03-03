@@ -56,6 +56,10 @@ def metadata_import_ezo(user, pws, host, port, obj_type, did=None, ann_type="tab
                 if did is None:
                     did = ez.post_dataset(conn, dataset_name=str(datetime.now()))
                 result = upload_metadata(conn, "Dataset", did, data_dict, df, ann_type, an_name)
+            elif obj_type == "plate":
+                result = upload_metadata(conn, "Plate", did, data_dict, df, ann_type, an_name)
+            elif obj_type == "well":
+                result = upload_metadata(conn, "Well", did, data_dict, df, ann_type, an_name)
             elif obj_type == "image":
                 result = upload_metadata(conn, "Image", did, data_dict, df, ann_type, an_name)
             else:
@@ -74,10 +78,12 @@ def metadata_import_ezo(user, pws, host, port, obj_type, did=None, ann_type="tab
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Import metadata into OMERO.')
-    parser.add_argument("--credential-file", dest="credential_file", type=str, required=True, help="Credential file (JSON file with username and password for OMERO)")
+    parser.add_argument("--credential-file", dest="credential_file", type=str, required=True,
+                        help="Credential file (JSON file with username and password for OMERO)")
     parser.add_argument('--host', required=True, help='OMERO host')
     parser.add_argument('--port', required=True, type=int, help='OMERO port')
-    parser.add_argument('--obj_type', required=True, choices=['project', 'screen', 'dataset', 'image'],
+    parser.add_argument('--obj_type', required=True, choices=['project', 'screen', 'dataset', 'plate',
+                                                              'well ', 'image'],
                         help='Type of OMERO object')
     parser.add_argument('--did', type=int, help='ID of the object (if it exists)')
     parser.add_argument('--ann_type', required=True, choices=['table', 'KV'], help='Annotation type')

@@ -1,5 +1,5 @@
 
-<tool id="msh2vtu" name="ogstools msh2vtu" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+<tool id="msh2vtu" name="OGSTools msh2vtu" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
     <description>
         Convert msh to UnstructuredGrid (vtk)
     </description>

@@ -8,7 +8,8 @@
     </macros>
     <requirements>
         <expand macro="ogs_requirement"/>
-    </requirements> 
+    </requirements>
+    <expand macro="creator"/>
     <command detect_errors="exit_code"><![CDATA[
         ln -s '$input_mesh' input.vtu &&
         AddLayer -i input.vtu -o output.vtu -t '$layer_thickness'
@@ -26,8 +27,7 @@
         <param name="layer_thickness" type="float" label="Layer Thickness" argument="-t"/>
         <param name="add_layer_on_bottom" type="boolean" value="false" truevalue="--add-layer-on-bottom" falsevalue="" label="Add Layer To Bottom"/>
          <conditional name="material_option">
-            <param name="material_id" type="select" label="Material ID Option">
-                <option value="none" selected="true">None</option>
+            <param name="material_id" type="select" optional="true" label="Material ID Option">
                 <option value="copy">Copy existing material IDs</option>
                 <option value="set">Set a specific material ID</option>
             </param>

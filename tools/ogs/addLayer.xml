@@ -26,10 +26,12 @@
         <param name="layer_thickness" type="float" label="Layer Thickness" argument="-t"/>
         <param name="add_layer_on_bottom" type="boolean" value="false" truevalue="--add-layer-on-bottom" falsevalue="" label="Add Layer To Bottom"/>
          <conditional name="material_option">
-            <param name="material_id" type="select" optional="true" label="Material ID Option">
+            <param name="material_id" type="select" label="Material ID Option">
+                <option value="none">Leave as it is</option>
                 <option value="copy">Copy existing material IDs</option>
                 <option value="set">Set a specific material ID</option>
             </param>
+            <when value="none"/>
             <when value="copy"/>
             <when value="set">
                 <param name="set_material_id" type="integer" label="Set Material IDs"/>

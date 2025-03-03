@@ -17,7 +17,7 @@
             -l '$log_level'
     ]]></command>
     <inputs>
-        <param name="input_file" type="data" format="GMSH" label="Input GMSH File"/>
+        <param name="input_file" type="data" format="gmsh.msh" label="Input GMSH File"/>
         <param name="dim" type="select" label="Set dimensionality of the mesh" argument="-d">
             <option value="1">1D</option>
             <option value="2">2D</option>

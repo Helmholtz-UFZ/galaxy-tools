@@ -64,9 +64,10 @@
             4. **Material ID Option (`material_option`)**  Determines how material IDs for the new layer are managed:
                 - `Copy`: Copies existing material IDs to the new layer.  
                 - `Set`: Sets a specific material ID for the new layer.  
+
         **Outputs:**
 
-1.          **Output Mesh File (`output_mesh`)**  The resulting mesh file in VTU format with the added layer.  
+            **Output Mesh File (`output_mesh`)**  The resulting mesh file in VTU format with the added layer.  
     ]]></help>
     <expand macro="ogs_citation"/>
 </tool>

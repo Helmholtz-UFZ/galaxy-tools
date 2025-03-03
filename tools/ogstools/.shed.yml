@@ -5,8 +5,8 @@ long_description: |
      A suite of tools for ogs.
 categories:
 - Geo Science
-remote_repository_url: https://gitlab.opengeosys.org/ogs/tools/ogstools
-homepage_url: https://www.opengeosys.org/
+remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/ogstools
+homepage_url: https://gitlab.opengeosys.org/ogs/tools/ogstools
 type: unrestricted
 auto_tool_repositories:
   name_template: "{{ tool_id }}"

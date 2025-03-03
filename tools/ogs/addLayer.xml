@@ -42,7 +42,7 @@
         </conditional>
     </inputs>
     <outputs>
-        <data name="output_mesh" format="vtkxml" label="Output Mesh File" from_work_dir="output.vtu" />
+        <data name="output_mesh" format="vtkxml" from_work_dir="output.vtu" />
     </outputs>
     <tests>
     <test>

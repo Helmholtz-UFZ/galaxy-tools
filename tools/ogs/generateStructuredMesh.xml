@@ -117,7 +117,7 @@
         </param>
     </inputs>
     <outputs>
-        <data format="vtkxml" name="output" label="Format: ${output_ext}">
+        <data format="vtkxml" name="output">
             <change_format>
                 <when input="output_ext" value="msh" format="gmsh.msh"/>
             </change_format>

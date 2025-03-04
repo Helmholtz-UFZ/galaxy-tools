@@ -90,6 +90,8 @@ def parse_check_args(args):
     # Use the provided argument or fallback to the environment variable
     args.credentials_file = args.credentials_file or envar_credentials
 
+    assert args.credentials_file is not None, "Error: No credentials specified"
+
 
 def get_engine(credentials_path: str, echo: bool = False) -> db.engine.Engine:
     """

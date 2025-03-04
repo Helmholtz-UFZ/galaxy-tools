@@ -4,8 +4,13 @@ description: Lambda-Miner Tools
 remote_repository_url: https://github.com/jw44lavo/galaxy-tools/blob/bgo/tools/lambdaminer/
 type: unrestricted
 long_description: |
-  Set of tools for the Lambda-Miner.
+  Set of Lambda-Miner Tools
 homepage_url: https://lambda-miner-project.pages.ufz.de/lambda-miner-workflows/
 categories:
     - Web Services
     - Data Source
+suite:
+  name: "suite_lambdaminer"
+  description: Lambda-Miner Tools suite
+  long_description: |
+    Suite for Lambda-Miner Tools

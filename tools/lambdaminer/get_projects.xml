@@ -14,14 +14,12 @@
     ]]></command>
     <inputs>
         <param name="test" type="hidden"/>
-        <param name="login" type="text"/>
     </inputs>
     <outputs>
-        <data name="projects" format="csv" label="Projects"/>
+        <data name="projects" format="csv"/>
     </outputs>
     <tests>
         <test>
-            <param name="login" value="dummy_bgo"/>
             <param name="test" value="True"/>
             <output name="projects" value="test_projects.csv" compare="contains"/>
         </test>

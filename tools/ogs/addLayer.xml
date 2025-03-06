@@ -23,7 +23,7 @@
     ]]></command>
     <inputs> 
         <param name="input_mesh" type="data" format="vtkxml" label="Input Mesh File" argument="-i"/>
-        <param name="layer_thickness" type="float" label="Layer Thickness" argument="-t"/>
+        <param name="layer_thickness" type="float" value="" label="Layer Thickness" argument="-t"/>
         <param name="add_layer_on_bottom" type="boolean" value="false" truevalue="--add-layer-on-bottom" falsevalue="" label="Add Layer To Bottom"/>
          <conditional name="material_option">
             <param name="material_id" type="select" label="Material ID Option">

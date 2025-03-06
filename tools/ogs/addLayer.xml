@@ -34,7 +34,7 @@
             <when value="none"/>
             <when value="copy"/>
             <when value="set">
-                <param name="set_material_id" type="integer" label="Set Material IDs"/>
+                <param name="set_material_id" type="integer" value="" label="Set Material IDs"/>
             </when>
         </conditional>
     </inputs>

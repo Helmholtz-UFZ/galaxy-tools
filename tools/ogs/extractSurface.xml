@@ -22,11 +22,11 @@
     ]]></command>
     <inputs>
         <param name="input_mesh" type="data" format="vtkxml" label="Input Mesh" help="3D input mesh in VTU format"/>
-        <param name="x_component" type="float" label="X Component of Normal" help="X component of the normal vector"/>
-        <param name="y_component" type="float" label="Y Component of Normal" help="Y component of the normal vector"/>
-        <param name="z_component" type="float" label="Z Component of Normal" help="Z component of the normal vector"/>
-        <param name="angle" type="float" label="Angle" optional="true" min="0" max="360" help="Tolerated angle between given normal and element normal (in degrees)"/>
-        <param name="ascii_output" type="boolean" value="false" optional="true" truevalue="--ascii-output" falsevalue="" label="ASCII Output" help="Output VTU in ASCII format instead of binary"/>
+        <param name="x_component" type="float" value="" label="X Component of Normal" help="X component of the normal vector"/>
+        <param name="y_component" type="float" value="" label="Y Component of Normal" help="Y component of the normal vector"/>
+        <param name="z_component" type="float" value="" label="Z Component of Normal" help="Z component of the normal vector"/>
+        <param name="angle" type="float" value="" label="Angle" optional="true" min="0" max="360" help="Tolerated angle between given normal and element normal (in degrees)"/>
+        <param name="ascii_output" type="boolean" value="false" truevalue="--ascii-output" falsevalue="" label="ASCII Output" help="Output VTU in ASCII format instead of binary"/>
     </inputs>
     <outputs>
         <data name="output_mesh" format="vtkxml" from_work_dir="outputExtracted2D.vtu"/>

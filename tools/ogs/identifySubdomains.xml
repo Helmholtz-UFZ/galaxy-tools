@@ -28,7 +28,7 @@
     <inputs>
         <param name="bulk_mesh" type="data" format="vtkxml" label="Bulk Mesh File" help="The bulk mesh file in VTU format."/>
         <param name="subdomain_meshes" type="data" format="vtkxml" multiple="true" label="Subdomain Mesh Files" help="One or more subdomain mesh files in VTU format."/>
-        <param name="search_length" type="float" min="1e-16" max="10.0" label="Search Length" help="Search radius for the node search algorithm."/>
+        <param name="search_length" type="float" value="" min="1e-16" max="10.0" label="Search Length" help="Search radius for the node search algorithm."/>
     </inputs>
     <outputs>
         <data name="output_mesh" format="vtkxml" from_work_dir="output_quater_circle.vtu"/>

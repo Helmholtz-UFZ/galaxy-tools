@@ -6,8 +6,9 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #if $test != ""
-            export LAMBDAMINER_CREDENTIALS="$__tool_directory__/test-data/test_credentials.json";
+            export LAMBDAMINER_CREDENTIALS="$__tool_directory__/test-data/$test";
         #end if
+        ## export LAMBDAMINER_CREDENTIALS="$__tool_directory__/test-data/test_credentials.json";
         python '$__tool_directory__/get_projects.py'
         --login-name '$__user_name__'
         --output-file '$projects'
@@ -20,8 +21,14 @@
     </outputs>
     <tests>
         <test>
-            <param name="test" value="True"/>
+            <param name="test" value="test_credentials.json"/>
             <output name="projects" value="test_projects.csv" compare="contains"/>
+        </test>
+        <test expect_failure="true">
+            <param name="test" value="test_credentials_false.json"/>
+        </test>
+        <test expect_failure="true">
+            <param name="test" value="test_credentials_nonexistent.json"/>
         </test>
     </tests>
     <help><![CDATA[

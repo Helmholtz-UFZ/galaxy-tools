@@ -92,6 +92,7 @@ def parse_check_args(args):
 
     assert args.credentials_file is not None, "Error: No credentials specified"
 
+
 def get_engine(credentials_path: str, echo: bool = False) -> db.engine.Engine:
     """
     Create and return a SQLAlchemy engine based on the supplied credentials.
@@ -229,9 +230,9 @@ def main():
             # Display the result
             if projects.empty:
                 raise ValueError(
-                "No projects found for the user \"{}\". "
-                "Please create a project before going on."
-                .format(args.login)
+                    "No projects found for the user \"{}\". "
+                    "Please create a project before going on."
+                    .format(args.login)
                 )
             else:
                 print(projects)
@@ -244,6 +245,7 @@ def main():
 
     except Exception as e:
         raise RuntimeError(f"An unexpected error occurred: {e}")
+
 
 if __name__ == "__main__":
     main()

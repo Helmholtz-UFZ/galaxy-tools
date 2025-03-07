@@ -1,0 +1,114 @@
+<tool id="ogs_simulation" name="OGS" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+    <description>
+        Runs an OGS simulation
+    </description>
+    <macros>
+        <import>macros.xml</import>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <requirements>
+        <expand macro="ogs_requirement"/>
+    </requirements> 
+    <expand macro="creator"/>       
+    <command detect_errors="exit_code"><![CDATA[  
+        #import re 
+        
+        ln -s '$project_file' main_file.prj &&
+        #for $f in $project_files:
+           #set $identifier= re.sub(r'[^\w\-.]', '_', $f.element_identifier)
+            ln -s '$f' '$identifier' &&
+        #end for
+        #for $file in $xml_patch_files:
+            #set $identifier= re.sub(r'[^\w\-.]', '_', $file.element_identifier)
+            ln -s '$file' '$identifier' &&
+        #end for
+        
+        ogs main_file.prj
+        #if $log_level: 
+        --log-level '${log_level}' 
+        #end if     
+        
+        #for $file in $xml_patch_files:
+            #set $identifier= re.sub(r'[^\w\-.]', '_', $file.element_identifier)
+            --xml-patch '$identifier' 
+        #end for
+       -o output
+    ]]></command>
+    <inputs>
+        <param name="project_file" format="prj" type="data" label="Project File"/>
+        <param name="project_files" format="data" type="data_collection" collection_type="list" label="Project Files"/>
+        <param name="xml_patch_files" format="xml" type="data_collection" collection_type="list" label="XML Patch Files"/>
+        <param name="log_level" type="select" label="Log Level" optional="true">
+            <option value="none">None</option>
+            <option value="error">Error</option>
+            <option value="warn">Warning</option>
+            <option value="info" selected="true">Info</option>
+            <option value="debug">Debug</option>
+            <option value="all">All</option>
+        </param>
+    </inputs>
+    <outputs>
+        <collection name="simulation_results" type="list">
+            <discover_datasets pattern="(?P&lt;designation&gt;.*\.pvd)" directory="output" visible="true"/>
+            <discover_datasets pattern="(?P&lt;designation&gt;.*\.vtu)" format="vtkxml" directory="output" visible="true"/>
+        </collection>
+    </outputs>
+    <tests>
+        <test>
+            <param name="project_file" value="square_1e0_neumann.prj" />
+            <param name="project_files">
+                <collection type="list">
+                    <element name="square_1x1_quad_1e0.vtu" value="square_1x1_quad_1e0.vtu"/>
+                    <element name="square_1x1.gml" value="square_1x1.gml"/>
+                </collection>
+            </param>
+            <param name="xml_patch_files">
+                <collection type="list">
+                    <element name="square_1e0.xml" value="square_1e0.xml" ftype="xml"/>
+                    <element name="square_neumann.xml" value="square_neumann.xml" ftype="xml"/>
+                </collection>
+            </param>
+            <param name="log_level" value="info" />
+            <output_collection name="simulation_results" type="list" count="3">
+                <element name="square_1e0_neumann_neumann.pvd">
+                    <assert_contents>
+                        <has_text text="VTKFile type=&quot;Collection&quot;" />
+                        <has_n_lines min="5" max="7"/>
+                    </assert_contents>
+                </element>
+                <element name="square_1e0_neumann_neumann_ts_0_t_0.000000.vtu">
+                    <assert_contents>
+                        <has_text text="VTKFile type=&quot;UnstructuredGrid&quot;" />
+                        <has_n_lines min="23" max="27"/>
+                    </assert_contents>
+                </element>
+                <element name="square_1e0_neumann_neumann_ts_1_t_1.000000.vtu">
+                    <assert_contents>
+                        <has_text text="VTKFile type=&quot;UnstructuredGrid&quot;"/>
+                        <has_n_lines min="23" max="27"/>
+                    </assert_contents>
+                </element>
+                
+           </output_collection>
+        </test>
+    </tests>
+
+    <help><![CDATA[
+        **Overview:**
+
+            This tool runs an OpenGeoSys (OGS) simulation with support for Python boundary conditions and enhanced CLI argument parsing. The simulation uses a project file and optional XML patch files to define and adjust simulation parameters dynamically.
+
+        **Inputs:**
+
+            1. **Project File:** The main project file (.prj) that defines the simulation setup.
+            2. **Project Files:** The files mentioned in the Project File (.prj).
+            3. **XML Patch Files:** Optional XML files for modifying the project file configuration at runtime.
+            4. **Log Level:** Sets the verbosity of logs. Options include `none`, `error`, `warn`, `info` (default), `debug`, and `all`.
+           
+        **Outputs:**
+
+            1. **Log File:** Contains all log messages generated during the simulation.
+            2. **Simulation Results:** Includes output files such as VTU and other simulation results saved in the specified output directory.
+    ]]></help>
+    <expand macro="ogs_citation"/>
+</tool>

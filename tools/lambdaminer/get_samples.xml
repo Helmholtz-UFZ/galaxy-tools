@@ -1,0 +1,50 @@
+<tool id="lm_get_samples" name="Get LMDB Samples" version="0.1.0+galaxy0" python_template_version="3.5" profile="21.05">
+    <requirements>
+        <requirement type="package" version="2.2.3">pandas</requirement>
+        <requirement type="package" version="2.9.9">psycopg2</requirement>
+        <requirement type="package" version="2.0.37">sqlalchemy</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        python '$__tool_directory__'/get_samples.py
+        --login-name $login
+        --input-file $projects
+        --output-file $samples
+    ]]></command>
+    <inputs>
+        <param name="login" type="text" optional="false" label="UFZ Login Name" help="Lambda-Miner login name which equals the UFZ login name."/>
+        <param name="projects" type="data" format="csv" optional="false" label="Projects" help="Input file containing a single project"/>
+    </inputs>
+    <outputs>
+        <data name="samples" format="csv" label="Samples"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="login" value="dummy_bgo"/>
+            <param name="projects" value="test_projects_single.csv"/>
+            <output name="samples" file="test_samples_single.csv" ftype="csv" compare="contains"/>
+        </test>
+        <test>
+            <param name="login" value="dummy_bgo"/>
+            <param name="projects" value="test_projects_multiple.csv"/>
+            <output name="samples" file="test_samples_multiple.csv" ftype="csv" compare="contains"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+**What it does**
+
+This tool quries the Lambda-Miner database for samples of the given project.
+
+**Input**
+
+There is a input including the selected project necessary.
+The tool connects to the Lambda-Miner database and uses the users login name to
+query it.
+
+**Output**
+
+CSV file containing the samples corresponding to the project.]]>
+    </help>
+    <citations>
+        <citation type="doi">10.5194/egusphere-egu24-15782</citation>
+    </citations>
+</tool>

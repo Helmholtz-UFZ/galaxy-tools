@@ -90,6 +90,8 @@ def parse_check_args(args):
     # Use the provided argument or fallback to the environment variable
     args.credentials_file = args.credentials_file or envar_credentials
 
+    assert args.credentials_file is not None, "Error: No credentials specified"
+
 
 def get_engine(credentials_path: str, echo: bool = False) -> db.engine.Engine:
     """
@@ -211,14 +213,12 @@ def main():
             user_id = get_user_id(conn, metadata, args.login)
 
             if not user_id:
-                print(
+                raise ValueError(
                     "No Lambda-Miner user found with the login name \"{}\". "
                     "Please find the description on how to register for the Lambda-Miner at "
                     "https://lambda-miner-project.pages.ufz.de/lambda-miner-workflows/getting-started/."
                     .format(args.login)
                 )
-
-                return
 
             # Get projects with sample counts
             projects = get_projects_with_sample_count(conn, metadata, user_id)
@@ -227,27 +227,24 @@ def main():
             with open(args.output, "w") as f:
                 f.write(projects.to_csv(index=False))
 
-        # Display the result
-        if not projects.empty:
-            print(projects)
-        else:
-            print(
-                "No projects found for the user \"{}\". "
-                "Please create a project before going on."
-                .format(args.login)
-            )
+            # Display the result
+            if projects.empty:
+                raise ValueError(
+                    "No projects found for the user \"{}\". "
+                    "Please create a project before going on."
+                    .format(args.login)
+                )
+            else:
+                print(projects)
 
     except FileNotFoundError:
-
-        print(f"Credentials file not found at \"{args.credentials_file}\".")
+        raise FileNotFoundError(f"Credentials file not found at \"{args.credentials_file}\".")
 
     except db.exc.SQLAlchemyError as e:
-
-        print(f"Database error occurred: {e}")
+        raise RuntimeError(f"Database error occurred: {e}")
 
     except Exception as e:
-
-        print(f"An unexpected error occurred: {e}")
+        raise RuntimeError(f"An unexpected error occurred: {e}")
 
 
 if __name__ == "__main__":

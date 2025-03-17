@@ -159,13 +159,21 @@ jobs:
           singularity pull --dir /tmp docker://rocker/tidyverse
         fi
 
-    # Set up the lambda-miner database
-    - name: Create a database in the postgres for lambda-miner
+    # Set up the Lambda-Miner database
+    - name: Create LMDB
       run: |
-        PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE lmdb;"
-        PGPASSWORD=postgres psql -h localhost -U postgres -d lmdb -q -f ./.github/lambdaminer/build.sql
+        PGPASSWORD=postgres psql -h localhost -U postgres -p 5432 -c "CREATE DATABASE lmdb;"
+        PGPASSWORD=postgres psql -h localhost -U postgres -p 5432 -d lmdb -q -f ./.github/lambdaminer/build.sql
         sleep 10
-        PGPASSWORD=postgres psql -h localhost -U postgres -d lmdb -c "SELECT * FROM public.instrument;"
+        PGPASSWORD=postgres psql -h localhost -U postgres -p 5432 -d lmdb -c "SELECT * FROM public.instrument;"
+
+    # Set up the Chemical Formula Library for the Lambda-Miner
+    - name: Create CFLib
+      run: |
+        PGPASSWORD=postgres psql -h localhost -U postgres -p 5431 -c "CREATE DATABASE cflib;"
+        PGPASSWORD=postgres psql -h localhost -U postgres -p 5431 -d cflib -q -f ./.github/chemical_formula_library/build.sql
+        sleep 10
+        PGPASSWORD=postgres psql -h localhost -U postgres -p 5431 -d cflib -c "SELECT * FROM cflib.chemical_formula LIMIT 10;"
 
       # Start OMERO
     - name: Start OMERO

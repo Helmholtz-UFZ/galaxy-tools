@@ -2,7 +2,7 @@
    <description> with omero-py </description>
    <macros>
        <import>macros.xml</import>
-       <token name="@VERSION_SUFFIX@">4</token>
+       <token name="@VERSION_SUFFIX@">3</token>
    </macros>
    <xrefs>
        <xref type="bio.tools">omero</xref>

@@ -293,15 +293,34 @@ jobs:
       run: rm -Rf /usr/share/dotnet
 
     # the following 2 steps are needed for testing the scripting tool
+    # - name: Check for folder changes
+    #   id: filter
+    #   uses: dorny/paths-filter@v2
+    #   with:
+    #     filters: |
+    #       scripting:
+    #         - 'tools/scripting/**'
+    #       omero:
+    #         - 'tools/omero/**'
     - name: Check for folder changes
       id: filter
-      uses: dorny/paths-filter@v2
-      with:
-        filters: |
-          scripting:
-            - 'tools/scripting/**'
-          omero:
-            - 'tools/omero/**'
+      run: |
+        echo "${{ needs.setup.outputs.repository-list }}" > repository_list.txt
+        if grep -q scripting repository_list.txt; then
+          echo "scripting='true'" >> $GITHUB_OUTPUT
+        else
+          echo "scripting='false'" >> $GITHUB_OUTPUT
+        fi
+        if grep -q lambdaminer repository_list.txt; then
+          echo "lamdaminer='true'" >> $GITHUB_OUTPUT
+        else
+          echo "lambdaminer='false'" >> $GITHUB_OUTPUT
+        fi
+        if grep -q omero repository_list.txt; then
+          echo "omero='true'" >> $GITHUB_OUTPUT
+        else
+          echo "omero='false'" >> $GITHUB_OUTPUT
+        fi
     - name: Install Apptainer's singularity
       if: steps.filter.outputs.scripting == 'true'
       uses: eWaterCycle/setup-apptainer@v2
@@ -311,15 +330,12 @@ jobs:
     - name: Install containers
       if: steps.filter.outputs.scripting == 'true'
       run: |
-        echo "${{ needs.setup.outputs.repository-list }}" > repository_list.txt
-        if grep -q scripting repository_list.txt; then
-          singularity pull --dir /tmp docker://continuumio/anaconda3
-          singularity pull --dir /tmp docker://rocker/tidyverse
-        fi
+        singularity pull --dir /tmp docker://continuumio/anaconda3
+        singularity pull --dir /tmp docker://rocker/tidyverse
 
     # Set up the lambda-miner database
     - name: Create a database in the postgres for lambda-miner
-      if: steps.filter.outputs.lambda == 'true'
+      if: steps.filter.outputs.lambdaminer == 'true'
       run: |
         PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE lmdb;"
         PGPASSWORD=postgres psql -h localhost -U postgres -d lmdb -q -f ./.github/lambdaminer/build.sql

@@ -322,6 +322,8 @@ jobs:
           echo "testdata=false" >> $GITHUB_OUTPUT
         fi
         cat $GITHUB_OUTPUT
+
+    # the following 2 steps are needed for testing the scripting tool
     - name: Install Apptainer's singularity
       if: steps.filter.outputs.scripting == 'true'
       uses: eWaterCycle/setup-apptainer@v2

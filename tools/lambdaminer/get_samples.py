@@ -210,7 +210,7 @@ def get_samples(connection, metadata, projects: pd.DataFrame) -> pd.DataFrame:
     # Define alias for self-join on replicate samples
     ReplicateSample = Sample.alias("replicate")
 
-    # Main query using JOINs instead of scalar subqueries
+    # Query
     query = (
         db.select(
             Sample.c.project.label("Project ID"),
@@ -258,17 +258,13 @@ def main():
         print(projects, "\n")
 
     except FileNotFoundError as fnf_error:
- 
-        print(f"Error: {fnf_error}")
- 
-    except ValueError as val_error:
- 
-        print(f"Data Error: {val_error}")
- 
-    except Exception as ex:
- 
-        print(f"An unexpected error occurred: {ex}")
+        raise FileNotFoundError(f"Error: {fnf_error}")
 
+    except ValueError as val_error:
+        raise ValueError(f"Data Error: {val_error}")
+
+    except Exception as ex:
+        raise Exception(f"An unexpected error occurred: {ex}")
 
     try:
 
@@ -288,27 +284,24 @@ def main():
                 f.write(samples.to_csv(index=False))
 
         # Display the result
-        if not samples.empty:
-            print("Found sample(s):")
-            print(samples, "\n")
-            print(f"Samples saved to '{args.output}'.", "\n")
-        else:
-            print(
+        if samples.empty:
+            raise ValueError(
                 "No samples found for the specified project(s)."
                 "Please upload samples and measurements before going on."
             )
+        else:
+            print("Found sample(s):")
+            print(samples, "\n")
+            print(f"Samples saved to '{args.output}'.", "\n")
 
     except FileNotFoundError:
-
-        print(f"Credentials file not found at \"{args.credentials_file}\".")
+        raise FileNotFoundError(f"Credentials file not found at \"{args.credentials_file}\".")
 
     except db.exc.SQLAlchemyError as e:
-
-        print(f"Database error occurred: {e}")
+        raise RuntimeError(f"Database error occurred: {e}")
 
     except Exception as e:
-
-        print(f"An unexpected error occurred: {e}")
+        raise RuntimeError(f"An unexpected error occurred: {e}")
 
 if __name__ == "__main__":
     main()

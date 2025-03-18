@@ -48,7 +48,7 @@ def get_arguments() -> argparse.Namespace:
         dest="output",
         type=str,
         default="samples.csv",
-        help="Specifiy the output file path including the file name (default: 'projects.csv')"
+        help="Specifiy the output file path including the file name (default: 'samples.csv')"
     )
 
     # Add argument for the type
@@ -136,8 +136,10 @@ def get_samples(input_file: str) -> pd.DataFrame:
     try:
         # Read the CSV file
         samples = pd.read_csv(input_file)
+
     except pd.errors.EmptyDataError:
         raise ValueError("The input file is empty.")
+
     except Exception as e:
         raise ValueError(f"An error occurred while reading the file: {e}")
 
@@ -149,17 +151,8 @@ def get_samples(input_file: str) -> pd.DataFrame:
     if "Sample Name" not in samples.columns:
         raise ValueError("The input file does not contain a column named 'Sample Name'.")
 
-    # Select the required columns
-    samples = samples[
-        [
-            "Project ID",
-            "Project Name",
-            "Sample ID",
-            "Sample Name"
-        ]
-    ]
-
     return samples
+
 
 def get_engine(credentials_path: str, echo: bool = False) -> db.engine.Engine:
     """
@@ -195,224 +188,115 @@ def get_engine(credentials_path: str, echo: bool = False) -> db.engine.Engine:
     # Create and return the SQLAlchemy engine
     return db.create_engine(database_url, echo=echo)
 
-def get_measurements(connection, metadata, project_id: int) -> pd.DataFrame:
+
+def get_measurements(connection, metadata, samples: pd.DataFrame) -> pd.DataFrame:
     """
-    """
-    
-    Sample = metadata.tables["sample"]
-    Measurement = metadata.tables["measurement"]
-    Peak = metadata.tables["peak"]
-
-    query = ()
-
-    # Execute the query and return the results as a Pandas DataFrame
-    return pd.DataFrame(connection.execute(query).fetchall())
-
-"""
-SELECT
-	"measurement_id" AS "Measurement ID",
-	"spectrum_name" AS "Measurement",
-	"replicate_of_measurement"
-
-FROM
-	#table# AS "table"
-
-WHERE
-	"sample" = $Sample ID$
-
-SELECT
-	"spectrum_name" AS "Replicate of Measurement"
-
-FROM
-	#table# AS "table"
-
-WHERE
-	"measurement_id" = $replicate_of_measurement$
-
-SELECT 
-	COUNT(*) AS "# Peaks"
-
-FROM
-	#table# AS "table"
-
-WHERE
-	"measurement" = $Measurement ID$
-
-GROUP BY
-	"measurement"
-
-SELECT
-	COUNT(*) AS "# CFCs",
-	json_agg("chemical_formula_config_id") as "CFCs"
-
-FROM
-	#table# AS "table"
-
-WHERE
-	"measurement_id" = $Measurement ID$
-
-GROUP BY
-	"measurement_id"
-
-SELECT
-	COUNT(*) AS "# ECs",
-	json_agg("evaluation_config_id") as "ECs"
-
-FROM
-	#table# AS "table"
-
-WHERE
-	"measurement_id" = $Measurement ID$
-
-GROUP BY
-	"measurement_id"
-
-SELECT
-	"calibration_method" AS "Calibration Method ID",
-	"calibration_error" AS "Calibration Error"
-
-FROM
-	#table# AS "table"
-
-WHERE
-	"measurement_id" = $Measurement ID$
-
-SELECT
-	"calibration_list" AS "Calibration List ID",
-	"calibration_type" AS "Calibration Type",
-	"electron_config" AS "Calibration Electron Configuration"
-
-FROM
-	#table# AS "table"
-
-WHERE
-	"calibration_method_id" = $Calibration Method ID$
-
-SELECT
-	"name" AS "Calibration List"
-
-FROM
-	#table# AS "table"
-
-WHERE
-	"feature_id" = $Calibration List ID$
-
-"""
-
-
-def depr_get_samples(connection, metadata, project_id: int) -> pd.DataFrame:
-    """
-    Retrieves a Pandas DataFrame containing information about all samples
-    associated with the specified project ID.
-
-    The DataFrame contains the following columns:
-        Project ID: The ID of the project
-        Project Name: The name of the project
-        Sample ID: The ID of the sample
-        Sample: The name of the sample
-        Sample Date: The date the sample was taken
-        Sample Type: The type of the sample
-        Replicate of Sample ID: The ID of the sample that this sample is a
-            replicate of, if applicable
-        Replicate of Sample Name: The name of the sample that this sample is a
-            replicate of, if applicable
-        Measurement Count: The number of measurements associated with the sample
+    Retrieves a Pandas DataFrame containing information about all measurements
+    associated with the specified sample IDs.
 
     :param connection: The database connection object
     :type connection: sqlalchemy.engine.Connection
     :param metadata: The database metadata object
     :type metadata: sqlalchemy.MetaData
-    :param project_id: The ID of the project to retrieve samples for
-    :type project_id: int
-    :return: A Pandas DataFrame containing the sample information
+    :param samples: A DataFrame containing sample IDs
+    :type samples: pandas.DataFrame
+    :return: A Pandas DataFrame containing the measurement information for all samples
     :rtype: pandas.DataFrame
     """
 
-    Project = metadata.tables["project"]
-    Sample = metadata.tables["sample"]
+    if "Sample ID" not in samples.columns:
+        raise ValueError("The provided DataFrame must contain a 'Sample ID' column.")
+
+    sample_ids = samples["Sample ID"].dropna().astype(int).tolist()
+
+    if not sample_ids:
+        raise ValueError("No valid sample IDs found in the DataFrame.")
+
+    # Table references
     Measurement = metadata.tables["measurement"]
+    Peak = metadata.tables["peak"]
+    MeasurementCFC = metadata.tables["measurement_cformula_config"]
+    MeasurementEC = metadata.tables["measurement_evaluation_config"]
+    CalibrationMethod = metadata.tables["calibration_method"]
+    Feature = metadata.tables["feature"]
+    
+    # Aliases for self-joins
+    ReplicateMeasurement = Measurement.alias("replicate")
 
-    # Construct the query:
-    # 1. Get sample data
-    # 2. Get replicate sample name
-    # 3. Get measurement count
-
-    # Get the project name
-    project_subquery = (
-        db.select(Project.c.name.label("Project Name"))
-        .where(Project.c.project_id == project_id)
-        .correlate(Sample)
-        .limit(1)
-        .scalar_subquery()
-    )
-
-    # Get the replicate sample name, if applicable
-    replicate_subquery = (
-        db.select(Sample.c.name.label("Replicate of Sample Name"))
-        .where(Sample.c.sample_id == Sample.c.replicate_of_sample)
-        .correlate(Sample)  # Correlate with the main query
-        .limit(1)  # Ensure only one result
-        .scalar_subquery()
-    )
-
-    # Get the measurement count
-    count_subquery = (
-        db.select(db.func.count().label("Measurement Count"))
-        .where(Measurement.c.sample == Sample.c.sample_id)
-        .correlate(Sample)  # Correlate with the main query
-        .scalar_subquery()
-    )
-
-    # Main query
+    # Query
     query = (
         db.select(
-            Sample.c.project.label("Project ID"),
-            project_subquery.label("Project Name"),
-            Sample.c.sample_id.label("Sample ID"),
-            Sample.c.name.label("Sample"),
-            Sample.c.sample_date.label("Sample Date"),
-            Sample.c.sample_type.label("Sample Type"),
-            Sample.c.replicate_of_sample.label("Replicate of Sample ID"),
-            replicate_subquery.label("Replicate of Sample Name"),
-            count_subquery.label("Measurement Count")
+            Measurement.c.measurement_id.label("Measurement ID"),
+            Measurement.c.spectrum_name.label("Measurement Name"),
+            Measurement.c.replicate_of_measurement.label("Replicate of Measurement ID"),
+            db.func.coalesce(ReplicateMeasurement.c.spectrum_name, db.null()).label("Replicate of Measurement"),
+            db.func.count(Peak.c.peak_id).label("# Peaks"),  # Count of peaks remains the same
+            db.func.count(db.func.distinct(MeasurementCFC.c.chemical_formula_config_id)).label("# CFCs"),
+            db.func.json_agg(db.func.distinct(MeasurementCFC.c.chemical_formula_config_id)).label("CFCs"),
+            db.func.count(db.func.distinct(MeasurementEC.c.evaluation_config_id)).label("# ECs"),
+            db.func.json_agg(db.func.distinct(MeasurementEC.c.evaluation_config_id)).label("ECs"),
+            Measurement.c.calibration_method.label("Calibration Method ID"),
+            Measurement.c.calibration_error.label("Calibration Error"),
+            CalibrationMethod.c.calibration_list.label("Calibration List ID"),
+            CalibrationMethod.c.calibration_type.label("Calibration Type"),
+            CalibrationMethod.c.electron_config.label("Calibration Electron Configuration"),
+            Feature.c.name.label("Calibration List")
         )
-        .where(Sample.c.project == project_id)  # Filter by project ID
-        .order_by(Sample.c.sample_id)
+        .outerjoin(ReplicateMeasurement, ReplicateMeasurement.c.measurement_id == Measurement.c.replicate_of_measurement)
+        .outerjoin(MeasurementCFC, MeasurementCFC.c.measurement_id == Measurement.c.measurement_id)
+        .outerjoin(MeasurementEC, MeasurementEC.c.measurement_id == Measurement.c.measurement_id)
+        .outerjoin(CalibrationMethod, CalibrationMethod.c.calibration_method_id == Measurement.c.calibration_method)
+        .outerjoin(Feature, Feature.c.feature_id == CalibrationMethod.c.calibration_list)
+        .outerjoin(Peak, Peak.c.measurement == Measurement.c.measurement_id)
+        .where(Measurement.c.sample.in_(sample_ids))
+        .group_by(
+            Measurement.c.measurement_id, Measurement.c.spectrum_name,
+            ReplicateMeasurement.c.spectrum_name, Measurement.c.calibration_method,
+            Measurement.c.calibration_error, CalibrationMethod.c.calibration_list,
+            CalibrationMethod.c.calibration_type, CalibrationMethod.c.electron_config,
+            Feature.c.name
+        )
+        .order_by(Measurement.c.measurement_id)
     )
 
-    # Execute the query and return the results as a Pandas DataFrame
-    return pd.DataFrame(connection.execute(query).fetchall())
+    result = connection.execute(query)
+
+    return pd.DataFrame(result.fetchall(), columns=result.keys())
+
 
 def main():
 
+    print("\n")
 
     # Parse command-line arguments
     args = get_arguments()
 
+    # Parse and check the specified command line arguments
     parse_check_args(args)
 
     try:
  
-        #project_id, project_name = get_project(args.input)
- 
         # Return selected samples as DataFrame
         samples = get_samples(args.input)
 
-        # Print sample ID and name
-        print(samples[["Sample ID", "Sample Name"]])
+        if samples.empty:
+            raise ValueError(
+                "The specified input file is empty or did not contain valid sample data."
+            )
+        else:
+            print("Selected sample(s):")
+            print(samples[["Sample ID", "Sample Name"]])
+            print("\n")
+
 
     except FileNotFoundError as fnf_error:
- 
-        print(f"Error: {fnf_error}")
- 
-    except ValueError as val_error:
- 
-        print(f"Data Error: {val_error}")
- 
-    except Exception as ex:
- 
-        print(f"An unexpected error occurred: {ex}")
+        raise FileNotFoundError(f"Error: {fnf_error}")
 
+    except ValueError as val_error:
+        raise ValueError(f"Data Error: {val_error}")
+
+    except Exception as ex:
+        raise Exception(f"An unexpected error occurred: {ex}")
 
     try:
 
@@ -421,37 +305,60 @@ def main():
 
         # Reflect metadata and connect to the database
         metadata = db.MetaData()
-        metadata.reflect(bind=engine, only=["sample", "measurement", "peak", "measurement_cformula_config", "measurement_evaluation_config", "calibration_method", "feature"])
+        metadata.reflect(
+            bind=engine,
+            only=[
+                "sample",
+                "measurement",
+                "peak",
+                "measurement_cformula_config",
+                "measurement_evaluation_config",
+                "calibration_method",
+                "feature"
+            ]
+        )
 
         with engine.connect() as conn:
-
             measurements = get_measurements(conn, metadata, samples)
 
-            # Write measurements as a CSV file to the specified output
-            with open(args.output, "w") as f:
-                f.write(measurements.to_csv(index=False))
-
         # Display the result
-        if not measurements.empty:
-            print(measurements, "\n")
-            print(f"Measurements saved to '{args.output}'.")
-        else:
-            print(
-                "No measurements found for the selected samples."
+        if measurements.empty:
+            raise ValueError(
+                "No measurements found for the selected sample(s)."
                 "Please upload samples and measurements before going on."
             )
+        else:
+            print("\n")
+            print("Found measurement(s):")
+            print(
+                measurements[[
+                    "Measurement ID",
+                    "Measurement Name",
+                    "Replicate of Measurement",
+                    "# Peaks",
+                    "Calibration Error",
+                    "Calibration List",
+                    "# CFCs",
+                    "CFCs",
+                    "# ECs",
+                    "ECs"
+                ]]
+            )
+            print("\n")
+            print(f"Measurements saved to {args.output}.", "\n")
+
+        # Write measurements as a CSV file to the specified output
+        with open(args.output, "w") as f:
+            f.write(measurements.to_csv(index=False))
 
     except FileNotFoundError:
-
-        print(f"Credentials file not found at \"{args.credentials_file}\".")
+        raise FileNotFoundError(f"Credentials file not found at \"{args.credentials_file}\".")
 
     except db.exc.SQLAlchemyError as e:
-
-        print(f"Database error occurred: {e}")
+        raise RuntimeError(f"Database error occurred: {e}")
 
     except Exception as e:
-
-        print(f"An unexpected error occurred: {e}")
+        raise RuntimeError(f"An unexpected error occurred: {e}")
 
 if __name__ == "__main__":
     main()

@@ -1,38 +1,47 @@
-<tool id="lm_get_projects" name="Get LMDB Projects" version="0.1.0+galaxy0" python_template_version="3.5" profile="21.05">
+<tool id="lm_get_measurements" name="Get LMDB Measurements" version="0.1.0+galaxy0" profile="21.05">
     <requirements>
-        <requirement type="package" version="2.2.3">pandas</requirement>
-        <requirement type="package" version="2.9.10">psycopg2</requirement>
-        <requirement type="package" version="3.11">python</requirement>
+        <requirement type="package" version="2.2.2">pandas</requirement>
+        <requirement type="package" version="2.9.9">psycopg2</requirement>
         <requirement type="package" version="2.0.37">sqlalchemy</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python '$__tool_directory__'/get_projects.py
-        --credentials-file '$credentials'
-        --login-name '$login'
-        --output-file $projects
+        #if $test != ""
+            export LAMBDAMINER_CREDENTIALS="$__tool_directory__/test-data/$test";
+        #end if
+        python "$__tool_directory__/get_projects.py"
+        --login-name "$__user_name__"
+        --input-file "$samples"
+        --output-file "$measurements"
     ]]></command>
     <inputs>
-        <param type="data" format="json" name="credentials" label="Credentials File" help="LMDB credentials file containing..." optional="false"/>
-        <param name="login" optional="false" type="text" label="UFZ Login Name" help="Lambda-Miner login name which equals the UFZ login name."/>
+        <param name="test" type="hidden"/>
+        <param name="samples" type="data" format="csv" optional="false" help="Input file containing samples"/>
     </inputs>
     <outputs>
-        <data name="projects" format="tabular" label="Projects"/>
+        <data name="measurements" format="csv"/>
     </outputs>
     <tests>
         <test>
-            <param name="credentials" value="test_credentials.json"/>
-            <param name="login" value="wurz"/>
-            <output name="projects" file="test_projects.csv" ftype="csv" compare="contains"/>
+            <param name="test" value="test_lmdb_credentials.json"/>
+            <param name="samples" value="get_samples/test_samples_single.csv"/>
+            <output name="measurements" file="get_samples/test_measurements_single.csv" ftype="csv" compare="contains"/>
+        <test expect_failure="true">
+            <param name="test" value="test_credentials_false.json"/>
+        </test>
+        <test expect_failure="true">
+            <param name="test" value="test_credentials_nonexistent.json"/>
         </test>
     </tests>
     <help><![CDATA[
 **What it does**
 
-This tool quries the Lambda-Miner database for the users projects.
+This tool quries the Lambda-Miner database for measurements of the given samples.
 
 **Input**
 
-There is no input necessary from the user. The tool connects to the Lambda-Miner database and uses the users login name to query it.
+There is a input including the selected samples necessary.
+The tool connects to the Lambda-Miner database and uses the users login name to
+query it.
 
 **Output**
 

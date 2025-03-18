@@ -305,8 +305,8 @@ jobs:
     - name: Check for folder changes
       id: filter
       run: |
-        cat repository_list.txt
         echo "${{ needs.setup.outputs.repository-list }}" > repository_list.txt
+        cat repository_list.txt
         if grep -q scripting repository_list.txt; then
           echo "scripting='true'" >> $GITHUB_OUTPUT
         else

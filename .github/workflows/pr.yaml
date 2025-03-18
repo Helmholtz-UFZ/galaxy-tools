@@ -306,7 +306,7 @@ jobs:
           echo "scripting=false" >> $GITHUB_OUTPUT
         fi
         if grep -q lambdaminer tool_list_chunk.txt; then
-          echo "lamdaminer=true" >> $GITHUB_OUTPUT
+          echo "lambdaminer=true" >> $GITHUB_OUTPUT
         else
           echo "lambdaminer=false" >> $GITHUB_OUTPUT
         fi

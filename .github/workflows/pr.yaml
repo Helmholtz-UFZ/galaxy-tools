@@ -308,19 +308,19 @@ jobs:
         echo "${{ needs.setup.outputs.repository-list }}" > repository_list.txt
         cat repository_list.txt
         if grep -q scripting repository_list.txt; then
-          echo "scripting='true'" >> $GITHUB_OUTPUT
+          echo "scripting=true" >> $GITHUB_OUTPUT
         else
-          echo "scripting='false'" >> $GITHUB_OUTPUT
+          echo "scripting=false" >> $GITHUB_OUTPUT
         fi
         if grep -q lambdaminer repository_list.txt; then
-          echo "lamdaminer='true'" >> $GITHUB_OUTPUT
+          echo "lamdaminer=true" >> $GITHUB_OUTPUT
         else
-          echo "lambdaminer='false'" >> $GITHUB_OUTPUT
+          echo "lambdaminer=false" >> $GITHUB_OUTPUT
         fi
         if grep -q omero repository_list.txt; then
-          echo "omero='true'" >> $GITHUB_OUTPUT
+          echo "omero=true" >> $GITHUB_OUTPUT
         else
-          echo "omero='false'" >> $GITHUB_OUTPUT
+          echo "omero=false" >> $GITHUB_OUTPUT
         fi
         cat $GITHUB_OUTPUT
     - name: Install Apptainer's singularity

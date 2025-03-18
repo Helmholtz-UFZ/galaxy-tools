@@ -376,10 +376,6 @@ jobs:
       run: |
           set -x
           echo ${{ steps.filter.outputs.tool_list_chunk }} >> tool_list_chunk.txt
-          # pip install planemo > /dev/null
-          # echo '${{ needs.setup.outputs.repository-list }}' > repository_list.txt
-          # mapfile -t REPO_ARRAY < repository_list.txt
-          # planemo ci_find_tools --chunk_count "${{ needs.setup.outputs.chunk-count }}" --chunk "${{ matrix.chunk }}" --output tool_list_chunk.txt "${REPO_ARRAY[@]}"
           cat tool_list_chunk.txt | sed 's@/[^/]*$@@' | sort -i > repository_list_chunk.txt
           while read repo
           do

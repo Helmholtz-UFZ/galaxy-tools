@@ -1,4 +1,4 @@
-<tool id="lm_get_projects" name="Get LMDB Projects" version="0.1.0+galaxy0" profile="21.05">
+<tool id="lm_get_projects" name="Get LMDB Projects" version="0.1.0+galaxy1" profile="21.05">
     <requirements>
         <requirement type="package" version="2.2.2">pandas</requirement>
         <requirement type="package" version="2.9.9">psycopg2</requirement>

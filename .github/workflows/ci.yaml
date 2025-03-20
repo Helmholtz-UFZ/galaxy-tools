@@ -193,8 +193,8 @@ jobs:
     - name: Install containers
       if: steps.filter.outputs.scripting == 'true'
       run: |
-        singularity pull --dir /tmp docker://continuumio/anaconda3
         singularity pull --dir /tmp docker://rocker/tidyverse
+        singularity pull --dir /tmp docker://python:3.10-slim
 
     # Set up the lambda-miner database
     - name: Create a database in the postgres for lambda-miner

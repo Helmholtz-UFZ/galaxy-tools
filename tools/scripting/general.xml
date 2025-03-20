@@ -145,7 +145,7 @@
                      since Galaxy will expect the data parameter anyway 
                      https://github.com/galaxyproject/galaxy/pull/19472 -->
                 <conditional name="type_cond">
-                    <param name="type_sel" value=""/>
+                    <param name="type_sel" value="text"/>
                 </conditional>
             </repeat>
             <param name="code" value='import pip; pip.main(["install", "biopython"]); import Bio'/>
@@ -252,7 +252,7 @@
                      since Galaxy will expect the data parameter anyway 
                      https://github.com/galaxyproject/galaxy/pull/19472 -->
                 <conditional name="type_cond">
-                    <param name="type_sel" value=""/>
+                    <param name="type_sel" value="text"/>
                 </conditional>
             </repeat>
             <param name="code" value='install.packages("maybe"); library(maybe); print("success")'/>
@@ -264,7 +264,7 @@
                      since Galaxy will expect the data parameter anyway 
                      https://github.com/galaxyproject/galaxy/pull/19472 -->
                 <conditional name="type_cond">
-                    <param name="type_sel" value=""/>
+                    <param name="type_sel" value="text"/>
                 </conditional>
             </repeat>
             <param name="code" value='install.packages("BiocManager"); BiocManager::install("multtest"); print("success")'/>

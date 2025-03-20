@@ -140,7 +140,14 @@
         <!-- install libraries ("forbidden") -->
         <test expect_failure="false">
             <param name="image" value="python_python_noinstall"/>
-            <repeat name="parameters"/>
+            <repeat name="parameters">
+                <!-- mocking test here .. can't leave the repeat empty (in the test)
+                     since Galaxy will expect the data parameter anyway 
+                     https://github.com/galaxyproject/galaxy/pull/19472 -->
+                <conditional name="type_cond">
+                    <param name="type_sel" value=""/>
+                </conditional>
+            </repeat>
             <param name="code" value='import pip; pip.main(["install", "biopython"]); import Bio'/>
         </test>
         <!-- read binary files (eg feather)  -->
@@ -240,10 +247,26 @@
         <!-- install libraries fails -->
         <test expect_failure="false">
             <param name="image" value="r_rocker_tidyverse"/>
+            <repeat name="parameters">
+                <!-- mocking test here .. can't leave the repeat empty (in the test)
+                     since Galaxy will expect the data parameter anyway 
+                     https://github.com/galaxyproject/galaxy/pull/19472 -->
+                <conditional name="type_cond">
+                    <param name="type_sel" value=""/>
+                </conditional>
+            </repeat>
             <param name="code" value='install.packages("maybe"); library(maybe); print("success")'/>
         </test>
         <test expect_failure="false">
             <param name="image" value="r_rocker_tidyverse"/>
+            <repeat name="parameters">
+                <!-- mocking test here .. can't leave the repeat empty (in the test)
+                     since Galaxy will expect the data parameter anyway 
+                     https://github.com/galaxyproject/galaxy/pull/19472 -->
+                <conditional name="type_cond">
+                    <param name="type_sel" value=""/>
+                </conditional>
+            </repeat>
             <param name="code" value='install.packages("BiocManager"); BiocManager::install("multtest"); print("success")'/>
         </test>
         <!-- read binary files (eg rds) -->

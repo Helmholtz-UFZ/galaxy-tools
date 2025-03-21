@@ -138,7 +138,7 @@
             </assert_stdout>
         </test>
         <!-- install libraries ("forbidden") -->
-        <test expect_failure="false">
+        <test expect_failure="true">
             <param name="image" value="python_python_noinstall"/>
             <repeat name="parameters">
                 <!-- mocking test here .. can't leave the repeat empty (in the test)
@@ -245,7 +245,7 @@
             </assert_stdout>
         </test>
         <!-- install libraries fails -->
-        <test expect_failure="false">
+        <test expect_failure="true">
             <param name="image" value="r_rocker_tidyverse"/>
             <repeat name="parameters">
                 <!-- mocking test here .. can't leave the repeat empty (in the test)
@@ -257,7 +257,7 @@
             </repeat>
             <param name="code" value='install.packages("maybe"); library(maybe); print("success")'/>
         </test>
-        <test expect_failure="false">
+        <test expect_failure="true">
             <param name="image" value="r_rocker_tidyverse"/>
             <repeat name="parameters">
                 <!-- mocking test here .. can't leave the repeat empty (in the test)

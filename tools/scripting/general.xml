@@ -415,7 +415,7 @@ datasets (or Galaxy will try to autodetect the data type).
 **Custom 3rd party packages or libraries**
 
 Installation of 3rd party software might work depending on the container
-and the 3rd party software. For python and R the following can work. In characters
+and the 3rd party software. For python and R the following can work. In case
 of problems contact your Galaxy administrator.
 
 To install two packages ``PACKAGE1`` and ``PACKAGE2`` in python:

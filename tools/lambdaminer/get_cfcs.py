@@ -32,6 +32,16 @@ def get_arguments() -> argparse.Namespace:
         )
     )
 
+    # Add argument for the login name
+    parser.add_argument(
+        "-l",
+        "--login-name",
+        dest="login",
+        type=str,
+        required=True,
+        help="UFZ login name of the user"
+    )
+
     # Add argument for the output file
     parser.add_argument(
         "-o",

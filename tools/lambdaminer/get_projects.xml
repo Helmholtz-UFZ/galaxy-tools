@@ -8,7 +8,6 @@
         #if $test != ""
             export LAMBDAMINER_CREDENTIALS="$__tool_directory__/test-data/$test";
         #end if
-        export LAMBDAMINER_CREDENTIALS="$__tool_directory__/test-data/test_lmdb_credentials.json";        
         python "$__tool_directory__/get_projects.py"
         --login-name "$__user_name__"
         --output-file "$projects"

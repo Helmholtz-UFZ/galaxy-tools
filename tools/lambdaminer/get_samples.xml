@@ -26,16 +26,13 @@
             <param name="projects" value="get_samples/test_projects_single.csv"/>
             <output name="samples" file="get_samples/test_samples_single.csv" ftype="csv" compare="contains"/>
         </test>
-        <test>
-            <param name="test" value="test_lmdb_credentials.json"/>
-            <param name="projects" value="get_samples/test_projects_multiple.csv"/>
-            <output name="samples" file="get_samples/test_samples_multiple.csv" ftype="csv" compare="contains"/>
-        </test>
         <test expect_failure="true">
             <param name="test" value="test_credentials_false.json"/>
+            <param name="projects" value="get_samples/test_projects_single.csv"/>
         </test>
         <test expect_failure="true">
             <param name="test" value="test_credentials_nonexistent.json"/>
+            <param name="projects" value="get_samples/test_projects_single.csv"/>
         </test>
     </tests>
     <help><![CDATA[

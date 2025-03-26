@@ -113,7 +113,7 @@ def parse_check_args(args):
     args.credentials_file = args.credentials_file or envar_credentials
 
 
-def get_projects(input_file: str, allow_multiple: bool) -> int:
+def get_projects(input_file: str, allow_multiple: bool) -> pd.DataFrame:
     """
     Extract the project ID from the input CSV file.
 

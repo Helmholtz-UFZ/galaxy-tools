@@ -8,7 +8,7 @@
         #if $test != ""
             export LAMBDAMINER_CREDENTIALS="$__tool_directory__/test-data/$test";
         #end if
-        python "$__tool_directory__/get_projects.py"
+        python "$__tool_directory__/get_measurements.py"
         --login-name "$__user_name__"
         --input-file "$samples"
         --output-file "$measurements"
@@ -23,13 +23,16 @@
     <tests>
         <test>
             <param name="test" value="test_lmdb_credentials.json"/>
-            <param name="samples" value="get_samples/test_samples_single.csv"/>
-            <output name="measurements" file="get_samples/test_measurements_single.csv" ftype="csv" compare="contains"/>
+            <param name="samples" value="get_measurements/test_samples.csv"/>
+            <output name="measurements" file="get_measurements/test_measurements.csv" ftype="csv" compare="contains"/>
+        </test>
         <test expect_failure="true">
             <param name="test" value="test_credentials_false.json"/>
+            <param name="samples" value="get_samples/test_samples_single.csv"/>
         </test>
         <test expect_failure="true">
             <param name="test" value="test_credentials_nonexistent.json"/>
+            <param name="samples" value="get_samples/test_samples_single.csv"/>
         </test>
     </tests>
     <help><![CDATA[

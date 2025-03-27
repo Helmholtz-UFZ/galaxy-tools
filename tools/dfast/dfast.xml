@@ -10,6 +10,7 @@
     <requirements>
         <requirement type="package" version="@TOOL_VERSION@">dfast</requirement>
     </requirements>
+    <version_command>dfast --version | cut -d" " -f3</version_command>
     <command detect_errors="exit_code"><![CDATA[
         dfast
             --genome '$genome_x'

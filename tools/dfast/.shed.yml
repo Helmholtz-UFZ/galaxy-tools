@@ -1,0 +1,18 @@
+categories:
+- Genome annotation
+description: Prokaryotic genome annotation 
+long_description: |
+  DFAST is a flexible and customizable pipeline for prokaryotic genome annotation as well as data submission to the INSDC.
+name: dfast
+owner: ufz
+homepage_url: https://github.com/nigyta/dfast_core/
+remote_repository_url: https://github.com/Helmholtz-UFZ/ufz-galaxy-tools/blob/main/tools/dfast/
+type: unrestricted
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: "Wrapper for dfast function: {{ tool_name }}."
+suite:
+  name: "suite_dfast"
+  description: "A suite of tools that brings the DFAST project into Galaxy."
+  long_description: |
+    DFAST is a flexible and customizable pipeline for prokaryotic genome annotation as well as data submission to the INSDC.

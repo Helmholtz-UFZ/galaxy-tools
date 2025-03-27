@@ -1,0 +1,56 @@
+<tool id="data_manager_dfast" name="DFAST data manager" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" tool_type="manage_data" profile="20.01">
+    <macros>
+        <token name="@TOOL_VERSION@">1.3.6</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">dfast</requirement>
+    </requirements>
+    <version_command>dfast --version | cut -d" " -f3</version_command>
+    <command detect_errors="exit_code"><![CDATA[
+        mkdir '$output_file.extra_files_path' &&
+        wget https://dfast.annotation.jp/dfast_core_db.tar.gz &&
+        tar -xvf dfast_core_db.tar.gz &&
+        mv db/* '$output_file.extra_files_path'/ &&
+        cp '$dmjson' '$output_file'
+    ]]></command>
+    <configfiles>
+        <configfile name="dmjson"><![CDATA[
+#from datetime import datetime
+#set version_id=datetime.now().strftime("%Y-%m-%d-%H%M%S")
+    {
+      "data_tables":{
+        "dfast":[
+          {
+            "value":"$version_id",
+            "description":"DFAST DB from $version_id",
+            "version":"$version_id",
+            "path":"$output_file.extra_files_path"
+          }
+        ]
+      }
+    }]]></configfile>
+    </configfiles>
+    <inputs>
+        <param name="wget" type="boolean" truevalue="--wget" falsevalue="" checked="False" label="Download using wget" help="Try this if you get certificate errors"/>
+    </inputs>
+    <outputs>
+        <data name="output_file" format="data_manager_json"/>
+    </outputs>
+    <tests>
+        <test>
+            <output name="output_file">
+                <assert_contents>
+                    <has_text text="DFAST DB"/>
+                    <has_text text="dfast"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+        This data managers fetches DFAST reference data from https://dfast.annotation.jp/
+    ]]></help>
+    <citations>
+        <citation type="doi">10.5281/zenodo.4054262</citation>
+    </citations>
+</tool>

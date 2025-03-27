@@ -8,10 +8,10 @@
     </requirements>
     <version_command>dfast --version | cut -d" " -f3</version_command>
     <command detect_errors="exit_code"><![CDATA[
+        mkdir '$output_file.extra_files_path' &&
         wget https://dfast.annotation.jp/dfast_core_db.tar.gz &&
         tar -xvf dfast_core_db.tar.gz &&
-        mkdir '$output_file.extra_files_path'
-        mv db/* '$output_file.extra_files_path' &&
+        mv db/* '$output_file.extra_files_path'/ &&
         cp '$dmjson' '$output_file'
     ]]></command>
     <configfiles>

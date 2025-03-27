@@ -5,12 +5,12 @@
         <requirement type="package" version="2.0.37">sqlalchemy</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        #if $test != ""
-            export LAMBDAMINER_CREDENTIALS="$__tool_directory__/test-data/$test";
+        #if $test != ''
+            export LAMBDAMINER_CREDENTIALS='$__tool_directory__/test-data/$test';
         #end if
-        python "$__tool_directory__/get_cfcs.py"
-        --login-name "$__user_name__"
-        --output-file "$cfcs"
+        python '$__tool_directory__/get_cfcs.py'
+        --login-name '$__user_name__'
+        --output-file '$cfcs'
     ]]></command>
     <inputs>
         <param name="test" type="hidden"/>

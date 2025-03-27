@@ -29,6 +29,12 @@
         <test expect_failure="true">
             <param name="test" value="test_credentials_nonexistent.json"/>
         </test>
+        <test expect_failure="true">
+            <param name="test" value="test_credentials_false.json"/>
+        </test>
+        <test expect_failure="true">
+            <param name="test" value="test_credentials_nonexistent.json"/>
+        </test>
     </tests>
     <help><![CDATA[
 **What it does**

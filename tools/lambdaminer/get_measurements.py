@@ -1,6 +1,6 @@
 import argparse
-from json import load
 import os
+from json import load
 
 import pandas as pd
 import sqlalchemy as db
@@ -23,7 +23,7 @@ def get_arguments() -> argparse.Namespace:
         "--credentials-file",
         dest="credentials_file",
         type=str,
-        required=False, # Optional
+        required=False,  # Optional
         help=(
             "Credential file in JSON format including dialect, user, password, host, port, and "
             "database. If not provided, the environment variable LAMBDAMINER_CREDENTIALS will be "
@@ -95,7 +95,7 @@ def parse_check_args(args):
     :type args: argparse.Namespace
     :raises FileNotFoundError: If the specified directory in the output path does not exist.
     """
-    
+
     # Check if the input file exists
     if not os.path.exists(args.input):
         raise FileNotFoundError(f"The file '{args.input}' does not exist.")
@@ -112,11 +112,11 @@ def parse_check_args(args):
 
     # Use the provided argument or fallback to the environment variable
     args.credentials_file = args.credentials_file or envar_credentials
-    
-    
+
+
 def get_samples(input_file: str) -> pd.DataFrame:
     """
-    Reads a CSV file containing information about the selected samples 
+    Reads a CSV file containing information about the selected samples
     and returns a Pandas DataFrame.
 
     The DataFrame should contain the following columns:
@@ -158,7 +158,7 @@ def get_engine(credentials_path: str, echo: bool = False) -> db.engine.Engine:
     """
     Create and return a SQLAlchemy engine based on the supplied credentials.
 
-    The engine is created using the data from the supplied credentials file, 
+    The engine is created using the data from the supplied credentials file,
     which should be in JSON format and include the following keys:
         dialect, user, password, host, port, database
 
@@ -219,7 +219,7 @@ def get_measurements(connection, metadata, samples: pd.DataFrame) -> pd.DataFram
     MeasurementEC = metadata.tables["measurement_evaluation_config"]
     CalibrationMethod = metadata.tables["calibration_method"]
     Feature = metadata.tables["feature"]
-    
+
     # Aliases for self-joins
     ReplicateMeasurement = Measurement.alias("replicate")
 
@@ -287,7 +287,6 @@ def main():
             print("Selected sample(s):")
             print(samples[["Sample ID", "Sample Name"]])
             print("\n")
-
 
     except FileNotFoundError as fnf_error:
         raise FileNotFoundError(f"Error: {fnf_error}")
@@ -359,6 +358,7 @@ def main():
 
     except Exception as e:
         raise RuntimeError(f"An unexpected error occurred: {e}")
+
 
 if __name__ == "__main__":
     main()

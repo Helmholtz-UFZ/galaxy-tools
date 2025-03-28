@@ -1,9 +1,10 @@
 import argparse
-from json import load
 import os
+from json import load
 
 import pandas as pd
 import sqlalchemy as db
+
 
 def get_arguments() -> argparse.Namespace:
     """
@@ -22,7 +23,7 @@ def get_arguments() -> argparse.Namespace:
         "--credentials-file",
         dest="credentials_file",
         type=str,
-        required=False, # Optional
+        required=False,  # Optional
         help=(
             "Credential file in JSON format including dialect, user, password, host, port, and "
             "database. If not provided, the environment variable LAMBDAMINER_CREDENTIALS will be "
@@ -94,7 +95,7 @@ def parse_check_args(args):
     :type args: argparse.Namespace
     :raises FileNotFoundError: If the specified directory in the output path does not exist.
     """
-    
+
     # Check if the input file exists
     if not os.path.exists(args.input):
         raise FileNotFoundError(f"The file '{args.input}' does not exist.")
@@ -151,7 +152,7 @@ def get_engine(credentials_path: str, echo: bool = False) -> db.engine.Engine:
     """
     Create and return a SQLAlchemy engine based on the supplied credentials.
 
-    The engine is created using the data from the supplied credentials file, 
+    The engine is created using the data from the supplied credentials file,
     which should be in JSON format and include the following keys:
         dialect, user, password, host, port, database
 
@@ -180,6 +181,7 @@ def get_engine(credentials_path: str, echo: bool = False) -> db.engine.Engine:
 
     # Create and return the SQLAlchemy engine
     return db.create_engine(database_url, echo=echo)
+
 
 def get_samples(connection, metadata, projects: pd.DataFrame) -> pd.DataFrame:
     """
@@ -248,13 +250,15 @@ def main():
     parse_check_args(args)
 
     try:
- 
+
         # Read the project data from the input file
-        projects = get_projects(args.input, args.multiple) # Multiple allowed
+        projects = get_projects(args.input, args.multiple)  # Multiple allowed
  
         print("\n")
-        if args.multiple: print("Selected projects:")
-        else: print("Selected project:")
+        if args.multiple:
+            print("Selected projects:")
+        else:
+            print("Selected project:")
         print(projects, "\n")
 
     except FileNotFoundError as fnf_error:
@@ -302,6 +306,7 @@ def main():
 
     except Exception as e:
         raise RuntimeError(f"An unexpected error occurred: {e}")
+
 
 if __name__ == "__main__":
     main()

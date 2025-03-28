@@ -1,6 +1,6 @@
 import argparse
 import os
-from json import load, dumps
+from json import load
 
 
 import pandas as pd

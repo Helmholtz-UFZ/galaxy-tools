@@ -253,7 +253,7 @@ def main():
 
         # Read the project data from the input file
         projects = get_projects(args.input, args.multiple)  # Multiple allowed
- 
+
         print("\n")
         if args.multiple:
             print("Selected projects:")

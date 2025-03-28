@@ -275,7 +275,7 @@ def main():
     parse_check_args(args)
 
     try:
- 
+
         # Return selected samples as DataFrame
         samples = get_samples(args.input)
 

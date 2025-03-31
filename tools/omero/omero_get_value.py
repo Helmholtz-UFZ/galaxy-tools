@@ -57,7 +57,8 @@ def get_object_ezo(user, pws, host, port, obj_type, ids, tsv_file):
                 raise ValueError("Only one attachement can be exported at a time")
             attch_path = ez.get_file_annotation(conn, ids[0], folder_path='')
             df = pd.read_csv(attch_path)
-            attach = df.to_csv(f'attachement_id_{ids[0]}.tsv', sep='\t', index=False)
+            print(df)
+            attach = df.to_csv(f'{tsv_file}', sep='\t', index=False)
             return attach
 
         else:

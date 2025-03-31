@@ -15,7 +15,7 @@ on:
       - '*'
 env:
   GALAXY_FORK: galaxyproject
-  GALAXY_BRANCH: release_24.1
+  GALAXY_BRANCH: release_24.2
   MAX_CHUNKS: 4
   MAX_FILE_SIZE: 1M
 concurrency:
@@ -138,7 +138,7 @@ jobs:
       id: lint
       with:
         mode: lint
-        fail-level: ${{ env.FAIL_LEVEL }}
+        fail-level: warn
         repository-list: ${{ needs.setup.outputs.repository-list }}
         tool-list: ${{ needs.setup.outputs.tool-list }}
     - uses: actions/upload-artifact@v4

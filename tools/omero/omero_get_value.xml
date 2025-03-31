@@ -29,6 +29,7 @@
             <option value="Annotation">Annotation</option>
             <option value="Tag">Tag</option>
             <option value="Table">Table</option>
+            <option value="Attachment">Attachment</option>
         </param>
         <conditional name="ids_input">
             <param name="ids_format" type="select" label="How do you provide the ID(s) of the OMERO object?">
@@ -71,7 +72,7 @@
 Description
 -----------
 
-Tool to fetch Annotation, Tag and Tables from IDs.
+Tool to fetch Annotation, Tag, Tables and Attachment from IDs.
 
 The IDs can be obtained with the tool OMERO get IDs with ezomero
 

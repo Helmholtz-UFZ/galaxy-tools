@@ -4,6 +4,7 @@ import json
 import sys
 
 import ezomero as ez
+import pandas as pd
 
 
 def get_object_ezo(user, pws, host, port, obj_type, ids, tsv_file):
@@ -51,6 +52,13 @@ def get_object_ezo(user, pws, host, port, obj_type, ids, tsv_file):
             table = ez.get_table(conn, ids[0])
             write_table_to_tsv(table)
             return table
+        elif obj_type == ("Attachment"):
+            if len(ids) > 1:
+                raise ValueError("Only one attachement can be exported at a time")
+            attch_path = ez.get_file_annotation(conn, ids[0], folder_path='')
+            df = pd.read_csv(attch_path)
+            attach = df.to_csv(f'attachement_id_{ids[0]}.tsv', sep='\t', index=False)
+            return attach
 
         else:
             sys.exit(f"Unsupported object type: {filter}")

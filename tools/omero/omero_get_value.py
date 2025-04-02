@@ -56,7 +56,7 @@ def get_object_ezo(user, pws, host, port, obj_type, ids, out_dir):
                 print(attch_path)
                 base_name = os.path.basename(attch_path)
                 print(base_name)
-                df = pd.read_csv(attch_path)
+                df = pd.read_csv(attch_path, sep='\t')
                 print(df)
                 df.to_csv(f"{id}_{base_name}", sep='\t', index=False)
         else:

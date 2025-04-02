@@ -52,13 +52,13 @@ def get_object_ezo(user, pws, host, port, obj_type, ids, out_dir):
         elif obj_type == ("Attachment"):
             print(ids)
             for id in ids:
-                attch_path = ez.get_file_annotation(conn, id, folder_path='')
+                attch_path = ez.get_file_annotation(conn, id, folder_path='./output')
                 print(attch_path)
                 base_name = os.path.basename(attch_path)
                 print(base_name)
                 df = pd.read_csv(attch_path)
                 print(df)
-                df.to_csv(f"{out_dir}/{id}_{base_name}", sep='\t', index=False)
+                df.to_csv(f"{id}_{base_name}", sep='\t', index=False)
         else:
             sys.exit(f"Unsupported object type: {filter}")
 

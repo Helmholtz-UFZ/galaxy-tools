@@ -80,7 +80,7 @@
             <param name="obj_type" value="Attachment"/>
             <conditional name="ids_input">
                 <param name="ids_format" value="values"/>
-                <param name="ids" value="1,2,3"/>
+                <param name="ids" value="2,3,4"/>
             </conditional>
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>

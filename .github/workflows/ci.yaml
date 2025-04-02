@@ -232,7 +232,7 @@ jobs:
         echo "Created the dummy dataset into OMERO"
         DID_HCS=$(omero obj new Dataset name='test_hcs_dts')
         omero import -d $DID_HCS .github/dummy-hcs-omero
-        echo "Created the hcs dummy dataset into OMERO
+        echo "Created the hcs dummy dataset into OMERO"
         omero upload .github/dummy_omero_tabs/attachment.tsv
         omero upload .github/dummy_omero_tabs/attachment.tsv
         omero upload .github/dummy_omero_tabs/attachment.tsv

@@ -372,9 +372,9 @@ jobs:
         echo "Created the dummy dataset into OMERO"
         DID_HCS=$(omero obj new Dataset name='test_hcs_dts')
         omero import -d $DID_HCS .github/dummy-hcs-omero
-        omero metadata populate --file .github/dummy_omero_tabs/attachment.tsv Project:$PID
-        omero metadata populate --file .github/dummy_omero_tabs/attachment.tsv Project:$PID
-        omero metadata populate --file .github/dummy_omero_tabs/attachment.tsv Project:$PID
+        omero metadata populate --file .github/dummy_omero_tabs/attachment.tsv $PID
+        omero metadata populate --file .github/dummy_omero_tabs/attachment.tsv $PID
+        omero metadata populate --file .github/dummy_omero_tabs/attachment.tsv $PID
         echo "Created the hcs dummy dataset into OMERO"
 
     # download or create large test data via script

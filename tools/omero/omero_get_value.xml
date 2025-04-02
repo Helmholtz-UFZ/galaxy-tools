@@ -9,6 +9,7 @@
     </xrefs>
     <expand macro="ezomero_requirements"/>
     <command detect_errors="exit_code"><![CDATA[
+        mkdir output;
         python '$__tool_directory__/omero_get_value.py'
         --credential-file '$credentials'
         @HOST_PORT@
@@ -18,7 +19,7 @@
         #else
             --ids_path '$ids_input.ids_path'
         #end if
-        --tsv_file '$tsv'
+        --out_dir ./output/
     ]]></command>
     <configfiles>
         <expand macro="credentials"/>
@@ -47,10 +48,16 @@
         </conditional>
     </inputs>
     <outputs>
-        <data name="tsv" format="tabular"/>
+        <collection name="split_output" type="list">
+            <discover_datasets pattern="__name_and_ext__" directory="outputs"/>
+            <filter> not (obj_type=="Tag" or obj_type=="Annotation")</filter>
+        </collection>
+        <data name="tsv" from_work_dir="output.tsv" format="tabular">
+            <filter> obj_type=="Tag" or obj_type=="Annotation"</filter>
+        </data>
     </outputs>
     <tests>
-        <test>
+        <test expect_num_outputs="1">
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>
             <param name="obj_type" value="Tag"/>
@@ -66,6 +73,34 @@
                     <has_n_lines n="2"/>
                 </assert_contents>
             </output>
+        </test>
+                <test expect_num_outputs="1">
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="Attachment"/>
+            <conditional name="ids_input">
+                <param name="ids_format" value="values"/>
+                <param name="ids" value="1"/>
+            </conditional>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output_collection name="split_output" type="list" count="3">
+                <element name="1">
+                    <assert_contents>
+                        <has_n_columns n="2"/>
+                    </assert_contents>
+                </element>
+                <element name="2">
+                    <assert_contents>
+                         <has_n_columns n="2"/>
+                    </assert_contents>
+                 </element>
+                <element name="3">
+                    <assert_contents>
+                         <has_n_columns n="2"/>
+                    </assert_contents>
+                 </element>
+            </output_collection>
         </test>
     </tests>
     <help>

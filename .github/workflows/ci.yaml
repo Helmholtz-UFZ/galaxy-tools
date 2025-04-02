@@ -220,6 +220,7 @@ jobs:
         sleep 60
         pip install https://github.com/glencoesoftware/zeroc-ice-py-linux-x86_64/releases/download/20240202/zeroc_ice-3.6.5-cp311-cp311-manylinux_2_28_x86_64.whl
         pip install omero-py==5.19.4
+        pip install omero-metadata
         omero login -s localhost -u root -w omero -p 6064
         PID=$(omero obj new Project name='test_prj')
         DID=$(omero obj new Dataset name='test_dts')
@@ -230,6 +231,9 @@ jobs:
         echo "Created the dummy dataset into OMERO"
         DID_HCS=$(omero obj new Dataset name='test_hcs_dts')
         omero import -d $DID_HCS .github/dummy-hcs-omero
+        omero metadata populate --file .github/dummy_omero_tabs/attachment.tsv Project:$PID
+        omero metadata populate --file .github/dummy_omero_tabs/attachment.tsv Project:$PID
+        omero metadata populate --file .github/dummy_omero_tabs/attachment.tsv Project:$PID
         echo "Created the hcs dummy dataset into OMERO"
 
     # download or create large test data via script

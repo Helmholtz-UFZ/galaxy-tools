@@ -236,9 +236,9 @@ jobs:
         omero upload .github/dummy_omero_tabs/attachment.tsv
         omero upload .github/dummy_omero_tabs/attachment.tsv
         omero upload .github/dummy_omero_tabs/attachment.tsv
-        omero obj new FileAnnotation file=OriginalFile:1
-        omero obj new FileAnnotation file=OriginalFile:2
-        omero obj new FileAnnotation file=OriginalFile:3
+        omero obj new FileAnnotation file=OriginalFile:108
+        omero obj new FileAnnotation file=OriginalFile:109
+        omero obj new FileAnnotation file=OriginalFile:110
         echo "Uploaded file annotations"
 
     # download or create large test data via script

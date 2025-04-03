@@ -50,15 +50,12 @@ def get_object_ezo(user, pws, host, port, obj_type, ids, out_dir):
                 table = ez.get_table(conn, id)
                 write_table_to_tsv(table, out_dir, id)
         elif obj_type == ("Attachment"):
-            print(ids)
             for id in ids:
-                attch_path = ez.get_file_annotation(conn, id, folder_path='./output')
-                print(attch_path)
+                attch_path = ez.get_file_annotation(conn, id, folder_path='')
                 base_name = os.path.basename(attch_path)
-                print(base_name)
                 df = pd.read_csv(attch_path, sep='\t')
-                print(df)
                 df.to_csv(f"./output/{id}_{base_name}", sep='\t', index=False)
+                os.listdir("./output")
         else:
             sys.exit(f"Unsupported object type: {filter}")
 

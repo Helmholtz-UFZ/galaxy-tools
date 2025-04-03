@@ -85,19 +85,19 @@
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>
             <output_collection name="split_output" type="list" count="3">
-                <element name="2_attachment.tsv">
+                <element name="2_attachment">
                     <assert_contents>
-                        <has_n_columns n="2"/>
+                        <as_text text="col1"/>
                     </assert_contents>
                 </element>
-                <element name="3_attachment.tsv">
+                <element name="3_attachment">
                     <assert_contents>
-                         <has_n_columns n="2"/>
+                         <as_text text="col1"/>
                     </assert_contents>
                  </element>
-                <element name="4_attachment.tsv">
+                <element name="4_attachment">
                     <assert_contents>
-                         <has_n_columns n="2"/>
+                         <as_text text="col1"/>
                     </assert_contents>
                  </element>
             </output_collection>

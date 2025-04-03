@@ -54,7 +54,7 @@ def get_object_ezo(user, pws, host, port, obj_type, ids, out_dir):
                 attch_path = ez.get_file_annotation(conn, id, folder_path='./output/')
                 base_name = os.path.basename(attch_path)
                 df = pd.read_csv(attch_path, sep='\t')
-                df.to_csv(f"./output/{id}_{base_name}.tsv", sep='\t', index=False)
+                df.to_csv(f"./output/ID_{id}_{base_name}", sep='\t', index=False)
                 os.remove(attch_path)
                 print(os.listdir("./output"))
         else:

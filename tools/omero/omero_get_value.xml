@@ -87,17 +87,17 @@
             <output_collection name="split_output" type="list" count="3">
                 <element name="ID_2_attachment">
                     <assert_contents>
-                        <as_text text="col1"/>
+                        <has_text text="col1"/>
                     </assert_contents>
                 </element>
                 <element name="ID_3_attachment">
                     <assert_contents>
-                         <as_text text="col1"/>
+                         <has_text text="col1"/>
                     </assert_contents>
                  </element>
                 <element name="ID_4_attachment">
                     <assert_contents>
-                         <as_text text="col1"/>
+                         <has_text text="col1"/>
                     </assert_contents>
                  </element>
             </output_collection>

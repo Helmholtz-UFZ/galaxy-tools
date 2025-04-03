@@ -58,7 +58,7 @@ def get_object_ezo(user, pws, host, port, obj_type, ids, out_dir):
                 print(base_name)
                 df = pd.read_csv(attch_path, sep='\t')
                 print(df)
-                df.to_csv(f"{id}_{base_name}", sep='\t', index=False)
+                df.to_csv(f"./output/{id}_{base_name}", sep='\t', index=False)
         else:
             sys.exit(f"Unsupported object type: {filter}")
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
                        help="IDs of the OMERO objects.")
     group.add_argument('--ids_path',
                        help="File with IDs of the OMERO objects (one per line).")
-    parser.add_argument('--out_dir',  required=True,
+    parser.add_argument('--out_dir', required=True,
                         help="Output path.")
     args = parser.parse_args()
 

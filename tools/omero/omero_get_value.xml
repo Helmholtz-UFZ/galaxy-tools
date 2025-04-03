@@ -85,17 +85,17 @@
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>
             <output_collection name="split_output" type="list" count="3">
-                <element name="2_attachment">
+                <element name="ID_2_attachment">
                     <assert_contents>
                         <as_text text="col1"/>
                     </assert_contents>
                 </element>
-                <element name="3_attachment">
+                <element name="ID_3_attachment">
                     <assert_contents>
                          <as_text text="col1"/>
                     </assert_contents>
                  </element>
-                <element name="4_attachment">
+                <element name="ID_4_attachment">
                     <assert_contents>
                          <as_text text="col1"/>
                     </assert_contents>

@@ -90,34 +90,6 @@ columns:
         include: yes
 
   - group:
-      namespace: openmicroscopy.org/mapr/gene
-      columns:
-      # If mapr finds two sets of key-value pairs with names
-      # "Column Name" and "Column Name URL" it will automatically
-      # combine them into one hyperlinked value
-      # This is why "Comment [Gene Identifier]" is listed twice, the
-      # first indicates the text, the second indicates the hyperlink
-      - name: Comment [Gene Identifier]
-        clientname: Gene Identifier
-        include: yes
-        omitempty: no
-      - name: Comment [Gene Identifier]
-        clientname: Gene Identifier URL
-        # "clientvalue" can be used to override the value of the map-
-        # annotation key-value. The "value" is substituted using
-        # Jinja2 templates.
-        clientvalue: https://www.ensembl.org/id/{{ value|urlencode }}
-        include: yes
-      - name: Comment [Gene Symbol]
-        clientname: Gene Symbol
-        include: yes
-        omitempty: no
-      - name: Comment [Gene Symbol Synonyms]
-        clientname: Gene Symbol Synonyms
-        include: yes
-        omitempty: no
-
-  - group:
       namespace: openmicroscopy.org/mapr/phenotype
       columns:
       - name: Phenotype 1

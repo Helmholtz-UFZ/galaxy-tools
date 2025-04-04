@@ -74,6 +74,23 @@
                 </assert_contents>
             </output>
         </test>
+            <tests>
+        <test expect_num_outputs="1">
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="Annotation"/>
+            <conditional name="ids_input">
+                <param name="ids_format" value="values"/>
+                <param name="ids" value="7"/>
+            </conditional>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="tsv" ftype="tabular">
+                <assert_contents>
+                    <has_n_lines n="2"/>
+                </assert_contents>
+            </output>
+        </test>
         <test expect_num_outputs="1">
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>
@@ -98,6 +115,29 @@
                 <element name="ID_4_attachment">
                     <assert_contents>
                          <has_text text="col1"/>
+                    </assert_contents>
+                 </element>
+            </output_collection>
+        </test>
+                        <test expect_num_outputs="1">
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="Table"/>
+            <conditional name="ids_input">
+                <param name="ids_format" value="values"/>
+                <param name="ids" value="5,6"/>
+            </conditional>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output_collection name="split_output" type="list" count="3">
+                <element name="ID_5_table">
+                    <assert_contents>
+                        <has_n_lines n="7"/>
+                    </assert_contents>
+                </element>
+                <element name="ID_6_table">
+                    <assert_contents>
+                         <has_n_lines n="7"/>
                     </assert_contents>
                  </element>
             </output_collection>

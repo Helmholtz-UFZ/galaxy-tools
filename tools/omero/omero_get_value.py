@@ -26,8 +26,8 @@ def get_object_ezo(user, pws, host, port, obj_type, ids, out_dir):
                 writer.writerow([key, value])  # Write each key-value pair
 
     # Function to write tabular file from list of list ezomero output
-    def write_table_to_tsv(data, out_dir, file_name):
-        with open(f"{out_dir}/{file_name}.tsv", 'w') as f:
+    def write_table_to_tsv(data, file_name):
+        with open(f"./output/ID_{file_name}_table.tsv", 'w') as f:
             for row in data:
                 f.write('\t'.join([str(val) for val in row]) + '\n')
 
@@ -48,7 +48,7 @@ def get_object_ezo(user, pws, host, port, obj_type, ids, out_dir):
         elif obj_type == "Table":
             for id in ids:
                 table = ez.get_table(conn, id)
-                write_table_to_tsv(table, out_dir, id)
+                write_table_to_tsv(table, id)
         elif obj_type == ("Attachment"):
             for id in ids:
                 attch_path = ez.get_file_annotation(conn, id, folder_path='./output/')
@@ -56,7 +56,6 @@ def get_object_ezo(user, pws, host, port, obj_type, ids, out_dir):
                 df = pd.read_csv(attch_path, sep='\t')
                 df.to_csv(f"./output/ID_{id}_{base_name}", sep='\t', index=False)
                 os.remove(attch_path)
-                print(os.listdir("./output"))
         else:
             sys.exit(f"Unsupported object type: {filter}")
 

@@ -27,9 +27,9 @@
             <param name="contigs" value="example_contigs.fa"/>
             <output name="phagcn_out">
                 <assert_contents>
-                    <has_line line="Accession&#9;Length&#9;Lineage&#9;PhaGCNScore&#9;Genus&#9;GenusCluster"/>
+                    <has_line line="Accession&#9;Length&#9;Lineage&#9;PhaGCNScore&#9;Genus&#9;GenusCluster&#9;Prokaryotic virus (Bacteriophages and Archaeal virus)"/>
                     <has_n_lines n="11"/>
-                    <has_n_columns n="6"/>
+                    <has_n_columns n="7"/>
                 </assert_contents>
             </output>
         </test>

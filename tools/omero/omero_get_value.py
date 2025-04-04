@@ -37,6 +37,7 @@ def get_object_ezo(user, pws, host, port, obj_type, ids, out_dir):
             for maid in ids:
                 current_ma_dict = ez.get_map_annotation(conn, maid)
                 ma_dict = {**ma_dict, **current_ma_dict}
+                print(ma_dict)
             write_dict_to_tsv(ma_dict, ["Annotation ID", "Annotation Value"])
         elif obj_type == "Tag":
             tags = []

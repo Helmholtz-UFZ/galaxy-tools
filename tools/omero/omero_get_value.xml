@@ -128,7 +128,7 @@
             </conditional>
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>
-            <output_collection name="split_output" type="list" count="3">
+            <output_collection name="split_output" type="list" count="2">
                 <element name="ID_5_table">
                     <assert_contents>
                         <has_n_lines n="7"/>

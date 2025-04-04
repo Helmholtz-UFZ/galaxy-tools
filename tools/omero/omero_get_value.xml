@@ -74,7 +74,6 @@
                 </assert_contents>
             </output>
         </test>
-            <tests>
         <test expect_num_outputs="1">
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>

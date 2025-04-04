@@ -379,8 +379,8 @@ jobs:
         omero obj new FileAnnotation file=OriginalFile:108
         omero obj new FileAnnotation file=OriginalFile:109
         omero obj new FileAnnotation file=OriginalFile:110
-        omero metadata populate --file .github/dummy_omero_tabs/simple-annotation.csv $DID
-        omero metadata populate --context bulkmap --cfg .github/dummy_omero_tabs/simple-annotation.yml $DID
+        omero metadata populate --file .github/dummy_omero_tabs/dummy-bulkmap.csv $DID
+        omero metadata populate --context bulkmap --cfg .github/dummy_omero_tabs/dummy-bulkmap.yml $DID
         echo "Uploaded Attachments, KV pairs and Tables"
 
     # download or create large test data via script

@@ -1,0 +1,20 @@
+---
+name: dummy-bulkmap
+version: 1
+
+defaults:
+  include: no
+  type: string
+  split: ""
+  includeclient: yes
+  visible: yes
+  omitempty: yes
+
+columns:
+  # These will be included in the map annotation
+  - name: Image Name
+    include: yes
+  - name: Sample Type
+    include: yes
+  - name: Condition
+    include: yes

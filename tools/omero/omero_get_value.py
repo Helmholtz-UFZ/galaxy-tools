@@ -49,6 +49,7 @@ def get_object_ezo(user, pws, host, port, obj_type, ids, out_dir):
         elif obj_type == "Table":
             for id in ids:
                 table = ez.get_table(conn, id)
+                print(table)
                 write_table_to_tsv(table, id)
         elif obj_type == ("Attachment"):
             for id in ids:

@@ -86,7 +86,7 @@
             <param name="test_password" value="omero"/>
             <output name="tsv" ftype="tabular">
                 <assert_contents>
-                    <has_n_lines n="2"/>
+                    <has_n_lines n="4"/>
                 </assert_contents>
             </output>
         </test>
@@ -131,12 +131,12 @@
             <output_collection name="split_output" type="list" count="2">
                 <element name="ID_5_table">
                     <assert_contents>
-                        <has_n_lines n="7"/>
+                        <has_n_lines n="5"/>
                     </assert_contents>
                 </element>
                 <element name="ID_6_table">
                     <assert_contents>
-                         <has_n_lines n="7"/>
+                         <has_n_lines n="5"/>
                     </assert_contents>
                  </element>
             </output_collection>

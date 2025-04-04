@@ -1,0 +1,135 @@
+---
+name: simple-annotation
+version: 1
+
+defaults:
+    # Should the column be processed when creating bulk-annotations (yes/no)
+    include: no
+    # Columns type of the bulk-annotations column
+    type: string
+
+    # If non-empty a string used to separate multiple fields in a column
+    # White space will be stripped
+    split:
+    # Should this column be included in the clients (yes/no)
+    includeclient: yes
+    # Should this column be visible in the clients, if no the column should be
+    # hidden in the client but will still be indexed by the searcher (yes/no)
+    visible: yes
+    # Should empty values be omitted from the client display
+    omitempty: yes
+
+# This is the list of column names taken from simple-annotation.csv:
+#
+#   Dataset Name
+#   Image Name
+#   Characteristics [Organism]
+#   Characteristics [Cell Line]
+#   Characteristics [Cell Cycle Phase]
+#   Experimental Condition [Antibody Target]
+#   Comment [Targeted Protein]
+#   Comment [Gene Identifier]
+#   Comment [Gene Symbol]
+#   Comment [Gene Symbol Synonyms]
+#   Has Phenotype
+#   Phenotype Annotation Level
+#   Phenotype 1
+#   Phenotype 1 Term Name
+#   Phenotype 1 Term Accession
+#
+# You can choose which of these appear in the default map annotations.
+# In the defaults section of this configuration "include" is set to
+# "no" which means if you do not add a column it won't be displayed in
+# the map annotations.
+
+columns:
+
+  ######################################################################
+  # These columns will appear in the default map annotation namespace
+  # openmicroscopy.org/omero/bulk_annotations
+  ######################################################################
+  - name: Dataset Name
+    include: yes
+  - name: Image Name
+    include: yes
+  - name: Characteristics [Cell Cycle Phase]
+    # "clientname" can be used to override the column name in the
+    # key of the map-annotation key-value. The default is to use
+    # the column name
+    clientname: Cell Cycle Phase
+    include: yes
+  - name: Experimental Condition [Antibody Target]
+    clientname: Antibody Target
+    include: yes
+  - name: Comment [Targeted Protein]
+    clientname: Targeted Protein
+    include: yes
+  - name: Has Phenotype
+    include: yes
+  - name: Phenotype Annotation Level
+    include: yes
+
+  ######################################################################
+  # The columns in these groups will appear as separate namespaced map-
+  # annotations. Mapr can be configured to restrict a query to one of
+  # these namespaces.
+  ######################################################################
+
+  - group:
+      namespace: openmicroscopy.org/mapr/organism
+      columns:
+      - name: Characteristics [Organism]
+        clientname: Organism
+        include: yes
+
+  - group:
+      namespace: openmicroscopy.org/mapr/cell_line
+      columns:
+      - name: Characteristics [Cell Line]
+        clientname: Cell Line
+        include: yes
+
+  - group:
+      namespace: openmicroscopy.org/mapr/gene
+      columns:
+      # If mapr finds two sets of key-value pairs with names
+      # "Column Name" and "Column Name URL" it will automatically
+      # combine them into one hyperlinked value
+      # This is why "Comment [Gene Identifier]" is listed twice, the
+      # first indicates the text, the second indicates the hyperlink
+      - name: Comment [Gene Identifier]
+        clientname: Gene Identifier
+        include: yes
+        omitempty: no
+      - name: Comment [Gene Identifier]
+        clientname: Gene Identifier URL
+        # "clientvalue" can be used to override the value of the map-
+        # annotation key-value. The "value" is substituted using
+        # Jinja2 templates.
+        clientvalue: https://www.ensembl.org/id/{{ value|urlencode }}
+        include: yes
+      - name: Comment [Gene Symbol]
+        clientname: Gene Symbol
+        include: yes
+        omitempty: no
+      - name: Comment [Gene Symbol Synonyms]
+        clientname: Gene Symbol Synonyms
+        include: yes
+        omitempty: no
+
+  - group:
+      namespace: openmicroscopy.org/mapr/phenotype
+      columns:
+      - name: Phenotype 1
+        clientname: Phenotype
+        include: yes
+      - name: Phenotype 1 Term Name
+        clientname: Phenotype Term Name
+        include: yes
+      - name: Phenotype 1 Term Accession
+        clientname: Phenotype Term Accession
+        include: yes
+      - name: Phenotype 1 Term Accession
+        clientname: Phenotype Term Accession URL
+        clientvalue: http://www.ebi.ac.uk/cmpo/{{ value|urlencode }}
+        include: yes

@@ -118,7 +118,7 @@
                  </element>
             </output_collection>
         </test>
-                        <test expect_num_outputs="1">
+            <test expect_num_outputs="1">
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>
             <param name="obj_type" value="Table"/>

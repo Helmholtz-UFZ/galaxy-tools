@@ -26,8 +26,8 @@ def get_object_ezo(user, pws, host, port, obj_type, ids, out_dir):
                 writer.writerow([key, value])  # Write each key-value pair
 
     # Function to write tabular file from list of list ezomero output
-    def write_table_to_tsv(data, file_name):
-        with open(f"./output/ID_{file_name}_table.tsv", 'w') as f:
+    def write_table_to_tsv(data, id):
+        with open(f"./output/ID_{id}_table.tsv", 'w') as f:
             for row in data:
                 f.write('\t'.join([str(val) for val in row]) + '\n')
 

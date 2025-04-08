@@ -2,13 +2,14 @@
     <description> with ezomero </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">1</token>
+        <token name="@VERSION_SUFFIX@">2</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
     </xrefs>
     <expand macro="ezomero_requirements"/>
     <command detect_errors="exit_code"><![CDATA[
+        mkdir output;
         python '$__tool_directory__/omero_get_value.py'
         --credential-file '$credentials'
         @HOST_PORT@
@@ -18,7 +19,7 @@
         #else
             --ids_path '$ids_input.ids_path'
         #end if
-        --tsv_file '$tsv'
+        --out_dir ./output/
     ]]></command>
     <configfiles>
         <expand macro="credentials"/>
@@ -29,6 +30,7 @@
             <option value="Annotation">Annotation</option>
             <option value="Tag">Tag</option>
             <option value="Table">Table</option>
+            <option value="Attachment">Attachment</option>
         </param>
         <conditional name="ids_input">
             <param name="ids_format" type="select" label="How do you provide the ID(s) of the OMERO object?">
@@ -46,10 +48,16 @@
         </conditional>
     </inputs>
     <outputs>
-        <data name="tsv" format="tabular"/>
+        <collection name="split_output" type="list">
+            <discover_datasets pattern="__name_and_ext__" directory="output"/>
+            <filter> not (obj_type=="Tag" or obj_type=="Annotation")</filter>
+        </collection>
+        <data name="tsv" from_work_dir="output.tsv" format="tabular">
+            <filter> obj_type=="Tag" or obj_type=="Annotation"</filter>
+        </data>
     </outputs>
     <tests>
-        <test>
+        <test expect_num_outputs="1">
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>
             <param name="obj_type" value="Tag"/>
@@ -66,12 +74,79 @@
                 </assert_contents>
             </output>
         </test>
+        <test expect_num_outputs="1">
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="Annotation"/>
+            <conditional name="ids_input">
+                <param name="ids_format" value="values"/>
+                <param name="ids" value="7"/>
+            </conditional>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="tsv" ftype="tabular">
+                <assert_contents>
+                    <has_n_lines n="4"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="Attachment"/>
+            <conditional name="ids_input">
+                <param name="ids_format" value="values"/>
+                <param name="ids" value="2,3,4"/>
+            </conditional>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output_collection name="split_output" type="list" count="3">
+                <element name="ID_2_attachment">
+                    <assert_contents>
+                        <has_text text="col1"/>
+                    </assert_contents>
+                </element>
+                <element name="ID_3_attachment">
+                    <assert_contents>
+                         <has_text text="col1"/>
+                    </assert_contents>
+                 </element>
+                <element name="ID_4_attachment">
+                    <assert_contents>
+                         <has_text text="col1"/>
+                    </assert_contents>
+                 </element>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="Table"/>
+            <conditional name="ids_input">
+                <param name="ids_format" value="values"/>
+                <param name="ids" value="5,6"/>
+            </conditional>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output_collection name="split_output" type="list" count="2">
+                <element name="ID_5_table">
+                    <assert_contents>
+                        <has_n_lines n="5"/>
+                    </assert_contents>
+                </element>
+                <element name="ID_6_table">
+                    <assert_contents>
+                         <has_n_lines n="5"/>
+                    </assert_contents>
+                 </element>
+            </output_collection>
+        </test>
     </tests>
     <help>
 Description
 -----------
 
-Tool to fetch Annotation, Tag and Tables from IDs.
+Tool to fetch Annotation, Tag, Tables and Attachments from IDs.
 
 The IDs can be obtained with the tool OMERO get IDs with ezomero
 

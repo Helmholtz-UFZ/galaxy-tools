@@ -1,6 +1,7 @@
 import argparse
 import os
 from json import load
+from typing import List
 
 import pandas as pd
 import sqlalchemy as db
@@ -62,22 +63,32 @@ def get_arguments() -> argparse.Namespace:
 
     # Add argument for the input file - selected project
     parser.add_argument(
-        "-i",
-        "--input-file",
-        dest="input",
+        "-p",
+        "--project-ids",
+        dest="project_ids",
         type=str,
         required=True,
-        help="Path to CSV file of the selected project"
+        help="Comma separated list of project IDs"
     )
 
+    # Add argument for the input file - selected project
+    # parser.add_argument(
+    #     "-i",
+    #     "--input-file",
+    #     dest="input",
+    #     type=str,
+    #     required=True,
+    #     help="Path to CSV file of the selected project"
+    # )
+
     # Add argument for allowing multiple projects
-    parser.add_argument(
-        "-m",
-        "--multiple-projects",
-        dest="multiple",
-        action="store_true",
-        help="Allow multiple projects as input"
-    )
+    # parser.add_argument(
+    #     "-m",
+    #     "--multiple-projects",
+    #     dest="multiple",
+    #     action="store_true",
+    #     help="Allow multiple projects as input"
+    # )
 
     return parser.parse_args()
 
@@ -97,6 +108,14 @@ def parse_check_args(args):
     """
 
     # Check if the input file exists
+    project_ids = args.project_ids.split(",")
+    if len(project_ids) < 1:
+        raise ValueError("No project IDs given")
+    try:
+        project_ids = [int(_) for _ in project_ids]
+    except ValueError:
+        raise ValueError("Project IDs need to be integer")
+
     if not os.path.exists(args.input):
         raise FileNotFoundError(f"The file '{args.input}' does not exist.")
 
@@ -114,38 +133,38 @@ def parse_check_args(args):
     args.credentials_file = args.credentials_file or envar_credentials
 
 
-def get_projects(input_file: str, allow_multiple: bool) -> pd.DataFrame:
-    """
-    Extract the project ID from the input CSV file.
+# def get_projects(input_file: str, allow_multiple: bool) -> pd.DataFrame:
+#     """
+#     Extract the project ID from the input CSV file.
 
-    The input file is expected to contain a single row with a column named 'Project ID'.
+#     The input file is expected to contain a single row with a column named 'Project ID'.
 
-    :param input_file: The path to the input CSV file.
-    :type input_file: str
-    :return: The project ID extracted from the file.
-    :rtype: int
-    :raises FileNotFoundError: If the input file does not exist.
-    :raises ValueError: If the file is empty, contains more than one row, lacks a 'Project ID'
-        column, or contains an invalid Project ID.
-    """
+#     :param input_file: The path to the input CSV file.
+#     :type input_file: str
+#     :return: The project ID extracted from the file.
+#     :rtype: int
+#     :raises FileNotFoundError: If the input file does not exist.
+#     :raises ValueError: If the file is empty, contains more than one row, lacks a 'Project ID'
+#         column, or contains an invalid Project ID.
+#     """
 
-    try:
-        # Read the CSV file
-        df_projects = pd.read_csv(input_file)
-    except pd.errors.EmptyDataError:
-        raise ValueError("The input file is empty.")
-    except Exception as e:
-        raise ValueError(f"An error occurred while reading the file: {e}")
+#     try:
+#         # Read the CSV file
+#         df_projects = pd.read_csv(input_file)
+#     except pd.errors.EmptyDataError:
+#         raise ValueError("The input file is empty.")
+#     except Exception as e:
+#         raise ValueError(f"An error occurred while reading the file: {e}")
 
-    # Ensure the DataFrame contains exactly one row
-    if not allow_multiple:
-        assert len(df_projects) == 1, "The input file must contain exactly one row."
+#     # Ensure the DataFrame contains exactly one row
+#     if not allow_multiple:
+#         assert len(df_projects) == 1, "The input file must contain exactly one row."
 
-    # Check for the existence of the 'Project ID' column
-    if "Project ID" not in df_projects.columns:
-        raise ValueError("The input file does not contain a column named 'Project ID'.")
+#     # Check for the existence of the 'Project ID' column
+#     if "Project ID" not in df_projects.columns:
+#         raise ValueError("The input file does not contain a column named 'Project ID'.")
 
-    return df_projects
+#     return df_projects
 
 
 def get_engine(credentials_path: str, echo: bool = False) -> db.engine.Engine:
@@ -183,7 +202,7 @@ def get_engine(credentials_path: str, echo: bool = False) -> db.engine.Engine:
     return db.create_engine(database_url, echo=echo)
 
 
-def get_samples(connection, metadata, projects: pd.DataFrame) -> pd.DataFrame:
+def get_samples(connection, metadata, project_ids: List[int]) -> pd.DataFrame:
     """
     Retrieves a Pandas DataFrame containing information about all samples
     associated with the specified project IDs.
@@ -192,18 +211,18 @@ def get_samples(connection, metadata, projects: pd.DataFrame) -> pd.DataFrame:
     :type connection: sqlalchemy.engine.Connection
     :param metadata: The database metadata object
     :type metadata: sqlalchemy.MetaData
-    :param projects: A DataFrame containing project IDs
-    :type projects: pandas.DataFrame
+    :param project_ids:
+    :type project_ids:
     :return: A Pandas DataFrame containing the sample information for all projects
     :rtype: pandas.DataFrame
     """
 
-    if "Project ID" not in projects.columns:
-        raise ValueError("The provided DataFrame must contain a 'Project ID' column.")
+    # if "Project ID" not in projects.columns:
+    #     raise ValueError("The provided DataFrame must contain a 'Project ID' column.")
 
-    project_ids = projects["Project ID"].dropna().astype(int).tolist()
-    if not project_ids:
-        raise ValueError("No valid project IDs found in the DataFrame.")
+    # project_ids = projects["Project ID"].dropna().astype(int).tolist()
+    # if not project_ids:
+    #     raise ValueError("No valid project IDs found in the DataFrame.")
 
     Project = metadata.tables["project"]
     Sample = metadata.tables["sample"]
@@ -249,27 +268,26 @@ def main():
     # Parse and check the specified command line arguments
     parse_check_args(args)
 
-    try:
+    project_ids = [int(_) for _ in args.project_ids]
+    # try:
 
-        # Read the project data from the input file
-        projects = get_projects(args.input, args.multiple)  # Multiple allowed
+    #     # Read the project data from the input file
+    #     projects = get_projects(args.input, args.multiple)  # Multiple allowed
 
-        print("\n")
-        if args.multiple:
-            print("Selected projects:")
-        else:
-            print("Selected project:")
-        print(projects, "\n")
+    #     print("Selected projects: ")
+    #     else:
+    #         print("Selected project:")
+    #     print(projects, "\n")
 
-    except FileNotFoundError as fnf_error:
-        raise FileNotFoundError(f"Error: {fnf_error}")
+    # except FileNotFoundError as fnf_error:
+    #     raise FileNotFoundError(f"Error: {fnf_error}")
 
-    except ValueError as val_error:
-        raise ValueError(f"Data Error: {val_error}")
+    # except ValueError as val_error:
+    #     raise ValueError(f"Data Error: {val_error}")
 
-    except Exception as ex:
-        raise Exception(f"An unexpected error occurred: {ex}")
-
+    # except Exception as ex:
+    #     raise Exception(f"An unexpected error occurred: {ex}")
+    print(f"Selected project: {project_ids}")
     try:
 
         # Load credentials and create the database engine
@@ -281,7 +299,7 @@ def main():
 
         with engine.connect() as conn:
             # Get user ID
-            samples = get_samples(conn, metadata, projects)
+            samples = get_samples(conn, metadata, project_ids)
 
             # Write projects as a CSV file to the specified output
             with open(args.output, "w") as f:

@@ -10,12 +10,19 @@
         #end if
         python '$__tool_directory__/get_samples.py'
         --login-name '$__user_name__'
-        --input-file '$projects'
+        --project-ids $project_ids
         --output-file '$samples'
     ]]></command>
     <inputs>
         <param name="test" type="hidden"/>
         <param name="projects" type="data" format="csv" optional="false" help="Input file containing a single project"/>
+        <param name="project_ids" type="select" label="Project IDs">
+            <options from_dataset="projects" separator=",">
+                <column name="name" index="1"/>
+                <column name="value" index="0"/>
+                <filter type="remove_value" value="Project ID" />
+            </options>
+        </param>
     </inputs>
     <outputs>
         <data name="samples" format="csv"/>
@@ -24,15 +31,24 @@
         <test>
             <param name="test" value="test_lmdb_credentials.json"/>
             <param name="projects" value="get_samples/test_projects_single.csv"/>
+            <param name="project_ids" value="1"/>
             <output name="samples" file="get_samples/test_samples_single.csv" ftype="csv" compare="contains"/>
         </test>
         <test expect_failure="true">
             <param name="test" value="test_credentials_false.json"/>
             <param name="projects" value="get_samples/test_projects_single.csv"/>
+            <param name="project_ids" value="1"/>
         </test>
         <test expect_failure="true">
             <param name="test" value="test_credentials_nonexistent.json"/>
             <param name="projects" value="get_samples/test_projects_single.csv"/>
+            <param name="project_ids" value="1"/>
+        </test>
+        <test>
+            <param name="test" value="test_lmdb_credentials.json"/>
+            <param name="projects" value="get_samples/test_projects_multiple.csv"/>
+            <param name="project_ids" value="1,2"/>
+            <output name="samples" file="get_samples/test_samples_multiple.csv" ftype="csv" compare="contains"/>
         </test>
     </tests>
     <help><![CDATA[

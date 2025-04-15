@@ -26,16 +26,16 @@
     <tests>
         <test expect_num_outputs="1">
             <param name="dbdir" value="phaboxdb"/>
-            <param name="contigs" value="example_contigs.fa"/>
+            <param name="contigs" value="example_contigs.fa" location="https://github.com/KennthShang/PhaBOX/releases/download/v2/example_contigs.fa"/>
             <output_collection name="marker_genes" count="2">
                 <element name="portal">
                     <assert_contents>
-                        <has_text text=">" n="4176"/>
+                        <has_text text=">" n="4281"/>
                     </assert_contents>
                 </element>
                 <element name="terl">
                     <assert_contents>
-                        <has_text text=">" n="4570"/>
+                        <has_text text=">" n="49399"/>
                     </assert_contents>
                 </element>
             </output_collection>

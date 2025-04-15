@@ -55,7 +55,7 @@
 
     <xml name="crispr">
         <section name="crispr" title="Options used to predict CRISPRs based on MAGs" help="">
-            <param argument="--bfolder" type="data" format="true" optional="true" label="MAGS"/>
+            <param argument="--bfolder" type="data" format="fasta" optional="true" label="MAGS"/>
             <param argument="--cpident" type="float" value="90" min="90" max="100" label="Alignment identity for CRISPRs"/>
             <param argument="--ccov" type="float" value="90" min="0" max="100" label="Alignment coverage for CRISPRs"/>
             <param argument="--blast" type="select" label="BLAST program for CRISPRs" help="blastn-short will lead to more sensitive results but require more time to execute the program">

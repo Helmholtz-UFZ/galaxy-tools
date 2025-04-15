@@ -1,0 +1,72 @@
+<tool id="lm_get_samples" name="Get LMDB Samples" version="0.1.0+galaxy0" profile="21.05">
+    <requirements>
+        <requirement type="package" version="2.2.2">pandas</requirement>
+        <requirement type="package" version="2.9.9">psycopg2</requirement>
+        <requirement type="package" version="2.0.37">sqlalchemy</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #if $test != ''
+            export LAMBDAMINER_CREDENTIALS='$__tool_directory__/test-data/$test';
+        #end if
+        python '$__tool_directory__/get_samples.py'
+        --login-name '$__user_name__'
+        --project-ids $project_ids
+        --output-file '$samples'
+    ]]></command>
+    <inputs>
+        <param name="test" type="hidden"/>
+        <param name="projects" type="data" format="csv" optional="false" help="Input file containing a single project"/>
+        <param name="project_ids" type="select" label="Project IDs">
+            <options from_dataset="projects" separator=",">
+                <column name="name" index="1"/>
+                <column name="value" index="0"/>
+                <filter type="remove_value" value="Project ID" />
+            </options>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="samples" format="csv"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="test" value="test_lmdb_credentials.json"/>
+            <param name="projects" value="get_samples/test_projects_single.csv"/>
+            <param name="project_ids" value="1"/>
+            <output name="samples" file="get_samples/test_samples_single.csv" ftype="csv" compare="contains"/>
+        </test>
+        <test expect_failure="true">
+            <param name="test" value="test_credentials_false.json"/>
+            <param name="projects" value="get_samples/test_projects_single.csv"/>
+            <param name="project_ids" value="1"/>
+        </test>
+        <test expect_failure="true">
+            <param name="test" value="test_credentials_nonexistent.json"/>
+            <param name="projects" value="get_samples/test_projects_single.csv"/>
+            <param name="project_ids" value="1"/>
+        </test>
+        <test>
+            <param name="test" value="test_lmdb_credentials.json"/>
+            <param name="projects" value="get_samples/test_projects_multiple.csv"/>
+            <param name="project_ids" value="1,2"/>
+            <output name="samples" file="get_samples/test_samples_multiple.csv" ftype="csv" compare="contains"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+**What it does**
+
+This tool quries the Lambda-Miner database for samples of the given projects.
+
+**Input**
+
+There is a input including the selected project necessary.
+The tool connects to the Lambda-Miner database and uses the users login name to
+query it.
+
+**Output**
+
+CSV file containing the samples corresponding to the project.]]>
+    </help>
+    <citations>
+        <citation type="doi">10.5194/egusphere-egu24-15782</citation>
+    </citations>
+</tool>

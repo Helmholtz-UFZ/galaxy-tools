@@ -1,0 +1,245 @@
+<tool id="dfast" name="DFAST" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="24.0" license="MIT">
+    <description>DDBJ Fast Annotation and Submission Tool</description>
+    <macros>
+        <token name="@TOOL_VERSION@">1.3.6</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">dfast</xref>
+    </xrefs> 
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">dfast</requirement>
+    </requirements>
+    <version_command>dfast --version | cut -d" " -f3</version_command>
+    <command detect_errors="exit_code"><![CDATA[
+        dfast
+            --genome '$genome_x'
+            --dbroot '$dbroot.fields.path'
+            #if $organism != ''
+                --organism '$organism'
+            #end if
+            #if $strain != ''
+                --strain '$strain'
+            #end if
+
+            ## Genome settings
+            $genome.complete_cond.complete
+            #if $genome.complete_cond.complete
+                $genome.complete_cond.fix_origin
+                #if $genome.complete_cond.fix_origin
+                    --offset $genome.complete_cond.offset
+                #end if
+            #end if
+            $genome.use_original_name
+            $genome.sort_sequence
+            --minimum_length $genome.minimum_length
+
+            ##Locus_tag settings
+            --locus_tag_prefix $locus_tag.locus_tag_prefix
+            --step $locus_tag.step
+            $locus_tag.use_separate_tags
+
+            ##Workflow option
+            ## --threshold $workflow.threshold_pident,$workflow.threshold_q_cov,$workflow.threshold_s_cov,$workflow.threshold_evalue
+            --aligner $workflow.aligner
+            $workflow.cds_method_cond.cds_method
+            #if $workflow.cds_method_cond.cds_method == "use_genemarks2"
+                $workflow.cds_method_cond.use_genemarks2
+            #end if
+            $workflow.use_trnascan
+            $workflow.use_rnammer
+            --gcode $workflow.gcode
+            $workflow.amr
+            #if $workflow.gff
+                --gff '$workflow.gff'
+            #end if
+            $use_locustag_as_gene_id
+            --cpu "\${GALAXY_SLOTS:-1}"
+    ]]></command>
+    <inputs>
+        <param argument="--genome_x" type="data" format="fasta,fasta.gz" label="Genome"/>
+        <param argument="--dbroot" type="select" label="DFAST reference database" >
+            <options from_data_table="dfast">
+                <validator type="no_options" message="Ne reference data available. Contact you Galaxy admin"/>
+            </options>
+        </param>
+        <param argument="--organism" type="text" value="" label="Organism name">
+            <validator type="regex">[0-9a-zA-Z_ \-]*</validator>
+        </param>
+        <param argument="--strain" type="text" value="" label="Strain name">
+            <validator type="regex">[0-9a-zA-Z_ \-]*</validator>
+        </param>
+        <section name="genome" title="Genome settings">
+            <conditional name="complete_cond">
+                <param argument="--complete" type="boolean" truevalue="--complete t" falsevalue="--complete f" checked="false" label="Treat the query as a complete genome" help="Not required unless you need INSDC submission files"/>
+                <when value="--complete t">
+                    <param argument="--fix_origin" type="boolean" truevalue="--fix_origin" falsevalue="" checked="false" label="Rotate/flip the chromosome so that the dnaA gene comes first" />
+                    <param argument="--offset" type="integer" min="0" value="0" label="Offset from the start codon of the dnaA gene"/>
+                </when>
+                <when value="--complete f"/>
+            </conditional>
+            <param argument="--use_original_name" type="boolean" truevalue="--use_original_name t" falsevalue="--use_original_name f" checked="false" label="Use original sequence names" help="in a query FASTA file" />
+            <param argument="--sort_sequence" type="boolean" truevalue="--sort_sequence t" falsevalue="--sort_sequence f" checked="true" label="ort sequences by length" />
+            <param argument="--minimum_length" type="integer" min="1" value="200" label="Minimum sequence length"/>
+        </section>
+        <section name="locus_tag" title="Locus_tag settings">
+            <param argument="--locus_tag_prefix" type="text" value="LOCUS" label="Locus tag prefix">
+                <validator type="regex">[0-9a-zA-Z_]+</validator>
+                <validator type="empty_field"></validator>
+            </param>
+            <param argument="--step" type="integer" min="1" value="10" label="Increment step of locus tag"/>
+            <param argument="--use_separate_tags" type="boolean" truevalue="--use_separate_tags t" falsevalue="--use_separate_tags f" checked="true" label="Use separate tags according to feature types" />
+        </section>
+
+        <section name="workflow" title="Workflow options">
+            <!-- Disabled for now since it overwrites the thresholds for all steps, which all have different defaults
+                 for more configurability we could use https://github.com/nigyta/dfast_core/blob/9d3b6d8255344e7b7174bd71fed8be26534990a5/dfc/default_config.py#L216
+            <param name="threshold_pident" type="integer" min="0" max="100" value="0" label="Percent identity threshold"/>
+            <param name="threshold_q_cov" type="integer" min="0" max="100" value="70" label="Query coverage threshold"/>
+            <param name="threshold_s_cov" type="integer" min="0" max="100" value="70" label="Subject coverage threshold"/>
+            <param name="threshold_evalue" type="text" value="1e-5" label="Evalue threshold">
+                <validator type="regex">1e-[0-9]+</validator>
+            </param> -->
+            <!-- \-\-references -->
+            <param argument="--aligner" type="select" label="Aligner">
+                <option value="ghostx">ghostx</option>
+                <option value="blastp">blastp</option>
+                <option value="diamond">diamond</option>
+            </param>
+            <conditional name="cds_method_cond">
+                <param name="cds_method" type="select" label="CDS prediction method">
+                    <option value="">MGA</option>
+                    <option value="--use_prodigal">Prodigal</option>
+                    <option value="--use_genemarks2">GeneMarkS2 (--use_genemarks2</option>
+                </param>
+                <when value=""></when>
+                <when value="--use_prodigal"></when>
+                <when value="--use_genemarks2">
+                    <param argument="--use_genemarks2" type="select" label="" help="TODO">
+                        <option value="auto">auto</option>
+                        <option value="bact">bact</option>
+                        <option value="arch">arch</option>
+                    </param>
+                </when>
+            </conditional>
+            <param argument="--use_trnascan" type="select" label="tRNA prediction method">
+                <option value="">Aragorn</option>
+                <option value="--use_trnascan bact">tRNAScan bacteria</option>
+                <option value="--use_trnascan arch">tRNAScan archaea</option>
+            </param>
+            <param argument="--use_rnammer" type="select" label="rRNA prediction method">
+                <option value="">Barrnap</option>
+                <option value="--use_rnammer bact">RNAmmer bacteria</option>
+                <option value="--use_rnammer arch">RNAmmer archaea</option>
+            </param>
+            <param argument="--gcode" type="select" label="Genetic code">
+                <option value="4">The Mold, Protozoan, and Coelenterate Mitochondrial Code and the Mycoplasma/Spiroplasma</option>
+                <option value="11" selected="true">The Bacterial, Archaeal and Plant Plastid Code</option>
+            </param>
+            <param name="disable_functional" type="select" optional="true" label="Disable functional annotation steps">
+                <option value="--no_hmm">Disable HMMscan</option>
+                <option value="--no_cdd">Disable CDDsearch</option>
+                <option value="--no_cds">Disable CDS prediction</option>
+                <option value="--no_rrna">Disable rRNA prediction</option>
+                <option value="--no_trna">Disable tRNA prediction</option>
+                <option value="--no_crispr">Disable CRISPR prediction</option>
+            </param>
+            <param argument="--amr" type="boolean" truevalue="--amr" falsevalue="" checked="false" label="Enable AMR/VFG annotation" help="for plasmid-derived contigs" />
+            <param argument="--gff" type="data" optional="true" format="gff3" label="Structural annotation" help="Ignores --use_original_name, --sort_sequence, --fix_origin"/>
+        </section>
+        <param argument="--use_locustag_as_gene_id" type="boolean" truevalue="--use_locustag_as_gene_id" falsevalue="" checked="false" label="Use locustag as gene ID for FASTA and GFF" help="Useful when providing DFAST results to other tools such as Roary" />
+        <param name="outputs" type="select" multiple="true" label="Outputs">
+            <option value="statistics" selected="true">Statistics</option>
+            <option value="cds">Coding sequences (nucleotide)</option>
+            <option value="protein">Proteins (aminoacid)</option>
+            <option value="embl">Annotation (embl)</option>
+            <option value="gbk">Annotation (gbk)</option>
+            <option value="gff" selected="true">Annotation (gff)</option>
+            <option value="pseudogene">Pseudogene summary</option>
+            <option value="rna">RNAs</option>
+            <option value="ddbj_annotation"> DDBJ annotation file</option>
+            <option value="ddbj_sequence">DDBJ sequence file</option>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="statistics" format="tabular" from_work_dir="OUT/statistics.txt" label="${tool.name} on ${on_string}: Statistics">
+            <filter>outputs and "statistics" in outputs</filter>        
+        </data>
+        <data name="cds" format="fasta" from_work_dir="OUT/cds.fna" label="${tool.name} on ${on_string}: Coding sequences">
+            <filter>outputs and "cds" in outputs</filter>
+        </data>
+        <data name="embl" format="embl" from_work_dir="OUT/genome.embl" label="${tool.name} on ${on_string}: annotation (embl)">
+            <filter>outputs and "embl" in outputs</filter>
+        </data>
+        <data name="gbk" format="genbank" from_work_dir="OUT/genome.gbk" label="${tool.name} on ${on_string}: annotation (gbk)">
+            <filter>outputs and "gbk" in outputs</filter>
+        </data>
+        <data name="gff" format="gff3" from_work_dir="OUT/genome.gff" label="${tool.name} on ${on_string}: annotation (gff)">
+            <filter>outputs and "gff" in outputs</filter>
+        </data>
+        <data name="protein" format="fasta" from_work_dir="OUT/protein.faa" label="${tool.name} on ${on_string}: Protein sequences">
+            <filter>outputs and "protein" in outputs</filter>
+        </data>
+        <data name="pseudogene" format="tabular" from_work_dir="OUT/pseudogene_summary.tsv" label="${tool.name} on ${on_string}: Pseudogene summary">
+            <filter>outputs and "pseudogene" in outputs</filter>
+        </data>
+        <data name="rna" format="fasta" from_work_dir="OUT/rna.fna" label="${tool.name} on ${on_string}: RNAs">
+            <filter>outputs and "rna" in outputs</filter>
+        </data>
+
+        <data name="ddbj_annotation" format="txt" from_work_dir="OUT/ddbj/mss.ann" label="${tool.name} on ${on_string}: DDBJ annotation file">
+            <filter>outputs and "ddbj_annotation" in outputs</filter>
+        </data>
+        <data name="ddbj_sequence" format="txt" from_work_dir="OUT/ddbj/mss.fasta" label="${tool.name} on ${on_string}: DDBJ sequence file">
+            <filter>outputs and "ddbj_sequence" in outputs</filter>
+        </data>
+    </outputs>
+    <tests>
+        <test expect_num_outputs="2">
+            <param name="genome_x" value="test.genome.fna" ftype="fasta"/>
+            <param name="outputs" value="statistics,pseudogene"/>
+            <output name="statistics">
+                <assert_contents>
+                    <has_n_lines n="12"/>
+                    <has_n_columns n="2"/>
+                </assert_contents>
+            </output>
+            <output name="pseudogene">
+                <assert_contents>
+                    <has_n_lines n="7"/>
+                    <has_n_columns n="11"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test expect_num_outputs="4">
+            <param name="genome_x" value="test.genome.fna" ftype="fasta"/>
+            <param name="outputs" value="cds,protein,gff,rna"/>
+            <output name="cds">
+                <assert_contents>
+                    <has_n_lines min="1"/>
+                </assert_contents>
+            </output>
+            <output name="protein">
+                <assert_contents>
+                    <has_n_lines min="1"/>
+                </assert_contents>
+            </output>
+            <output name="gff">
+                <assert_contents>
+                    <has_n_lines min="1"/>
+                </assert_contents>
+            </output>
+            <output name="rna">
+                <assert_contents>
+                    <has_n_lines min="1"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+DFAST is a flexible and customizable pipeline for prokaryotic genome annotation as well as data submission to the INSDC.
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1093/bioinformatics/btx713</citation>
+    </citations>
+</tool>

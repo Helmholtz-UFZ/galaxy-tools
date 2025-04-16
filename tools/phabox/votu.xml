@@ -32,7 +32,7 @@
             <param name="contigs" value="example_contigs.fa" location="https://github.com/KennthShang/PhaBOX/releases/download/v2/example_contigs.fa"/>
             <output name="votu_aai">
                 <assert_contents>
-                    <has_line line="Accesssion&#9;vOTU&#9;Representative&#9;Length"/>
+                    <has_line line="Accession&#9;vOTU&#9;Representative&#9;Length"/>
                     <has_n_lines n="391"/>
                     <has_n_columns n="4"/>
                 </assert_contents>

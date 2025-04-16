@@ -318,7 +318,9 @@ jobs:
         fi
         if egrep -q "virsorter|phabox|genomad" tool_list_chunk.txt; then
           echo "testdata=true" >> $GITHUB_OUTPUT
-          echo "tool_list_chunk=$(cat tool_list_chunk.txt)" >> $GITHUB_OUTPUT
+          echo "tool_list_chunk<<EOF" >> $GITHUB_OUTPUT
+          cat tool_list_chunk.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
         else
           echo "testdata=false" >> $GITHUB_OUTPUT
         fi
@@ -389,7 +391,7 @@ jobs:
       if: steps.filter.outputs.testdata == 'true'
       run: |
           set -x
-          echo ${{ steps.filter.outputs.tool_list_chunk }} >> tool_list_chunk.txt
+          echo "${{ steps.filter.outputs.tool_list_chunk }}" >> tool_list_chunk.txt
           cat tool_list_chunk.txt | sed 's@/[^/]*$@@' | sort -i > repository_list_chunk.txt
           while read repo
           do

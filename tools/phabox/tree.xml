@@ -20,22 +20,22 @@
     </inputs>
     <outputs>
         <collection name="marker_genes" format="fasta" type="list">
-            <discover_datasets pattern="finded_marker_(?P&lt;designation&gt;.+)_conbined_db.fa" directory="output/final_prediction/tree_supplementary"/>
+            <discover_datasets pattern="found_marker_(?P&lt;designation&gt;.+)_combined_db.fa" directory="output/final_prediction/tree_supplementary"/>
         </collection>
     </outputs>
     <tests>
         <test expect_num_outputs="1">
             <param name="dbdir" value="phaboxdb"/>
-            <param name="contigs" value="example_contigs.fa"/>
+            <param name="contigs" value="example_contigs.fa" location="https://github.com/KennthShang/PhaBOX/releases/download/v2/example_contigs.fa"/>
             <output_collection name="marker_genes" count="2">
                 <element name="portal">
                     <assert_contents>
-                        <has_text text=">" n="4176"/>
+                        <has_text text=">" n="4281"/>
                     </assert_contents>
                 </element>
                 <element name="terl">
                     <assert_contents>
-                        <has_text text=">" n="4570"/>
+                        <has_text text=">" n="4672"/>
                     </assert_contents>
                 </element>
             </output_collection>

@@ -24,11 +24,11 @@
     <tests>
         <test>
             <param name="dbdir" value="phaboxdb"/>
-            <param name="contigs" value="example_contigs.fa"/>
+            <param name="contigs" value="example_contigs.fa" location="https://github.com/KennthShang/PhaBOX/releases/download/v2/example_contigs.fa"/>
             <output name="phamer_out">
                 <assert_contents>
                     <has_line line="Accession&#9;Length&#9;Pred&#9;Proportion&#9;PhaMerScore&#9;PhaMerConfidence"/>
-                    <has_n_lines n="11"/> <!-- 1 per input sequence-->
+                    <has_n_lines n="391"/> <!-- 1 per input sequence-->
                     <has_n_columns n="6"/>
                 </assert_contents>
             </output>

@@ -60,7 +60,7 @@
         <param argument="--genome_x" type="data" format="fasta,fasta.gz" label="Genome"/>
         <param argument="--dbroot" type="select" label="DFAST reference database" >
             <options from_data_table="dfast">
-                <validator type="no_options" message="Ne reference data available. Contact you Galaxy admin"/>
+                <validator type="no_options" message="No reference data available. Contact you Galaxy admin"/>
             </options>
         </param>
         <param argument="--organism" type="text" value="" label="Organism name">

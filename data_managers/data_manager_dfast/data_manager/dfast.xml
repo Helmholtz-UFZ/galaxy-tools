@@ -1,7 +1,7 @@
 <tool id="data_manager_dfast" name="DFAST data manager" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" tool_type="manage_data" profile="20.01">
     <macros>
         <token name="@TOOL_VERSION@">1.3.6</token>
-        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@VERSION_SUFFIX@">1</token>
     </macros>
     <requirements>
         <requirement type="package" version="@TOOL_VERSION@">dfast</requirement>
@@ -23,7 +23,7 @@
         "dfast":[
           {
             "value":"$version_id",
-            "description":"DFAST DB from $version_id",
+            "name":"DFAST DB from $version_id",
             "version":"$version_id",
             "path":"$output_file.extra_files_path"
           }

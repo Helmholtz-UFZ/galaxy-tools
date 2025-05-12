@@ -2,7 +2,7 @@
     <description></description>
     <macros>
         <token name="@TOOL_VERSION@">1.2.1</token>
-        <token name="@VERSION_SUFFIX@">1</token>
+        <token name="@VERSION_SUFFIX@">2</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">VIBRANT</xref>
@@ -107,40 +107,40 @@
         <data name="phages_lytic_fna" format="txt" from_work_dir="VIBRANT_input/VIBRANT_phages_input/input.phages_lytic.fna" label="${tool.name} on ${on_string}: Lytic virus genomes">
             <filter>"phages_lytic_fna" in outputs and not protein</filter>
         </data>
-        <data name="AMG_counts" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_AMG_counts_input.tsv" label="${tool.name} on ${on_string}: Predicted virus AMGs">
+        <data name="AMG_counts" format="tabular" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_AMG_counts_input.tsv" label="${tool.name} on ${on_string}: Predicted virus AMGs">
             <filter>"AMG_counts" in outputs</filter>
         </data>
-        <data name="AMG_individuals" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_AMG_individuals_input.tsv" label="${tool.name} on ${on_string}: Individual predicted virus AMGs">
+        <data name="AMG_individuals" format="tabular" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_AMG_individuals_input.tsv" label="${tool.name} on ${on_string}: Individual predicted virus AMGs">
             <filter>"AMG_individuals" in outputs</filter>
         </data>
-        <data name="AMG_pathways" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_AMG_pathways_input.tsv" label="${tool.name} on ${on_string}: KEGG metabolic pathways corresponding to virus AMGs">
+        <data name="AMG_pathways" format="tabular" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_AMG_pathways_input.tsv" label="${tool.name} on ${on_string}: KEGG metabolic pathways corresponding to virus AMGs">
             <filter>"AMG_pathways" in outputs</filter>
         </data>
-        <data name="annotations" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_annotations_input.tsv" label="${tool.name} on ${on_string}: Annotations for KEGG, Pfam and VOG">
+        <data name="annotations" format="tabular" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_annotations_input.tsv" label="${tool.name} on ${on_string}: Annotations for KEGG, Pfam and VOG">
             <filter>"annotations" in outputs</filter>
         </data>
-        <data name="complete_circular" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_complete_circular_input.tsv" label="${tool.name} on ${on_string}: Complete circular genomes ">
+        <data name="complete_circular" format="tabular" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_complete_circular_input.tsv" label="${tool.name} on ${on_string}: Complete circular genomes ">
             <filter>"complete_circular" in outputs and not protein</filter>
         </data>
-        <data name="figure_PCA" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_figure_PCA_input.tsv" label="${tool.name} on ${on_string}: Scaffold coordinates on the PCA plot">
+        <data name="figure_PCA" format="tabular" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_figure_PCA_input.tsv" label="${tool.name} on ${on_string}: Scaffold coordinates on the PCA plot">
             <filter>"figure_PCA" in outputs</filter>
         </data>
-        <data name="genbank_table" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_genbank_table_input.tsv" label="${tool.name} on ${on_string}: Single annotation used for all predicted virus proteins">
+        <data name="genbank_table" format="tabular" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_genbank_table_input.tsv" label="${tool.name} on ${on_string}: Single annotation used for all predicted virus proteins">
             <filter>"genbank_table" in outputs</filter>
         </data>
-        <data name="genome_quality" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_genome_quality_input.tsv" label="${tool.name} on ${on_string}: Predicted genome quality and type">
+        <data name="genome_quality" format="tabular" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_genome_quality_input.tsv" label="${tool.name} on ${on_string}: Predicted genome quality and type">
             <filter>"genome_quality" in outputs</filter>
         </data>
-        <data name="integrated_prophage_coordinates" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_integrated_prophage_coordinates_input.tsv" label="${tool.name} on ${on_string}: Coordinates of integrated provirus">
+        <data name="integrated_prophage_coordinates" format="tabular" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_integrated_prophage_coordinates_input.tsv" label="${tool.name} on ${on_string}: Coordinates of integrated provirus">
             <filter>"integrated_prophage_coordinates" in outputs</filter>
         </data>
-        <data name="machine" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_machine_input.tsv" label="${tool.name} on ${on_string}: Predictions of the neural network classifier">
+        <data name="machine" format="tabular" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_machine_input.tsv" label="${tool.name} on ${on_string}: Predictions of the neural network classifier">
             <filter>"machine" in outputs</filter>
         </data>
-        <data name="summary_normalized" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_summary_normalized_input.tsv" label="${tool.name} on ${on_string}: Normalized summary metrics">
+        <data name="summary_normalized" format="tabular" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_summary_normalized_input.tsv" label="${tool.name} on ${on_string}: Normalized summary metrics">
             <filter>"summary_normalized" in outputs</filter>
         </data>
-        <data name="summary_results" format="txt" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_summary_results_input.tsv" label="${tool.name} on ${on_string}: Summary metrics">
+        <data name="summary_results" format="tabular" from_work_dir="VIBRANT_input/VIBRANT_results_input/VIBRANT_summary_results_input.tsv" label="${tool.name} on ${on_string}: Summary metrics">
             <filter>"summary_results" in outputs</filter>
         </data>
         <!-- files from VIBRANT_results_input. Folder containing useful tab-delimited files -->

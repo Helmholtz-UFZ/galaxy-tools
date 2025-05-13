@@ -1,0 +1,4 @@
+contig_id	contig_length	provirus	proviral_length	gene_count	viral_genes	host_genes	checkv_quality	miuvig_quality	completeness	completeness_method	contamination	kmer_freq	warnings
+NC_017033.1|provirus_1052334_1094910	42577	No	NA	66	28	3	High-quality	High-quality	100.0	AAI-based (medium-confidence)	0.0	1.0	
+NC_017033.1|provirus_1557694_1600481	42788	No	NA	71	28	0	Medium-quality	Genome-fragment	89.2	AAI-based (medium-confidence)	0.0	1.01	
+NC_017033.1|provirus_2089294_2107522	18229	No	NA	25	3	0	Low-quality	Genome-fragment	29.18	HMM-based (lower-bound)	0.0	1.0	

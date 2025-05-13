@@ -1,0 +1,4 @@
+contig_id	contig_length	provirus	proviral_length	gene_count	viral_genes	host_genes	checkv_quality	miuvig_quality	completeness	completeness_method	contamination	kmer_freq	warnings
+NC_019936.1|provirus_2347508_2361929	14422	No	NA	24	2	0	High-quality	High-quality	100.0	AAI-based (high-confidence)	0.0	1.93	high kmer_freq may indicate large duplication; contig >1.5x longer than expected genome length
+NC_019936.1|provirus_3233292_3242961	9670	No	NA	14	2	0	High-quality	High-quality	100.0	AAI-based (high-confidence)	0.0	1.0	
+NC_019936.1|provirus_4295725_4304306	8582	No	NA	13	2	0	High-quality	High-quality	100.0	AAI-based (medium-confidence)	0.0	1.0	

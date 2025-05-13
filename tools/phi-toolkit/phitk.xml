@@ -1,0 +1,212 @@
+<tool id="phi_toolkit_report" name="PHI toolkit report" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01" license="MIT">
+    <description></description>
+    <macros>
+        <token name="@TOOL_VERSION@">0.1.0</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+
+        <xml name="test_collection_element" tokens="id,folder,ext">
+            <element name="@ID@" value="@FOLDER@/@ID@.fasta.@EXT@"/>
+        </xml>
+        <xml name="test_collection_non_empty" tokens="name,folder,ext">
+            <param name="@NAME@">
+                <collection type="list">
+                    <expand macro="test_collection_element" id="NC_000913" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_002737" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_008261" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_009012" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_014168" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_014212" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_014364" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_015761" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_017033" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_018068" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_018515" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_019936" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_021184" folder="@FOLDER@" ext="@EXT@"/>
+                    <yield/>
+                </collection>
+            </param>
+        </xml>
+        <xml name="test_collection" tokens="name,folder,ext">
+            <expand macro="test_collection_non_empty" name="@NAME@" folder="@FOLDER@" ext="@EXT@">
+                <expand macro="test_collection_element" id="NC_003450" folder="@FOLDER@" ext="@EXT@"/>
+                <expand macro="test_collection_element" id="NC_012982" folder="@FOLDER@" ext="@EXT@"/>
+                <expand macro="test_collection_element" id="NC_014008" folder="@FOLDER@" ext="@EXT@"/>
+                <expand macro="test_collection_element" id="NC_014211" folder="@FOLDER@" ext="@EXT@"/>
+                <expand macro="test_collection_element" id="NC_014363" folder="@FOLDER@" ext="@EXT@"/>
+                <expand macro="test_collection_element" id="NC_017095" folder="@FOLDER@" ext="@EXT@"/>
+                <expand macro="test_collection_element" id="NC_018014" folder="@FOLDER@" ext="@EXT@"/>
+                <expand macro="test_collection_element" id="NC_019897" folder="@FOLDER@" ext="@EXT@"/>
+                <expand macro="test_collection_element" id="NC_019904" folder="@FOLDER@" ext="@EXT@"/>
+            </expand>
+            
+        </xml>
+    </macros>
+    <edam_topics>
+        <edam_topic>topic_TODO</edam_topic>
+    </edam_topics>
+    <edam_operations>
+        <edam_operation>operation_TODO</edam_operation>
+    </edam_operations>
+    <xrefs>
+        <xref type="bio.tools"></xref>
+    </xrefs>
+    <requirements>
+        <requirement type="package" version="2.74.0">bioconductor-biostrings</requirement>
+        <requirement type="package" version="1.58.0">bioconductor-genomicranges</requirement>
+        <requirement type="package" version="1.18.0">bioconductor-gmoviz</requirement>
+        <requirement type="package" version="0.2.1">r-formattable</requirement>
+        <requirement type="package" version="1.0.1">r-here</requirement>
+        <requirement type="package" version="2.2.1">r-janitor</requirement>
+        <requirement type="package" version="1.4.0">r-kableextra</requirement>
+        <requirement type="package" version="1.3.0">r-patchwork</requirement>
+        <requirement type="package" version="2.0.0">r-tidyverse</requirement>
+        <requirement type="package" version="2.0.2">r-base64</requirement>
+        <requirement type="package" version="3.5.0">r-pdftools</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+       mkdir -p data/genomes &&
+        #for e in $genomes
+            ln -s '$e' 'data/genomes/${e.element_identifier}.fna' &&
+        #end for
+
+        mkdir -p data/host_analyses &&
+        mkdir -p data/virus_analyses &&
+
+        ## checkm
+        mkdir -p data/host_analyses/checkm2 &&
+        ln -s '$checkm' data/host_analyses/checkm2/quality_report.tsv &&
+
+        ## defense-finder inputs
+        mkdir -p data/host_analyses/defense-finder &&
+        #for e in $defense_finder
+            mkdir -p 'data/host_analyses/defense-finder/${e.element_identifier}/' &&
+            ln -s '$e' 'data/host_analyses/defense-finder/${e.element_identifier}/${e.element_identifier}_defense_finder_systems.tsv' &&
+        #end for
+
+        ## genomad inputs
+        mkdir -p data/host_analyses/genomad &&
+        #for e in $genomad
+            mkdir -p 'data/host_analyses/genomad/${e.element_identifier}/${e.element_identifier}_summary/' &&
+            ln -s '$e' 'data/host_analyses/genomad/${e.element_identifier}/${e.element_identifier}_summary/${e.element_identifier}_virus_summary.tsv' &&
+        #end for
+        #for e in $genomad_phages
+            mkdir -p 'data/host_analyses/genomad/${e.element_identifier}/${e.element_identifier}_summary/' &&
+            ln -s '$e' 'data/host_analyses/genomad/${e.element_identifier}/${e.element_identifier}_summary/${e.element_identifier}_virus.fna' &&
+        #end for
+        #for e in $genomad_annotations
+            mkdir -p 'data/host_analyses/genomad/${e.element_identifier}/${e.element_identifier}_summary/' &&
+            ln -s '$e' 'data/host_analyses/genomad/${e.element_identifier}/${e.element_identifier}_summary/${e.element_identifier}_virus_genes.tsv' &&
+        #end for
+
+        ## GTDBTK
+        mkdir -p data/host_analyses/gtdbtk &&
+        ln -s '$gtdb_summary' data/host_analyses/gtdbtk/gtdbtk.bac120.summary.tsv &&
+
+        ## CheckV
+        mkdir -p data/virus_analyses/checkv &&
+        #for e in $checkv
+            mkdir -p 'data/virus_analyses/checkv/${e.element_identifier}/' &&
+            ln -s '$e' 'data/virus_analyses/checkv/${e.element_identifier}/quality_summary.tsv' &&
+        #end for
+
+        ## drep compare
+        mkdir -p data/virus_analyses/drep_compare &&
+        #for e in $drep_compare
+            mkdir -p 'data/virus_analyses/drep_compare/${e.element_identifier}/data_tables' &&
+            ln -s '$e' 'data/virus_analyses/drep_compare/${e.element_identifier}/data_tables/Cdb.csv' &&
+        #end for
+        #for e in $drep_compare_clustering_dendrogram
+            mkdir 'data/virus_analyses/drep_compare/${e.element_identifier}/figures/' &&
+            ln -s '$e' 'data/virus_analyses/drep_compare/${e.element_identifier}/figures/Primary_clustering_dendrogram.pdf' &&
+        #end for
+
+        ## iphop
+        mkdir -p data/virus_analyses/iphop &&
+        #for e in $iphop
+            mkdir -p 'data/virus_analyses/iphop/${e.element_identifier}/' &&
+            ln -s '$e' 'data/virus_analyses/iphop/${e.element_identifier}/Host_prediction_to_genome_m90.csv' &&
+        #end for
+
+        ## abricate
+        mkdir -p data/virus_analyses/abricate &&
+        #for e in $abricate
+            mkdir -p 'data/virus_analyses/abricate/${e.element_identifier}/' &&
+            ln -s '$e' 'data/virus_analyses/abricate/${e.element_identifier}/${e.element_identifier}_virus_vfdb.tsv' &&
+        #end for
+
+        ## vibrant
+        mkdir -p data/virus_analyses/vibrant &&
+        #for e in $vibrant
+            mkdir -p 'data/virus_analyses/vibrant/${e.element_identifier}/VIBRANT_${e.element_identifier}_virus/VIBRANT_results_${e.element_identifier}_virus/' &&
+            ln -s '$e' 'data/virus_analyses/vibrant/${e.element_identifier}/VIBRANT_${e.element_identifier}_virus/VIBRANT_results_${e.element_identifier}_virus/VIBRANT_AMG_individuals_${e.element_identifier}_virus.tsv' &&
+        #end for
+
+        Rscript -e "library(rmarkdown); render('$__tool_directory__/report.Rmd', output_dir='"\$(pwd)"', output_format = 'html_document', knit_root_dir='"\$(pwd)"')" &&
+        cp report.html '$report'
+    ]]></command>
+    <inputs>
+        <param type="data_collection" name="genomes" format="fasta" label="Genomes"/>
+        <param type="data" name="checkm" format="tabular" label="Checkm2 quality report"/>
+        <param type="data_collection" name="genomad" format="tabular" label="geNomad Virus Summary"/>
+        <param type="data_collection" name="genomad_phages" format="fasta" label="geNomad Virus fasta"/>
+        <param type="data_collection" name="genomad_annotations" format="tabular" label="geNomad Virus genes"/>
+        <param type="data_collection" name="defense_finder" format="tabular" label="DefenseFinder systems"/>
+        <param type="data" name="gtdb_summary" format="tsv" label="GTDB-Tk summary"/>
+        <param type="data_collection" name="checkv" format="tabular" label="CheckV Quality summary"/> 
+        <param type="data_collection" name="drep_compare" format="csv" label="drep compare Cdb.csv"/>
+        <param type="data_collection" name="drep_compare_clustering_dendrogram" format="pdf" label="drep compare clustering dendrogram"/>
+        <param type="data_collection" name="iphop" format="csv" label="iPHop Host prediction to genome"/>
+        <param type="data_collection" name="abricate" format="tabular" label="Abricate results"/> 
+        <param type="data_collection" name="vibrant" format="tabular" label="Vibrant Individual predicted virus AMGs" help="Vibrant output option 'Individual predicted virus AMGs by protein and its respective genome'"/>
+    </inputs>
+    <outputs>
+        <data name="report" format="html"/>
+    </outputs>
+    <tests>
+        <test>
+            <expand macro="test_collection" name="genomes" folder="genomes" ext="fasta"/>
+            <param name="checkm" value="checkm2.Quality_report.tabular"/>
+            <expand macro="test_collection" name="genomad" folder="genomad_virus_summary" ext="tabular"/>
+            <expand macro="test_collection" name="genomad_phages" folder="genomad_virus_fasta" ext="fasta"/>
+            <expand macro="test_collection" name="genomad_annotations" folder="genomad_virus_genes" ext="tabular"/>
+            <expand macro="test_collection" name="defense_finder" folder="defense_finder_systems" ext="tabular"/>
+            <param name="gtdb_summary" value="gtdbtk.bac120.summary"/>
+            <expand macro="test_collection_non_empty" name="checkv" folder="checkv_quality_summary" ext="tabular"/>
+            <expand macro="test_collection_non_empty" name="drep_compare" folder="drep_compare" ext="csv"/>
+            <expand macro="test_collection_non_empty" name="drep_compare_clustering_dendrogram" folder="drep_compare_clustering_dendrogram" ext="pdf"/>
+            <expand macro="test_collection_non_empty" name="iphop" folder="iphop_host_prediction_to_genome" ext="csv"/> 
+            <!-- TODO remove from test-data <expand macro="test_collection_non_empty" name="phatyp" folder="phabox_phatyp" ext="tabular"/>  -->
+            <expand macro="test_collection_non_empty" name="abricate" folder="abricate_results" ext="tabular"/> 
+            <expand macro="test_collection_non_empty" name="vibrant" folder="vibrant_amg_individuals" ext="tabular"/> 
+            <output name="report">
+                <assert_contents>
+                    <has_size min="100"/>
+                    <has_line line="&lt;html&gt;"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+
+.. class:: infomark
+
+**What it does**
+
+TODO: Fill in help in reStructuredText format (https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html)
+
+Usage
+.....
+
+
+**Input**
+
+
+**Output**
+
+
+    ]]></help>
+    <citations>
+        <citation type="doi"> </citation>
+    </citations>
+</tool>

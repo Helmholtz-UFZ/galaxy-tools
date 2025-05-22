@@ -20,7 +20,7 @@ def metadata_import_ezo(user, pws, host, port, obj_type, did=None, ann_type="tab
                 tb_dict = ez.get_table(conn, id_tb_ann)
                 return tb_dict
             elif ann_type == "attachement":
-                id_file_attach = ez.post_file_annotation(conn, file_path = data_dict, ns = an_name, object_type = obj_type, object_id = int(did))
+                id_file_attach = ez.post_file_annotation(conn, file_path=data_dict, ns=an_name, object_type=obj_type, object_id=int(did))
                 return id_file_attach
         except Exception as e:
             log_error(f"Error uploading metadata for {obj_type} with ID {did}: {str(e)}")

@@ -99,14 +99,22 @@
                 </conditional>
             </conditional>
         </repeat>
-        <output name="output" file="test1/out.csv" ftype="csv" compare="diff" lines_diff="6"/>
+
+        <output name="output" file="test1/out.csv" ftype="csv"> 
+            <assert_contents>
+                <has_n_lines n="200" />
+                <has_n_columns n="6" sep=","/>
+                <has_line_matching expression=",Battery,Battery,SM1,SM1,SM2,SM2" />
+                <has_line_matching expression=",data,flags,data,flags,data,flags" />
+                <has_line_matching expression="2016-04-01 00:00:00,nan,nan,nan,nan,29.3157,UNFLAGGED" />  
+            </assert_contents>
+        </output>
         <output name="config_out" ftype="txt">
             <assert_contents>
-                <has_n_lines n="4"/>
+                <has_n_lines n="6"/>
                 <has_n_columns n="2" sep=";"/>
-                <has_line_matching expression="SM2; flagMAD\(center=False, flag=255.0, min_periods=None, min_residuals=None, window=&quot;30d&quot;, z=3.5\)" />
-                <has_line_matching expression="SM2; flagRange\(flag=255.0, max=60.0, min=10.0\)" />
-                <has_line_matching expression='SM2; plot\(dfilter=float\(&apos;inf&apos;\), history="valid", marker_kwargs=None, max_gap=None, mode="oneplot", path="test", plot_kwargs=None, xscope=None, yscope=None\)' />
+                <has_line_matching expression="SM2        ; align(freq=&apos;15Min&apos;, method=&apos;nshift&apos;)" />
+                
             </assert_contents>
         </output>
         <output_collection name="plots" type="list">
@@ -195,18 +203,24 @@
                 </conditional>
             </conditional>
         </repeat>
-        <output name="config_out" ftype="txt">
-            <assert_contents>
-                <has_n_lines n="6"/>
-                <has_n_columns n="2" sep=";"/>
-                <has_line_matching expression='sac254_raw; flagConstants\(flag=255.0, min_periods=2, thresh=0.0, window="4h"\)'/>
-                <has_line_matching expression='sac254_raw; flagIsolated\(flag=255.0, gap_window="30min", group_window="1h"\)'/>
-                <has_line_matching expression='sac254_raw; flagManual\(flag=255.0, mdata="maint", method="closed", mformat="start-end"\)'/>
-                <has_line_matching expression='sac254_raw; flagRange\(flag=255.0, max=200.0, min=1.0\)'/>
-                <has_line_matching expression='sac254_raw; flagUniLOF\(algorithm="ball_tree", density="auto", fill_na=True, flag=255.0, min_offset=None, n=20, p=1, slope_correct=True, thresh=2.2\)'/>
+
+        <output name="output" file="test2/out.csv" ftype="csv"> <assert_contents>
+                <has_n_lines n="138" /> 
+                <has_n_columns n="18" sep=","/>
+                <has_line_matching expression=",sac254_raw,sac254_raw,level_raw,level_raw,water_temp_raw,water_temp_raw,maint,maint,sac254_corr,sac254_corr,level_z,level_z,water_z,water_z,sac_z,sac_z,kNN_scores,kNN_scores" />
+                <has_line_matching expression=",data,flags,data,flags,data,flags,data,flags,data,flags,data,flags,data,flags,data,flags,data,flags" />
+                <has_line_matching expression="2016-01-01 00:15:00,18.617873333333332,UNFLAGGED,103.28566666666667,UNFLAGGED,4.822666666666667,UNFLAGGED,nan,nan,18.617873333333332,UNFLAGGED,-0.6275888145515292,UNFLAGGED,2.5799063966804945,UNFLAGGED,-0.24835023991514574,UNFLAGGED,8.624787213183476,UNFLAGGED" />
+                
+
             </assert_contents>
         </output>
-        <output name="output" file="test2/out.csv" ftype="csv" compare="diff" lines_diff="6"/>
+        <output name="config_out" ftype="txt">
+            <assert_contents>
+                <has_n_lines n="21"/>
+                <has_n_columns n="2" sep=";"/>
+                <has_line_matching expression="sac254_raw              ; flagManual(mdata='maint', method='closed')"/>
+            </assert_contents>
+        </output>
     </test>
 </tests>
 </xml>

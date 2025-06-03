@@ -5,7 +5,7 @@
         <token name="@VERSION_SUFFIX@">0</token>
 
         <xml name="test_collection_element" tokens="id,folder,ext">
-            <element name="@ID@" value="@FOLDER@/@ID@.fasta.@EXT@"/>
+            <element name="@ID@" value="@FOLDER@/@ID@.fasta.@EXT@" ftype="@EXT@"/>
         </xml>
         <xml name="test_collection_non_empty" tokens="name,folder,ext">
             <param name="@NAME@">

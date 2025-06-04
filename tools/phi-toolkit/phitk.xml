@@ -218,7 +218,7 @@
 
 **What it does**
 
-TODO: Fill in help in reStructuredText format (https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html)
+Create a report for the PHI toolkit workflow.
 
 Usage
 .....
@@ -226,10 +226,22 @@ Usage
 
 **Input**
 
+- Genomes
+- Checkm2 quality report
+- geNomad Virus Summary
+- geNomad Virus genes
+- DefenseFinder systems
+- GTDB-Tk summary
+- CheckV Quality summary
+- drep compare Cdb.csv
+- drep compare clustering dendrogram
+- iPHop Host prediction to genome
+- Abricate results
+- Vibrant Individual predicted virus AMGs
 
 **Output**
 
-
+A html report summarizing the results.
     ]]></help>
     <!-- <citations>
         <citation type="doi"> </citation>

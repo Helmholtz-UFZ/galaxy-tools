@@ -4,6 +4,11 @@
         <token name="@TOOL_VERSION@">0.1.0</token>
         <token name="@VERSION_SUFFIX@">0</token>
 
+        <xml name="zenodo_collection_element" tokens="id">
+            <element name="@ID@" location="https://zenodo.org/records/15594463/files/NC_000913.fasta.fasta?download=1" value="genomes/@ID@.fasta.fasta" ftype="fasta"/>
+        </xml>
+        <!--   -->
+
         <xml name="test_collection_element" tokens="id,folder,ext">
             <element name="@ID@" value="@FOLDER@/@ID@.fasta.@EXT@" ftype="@EXT@"/>
         </xml>
@@ -39,8 +44,8 @@
                 <expand macro="test_collection_element" id="NC_019897" folder="@FOLDER@" ext="@EXT@"/>
                 <expand macro="test_collection_element" id="NC_019904" folder="@FOLDER@" ext="@EXT@"/>
             </expand>
-            
         </xml>
+        
     </macros>
     <!-- TODO <xrefs>
         <xref type="bio.tools"></xref>
@@ -136,7 +141,7 @@
             ln -s '$e' 'data/virus_analyses/vibrant/${e.element_identifier}/VIBRANT_${e.element_identifier}_virus/VIBRANT_results_${e.element_identifier}_virus/VIBRANT_AMG_individuals_${e.element_identifier}_virus.tsv' &&
         #end for
 
-        Rscript -e "library(rmarkdown); render('$__tool_directory__/report.Rmd', output_dir='"\$(pwd)"', output_format = 'html_document', knit_root_dir='"\$(pwd)"')" &&
+        Rscript -e "library(rmarkdown); render('$__tool_directory__/report.Rmd', output_dir='"\$(pwd)"', output_format = 'html_document', intermediates_dir = '"\$(pwd)"', knit_root_dir='"\$(pwd)"')" &&
         cp report.html '$report'
     ]]></command>
     <inputs>
@@ -159,7 +164,33 @@
     </outputs>
     <tests>
         <test>
-            <expand macro="test_collection" name="genomes" folder="genomes" ext="fasta"/>
+            <!-- <expand macro="test_collection" name="genomes" folder="genomes" ext="fasta"/> -->
+            <param name="genomes">
+                <collection type="list">
+                    <expand macro="zenodo_collection_element" id="NC_000913"/>
+                    <expand macro="zenodo_collection_element" id="NC_002737"/>
+                    <expand macro="zenodo_collection_element" id="NC_008261"/>
+                    <expand macro="zenodo_collection_element" id="NC_009012"/>
+                    <expand macro="zenodo_collection_element" id="NC_014168"/>
+                    <expand macro="zenodo_collection_element" id="NC_014212"/>
+                    <expand macro="zenodo_collection_element" id="NC_014364"/>
+                    <expand macro="zenodo_collection_element" id="NC_015761"/>
+                    <expand macro="zenodo_collection_element" id="NC_017033"/>
+                    <expand macro="zenodo_collection_element" id="NC_018068"/>
+                    <expand macro="zenodo_collection_element" id="NC_018515"/>
+                    <expand macro="zenodo_collection_element" id="NC_019936"/>
+                    <expand macro="zenodo_collection_element" id="NC_021184"/>
+                    <expand macro="zenodo_collection_element" id="NC_003450"/>
+                    <expand macro="zenodo_collection_element" id="NC_012982"/>
+                    <expand macro="zenodo_collection_element" id="NC_014008"/>
+                    <expand macro="zenodo_collection_element" id="NC_014211"/>
+                    <expand macro="zenodo_collection_element" id="NC_014363"/>
+                    <expand macro="zenodo_collection_element" id="NC_017095"/>
+                    <expand macro="zenodo_collection_element" id="NC_018014"/>
+                    <expand macro="zenodo_collection_element" id="NC_019897"/>
+                    <expand macro="zenodo_collection_element" id="NC_019904"/>
+                </collection>
+            </param>
             <param name="checkm" value="checkm2.Quality_report.tabular"/>
             <expand macro="test_collection" name="genomad" folder="genomad_virus_summary" ext="tabular"/>
             <expand macro="test_collection" name="genomad_phages" folder="genomad_virus_fasta" ext="fasta"/>

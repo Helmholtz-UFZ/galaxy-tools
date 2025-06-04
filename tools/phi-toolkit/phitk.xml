@@ -42,15 +42,9 @@
             
         </xml>
     </macros>
-    <edam_topics>
-        <edam_topic>topic_TODO</edam_topic>
-    </edam_topics>
-    <edam_operations>
-        <edam_operation>operation_TODO</edam_operation>
-    </edam_operations>
-    <xrefs>
+    <!-- TODO <xrefs>
         <xref type="bio.tools"></xref>
-    </xrefs>
+    </xrefs> -->
     <requirements>
         <requirement type="package" version="2.74.0">bioconductor-biostrings</requirement>
         <requirement type="package" version="1.58.0">bioconductor-genomicranges</requirement>
@@ -206,7 +200,7 @@ Usage
 
 
     ]]></help>
-    <citations>
+    <!-- <citations>
         <citation type="doi"> </citation>
-    </citations>
+    </citations> -->
 </tool>

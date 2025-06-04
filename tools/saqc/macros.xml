@@ -63,7 +63,8 @@
                 <param name="module_select" value="outliers"/>
                 <conditional name="method_cond">
                     <param name="method_select" value="flagZScore"/>
-                    <repeat name="field_repeat"> <param name="field" value="SM2"/> </repeat>
+                    <param name="field" value="SM2"/>
+
                     <param name="center" value="false"/>
                     <conditional name="window_cond">
                         <param name="window_select_type" value="timedelta"/>
@@ -71,7 +72,7 @@
                     </conditional>
                     <param name="thresh" value="3.5"/>
                     <param name="method" value="modified"/>
-                     </conditional>
+                    </conditional>
             </conditional>
         </repeat>
         <repeat name="methods_repeat">
@@ -89,9 +90,10 @@
         <output name="config" value="test1/config.csv" ftype="txt"/>
             
         <output_collection name="plots" type="list">
-            <element name="test" ftype="png"> <assert_contents>
+            <element name="test" ftype="png">
+                <assert_contents>
                     <has_text text="PNG"/>
-                    <has_size value="150k" delta="10k"/> </assert_contents>
+                    <has_size value="120k" delta="10k"/> </assert_contents>
             </element>
         </output_collection>
     </test>

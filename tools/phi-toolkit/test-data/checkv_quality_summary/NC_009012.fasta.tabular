@@ -1,0 +1,5 @@
+contig_id	contig_length	provirus	proviral_length	gene_count	viral_genes	host_genes	checkv_quality	miuvig_quality	completeness	completeness_method	contamination	kmer_freq	warnings
+NC_009012.1|provirus_1938476_1983993	45518	No	NA	52	23	2	Medium-quality	Genome-fragment	68.64	AAI-based (high-confidence)	0.0	1.0	
+NC_009012.1|provirus_2022140_2067593	45454	No	NA	54	21	0	Medium-quality	Genome-fragment	87.05	AAI-based (high-confidence)	0.0	1.0	
+NC_009012.1|provirus_2931283_2970170	38888	No	NA	62	28	3	Medium-quality	Genome-fragment	83.53	AAI-based (medium-confidence)	0.0	1.01	
+NC_009012.1|provirus_3339258_3389049	49792	No	NA	53	6	2	Medium-quality	Genome-fragment	74.06	HMM-based (lower-bound)	0.0	1.51	high kmer_freq may indicate large duplication

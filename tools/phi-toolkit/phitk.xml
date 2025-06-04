@@ -7,7 +7,6 @@
         <xml name="zenodo_collection_element" tokens="id">
             <element name="@ID@" location="https://zenodo.org/records/15594463/files/NC_000913.fasta.fasta?download=1" value="genomes/@ID@.fasta.fasta" ftype="fasta"/>
         </xml>
-        <!--   -->
 
         <xml name="test_collection_element" tokens="id,folder,ext">
             <element name="@ID@" value="@FOLDER@/@ID@.fasta.@EXT@" ftype="@EXT@"/>
@@ -222,7 +221,6 @@ Create a report for the PHI toolkit workflow.
 
 Usage
 .....
-
 
 **Input**
 

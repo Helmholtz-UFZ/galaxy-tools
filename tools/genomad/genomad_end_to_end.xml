@@ -90,7 +90,7 @@
         </conditional>
         <section name="basic" title="basic options" expanded="true">
             <param argument="--disable-find-proviruses" type="boolean" truevalue="" falsevalue="--disable-find-proviruses" checked="true" label="Execute the find-proviruses module" help="" />
-            <param argument="--disable-nn-classification" type="boolean" truevalue="" falsevalue="--disable-nn-classification" checked="true" label="Execute the find-proviruses module" help="" />
+            <param argument="--disable-nn-classification" type="boolean" truevalue="" falsevalue="--disable-nn-classification" checked="true" label="Execute the nn-classification and aggregated-classification modules" help="" />
             <param argument="--enable-score-calibration" type="boolean" truevalue="--enable-score-calibration" falsevalue="" checked="false" label="Execute the score-calibration module" help="" />
         </section>
         <section name="annotation" title="annotation options" expanded="true">

@@ -72,7 +72,7 @@
             <param name="omero_port" value="6064"/>
             <conditional name="filter_type">
                 <param name="filter" value="filename"/>
-                <param name="value1" value="sample_image_2.jpg"/>
+                <param name="value1" value="sample_image.jpg"/>
                 <param name="did" value="1,2"/>
             </conditional>
             <param name="test_username" value="root"/>

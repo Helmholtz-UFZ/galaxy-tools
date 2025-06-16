@@ -1,5 +1,4 @@
 <macros>
-
 <xml name="requirements">
     <requirements>
         <requirement type="package" version="@TOOL_VERSION@">saqc</requirement>
@@ -45,7 +44,6 @@
 </xml>
 
 <xml name="saqc_tests">
-<tests>
     <test>
         <param name="data" value="test1/data.csv" ftype="csv"/>
         <repeat name="methods_repeat">
@@ -65,19 +63,23 @@
             <conditional name="module_cond">
                 <param name="module_select" value="outliers"/>
                 <conditional name="method_cond">
-                    <param name="method_select" value="flagMAD"/>
+                
+                    <param name="method_select" value="flagZScore"/>
+
+                    <repeat name="field_repeat">
                     <param name="field" value="SM2"/>
+                    </repeat>
                     <param name="center" value="false"/>
                     <conditional name="window_cond">
                         <param name="window_select_type" value="timedelta"/>
                         <param name="window" value="30d"/>
                     </conditional>
-                    <param name="z" value="3.5"/>
-                    <param name="min_periods" value=""/>
-                    <param name="min_residuals" value=""/>
+                    <param name="thresh" value="3.5"/>
+                    <param name="method" value="modified"/>
+                    
                     <param name="flag" value="255.0"/>
                 </conditional>
-            </conditional>
+            </conditional> 
         </repeat>
         <repeat name="methods_repeat">
             <conditional name="module_cond">
@@ -102,7 +104,15 @@
         </repeat>
 
         <output name="output" value="test1/out.csv" ftype="csv"/>
-        <output name="config" value="test1/config.csv" ftype="txt"/>
+        <output name="config" ftype="txt">
+            <assert_contents>
+                <has_n_lines n="4"/>
+                <has_n_columns n="2" sep=";"/>
+                <has_text_matching expression="flagRange.*max=60.0.*min=10.0"/>
+                <has_text_matching expression='flagZScore.*method="modified".*thresh=3.5.*window="30d"'/>
+                <has_text_matching expression='plot.*dfilter=float\(&apos;inf&apos;\).*history="valid".*path="test"'/>
+            </assert_contents>
+        </output>
             
         <output_collection name="plots" type="list">
             <element name="test" ftype="png">
@@ -192,6 +202,5 @@
         <output name="output" value="test2/out.csv" ftype="csv"/>
         <output name="config" value="test2/config.csv" ftype="csv"/>
    </test> -->
-</tests>
 </xml>
 </macros>

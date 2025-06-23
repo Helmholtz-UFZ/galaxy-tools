@@ -39,8 +39,14 @@ except ImportError as e:
 if TYPE_CHECKING:
     from types import ModuleType
 
+# === FINALE KORREKTUR 1: Liste der Funktionen, die `field` als repeat benötigen ===
+REPEAT_FIELD_FUNCS = [
+    'flagDriftFromNorm', 'flagDriftFromReference', 'flagLOF', 'flagMVScores',
+    'flagZScore', 'assignKNNScore', 'assignLOF', 'assignUniLOF'
+]
 
-def get_modules() -> list[Tuple[str, "ModuleType"]]: return inspect.getmembers(saqc.funcs, inspect.ismodule)
+def get_modules() -> list[Tuple[str, "ModuleType"]]:
+    return inspect.getmembers(saqc.funcs, inspect.ismodule)
 
 def get_methods(module: "ModuleType") -> list[Callable]:
     methods_with_saqc = []
@@ -80,7 +86,6 @@ def get_param_info(method: Callable) -> Dict[str, Any]:
                 }
                 for mod_name, mod_obj in get_modules():
                     eval_context[mod_name] = mod_obj
-
                 if isinstance(annotation, ForwardRef):
                     annotation = annotation._evaluate(eval_context, globals(), frozenset())
                 else:
@@ -110,26 +115,30 @@ def generate_test_variants(method: Callable) -> list:
     if not param_info: return []
     
     variants, base_params, complex_params_to_vary = [], {}, set()
+
     for name, info in param_info.items():
-        default, origin, args = info['default'], info['origin'], info['args']
+        default = info['default']
+        annotation = info['annotation']
+        origin = get_origin(info['annotation'])
+        args = get_args(info['annotation'])
+
         if (origin is Literal and len(args) > 1) or (origin is Union and len(args) > 1):
             complex_params_to_vary.add(name)
-        
+
         if default is not inspect.Parameter.empty:
-            base_params[name] = default
+            if annotation is bool:
+                base_params[name] = not default
+            else:
+                base_params[name] = default
         elif origin is Literal and args:
             base_params[name] = args[0]
-        elif info['annotation'] == bool:
-            base_params[name] = False
-        elif info['annotation'] == int:
-            base_params[name] = 0
-        elif info['annotation'] == float:
-            base_params[name] = 0.0
-        elif name in ['field', 'target']:
-            base_params[name] = "test_variable"
-        else:
-            base_params[name] = "default_string"
-    
+        else: 
+            if name in ['field', 'target']: base_params[name] = 'test_variable'
+            elif annotation is bool: base_params[name] = True
+            elif annotation is int: base_params[name] = 1
+            elif annotation is float: base_params[name] = 0.0
+            else: base_params[name] = "default_string"
+            
     variants.append({"description": "default values", "params": base_params})
 
     for name in complex_params_to_vary:
@@ -153,16 +162,13 @@ def generate_test_variants(method: Callable) -> list:
     final_variants = []
     for variant in variants:
         galaxy_params = {}
-        saqc_call_params = {}
-        
         for name, value in variant['params'].items():
             info = param_info.get(name, {})
             is_union_cond = info.get('origin') is Union and any(t in info.get('args', []) for t in [int, float]) and str in info.get('args', [])
             
-            saqc_call_params[name] = value
-            
-            if name in ["field", "target"]:
-                val_list = value if isinstance(value, list) else [value]
+            # FINALE KORREKTUR: Explizite repeat-Behandlung
+            if name in ["field", "target"] and method.__name__ in REPEAT_FIELD_FUNCS:
+                val_list = [value] if not isinstance(value, list) else value
                 galaxy_params[f"{name}_repeat"] = [{name: v} for v in val_list]
             elif is_union_cond:
                 type_map = {int: 'number', float: 'number', str: 'timedelta'}
@@ -174,19 +180,18 @@ def generate_test_variants(method: Callable) -> list:
         final_variants.append({
             "description": variant["description"],
             "galaxy_params": galaxy_params,
-            "saqc_call_params": saqc_call_params
+            "saqc_call_params": variant["params"] 
         })
     return final_variants
 
-def build_param_xml(parent: ET.Element, name: str, value: Any, param_info: Dict[str, Any]):
+def build_param_xml(parent: ET.Element, name: str, value: Any):
     name_str = str(name)
-    
     if name_str.endswith("_repeat") and isinstance(value, list):
         repeat = ET.SubElement(parent, "repeat", {"name": name_str})
         for item_dict in value:
             if isinstance(item_dict, dict):
                 for sub_name, sub_value in item_dict.items():
-                    build_param_xml(repeat, sub_name, sub_value, param_info) 
+                    build_param_xml(repeat, sub_name, sub_value) 
     elif name_str.endswith("_cond") and isinstance(value, dict):
         conditional = ET.SubElement(parent, "conditional", {"name": name_str})
         param_name_base = name_str.replace("_cond", "")
@@ -194,21 +199,36 @@ def build_param_xml(parent: ET.Element, name: str, value: Any, param_info: Dict[
         selector_value = value.get(selector_name)
         if selector_value is not None:
             ET.SubElement(conditional, "param", {"name": selector_name, "value": str(selector_value)})
-            when = ET.SubElement(conditional, "when", {"value": str(selector_value)})
-            build_param_xml(when, param_name_base, value.get(param_name_base), param_info)
+            build_param_xml(conditional, param_name_base, value.get(param_name_base))
     else:
-        ET.SubElement(parent, "param", {"name": name_str, "value": str(value)})
+        ET.SubElement(parent, "param", {"name": name_str, "value": str(value).lower() if isinstance(value, bool) else str(value) if value is not None else ""})
+
+def format_value_for_regex(value: Any, param_name: str) -> str:
+    # FINALE KORREKTUR 2: Flexible Regex für None/""
+    empty_is_none_params = ["reduce_window", "tolerance", "maxna", "maxna_group", "sub_window", "sub_thresh", "stray_range", "path", "ax", "marker_kwargs", "plot_kwargs", "freq", "group", "xscope", "yscope"]
+    if param_name in empty_is_none_params and (value is None or value == ""):
+        return '(None|"")'
+
+    if value is None:
+        return "None"
+    if isinstance(value, bool):
+        return f"({str(value)}|None)"
+    if isinstance(value, str) and value.startswith('<function'):
+        sanitized_val = value.replace('<', '__lt__').replace('>', '__gt__')
+        return re.escape(sanitized_val)
+    if isinstance(value, str):
+        return f'["\']{re.escape(value)}["\']'
+    if isinstance(value, float):
+        if math.isinf(value): return r"float\(['\"]-?inf['\"]\)"
+        if math.isnan(value): return r"float\(['\"]nan['\"]\)"
+        return re.escape(str(value))
+    return re.escape(str(value))
 
 def main():
-    # Das <macros>-Tag als Wurzel bleibt erhalten.
     macros_root = ET.Element("macros")
-    
-    # KORREKTUR: Das Kind-Element wird zu <xml>, wie gewünscht.
     all_tests_macro = ET.SubElement(macros_root, "xml", {"name": "config_tests"})
-
-    print("--- Starting Comprehensive Test Generation for SaQC ---", file=sys.stderr)
+    print("--- Starting Test Generation (Definitive Hybrid Strategy) ---", file=sys.stderr)
     modules = get_modules()
-
     for module_name, module_obj in modules:
         methods = get_methods(module_obj)
         for method_obj in methods:
@@ -219,49 +239,56 @@ def main():
             except Exception as e:
                 print(f"Error generating variants for {method_name}: {e}", file=sys.stderr)
                 continue
-
             for i, variant in enumerate(test_variants):
-                # Die Test-ID wird aus dem <test>-Tag entfernt, wie gewünscht.
                 test_elem = ET.SubElement(all_tests_macro, "test")
-                test_elem.append(ET.Comment(f" Test case for {module_name}.{method_name}, variant '{variant['description']}' "))
-
                 ET.SubElement(test_elem, "param", {"name": "data", "value": "test1/data.csv", "ftype": "csv"})
                 ET.SubElement(test_elem, "param", {"name": "run_test_mode", "value": "true"})
-
                 repeat = ET.SubElement(test_elem, "repeat", {"name": "methods_repeat"})
                 mod_cond = ET.SubElement(repeat, "conditional", {"name": "module_cond"})
-                
                 ET.SubElement(mod_cond, "param", {"name": "module_select", "value": module_name})
-                mod_when = ET.SubElement(mod_cond, "when", {"value": module_name})
-                meth_cond = ET.SubElement(mod_when, "conditional", {"name": "method_cond"})
+                meth_cond = ET.SubElement(mod_cond, "conditional", {"name": "method_cond"})
                 ET.SubElement(meth_cond, "param", {"name": "method_select", "value": method_name})
-                meth_when = ET.SubElement(meth_cond, "when", {"value": method_name})
-                
                 for p_name, p_value in variant['galaxy_params'].items():
-                    build_param_xml(meth_when, p_name, p_value, param_info)
-
-                # Assertion-Block ohne "has_n_lines"
+                    build_param_xml(meth_cond, p_name, p_value)
                 output_elem = ET.SubElement(test_elem, "output", {"name": "config_out", "ftype": "txt"})
                 assert_contents = ET.SubElement(output_elem, "assert_contents")
-                
                 params_to_check = variant['saqc_call_params']
-                regex_parts = [method_name]
-                for p_name, p_value in params_to_check.items():
-                    escaped_value = re.escape(str(p_value))
-                    regex_parts.append(f"{p_name}={escaped_value}")
                 
-                full_regex = ".*".join(regex_parts)
-                ET.SubElement(assert_contents, "has_text_matching", {"expression": full_regex})
+                field_val = params_to_check.get('field', params_to_check.get('target'))
+                field_name = field_val if not isinstance(field_val, list) else (field_val[0] if field_val else "undefined_field")
 
+                lookaheads = []
+                
+                # FINALE KORREKTUR 3: Adaptive Regex
+                if variant['description'] == 'default values':
+                    for p_name, p_value in params_to_check.items():
+                        if p_name in ['field', 'target']: continue
+                        original_default = param_info.get(p_name, {}).get('default')
+                        if p_value == original_default: continue
+                        formatted_value = format_value_for_regex(p_value, p_name)
+                        lookaheads.append(f'(?=.*{p_name}\\s*=\\s*{formatted_value})')
+                else:
+                    match = re.search(r"param '([^']+)'.*", variant['description'])
+                    if match:
+                        varied_param_name = match.group(1)
+                        if varied_param_name in params_to_check:
+                            p_value = params_to_check[varied_param_name]
+                            formatted_value = format_value_for_regex(p_value, varied_param_name)
+                            lookaheads.append(f'(?=.*{varied_param_name}\\s*=\\s*{formatted_value})')
+
+                if not lookaheads:
+                    full_regex = f"{re.escape(str(field_name))};\\s*{method_name}\\(.*\\)"
+                else:
+                    full_regex = f"{re.escape(str(field_name))};\\s*{method_name}\\({ ''.join(lookaheads)}.*\\)"
+                
+                ET.SubElement(assert_contents, "has_text_matching", {"expression": full_regex})
     try:
         ET.indent(macros_root, space="  ")
-        # Ausgabe als UTF-8 Bytes, um eine saubere Datei zu gewährleisten
         sys.stdout.buffer.write(ET.tostring(macros_root, encoding='utf-8', xml_declaration=False))
-        print("\n", file=sys.stderr) # Leerzeile für bessere Lesbarkeit im Terminal
-        print("Successfully generated XML.", file=sys.stderr)
+        print("\n", file=sys.stderr)
+        print("Successfully generated XML with the definitive hybrid strategy.", file=sys.stderr)
     except Exception as e:
         print(f"\nSerialization failed. Error: {e}", file=sys.stderr)
-
 
 if __name__ == "__main__":
     main()

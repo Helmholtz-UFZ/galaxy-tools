@@ -46,14 +46,9 @@ REPEAT_FIELD_FUNCS = [
 ]
 
 def get_modules() -> list[Tuple[str, "ModuleType"]]:
-    """Retrieves all modules from the saqc.funcs package."""
     return inspect.getmembers(saqc.funcs, inspect.ismodule)
 
 def get_methods(module: "ModuleType") -> list[Callable]:
-    """
-    Extracts methods from a given module that have 'SaQC' as the type hint
-    for their 'self' parameter, indicating they are part of the SaQC public API.
-    """
     methods_with_saqc = []
     for _, cls in inspect.getmembers(module, inspect.isclass):
         if inspect.ismodule(cls): continue
@@ -72,10 +67,6 @@ def get_methods(module: "ModuleType") -> list[Callable]:
     return methods_with_saqc
 
 def get_param_info(method: Callable) -> Dict[str, Any]:
-    """
-    Inspects a callable and returns a dictionary with detailed information
-    about its parameters, resolving type annotations and default values.
-    """
     param_info = {}
     try:
         parameters = inspect.signature(method).parameters
@@ -85,7 +76,6 @@ def get_param_info(method: Callable) -> Dict[str, Any]:
     for name, param in parameters.items():
         if name in ["self", "kwargs", "store_kwargs", "ax_kwargs"]: continue
         annotation = param.annotation
-        # Resolve forward references and string annotations
         if isinstance(annotation, (str, ForwardRef)):
             try:
                 eval_context = {
@@ -106,7 +96,6 @@ def get_param_info(method: Callable) -> Dict[str, Any]:
         if annotation is param.empty:
             annotation = Any
 
-        # Simplify Union[T, None] to just T
         origin = get_origin(annotation)
         args = get_args(annotation)
         is_union_with_none = is_union_type(annotation) and type(None) in args
@@ -122,16 +111,11 @@ def get_param_info(method: Callable) -> Dict[str, Any]:
     return param_info
 
 def generate_test_variants(method: Callable) -> list:
-    """
-    Generates a list of test case variants for a given method based on its
-    parameter types and default values.
-    """
     param_info = get_param_info(method)
     if not param_info: return []
     
     variants, base_params, complex_params_to_vary = [], {}, set()
 
-    # Establish base parameters and identify complex ones to vary
     for name, info in param_info.items():
         default = info['default']
         annotation = info['annotation']
@@ -141,10 +125,7 @@ def generate_test_variants(method: Callable) -> list:
         if (origin is Literal and len(args) > 1) or (origin is Union and len(args) > 1):
             complex_params_to_vary.add(name)
 
-        # === FINAL FIX: Explicitly set base for field/target to avoid empty defaults ===
-        if name in ['field', 'target']:
-            base_params[name] = 'test_variable'
-        elif default is not inspect.Parameter.empty:
+        if default is not inspect.Parameter.empty:
             if annotation is bool:
                 base_params[name] = not default
             else:
@@ -152,15 +133,14 @@ def generate_test_variants(method: Callable) -> list:
         elif origin is Literal and args:
             base_params[name] = args[0]
         else: 
-            # Assign sensible defaults for other parameters without one
-            if annotation is bool: base_params[name] = True
+            if name in ['field', 'target']: base_params[name] = 'test_variable'
+            elif annotation is bool: base_params[name] = True
             elif annotation is int: base_params[name] = 1
             elif annotation is float: base_params[name] = 0.0
             else: base_params[name] = "default_string"
             
     variants.append({"description": f"Test mit Defaults für {method.__name__}", "params": base_params})
 
-    # Create variants for complex parameters
     for name in complex_params_to_vary:
         info, options_to_test = param_info[name], []
         if info['origin'] is Literal:
@@ -177,6 +157,7 @@ def generate_test_variants(method: Callable) -> list:
             if option is None: continue
             variant_params = base_params.copy()
             
+            # === FINALE KORREKTUR 2: Conditionals korrekt behandeln ===
             if name == 'thresh' and isinstance(option, float):
                 variant_params['thresh_cond'] = {'thresh_select_type': 'float', 'thresh': option}
                 if 'thresh' in variant_params: del variant_params['thresh']
@@ -188,7 +169,6 @@ def generate_test_variants(method: Callable) -> list:
 
             variants.append({"description": f"Test-Variante für '{name}' mit Wert '{str(option)}'", "params": variant_params})
 
-    # Prepare final structure for XML generation
     final_variants = []
     for variant in variants:
         galaxy_params = {}
@@ -219,7 +199,6 @@ def generate_test_variants(method: Callable) -> list:
     return final_variants
 
 def build_param_xml(parent: ET.Element, name: str, value: Any):
-    """Recursively builds the XML <param> structure for Galaxy tests."""
     name_str = str(name)
     if name_str.endswith("_repeat") and isinstance(value, list):
         repeat = ET.SubElement(parent, "repeat", {"name": name_str})
@@ -236,41 +215,29 @@ def build_param_xml(parent: ET.Element, name: str, value: Any):
             ET.SubElement(conditional, "param", {"name": selector_name, "value": str(selector_value)})
             build_param_xml(conditional, param_name_base, value.get(param_name_base))
     else:
-        val_str = str(value).lower() if isinstance(value, bool) else str(value) if value is not None else ""
-        ET.SubElement(parent, "param", {"name": name_str, "value": val_str})
+        ET.SubElement(parent, "param", {"name": name_str, "value": str(value).lower() if isinstance(value, bool) else str(value) if value is not None else ""})
 
 def format_value_for_regex(value: Any, param_name: str) -> str:
-    """Formats a Python value into a regex string for assertion."""
-    empty_is_none_params = [
-        "reduce_window", "tolerance", "maxna", "maxna_group", "sub_window", "sub_thresh", 
-        "min_periods", "min_residuals", "min_offset", "stray_range", "path", "ax", 
-        "marker_kwargs", "plot_kwargs", "freq", "group", "xscope", "yscope"
-    ]
+    empty_is_none_params = ["reduce_window", "tolerance", "maxna", "maxna_group", "sub_window", "sub_thresh", "min_periods", "min_residuals", "min_offset", "stray_range", "path", "ax", "marker_kwargs", "plot_kwargs", "freq", "group", "xscope", "yscope"]
     if param_name in empty_is_none_params and (value is None or value == ""):
         return '(None|"")'
 
-    if value is None: return "None"
-    if isinstance(value, bool): return f"({str(value)}|None)"
+    if value is None:
+        return "None"
+    if isinstance(value, bool):
+        return f"({str(value)}|None)"
     if isinstance(value, str) and value.startswith('<function'):
         sanitized_val = value.replace('<', '__lt__').replace('>', '__gt__')
         return re.escape(sanitized_val)
-
-    if isinstance(value, int):
-        escaped_val = re.escape(str(value))
-        return f'(?:["\']?{escaped_val}["\']?)'
-
+    if isinstance(value, str):
+        return f'["\']{re.escape(value)}["\']'
     if isinstance(value, float):
         if math.isinf(value): return r"float\(['\"]-?inf['\"]\)"
         if math.isnan(value): return r"float\(['\"]nan['\"]\)"
         return re.escape(str(value))
-
-    if isinstance(value, str):
-        return f'["\']{re.escape(str(value))}["\']'
-
     return re.escape(str(value))
 
 def main():
-    """Main function to generate the Galaxy test macros XML."""
     macros_root = ET.Element("macros")
     all_tests_macro = ET.SubElement(macros_root, "xml", {"name": "config_tests"})
     print("--- Starting Test Generation (Definitive Hybrid Strategy v5) ---", file=sys.stderr)
@@ -280,11 +247,11 @@ def main():
         for method_obj in methods:
             method_name = method_obj.__name__
             try:
+                param_info = get_param_info(method_obj)
                 test_variants = generate_test_variants(method_obj)
             except Exception as e:
                 print(f"Error generating variants for {method_name}: {e}", file=sys.stderr)
                 continue
-            
             for i, variant in enumerate(test_variants):
                 test_elem = ET.SubElement(all_tests_macro, "test")
                 ET.SubElement(test_elem, "param", {"name": "data", "value": "test1/data.csv", "ftype": "csv"})
@@ -294,10 +261,8 @@ def main():
                 ET.SubElement(mod_cond, "param", {"name": "module_select", "value": module_name})
                 meth_cond = ET.SubElement(mod_cond, "conditional", {"name": "method_cond"})
                 ET.SubElement(meth_cond, "param", {"name": "method_select", "value": method_name})
-                
                 for p_name, p_value in variant['galaxy_params'].items():
                     build_param_xml(meth_cond, p_name, p_value)
-                
                 output_elem = ET.SubElement(test_elem, "output", {"name": "config_out", "ftype": "txt"})
                 assert_contents = ET.SubElement(output_elem, "assert_contents")
                 params_to_check = variant['saqc_call_params']
@@ -305,17 +270,10 @@ def main():
                 field_val = params_to_check.get('field', params_to_check.get('target'))
                 field_name = field_val if not isinstance(field_val, list) else (field_val[0] if field_val else "test_variable")
 
-                # If field_name is empty/None from the params, the tool might output 'unknown_field'.
-                # The regex should account for the expected name OR the tool's fallback.
-                if not field_name or field_name == "test_variable":
-                    field_regex_part = '(?:test_variable|unknown_field)'
-                else:
-                    field_regex_part = re.escape(str(field_name))
-                
                 lookaheads = []
                 
                 if variant['description'].startswith('Test mit Defaults'):
-                    full_regex = f"{field_regex_part};\\s*{method_name}\\(.*\\)"
+                    full_regex = f"{re.escape(str(field_name))};\\s*{method_name}\\(.*\\)"
                 else:
                     match = re.search(r"Test-Variante für '([^']+)'.*", variant['description'])
                     if match:
@@ -323,17 +281,19 @@ def main():
                         if varied_param_name in params_to_check:
                             p_value = params_to_check[varied_param_name]
                             
-                            if varied_param_name not in ['field', 'target']:
+                            # FINALE KORREKTUR 3: field/target aus Regex entfernen
+                            if varied_param_name in ['field', 'target']:
+                                pass
+                            else:
                                 formatted_value = format_value_for_regex(p_value, varied_param_name)
                                 lookaheads.append(f'(?=.*{varied_param_name}\\s*=\\s*{formatted_value})')
                     
                     if not lookaheads:
-                         full_regex = f"{field_regex_part};\\s*{method_name}\\(.*\\)"
+                         full_regex = f"{re.escape(str(field_name))};\\s*{method_name}\\(.*\\)"
                     else:
-                         full_regex = f"{field_regex_part};\\s*{method_name}\\({ ''.join(lookaheads)}.*\\)"
+                         full_regex = f"{re.escape(str(field_name))};\\s*{method_name}\\({ ''.join(lookaheads)}.*\\)"
                 
                 ET.SubElement(assert_contents, "has_text_matching", {"expression": full_regex})
-
     try:
         ET.indent(macros_root, space="  ")
         sys.stdout.buffer.write(ET.tostring(macros_root, encoding='utf-8', xml_declaration=False))
@@ -344,5 +304,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

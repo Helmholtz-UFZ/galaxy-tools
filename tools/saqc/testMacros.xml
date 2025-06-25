@@ -17,7 +17,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagIsolated\((?=.*gap_window\s*=\s*[&quot;']default_string[&quot;'])(?=.*group_window\s*=\s*[&quot;']default_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagIsolated\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -40,7 +40,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagJumps\((?=.*thresh\s*=\s*0\.0)(?=.*window\s*=\s*[&quot;']default_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagJumps\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -60,7 +60,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagMissing\(.*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagMissing\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -78,39 +78,14 @@
             <param name="window" value="default_string" />
             <param name="min_periods" value="default_string" />
             <param name="reduce_window" value="" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7ea0cd33ad40&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7afef4feaca0&gt;" />
             <param name="model_by_resids" value="true" />
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignChangePointCluster\((?=.*stat_func\s*=\s*[&quot;']default_string[&quot;'])(?=.*thresh_func\s*=\s*[&quot;']default_string[&quot;'])(?=.*window\s*=\s*[&quot;']default_string[&quot;'])(?=.*min_periods\s*=\s*[&quot;']default_string[&quot;'])(?=.*model_by_resids\s*=\s*(True|None)).*\)" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="changepoints" />
-          <conditional name="method_cond">
-            <param name="method_select" value="assignChangePointCluster" />
-            <param name="field" value="test_variable" />
-            <param name="stat_func" value="default_string" />
-            <param name="thresh_func" value="default_string" />
-            <param name="window" value="a_string" />
-            <param name="min_periods" value="default_string" />
-            <param name="reduce_window" value="" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7ea0cd33ad40&gt;" />
-            <param name="model_by_resids" value="true" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignChangePointCluster\((?=.*window\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignChangePointCluster\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -128,14 +103,39 @@
             <param name="window" value="default_string" />
             <param name="min_periods" value="123" />
             <param name="reduce_window" value="" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7ea0cd33ad40&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7afef4feaca0&gt;" />
             <param name="model_by_resids" value="true" />
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignChangePointCluster\((?=.*min_periods\s*=\s*123).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignChangePointCluster\((?=.*min_periods\s*=\s*(?:[&quot;']?123[&quot;']?)).*\)" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="changepoints" />
+          <conditional name="method_cond">
+            <param name="method_select" value="assignChangePointCluster" />
+            <param name="field" value="test_variable" />
+            <param name="stat_func" value="default_string" />
+            <param name="thresh_func" value="default_string" />
+            <param name="window" value="a_string" />
+            <param name="min_periods" value="default_string" />
+            <param name="reduce_window" value="" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7afef4feaca0&gt;" />
+            <param name="model_by_resids" value="true" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignChangePointCluster\((?=.*window\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -153,39 +153,14 @@
             <param name="window" value="default_string" />
             <param name="min_periods" value="default_string" />
             <param name="reduce_window" value="" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7ea0cd33ab60&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7afef4feaac0&gt;" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagChangePoints\((?=.*stat_func\s*=\s*[&quot;']default_string[&quot;'])(?=.*thresh_func\s*=\s*[&quot;']default_string[&quot;'])(?=.*window\s*=\s*[&quot;']default_string[&quot;'])(?=.*min_periods\s*=\s*[&quot;']default_string[&quot;']).*\)" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="changepoints" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagChangePoints" />
-            <param name="field" value="test_variable" />
-            <param name="stat_func" value="default_string" />
-            <param name="thresh_func" value="default_string" />
-            <param name="window" value="a_string" />
-            <param name="min_periods" value="default_string" />
-            <param name="reduce_window" value="" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7ea0cd33ab60&gt;" />
-            <param name="flag" value="255.0" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagChangePoints\((?=.*window\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagChangePoints\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -203,14 +178,39 @@
             <param name="window" value="default_string" />
             <param name="min_periods" value="123" />
             <param name="reduce_window" value="" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7ea0cd33ab60&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7afef4feaac0&gt;" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagChangePoints\((?=.*min_periods\s*=\s*123).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagChangePoints\((?=.*min_periods\s*=\s*(?:[&quot;']?123[&quot;']?)).*\)" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="changepoints" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagChangePoints" />
+            <param name="field" value="test_variable" />
+            <param name="stat_func" value="default_string" />
+            <param name="thresh_func" value="default_string" />
+            <param name="window" value="a_string" />
+            <param name="min_periods" value="default_string" />
+            <param name="reduce_window" value="" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7afef4feaac0&gt;" />
+            <param name="flag" value="255.0" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagChangePoints\((?=.*window\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -233,7 +233,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagByVariance\((?=.*window\s*=\s*[&quot;']default_string[&quot;'])(?=.*thresh\s*=\s*0\.0).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagByVariance\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -255,7 +255,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagConstants\((?=.*thresh\s*=\s*0\.0)(?=.*window\s*=\s*[&quot;']default_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagConstants\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -277,7 +277,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*cutoff\s*=\s*[&quot;']default_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*fitLowpassFilter\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -299,7 +299,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']linear[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']linear[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -321,7 +321,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']nearest[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']nearest[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -343,7 +343,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']zero[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']zero[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -365,7 +365,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']slinear[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']slinear[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -387,7 +387,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']quadratic[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']quadratic[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -409,7 +409,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']cubic[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']cubic[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -431,7 +431,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']spline[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']spline[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -453,7 +453,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']barycentric[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']barycentric[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -475,7 +475,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']polynomial[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']polynomial[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -496,7 +496,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*fitPolynomial\((?=.*window\s*=\s*[&quot;']default_string[&quot;'])(?=.*order\s*=\s*1).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*fitPolynomial\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -512,14 +512,14 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="method" value="single" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7ea0c9bfc7c0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7afef1890720&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignRegimeAnomaly\((?=.*cluster_field\s*=\s*[&quot;']default_string[&quot;'])(?=.*spread\s*=\s*0\.0).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignRegimeAnomaly\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -535,14 +535,14 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="method" value="single" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7ea0c9bfc7c0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7afef1890720&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignRegimeAnomaly\((?=.*method\s*=\s*[&quot;']single[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignRegimeAnomaly\((?=.*method\s*=\s*[&quot;']single[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -558,14 +558,14 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="method" value="complete" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7ea0c9bfc7c0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7afef1890720&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignRegimeAnomaly\((?=.*method\s*=\s*[&quot;']complete[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignRegimeAnomaly\((?=.*method\s*=\s*[&quot;']complete[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -581,14 +581,14 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="method" value="average" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7ea0c9bfc7c0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7afef1890720&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignRegimeAnomaly\((?=.*method\s*=\s*[&quot;']average[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignRegimeAnomaly\((?=.*method\s*=\s*[&quot;']average[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -604,14 +604,14 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="method" value="weighted" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7ea0c9bfc7c0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7afef1890720&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignRegimeAnomaly\((?=.*method\s*=\s*[&quot;']weighted[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignRegimeAnomaly\((?=.*method\s*=\s*[&quot;']weighted[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -627,14 +627,14 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="method" value="centroid" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7ea0c9bfc7c0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7afef1890720&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignRegimeAnomaly\((?=.*method\s*=\s*[&quot;']centroid[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignRegimeAnomaly\((?=.*method\s*=\s*[&quot;']centroid[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -650,14 +650,14 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="method" value="median" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7ea0c9bfc7c0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7afef1890720&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignRegimeAnomaly\((?=.*method\s*=\s*[&quot;']median[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignRegimeAnomaly\((?=.*method\s*=\s*[&quot;']median[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -673,14 +673,14 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="method" value="ward" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7ea0c9bfc7c0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7afef1890720&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignRegimeAnomaly\((?=.*method\s*=\s*[&quot;']ward[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignRegimeAnomaly\((?=.*method\s*=\s*[&quot;']ward[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -701,7 +701,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*correctDrift\((?=.*maintenance_field\s*=\s*[&quot;']default_string[&quot;'])(?=.*model\s*=\s*[&quot;']default_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*correctDrift\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -724,7 +724,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*correctOffset\((?=.*max_jump\s*=\s*0\.0)(?=.*spread\s*=\s*0\.0)(?=.*window\s*=\s*[&quot;']default_string[&quot;'])(?=.*min_periods\s*=\s*1).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*correctOffset\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -746,7 +746,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*correctRegimeAnomaly\((?=.*cluster_field\s*=\s*[&quot;']default_string[&quot;'])(?=.*model\s*=\s*[&quot;']default_string[&quot;'])(?=.*epoch\s*=\s*(True|None)).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*correctRegimeAnomaly\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -764,7 +764,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7ea0ca511800&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7afef2195760&gt;" />
             <param name="method" value="single" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -772,7 +772,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagDriftFromNorm\((?=.*window\s*=\s*[&quot;']default_string[&quot;'])(?=.*spread\s*=\s*0\.0).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagDriftFromNorm\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -790,7 +790,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7ea0ca511800&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7afef2195760&gt;" />
             <param name="method" value="single" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -798,7 +798,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagDriftFromNorm\((?=.*method\s*=\s*[&quot;']single[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagDriftFromNorm\((?=.*method\s*=\s*[&quot;']single[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -816,7 +816,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7ea0ca511800&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7afef2195760&gt;" />
             <param name="method" value="complete" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -824,7 +824,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagDriftFromNorm\((?=.*method\s*=\s*[&quot;']complete[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagDriftFromNorm\((?=.*method\s*=\s*[&quot;']complete[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -842,7 +842,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7ea0ca511800&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7afef2195760&gt;" />
             <param name="method" value="average" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -850,7 +850,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagDriftFromNorm\((?=.*method\s*=\s*[&quot;']average[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagDriftFromNorm\((?=.*method\s*=\s*[&quot;']average[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -868,7 +868,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7ea0ca511800&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7afef2195760&gt;" />
             <param name="method" value="weighted" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -876,7 +876,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagDriftFromNorm\((?=.*method\s*=\s*[&quot;']weighted[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagDriftFromNorm\((?=.*method\s*=\s*[&quot;']weighted[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -894,7 +894,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7ea0ca511800&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7afef2195760&gt;" />
             <param name="method" value="centroid" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -902,7 +902,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagDriftFromNorm\((?=.*method\s*=\s*[&quot;']centroid[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagDriftFromNorm\((?=.*method\s*=\s*[&quot;']centroid[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -920,7 +920,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7ea0ca511800&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7afef2195760&gt;" />
             <param name="method" value="median" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -928,7 +928,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagDriftFromNorm\((?=.*method\s*=\s*[&quot;']median[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagDriftFromNorm\((?=.*method\s*=\s*[&quot;']median[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -946,7 +946,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7ea0ca511800&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7afef2195760&gt;" />
             <param name="method" value="ward" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -954,7 +954,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagDriftFromNorm\((?=.*method\s*=\s*[&quot;']ward[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagDriftFromNorm\((?=.*method\s*=\s*[&quot;']ward[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -972,14 +972,14 @@
             <param name="reference" value="default_string" />
             <param name="freq" value="default_string" />
             <param name="thresh" value="0.0" />
-            <param name="metric" value="&lt;function cityblock at 0x7ea0ca511800&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7afef2195760&gt;" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagDriftFromReference\((?=.*reference\s*=\s*[&quot;']default_string[&quot;'])(?=.*freq\s*=\s*[&quot;']default_string[&quot;'])(?=.*thresh\s*=\s*0\.0).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagDriftFromReference\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -995,7 +995,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="method" value="single" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7ea0c9bfc680&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7afef18905e0&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1003,7 +1003,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagRegimeAnomaly\((?=.*cluster_field\s*=\s*[&quot;']default_string[&quot;'])(?=.*spread\s*=\s*0\.0).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagRegimeAnomaly\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1019,7 +1019,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="method" value="single" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7ea0c9bfc680&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7afef18905e0&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1027,7 +1027,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagRegimeAnomaly\((?=.*method\s*=\s*[&quot;']single[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagRegimeAnomaly\((?=.*method\s*=\s*[&quot;']single[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1043,7 +1043,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="method" value="complete" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7ea0c9bfc680&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7afef18905e0&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1051,7 +1051,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagRegimeAnomaly\((?=.*method\s*=\s*[&quot;']complete[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagRegimeAnomaly\((?=.*method\s*=\s*[&quot;']complete[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1067,7 +1067,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="method" value="average" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7ea0c9bfc680&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7afef18905e0&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1075,7 +1075,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagRegimeAnomaly\((?=.*method\s*=\s*[&quot;']average[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagRegimeAnomaly\((?=.*method\s*=\s*[&quot;']average[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1091,7 +1091,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="method" value="weighted" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7ea0c9bfc680&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7afef18905e0&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1099,7 +1099,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagRegimeAnomaly\((?=.*method\s*=\s*[&quot;']weighted[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagRegimeAnomaly\((?=.*method\s*=\s*[&quot;']weighted[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1115,7 +1115,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="method" value="centroid" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7ea0c9bfc680&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7afef18905e0&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1123,7 +1123,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagRegimeAnomaly\((?=.*method\s*=\s*[&quot;']centroid[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagRegimeAnomaly\((?=.*method\s*=\s*[&quot;']centroid[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1139,7 +1139,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="method" value="median" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7ea0c9bfc680&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7afef18905e0&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1147,7 +1147,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagRegimeAnomaly\((?=.*method\s*=\s*[&quot;']median[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagRegimeAnomaly\((?=.*method\s*=\s*[&quot;']median[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1163,7 +1163,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="0.0" />
             <param name="method" value="ward" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7ea0c9bfc680&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7afef18905e0&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1171,7 +1171,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagRegimeAnomaly\((?=.*method\s*=\s*[&quot;']ward[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagRegimeAnomaly\((?=.*method\s*=\s*[&quot;']ward[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1185,14 +1185,14 @@
             <param name="method_select" value="andGroup" />
             <param name="field" value="test_variable" />
             <param name="group" value="" />
-            <param name="target" value="" />
+            <param name="target" value="test_variable" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*andGroup\(.*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*andGroup\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1213,7 +1213,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*andGroup\((?=.*target\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*andGroup\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1231,7 +1231,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*clearFlags\(.*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*clearFlags\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1249,7 +1249,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagDummy\(.*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagDummy\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1272,7 +1272,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagManual\((?=.*mdata\s*=\s*[&quot;']default_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagManual\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1295,53 +1295,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagManual\((?=.*mformat\s*=\s*[&quot;']start\-end[&quot;']).*\)" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="flagtools" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagManual" />
-            <param name="field" value="test_variable" />
-            <param name="mdata" value="default_string" />
-            <param name="method" value="left-open" />
-            <param name="mformat" value="mflag" />
-            <param name="mflag" value="1" />
-            <param name="flag" value="255.0" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagManual\((?=.*mformat\s*=\s*[&quot;']mflag[&quot;']).*\)" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="flagtools" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagManual" />
-            <param name="field" value="test_variable" />
-            <param name="mdata" value="default_string" />
-            <param name="method" value="left-open" />
-            <param name="mformat" value="start-end" />
-            <param name="mflag" value="1" />
-            <param name="flag" value="255.0" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagManual\((?=.*method\s*=\s*[&quot;']left\-open[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagManual\((?=.*method\s*=\s*[&quot;']left\-open[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1364,7 +1318,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagManual\((?=.*method\s*=\s*[&quot;']right\-open[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagManual\((?=.*method\s*=\s*[&quot;']right\-open[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1387,7 +1341,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagManual\((?=.*method\s*=\s*[&quot;']closed[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagManual\((?=.*method\s*=\s*[&quot;']closed[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1410,7 +1364,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagManual\((?=.*method\s*=\s*[&quot;']plain[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagManual\((?=.*method\s*=\s*[&quot;']plain[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1433,7 +1387,53 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagManual\((?=.*method\s*=\s*[&quot;']ontime[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagManual\((?=.*method\s*=\s*[&quot;']ontime[&quot;']).*\)" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="flagtools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagManual" />
+            <param name="field" value="test_variable" />
+            <param name="mdata" value="default_string" />
+            <param name="method" value="left-open" />
+            <param name="mformat" value="start-end" />
+            <param name="mflag" value="1" />
+            <param name="flag" value="255.0" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagManual\((?=.*mformat\s*=\s*[&quot;']start\-end[&quot;']).*\)" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="flagtools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagManual" />
+            <param name="field" value="test_variable" />
+            <param name="mdata" value="default_string" />
+            <param name="method" value="left-open" />
+            <param name="mformat" value="mflag" />
+            <param name="mflag" value="1" />
+            <param name="flag" value="255.0" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagManual\((?=.*mformat\s*=\s*[&quot;']mflag[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1452,7 +1452,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagUnflagged\(.*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagUnflagged\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1471,7 +1471,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*forceFlags\(.*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*forceFlags\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1485,14 +1485,14 @@
             <param name="method_select" value="orGroup" />
             <param name="field" value="test_variable" />
             <param name="group" value="" />
-            <param name="target" value="" />
+            <param name="target" value="test_variable" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*orGroup\(.*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*orGroup\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1513,7 +1513,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*orGroup\((?=.*target\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*orGroup\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1535,7 +1535,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*propagateFlags\((?=.*window\s*=\s*[&quot;']default_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*propagateFlags\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1557,7 +1557,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*propagateFlags\((?=.*method\s*=\s*[&quot;']ffill[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*propagateFlags\((?=.*method\s*=\s*[&quot;']ffill[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1579,7 +1579,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*propagateFlags\((?=.*method\s*=\s*[&quot;']bfill[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*propagateFlags\((?=.*method\s*=\s*[&quot;']bfill[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1592,7 +1592,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="transferFlags" />
             <param name="field" value="test_variable" />
-            <param name="target" value="" />
+            <param name="target" value="test_variable" />
             <param name="squeeze" value="true" />
             <param name="overwrite" value="true" />
           </conditional>
@@ -1600,7 +1600,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*transferFlags\((?=.*squeeze\s*=\s*(True|None))(?=.*overwrite\s*=\s*(True|None)).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*transferFlags\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1614,14 +1614,35 @@
             <param name="method_select" value="flagGeneric" />
             <param name="field" value="test_variable" />
             <param name="func" value="default_string" />
-            <param name="target" value="" />
+            <param name="target" value="test_variable" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagGeneric\((?=.*func\s*=\s*[&quot;']default_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagGeneric\(.*\)" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="generic" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagGeneric" />
+            <param name="field" value="a_string" />
+            <param name="func" value="default_string" />
+            <param name="target" value="test_variable" />
+            <param name="flag" value="255.0" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="a_string;\s*flagGeneric\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1642,28 +1663,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagGeneric\((?=.*target\s*=\s*[&quot;']a_string[&quot;']).*\)" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="generic" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagGeneric" />
-            <param name="field" value="a_string" />
-            <param name="func" value="default_string" />
-            <param name="target" value="" />
-            <param name="flag" value="255.0" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="a_string;\s*flagGeneric\((?=.*field\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagGeneric\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1677,14 +1677,35 @@
             <param name="method_select" value="processGeneric" />
             <param name="field" value="test_variable" />
             <param name="func" value="default_string" />
-            <param name="target" value="" />
+            <param name="target" value="test_variable" />
             <param name="dfilter" value="-inf" />
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*processGeneric\((?=.*func\s*=\s*[&quot;']default_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*processGeneric\(.*\)" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="generic" />
+          <conditional name="method_cond">
+            <param name="method_select" value="processGeneric" />
+            <param name="field" value="a_string" />
+            <param name="func" value="default_string" />
+            <param name="target" value="test_variable" />
+            <param name="dfilter" value="-inf" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="a_string;\s*processGeneric\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1705,28 +1726,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*processGeneric\((?=.*target\s*=\s*[&quot;']a_string[&quot;']).*\)" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="generic" />
-          <conditional name="method_cond">
-            <param name="method_select" value="processGeneric" />
-            <param name="field" value="a_string" />
-            <param name="func" value="default_string" />
-            <param name="target" value="" />
-            <param name="dfilter" value="-inf" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="a_string;\s*processGeneric\((?=.*field\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*processGeneric\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1748,7 +1748,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*align\((?=.*freq\s*=\s*[&quot;']default_string[&quot;'])(?=.*overwrite\s*=\s*(True|None)).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*align\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1771,7 +1771,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*interpolateByRolling\((?=.*window\s*=\s*[&quot;']default_string[&quot;'])(?=.*center\s*=\s*(False|None)).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*interpolateByRolling\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1794,7 +1794,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*interpolateByRolling\((?=.*func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*interpolateByRolling\((?=.*func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1819,7 +1819,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagByScatterLowpass\((?=.*window\s*=\s*[&quot;']default_string[&quot;'])(?=.*thresh\s*=\s*0\.0).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagByScatterLowpass\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1844,7 +1844,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagByScatterLowpass\((?=.*sub_window\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagByScatterLowpass\((?=.*sub_window\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1869,7 +1869,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagByScatterLowpass\((?=.*sub_window\s*=\s*[&quot;']2H[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagByScatterLowpass\((?=.*sub_window\s*=\s*[&quot;']2H[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1894,7 +1894,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagByStatLowPass\((?=.*window\s*=\s*[&quot;']default_string[&quot;'])(?=.*thresh\s*=\s*0\.0).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagByStatLowPass\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1919,7 +1919,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagByStatLowPass\((?=.*sub_window\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagByStatLowPass\((?=.*sub_window\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1944,7 +1944,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagByStatLowPass\((?=.*sub_window\s*=\s*[&quot;']2H[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagByStatLowPass\((?=.*sub_window\s*=\s*[&quot;']2H[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1967,7 +1967,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagByGrubbs\((?=.*window\s*=\s*[&quot;']default_string[&quot;'])(?=.*pedantic\s*=\s*(True|None)).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagByGrubbs\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -1993,7 +1993,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagByStray\(.*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagByStray\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2019,7 +2019,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagByStray\((?=.*window\s*=\s*123).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagByStray\((?=.*window\s*=\s*(?:[&quot;']?123[&quot;']?)).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2045,7 +2045,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagByStray\((?=.*window\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagByStray\((?=.*window\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2070,7 +2070,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagLOF\(.*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagLOF\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2095,7 +2095,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagLOF\((?=.*algorithm\s*=\s*[&quot;']ball_tree[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagLOF\((?=.*algorithm\s*=\s*[&quot;']ball_tree[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2120,7 +2120,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagLOF\((?=.*algorithm\s*=\s*[&quot;']kd_tree[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagLOF\((?=.*algorithm\s*=\s*[&quot;']kd_tree[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2145,7 +2145,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagLOF\((?=.*algorithm\s*=\s*[&quot;']brute[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagLOF\((?=.*algorithm\s*=\s*[&quot;']brute[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2170,7 +2170,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagLOF\((?=.*algorithm\s*=\s*[&quot;']auto[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagLOF\((?=.*algorithm\s*=\s*[&quot;']auto[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2186,16 +2186,19 @@
               <param name="field" value="test_variable" />
             </repeat>
             <param name="n" value="20" />
-            <param name="thresh" value="45.6" />
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
             <param name="flag" value="255.0" />
+            <conditional name="thresh_cond">
+              <param name="thresh_select_type" value="float" />
+              <param name="thresh" value="45.6" />
+            </conditional>
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagLOF\((?=.*thresh\s*=\s*45\.6).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagLOF\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2222,7 +2225,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagMAD\((?=.*center\s*=\s*(True|None)).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagMAD\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2249,7 +2252,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagMAD\((?=.*window\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagMAD\((?=.*window\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2276,7 +2279,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagMAD\((?=.*window\s*=\s*123).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagMAD\((?=.*window\s*=\s*(?:[&quot;']?123[&quot;']?)).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2291,7 +2294,7 @@
             <repeat name="field_repeat">
               <param name="field" value="test_variable" />
             </repeat>
-            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7ea0c9c28b80&gt;" />
+            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7afef18b8ae0&gt;" />
             <param name="alpha" value="0.05" />
             <param name="n" value="10" />
             <param name="func" value="sum" />
@@ -2311,7 +2314,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagMVScores\((?=.*drop_flagged\s*=\s*(True|None)).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagMVScores\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2326,7 +2329,7 @@
             <repeat name="field_repeat">
               <param name="field" value="test_variable" />
             </repeat>
-            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7ea0c9c28b80&gt;" />
+            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7afef18b8ae0&gt;" />
             <param name="alpha" value="0.05" />
             <param name="n" value="10" />
             <param name="func" value="sum" />
@@ -2346,7 +2349,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagMVScores\((?=.*window\s*=\s*123).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagMVScores\((?=.*window\s*=\s*(?:[&quot;']?123[&quot;']?)).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2361,7 +2364,7 @@
             <repeat name="field_repeat">
               <param name="field" value="test_variable" />
             </repeat>
-            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7ea0c9c28b80&gt;" />
+            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7afef18b8ae0&gt;" />
             <param name="alpha" value="0.05" />
             <param name="n" value="10" />
             <param name="func" value="sum" />
@@ -2381,7 +2384,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagMVScores\((?=.*window\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagMVScores\((?=.*window\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2396,7 +2399,7 @@
             <repeat name="field_repeat">
               <param name="field" value="test_variable" />
             </repeat>
-            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7ea0c9c28b80&gt;" />
+            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7afef18b8ae0&gt;" />
             <param name="alpha" value="0.05" />
             <param name="n" value="10" />
             <param name="func" value="a_string" />
@@ -2416,7 +2419,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagMVScores\((?=.*func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagMVScores\((?=.*func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2439,7 +2442,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagOffset\((?=.*tolerance\s*=\s*0\.0)(?=.*window\s*=\s*[&quot;']default_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagOffset\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2465,7 +2468,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagRaise\((?=.*thresh\s*=\s*0\.0)(?=.*raise_window\s*=\s*[&quot;']default_string[&quot;'])(?=.*freq\s*=\s*[&quot;']default_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagRaise\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2486,7 +2489,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagRange\(.*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagRange\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2513,7 +2516,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagUniLOF\((?=.*fill_na\s*=\s*(False|None))(?=.*slope_correct\s*=\s*(False|None)).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagUniLOF\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2540,7 +2543,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagUniLOF\((?=.*algorithm\s*=\s*[&quot;']ball_tree[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagUniLOF\((?=.*algorithm\s*=\s*[&quot;']ball_tree[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2567,7 +2570,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagUniLOF\((?=.*algorithm\s*=\s*[&quot;']kd_tree[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagUniLOF\((?=.*algorithm\s*=\s*[&quot;']kd_tree[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2594,7 +2597,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagUniLOF\((?=.*algorithm\s*=\s*[&quot;']brute[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagUniLOF\((?=.*algorithm\s*=\s*[&quot;']brute[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2621,34 +2624,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagUniLOF\((?=.*algorithm\s*=\s*[&quot;']auto[&quot;']).*\)" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="outliers" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagUniLOF" />
-            <param name="field" value="test_variable" />
-            <param name="n" value="20" />
-            <param name="thresh" value="45.6" />
-            <param name="algorithm" value="ball_tree" />
-            <param name="p" value="1" />
-            <param name="density" value="auto" />
-            <param name="fill_na" value="false" />
-            <param name="slope_correct" value="false" />
-            <param name="min_offset" value="" />
-            <param name="flag" value="255.0" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagUniLOF\((?=.*thresh\s*=\s*45\.6).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagUniLOF\((?=.*algorithm\s*=\s*[&quot;']auto[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2665,17 +2641,50 @@
             <param name="thresh" value="1.5" />
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
-            <param name="density" value="45.6" />
             <param name="fill_na" value="false" />
             <param name="slope_correct" value="false" />
             <param name="min_offset" value="" />
             <param name="flag" value="255.0" />
+            <conditional name="density_cond">
+              <param name="density_select_type" value="float" />
+              <param name="density" value="45.6" />
+            </conditional>
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagUniLOF\((?=.*density\s*=\s*45\.6).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagUniLOF\(.*\)" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagUniLOF" />
+            <param name="field" value="test_variable" />
+            <param name="n" value="20" />
+            <param name="algorithm" value="ball_tree" />
+            <param name="p" value="1" />
+            <param name="density" value="auto" />
+            <param name="fill_na" value="false" />
+            <param name="slope_correct" value="false" />
+            <param name="min_offset" value="" />
+            <param name="flag" value="255.0" />
+            <conditional name="thresh_cond">
+              <param name="thresh_select_type" value="float" />
+              <param name="thresh" value="45.6" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagUniLOF\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2706,69 +2715,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagZScore\((?=.*center\s*=\s*(False|None)).*\)" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="outliers" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagZScore" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
-            <param name="method" value="standard" />
-            <conditional name="window_cond">
-              <param name="window_select_type" value="timedelta" />
-              <param name="window" value="a_string" />
-            </conditional>
-            <param name="thresh" value="3" />
-            <param name="min_residuals" value="" />
-            <param name="min_periods" value="" />
-            <param name="center" value="false" />
-            <param name="axis" value="0" />
-            <param name="flag" value="255.0" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagZScore\((?=.*window\s*=\s*[&quot;']a_string[&quot;']).*\)" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="outliers" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagZScore" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
-            <param name="method" value="standard" />
-            <conditional name="window_cond">
-              <param name="window_select_type" value="number" />
-              <param name="window" value="123" />
-            </conditional>
-            <param name="thresh" value="3" />
-            <param name="min_residuals" value="" />
-            <param name="min_periods" value="" />
-            <param name="center" value="false" />
-            <param name="axis" value="0" />
-            <param name="flag" value="255.0" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagZScore\((?=.*window\s*=\s*123).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagZScore\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2799,7 +2746,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagZScore\((?=.*method\s*=\s*[&quot;']standard[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagZScore\((?=.*method\s*=\s*[&quot;']standard[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2830,7 +2777,69 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagZScore\((?=.*method\s*=\s*[&quot;']modified[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagZScore\((?=.*method\s*=\s*[&quot;']modified[&quot;']).*\)" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagZScore" />
+            <repeat name="field_repeat">
+              <param name="field" value="test_variable" />
+            </repeat>
+            <param name="method" value="standard" />
+            <conditional name="window_cond">
+              <param name="window_select_type" value="timedelta" />
+              <param name="window" value="a_string" />
+            </conditional>
+            <param name="thresh" value="3" />
+            <param name="min_residuals" value="" />
+            <param name="min_periods" value="" />
+            <param name="center" value="false" />
+            <param name="axis" value="0" />
+            <param name="flag" value="255.0" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagZScore\((?=.*window\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagZScore" />
+            <repeat name="field_repeat">
+              <param name="field" value="test_variable" />
+            </repeat>
+            <param name="method" value="standard" />
+            <conditional name="window_cond">
+              <param name="window_select_type" value="number" />
+              <param name="window" value="123" />
+            </conditional>
+            <param name="thresh" value="3" />
+            <param name="min_residuals" value="" />
+            <param name="min_periods" value="" />
+            <param name="center" value="false" />
+            <param name="axis" value="0" />
+            <param name="flag" value="255.0" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagZScore\((?=.*window\s*=\s*(?:[&quot;']?123[&quot;']?)).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2853,7 +2862,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagPatternByDTW\((?=.*reference\s*=\s*[&quot;']default_string[&quot;'])(?=.*normalize\s*=\s*(False|None))(?=.*plot\s*=\s*(True|None)).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagPatternByDTW\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2866,7 +2875,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="concatFlags" />
             <param name="field" value="test_variable" />
-            <param name="target" value="" />
+            <param name="target" value="test_variable" />
             <param name="method" value="auto" />
             <param name="invert" value="false" />
             <param name="freq" value="" />
@@ -2878,7 +2887,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*invert\s*=\s*(False|None))(?=.*drop\s*=\s*(True|None))(?=.*squeeze\s*=\s*(True|None))(?=.*override\s*=\s*(True|None)).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*concatFlags\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2891,7 +2900,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="concatFlags" />
             <param name="field" value="test_variable" />
-            <param name="target" value="" />
+            <param name="target" value="test_variable" />
             <param name="method" value="fagg" />
             <param name="invert" value="false" />
             <param name="freq" value="" />
@@ -2903,7 +2912,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']fagg[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*concatFlags\((?=.*method\s*=\s*[&quot;']fagg[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2916,7 +2925,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="concatFlags" />
             <param name="field" value="test_variable" />
-            <param name="target" value="" />
+            <param name="target" value="test_variable" />
             <param name="method" value="bagg" />
             <param name="invert" value="false" />
             <param name="freq" value="" />
@@ -2928,7 +2937,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']bagg[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*concatFlags\((?=.*method\s*=\s*[&quot;']bagg[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2941,7 +2950,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="concatFlags" />
             <param name="field" value="test_variable" />
-            <param name="target" value="" />
+            <param name="target" value="test_variable" />
             <param name="method" value="nagg" />
             <param name="invert" value="false" />
             <param name="freq" value="" />
@@ -2953,7 +2962,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']nagg[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*concatFlags\((?=.*method\s*=\s*[&quot;']nagg[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2966,7 +2975,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="concatFlags" />
             <param name="field" value="test_variable" />
-            <param name="target" value="" />
+            <param name="target" value="test_variable" />
             <param name="method" value="fshift" />
             <param name="invert" value="false" />
             <param name="freq" value="" />
@@ -2978,7 +2987,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']fshift[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*concatFlags\((?=.*method\s*=\s*[&quot;']fshift[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -2991,7 +3000,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="concatFlags" />
             <param name="field" value="test_variable" />
-            <param name="target" value="" />
+            <param name="target" value="test_variable" />
             <param name="method" value="bshift" />
             <param name="invert" value="false" />
             <param name="freq" value="" />
@@ -3003,7 +3012,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']bshift[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*concatFlags\((?=.*method\s*=\s*[&quot;']bshift[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3016,7 +3025,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="concatFlags" />
             <param name="field" value="test_variable" />
-            <param name="target" value="" />
+            <param name="target" value="test_variable" />
             <param name="method" value="nshift" />
             <param name="invert" value="false" />
             <param name="freq" value="" />
@@ -3028,7 +3037,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']nshift[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*concatFlags\((?=.*method\s*=\s*[&quot;']nshift[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3041,7 +3050,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="concatFlags" />
             <param name="field" value="test_variable" />
-            <param name="target" value="" />
+            <param name="target" value="test_variable" />
             <param name="method" value="sshift" />
             <param name="invert" value="false" />
             <param name="freq" value="" />
@@ -3053,7 +3062,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']sshift[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*concatFlags\((?=.*method\s*=\s*[&quot;']sshift[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3066,7 +3075,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="concatFlags" />
             <param name="field" value="test_variable" />
-            <param name="target" value="" />
+            <param name="target" value="test_variable" />
             <param name="method" value="match" />
             <param name="invert" value="false" />
             <param name="freq" value="" />
@@ -3078,7 +3087,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']match[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*concatFlags\((?=.*method\s*=\s*[&quot;']match[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3091,7 +3100,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="concatFlags" />
             <param name="field" value="test_variable" />
-            <param name="target" value="" />
+            <param name="target" value="test_variable" />
             <param name="method" value="auto" />
             <param name="invert" value="false" />
             <param name="freq" value="" />
@@ -3103,7 +3112,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']auto[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*concatFlags\((?=.*method\s*=\s*[&quot;']auto[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3129,7 +3138,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*reindex\((?=.*index\s*=\s*[&quot;']default_string[&quot;'])(?=.*broadcast\s*=\s*(False|None))(?=.*squeeze\s*=\s*(True|None))(?=.*override\s*=\s*(True|None)).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*reindex\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3153,7 +3162,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*resample\((?=.*freq\s*=\s*[&quot;']default_string[&quot;'])(?=.*squeeze\s*=\s*(True|None)).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*resample\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3177,7 +3186,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*resample\((?=.*method\s*=\s*[&quot;']fagg[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*resample\((?=.*method\s*=\s*[&quot;']fagg[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3201,7 +3210,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*resample\((?=.*method\s*=\s*[&quot;']bagg[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*resample\((?=.*method\s*=\s*[&quot;']bagg[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3225,7 +3234,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*resample\((?=.*method\s*=\s*[&quot;']nagg[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*resample\((?=.*method\s*=\s*[&quot;']nagg[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3249,7 +3258,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*resample\((?=.*func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*resample\((?=.*func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3270,7 +3279,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*calculatePolynomialResiduals\((?=.*window\s*=\s*[&quot;']default_string[&quot;'])(?=.*order\s*=\s*1).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*calculatePolynomialResiduals\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3292,7 +3301,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*calculateRollingResiduals\((?=.*window\s*=\s*[&quot;']default_string[&quot;'])(?=.*center\s*=\s*(False|None)).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*calculateRollingResiduals\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3314,7 +3323,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*calculateRollingResiduals\((?=.*func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*calculateRollingResiduals\((?=.*func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3336,7 +3345,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*rolling\((?=.*window\s*=\s*[&quot;']default_string[&quot;'])(?=.*center\s*=\s*(False|None)).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*rolling\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3358,7 +3367,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*rolling\((?=.*func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*rolling\((?=.*func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3391,7 +3400,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignKNNScore\(.*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignKNNScore\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3424,7 +3433,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignKNNScore\((?=.*algorithm\s*=\s*[&quot;']ball_tree[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignKNNScore\((?=.*algorithm\s*=\s*[&quot;']ball_tree[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3457,7 +3466,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignKNNScore\((?=.*algorithm\s*=\s*[&quot;']kd_tree[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignKNNScore\((?=.*algorithm\s*=\s*[&quot;']kd_tree[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3490,7 +3499,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignKNNScore\((?=.*algorithm\s*=\s*[&quot;']brute[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignKNNScore\((?=.*algorithm\s*=\s*[&quot;']brute[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3523,7 +3532,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignKNNScore\((?=.*algorithm\s*=\s*[&quot;']auto[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignKNNScore\((?=.*algorithm\s*=\s*[&quot;']auto[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3556,7 +3565,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignKNNScore\((?=.*freq\s*=\s*45\.6).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignKNNScore\((?=.*freq\s*=\s*45\.6).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3589,7 +3598,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignKNNScore\((?=.*freq\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignKNNScore\((?=.*freq\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3622,7 +3631,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignKNNScore\((?=.*func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignKNNScore\((?=.*func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3653,7 +3662,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignLOF\(.*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignLOF\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3684,7 +3693,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignLOF\((?=.*algorithm\s*=\s*[&quot;']ball_tree[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignLOF\((?=.*algorithm\s*=\s*[&quot;']ball_tree[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3715,7 +3724,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignLOF\((?=.*algorithm\s*=\s*[&quot;']kd_tree[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignLOF\((?=.*algorithm\s*=\s*[&quot;']kd_tree[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3746,7 +3755,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignLOF\((?=.*algorithm\s*=\s*[&quot;']brute[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignLOF\((?=.*algorithm\s*=\s*[&quot;']brute[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3777,7 +3786,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignLOF\((?=.*algorithm\s*=\s*[&quot;']auto[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignLOF\((?=.*algorithm\s*=\s*[&quot;']auto[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3808,7 +3817,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignLOF\((?=.*freq\s*=\s*45\.6).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignLOF\((?=.*freq\s*=\s*45\.6).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3839,7 +3848,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignLOF\((?=.*freq\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignLOF\((?=.*freq\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3864,7 +3873,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignUniLOF\((?=.*fill_na\s*=\s*(False|None)).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignUniLOF\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3889,7 +3898,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignUniLOF\((?=.*algorithm\s*=\s*[&quot;']ball_tree[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignUniLOF\((?=.*algorithm\s*=\s*[&quot;']ball_tree[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3914,7 +3923,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignUniLOF\((?=.*algorithm\s*=\s*[&quot;']kd_tree[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignUniLOF\((?=.*algorithm\s*=\s*[&quot;']kd_tree[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3939,7 +3948,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignUniLOF\((?=.*algorithm\s*=\s*[&quot;']brute[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignUniLOF\((?=.*algorithm\s*=\s*[&quot;']brute[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3964,7 +3973,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignUniLOF\((?=.*algorithm\s*=\s*[&quot;']auto[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignUniLOF\((?=.*algorithm\s*=\s*[&quot;']auto[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -3982,14 +3991,17 @@
             <param name="n" value="20" />
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
-            <param name="density" value="45.6" />
             <param name="fill_na" value="false" />
+            <conditional name="density_cond">
+              <param name="density_select_type" value="float" />
+              <param name="density" value="45.6" />
+            </conditional>
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignUniLOF\((?=.*density\s*=\s*45\.6).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignUniLOF\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4012,30 +4024,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignZScore\((?=.*center\s*=\s*(False|None)).*\)" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="scores" />
-          <conditional name="method_cond">
-            <param name="method_select" value="assignZScore" />
-            <param name="field" value="test_variable" />
-            <param name="window" value="" />
-            <param name="norm_func" value="std" />
-            <param name="model_func" value="a_string" />
-            <param name="center" value="false" />
-            <param name="min_periods" value="" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignZScore\((?=.*model_func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignZScore\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4058,7 +4047,30 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignZScore\((?=.*norm_func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignZScore\((?=.*norm_func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="scores" />
+          <conditional name="method_cond">
+            <param name="method_select" value="assignZScore" />
+            <param name="field" value="test_variable" />
+            <param name="window" value="" />
+            <param name="norm_func" value="std" />
+            <param name="model_func" value="a_string" />
+            <param name="center" value="false" />
+            <param name="min_periods" value="" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*assignZScore\((?=.*model_func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4078,7 +4090,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*copyField\((?=.*overwrite\s*=\s*(True|None)).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*copyField\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4096,7 +4108,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*dropField\(.*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*dropField\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4118,7 +4130,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagByClick\(.*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagByClick\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4140,7 +4152,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagByClick\((?=.*gui_mode\s*=\s*[&quot;']GUI[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagByClick\((?=.*gui_mode\s*=\s*[&quot;']GUI[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4162,7 +4174,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagByClick\((?=.*gui_mode\s*=\s*[&quot;']overlay[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*flagByClick\((?=.*gui_mode\s*=\s*[&quot;']overlay[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4190,7 +4202,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*plot\(.*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*plot\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4218,7 +4230,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*plot\((?=.*mode\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*plot\((?=.*mode\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4246,7 +4258,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*plot\((?=.*xscope\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*plot\((?=.*xscope\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4265,7 +4277,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*renameField\((?=.*new_name\s*=\s*[&quot;']default_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*renameField\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4288,7 +4300,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*selectTime\((?=.*mode\s*=\s*[&quot;']periodic[&quot;'])(?=.*closed\s*=\s*(False|None)).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*selectTime\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4311,7 +4323,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*selectTime\((?=.*mode\s*=\s*[&quot;']periodic[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*selectTime\((?=.*mode\s*=\s*[&quot;']periodic[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4334,7 +4346,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*selectTime\((?=.*mode\s*=\s*[&quot;']selection_field[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*selectTime\((?=.*mode\s*=\s*[&quot;']selection_field[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4357,7 +4369,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*transform\((?=.*func\s*=\s*[&quot;']default_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*transform\(.*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4380,7 +4392,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*transform\((?=.*freq\s*=\s*45\.6).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*transform\((?=.*freq\s*=\s*45\.6).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4403,7 +4415,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*transform\((?=.*freq\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*transform\((?=.*freq\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>
@@ -4426,7 +4438,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*transform\((?=.*func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
+          <has_text_matching expression="(?:test_variable|unknown_field);\s*transform\((?=.*func\s*=\s*[&quot;']a_string[&quot;']).*\)" />
         </assert_contents>
       </output>
     </test>

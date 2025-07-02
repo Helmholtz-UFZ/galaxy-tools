@@ -141,22 +141,28 @@ def generate_test_variants(method: Callable) -> list:
         if (origin is Literal and len(args) > 1) or (origin is Union and len(args) > 1):
             complex_params_to_vary.add(name)
 
-        # === FINAL FIX: Explicitly set base for field/target to avoid empty defaults ===
-        if name in ['field', 'target']:
-            base_params[name] = 'test_variable'
-        elif default is not inspect.Parameter.empty:
+        # General logic for assigning defaults
+        # Condition 1: A meaningful, non-empty default exists in the function signature.
+        if default is not inspect.Parameter.empty and default is not None and default != "":
             if annotation is bool:
                 base_params[name] = not default
             else:
                 base_params[name] = default
-        elif origin is Literal and args:
-            base_params[name] = args[0]
-        else: 
-            # Assign sensible defaults for other parameters without one
-            if annotation is bool: base_params[name] = True
-            elif annotation is int: base_params[name] = 1
-            elif annotation is float: base_params[name] = 0.0
-            else: base_params[name] = "default_string"
+        # Condition 2 (else): No default exists OR the default is empty/None.
+        else:
+            # Assign a sensible, non-empty default for testing purposes based on type.
+            if name in ['field', 'target']:
+                base_params[name] = 'test_variable'
+            elif origin is Literal and args:
+                base_params[name] = args[0]
+            elif annotation is bool:
+                base_params[name] = True
+            elif annotation is int:
+                base_params[name] = 1
+            elif annotation is float:
+                base_params[name] = 1.0
+            else:
+                base_params[name] = "default_string"
             
     variants.append({"description": f"Test mit Defaults für {method.__name__}", "params": base_params})
 
@@ -200,6 +206,9 @@ def generate_test_variants(method: Callable) -> list:
                 if method.__name__ in REPEAT_FIELD_FUNCS:
                     val_list = [value] if not isinstance(value, list) else value
                     galaxy_params[f"{name}_repeat"] = [{name: v} for v in val_list]
+                    # === WORKAROUND FÜR GALAXY-PARSER-BUG ===
+                    # Fügt den field/target-Parameter redundant hinzu, damit der Test-Runner ihn erkennt.
+                    galaxy_params[name] = value
                 else:
                     galaxy_params[name] = value
             elif name.endswith('_cond') and isinstance(value, dict):
@@ -305,12 +314,7 @@ def main():
                 field_val = params_to_check.get('field', params_to_check.get('target'))
                 field_name = field_val if not isinstance(field_val, list) else (field_val[0] if field_val else "test_variable")
 
-                # If field_name is empty/None from the params, the tool might output 'unknown_field'.
-                # The regex should account for the expected name OR the tool's fallback.
-                if not field_name or field_name == "test_variable":
-                    field_regex_part = '(?:test_variable|unknown_field)'
-                else:
-                    field_regex_part = re.escape(str(field_name))
+                field_regex_part = re.escape(str(field_name))
                 
                 lookaheads = []
                 
@@ -344,5 +348,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 

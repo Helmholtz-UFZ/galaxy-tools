@@ -1,4 +1,4 @@
-<tool id="iphop_predict" name="iPHopP predict" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0" license="MIT">
+<tool id="iphop_predict" name="iPHoP predict" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0" license="MIT">
     <description>host of input bacteriophage/archaeal virus genomes</description>
     <macros>
         <token name="@TOOL_VERSION@">1.3.3</token>

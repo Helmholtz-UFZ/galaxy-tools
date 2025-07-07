@@ -29,11 +29,11 @@
     <tests>
         <test expect_num_outputs="1">
             <param name="dbdir" value="phaboxdb"/>
-            <param name="contigs" value="example_contigs.fa"/>
+            <param name="contigs" value="example_contigs.fa" location="https://github.com/KennthShang/PhaBOX/releases/download/v2/example_contigs.fa"/>
             <output name="votu_aai">
                 <assert_contents>
-                    <has_line line="Accesssion&#9;vOTU&#9;Representative&#9;Length"/>
-                    <has_n_lines n="11"/>
+                    <has_line line="Accession&#9;vOTU&#9;Representative&#9;Length"/>
+                    <has_n_lines n="391"/>
                     <has_n_columns n="4"/>
                 </assert_contents>
             </output>
@@ -44,7 +44,7 @@
         </test>
         <test expect_num_outputs="1">
             <param name="dbdir" value="phaboxdb"/>
-            <param name="contigs" value="example_contigs.fa"/>
+            <param name="contigs" value="example_contigs.fa" location="https://github.com/KennthShang/PhaBOX/releases/download/v2/example_contigs.fa"/>
             <section name="votu">
                 <conditional name="mode_cond">
                     <param name="mode" value="AAI"/>
@@ -52,8 +52,8 @@
             </section>
             <output name="votu_aai">
                 <assert_contents>
-                    <has_line line="Accession&#9;Length&#9;vOTU&#9;Representative"/>
-                    <has_n_lines n="11"/>
+                    <has_line line="Accession&#9;vOTU&#9;Representative&#9;Length"/>
+                    <has_n_lines n="391"/>
                     <has_n_columns n="4"/>
                 </assert_contents>
             </output>

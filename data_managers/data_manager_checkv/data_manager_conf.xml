@@ -8,9 +8,9 @@
                 <column name="path" output_ref="out_file">
                     <move type="directory">
                         <source>${path}</source>
-                        <target base="${GALAXY_DATA_MANAGER_DATA_PATH}">checkv/${path}</target>
+                        <target base="${GALAXY_DATA_MANAGER_DATA_PATH}">checkv/${value}</target>
                     </move>
-                    <value_translation>${GALAXY_DATA_MANAGER_DATA_PATH}/checkv/${path}</value_translation>
+                    <value_translation>${GALAXY_DATA_MANAGER_DATA_PATH}/checkv/${value}</value_translation>
                     <value_translation type="function">abspath</value_translation>
                 </column>
             </output>

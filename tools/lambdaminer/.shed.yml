@@ -1,0 +1,19 @@
+name: lambdaminer
+owner: ufz
+description: Lambda-Miner Tools
+remote_repository_url: https://github.com/jw44lavo/galaxy-tools/blob/bgo/tools/lambdaminer/
+type: unrestricted
+long_description: |
+  Set of Lambda-Miner Tools
+homepage_url: https://lambda-miner-project.pages.ufz.de/lambda-miner-workflows/
+categories:
+- Web Services
+- Data Source
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: "Wrapper command line tools of the lambda-miner package: {{ tool_name }}."
+suite:
+  name: "suite_lambdaminer"
+  description: Lambda-Miner Tools suite
+  long_description: |
+    Suite for Lambda-Miner Tools

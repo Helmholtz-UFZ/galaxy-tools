@@ -5,9 +5,10 @@ on:
     - cron: '0 0 * * 1'
   repository_dispatch:
     types: [run-all-tool-tests-command]
+  workflow_dispatch:
 env:
   GALAXY_FORK: galaxyproject
-  GALAXY_BRANCH: release_24.1
+  GALAXY_BRANCH: release_24.2
   MAX_CHUNKS: 40
 jobs:
   setup:
@@ -75,7 +76,7 @@ jobs:
         echo 'Using ${{ steps.discover.outputs.chunk-count }} chunks (${{ steps.discover.outputs.chunk-list }})'
 
   lint:
-    name: Check for missing containers
+    name: Lint tool-list
     needs: setup
     if: ${{ needs.setup.outputs.repository-list != '' || needs.setup.outputs.tool-list != '' }}
     runs-on: ubuntu-latest
@@ -101,9 +102,10 @@ jobs:
       id: lint
       with:
         mode: lint
+        fail-level: warn
         repository-list: ${{ needs.setup.outputs.repository-list }}
         tool-list: ${{ needs.setup.outputs.tool-list }}
-        additional-planemo-options: --biocontainers -s stdio,tests,output,inputs,help,general,command,citations,tool_xsd,xml_order,tool_urls,shed_metadata,urls,readme,shed_yaml,repository_dependencies,tool_dependencies_actions,tool_dependencies_sha256sum,tool_dependencies_xsd,expansion
+        additional-planemo-options: --biocontainers --skip version_bumped
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
@@ -151,38 +153,77 @@ jobs:
     - name: Clean dotnet folder for space
       run: rm -Rf /usr/share/dotnet
 
+    - name: Check for folder changes
+      id: filter
+      run: |
+        pip install planemo
+        echo "${{ needs.setup.outputs.repository-list }}" > repository_list.txt 
+        mapfile -t REPO_ARRAY < repository_list.txt
+        planemo ci_find_tools --chunk_count "${{ needs.setup.outputs.chunk-count }}" --chunk "${{ matrix.chunk }}" --output tool_list_chunk.txt "${REPO_ARRAY[@]}"
+
+        if grep -q scripting tool_list_chunk.txt; then
+          echo "scripting=true" >> $GITHUB_OUTPUT
+        else
+          echo "scripting=false" >> $GITHUB_OUTPUT
+        fi
+        if grep -q lambdaminer tool_list_chunk.txt; then
+          echo "lambdaminer=true" >> $GITHUB_OUTPUT
+        else
+          echo "lambdaminer=false" >> $GITHUB_OUTPUT
+        fi
+        if grep -q omero tool_list_chunk.txt; then
+          echo "omero=true" >> $GITHUB_OUTPUT
+        else
+          echo "omero=false" >> $GITHUB_OUTPUT
+        fi
+        if egrep -q "virsorter|phabox|genomad" tool_list_chunk.txt; then
+          echo "testdata=true" >> $GITHUB_OUTPUT
+          echo "tool_list_chunk<<EOF" >> $GITHUB_OUTPUT
+          cat tool_list_chunk.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        else
+          echo "testdata=false" >> $GITHUB_OUTPUT
+        fi
+        cat $GITHUB_OUTPUT
+
     # the following 2 steps are needed for testing the scripting tool
     - name: Install Apptainer's singularity
+      if: steps.filter.outputs.scripting == 'true'
       uses: eWaterCycle/setup-apptainer@v2
     - name: Symlink singularity
+      if: steps.filter.outputs.scripting == 'true'
       run: ln -s $(which apptainer) $(dirname apptainer)/singularity
     - name: Install containers
+      if: steps.filter.outputs.scripting == 'true'
       run: |
-        echo "${{ needs.setup.outputs.repository-list }}" > repository_list.txt
-        if grep -q scripting repository_list.txt; then
-          singularity pull --dir /tmp docker://continuumio/anaconda3
-          singularity pull --dir /tmp docker://rocker/tidyverse
-        fi
+        singularity pull --dir /tmp docker://rocker/tidyverse
+        singularity pull --dir /tmp docker://python:3.10-slim
 
-      # Start OMERO
+    # Set up the lambda-miner database
+    - name: Create a database in the postgres for lambda-miner
+      if: steps.filter.outputs.lambdaminer == 'true'
+      run: |
+        PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE lmdb;"
+        PGPASSWORD=postgres psql -h localhost -U postgres -d lmdb -q -f ./.github/lambdaminer/build.sql
+        sleep 10
+        PGPASSWORD=postgres psql -h localhost -U postgres -d lmdb -c "SELECT * FROM public.instrument;"
+
+    # Start OMERO
     - name: Start OMERO
+      if: steps.filter.outputs.omero == 'true'
       uses: sudo-bot/action-docker-compose@latest
       with:
         cli-args: "-f .github/omero-docker-compose.yml up -d"
 
-      # Setup environment
-    - name: Set up Python environment for omero-py
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11.0'
-
-      # Upload a dummy dataset in OMERO
+    # Upload a dummy dataset in OMERO
     - name: Install dependencies and upload a OMERO dummy dataset
+      if: steps.filter.outputs.omero == 'true'
       run: |
         echo "Waiting for OMERO to be ready..."
         sleep 60
         pip install https://github.com/glencoesoftware/zeroc-ice-py-linux-x86_64/releases/download/20240202/zeroc_ice-3.6.5-cp311-cp311-manylinux_2_28_x86_64.whl
         pip install omero-py==5.19.4
+        pip install omero-metadata
         omero login -s localhost -u root -w omero -p 6064
         PID=$(omero obj new Project name='test_prj')
         DID=$(omero obj new Dataset name='test_dts')
@@ -194,15 +235,23 @@ jobs:
         DID_HCS=$(omero obj new Dataset name='test_hcs_dts')
         omero import -d $DID_HCS .github/dummy-hcs-omero
         echo "Created the hcs dummy dataset into OMERO"
+        omero upload .github/dummy_omero_tabs/attachment.tsv
+        omero upload .github/dummy_omero_tabs/attachment.tsv
+        omero upload .github/dummy_omero_tabs/attachment.tsv
+        omero obj new FileAnnotation file=OriginalFile:110
+        omero obj new FileAnnotation file=OriginalFile:111
+        omero obj new FileAnnotation file=OriginalFile:112
+        omero metadata populate --file .github/dummy_omero_tabs/dummy-bulkmap.csv $DID
+        omero metadata populate --file .github/dummy_omero_tabs/dummy-bulkmap.csv $DID
+        omero metadata populate --context bulkmap --cfg .github/dummy_omero_tabs/dummy-bulkmap.yml $DID
+        echo "Uploaded Attachments, KV pairs and Tables"
 
     # download or create large test data via script
     - name: Create test data
+      if: steps.filter.outputs.testdata == 'true'
       run: |
           set -x
-          pip install planemo > /dev/null
-          echo '${{ needs.setup.outputs.repository-list }}' > repository_list.txt
-          mapfile -t REPO_ARRAY < repository_list.txt
-          planemo ci_find_tools --chunk_count "${{ needs.setup.outputs.chunk-count }}" --chunk "${{ matrix.chunk }}" --output tool_list_chunk.txt "${REPO_ARRAY[@]}"
+          echo "${{ steps.filter.outputs.tool_list_chunk }}" >> tool_list_chunk.txt
           cat tool_list_chunk.txt | sed 's@/[^/]*$@@' | sort -i > repository_list_chunk.txt
           while read repo
           do

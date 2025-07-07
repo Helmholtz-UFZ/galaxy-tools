@@ -1,0 +1,1564 @@
+<tool name="OGS Utils Suite" id="ogsutilssuite" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>A dynamic wrapper for OGS utilities, generated from source code.</description>
+
+
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[ogs --version]]></version_command>
+  <node><![CDATA[#for $i, $step in enumerate($utils_repeat):
+    #if $i > 0:
+        && \
+    #end if
+    #set $selector = $step.tool_selector
+    #set $selected_tool_name = str($selector.selected_tool)
+    #if $selected_tool_name == 'AddElementQuality'
+        AddElementQuality \
+        #if str($selector.AddElementQuality_input_mesh_file):
+            --input_mesh_file '$selector.AddElementQuality_input_mesh_file' \
+        #end if
+        --output_mesh_file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'AddFaultToVoxelGrid'
+        AddFaultToVoxelGrid \
+        #if str($selector.AddFaultToVoxelGrid_material):
+            --material '$selector.AddFaultToVoxelGrid_material' \
+        #end if
+        #if str($selector.AddFaultToVoxelGrid_fault):
+            --fault '$selector.AddFaultToVoxelGrid_fault' \
+        #end if
+        #if str($selector.AddFaultToVoxelGrid_input):
+            --input '$selector.AddFaultToVoxelGrid_input' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'AddLayer'
+        AddLayer \
+        #if str($selector.AddLayer_input-mesh-file):
+            --input-mesh-file '$selector.AddLayer_input-mesh-file' \
+        #end if
+        #if str($selector.AddLayer_layer-tickness):
+            --layer-tickness '$selector.AddLayer_layer-tickness' \
+        #end if
+        $selector.AddLayer_add-layer-on-bottom
+        $selector.AddLayer_copy-material-ids
+        #if str($selector.AddLayer_set-material-id):
+            --set-material-id '$selector.AddLayer_set-material-id' \
+        #end if
+        --output-mesh-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'AssignRasterDataToMesh'
+        AssignRasterDataToMesh \
+        #if str($selector.AssignRasterDataToMesh_nodata):
+            --nodata '$selector.AssignRasterDataToMesh_nodata' \
+        #end if
+        $selector.AssignRasterDataToMesh_cell-array
+        $selector.AssignRasterDataToMesh_node-array
+        #if str($selector.AssignRasterDataToMesh_scalar-name):
+            --scalar-name '$selector.AssignRasterDataToMesh_scalar-name' \
+        #end if
+        #if str($selector.AssignRasterDataToMesh_raster):
+            --raster '$selector.AssignRasterDataToMesh_raster' \
+        #end if
+        #if str($selector.AssignRasterDataToMesh_input):
+            --input '$selector.AssignRasterDataToMesh_input' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'BinaryToPVTU'
+        BinaryToPVTU \
+        #if str($selector.BinaryToPVTU_mesh-input-file-base):
+            --mesh-input-file-base '$selector.BinaryToPVTU_mesh-input-file-base' \
+        #end if
+        #if str($selector.BinaryToPVTU_log-level):
+            --log-level '$selector.BinaryToPVTU_log-level' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'ComputeNodeAreasFromSurfaceMesh'
+        ComputeNodeAreasFromSurfaceMesh \
+        #if str($selector.ComputeNodeAreasFromSurfaceMesh_mesh-input-file):
+            --mesh-input-file '$selector.ComputeNodeAreasFromSurfaceMesh_mesh-input-file' \
+        #end if
+        #if str($selector.ComputeNodeAreasFromSurfaceMesh_id-prop-name):
+            --id-prop-name '$selector.ComputeNodeAreasFromSurfaceMesh_id-prop-name' \
+        #end if
+        --output-base-name "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'ConvertSHPToGLI'
+        ConvertSHPToGLI \
+        #if str($selector.ConvertSHPToGLI_shape-file):
+            --shape-file '$selector.ConvertSHPToGLI_shape-file' \
+        #end if
+    #elif $selected_tool_name == 'CreateAnchors'
+        CreateAnchors \
+        #if str($selector.CreateAnchors_log-level):
+            --log-level '$selector.CreateAnchors_log-level' \
+        #end if
+        #if str($selector.CreateAnchors_input):
+            --input '$selector.CreateAnchors_input' \
+        #end if
+        #if str($selector.CreateAnchors_json-file):
+            --json-file '$selector.CreateAnchors_json-file' \
+        #end if
+        #if str($selector.CreateAnchors_tolerance):
+            --tolerance '$selector.CreateAnchors_tolerance' \
+        #end if
+        #if str($selector.CreateAnchors_max-iter):
+            --max-iter '$selector.CreateAnchors_max-iter' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'CreateBoundaryConditionsAlongPolylines'
+        CreateBoundaryConditionsAlongPolylines \
+        $selector.CreateBoundaryConditionsAlongPolylines_gml
+        #if str($selector.CreateBoundaryConditionsAlongPolylines_type):
+            --type '$selector.CreateBoundaryConditionsAlongPolylines_type' \
+        #end if
+        #if str($selector.CreateBoundaryConditionsAlongPolylines_search-length):
+            --search-length '$selector.CreateBoundaryConditionsAlongPolylines_search-length' \
+        #end if
+        #if str($selector.CreateBoundaryConditionsAlongPolylines_input-geometry):
+            --input-geometry '$selector.CreateBoundaryConditionsAlongPolylines_input-geometry' \
+        #end if
+        #if str($selector.CreateBoundaryConditionsAlongPolylines_mesh-file):
+            --mesh-file '$selector.CreateBoundaryConditionsAlongPolylines_mesh-file' \
+        #end if
+        #if str($selector.CreateBoundaryConditionsAlongPolylines_gmsh-path):
+            --gmsh-path '$selector.CreateBoundaryConditionsAlongPolylines_gmsh-path' \
+        #end if
+        --output-base-file-name "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'ExtractBoundary'
+        ExtractBoundary \
+        #if str($selector.ExtractBoundary_mesh-input-file):
+            --mesh-input-file '$selector.ExtractBoundary_mesh-input-file' \
+        #end if
+        --mesh-output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+        --ascii-output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_2.dat"
+    #elif $selected_tool_name == 'ExtractMaterials'
+        ExtractMaterials \
+        #if str($selector.ExtractMaterials_material-id):
+            --material-id '$selector.ExtractMaterials_material-id' \
+        #end if
+        #if str($selector.ExtractMaterials_input):
+            --input '$selector.ExtractMaterials_input' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'ExtractSurface'
+        ExtractSurface \
+        #if str($selector.ExtractSurface_angle):
+            --angle '$selector.ExtractSurface_angle' \
+        #end if
+        #if str($selector.ExtractSurface_z-component):
+            --z-component '$selector.ExtractSurface_z-component' \
+        #end if
+        #if str($selector.ExtractSurface_y-component):
+            --y-component '$selector.ExtractSurface_y-component' \
+        #end if
+        #if str($selector.ExtractSurface_x-component):
+            --x-component '$selector.ExtractSurface_x-component' \
+        #end if
+        #if str($selector.ExtractSurface_mesh-input-file):
+            --mesh-input-file '$selector.ExtractSurface_mesh-input-file' \
+        #end if
+        --ascii-output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+        --mesh-output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_2.dat"
+    #elif $selected_tool_name == 'FEFLOW2OGS'
+        FEFLOW2OGS \
+        #if str($selector.FEFLOW2OGS_in):
+            --in '$selector.FEFLOW2OGS_in' \
+        #end if
+        --out "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'GMSH2OGS'
+        GMSH2OGS \
+        #if str($selector.GMSH2OGS_in):
+            --in '$selector.GMSH2OGS_in' \
+        #end if
+        $selector.GMSH2OGS_validation
+        $selector.GMSH2OGS_boundaries
+        $selector.GMSH2OGS_exclude-lines
+        --out "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'GocadSGridReader'
+        GocadSGridReader \
+        $selector.GocadSGridReader_generate-face-sets
+        #if str($selector.GocadSGridReader_sg):
+            --sg '$selector.GocadSGridReader_sg' \
+        #end if
+        --output-mesh "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'GocadTSurfaceReader'
+        GocadTSurfaceReader \
+        $selector.GocadTSurfaceReader_write-binary
+        $selector.GocadTSurfaceReader_surfaces-only
+        $selector.GocadTSurfaceReader_lines-only
+        #if str($selector.GocadTSurfaceReader_input-file):
+            --input-file '$selector.GocadTSurfaceReader_input-file' \
+        #end if
+        --output-dir "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'IntegrateBoreholesIntoMesh'
+        IntegrateBoreholesIntoMesh \
+        #if str($selector.IntegrateBoreholesIntoMesh_max-elevation):
+            --max-elevation '$selector.IntegrateBoreholesIntoMesh_max-elevation' \
+        #end if
+        #if str($selector.IntegrateBoreholesIntoMesh_min-elevation):
+            --min-elevation '$selector.IntegrateBoreholesIntoMesh_min-elevation' \
+        #end if
+        #if str($selector.IntegrateBoreholesIntoMesh_max-id):
+            --max-id '$selector.IntegrateBoreholesIntoMesh_max-id' \
+        #end if
+        #if str($selector.IntegrateBoreholesIntoMesh_min-id):
+            --min-id '$selector.IntegrateBoreholesIntoMesh_min-id' \
+        #end if
+        #if str($selector.IntegrateBoreholesIntoMesh_geo):
+            --geo '$selector.IntegrateBoreholesIntoMesh_geo' \
+        #end if
+        #if str($selector.IntegrateBoreholesIntoMesh_input):
+            --input '$selector.IntegrateBoreholesIntoMesh_input' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'Layers2Grid'
+        Layers2Grid \
+        $selector.Layers2Grid_dilate
+        #if str($selector.Layers2Grid_cellsize-z):
+            --cellsize-z '$selector.Layers2Grid_cellsize-z' \
+        #end if
+        #if str($selector.Layers2Grid_cellsize-y):
+            --cellsize-y '$selector.Layers2Grid_cellsize-y' \
+        #end if
+        #if str($selector.Layers2Grid_cellsize-x):
+            --cellsize-x '$selector.Layers2Grid_cellsize-x' \
+        #end if
+        #if str($selector.Layers2Grid_input):
+            --input '$selector.Layers2Grid_input' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'MapGeometryToMeshSurface'
+        MapGeometryToMeshSurface \
+        #if str($selector.MapGeometryToMeshSurface_mesh-file):
+            --mesh-file '$selector.MapGeometryToMeshSurface_mesh-file' \
+        #end if
+        #if str($selector.MapGeometryToMeshSurface_input-geometry):
+            --input-geometry '$selector.MapGeometryToMeshSurface_input-geometry' \
+        #end if
+        $selector.MapGeometryToMeshSurface_additional-insert-mapping
+        --output-geometry "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'MergeMeshToBulkMesh'
+        MergeMeshToBulkMesh \
+        #if str($selector.MergeMeshToBulkMesh_bulk-mesh-input-file):
+            --bulk-mesh-input-file '$selector.MergeMeshToBulkMesh_bulk-mesh-input-file' \
+        #end if
+        #if str($selector.MergeMeshToBulkMesh_mesh-input-file):
+            --mesh-input-file '$selector.MergeMeshToBulkMesh_mesh-input-file' \
+        #end if
+        #if str($selector.MergeMeshToBulkMesh_pressure):
+            --pressure '$selector.MergeMeshToBulkMesh_pressure' \
+        #end if
+        #if str($selector.MergeMeshToBulkMesh_gas_pressure):
+            --gas_pressure '$selector.MergeMeshToBulkMesh_gas_pressure' \
+        #end if
+        #if str($selector.MergeMeshToBulkMesh_capillary_pressure):
+            --capillary_pressure '$selector.MergeMeshToBulkMesh_capillary_pressure' \
+        #end if
+        #if str($selector.MergeMeshToBulkMesh_temperature):
+            --temperature '$selector.MergeMeshToBulkMesh_temperature' \
+        #end if
+        #if str($selector.MergeMeshToBulkMesh_sigma_xx):
+            --sigma_xx '$selector.MergeMeshToBulkMesh_sigma_xx' \
+        #end if
+        #if str($selector.MergeMeshToBulkMesh_sigma_yy):
+            --sigma_yy '$selector.MergeMeshToBulkMesh_sigma_yy' \
+        #end if
+        #if str($selector.MergeMeshToBulkMesh_sigma_zz):
+            --sigma_zz '$selector.MergeMeshToBulkMesh_sigma_zz' \
+        #end if
+        #if str($selector.MergeMeshToBulkMesh_material_id):
+            --material_id '$selector.MergeMeshToBulkMesh_material_id' \
+        #end if
+        --mesh-output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'Mesh2Raster'
+        Mesh2Raster \
+        #if str($selector.Mesh2Raster_cellsize):
+            --cellsize '$selector.Mesh2Raster_cellsize' \
+        #end if
+        #if str($selector.Mesh2Raster_input-file):
+            --input-file '$selector.Mesh2Raster_input-file' \
+        #end if
+        --output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'Mesh2Shape'
+        Mesh2Shape \
+        #if str($selector.Mesh2Shape_input-file):
+            --input-file '$selector.Mesh2Shape_input-file' \
+        #end if
+        --output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'MeshMapping'
+        MeshMapping \
+        $selector.MeshMapping_lowpass
+        #if str($selector.MeshMapping_static):
+            --static '$selector.MeshMapping_static' \
+        #end if
+        #if str($selector.MeshMapping_distance):
+            --distance '$selector.MeshMapping_distance' \
+        #end if
+        #if str($selector.MeshMapping_mesh):
+            --mesh '$selector.MeshMapping_mesh' \
+        #end if
+        #if str($selector.MeshMapping_raster):
+            --raster '$selector.MeshMapping_raster' \
+        #end if
+        #if str($selector.MeshMapping_input):
+            --input '$selector.MeshMapping_input' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'MoveGeometry'
+        MoveGeometry \
+        #if str($selector.MoveGeometry_z):
+            --z '$selector.MoveGeometry_z' \
+        #end if
+        #if str($selector.MoveGeometry_y):
+            --y '$selector.MoveGeometry_y' \
+        #end if
+        #if str($selector.MoveGeometry_x):
+            --x '$selector.MoveGeometry_x' \
+        #end if
+        #if str($selector.MoveGeometry_input):
+            --input '$selector.MoveGeometry_input' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'MoveMesh'
+        MoveMesh \
+        #if str($selector.MoveMesh_mesh):
+            --mesh '$selector.MoveMesh_mesh' \
+        #end if
+        #if str($selector.MoveMesh_x):
+            --x '$selector.MoveMesh_x' \
+        #end if
+        #if str($selector.MoveMesh_y):
+            --y '$selector.MoveMesh_y' \
+        #end if
+        #if str($selector.MoveMesh_z):
+            --z '$selector.MoveMesh_z' \
+        #end if
+        --output-mesh "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'NetCdfConverter'
+        NetCdfConverter \
+        #if str($selector.NetCdfConverter_nodata):
+            --nodata '$selector.NetCdfConverter_nodata' \
+        #end if
+        #if str($selector.NetCdfConverter_elem-type):
+            --elem-type '$selector.NetCdfConverter_elem-type' \
+        #end if
+        $selector.NetCdfConverter_images
+        $selector.NetCdfConverter_multi-file
+        $selector.NetCdfConverter_single-file
+        #if str($selector.NetCdfConverter_timestep-last):
+            --timestep-last '$selector.NetCdfConverter_timestep-last' \
+        #end if
+        #if str($selector.NetCdfConverter_timestep-first):
+            --timestep-first '$selector.NetCdfConverter_timestep-first' \
+        #end if
+        #if str($selector.NetCdfConverter_dim3):
+            --dim3 '$selector.NetCdfConverter_dim3' \
+        #end if
+        #if str($selector.NetCdfConverter_dim2):
+            --dim2 '$selector.NetCdfConverter_dim2' \
+        #end if
+        #if str($selector.NetCdfConverter_dim1):
+            --dim1 '$selector.NetCdfConverter_dim1' \
+        #end if
+        #if str($selector.NetCdfConverter_time):
+            --time '$selector.NetCdfConverter_time' \
+        #end if
+        #if str($selector.NetCdfConverter_var):
+            --var '$selector.NetCdfConverter_var' \
+        #end if
+        #if str($selector.NetCdfConverter_input):
+            --input '$selector.NetCdfConverter_input' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'NodeReordering'
+        NodeReordering \
+        #if str($selector.NodeReordering_method):
+            --method '$selector.NodeReordering_method' \
+        #end if
+        #if str($selector.NodeReordering_input_mesh):
+            --input_mesh '$selector.NodeReordering_input_mesh' \
+        #end if
+        --output_mesh "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'OGS2VTK'
+        OGS2VTK \
+        #if str($selector.OGS2VTK_mesh-input-file):
+            --mesh-input-file '$selector.OGS2VTK_mesh-input-file' \
+        #end if
+        --mesh-output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+        --ascii_output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_2.dat"
+    #elif $selected_tool_name == 'PVD2XDMF'
+        PVD2XDMF \
+        #if str($selector.PVD2XDMF_log-level):
+            --log-level '$selector.PVD2XDMF_log-level' \
+        #end if
+        #if str($selector.PVD2XDMF_pvd file, true,):
+            --pvd file, true, '$selector.PVD2XDMF_pvd file, true,' \
+        #end if
+        --output-directory "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'PVTU2VTU'
+        PVTU2VTU \
+        #if str($selector.PVTU2VTU_input):
+            --input '$selector.PVTU2VTU_input' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'PartitionMesh'
+        PartitionMesh \
+        #if str($selector.PartitionMesh_mesh-input-file):
+            --mesh-input-file '$selector.PartitionMesh_mesh-input-file' \
+        #end if
+        #if str($selector.PartitionMesh_metis-mesh-input-file):
+            --metis-mesh-input-file '$selector.PartitionMesh_metis-mesh-input-file' \
+        #end if
+        #if str($selector.PartitionMesh_np):
+            --np '$selector.PartitionMesh_np' \
+        #end if
+        $selector.PartitionMesh_ogs2metis
+        $selector.PartitionMesh_exe_metis
+        #if str($selector.PartitionMesh_log-level):
+            --log-level '$selector.PartitionMesh_log-level' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'Raster2ASC'
+        Raster2ASC \
+        #if str($selector.Raster2ASC_input):
+            --input '$selector.Raster2ASC_input' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'Raster2Mesh'
+        Raster2Mesh \
+        #if str($selector.Raster2Mesh_arrayname):
+            --arrayname '$selector.Raster2Mesh_arrayname' \
+        #end if
+        #if str($selector.Raster2Mesh_pixel-type):
+            --pixel-type '$selector.Raster2Mesh_pixel-type' \
+        #end if
+        #if str($selector.Raster2Mesh_elem-type):
+            --elem-type '$selector.Raster2Mesh_elem-type' \
+        #end if
+        #if str($selector.Raster2Mesh_input):
+            --input '$selector.Raster2Mesh_input' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'Raster2PointCloud'
+        Raster2PointCloud \
+        #if str($selector.Raster2PointCloud_gamma):
+            --gamma '$selector.Raster2PointCloud_gamma' \
+        #end if
+        #if str($selector.Raster2PointCloud_max-points):
+            --max-points '$selector.Raster2PointCloud_max-points' \
+        #end if
+        #if str($selector.Raster2PointCloud_max-elevation):
+            --max-elevation '$selector.Raster2PointCloud_max-elevation' \
+        #end if
+        #if str($selector.Raster2PointCloud_input):
+            --input '$selector.Raster2PointCloud_input' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'RemoveGhostData'
+        RemoveGhostData \
+        #if str($selector.RemoveGhostData_input):
+            --input '$selector.RemoveGhostData_input' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'RemoveUnusedPoints'
+        RemoveUnusedPoints \
+        #if str($selector.RemoveUnusedPoints_input):
+            --input '$selector.RemoveUnusedPoints_input' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'ReorderMesh'
+        ReorderMesh \
+        #if str($selector.ReorderMesh_input):
+            --input '$selector.ReorderMesh_input' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'ResetPropertiesInPolygonalRegion'
+        ResetPropertiesInPolygonalRegion \
+        #if str($selector.ResetPropertiesInPolygonalRegion_polygon-name):
+            --polygon-name '$selector.ResetPropertiesInPolygonalRegion_polygon-name' \
+        #end if
+        #if str($selector.ResetPropertiesInPolygonalRegion_geometry):
+            --geometry '$selector.ResetPropertiesInPolygonalRegion_geometry' \
+        #end if
+        $selector.ResetPropertiesInPolygonalRegion_any_of
+        #if str($selector.ResetPropertiesInPolygonalRegion_char-property-value):
+            --char-property-value '$selector.ResetPropertiesInPolygonalRegion_char-property-value' \
+        #end if
+        #if str($selector.ResetPropertiesInPolygonalRegion_int-property-value):
+            --int-property-value '$selector.ResetPropertiesInPolygonalRegion_int-property-value' \
+        #end if
+        #if str($selector.ResetPropertiesInPolygonalRegion_property-name):
+            --property-name '$selector.ResetPropertiesInPolygonalRegion_property-name' \
+        #end if
+        #if str($selector.ResetPropertiesInPolygonalRegion_restrict-to-MaterialID):
+            --restrict-to-MaterialID '$selector.ResetPropertiesInPolygonalRegion_restrict-to-MaterialID' \
+        #end if
+        #if str($selector.ResetPropertiesInPolygonalRegion_mesh-input-file):
+            --mesh-input-file '$selector.ResetPropertiesInPolygonalRegion_mesh-input-file' \
+        #end if
+        #if str($selector.ResetPropertiesInPolygonalRegion_gmsh-path):
+            --gmsh-path '$selector.ResetPropertiesInPolygonalRegion_gmsh-path' \
+        #end if
+        --mesh-output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'SWMMConverter'
+        SWMMConverter \
+        #if str($selector.SWMMConverter_input):
+            --input '$selector.SWMMConverter_input' \
+        #end if
+        $selector.SWMMConverter_node_vars
+        $selector.SWMMConverter_link_vars
+        $selector.SWMMConverter_subcatchment_vars
+        $selector.SWMMConverter_system_vars
+        --mesh "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+        --geo "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_2.dat"
+        --csv "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_3.dat"
+    #elif $selected_tool_name == 'TIN2VTK'
+        TIN2VTK \
+        #if str($selector.TIN2VTK_input-tin-file):
+            --input-tin-file '$selector.TIN2VTK_input-tin-file' \
+        #end if
+        --output-vtu-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'TecPlotTools'
+        TecPlotTools \
+        $selector.TecPlotTools_split
+        $selector.TecPlotTools_convert
+        #if str($selector.TecPlotTools_input-file):
+            --input-file '$selector.TecPlotTools_input-file' \
+        #end if
+        --output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'VTK2OGS'
+        VTK2OGS \
+        #if str($selector.VTK2OGS_mesh-input-file):
+            --mesh-input-file '$selector.VTK2OGS_mesh-input-file' \
+        #end if
+        --mesh-output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'VTK2TIN'
+        VTK2TIN \
+        #if str($selector.VTK2TIN_mesh-input-file):
+            --mesh-input-file '$selector.VTK2TIN_mesh-input-file' \
+        #end if
+        --TIN-output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'VerticalSliceFromLayers'
+        VerticalSliceFromLayers \
+        $selector.VerticalSliceFromLayers_testdata
+        $selector.VerticalSliceFromLayers_bounds
+        #if str($selector.VerticalSliceFromLayers_resolution):
+            --resolution '$selector.VerticalSliceFromLayers_resolution' \
+        #end if
+        #if str($selector.VerticalSliceFromLayers_end-y):
+            --end-y '$selector.VerticalSliceFromLayers_end-y' \
+        #end if
+        #if str($selector.VerticalSliceFromLayers_end-x):
+            --end-x '$selector.VerticalSliceFromLayers_end-x' \
+        #end if
+        #if str($selector.VerticalSliceFromLayers_start-y):
+            --start-y '$selector.VerticalSliceFromLayers_start-y' \
+        #end if
+        #if str($selector.VerticalSliceFromLayers_start-x):
+            --start-x '$selector.VerticalSliceFromLayers_start-x' \
+        #end if
+        #if str($selector.VerticalSliceFromLayers_input):
+            --input '$selector.VerticalSliceFromLayers_input' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'Vtu2Grid'
+        Vtu2Grid \
+        #if str($selector.Vtu2Grid_cellsize-z):
+            --cellsize-z '$selector.Vtu2Grid_cellsize-z' \
+        #end if
+        #if str($selector.Vtu2Grid_cellsize-y):
+            --cellsize-y '$selector.Vtu2Grid_cellsize-y' \
+        #end if
+        #if str($selector.Vtu2Grid_cellsize-x):
+            --cellsize-x '$selector.Vtu2Grid_cellsize-x' \
+        #end if
+        #if str($selector.Vtu2Grid_input):
+            --input '$selector.Vtu2Grid_input' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'addDataToRaster'
+        addDataToRaster \
+        #if str($selector.addDataToRaster_scaling_value):
+            --scaling_value '$selector.addDataToRaster_scaling_value' \
+        #end if
+        #if str($selector.addDataToRaster_offset_value):
+            --offset_value '$selector.addDataToRaster_offset_value' \
+        #end if
+        #if str($selector.addDataToRaster_ll_x):
+            --ll_x '$selector.addDataToRaster_ll_x' \
+        #end if
+        #if str($selector.addDataToRaster_ll_y):
+            --ll_y '$selector.addDataToRaster_ll_y' \
+        #end if
+        #if str($selector.addDataToRaster_ur_x):
+            --ur_x '$selector.addDataToRaster_ur_x' \
+        #end if
+        #if str($selector.addDataToRaster_ur_y):
+            --ur_y '$selector.addDataToRaster_ur_y' \
+        #end if
+        #if str($selector.addDataToRaster_function):
+            --function '$selector.addDataToRaster_function' \
+        #end if
+        #if str($selector.addDataToRaster_input):
+            --input '$selector.addDataToRaster_input' \
+        #end if
+        --output_raster "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'appendLinesAlongPolyline'
+        appendLinesAlongPolyline \
+        #if str($selector.appendLinesAlongPolyline_mesh-input-file):
+            --mesh-input-file '$selector.appendLinesAlongPolyline_mesh-input-file' \
+        #end if
+        #if str($selector.appendLinesAlongPolyline_geo-file):
+            --geo-file '$selector.appendLinesAlongPolyline_geo-file' \
+        #end if
+        #if str($selector.appendLinesAlongPolyline_gmsh-path):
+            --gmsh-path '$selector.appendLinesAlongPolyline_gmsh-path' \
+        #end if
+        --mesh-output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'checkMesh'
+        checkMesh \
+        #if str($selector.checkMesh_input mesh file, true,):
+            --input mesh file, true, '$selector.checkMesh_input mesh file, true,' \
+        #end if
+        $selector.checkMesh_validation
+        $selector.checkMesh_print_properties
+    #elif $selected_tool_name == 'computeSurfaceNodeIDsInPolygonalRegion'
+        computeSurfaceNodeIDsInPolygonalRegion \
+        #if str($selector.computeSurfaceNodeIDsInPolygonalRegion_mesh-input-file):
+            --mesh-input-file '$selector.computeSurfaceNodeIDsInPolygonalRegion_mesh-input-file' \
+        #end if
+        #if str($selector.computeSurfaceNodeIDsInPolygonalRegion_geo-file):
+            --geo-file '$selector.computeSurfaceNodeIDsInPolygonalRegion_geo-file' \
+        #end if
+        #if str($selector.computeSurfaceNodeIDsInPolygonalRegion_gmsh-path):
+            --gmsh-path '$selector.computeSurfaceNodeIDsInPolygonalRegion_gmsh-path' \
+        #end if
+    #elif $selected_tool_name == 'constructMeshesFromGeometry'
+        constructMeshesFromGeometry \
+        #if str($selector.constructMeshesFromGeometry_searchlength):
+            --searchlength '$selector.constructMeshesFromGeometry_searchlength' \
+        #end if
+        #if str($selector.constructMeshesFromGeometry_geometry):
+            --geometry '$selector.constructMeshesFromGeometry_geometry' \
+        #end if
+        #if str($selector.constructMeshesFromGeometry_mesh):
+            --mesh '$selector.constructMeshesFromGeometry_mesh' \
+        #end if
+        $selector.constructMeshesFromGeometry_multiple-nodes-allowed
+    #elif $selected_tool_name == 'convertGEO'
+        convertGEO \
+        #if str($selector.convertGEO_input-file):
+            --input-file '$selector.convertGEO_input-file' \
+        #end if
+        #if str($selector.convertGEO_gmsh-path):
+            --gmsh-path '$selector.convertGEO_gmsh-path' \
+        #end if
+        --output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'convertToLinearMesh'
+        convertToLinearMesh \
+        #if str($selector.convertToLinearMesh_input-mesh-file):
+            --input-mesh-file '$selector.convertToLinearMesh_input-mesh-file' \
+        #end if
+        --output-mesh-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'convertVtkDataArrayToVtkDataArray'
+        convertVtkDataArrayToVtkDataArray \
+        #if str($selector.convertVtkDataArrayToVtkDataArray_new-property-data-type):
+            --new-property-data-type '$selector.convertVtkDataArrayToVtkDataArray_new-property-data-type' \
+        #end if
+        #if str($selector.convertVtkDataArrayToVtkDataArray_new-property-name):
+            --new-property-name '$selector.convertVtkDataArrayToVtkDataArray_new-property-name' \
+        #end if
+        #if str($selector.convertVtkDataArrayToVtkDataArray_existing-property-name):
+            --existing-property-name '$selector.convertVtkDataArrayToVtkDataArray_existing-property-name' \
+        #end if
+        #if str($selector.convertVtkDataArrayToVtkDataArray_in-mesh):
+            --in-mesh '$selector.convertVtkDataArrayToVtkDataArray_in-mesh' \
+        #end if
+        --out-mesh "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'createIntermediateRasters'
+        createIntermediateRasters \
+        #if str($selector.createIntermediateRasters_number):
+            --number '$selector.createIntermediateRasters_number' \
+        #end if
+        #if str($selector.createIntermediateRasters_file2):
+            --file2 '$selector.createIntermediateRasters_file2' \
+        #end if
+        #if str($selector.createIntermediateRasters_file1):
+            --file1 '$selector.createIntermediateRasters_file1' \
+        #end if
+        --output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'createLayeredMeshFromRasters'
+        createLayeredMeshFromRasters \
+        #if str($selector.createLayeredMeshFromRasters_thickness):
+            --thickness '$selector.createLayeredMeshFromRasters_thickness' \
+        #end if
+        #if str($selector.createLayeredMeshFromRasters_raster-list):
+            --raster-list '$selector.createLayeredMeshFromRasters_raster-list' \
+        #end if
+        $selector.createLayeredMeshFromRasters_keep-surface-material-ids
+        #if str($selector.createLayeredMeshFromRasters_input-mesh-file):
+            --input-mesh-file '$selector.createLayeredMeshFromRasters_input-mesh-file' \
+        #end if
+        --ascii_output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+        --output-mesh-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_2.dat"
+    #elif $selected_tool_name == 'createMeshElemPropertiesFromASCRaster'
+        createMeshElemPropertiesFromASCRaster \
+        #if str($selector.createMeshElemPropertiesFromASCRaster_refine):
+            --refine '$selector.createMeshElemPropertiesFromASCRaster_refine' \
+        #end if
+        #if str($selector.createMeshElemPropertiesFromASCRaster_raster-file):
+            --raster-file '$selector.createMeshElemPropertiesFromASCRaster_raster-file' \
+        #end if
+        #if str($selector.createMeshElemPropertiesFromASCRaster_property-name):
+            --property-name '$selector.createMeshElemPropertiesFromASCRaster_property-name' \
+        #end if
+        #if str($selector.createMeshElemPropertiesFromASCRaster_mesh):
+            --mesh '$selector.createMeshElemPropertiesFromASCRaster_mesh' \
+        #end if
+        --out-mesh "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+        --output-refined-raster "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_2.dat"
+    #elif $selected_tool_name == 'createNeumannBc'
+        createNeumannBc \
+        #if str($selector.createNeumannBc_in-mesh):
+            --in-mesh '$selector.createNeumannBc_in-mesh' \
+        #end if
+        #if str($selector.createNeumannBc_property-in-name):
+            --property-in-name '$selector.createNeumannBc_property-in-name' \
+        #end if
+        --property-out-name "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+        --result-out "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_2.dat"
+    #elif $selected_tool_name == 'createQuadraticMesh'
+        createQuadraticMesh \
+        #if str($selector.createQuadraticMesh_input-mesh-file):
+            --input-mesh-file '$selector.createQuadraticMesh_input-mesh-file' \
+        #end if
+        $selector.createQuadraticMesh_add-centre-node
+        --output-mesh-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'createRaster'
+        createRaster \
+        #if str($selector.createRaster_n_rows):
+            --n_rows '$selector.createRaster_n_rows' \
+        #end if
+        #if str($selector.createRaster_n_cols):
+            --n_cols '$selector.createRaster_n_cols' \
+        #end if
+        #if str($selector.createRaster_cell_size):
+            --cell_size '$selector.createRaster_cell_size' \
+        #end if
+        #if str($selector.createRaster_ll_y):
+            --ll_y '$selector.createRaster_ll_y' \
+        #end if
+        #if str($selector.createRaster_ll_x):
+            --ll_x '$selector.createRaster_ll_x' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'createTetgenSmeshFromRasters'
+        createTetgenSmeshFromRasters \
+        #if str($selector.createTetgenSmeshFromRasters_thickness):
+            --thickness '$selector.createTetgenSmeshFromRasters_thickness' \
+        #end if
+        #if str($selector.createTetgenSmeshFromRasters_raster-list):
+            --raster-list '$selector.createTetgenSmeshFromRasters_raster-list' \
+        #end if
+        #if str($selector.createTetgenSmeshFromRasters_input-mesh-file):
+            --input-mesh-file '$selector.createTetgenSmeshFromRasters_input-mesh-file' \
+        #end if
+        --ascii_output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+        --output-mesh-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_2.dat"
+    #elif $selected_tool_name == 'editMaterialID'
+        editMaterialID \
+        $selector.editMaterialID_replace
+        $selector.editMaterialID_condense
+        $selector.editMaterialID_specify
+        #if str($selector.editMaterialID_mesh-input-file):
+            --mesh-input-file '$selector.editMaterialID_mesh-input-file' \
+        #end if
+        #if str($selector.editMaterialID_current-material-id):
+            --current-material-id '$selector.editMaterialID_current-material-id' \
+        #end if
+        #if str($selector.editMaterialID_new-material-id):
+            --new-material-id '$selector.editMaterialID_new-material-id' \
+        #end if
+        #if str($selector.editMaterialID_element-type):
+            --element-type '$selector.editMaterialID_element-type' \
+        #end if
+        --mesh-output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'generateGeometry'
+        generateGeometry \
+        #if str($selector.generateGeometry_z0):
+            --z0 '$selector.generateGeometry_z0' \
+        #end if
+        #if str($selector.generateGeometry_y0):
+            --y0 '$selector.generateGeometry_y0' \
+        #end if
+        #if str($selector.generateGeometry_x0):
+            --x0 '$selector.generateGeometry_x0' \
+        #end if
+        #if str($selector.generateGeometry_z1):
+            --z1 '$selector.generateGeometry_z1' \
+        #end if
+        #if str($selector.generateGeometry_y1):
+            --y1 '$selector.generateGeometry_y1' \
+        #end if
+        #if str($selector.generateGeometry_x1):
+            --x1 '$selector.generateGeometry_x1' \
+        #end if
+        #if str($selector.generateGeometry_nx):
+            --nx '$selector.generateGeometry_nx' \
+        #end if
+        #if str($selector.generateGeometry_nx1):
+            --nx1 '$selector.generateGeometry_nx1' \
+        #end if
+        #if str($selector.generateGeometry_ny):
+            --ny '$selector.generateGeometry_ny' \
+        #end if
+        #if str($selector.generateGeometry_ny1):
+            --ny1 '$selector.generateGeometry_ny1' \
+        #end if
+        #if str($selector.generateGeometry_nz):
+            --nz '$selector.generateGeometry_nz' \
+        #end if
+        #if str($selector.generateGeometry_nz1):
+            --nz1 '$selector.generateGeometry_nz1' \
+        #end if
+        #if str($selector.generateGeometry_geometry_name):
+            --geometry_name '$selector.generateGeometry_geometry_name' \
+        #end if
+        #if str($selector.generateGeometry_polyline_name):
+            --polyline_name '$selector.generateGeometry_polyline_name' \
+        #end if
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'generateMatPropsFromMatID'
+        generateMatPropsFromMatID \
+        #if str($selector.generateMatPropsFromMatID_mesh):
+            --mesh '$selector.generateMatPropsFromMatID_mesh' \
+        #end if
+    #elif $selected_tool_name == 'generateStructuredMesh'
+        generateStructuredMesh \
+        #if str($selector.generateStructuredMesh_element-type):
+            --element-type '$selector.generateStructuredMesh_element-type' \
+        #end if
+        #if str($selector.generateStructuredMesh_lx):
+            --lx '$selector.generateStructuredMesh_lx' \
+        #end if
+        #if str($selector.generateStructuredMesh_ly):
+            --ly '$selector.generateStructuredMesh_ly' \
+        #end if
+        #if str($selector.generateStructuredMesh_lz):
+            --lz '$selector.generateStructuredMesh_lz' \
+        #end if
+        #if str($selector.generateStructuredMesh_nx):
+            --nx '$selector.generateStructuredMesh_nx' \
+        #end if
+        #if str($selector.generateStructuredMesh_ny):
+            --ny '$selector.generateStructuredMesh_ny' \
+        #end if
+        #if str($selector.generateStructuredMesh_nz):
+            --nz '$selector.generateStructuredMesh_nz' \
+        #end if
+        #if str($selector.generateStructuredMesh_dx0):
+            --dx0 '$selector.generateStructuredMesh_dx0' \
+        #end if
+        #if str($selector.generateStructuredMesh_dy0):
+            --dy0 '$selector.generateStructuredMesh_dy0' \
+        #end if
+        #if str($selector.generateStructuredMesh_dz0):
+            --dz0 '$selector.generateStructuredMesh_dz0' \
+        #end if
+        #if str($selector.generateStructuredMesh_dx-max):
+            --dx-max '$selector.generateStructuredMesh_dx-max' \
+        #end if
+        #if str($selector.generateStructuredMesh_dy-max):
+            --dy-max '$selector.generateStructuredMesh_dy-max' \
+        #end if
+        #if str($selector.generateStructuredMesh_dz-max):
+            --dz-max '$selector.generateStructuredMesh_dz-max' \
+        #end if
+        #if str($selector.generateStructuredMesh_mx):
+            --mx '$selector.generateStructuredMesh_mx' \
+        #end if
+        #if str($selector.generateStructuredMesh_my):
+            --my '$selector.generateStructuredMesh_my' \
+        #end if
+        #if str($selector.generateStructuredMesh_mz):
+            --mz '$selector.generateStructuredMesh_mz' \
+        #end if
+        #if str($selector.generateStructuredMesh_ox):
+            --ox '$selector.generateStructuredMesh_ox' \
+        #end if
+        #if str($selector.generateStructuredMesh_oy):
+            --oy '$selector.generateStructuredMesh_oy' \
+        #end if
+        #if str($selector.generateStructuredMesh_oz):
+            --oz '$selector.generateStructuredMesh_oz' \
+        #end if
+        --mesh-output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'geometryToGmshGeo'
+        geometryToGmshGeo \
+        #if str($selector.geometryToGmshGeo_input):
+            --input '$selector.geometryToGmshGeo_input' \
+        #end if
+        #if str($selector.geometryToGmshGeo_max_points_in_quadtree_leaf):
+            --max_points_in_quadtree_leaf '$selector.geometryToGmshGeo_max_points_in_quadtree_leaf' \
+        #end if
+        #if str($selector.geometryToGmshGeo_mesh_density_scaling_at_points):
+            --mesh_density_scaling_at_points '$selector.geometryToGmshGeo_mesh_density_scaling_at_points' \
+        #end if
+        #if str($selector.geometryToGmshGeo_mesh_density_scaling_at_stations):
+            --mesh_density_scaling_at_stations '$selector.geometryToGmshGeo_mesh_density_scaling_at_stations' \
+        #end if
+        #if str($selector.geometryToGmshGeo_average_point_density):
+            --average_point_density '$selector.geometryToGmshGeo_average_point_density' \
+        #end if
+        $selector.geometryToGmshGeo_homogeneous
+        --output "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+        --write_merged_geometries "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_2.dat"
+    #elif $selected_tool_name == 'identifySubdomains'
+        identifySubdomains \
+        $selector.identifySubdomains_force
+        #if str($selector.identifySubdomains_searchlength):
+            --searchlength '$selector.identifySubdomains_searchlength' \
+        #end if
+        #if str($selector.identifySubdomains_mesh):
+            --mesh '$selector.identifySubdomains_mesh' \
+        #end if
+        --output_prefix "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'ipDataToPointCloud'
+        ipDataToPointCloud \
+        #if str($selector.ipDataToPointCloud_input-file):
+            --input-file '$selector.ipDataToPointCloud_input-file' \
+        #end if
+        --output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'main'
+        main \
+        #if str($selector.main_gmsh-path):
+            --gmsh-path '$selector.main_gmsh-path' \
+        #end if
+    #elif $selected_tool_name == 'postLIE'
+        postLIE \
+        #if str($selector.postLIE_input-file):
+            --input-file '$selector.postLIE_input-file' \
+        #end if
+        $selector.postLIE_no-overwrite
+        --output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'queryMesh'
+        queryMesh \
+        #if str($selector.queryMesh_input mesh file, true,):
+            --input mesh file, true, '$selector.queryMesh_input mesh file, true,' \
+        #end if
+        #if str($selector.queryMesh_element-id):
+            --element-id '$selector.queryMesh_element-id' \
+        #end if
+        #if str($selector.queryMesh_node-id):
+            --node-id '$selector.queryMesh_node-id' \
+        #end if
+        $selector.queryMesh_show-node-with-max-elements
+    #elif $selected_tool_name == 'removeMeshElements'
+        removeMeshElements \
+        $selector.removeMeshElements_invert
+        #if str($selector.removeMeshElements_z-max):
+            --z-max '$selector.removeMeshElements_z-max' \
+        #end if
+        #if str($selector.removeMeshElements_z-min):
+            --z-min '$selector.removeMeshElements_z-min' \
+        #end if
+        #if str($selector.removeMeshElements_y-max):
+            --y-max '$selector.removeMeshElements_y-max' \
+        #end if
+        #if str($selector.removeMeshElements_y-min):
+            --y-min '$selector.removeMeshElements_y-min' \
+        #end if
+        #if str($selector.removeMeshElements_x-max):
+            --x-max '$selector.removeMeshElements_x-max' \
+        #end if
+        #if str($selector.removeMeshElements_x-min):
+            --x-min '$selector.removeMeshElements_x-min' \
+        #end if
+        $selector.removeMeshElements_zero-volume
+        #if str($selector.removeMeshElements_element-type):
+            --element-type '$selector.removeMeshElements_element-type' \
+        #end if
+        #if str($selector.removeMeshElements_property-name):
+            --property-name '$selector.removeMeshElements_property-name' \
+        #end if
+        #if str($selector.removeMeshElements_property-value):
+            --property-value '$selector.removeMeshElements_property-value' \
+        #end if
+        #if str($selector.removeMeshElements_min-value):
+            --min-value '$selector.removeMeshElements_min-value' \
+        #end if
+        #if str($selector.removeMeshElements_max-value):
+            --max-value '$selector.removeMeshElements_max-value' \
+        #end if
+        $selector.removeMeshElements_inside
+        #if str($selector.removeMeshElements_mesh-input-file):
+            --mesh-input-file '$selector.removeMeshElements_mesh-input-file' \
+        #end if
+        --outside "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+        --mesh-output-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_2.dat"
+    #elif $selected_tool_name == 'reviseMesh'
+        reviseMesh \
+        #if str($selector.reviseMesh_min-ele-dim):
+            --min-ele-dim '$selector.reviseMesh_min-ele-dim' \
+        #end if
+        #if str($selector.reviseMesh_eps):
+            --eps '$selector.reviseMesh_eps' \
+        #end if
+        #if str($selector.reviseMesh_input-mesh-file):
+            --input-mesh-file '$selector.reviseMesh_input-mesh-file' \
+        #end if
+        --output-mesh-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'scaleProperty'
+        scaleProperty \
+        #if str($selector.scaleProperty_property-name):
+            --property-name '$selector.scaleProperty_property-name' \
+        #end if
+        #if str($selector.scaleProperty_mesh):
+            --mesh '$selector.scaleProperty_mesh' \
+        #end if
+        #if str($selector.scaleProperty_input-unit):
+            --input-unit '$selector.scaleProperty_input-unit' \
+        #end if
+        --out-mesh "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+    #elif $selected_tool_name == 'swapNodeCoordinateAxes'
+        swapNodeCoordinateAxes \
+        #if str($selector.swapNodeCoordinateAxes_input-mesh-file):
+            --input-mesh-file '$selector.swapNodeCoordinateAxes_input-mesh-file' \
+        #end if
+        #if str($selector.swapNodeCoordinateAxes_new-order):
+            --new-order '$selector.swapNodeCoordinateAxes_new-order' \
+        #end if
+        --output-mesh-file "step_" + str($i + 1) + "_" + $selected_tool_name + "_output_1.dat"
+#end if
+#end for]]></node>
+  <inputs>
+    <repeat name="utils_repeat" title="OGS Utility Steps" min="1">
+      <conditional name="tool_selector">
+        <param name="selected_tool" type="select" label="Select OGS Utility">
+          <option value="AddElementQuality">AddElementQuality</option>
+          <option value="AddFaultToVoxelGrid">AddFaultToVoxelGrid</option>
+          <option value="AddLayer">AddLayer</option>
+          <option value="AssignRasterDataToMesh">AssignRasterDataToMesh</option>
+          <option value="BinaryToPVTU">BinaryToPVTU</option>
+          <option value="ComputeNodeAreasFromSurfaceMesh">ComputeNodeAreasFromSurfaceMesh</option>
+          <option value="ConvertSHPToGLI">ConvertSHPToGLI</option>
+          <option value="CreateAnchors">CreateAnchors</option>
+          <option value="CreateBoundaryConditionsAlongPolylines">CreateBoundaryConditionsAlongPolylines</option>
+          <option value="ExtractBoundary">ExtractBoundary</option>
+          <option value="ExtractMaterials">ExtractMaterials</option>
+          <option value="ExtractSurface">ExtractSurface</option>
+          <option value="FEFLOW2OGS">FEFLOW2OGS</option>
+          <option value="GMSH2OGS">GMSH2OGS</option>
+          <option value="GocadSGridReader">GocadSGridReader</option>
+          <option value="GocadTSurfaceReader">GocadTSurfaceReader</option>
+          <option value="IntegrateBoreholesIntoMesh">IntegrateBoreholesIntoMesh</option>
+          <option value="Layers2Grid">Layers2Grid</option>
+          <option value="MapGeometryToMeshSurface">MapGeometryToMeshSurface</option>
+          <option value="MergeMeshToBulkMesh">MergeMeshToBulkMesh</option>
+          <option value="Mesh2Raster">Mesh2Raster</option>
+          <option value="Mesh2Shape">Mesh2Shape</option>
+          <option value="MeshMapping">MeshMapping</option>
+          <option value="MoveGeometry">MoveGeometry</option>
+          <option value="MoveMesh">MoveMesh</option>
+          <option value="NetCdfConverter">NetCdfConverter</option>
+          <option value="NodeReordering">NodeReordering</option>
+          <option value="OGS2VTK">OGS2VTK</option>
+          <option value="PVD2XDMF">PVD2XDMF</option>
+          <option value="PVTU2VTU">PVTU2VTU</option>
+          <option value="PartitionMesh">PartitionMesh</option>
+          <option value="Raster2ASC">Raster2ASC</option>
+          <option value="Raster2Mesh">Raster2Mesh</option>
+          <option value="Raster2PointCloud">Raster2PointCloud</option>
+          <option value="RemoveGhostData">RemoveGhostData</option>
+          <option value="RemoveUnusedPoints">RemoveUnusedPoints</option>
+          <option value="ReorderMesh">ReorderMesh</option>
+          <option value="ResetPropertiesInPolygonalRegion">ResetPropertiesInPolygonalRegion</option>
+          <option value="SWMMConverter">SWMMConverter</option>
+          <option value="TIN2VTK">TIN2VTK</option>
+          <option value="TecPlotTools">TecPlotTools</option>
+          <option value="VTK2OGS">VTK2OGS</option>
+          <option value="VTK2TIN">VTK2TIN</option>
+          <option value="VerticalSliceFromLayers">VerticalSliceFromLayers</option>
+          <option value="Vtu2Grid">Vtu2Grid</option>
+          <option value="addDataToRaster">addDataToRaster</option>
+          <option value="appendLinesAlongPolyline">appendLinesAlongPolyline</option>
+          <option value="checkMesh">checkMesh</option>
+          <option value="computeSurfaceNodeIDsInPolygonalRegion">computeSurfaceNodeIDsInPolygonalRegion</option>
+          <option value="constructMeshesFromGeometry">constructMeshesFromGeometry</option>
+          <option value="convertGEO">convertGEO</option>
+          <option value="convertToLinearMesh">convertToLinearMesh</option>
+          <option value="convertVtkDataArrayToVtkDataArray">convertVtkDataArrayToVtkDataArray</option>
+          <option value="createIntermediateRasters">createIntermediateRasters</option>
+          <option value="createLayeredMeshFromRasters">createLayeredMeshFromRasters</option>
+          <option value="createMeshElemPropertiesFromASCRaster">createMeshElemPropertiesFromASCRaster</option>
+          <option value="createNeumannBc">createNeumannBc</option>
+          <option value="createQuadraticMesh">createQuadraticMesh</option>
+          <option value="createRaster">createRaster</option>
+          <option value="createTetgenSmeshFromRasters">createTetgenSmeshFromRasters</option>
+          <option value="editMaterialID">editMaterialID</option>
+          <option value="generateGeometry">generateGeometry</option>
+          <option value="generateMatPropsFromMatID">generateMatPropsFromMatID</option>
+          <option value="generateStructuredMesh">generateStructuredMesh</option>
+          <option value="geometryToGmshGeo">geometryToGmshGeo</option>
+          <option value="identifySubdomains">identifySubdomains</option>
+          <option value="ipDataToPointCloud">ipDataToPointCloud</option>
+          <option value="main">main</option>
+          <option value="postLIE">postLIE</option>
+          <option value="queryMesh">queryMesh</option>
+          <option value="removeMeshElements">removeMeshElements</option>
+          <option value="reviseMesh">reviseMesh</option>
+          <option value="scaleProperty">scaleProperty</option>
+          <option value="swapNodeCoordinateAxes">swapNodeCoordinateAxes</option>
+        </param>
+        <when value="AddElementQuality">
+          <param name="AddElementQuality_input_mesh_file" type="data" optional="false" label="input mesh file" help="input mesh file" format="auto"/>
+        </when>
+        <when value="AddFaultToVoxelGrid">
+          <param name="AddFaultToVoxelGrid_material" type="integer" value="" optional="true" label="material id for cells intersected by fault" help="material id for cells intersected by fault"/>
+          <param name="AddFaultToVoxelGrid_fault" type="text" optional="false" label="name of mesh representing fault (*" help="name of mesh representing fault (*.vtu)"/>
+          <param name="AddFaultToVoxelGrid_input" type="data" optional="false" label="name of the input file list containing the paths the all input layers" help="name of the input file list containing the paths the all input layers" format="auto"/>
+        </when>
+        <when value="AddLayer">
+          <param name="AddLayer_input-mesh-file" type="data" optional="false" label="the name of the file containing the mesh" help="the name of the file containing the mesh" format="auto"/>
+          <param name="AddLayer_layer-tickness" type="float" value="" optional="true" label="the thickness of the new layer" help="the thickness of the new layer"/>
+          <param name="AddLayer_add-layer-on-bottom" type="boolean" optional="false" label="Per default the layer is add on the top, if this argument is set the" help="Per default the layer is add on the top, if this argument is set the" checked="false" truevalue="--add-layer-on-bottom" falsevalue=""/>
+          <param name="AddLayer_copy-material-ids" type="boolean" optional="true" label="Copy the existing material distribution of the layer which is to be" help="Copy the existing material distribution of the layer which is to be" checked="false" truevalue="--copy-material-ids" falsevalue=""/>
+          <param name="AddLayer_set-material-id" type="integer" value="" optional="true" label="the material id of the new layer" help="the material id of the new layer"/>
+        </when>
+        <when value="AssignRasterDataToMesh">
+          <param name="AssignRasterDataToMesh_nodata" type="float" value="" optional="true" label="The no data value used for missing values" help="The no data value used for missing values"/>
+          <param name="AssignRasterDataToMesh_cell-array" type="boolean" optional="true" label="Assigns raster data to cell array" help="Assigns raster data to cell array" checked="false" truevalue="--cell-array" falsevalue=""/>
+          <param name="AssignRasterDataToMesh_node-array" type="boolean" optional="true" label="Assigns raster data to node array (default)" help="Assigns raster data to node array (default)" checked="false" truevalue="--node-array" falsevalue=""/>
+          <param name="AssignRasterDataToMesh_scalar-name" type="text" optional="false" label="The name of the newly created scalar array" help="The name of the newly created scalar array."/>
+          <param name="AssignRasterDataToMesh_raster" type="text" optional="false" label="Name of the input raster (*" help="Name of the input raster (*.asc)"/>
+          <param name="AssignRasterDataToMesh_input" type="data" optional="false" label="Name of the input mesh (*" help="Name of the input mesh (*.vtu)" format="auto"/>
+        </when>
+        <when value="BinaryToPVTU">
+          <param name="BinaryToPVTU_mesh-input-file-base" type="data" optional="false" label="the base name of the files containing the input mesh, i" help="the base name of the files containing the input mesh, i.e., the file" format="auto"/>
+          <param name="BinaryToPVTU_log-level" type="text" value="" optional="true" label="the verbosity of logging messages: none, error, warn, info, debug," help="the verbosity of logging messages: none, error, warn, info, debug,"/>
+        </when>
+        <when value="ComputeNodeAreasFromSurfaceMesh">
+          <param name="ComputeNodeAreasFromSurfaceMesh_mesh-input-file" type="data" optional="false" label="the name of the file containing the input mesh" help="the name of the file containing the input mesh" format="auto"/>
+          <param name="ComputeNodeAreasFromSurfaceMesh_id-prop-name" type="text" value="" optional="true" label="the name of the property containing the id information" help="the name of the property containing the id information"/>
+        </when>
+        <when value="ConvertSHPToGLI">
+          <param name="ConvertSHPToGLI_shape-file" type="text" optional="false" label="the name of the shape file" help="the name of the shape file"/>
+        </when>
+        <when value="CreateAnchors">
+          <param name="CreateAnchors_log-level" type="integer" value="" optional="true" label="the verbosity of logging messages: none, error, warn, info, debug," help="the verbosity of logging messages: none, error, warn, info, debug,"/>
+          <param name="CreateAnchors_input" type="data" optional="false" label="Input bulk mesh" help="Input bulk mesh" format="auto"/>
+          <param name="CreateAnchors_json-file" type="text" optional="false" label="JSON file containing anchor start and end points" help="JSON file containing anchor start and end points"/>
+          <param name="CreateAnchors_tolerance" type="float" value="" optional="true" label="Tolerance/Search length" help="Tolerance/Search length"/>
+          <param name="CreateAnchors_max-iter" type="text" value="" optional="true" label="maximum number of iterations of the internal root-finding algorithm" help="maximum number of iterations of the internal root-finding algorithm"/>
+        </when>
+        <when value="CreateBoundaryConditionsAlongPolylines">
+          <param name="CreateBoundaryConditionsAlongPolylines_gml" type="boolean" optional="true" label="Write found nodes to gml file" help="Write found nodes to gml file." checked="false" truevalue="--gml" falsevalue=""/>
+          <param name="CreateBoundaryConditionsAlongPolylines_type" type="text" optional="false" label="the process type the boundary condition will be written for currently" help="the process type the boundary condition will be written for currently"/>
+          <param name="CreateBoundaryConditionsAlongPolylines_search-length" type="float" value="" optional="true" label="The size of the search length" help="The size of the search length. The default value is"/>
+          <param name="CreateBoundaryConditionsAlongPolylines_input-geometry" type="data" optional="false" label="the name of the file containing the input geometry" help="the name of the file containing the input geometry" format="auto"/>
+          <param name="CreateBoundaryConditionsAlongPolylines_mesh-file" type="text" optional="false" label="the name of the file containing the mesh" help="the name of the file containing the mesh"/>
+          <param name="CreateBoundaryConditionsAlongPolylines_gmsh-path" type="text" value="" optional="true" label="the path to the gmsh binary" help="the path to the gmsh binary"/>
+        </when>
+        <when value="ExtractBoundary">
+          <param name="ExtractBoundary_mesh-input-file" type="data" optional="false" label="the name of the file containing the input mesh" help="the name of the file containing the input mesh" format="auto"/>
+        </when>
+        <when value="ExtractMaterials">
+          <param name="ExtractMaterials_material-id" type="text" value="" optional="true" label="The MaterialID for which elements should be extracted into a new" help="The MaterialID for which elements should be extracted into a new"/>
+          <param name="ExtractMaterials_input" type="data" optional="false" label="Name of the input mesh (*" help="Name of the input mesh (*.vtu)" format="auto"/>
+        </when>
+        <when value="ExtractSurface">
+          <param name="ExtractSurface_angle" type="float" value="" optional="true" label="tolerated angle (in degrees) between given normal and element normal" help="tolerated angle (in degrees) between given normal and element normal"/>
+          <param name="ExtractSurface_z-component" type="float" value="" optional="true" label="z component of the normal" help="z component of the normal"/>
+          <param name="ExtractSurface_y-component" type="float" value="" optional="true" label="y component of the normal" help="y component of the normal"/>
+          <param name="ExtractSurface_x-component" type="float" value="" optional="true" label="x component of the normal" help="x component of the normal"/>
+          <param name="ExtractSurface_mesh-input-file" type="data" optional="false" label="the name of the file containing the input mesh" help="the name of the file containing the input mesh" format="auto"/>
+        </when>
+        <when value="FEFLOW2OGS">
+          <param name="FEFLOW2OGS_in" type="data" optional="false" label="FEFLOW input file (*" help="FEFLOW input file (*.fem)" format="auto"/>
+        </when>
+        <when value="GMSH2OGS">
+          <param name="GMSH2OGS_in" type="data" optional="false" label="gmsh input file" help="gmsh input file" format="auto"/>
+          <param name="GMSH2OGS_validation" type="boolean" optional="true" label="validate the mesh" help="validate the mesh" checked="false" truevalue="--validation" falsevalue=""/>
+          <param name="GMSH2OGS_boundaries" type="boolean" optional="true" label="if set, boundary meshes will be generated" help="if set, boundary meshes will be generated" checked="false" truevalue="--boundaries" falsevalue=""/>
+          <param name="GMSH2OGS_exclude-lines" type="data" optional="true" label="if set, lines will not be written to the ogs mesh" help="if set, lines will not be written to the ogs mesh" format="auto"/>
+        </when>
+        <when value="GocadSGridReader">
+          <param name="GocadSGridReader_generate-face-sets" type="boolean" optional="true" label="Generate face sets" help="Generate face sets." checked="false" truevalue="--generate-face-sets" falsevalue=""/>
+          <param name="GocadSGridReader_sg" type="text" optional="false" label="Gocad stratigraphic grid file name" help="Gocad stratigraphic grid file name"/>
+        </when>
+        <when value="GocadTSurfaceReader">
+          <param name="GocadTSurfaceReader_write-binary" type="data" optional="true" label="if set, OGS-Meshes will be written in binary format" help="if set, OGS-Meshes will be written in binary format" format="auto"/>
+          <param name="GocadTSurfaceReader_surfaces-only" type="boolean" optional="true" label="if set, only TSurf datasets will be parsed from the input file" help="if set, only TSurf datasets will be parsed from the input file" checked="false" truevalue="--surfaces-only" falsevalue=""/>
+          <param name="GocadTSurfaceReader_lines-only" type="data" optional="true" label="if set, only PLine datasets will be parsed from the input file" help="if set, only PLine datasets will be parsed from the input file" format="auto"/>
+          <param name="GocadTSurfaceReader_input-file" type="data" optional="false" label="Gocad triangular surfaces file (*" help="Gocad triangular surfaces file (*.ts). Provide a file with unix file" format="auto"/>
+        </when>
+        <when value="IntegrateBoreholesIntoMesh">
+          <param name="IntegrateBoreholesIntoMesh_max-elevation" type="float" value="" optional="true" label="Maximum elevation for an integrated borehole" help="Maximum elevation for an integrated borehole"/>
+          <param name="IntegrateBoreholesIntoMesh_min-elevation" type="data" optional="true" label="Minimum elevation for an integrated borehole" help="Minimum elevation for an integrated borehole" format="auto"/>
+          <param name="IntegrateBoreholesIntoMesh_max-id" type="integer" value="" optional="true" label="Maximum MaterialID for an integrated borehole" help="Maximum MaterialID for an integrated borehole"/>
+          <param name="IntegrateBoreholesIntoMesh_min-id" type="data" optional="true" label="Minimum MaterialID for an integrated borehole" help="Minimum MaterialID for an integrated borehole" format="auto"/>
+          <param name="IntegrateBoreholesIntoMesh_geo" type="text" optional="false" label="Name of the geometry file (*" help="Name of the geometry file (*.gml)"/>
+          <param name="IntegrateBoreholesIntoMesh_input" type="data" optional="false" label="Name of the input mesh (*" help="Name of the input mesh (*.vtu)" format="auto"/>
+        </when>
+        <when value="Layers2Grid">
+          <param name="Layers2Grid_dilate" type="boolean" optional="true" label="assign mat IDs based on single nodes instead of a majority of nodes," help="assign mat IDs based on single nodes instead of a majority of nodes," checked="false" truevalue="--dilate" falsevalue=""/>
+          <param name="Layers2Grid_cellsize-z" type="float" value="" optional="true" label="edge length of cubes in z-direction (depth)" help="edge length of cubes in z-direction (depth)"/>
+          <param name="Layers2Grid_cellsize-y" type="float" value="" optional="true" label="edge length of cubes in y-direction (latitude)" help="edge length of cubes in y-direction (latitude)"/>
+          <param name="Layers2Grid_cellsize-x" type="float" optional="false" label="edge length of cubes in x-direction (longitude) or all directions, if" help="edge length of cubes in x-direction (longitude) or all directions, if"/>
+          <param name="Layers2Grid_input" type="data" optional="false" label="name of the input file list containing the paths the all input layers" help="name of the input file list containing the paths the all input layers" format="auto"/>
+        </when>
+        <when value="MapGeometryToMeshSurface">
+          <param name="MapGeometryToMeshSurface_mesh-file" type="data" optional="false" label="the name of the file containing the mesh" help="the name of the file containing the mesh" format="auto"/>
+          <param name="MapGeometryToMeshSurface_input-geometry" type="data" optional="false" label="the name of the file containing the input geometry" help="the name of the file containing the input geometry" format="auto"/>
+          <param name="MapGeometryToMeshSurface_additional-insert-mapping" type="data" optional="true" label="Advanced mapping algorithm will be applied, i" help="Advanced mapping algorithm will be applied, i.e. a new geometry will" format="auto"/>
+        </when>
+        <when value="MergeMeshToBulkMesh">
+          <param name="MergeMeshToBulkMesh_bulk-mesh-input-file" type="data" optional="false" label="the name of the file containing the input bulk mesh" help="the name of the file containing the input bulk mesh" format="auto"/>
+          <param name="MergeMeshToBulkMesh_mesh-input-file" type="data" optional="false" label="the name of the file containing the input mesh to be merged" help="the name of the file containing the input mesh to be merged" format="auto"/>
+          <param name="MergeMeshToBulkMesh_pressure" type="float" value="" optional="true" label="initial pressure value in the mesh to be merged" help="initial pressure value in the mesh to be merged"/>
+          <param name="MergeMeshToBulkMesh_gas_pressure" type="float" value="" optional="true" label="initial gas pressure value in the mesh to be merged" help="initial gas pressure value in the mesh to be merged"/>
+          <param name="MergeMeshToBulkMesh_capillary_pressure" type="float" value="" optional="true" label="initial capillary pressure value in the mesh to be merged" help="initial capillary pressure value in the mesh to be merged"/>
+          <param name="MergeMeshToBulkMesh_temperature" type="float" value="" optional="true" label="initial temperature value in the mesh to be merged" help="initial temperature value in the mesh to be merged"/>
+          <param name="MergeMeshToBulkMesh_sigma_xx" type="float" value="" optional="true" label="initial stress xx value in the mesh to be merged" help="initial stress xx value in the mesh to be merged"/>
+          <param name="MergeMeshToBulkMesh_sigma_yy" type="float" value="" optional="true" label="initial stress yy value in the mesh to be merged" help="initial stress yy value in the mesh to be merged"/>
+          <param name="MergeMeshToBulkMesh_sigma_zz" type="float" value="" optional="true" label="initial stress zz value in the mesh to be merged" help="initial stress zz value in the mesh to be merged"/>
+          <param name="MergeMeshToBulkMesh_material_id" type="integer" value="" optional="true" label="Material ID of the mesh to be merged" help="Material ID of the mesh to be merged"/>
+        </when>
+        <when value="Mesh2Raster">
+          <param name="Mesh2Raster_cellsize" type="float" value="" optional="true" label="edge length of raster cells in result" help="edge length of raster cells in result"/>
+          <param name="Mesh2Raster_input-file" type="data" optional="false" label="Mesh input file (*" help="Mesh input file (*.vtu, *.msh)" format="auto"/>
+        </when>
+        <when value="Mesh2Shape">
+          <param name="Mesh2Shape_input-file" type="data" optional="false" label="OGS mesh file (*" help="OGS mesh file (*.vtu, *.msh)" format="auto"/>
+        </when>
+        <when value="MeshMapping">
+          <param name="MeshMapping_lowpass" type="boolean" optional="true" label="Applies a lowpass filter to elevation over connected nodes" help="Applies a lowpass filter to elevation over connected nodes." checked="false" truevalue="--lowpass" falsevalue=""/>
+          <param name="MeshMapping_static" type="float" value="" optional="true" label="Static elevation to map the input file to" help="Static elevation to map the input file to. This can be combined with"/>
+          <param name="MeshMapping_distance" type="float" value="" optional="true" label="Maximum distance to search for mesh nodes if there is no" help="Maximum distance to search for mesh nodes if there is no"/>
+          <param name="MeshMapping_mesh" type="text" value="" optional="true" label="2D mesh file (*" help="2D mesh file (*.vtu) to map the input file on."/>
+          <param name="MeshMapping_raster" type="text" value="" optional="true" label="Raster file (*" help="Raster file (*.asc *.grd *.xyz) to map the input file on."/>
+          <param name="MeshMapping_input" type="data" optional="false" label="Input mesh file (*" help="Input mesh file (*.vtu, *.msh)" format="auto"/>
+        </when>
+        <when value="MoveGeometry">
+          <param name="MoveGeometry_z" type="float" value="" optional="true" label="displacement in z direction" help="displacement in z direction"/>
+          <param name="MoveGeometry_y" type="float" value="" optional="true" label="displacement in y direction" help="displacement in y direction"/>
+          <param name="MoveGeometry_x" type="float" value="" optional="true" label="displacement in x direction" help="displacement in x direction"/>
+          <param name="MoveGeometry_input" type="data" optional="false" label="input geometry file (*" help="input geometry file (*.gml)" format="auto"/>
+        </when>
+        <when value="MoveMesh">
+          <param name="MoveMesh_mesh" type="text" optional="false" label="input mesh file" help="input mesh file"/>
+          <param name="MoveMesh_x" type="float" value="" optional="true" label="displacement in x direction" help="displacement in x direction"/>
+          <param name="MoveMesh_y" type="float" value="" optional="true" label="displacement in y direction" help="displacement in y direction"/>
+          <param name="MoveMesh_z" type="float" value="" optional="true" label="displacement in z direction" help="displacement in z direction"/>
+        </when>
+        <when value="NetCdfConverter">
+          <param name="NetCdfConverter_nodata" type="integer" value="" optional="true" label="explicitly specifies the no data value used in the dataset (usually" help="explicitly specifies the no data value used in the dataset (usually"/>
+          <param name="NetCdfConverter_elem-type" type="text" value="" optional="true" label="the element type used in the resulting OGS mesh" help="the element type used in the resulting OGS mesh"/>
+          <param name="NetCdfConverter_images" type="boolean" optional="true" label="if set, all time steps will be written as ESRI image files (*" help="if set, all time steps will be written as ESRI image files (*.asc)" checked="false" truevalue="--images" falsevalue=""/>
+          <param name="NetCdfConverter_multi-file" type="boolean" optional="true" label="if set, each time step will be written to a separate mesh file" help="if set, each time step will be written to a separate mesh file" checked="false" truevalue="--multi-file" falsevalue=""/>
+          <param name="NetCdfConverter_single-file" type="data" optional="true" label="if set, all time steps will be written to a single mesh file (with" help="if set, all time steps will be written to a single mesh file (with" format="auto"/>
+          <param name="NetCdfConverter_timestep-last" type="text" value="" optional="true" label="last time step to be extracted (only for time-dependent variables!)" help="last time step to be extracted (only for time-dependent variables!)"/>
+          <param name="NetCdfConverter_timestep-first" type="text" value="" optional="true" label="first time step to be extracted (only for time-dependent variables!)" help="first time step to be extracted (only for time-dependent variables!)"/>
+          <param name="NetCdfConverter_dim3" type="text" value="" optional="true" label="index of third dimension (z/height/depth) for the selected variable" help="index of third dimension (z/height/depth) for the selected variable"/>
+          <param name="NetCdfConverter_dim2" type="text" value="" optional="true" label="index of second dimension (y/latitude) for the selected variable" help="index of second dimension (y/latitude) for the selected variable"/>
+          <param name="NetCdfConverter_dim1" type="text" value="" optional="true" label="index of first dimension (x/longitude) for the selected variable" help="index of first dimension (x/longitude) for the selected variable"/>
+          <param name="NetCdfConverter_time" type="text" value="" optional="true" label="index of the time-dependent dimension for the selected variable" help="index of the time-dependent dimension for the selected variable"/>
+          <param name="NetCdfConverter_var" type="text" value="" optional="true" label="variable included in the the netCDF file" help="variable included in the the netCDF file"/>
+          <param name="NetCdfConverter_input" type="data" optional="false" label="the netCDF input file" help="the netCDF input file" format="auto"/>
+        </when>
+        <when value="NodeReordering">
+          <param name="NodeReordering_method" type="integer" value="" optional="true" label="reordering method selection" help="reordering method selection"/>
+          <param name="NodeReordering_input_mesh" type="data" optional="false" label="the name of the input mesh file" help="the name of the input mesh file" format="auto"/>
+        </when>
+        <when value="OGS2VTK">
+          <param name="OGS2VTK_mesh-input-file" type="data" optional="false" label="the name of the file containing the input mesh" help="the name of the file containing the input mesh" format="auto"/>
+        </when>
+        <when value="PVD2XDMF">
+          <param name="PVD2XDMF_log-level" type="text" value="" optional="true" label="the verbosity of logging messages: none, error, warn, info," help="the verbosity of logging messages: none, error, warn, info,"/>
+          <param name="PVD2XDMF_pvd file, true," type="text" value="" optional="true" label="file" help="file"/>
+        </when>
+        <when value="PVTU2VTU">
+          <param name="PVTU2VTU_input" type="data" optional="false" label="the partitioned input mesh (*" help="the partitioned input mesh (*.pvtu)" format="auto"/>
+        </when>
+        <when value="PartitionMesh">
+          <param name="PartitionMesh_mesh-input-file" type="data" optional="false" label="the name of the file containing the input mesh" help="the name of the file containing the input mesh" format="auto"/>
+          <param name="PartitionMesh_metis-mesh-input-file" type="data" optional="true" label="base name (without " help="base name (without .mesh extension) of the file containing the metis" format="auto"/>
+          <param name="PartitionMesh_np" type="integer" value="" optional="true" label="the number of partitions" help="the number of partitions"/>
+          <param name="PartitionMesh_ogs2metis" type="boolean" optional="true" label="Indicator to convert the ogs mesh file to METIS input file" help="Indicator to convert the ogs mesh file to METIS input file" checked="false" truevalue="--ogs2metis" falsevalue=""/>
+          <param name="PartitionMesh_exe_metis" type="boolean" optional="true" label="Call mpmetis inside the programme via system()" help="Call mpmetis inside the programme via system()." checked="false" truevalue="--exe_metis" falsevalue=""/>
+          <param name="PartitionMesh_log-level" type="text" value="" optional="true" label="the verbosity of logging messages: none, error, warn, info, debug," help="the verbosity of logging messages: none, error, warn, info, debug,"/>
+        </when>
+        <when value="Raster2ASC">
+          <param name="Raster2ASC_input" type="data" optional="false" label="filename for input raster" help="filename for input raster" format="auto"/>
+        </when>
+        <when value="Raster2Mesh">
+          <param name="Raster2Mesh_arrayname" type="text" value="" optional="true" label="Name of the scalar array" help="Name of the scalar array. Only required if assigning pixel values to"/>
+          <param name="Raster2Mesh_pixel-type" type="text" optional="false" label="The choice how pixel values should be interpreted by the software:" help="The choice how pixel values should be interpreted by the software:"/>
+          <param name="Raster2Mesh_elem-type" type="text" optional="false" label="The element type used in the resulting OGS mesh" help="The element type used in the resulting OGS mesh."/>
+          <param name="Raster2Mesh_input" type="data" optional="false" label="Name of the input raster (*" help="Name of the input raster (*.asc)" format="auto"/>
+        </when>
+        <when value="Raster2PointCloud">
+          <param name="Raster2PointCloud_gamma" type="float" value="" optional="true" label="Exponental increase coefficient" help="Exponental increase coefficient. A value of"/>
+          <param name="Raster2PointCloud_max-points" type="data" optional="true" label="Maximum number of points per pixel (default: 1000)" help="Maximum number of points per pixel (default: 1000)." format="auto"/>
+          <param name="Raster2PointCloud_max-elevation" type="float" value="" optional="true" label="Maximum elevation of randomly created points (default: 5000)" help="Maximum elevation of randomly created points (default: 5000)."/>
+          <param name="Raster2PointCloud_input" type="data" optional="false" label="Path to input raster files (*" help="Path to input raster files (*.asc). Specifying" format="auto"/>
+        </when>
+        <when value="RemoveGhostData">
+          <param name="RemoveGhostData_input" type="data" optional="false" label="the partitioned input mesh (*" help="the partitioned input mesh (*.pvtu)" format="auto"/>
+        </when>
+        <when value="RemoveUnusedPoints">
+          <param name="RemoveUnusedPoints_input" type="data" optional="false" label="input geometry" help="input geometry" format="auto"/>
+        </when>
+        <when value="ReorderMesh">
+          <param name="ReorderMesh_input" type="data" optional="false" label="name of the input mesh file" help="name of the input mesh file" format="auto"/>
+        </when>
+        <when value="ResetPropertiesInPolygonalRegion">
+          <param name="ResetPropertiesInPolygonalRegion_polygon-name" type="text" optional="false" label="name of polygon in the geometry" help="name of polygon in the geometry"/>
+          <param name="ResetPropertiesInPolygonalRegion_geometry" type="text" optional="false" label="the name of the file containing the input geometry (gli or gml" help="the name of the file containing the input geometry (gli or gml"/>
+          <param name="ResetPropertiesInPolygonalRegion_any_of" type="boolean" optional="true" label="all nodes of an element has to be inside the polygon (default" help="all nodes of an element has to be inside the polygon (default" checked="false" truevalue="--any_of" falsevalue=""/>
+          <param name="ResetPropertiesInPolygonalRegion_char-property-value" type="text" value="" optional="true" label="new property value (data type char)" help="new property value (data type char)"/>
+          <param name="ResetPropertiesInPolygonalRegion_int-property-value" type="data" optional="true" label="new property value (data type int)" help="new property value (data type int)" format="auto"/>
+          <param name="ResetPropertiesInPolygonalRegion_property-name" type="text" value="" optional="true" label="name of property in the mesh" help="name of property in the mesh"/>
+          <param name="ResetPropertiesInPolygonalRegion_restrict-to-MaterialID" type="integer" value="" optional="true" label="Restrict resetting the property to the material id" help="Restrict resetting the property to the material id"/>
+          <param name="ResetPropertiesInPolygonalRegion_mesh-input-file" type="data" optional="false" label="the name of the file containing the input mesh" help="the name of the file containing the input mesh" format="auto"/>
+          <param name="ResetPropertiesInPolygonalRegion_gmsh-path" type="text" value="" optional="true" label="the path to the gmsh binary" help="the path to the gmsh binary"/>
+        </when>
+        <when value="SWMMConverter">
+          <param name="SWMMConverter_input" type="data" optional="false" label="SWMM input file (*" help="SWMM input file (*.inp)" format="auto"/>
+          <param name="SWMMConverter_node_vars" type="boolean" optional="true" label="Read node variables and add to output mesh" help="Read node variables and add to output mesh" checked="false" truevalue="--node_vars" falsevalue=""/>
+          <param name="SWMMConverter_link_vars" type="data" optional="true" label="Read link variables and add to output mesh" help="Read link variables and add to output mesh" format="auto"/>
+          <param name="SWMMConverter_subcatchment_vars" type="boolean" optional="true" label="Read subcatchment variables and write to CSV-file" help="Read subcatchment variables and write to CSV-file" checked="false" truevalue="--subcatchment_vars" falsevalue=""/>
+          <param name="SWMMConverter_system_vars" type="boolean" optional="true" label="Read system variables and write to CSV-file" help="Read system variables and write to CSV-file" checked="false" truevalue="--system_vars" falsevalue=""/>
+        </when>
+        <when value="TIN2VTK">
+          <param name="TIN2VTK_input-tin-file" type="data" optional="false" label="the name of the file containing the input TIN" help="the name of the file containing the input TIN" format="auto"/>
+        </when>
+        <when value="TecPlotTools">
+          <param name="TecPlotTools_split" type="boolean" optional="true" label="split time steps into separate files" help="split time steps into separate files" checked="false" truevalue="--split" falsevalue=""/>
+          <param name="TecPlotTools_convert" type="boolean" optional="true" label="convert TecPlot data into OGS meshes" help="convert TecPlot data into OGS meshes" checked="false" truevalue="--convert" falsevalue=""/>
+          <param name="TecPlotTools_input-file" type="data" optional="false" label="TecPlot input file" help="TecPlot input file" format="auto"/>
+        </when>
+        <when value="VTK2OGS">
+          <param name="VTK2OGS_mesh-input-file" type="data" optional="false" label="the name of the file containing the input mesh" help="the name of the file containing the input mesh" format="auto"/>
+        </when>
+        <when value="VTK2TIN">
+          <param name="VTK2TIN_mesh-input-file" type="data" optional="false" label="the name of the file containing the input mesh" help="the name of the file containing the input mesh" format="auto"/>
+        </when>
+        <when value="VerticalSliceFromLayers">
+          <param name="VerticalSliceFromLayers_testdata" type="boolean" optional="true" label="keep test data" help="keep test data" checked="false" truevalue="--testdata" falsevalue=""/>
+          <param name="VerticalSliceFromLayers_bounds" type="boolean" optional="true" label="save mesh boundaries" help="save mesh boundaries" checked="false" truevalue="--bounds" falsevalue=""/>
+          <param name="VerticalSliceFromLayers_resolution" type="float" optional="false" label="desired edge length of triangles in the resulting slice" help="desired edge length of triangles in the resulting slice."/>
+          <param name="VerticalSliceFromLayers_end-y" type="float" optional="false" label="y-coordinates of the end point defining the slice" help="y-coordinates of the end point defining the slice"/>
+          <param name="VerticalSliceFromLayers_end-x" type="float" optional="false" label="x-coordinates of the end point defining the slice" help="x-coordinates of the end point defining the slice"/>
+          <param name="VerticalSliceFromLayers_start-y" type="float" optional="false" label="y-coordinates of the start point defining the slice" help="y-coordinates of the start point defining the slice"/>
+          <param name="VerticalSliceFromLayers_start-x" type="float" optional="false" label="x-coordinates of the start point defining the slice" help="x-coordinates of the start point defining the slice"/>
+          <param name="VerticalSliceFromLayers_input" type="data" optional="false" label="name of the input file list containing the paths the all input layers" help="name of the input file list containing the paths the all input layers" format="auto"/>
+        </when>
+        <when value="Vtu2Grid">
+          <param name="Vtu2Grid_cellsize-z" type="float" value="" optional="true" label="edge length of cubes in z-direction (depth)" help="edge length of cubes in z-direction (depth)"/>
+          <param name="Vtu2Grid_cellsize-y" type="float" value="" optional="true" label="edge length of cubes in y-direction (latitude)" help="edge length of cubes in y-direction (latitude)"/>
+          <param name="Vtu2Grid_cellsize-x" type="float" optional="false" label="edge length of cubes in x-direction (longitude) or all directions, if" help="edge length of cubes in x-direction (longitude) or all directions, if"/>
+          <param name="Vtu2Grid_input" type="data" optional="false" label="the 3D input mesh (*" help="the 3D input mesh (*.vtu, *.msh)" format="auto"/>
+        </when>
+        <when value="addDataToRaster">
+          <param name="addDataToRaster_scaling_value" type="data" optional="true" label="value the function sin(x pi) sin(y pi) will be scaled with" help="value the function sin(x pi) sin(y pi) will be scaled with" format="auto"/>
+          <param name="addDataToRaster_offset_value" type="float" value="" optional="true" label="constant added to the function" help="constant added to the function"/>
+          <param name="addDataToRaster_ll_x" type="float" value="" optional="true" label="x coordinate of lower left point of axis aligned rectangular region" help="x coordinate of lower left point of axis aligned rectangular region"/>
+          <param name="addDataToRaster_ll_y" type="float" value="" optional="true" label="y coordinate of lower left point of axis aligned rectangular region" help="y coordinate of lower left point of axis aligned rectangular region"/>
+          <param name="addDataToRaster_ur_x" type="float" value="" optional="true" label="x coordinate of the upper right point of" help="x coordinate of the upper right point of"/>
+          <param name="addDataToRaster_ur_y" type="float" value="" optional="true" label="y coordinate of the upper right point of" help="y coordinate of the upper right point of"/>
+          <param name="addDataToRaster_function" type="text" optional="false" label="Name of the function used to modify the raster" help="Name of the function used to modify the raster"/>
+          <param name="addDataToRaster_input" type="data" optional="false" label="Name of the input raster (*" help="Name of the input raster (*.asc)" format="auto"/>
+        </when>
+        <when value="appendLinesAlongPolyline">
+          <param name="appendLinesAlongPolyline_mesh-input-file" type="data" optional="false" label="the name of the file containing the input mesh" help="the name of the file containing the input mesh" format="auto"/>
+          <param name="appendLinesAlongPolyline_geo-file" type="text" optional="false" label="the name of the geometry file which contains polylines" help="the name of the geometry file which contains polylines"/>
+          <param name="appendLinesAlongPolyline_gmsh-path" type="text" value="" optional="true" label="the path to the gmsh binary" help="the path to the gmsh binary"/>
+        </when>
+        <when value="checkMesh">
+          <param name="checkMesh_input mesh file, true," type="data" optional="true" label="string" help="string" format="auto"/>
+          <param name="checkMesh_validation" type="boolean" optional="true" label="validate the mesh" help="validate the mesh" checked="false" truevalue="--validation" falsevalue=""/>
+          <param name="checkMesh_print_properties" type="data" optional="true" label="print properties stored in the mesh" help="print properties stored in the mesh" format="auto"/>
+        </when>
+        <when value="computeSurfaceNodeIDsInPolygonalRegion">
+          <param name="computeSurfaceNodeIDsInPolygonalRegion_mesh-input-file" type="data" optional="false" label="the name of the file containing the input mesh" help="the name of the file containing the input mesh" format="auto"/>
+          <param name="computeSurfaceNodeIDsInPolygonalRegion_geo-file" type="data" optional="false" label="the name of the gml file containing the polygons" help="the name of the gml file containing the polygons" format="auto"/>
+          <param name="computeSurfaceNodeIDsInPolygonalRegion_gmsh-path" type="text" value="" optional="true" label="the path to the gmsh binary" help="the path to the gmsh binary"/>
+        </when>
+        <when value="constructMeshesFromGeometry">
+          <param name="constructMeshesFromGeometry_searchlength" type="float" value="" optional="true" label="search length determining radius for the node search algorithm" help="search length determining radius for the node search algorithm."/>
+          <param name="constructMeshesFromGeometry_geometry" type="text" optional="false" label="the file name the geometry" help="the file name the geometry"/>
+          <param name="constructMeshesFromGeometry_mesh" type="text" optional="false" label="the file name of the mesh where the geometry is defined" help="the file name of the mesh where the geometry is defined"/>
+          <param name="constructMeshesFromGeometry_multiple-nodes-allowed" type="boolean" optional="true" label="Allows multiple mesh nodes in eps environment" help="Allows multiple mesh nodes in eps environment." checked="false" truevalue="--multiple-nodes-allowed" falsevalue=""/>
+        </when>
+        <when value="convertGEO">
+          <param name="convertGEO_input-file" type="data" optional="false" label="the name of the geometry file to be converted" help="the name of the geometry file to be converted" format="auto"/>
+          <param name="convertGEO_gmsh-path" type="text" value="" optional="true" label="the path to the gmsh binary" help="the path to the gmsh binary"/>
+        </when>
+        <when value="convertToLinearMesh">
+          <param name="convertToLinearMesh_input-mesh-file" type="data" optional="false" label="input mesh file" help="input mesh file" format="auto"/>
+        </when>
+        <when value="convertVtkDataArrayToVtkDataArray">
+          <param name="convertVtkDataArrayToVtkDataArray_new-property-data-type" type="text" value="" optional="true" label="the name of the data type as string (int or double)" help="the name of the data type as string (int or double)"/>
+          <param name="convertVtkDataArrayToVtkDataArray_new-property-name" type="text" value="" optional="true" label="the name of the new cell data array (PropertyVector) the values are" help="the name of the new cell data array (PropertyVector) the values are"/>
+          <param name="convertVtkDataArrayToVtkDataArray_existing-property-name" type="data" optional="false" label="the name of the existing cell data array (PropertyVector)" help="the name of the existing cell data array (PropertyVector)" format="auto"/>
+          <param name="convertVtkDataArrayToVtkDataArray_in-mesh" type="data" optional="false" label="input mesh file name" help="input mesh file name" format="auto"/>
+        </when>
+        <when value="createIntermediateRasters">
+          <param name="createIntermediateRasters_number" type="text" value="" optional="true" label="number of rasters to be calculated" help="number of rasters to be calculated"/>
+          <param name="createIntermediateRasters_file2" type="data" optional="false" label="Second DEM-raster file" help="Second DEM-raster file" format="auto"/>
+          <param name="createIntermediateRasters_file1" type="data" optional="false" label="First DEM-raster file" help="First DEM-raster file" format="auto"/>
+        </when>
+        <when value="createLayeredMeshFromRasters">
+          <param name="createLayeredMeshFromRasters_thickness" type="data" optional="true" label="The minimum thickness of a layer to be integrated at any given" help="The minimum thickness of a layer to be integrated at any given" format="auto"/>
+          <param name="createLayeredMeshFromRasters_raster-list" type="text" optional="false" label="An ascii-file containing a list of raster files, starting from top" help="An ascii-file containing a list of raster files, starting from top"/>
+          <param name="createLayeredMeshFromRasters_keep-surface-material-ids" type="boolean" optional="true" label="if the argument is present the materials defined in the surface mesh" help="if the argument is present the materials defined in the surface mesh" checked="false" truevalue="--keep-surface-material-ids" falsevalue=""/>
+          <param name="createLayeredMeshFromRasters_input-mesh-file" type="data" optional="false" label="The file name of the 2D input mesh" help="The file name of the 2D input mesh." format="auto"/>
+        </when>
+        <when value="createMeshElemPropertiesFromASCRaster">
+          <param name="createMeshElemPropertiesFromASCRaster_refine" type="data" optional="true" label="refinement factor that raises the resolution of the raster data" help="refinement factor that raises the resolution of the raster data" format="auto"/>
+          <param name="createMeshElemPropertiesFromASCRaster_raster-file" type="text" optional="false" label="the name of the ASC raster file" help="the name of the ASC raster file"/>
+          <param name="createMeshElemPropertiesFromASCRaster_property-name" type="text" optional="false" label="the name of the property the values are stored for" help="the name of the property the values are stored for"/>
+          <param name="createMeshElemPropertiesFromASCRaster_mesh" type="text" optional="false" label="the mesh is read from this file" help="the mesh is read from this file"/>
+        </when>
+        <when value="createNeumannBc">
+          <param name="createNeumannBc_in-mesh" type="data" optional="false" label="the surface mesh that has an element property for the Neumann" help="the surface mesh that has an element property for the Neumann" format="auto"/>
+          <param name="createNeumannBc_property-in-name" type="data" optional="false" label="name of an element property used for the computation of the Neumann" help="name of an element property used for the computation of the Neumann" format="auto"/>
+        </when>
+        <when value="createQuadraticMesh">
+          <param name="createQuadraticMesh_input-mesh-file" type="data" optional="false" label="input mesh file" help="input mesh file" format="auto"/>
+          <param name="createQuadraticMesh_add-centre-node" type="boolean" optional="true" label="add centre node" help="add centre node" checked="false" truevalue="--add-centre-node" falsevalue=""/>
+        </when>
+        <when value="createRaster">
+          <param name="createRaster_n_rows" type="text" value="" optional="true" label="number of rows" help="number of rows"/>
+          <param name="createRaster_n_cols" type="text" value="" optional="true" label="number of columns" help="number of columns"/>
+          <param name="createRaster_cell_size" type="float" value="" optional="true" label="cell size" help="cell size"/>
+          <param name="createRaster_ll_y" type="float" value="" optional="true" label="y coordinate of lower left point of axis aligned rectangular region" help="y coordinate of lower left point of axis aligned rectangular region"/>
+          <param name="createRaster_ll_x" type="float" value="" optional="true" label="x coordinate of lower left point of axis aligned rectangular region" help="x coordinate of lower left point of axis aligned rectangular region"/>
+        </when>
+        <when value="createTetgenSmeshFromRasters">
+          <param name="createTetgenSmeshFromRasters_thickness" type="data" optional="true" label="The minimum thickness of a layer to be integrated at any given" help="The minimum thickness of a layer to be integrated at any given" format="auto"/>
+          <param name="createTetgenSmeshFromRasters_raster-list" type="text" optional="false" label="An ascii-file containing a list of raster files, starting from top" help="An ascii-file containing a list of raster files, starting from top"/>
+          <param name="createTetgenSmeshFromRasters_input-mesh-file" type="data" optional="false" label="The file name of the 2D input mesh" help="The file name of the 2D input mesh." format="auto"/>
+        </when>
+        <when value="editMaterialID">
+          <param name="editMaterialID_replace" type="boolean" optional="true" label="replace material IDs" help="replace material IDs" checked="false" truevalue="--replace" falsevalue=""/>
+          <param name="editMaterialID_condense" type="boolean" optional="true" label="condense material IDs" help="condense material IDs" checked="false" truevalue="--condense" falsevalue=""/>
+          <param name="editMaterialID_specify" type="boolean" optional="true" label="specify material IDs by element types (-e)" help="specify material IDs by element types (-e)" checked="false" truevalue="--specify" falsevalue=""/>
+          <param name="editMaterialID_mesh-input-file" type="data" optional="false" label="the name of the file containing the input mesh" help="the name of the file containing the input mesh" format="auto"/>
+          <param name="editMaterialID_current-material-id" type="text" value="" optional="true" label="current material id to be replaced" help="current material id to be replaced"/>
+          <param name="editMaterialID_new-material-id" type="text" value="" optional="true" label="new material id" help="new material id"/>
+          <param name="editMaterialID_element-type" type="text" value="" optional="true" label="element type" help="element type"/>
+        </when>
+        <when value="generateGeometry">
+          <param name="generateGeometry_z0" type="float" optional="false" label="z coordinate of the first point" help="z coordinate of the first point"/>
+          <param name="generateGeometry_y0" type="float" optional="false" label="y coordinate of the first point" help="y coordinate of the first point"/>
+          <param name="generateGeometry_x0" type="float" optional="false" label="x coordinate of the first point" help="x coordinate of the first point"/>
+          <param name="generateGeometry_z1" type="float" optional="false" label="z coordinate of the first point" help="z coordinate of the first point"/>
+          <param name="generateGeometry_y1" type="float" optional="false" label="y coordinate of the first point" help="y coordinate of the first point"/>
+          <param name="generateGeometry_x1" type="float" optional="false" label="x coordinate of the first point" help="x coordinate of the first point"/>
+          <param name="generateGeometry_nx" type="integer" value="" optional="true" label="number of subdivisions in x direction" help="number of subdivisions in x direction"/>
+          <param name="generateGeometry_nx1" type="integer" value="" optional="true" label="number of subdivisions in x direction" help="number of subdivisions in x direction"/>
+          <param name="generateGeometry_ny" type="integer" value="" optional="true" label="number of subdivisions in y direction" help="number of subdivisions in y direction"/>
+          <param name="generateGeometry_ny1" type="integer" value="" optional="true" label="number of subdivisions in y direction" help="number of subdivisions in y direction"/>
+          <param name="generateGeometry_nz" type="integer" value="" optional="true" label="number of subdivisions in z direction" help="number of subdivisions in z direction"/>
+          <param name="generateGeometry_nz1" type="integer" value="" optional="true" label="number of subdivisions in z direction" help="number of subdivisions in z direction"/>
+          <param name="generateGeometry_geometry_name" type="text" value="" optional="true" label="name of the generated geometry" help="name of the generated geometry"/>
+          <param name="generateGeometry_polyline_name" type="data" optional="true" label="name of the generated polyline" help="name of the generated polyline" format="auto"/>
+        </when>
+        <when value="generateMatPropsFromMatID">
+          <param name="generateMatPropsFromMatID_mesh" type="text" value="" optional="true" label="the mesh to open from a file" help="the mesh to open from a file"/>
+        </when>
+        <when value="generateStructuredMesh">
+          <param name="generateStructuredMesh_element-type" type="text" optional="false" label="element type to be created: line | tri | quad | hex | prism | tet |" help="element type to be created: line | tri | quad | hex | prism | tet |"/>
+          <param name="generateStructuredMesh_lx" type="float" value="" optional="true" label="length of a domain in x direction" help="length of a domain in x direction"/>
+          <param name="generateStructuredMesh_ly" type="float" value="" optional="true" label="length of a domain in y direction" help="length of a domain in y direction"/>
+          <param name="generateStructuredMesh_lz" type="float" value="" optional="true" label="length of a domain in z direction" help="length of a domain in z direction"/>
+          <param name="generateStructuredMesh_nx" type="text" value="" optional="true" label="the number of subdivision in x direction" help="the number of subdivision in x direction"/>
+          <param name="generateStructuredMesh_ny" type="text" value="" optional="true" label="the number of subdivision in y direction" help="the number of subdivision in y direction"/>
+          <param name="generateStructuredMesh_nz" type="text" value="" optional="true" label="the number of subdivision in z direction" help="the number of subdivision in z direction"/>
+          <param name="generateStructuredMesh_dx0" type="float" value="" optional="true" label="initial cell length in x direction" help="initial cell length in x direction"/>
+          <param name="generateStructuredMesh_dy0" type="float" value="" optional="true" label="initial cell length in y direction" help="initial cell length in y direction"/>
+          <param name="generateStructuredMesh_dz0" type="float" value="" optional="true" label="initial cell length in z direction" help="initial cell length in z direction"/>
+          <param name="generateStructuredMesh_dx-max" type="float" value="" optional="true" label="maximum cell length in x direction" help="maximum cell length in x direction"/>
+          <param name="generateStructuredMesh_dy-max" type="float" value="" optional="true" label="maximum cell length in y direction" help="maximum cell length in y direction"/>
+          <param name="generateStructuredMesh_dz-max" type="float" value="" optional="true" label="maximum cell length in z direction" help="maximum cell length in z direction"/>
+          <param name="generateStructuredMesh_mx" type="float" value="" optional="true" label="multiplier in x direction" help="multiplier in x direction"/>
+          <param name="generateStructuredMesh_my" type="float" value="" optional="true" label="multiplier in y direction" help="multiplier in y direction"/>
+          <param name="generateStructuredMesh_mz" type="float" value="" optional="true" label="multiplier in z direction" help="multiplier in z direction"/>
+          <param name="generateStructuredMesh_ox" type="data" optional="true" label="mesh origin (lower left corner) in x direction" help="mesh origin (lower left corner) in x direction" format="auto"/>
+          <param name="generateStructuredMesh_oy" type="data" optional="true" label="mesh origin (lower left corner) in y direction" help="mesh origin (lower left corner) in y direction" format="auto"/>
+          <param name="generateStructuredMesh_oz" type="data" optional="true" label="mesh origin (lower left corner) in z direction" help="mesh origin (lower left corner) in z direction" format="auto"/>
+        </when>
+        <when value="geometryToGmshGeo">
+          <param name="geometryToGmshGeo_input" type="data" optional="false" label="input geometry file (*" help="input geometry file (*.gml)" format="auto"/>
+          <param name="geometryToGmshGeo_max_points_in_quadtree_leaf" type="data" optional="true" label="positive number" help="positive number" format="auto"/>
+          <param name="geometryToGmshGeo_mesh_density_scaling_at_points" type="data" optional="true" label="positive floating point number" help="positive floating point number" format="auto"/>
+          <param name="geometryToGmshGeo_mesh_density_scaling_at_stations" type="data" optional="true" label="positive floating point number" help="positive floating point number" format="auto"/>
+          <param name="geometryToGmshGeo_average_point_density" type="data" optional="true" label="average point density / average edge length as a positive floating" help="average point density / average edge length as a positive floating" format="auto"/>
+          <param name="geometryToGmshGeo_homogeneous" type="boolean" optional="true" label="Use Gmsh homogeneous meshing method" help="Use Gmsh homogeneous meshing method." checked="false" truevalue="--homogeneous" falsevalue=""/>
+        </when>
+        <when value="identifySubdomains">
+          <param name="identifySubdomains_force" type="boolean" optional="true" label="Overwriting existing subdomain meshes" help="Overwriting existing subdomain meshes." checked="false" truevalue="--force" falsevalue=""/>
+          <param name="identifySubdomains_searchlength" type="float" value="" optional="true" label="search length determining radius for the node search algorithm" help="search length determining radius for the node search algorithm."/>
+          <param name="identifySubdomains_mesh" type="text" optional="false" label="the file name of the bulk mesh" help="the file name of the bulk mesh"/>
+        </when>
+        <when value="ipDataToPointCloud">
+          <param name="ipDataToPointCloud_input-file" type="data" optional="false" label="the input mesh (VTU file)" help="the input mesh (VTU file)" format="auto"/>
+        </when>
+        <when value="main">
+          <param name="main_gmsh-path" type="text" value="" optional="true" label="the path to the gmsh binary" help="the path to the gmsh binary"/>
+        </when>
+        <when value="postLIE">
+          <param name="postLIE_input-file" type="data" optional="false" label="the original PVD or VTU file name" help="the original PVD or VTU file name" format="auto"/>
+          <param name="postLIE_no-overwrite" type="boolean" optional="true" label="don" help="don" checked="false" truevalue="--no-overwrite" falsevalue=""/>
+        </when>
+        <when value="queryMesh">
+          <param name="queryMesh_input mesh file, true," type="data" optional="true" label="string" help="string" format="auto"/>
+          <param name="queryMesh_element-id" type="text" value="" optional="true" label="element ID" help="element ID"/>
+          <param name="queryMesh_node-id" type="text" value="" optional="true" label="node ID" help="node ID"/>
+          <param name="queryMesh_show-node-with-max-elements" type="boolean" optional="true" label="show a node having the max number of connected elements" help="show a node having the max number of connected elements" checked="false" truevalue="--show-node-with-max-elements" falsevalue=""/>
+        </when>
+        <when value="removeMeshElements">
+          <param name="removeMeshElements_invert" type="data" optional="true" label="inverts the specified bounding box" help="inverts the specified bounding box" format="auto"/>
+          <param name="removeMeshElements_z-max" type="float" value="" optional="true" label="largest allowed extent in z-dimension" help="largest allowed extent in z-dimension"/>
+          <param name="removeMeshElements_z-min" type="data" optional="true" label="smallest allowed extent in z-dimension" help="smallest allowed extent in z-dimension" format="auto"/>
+          <param name="removeMeshElements_y-max" type="float" value="" optional="true" label="largest allowed extent in y-dimension" help="largest allowed extent in y-dimension"/>
+          <param name="removeMeshElements_y-min" type="data" optional="true" label="smallest allowed extent in y-dimension" help="smallest allowed extent in y-dimension" format="auto"/>
+          <param name="removeMeshElements_x-max" type="float" value="" optional="true" label="largest allowed extent in x-dimension" help="largest allowed extent in x-dimension"/>
+          <param name="removeMeshElements_x-min" type="data" optional="true" label="smallest allowed extent in x-dimension" help="smallest allowed extent in x-dimension" format="auto"/>
+          <param name="removeMeshElements_zero-volume" type="boolean" optional="true" label="remove zero volume elements" help="remove zero volume elements" checked="false" truevalue="--zero-volume" falsevalue=""/>
+          <param name="removeMeshElements_element-type" type="text" value="" optional="true" label="element type to be removed: point | line | tri | quad | hex | prism |" help="element type to be removed: point | line | tri | quad | hex | prism |"/>
+          <param name="removeMeshElements_property-name" type="text" value="" optional="true" label="name of property in the mesh" help="name of property in the mesh"/>
+          <param name="removeMeshElements_property-value" type="integer" value="" optional="true" label="value of selected property to be removed" help="value of selected property to be removed"/>
+          <param name="removeMeshElements_min-value" type="data" optional="true" label="minimum value of range for selected property" help="minimum value of range for selected property" format="auto"/>
+          <param name="removeMeshElements_max-value" type="float" value="" optional="true" label="maximum value of range for selected property" help="maximum value of range for selected property"/>
+          <param name="removeMeshElements_inside" type="data" optional="true" label="remove all elements inside the given property range" help="remove all elements inside the given property range" format="auto"/>
+          <param name="removeMeshElements_mesh-input-file" type="data" optional="false" label="the name of the file containing the input mesh" help="the name of the file containing the input mesh" format="auto"/>
+        </when>
+        <when value="reviseMesh">
+          <param name="reviseMesh_min-ele-dim" type="data" optional="true" label="Minimum dimension of elements to be inserted into new mesh" help="Minimum dimension of elements to be inserted into new mesh" format="auto"/>
+          <param name="reviseMesh_eps" type="float" value="" optional="true" label="Minimum distance for nodes not to be collapsed" help="Minimum distance for nodes not to be collapsed"/>
+          <param name="reviseMesh_input-mesh-file" type="data" optional="false" label="input mesh file" help="input mesh file" format="auto"/>
+        </when>
+        <when value="scaleProperty">
+          <param name="scaleProperty_property-name" type="text" optional="false" label="the name of the property the values are stored for" help="the name of the property the values are stored for"/>
+          <param name="scaleProperty_mesh" type="text" optional="false" label="the mesh is read from this file" help="the mesh is read from this file"/>
+          <param name="scaleProperty_input-unit" type="data" optional="false" label="input unit of the data" help="input unit of the data" format="auto"/>
+        </when>
+        <when value="swapNodeCoordinateAxes">
+          <param name="swapNodeCoordinateAxes_input-mesh-file" type="data" optional="false" label="input mesh file" help="input mesh file" format="auto"/>
+          <param name="swapNodeCoordinateAxes_new-order" type="text" optional="false" label="the new order of swapped coordinate values (e" help="the new order of swapped coordinate values (e.g."/>
+        </when>
+      </conditional>
+    </repeat>
+  </inputs>
+  <outputs>
+    <collection name="all_outputs" type="list" label="All Generated Outputs">
+      <discover_datasets pattern=".+" directory="." visible="true"/>
+    </collection>
+  </outputs>
+  <expand macro="ogsutilssuite_tests"/>
+  <help><![CDATA[This tool is a suite wrapper for the OpenGeoSys command-line utilities. You can chain multiple utilities together. Each step will be executed in sequence.]]></help>
+  <expand macro="citations"/>
+
+</tool>
+

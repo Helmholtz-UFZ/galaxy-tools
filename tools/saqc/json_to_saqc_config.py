@@ -29,9 +29,9 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
         method = params_to_process.pop("method_select", "unknown_method")
         method_str_for_error = method
         
-        # *** ANFANG DER MODIFIKATION FÜR FIELD EXTRACTION ***
+        
         raw_field_val = None
-        field_str = "undefined_field" # Fallback
+        field_str = "undefined_field" 
 
         if "field" in params_to_process:
             raw_field_val = params_to_process.pop("field")
@@ -46,7 +46,7 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
             else:
                 sys.stderr.write(f"Warning: 'field_repeat' is not a list or is empty for method '{method}'. Value: {field_repeat_data}\n")
         
-        if raw_field_val is None or str(raw_field_val).strip() == "": # Wenn kein Feld gefunden oder Feld ist leer
+        if raw_field_val is None or str(raw_field_val).strip() == "":
             field_str = "undefined_field"
             field_str_for_error = "undefined_field (extraction failed or empty)"
             sys.stderr.write(f"Warning: Field name could not be determined for method '{method}'. Using '{field_str}'.\n")
@@ -83,7 +83,7 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
             if current_value_for_saqc == "__none__":
                 saqc_args_dict[actual_param_name_for_saqc] = None
             elif isinstance(current_value_for_saqc, str) and current_value_for_saqc == "" and \
-                 actual_param_name_for_saqc in ["xscope", "yscope", "max_gap", "min_periods", "min_residuals", "min_offset"]: # Explizite Liste für "" -> None
+                 actual_param_name_for_saqc in ["xscope", "yscope", "max_gap", "min_periods", "min_residuals", "min_offset"]:
                 saqc_args_dict[actual_param_name_for_saqc] = None
             else:
                 saqc_args_dict[actual_param_name_for_saqc] = current_value_for_saqc
@@ -99,19 +99,19 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
                 if v_saqc_raw == float('inf'): v_str_repr = "float('inf')"
                 elif v_saqc_raw == float('-inf'): v_str_repr = "float('-inf')"
                 elif math.isnan(v_saqc_raw): v_str_repr = "float('nan')"
-                else: v_str_repr = repr(v_saqc_raw) # Stellt sicher, dass z.B. 10.0 als '10.0' dargestellt wird
+                else: v_str_repr = repr(v_saqc_raw) 
             elif isinstance(v_saqc_raw, int):
                 v_str_repr = str(v_saqc_raw)
             elif isinstance(v_saqc_raw, str):
-                if not v_saqc_raw and k_saqc not in ["xscope", "yscope", "max_gap", "min_periods", "min_residuals", "min_offset"]: # Wenn "" und nicht Spezialfall, als "" String
+                if not v_saqc_raw and k_saqc not in ["xscope", "yscope", "max_gap", "min_periods", "min_residuals", "min_offset"]: 
                     
                     if val_lower == "inf": v_str_repr = "float('inf')"
                     elif val_lower == "-inf": v_str_repr = "float('-inf')"
                     elif val_lower == "nan": v_str_repr = "float('nan')"
-                    else: # Auch für leere Strings, die nicht None werden sollen
+                    else: 
                         escaped_v = v_saqc_raw.replace('\\', '\\\\').replace('"', '\\"')
                         v_str_repr = f'"{escaped_v}"'
-                else: # Nicht-leerer String oder leerer String für Spezialparameter (der schon None ist)
+                else: 
                     val_lower = v_saqc_raw.lower()
                     if val_lower == "inf": v_str_repr = "float('inf')"
                     elif val_lower == "-inf": v_str_repr = "float('-inf')"
@@ -121,7 +121,6 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
                         v_str_repr = f'"{escaped_v}"'
             else:
                 sys.stderr.write(f"Warning: Param '{k_saqc}' for method '{method}' has unhandled type {type(v_saqc_raw)}. Converting to string representation: '{str(v_saqc_raw)}'.\n")
-                # Fallback: Versuche, es als String darzustellen, ggf. in Anführungszeichen, wenn es keine Zahl/Bool/None ist
                 v_str_repr = repr(v_saqc_raw)
 
 
@@ -131,8 +130,8 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
 
     except Exception as e:
         sys.stderr.write(f"FATAL Error processing a method entry in json_to_saqc_config.py: {r_method_set}\n")
-        sys.stderr.write(f"Method context: {method_str_for_error}, Field context: {field_str_for_error}\n") # field_str_for_error verwenden
+        sys.stderr.write(f"Method context: {method_str_for_error}, Field context: {field_str_for_error}\n") 
         import traceback
         traceback.print_exc(file=sys.stderr)
-        print(f"{field_str_for_error}; ERROR_PROCESSING_METHOD({method_str_for_error})", flush=True) # field_str_for_error verwenden
+        print(f"{field_str_for_error}; ERROR_PROCESSING_METHOD({method_str_for_error})", flush=True)
         continue

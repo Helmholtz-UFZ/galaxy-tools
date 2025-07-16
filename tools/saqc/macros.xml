@@ -44,6 +44,8 @@
 </xml>
 
 <xml name="saqc_tests">
+    <tests>
+    <expand macro="config_tests"/>
     <test>
         <param name="data" value="test1/data.csv" ftype="csv"/>
         <repeat name="methods_repeat">
@@ -123,84 +125,6 @@
             </element>
         </output_collection>
     </test>
-    <!-- <test>
-        <param name="data" value="test2/data.csv,test2/maint.csv" ftype="csv"/>
-        <repeat name="methods_repeat">
-            <conditional name="module_cond">
-                <param name="module_select" value="flagtools"/>
-                <conditional name="method_cond">
-                    <param name="method_select" value="flagManual"/>
-                    <param name="field" value="sac254_raw"/>
-                    <param name="mdata" value="maint"/>
-                    <param name="method" value="closed"/>
-                    <param name="mformat" value="start-end"/>
-                    <param name="flag" value="255.0"/>
-                </conditional>
-            </conditional>
-        </repeat>
-        <repeat name="methods_repeat">
-            <conditional name="module_cond">
-                <param name="module_select" value="outliers"/>
-                <conditional name="method_cond">
-                    <param name="method_select" value="flagRange"/>
-                    <param name="field" value="sac254_raw"/>
-                    <param name="min" value="1.0"/>
-                    <param name="max" value="200.0"/>
-                    <param name="flag" value="255.0"/>
-                 </conditional>
-            </conditional>
-        </repeat>
-        <repeat name="methods_repeat">
-            <conditional name="module_cond">
-                <param name="module_select" value="constants"/>
-                <conditional name="method_cond">
-                    <param name="method_select" value="flagConstants"/>
-                    <param name="field" value="sac254_raw"/>
-                    <param name="thresh" value="0.0"/>
-                    <param name="window" value="4h"/>
-                    <param name="min_periods" value="2"/>
-                    <param name="flag" value="255.0"/>
-                 </conditional>
-            </conditional>
-        </repeat>
-        <repeat name="methods_repeat">
-            <conditional name="module_cond">
-                <param name="module_select" value="outliers"/>
-                <conditional name="method_cond">
-                    <param name="method_select" value="flagUniLOF"/>
-                    <param name="field" value="sac254_raw"/>
-                    <conditional name="thresh_cond">
-                        <param name="thresh_select_type" value="float"/>
-                        <param name="thresh" value="2.2"/>
-                    </conditional>
-                    <param name="algorithm" value="ball_tree"/>
-                    <param name="n" value="20"/>
-                    <param name="p" value="1"/>
-                    <conditional name="density_cond">
-                        <param name="density_select_type" value="auto"/>
-                        <param name="density" value="auto"/>
-                    </conditional>
-                    <param name="fill_na" value="true"/>
-                    <param name="slope_correct" value="true"/>
-                    <param name="min_offset" value=""/>
-                    <param name="flag" value="255.0"/>
-                 </conditional>
-            </conditional>
-        </repeat>
-        <repeat name="methods_repeat">
-            <conditional name="module_cond">
-                <param name="module_select" value="breaks"/>
-                <conditional name="method_cond">
-                    <param name="method_select" value="flagIsolated"/>
-                    <param name="field" value="sac254_raw"/>
-                    <param name="gap_window" value="30min"/>
-                    <param name="group_window" value="1h"/>
-                    <param name="flag" value="255.0"/>
-                </conditional>
-            </conditional>
-        </repeat>
-        <output name="output" value="test2/out.csv" ftype="csv"/>
-        <output name="config" value="test2/config.csv" ftype="csv"/>
-   </test> -->
+    </tests>
 </xml>
 </macros>

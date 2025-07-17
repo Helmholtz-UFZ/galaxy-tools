@@ -884,7 +884,7 @@ plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus
                      arrow_start <- (gene_start - provirus_start) / virus_length * 100
                      arrow_end <- (gene_end - provirus_start) / virus_length * 100
 
-                     circlize::circos.arrow(arrow_start, arrow_end, y1 = 0, y2 = 1,
+                     circlize::circos.arrow(arrow_start, arrow_end,
                                   arrow.head.width = 0.75, arrow.head.length = cm_x(0.1),
                                   arrow.position = current_annotations$arrow_pos[i],
                                   col = ifelse(is.na(current_annotations$annotation_description[i]), "grey", "#7fbfff"),

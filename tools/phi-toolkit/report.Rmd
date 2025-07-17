@@ -58,7 +58,7 @@ load_file <- function(path) {
   if (file.exists(path)) {
     ext <- tools::file_ext(path)
     if (ext %in% c("tsv", "csv")) {
-      data <- read_delim(path, delim = ifelse(ext == "csv", ",", "\t"), show_col_types = FALSE) %>% clean_names
+      data <- read_delim(path, delim = ifelse(ext == "csv", ",", "\t"), show_col_types = FALSE) %>% janitor::clean_names()
       log_debug(paste("Loaded", nrow(data), "rows from", path))
       data
     } else if (ext == "fna") {
@@ -82,12 +82,12 @@ get_file_info <- function(path, loaded_data) {
     if (ext %in% c("tsv", "csv", "fna")) {
       data <- loaded_data[[basename(path)]]
       rows <- if(ext == "fna") length(data) else nrow(data)
-      tibble(exists = TRUE, rows = rows, size = file.size(path), path = path)
+      tibble::tibble(exists = TRUE, rows = rows, size = file.size(path), path = path)
     } else {
-      tibble(exists = TRUE, rows = NA_integer_, size = file.size(path), path = path)
+      tibble::tibble(exists = TRUE, rows = NA_integer_, size = file.size(path), path = path)
     }
   } else {
-    tibble(exists = FALSE, rows = NA_integer_, size = NA_real_, path = NA_character_)
+    tibble::tibble(exists = FALSE, rows = NA_integer_, size = NA_real_, path = NA_character_)
   }
 }
 
@@ -112,7 +112,7 @@ process_genome_folder <- function(folder, host_analyses_dir, virus_analyses_dir)
   )
 
   loaded_data <- map(paths, load_file)
-  file_info <- map_dfr(paths, ~get_file_info(.x, loaded_data), .id = "file_type")
+  file_info <- purrr::map_dfr(paths, ~get_file_info(.x, loaded_data), .id = "file_type")
 
   virus_count <- if(!is.null(loaded_data$genomad)) {
     count <- sum(loaded_data$genomad$virus_score > 0.5, na.rm = TRUE)
@@ -149,13 +149,13 @@ compile_results <- function() {
   genome_data <- map(genome_folders, process_genome_folder, 
                      host_analyses_dir = host_analyses_dir, 
                      virus_analyses_dir = virus_analyses_dir) %>%
-    set_names(basename(genome_folders)) %>%
+    purrr::set_names(basename(genome_folders)) %>%
     compact()
 
   log_debug("Creating summary dataframe")
-  summary_df <- map_dfr(genome_data, ~{
+  summary_df <- purrr::map_dfr(genome_data, ~{
     file_info <- .x$file_info
-    tibble(
+    tibble::tibble(
       Sample = basename(file_info$path[1]),
       Virus_Count = .x$virus_count,
       geNomad = file_info$exists[file_info$file_type == "genomad"],
@@ -176,7 +176,7 @@ compile_results <- function() {
                             0)
     )
   }) %>%
-    mutate(across(ends_with("_Path"), ~ifelse(is.na(.), "Not available", as.character(.))))
+    dplyr::mutate(dplyr::across(ends_with("_Path"), ~ifelse(is.na(.), "Not available", as.character(.))))
 
   host_genomes_fasta <- list.files(
     path = file.path(params$outdir, "genomes"),
@@ -184,7 +184,7 @@ compile_results <- function() {
     full.names = TRUE
   )
   
-  host_genomes_paths <- tibble(
+  host_genomes_paths <- tibble::tibble(
     name = tools::file_path_sans_ext(basename(host_genomes_fasta)),
     path = host_genomes_fasta
   )
@@ -192,12 +192,12 @@ compile_results <- function() {
   data_gtdbtk_host <- read_tsv(
     file.path(params$outdir, "host_analyses/gtdbtk/gtdbtk.bac120.summary.tsv"),
     show_col_types = FALSE
-  ) %>% clean_names()
+  ) %>% janitor::clean_names()
 
   data_checkm_host <- read_tsv(
     file.path(params$outdir, "host_analyses/checkm2/quality_report.tsv"),
     show_col_types = FALSE
-  ) %>% clean_names()
+  ) %>% janitor::clean_names()
 
   log_debug("Returning summary dataframe, genome data, and host data")
 
@@ -238,15 +238,15 @@ data_gtdbtk_host <- result$data_gtdbtk_host
 data_checkm_host <- result$data_checkm_host
 log_debug("Data extracted successfully")
 
-# Remove any extensions from names in data gtdbtk and checm2
+# Remove any extensions from names in data gtdbtk and checkm2
 data_gtdbtk_host <- data_gtdbtk_host %>%
-  mutate(user_genome = str_remove(user_genome, "\\.[^.]+$"))
+  dplyr::mutate(user_genome = stringr::str_remove(user_genome, "\\.[^.]+$"))
 
 data_checkm_host <- data_checkm_host %>%
-  mutate(name = str_remove(name, "\\.[^.]+$"))
+  dplyr::mutate(name = stringr::str_remove(name, "\\.[^.]+$"))
 
 result$summary <- result$summary %>%
-  mutate(Sample = str_remove(Sample, "_virus_summary.tsv"))
+  dplyr::mutate(Sample = stringr::str_remove(Sample, "_virus_summary.tsv"))
 ```
 
 # Summary {.tabset .tabset-fade}
@@ -259,13 +259,13 @@ This table provides sample-by-sample information on detected viruses and key hos
 data <- result$summary
 
 log_debug("Assigning checkm2 host data")
-checkm_host_data <- data_checkm_host %>% clean_names() %>%
-  select(name, completeness, contamination, 
+checkm_host_data <- data_checkm_host %>% janitor::clean_names() %>%
+  dplyr::select(name, completeness, contamination, 
          contig_n50, genome_size)
 
 log_debug("Assigning GTDB-Tk host data")
 gtdbtk_data <- data_gtdbtk_host %>% 
-  select(user_genome, classification)
+  dplyr::select(user_genome, classification)
 
 log_debug("Defining color-blind friendly palette")
 cb_friendly_colors <- list(
@@ -280,8 +280,8 @@ log_debug("Defining function to color cells")
 color_cell <- function(values, color_true = cb_friendly_colors$green, 
                        color_false = cb_friendly_colors$red) {
   ifelse(values,
-         cell_spec("Yes", color = "white", bold = TRUE, background = color_true),
-         cell_spec("No", color = "white", bold = TRUE, background = color_false))
+         kableExtra::cell_spec("Yes", color = "white", bold = TRUE, background = color_true),
+         kableExtra::cell_spec("No", color = "white", bold = TRUE, background = color_false))
 }
 
 log_debug("Defining function to create bar plot")
@@ -347,8 +347,8 @@ log_debug("Defining function to calculate quality score and determine genome qua
 calculate_quality_score_and_class <- function(completeness, contamination) {
   if (is.na(completeness) || is.na(contamination)) {
     return(list(
-      score = cell_spec("N/A", color = "white", bold = TRUE, background = cb_friendly_colors$grey),
-      class = cell_spec("Unknown", color = "white", bold = TRUE, background = cb_friendly_colors$grey),
+      score = kableExtra::cell_spec("N/A", color = "white", bold = TRUE, background = cb_friendly_colors$grey),
+      class = kableExtra::cell_spec("Unknown", color = "white", bold = TRUE, background = cb_friendly_colors$grey),
       numeric_score = NA
     ))
   }
@@ -368,8 +368,8 @@ calculate_quality_score_and_class <- function(completeness, contamination) {
   }
   
   list(
-    score = cell_spec(formatted_score, color = "white", bold = TRUE, background = color),
-    class = cell_spec(class, color = "white", bold = TRUE, background = color),
+    score = kableExtra::cell_spec(formatted_score, color = "white", bold = TRUE, background = color),
+    class = kableExtra::cell_spec(class, color = "white", bold = TRUE, background = color),
     numeric_score = quality_score
   )
 }
@@ -377,23 +377,23 @@ calculate_quality_score_and_class <- function(completeness, contamination) {
 log_debug("Preparing the data")
 
 table_data <- data %>%
-  #mutate(Sample = basename(Sample) %>% trim_sample_name()) %>%
-  mutate(Sample = basename(Sample)) %>%
-  left_join(checkm_host_data, by = c("Sample" = "name")) %>%
-  left_join(gtdbtk_data, by = c("Sample" = "user_genome")) %>%
-  mutate(
-    quality_data = pmap(list(as.numeric(completeness),
+  #dplyr::mutate(Sample = basename(Sample) %>% trim_sample_name()) %>%
+  dplyr::mutate(Sample = basename(Sample)) %>%
+  dplyr::left_join(checkm_host_data, by = c("Sample" = "name")) %>%
+  dplyr::left_join(gtdbtk_data, by = c("Sample" = "user_genome")) %>%
+  dplyr::mutate(
+    quality_data = purrr::pmap(list(as.numeric(completeness),
                              as.numeric(contamination)),
                         calculate_quality_score_and_class),
-    Quality_Score = map_chr(quality_data, ~.$score),
-    Genome_Quality = map_chr(quality_data, ~.$class),
-    Quality_Score_Numeric = map_dbl(quality_data, ~.$numeric_score),
+    Quality_Score = purrr::map_chr(quality_data, ~.$score),
+    Genome_Quality = purrr::map_chr(quality_data, ~.$class),
+    Quality_Score_Numeric = purrr::map_dbl(quality_data, ~.$numeric_score),
     Virus_Count_Numeric = as.numeric(Virus_Count),
-    Virus_Count = cell_spec(
+    Virus_Count = kableExtra::cell_spec(
       Virus_Count,
       color = "white",
       bold = TRUE,
-      background = case_when(
+      background = dplyr::case_when(
         Virus_Count == 0 ~ cb_friendly_colors$red,
         Virus_Count == 1 ~ cb_friendly_colors$blue,
         Virus_Count > 1 ~ cb_friendly_colors$green
@@ -406,30 +406,30 @@ table_data <- data %>%
     `Genome size (bp)` = format_large_number(as.numeric(genome_size)),
     `GTDB Taxonomy` = sapply(classification, format_taxonomy)
   ) %>%
-  mutate(`#` = row_number()) %>%
-  select(`#`, Sample, `GTDB Taxonomy`, Virus_Count,
+  dplyr::mutate(`#` = row_number()) %>%
+  dplyr::select(`#`, Sample, `GTDB Taxonomy`, Virus_Count,
          Quality_Score, Genome_Quality, Completeness, Contamination,
          `Genome size (bp)`, `N50 (contigs)`)
 
 log_debug("Creating the table")
-kbl(table_data, escape = FALSE,
+kableExtra::kbl(table_data, escape = FALSE,
     align = c("c", "l", "l", "c", rep("c", 2), rep("r", 2), rep("r", 2))) %>%
-  kable_paper(full_width = TRUE) %>%
-  column_spec(1, bold = TRUE, width = "2em") %>%
-  column_spec(2:3, bold = TRUE) %>%
-  column_spec(4:5, width = "5em") %>%
-  column_spec(6:7, width = "60px") %>%
-  column_spec(8:9, width = "4em") %>%
-  add_header_above(c(" " = 4, "Host Genome Quality" = 2, "CheckM Metrics" = 2,
+  kableExtra::kable_paper(full_width = TRUE) %>%
+  kableExtra::column_spec(1, bold = TRUE, width = "2em") %>%
+  kableExtra::column_spec(2:3, bold = TRUE) %>%
+  kableExtra::column_spec(4:5, width = "5em") %>%
+  kableExtra::column_spec(6:7, width = "60px") %>%
+  kableExtra::column_spec(8:9, width = "4em") %>%
+  kableExtra::add_header_above(c(" " = 4, "Host Genome Quality" = 2, "CheckM Metrics" = 2,
                      "Statistics" = 2)) %>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
                 font_size = 9,
                 html_font = "Arial",
                 position = "left") %>%
-  row_spec(0, bold = TRUE, color = "white", background = "#333333") %>%
-  row_spec(0, extra_css = "border-bottom: 2px solid #000000;") %>%
-  column_spec(9, extra_css = "border-right: 2px solid #000000;") %>%
-  scroll_box(width = "100%", height = "100%",
+  kableExtra::row_spec(0, bold = TRUE, color = "white", background = "#333333") %>%
+  kableExtra::row_spec(0, extra_css = "border-bottom: 2px solid #000000;") %>%
+  kableExtra::column_spec(9, extra_css = "border-right: 2px solid #000000;") %>%
+  kableExtra::scroll_box(width = "100%", height = "100%",
              extra_css = "overflow-x: auto; border: 1px solid #ccc; border-radius: 4px;")
 ```
 
@@ -484,14 +484,14 @@ sessionInfo()
 
 combined_unique <- bind_rows(
   checkm_host_data %>%
-    # select(bin_id) %>%
+    # dplyr::select(bin_id) %>%
     # dplyr::rename(Sample = bin_id),
-    select(name) %>%
+    dplyr::select(name) %>%
     dplyr::rename(Sample = name),
   
   data %>%
-    #mutate(Sample = str_remove(Sample, "_virus_summary.tsv")) %>%
-    select(Sample)
+    #dplyr::mutate(Sample = stringr::str_remove(Sample, "_virus_summary.tsv")) %>%
+    dplyr::select(Sample)
 ) %>%
   distinct(Sample) %>%
   arrange(Sample)
@@ -532,17 +532,17 @@ process_proviruses <- function(data_genomad) {
 plot_genome_ideogram <- function(genome_current, proviruses_gr_features) {
   fasta_file_path <- file.path(params$outdir, "genomes", paste0(genome_current, ".fna"))
   #cat(fasta_file_path, "\n\n")
-  genome_ideogram <- getIdeogramData(fasta_file = fasta_file_path)
+  genome_ideogram <- gmoviz::getIdeogramData(fasta_file = fasta_file_path)
   
   # Replace any seqlevel to c_1, c_2, c_3, ...
-  new_seqlevels <- paste0("c", seq_along(seqlevels(genome_ideogram)))
-  names(new_seqlevels) <- seqlevels(genome_ideogram)
+  new_seqlevels <- paste0("c", seq_along(GenomeInfoDb::seqlevels(genome_ideogram)))
+  names(new_seqlevels) <- GenomeInfoDb::seqlevels(genome_ideogram)
   genome_ideogram <- GenomeInfoDb::renameSeqlevels(genome_ideogram, new_seqlevels)
-  colours <- rep("#a58bc5", length(seqlevels(genome_ideogram)))
+  colours <- rep("#a58bc5", length(GenomeInfoDb::seqlevels(genome_ideogram)))
   
   par(mar = c(2, 2, 2, 2))  # minimal margins around the plot
   
-  gmovizInitialise(genome_ideogram,
+  gmoviz::gmovizInitialise(genome_ideogram,
                    sector_colours = colours,
                    sector_border_colours = colours,
                    sector_labels = FALSE
@@ -553,7 +553,7 @@ plot_genome_ideogram <- function(genome_current, proviruses_gr_features) {
     start <- as.numeric(start(proviruses_gr_features[i]))
     end <- as.numeric(end(proviruses_gr_features[i]))
     region <- data.frame(start = start, end = end)
-    circos.genomicRect(seqnames = name,
+    circlize::circos.genomicRect(seqnames = name,
                        region,
                        ytop = .5,
                        ybottom = 0,
@@ -568,7 +568,7 @@ plot_genome_ideogram <- function(genome_current, proviruses_gr_features) {
                    paste0(round(length/1000000, 2), "mb"),
                    paste0(round(length/1000, 2), "kb"))
   labels <- paste0(as.character(seqnames(proviruses_gr_features)), " (", length, ")")
-  circos.labels(sectors = as.character(seqnames(proviruses_gr_features)),
+  circlize::circos.labels(sectors = as.character(seqnames(proviruses_gr_features)),
                 x = as.numeric(start(proviruses_gr_features)),
                 labels,
                 facing = "clockwise")
@@ -596,7 +596,7 @@ process_sample <- function(sample, combined_unique, host_genomes_paths, genome_d
     }
     
     host_genome_ideogram <- tryCatch({
-      getIdeogramData(fasta_file = host_genome_path)
+      gmoviz::getIdeogramData(fasta_file = host_genome_path)
     }, error = function(e) {
       log_debug(paste("Error loading host genome ideogram for sample", sample, ":", conditionMessage(e)))
       NULL
@@ -619,25 +619,25 @@ process_sample <- function(sample, combined_unique, host_genomes_paths, genome_d
     cat("### Host Genome\n\n")
 
     cat("**GTDB-Tk taxonomy**: \n\n")
-    data_gtdbtk_host %>% filter(user_genome == sample) %>%
-      select(classification) %>%
-      kbl() %>%
-      kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
-      kable_paper("striped", full_width = TRUE) %>%
-      scroll_box(width = "100%", height = "100%") %>%
+    data_gtdbtk_host %>% dplyr::filter(user_genome == sample) %>%
+      dplyr::select(classification) %>%
+      kableExtra::kbl() %>%
+      kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
+      kableExtra::kable_paper("striped", full_width = TRUE) %>%
+      kableExtra::scroll_box(width = "100%", height = "100%") %>%
       cat()
 
     # Cat checkm summary for this genome
     cat("**CheckM2 Summary**:\n\n")
-    #checkm_summary <- data_checkm_host %>% filter(`bin_id` == sample)
-    checkm_summary <- data_checkm_host %>% filter(`name` == sample)
-    checkm_summary %>% clean_names %>%
-      #select(number_contigs, n50_contigs, completeness, contamination, strain_heterogeneity) %>%
-      select(total_contigs, contig_n50, completeness, contamination) %>%
-      kbl() %>%
-      kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
-      kable_paper("striped", full_width = TRUE) %>%
-      scroll_box(width = "100%", height = "100%") %>%
+    #checkm_summary <- data_checkm_host %>% dplyr::filter(`bin_id` == sample)
+    checkm_summary <- data_checkm_host %>% dplyr::filter(`name` == sample)
+    checkm_summary %>% janitor::clean_names() %>%
+      #dplyr::select(number_contigs, n50_contigs, completeness, contamination, strain_heterogeneity) %>%
+      dplyr::select(total_contigs, contig_n50, completeness, contamination) %>%
+      kableExtra::kbl() %>%
+      kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
+      kableExtra::kable_paper("striped", full_width = TRUE) %>%
+      kableExtra::scroll_box(width = "100%", height = "100%") %>%
       cat()
     
     # Display defense-finder as a table
@@ -645,11 +645,11 @@ process_sample <- function(sample, combined_unique, host_genomes_paths, genome_d
       cat("**Defense-Finder Systems**:\n\n")
 
       defense_finder_data %>%
-        select(sys_id, type, subtype, sys_beg, sys_end, protein_in_syst, genes_count, name_of_profiles_in_sys) %>%
-        kbl() %>%
-        kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
-        kable_paper("striped", full_width = TRUE) %>%
-        scroll_box(width = "100%", height = "100%") %>%
+        dplyr::select(sys_id, type, subtype, sys_beg, sys_end, protein_in_syst, genes_count, name_of_profiles_in_sys) %>%
+        kableExtra::kbl() %>%
+        kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
+        kableExtra::kable_paper("striped", full_width = TRUE) %>%
+        kableExtra::scroll_box(width = "100%", height = "100%") %>%
         cat()
     } else {
       cat("No Defense-Finder systems detected.\n\n")
@@ -660,13 +660,13 @@ process_sample <- function(sample, combined_unique, host_genomes_paths, genome_d
       return()
     }
     
-    if (length(seqlevels(host_genome_ideogram)) == 1) {
-      host_genome_size <- sum(width(host_genome_ideogram))
+    if (length(GenomeInfoDb::seqlevels(host_genome_ideogram)) == 1) {
+      host_genome_size <- sum(BiocGenerics::width(host_genome_ideogram))
     } else {
       virus_containing_contigs <- unique(sub("\\|.*", "", genomad_summary$seq_name))
       virus_containing_contigs <- paste0("c_", as.numeric(factor(virus_containing_contigs)))
       filtered_host_genome <- subset_and_update_ideogram(host_genome_ideogram, virus_containing_contigs)
-      host_genome_size <- sum(width(filtered_host_genome))
+      host_genome_size <- sum(BiocGenerics::width(filtered_host_genome))
     }
     
     # Process proviruses
@@ -674,15 +674,15 @@ process_sample <- function(sample, combined_unique, host_genomes_paths, genome_d
     
     cat("**Genomad and CheckV Summary**:\n\n")
     genomad_summary %>%
-      select(seq_name, taxonomy, topology, coordinates, length) %>%
-      left_join(
-        checkv_data %>% select(contig_id, gene_count, viral_genes, checkv_quality, miuvig_quality),
+      dplyr::select(seq_name, taxonomy, topology, coordinates, length) %>%
+      dplyr::left_join(
+        checkv_data %>% dplyr::select(contig_id, gene_count, viral_genes, checkv_quality, miuvig_quality),
         by = c("seq_name" = "contig_id")) %>%
-      select(seq_name, length, gene_count, viral_genes, checkv_quality, miuvig_quality, taxonomy, topology, coordinates) %>%
-      kbl() %>%
-      kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
-      kable_paper("striped", full_width = TRUE) %>%
-      scroll_box(width = "100%", height = "100%") %>%
+      dplyr::select(seq_name, length, gene_count, viral_genes, checkv_quality, miuvig_quality, taxonomy, topology, coordinates) %>%
+      kableExtra::kbl() %>%
+      kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
+      kableExtra::kable_paper("striped", full_width = TRUE) %>%
+      kableExtra::scroll_box(width = "100%", height = "100%") %>%
       cat()
     
     cat("**Host Genome Ideogram with Phages**:\n\n")
@@ -709,11 +709,11 @@ If multiple contigs are present in the genome, each will be shown with a distinc
     if (nrow(abricate_data) > 0) {
       cat("### Virulence Genes {.tabset .tabset-fade} \n\n")
       cat("Screening of virulence genes present in the prophage contigs. \n\n")
-      abricate_data %>% select(-number_file) %>%
-      kbl() %>%
-      kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
-      kable_paper("striped", full_width = TRUE) %>%
-      scroll_box(width = "100%", height = "100%") %>% cat()
+      abricate_data %>% dplyr::select(-number_file) %>%
+      kableExtra::kbl() %>%
+      kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
+      kableExtra::kable_paper("striped", full_width = TRUE) %>%
+      kableExtra::scroll_box(width = "100%", height = "100%") %>% cat()
       cat("\n\n")
     }
     
@@ -722,10 +722,10 @@ If multiple contigs are present in the genome, each will be shown with a distinc
       cat("### Prophage-Host Prediction {.tabset .tabset-fade} \n\n")
       cat("Prediction of potential hosts for the prophage contigs. \n\n")
       iphop_data %>%
-      kbl() %>%
-      kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
-      kable_paper("striped", full_width = TRUE) %>%
-      scroll_box(width = "100%", height = "100%") %>% cat()
+      kableExtra::kbl() %>%
+      kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
+      kableExtra::kable_paper("striped", full_width = TRUE) %>%
+      kableExtra::scroll_box(width = "100%", height = "100%") %>% cat()
       cat("\n\n")
     }
     
@@ -734,10 +734,10 @@ If multiple contigs are present in the genome, each will be shown with a distinc
       cat("### AMG Predictions {.tabset .tabset-fade} \n\n")
       cat("Prediction of auxiliary metabolic genes in the prophage contigs. \n\n")
       vibrant_data %>%
-      kbl() %>%
-      kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
-      kable_paper("striped", full_width = TRUE) %>%
-      scroll_box(width = "100%", height = "100%") %>% cat()
+      kableExtra::kbl() %>%
+      kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
+      kableExtra::kable_paper("striped", full_width = TRUE) %>%
+      kableExtra::scroll_box(width = "100%", height = "100%") %>% cat()
       cat("\n\n")
     }
 
@@ -761,7 +761,7 @@ process_phage <- function(virus, genomad_summary, genomad_annotation, checkv_dat
   current_provirus_range <- sub(".*\\|provirus_", "", virus$seq_name)
   current_annotations <- genomad_annotation[grepl(paste0(current_contig_base, "\\|provirus_", current_provirus_range, "_"), 
                                                   genomad_annotation$gene, fixed = FALSE), ] %>%
-  mutate(arrow_pos = ifelse(strand == -1, "start", "end"))
+  dplyr::mutate(arrow_pos = ifelse(strand == -1, "start", "end"))
   
   
   cat("\n\n**Phage–Host Genome Ideogram:**\n\n")
@@ -772,10 +772,10 @@ process_phage <- function(virus, genomad_summary, genomad_annotation, checkv_dat
   cat("\n\n**Genes Annotation (geNomad):**\n\n")
   
   current_annotations %>%
-    select(gene, length, marker, annotation_accessions, annotation_description) %>%
-    kbl() %>%
-    kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
-    kable_paper() %>%
+    dplyr::select(gene, length, marker, annotation_accessions, annotation_description) %>%
+    kableExtra::kbl() %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
+    kableExtra::kable_paper() %>%
     cat()
   cat("\n\n")
 }
@@ -831,10 +831,10 @@ plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus
     }
     
     log_debug("Clearing circos")
-    circos.clear()
+    circlize::circos.clear()
     
     log_debug("Setting circos parameters")
-    circos.par(start.degree = 180, gap.degree = 10, track.margin = c(0.01, 0.01))
+    circlize::circos.par(start.degree = 180, gap.degree = 10, track.margin = c(0.01, 0.01))
     
     main_color <- "#a58bc5"
     zoom_color <- "#e9d27d"
@@ -846,7 +846,7 @@ plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus
     log_debug(paste("Zoom end:", zoom_end))
     
     log_debug("Initializing circos")
-    circos.initialize(factors = c("Zoom", "Main"), xlim = c(0, 100))
+    circlize::circos.initialize(factors = c("Zoom", "Main"), xlim = c(0, 100))
     
     format_genome_labels <- function(x) {
       ifelse(x >= 1e6, paste0(round(x / 1e6, 2), " Mb"),
@@ -856,7 +856,7 @@ plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus
     
     log_debug("Adding link")
     tryCatch({
-      circos.link("Main", c(zoom_start, zoom_end), "Zoom", c(0, 100),
+      circlize::circos.link("Main", c(zoom_start, zoom_end), "Zoom", c(0, 100),
                   rou1 = 0.8,
                   rou2 = 0.97,
                   h.ratio = 0.55, # width?
@@ -865,16 +865,16 @@ plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus
                   h2 = 1,
                   col = "grey99", border = "grey80")
     }, error = function(e) {
-      log_debug(paste("Error in circos.link:", e$message))
+      log_debug(paste("Error in circlize::circos.link:", e$message))
     })
     
     log_debug("Adding zoom track")
-    circos.track(factors = "Zoom", ylim = c(0, 1), track.height = 0.15,
+    circlize::circos.track(factors = "Zoom", ylim = c(0, 1), track.height = 0.15,
                  panel.fun = function(x, y) {
-                   circos.rect(0, 0, 100, 1, col = zoom_color, border = NA)
+                   circlize::circos.rect(0, 0, 100, 1, col = zoom_color, border = NA)
                    axis_labels <- seq(0, virus_length, length.out = 6)
                    axis_positions <- seq(0, 100, length.out = 6)
-                   circos.axis(h = "top", major.at = axis_positions,
+                   circlize::circos.axis(h = "top", major.at = axis_positions,
                                labels = format_genome_labels(axis_labels),
                                labels.cex = 0.7, direction = "outside")
 
@@ -884,7 +884,7 @@ plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus
                      arrow_start <- (gene_start - provirus_start) / virus_length * 100
                      arrow_end <- (gene_end - provirus_start) / virus_length * 100
 
-                     circos.arrow(arrow_start, arrow_end, y1 = 0, y2 = 1,
+                     circlize::circos.arrow(arrow_start, arrow_end, y1 = 0, y2 = 1,
                                   arrow.head.width = 0.75, arrow.head.length = cm_x(0.1),
                                   arrow.position = current_annotations$arrow_pos[i],
                                   col = ifelse(is.na(current_annotations$annotation_description[i]), "grey", "#7fbfff"),
@@ -893,9 +893,9 @@ plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus
                  }, bg.border = NA)
 
     log_debug("Adding main track")
-    circos.track(factors = "Main", ylim = c(0, 1), track.height = 0.1,
+    circlize::circos.track(factors = "Main", ylim = c(0, 1), track.height = 0.1,
                  panel.fun = function(x, y) {
-                   circos.rect(xleft = 0, ybottom = 0, xright = 100, ytop = 1, col = main_color, border = NA)
+                   circlize::circos.rect(xleft = 0, ybottom = 0, xright = 100, ytop = 1, col = main_color, border = NA)
 
                    for (i in 1:nrow(contig_viruses)) {
                      virus_start <- as.numeric(sub(".*provirus_(\\d+)_\\d+", "\\1", contig_viruses$seq_name[i]))
@@ -906,14 +906,14 @@ plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus
 
                      rect_color <- if (contig_viruses$seq_name[i] == virus$seq_name) zoom_color else adjustcolor(zoom_color, alpha.f = 0.7)
 
-                     circos.rect(xleft = virus_start_percent, ybottom = 0,
+                     circlize::circos.rect(xleft = virus_start_percent, ybottom = 0,
                                  xright = virus_end_percent, ytop = 1,
                                  col = rect_color, border = NA)
                    }
 
                    axis_labels <- seq(0, contig_length, length.out = 6)
                    axis_positions <- seq(0, 100, length.out = 6)
-                   circos.axis(h = "top", major.at = axis_positions,
+                   circlize::circos.axis(h = "top", major.at = axis_positions,
                                labels = format_genome_labels(axis_labels),
                                labels.cex = 0.7, direction = "outside")
                  }, bg.border = NA)
@@ -935,7 +935,7 @@ plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus
     phage_labels <- paste0(round(contig_viruses$length / 1e3, 2), " Kb")
     
     # Apply labels to circos plot
-    circos.labels(
+    circlize::circos.labels(
       sectors = "Main",
       x = phage_positions,
       labels = phage_labels,
@@ -953,7 +953,7 @@ plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus
     taxonomy <- virus$taxonomy
     
     log_debug("Adding taxonomy and virus name to the plot")
-    circos.text(x = center_x, y = -0.2, labels = taxonomy,
+    circlize::circos.text(x = center_x, y = -0.2, labels = taxonomy,
                 sector.index = "Zoom", track.index = 1,
                 facing = "bending.inside", niceFacing = TRUE,
                 adj = c(0.5, 0.7), cex = 0.8)
@@ -969,7 +969,7 @@ plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus
       completeness_method <- checkv_info$completeness_method
       contamination <- checkv_info$contamination
       
-      circos.text(
+      circlize::circos.text(
         x = center_x, y = -0.5, 
         labels = paste("CheckV Quality:", checkv_quality, " - miuvig Quality:", miuvig_quality),
         sector.index = "Zoom", track.index = 2,
@@ -977,7 +977,7 @@ plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus
         adj = c(0.5, 0), cex = 0.7
       )
       
-      circos.text(
+      circlize::circos.text(
         x = center_x, y = -1.5, 
         labels = paste("Gene Count:", gene_count, " - Viral Genes:", viral_genes, " - Host Genes:", host_genes),
         sector.index = "Zoom", track.index = 2,
@@ -985,7 +985,7 @@ plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus
         adj = c(0.5, 0), cex = 0.7
       )
       
-      circos.text(
+      circlize::circos.text(
         x = center_x, y = -2.5, 
         labels = paste("Completeness:", completeness, " - Contamination:", contamination),
         sector.index = "Zoom", track.index = 2,
@@ -1004,17 +1004,17 @@ plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus
            bty = "n")
     
     log_debug("Clearing circos")
-    circos.clear()
+    circlize::circos.clear()
     log_debug("Finished plot_phage_circos function successfully")
   }, error = function(e) {
     log_debug(paste("Error in plot_phage_circos:", e$message))
-    circos.clear()
+    circlize::circos.clear()
   })
 }
 
 plot_drep <- function(sample, genomad_summary) {
   drep_file_path <- file.path(params$outdir, "virus_analyses", "drep_compare", sample, "data_tables", "Cdb.csv")
-  drep_data <- read_csv(drep_file_path) %>% clean_names()
+  drep_data <- read_csv(drep_file_path) %>% janitor::clean_names()
   drep_data <- cbind(genomad_summary$seq_name, drep_data)
   
   cat("When more than 1 phage is detected in the host genome, we perform a clustering step using the tool dRep.\n\n")
@@ -1022,9 +1022,9 @@ plot_drep <- function(sample, genomad_summary) {
   
   cat("\n\n**Final cluster designations**\n\n")
   drep_data %>%
-    kbl() %>%
-    kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
-    kable_paper("striped", full_width = TRUE) %>%
+    kableExtra::kbl() %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
+    kableExtra::kable_paper("striped", full_width = TRUE) %>%
     cat()
   
   # Insert the PDF plot
@@ -1046,7 +1046,7 @@ plot_drep <- function(sample, genomad_summary) {
 
 subset_and_update_ideogram <- function(ideogram, contigs) {
   filtered <- ideogram[seqnames(ideogram) %in% contigs]
-  seqlevels(filtered) <- contigs
+  GenomeInfoDb::seqlevels(filtered) <- contigs
   seqinfo(filtered) <- seqinfo(filtered)[contigs]
   filtered
 }

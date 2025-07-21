@@ -208,6 +208,7 @@ jobs:
         packages: |
           any::argparse 
           any::styler
+          any::knitr
     - name: lintr
       run: |
         set -eo pipefail

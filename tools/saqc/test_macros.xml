@@ -22,7 +22,7 @@
         </assert_contents>
       </output>
     </test>
-    <!-- <test>
+    <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -4609,6 +4609,6 @@
           <has_text_matching expression="test_variable;\s*transform\((?=.*freq\s*=\s*[&quot;']a_string[&quot;']).*\)$" />
         </assert_contents>
       </output>
-    </test> -->
+    </test>
   </xml>
 </macros>

@@ -138,7 +138,7 @@ def parse_parameter_docs(sections: Dict[str, str]) -> Dict[str, str]:
                 parameter_doc[current_param] = "\n".join(current_lines).strip()
 
             current_param = match.group("param_name")
-            current_lines = [original_line_stripped] 
+            current_lines = [original_line_stripped]
         elif current_param:
             if line.startswith("    ") or line.startswith("\t\t") or not param_start_pattern.match(original_line_stripped):
                  current_lines.append(original_line_stripped)
@@ -249,7 +249,7 @@ def get_methods(module):
     return methods_with_saqc
 
 
-def get_method_params(method, module):
+def get_method_params(method, module, tracing=False):
     sections = parse_docstring(method)
     param_docs = parse_parameter_docs(sections)
 
@@ -260,9 +260,22 @@ def get_method_params(method, module):
          sys.stderr.write(f"Warning: Could not get signature for {method.__name__}: {e}. Skipping params for this method.\n")
          return xml_params
 
+    def add_debug_info_to_help(kwargs, trace_list):
+        if not tracing:
+            return kwargs
+        
+        new_kwargs = kwargs.copy()
+        debug_string = " | DEBUG PATH: " + " -> ".join(trace_list)
+        new_kwargs['help'] = new_kwargs.get('help', '') + debug_string
+        return new_kwargs
+
     for param_name, param in parameters.items():
         if param_name in ["self", "kwargs", "store_kwargs", "ax_kwargs"]:
             continue
+        
+        # path tracing
+        path_trace = [f"Param: '{param_name}'", f"Annotation: '{param.annotation}'"]
+        
         annotation = param.annotation
 
         if isinstance(annotation, str):
@@ -316,6 +329,7 @@ def get_method_params(method, module):
             param_constructor_args['value'] = ""
 
         if is_union_with_none:
+            path_trace.append("is_union_with_none")
             args_wo_none = [a for a in args if a is not type(None)]
             if len(args_wo_none) == 1:
                 annotation = args_wo_none[0]
@@ -331,12 +345,14 @@ def get_method_params(method, module):
                  args = ()
 
         if param_name in ["field", "target"]:
+            path_trace.append("is_field_or_target")
             is_multi = False
             if origin in (list, Sequence) and args and args[0] == str:
                 is_multi = True
             elif annotation == list[str] or annotation == Sequence[str]:
                 is_multi = True
             if is_multi:
+                path_trace.append("is_multi_repeat")
                 parent = Repeat(name=f"{param_name}_repeat", title=f"{param_name.capitalize()}(s)", min=1)
                 inner_param_attrs = {
                     "label": f"Name for {param_name}",
@@ -344,10 +360,11 @@ def get_method_params(method, module):
                     "optional": False,
                     "value": ""
                 }
-                parent.append(TextParam(argument=param_name, **inner_param_attrs))
+                parent.append(TextParam(argument=param_name, **add_debug_info_to_help(inner_param_attrs, path_trace)))
                 xml_params.append(parent)
 
             elif annotation == str:
+                path_trace.append("is_single_str")
                 single_param_attrs = {
                     "label": param_name.capitalize(),
                     "help": "The name of the variable to process.",
@@ -357,8 +374,9 @@ def get_method_params(method, module):
                 }
                 if 'value' in param_constructor_args and param_constructor_args['value'] is not None:
                     single_param_attrs['value'] = param_constructor_args['value']
-                xml_params.append(TextParam(argument=param_name, **single_param_attrs))
+                xml_params.append(TextParam(argument=param_name, **add_debug_info_to_help(single_param_attrs, path_trace)))
             else:
+                path_trace.append("fallback_as_text")
                 sys.stderr.write(f"Warning: Parameter '{param_name}' expected str or List[str], got {annotation}. Treating as TextParam.\n")
                 fallback_attrs = {
                     "label": param_name.capitalize(),
@@ -367,56 +385,69 @@ def get_method_params(method, module):
                     "value": "" if not optional else None,
                     "require_non_empty": not optional
                 }
-                xml_params.append(TextParam(argument=param_name, **fallback_attrs))
+                xml_params.append(TextParam(argument=param_name, **add_debug_info_to_help(fallback_attrs, path_trace)))
             continue
 
 
         if origin is None and not is_union_type(annotation) :
+            path_trace.append("is_simple_type")
             if annotation == bool:
+                path_trace.append("type_is_bool")
                 bool_attrs = {k:v for k,v in param_constructor_args.items() if k != 'value'}
                 bool_attrs['checked'] = True if param.default is True else False
-                xml_params.append(BooleanParam(argument=param_name, **bool_attrs))
+                xml_params.append(BooleanParam(argument=param_name, **add_debug_info_to_help(bool_attrs, path_trace)))
             elif annotation == str:
-                xml_params.append(TextParam(argument=param_name, **param_constructor_args))
+                path_trace.append("type_is_str")
+                xml_params.append(TextParam(argument=param_name, **add_debug_info_to_help(param_constructor_args, path_trace)))
             elif annotation == int:
-                 xml_params.append(IntegerParam(argument=param_name, **param_constructor_args))
+                path_trace.append("type_is_int")
+                xml_params.append(IntegerParam(argument=param_name, **add_debug_info_to_help(param_constructor_args, path_trace)))
             elif annotation == float:
-                 xml_params.append(FloatParam(argument=param_name, **param_constructor_args))
+                path_trace.append("type_is_float")
+                xml_params.append(FloatParam(argument=param_name, **add_debug_info_to_help(param_constructor_args, path_trace)))
             elif is_callable_type(annotation) or annotation in (GenericFunction, CurveFitter, Any, slice, mpl.axes.Axes):
-                 if is_callable_type(annotation):
+                path_trace.append("type_is_callable_or_special")
+                current_callable_attrs = param_constructor_args.copy()
+                if is_callable_type(annotation):
                     callable_args_repr = str(get_args(annotation)) if hasattr(annotation, '__args__') else '(...)'
                     help_suffix = f" (Expects a function reference: {callable_args_repr}."
                     if param.default is not inspect.Parameter.empty and param.default is not None:
                         help_suffix += f" Default: {param.default})"
                     else:
                         help_suffix += ")"
-                    param_constructor_args["help"] += help_suffix
-                    current_callable_attrs = {**param_constructor_args}
-                    if not isinstance(param.default, str) or param.default is inspect.Parameter.empty:
-                        if not current_callable_attrs.get('optional', False):
-                             current_callable_attrs['value'] = ""
-                        elif 'value' in current_callable_attrs :
-                             del current_callable_attrs['value']
-                    xml_params.append(TextParam(argument=param_name, **current_callable_attrs))
+                    current_callable_attrs["help"] += help_suffix
+                
+                if not isinstance(param.default, str) or param.default is inspect.Parameter.empty:
+                    if not current_callable_attrs.get('optional', False):
+                            current_callable_attrs['value'] = ""
+                    elif 'value' in current_callable_attrs :
+                            del current_callable_attrs['value']
+                xml_params.append(TextParam(argument=param_name, **add_debug_info_to_help(current_callable_attrs, path_trace)))
             elif hasattr(annotation, '__mro__') and pd.Timedelta in annotation.__mro__:
-                 param_constructor_args["help"] += " (Pandas timedelta string, e.g., '1D', '2H30M')"
-                 xml_params.append(TextParam(argument=param_name, **param_constructor_args))
+                path_trace.append("type_is_timedelta_string")
+                param_constructor_args["help"] += " (Pandas timedelta string, e.g., '1D', '2H30M')"
+                xml_params.append(TextParam(argument=param_name, **add_debug_info_to_help(param_constructor_args, path_trace)))
             else:
-                 xml_params.append(TextParam(argument=param_name, **param_constructor_args))
+                path_trace.append("type_is_unknown_simple_fallback_text")
+                xml_params.append(TextParam(argument=param_name, **add_debug_info_to_help(param_constructor_args, path_trace)))
 
         elif origin is Union and str in args and pd.Timedelta in args:
+             path_trace.append("is_union_str_timedelta")
              param_constructor_args["help"] += " (Pandas timedelta string or offset, e.g., '1D', '2H30M')"
-             xml_params.append(TextParam(argument=param_name, **param_constructor_args))
+             xml_params.append(TextParam(argument=param_name, **add_debug_info_to_help(param_constructor_args, path_trace)))
 
         elif origin is Union and all(el_type in args for el_type in (str, Tuple[str,str])) and len(args)==2 :
+            path_trace.append("is_union_str_tuplestr")
             param_constructor_args["help"] += " (String or two comma-separated strings, e.g., val1,val2)"
-            xml_params.append(TextParam(argument=param_name, **param_constructor_args))
+            xml_params.append(TextParam(argument=param_name, **add_debug_info_to_help(param_constructor_args, path_trace)))
 
         elif origin is Union and all(el_type in args for el_type in (int, Tuple[int,int])) and len(args)==2 :
+            path_trace.append("is_union_int_tupleint")
             param_constructor_args["help"] += " (Integer or two comma-separated integers, e.g., 1,2)"
-            xml_params.append(TextParam(argument=param_name, **param_constructor_args))
+            xml_params.append(TextParam(argument=param_name, **add_debug_info_to_help(param_constructor_args, path_trace)))
 
         elif origin is Union and int in args and str in args and param_name in ["limit", "window"]:
+            path_trace.append("is_union_int_str_conditional")
             cond = Conditional(name=f"{param_name}_cond")
             select_param_name = f"{param_name}_select_type"
             cond_options = {"number": "Number", "timedelta": "Timedelta"}
@@ -426,21 +457,26 @@ def get_method_params(method, module):
             elif isinstance(param.default, str): select_default_choice = 'timedelta'
             elif optional and param.default is None: select_default_choice = 'none'
             if select_default_choice not in cond_options and cond_options: select_default_choice = list(cond_options.keys())[0]
-            cond.append(SelectParam(name=select_param_name, label=f"{label} Input Mode", options=cond_options, value=select_default_choice, optional=False))
+            
+            select_args = add_debug_info_to_help(param_constructor_args, path_trace)
+            cond.append(SelectParam(name=select_param_name, label=f"{label} Input Mode", help=select_args['help'], options=cond_options, value=select_default_choice, optional=False))
+            
             when_number = When(value="number")
-            num_attrs = {k:v for k,v in param_constructor_args.items() if k != 'value'}
+            num_attrs = {k:v for k,v in param_constructor_args.items() if k != 'value' and k != 'help'}
             num_attrs.update({"optional": False, "label": f"{label} (as number)"})
             if isinstance(param.default, int): num_attrs['value'] = str(param.default)
             else: num_attrs['value'] = ""
             when_number.append(IntegerParam(argument=param_name, **num_attrs))
             cond.append(when_number)
+
             when_timedelta = When(value="timedelta")
-            td_attrs = {k:v for k,v in param_constructor_args.items() if k != 'value'}
+            td_attrs = {k:v for k,v in param_constructor_args.items() if k != 'value' and k != 'help'}
             td_attrs.update({"optional": False, "label": f"{label} (as timedelta string)"})
             if isinstance(param.default, str): td_attrs['value'] = param.default
             else: td_attrs['value'] = ""
             when_timedelta.append(TextParam(argument=param_name, **td_attrs))
             cond.append(when_timedelta)
+
             if "none" in cond_options:
                 when_none = When(value="none")
                 when_none.append(HiddenParam(name=param_name, value="__none__"))
@@ -448,6 +484,7 @@ def get_method_params(method, module):
             xml_params.append(cond)
 
         elif origin is Union and float in args and str in args and param_name in ["cutoff", "freq"]:
+            path_trace.append("is_union_float_str_conditional")
             cond = Conditional(name=f"{param_name}_cond")
             select_param_name = f"{param_name}_select_type"
             cond_options = {}
@@ -461,21 +498,26 @@ def get_method_params(method, module):
             elif isinstance(param.default, str): select_default_choice = 'offset'
             elif optional and param.default is None: select_default_choice = 'none'
             if select_default_choice not in cond_options and cond_options: select_default_choice = list(cond_options.keys())[0]
-            cond.append(SelectParam(name=select_param_name, label=f"{label} Input Mode", options=cond_options, value=select_default_choice, optional=False))
+            
+            select_args = add_debug_info_to_help(param_constructor_args, path_trace)
+            cond.append(SelectParam(name=select_param_name, label=f"{label} Input Mode", help=select_args['help'], options=cond_options, value=select_default_choice, optional=False))
+
             when_number = When(value="number")
-            float_attrs = {k:v for k,v in param_constructor_args.items() if k != 'value'}
+            float_attrs = {k:v for k,v in param_constructor_args.items() if k not in ['value', 'help']}
             float_attrs.update({"optional": False, "label": f"{label} ({cond_options.get('number', num_label)})"})
             if isinstance(param.default, float): float_attrs['value'] = str(param.default)
             else: float_attrs['value'] = ""
             when_number.append(FloatParam(argument=param_name, **float_attrs))
             cond.append(when_number)
+
             when_str_offset = When(value="offset")
-            str_attrs = {k:v for k,v in param_constructor_args.items() if k != 'value'}
+            str_attrs = {k:v for k,v in param_constructor_args.items() if k not in ['value', 'help']}
             str_attrs.update({"optional": False, "label": f"{label} ({cond_options.get('offset', str_label)})"})
             if isinstance(param.default, str): str_attrs['value'] = param.default
             else: str_attrs['value'] = ""
             when_str_offset.append(TextParam(argument=param_name, **str_attrs))
             cond.append(when_str_offset)
+
             if "none" in cond_options:
                 when_none = When(value="none")
                 when_none.append(HiddenParam(name=param_name, value="__none__"))
@@ -483,6 +525,7 @@ def get_method_params(method, module):
             xml_params.append(cond)
 
         elif origin is Union and all(a in args for a in (Literal['valid', 'complete'], list[str])):
+            path_trace.append("is_union_literal_list_conditional")
             cond = Conditional(name=f"{param_name}_cond")
             select_param_name = f"{param_name}_select_type"
             options_dict_local = {"valid": "Valid", "complete": "Complete", "list": "Custom List"}
@@ -492,11 +535,14 @@ def get_method_params(method, module):
             elif isinstance(param.default, list): select_default_key = 'list'
             elif optional and param.default is None: select_default_key = 'none'
             if select_default_key not in options_dict_local and options_dict_local: select_default_key = list(options_dict_local.keys())[0]
-            cond.append(SelectParam(name=select_param_name, label=f"{label} Mode", options=options_dict_local, value=select_default_key, optional=False))
+            
+            select_args = add_debug_info_to_help(param_constructor_args, path_trace)
+            cond.append(SelectParam(name=select_param_name, label=f"{label} Mode", help=select_args['help'], options=options_dict_local, value=select_default_key, optional=False))
+
             for opt_key in options_dict_local.keys():
                 current_when = When(value=opt_key)
                 if opt_key == "list":
-                    list_attrs = {k:v for k,v in param_constructor_args.items() if k != 'value'}
+                    list_attrs = {k:v for k,v in param_constructor_args.items() if k not in ['value', 'help']}
                     list_attrs.update({"optional":False, "label": f"{label} (comma-separated)"})
                     if isinstance(param.default, list): list_attrs['value'] = ",".join(map(str,param.default))
                     else: list_attrs['value'] = ""
@@ -509,6 +555,7 @@ def get_method_params(method, module):
             xml_params.append(cond)
 
         elif origin is Union and any(get_origin(a) is Literal and "auto" in get_args(a) for a in args) and float in args:
+             path_trace.append("is_union_literal_auto_float_conditional")
              has_callable_opt = any(is_callable_type(a) for a in args)
              cond = Conditional(name=f"{param_name}_cond")
              select_param_name = f"{param_name}_select_type"
@@ -522,10 +569,13 @@ def get_method_params(method, module):
                  select_default_choice = "custom"
              elif optional and param.default is None: select_default_choice = "none"
              if select_default_choice not in cond_options and cond_options: select_default_choice = list(cond_options.keys())[0]
-             cond.append(SelectParam(name=select_param_name, label=f"{label} Mode", options=cond_options, value=select_default_choice, optional=False))
+             
+             select_args = add_debug_info_to_help(param_constructor_args, path_trace)
+             cond.append(SelectParam(name=select_param_name, label=f"{label} Mode", help=select_args['help'], options=cond_options, value=select_default_choice, optional=False))
+             
              when_auto = When(value="auto"); when_auto.append(HiddenParam(name=param_name, value="auto")); cond.append(when_auto)
              when_float = When(value="float")
-             float_attrs = {k:v for k,v in param_constructor_args.items() if k != 'value'}
+             float_attrs = {k:v for k,v in param_constructor_args.items() if k not in ['value', 'help']}
              float_attrs.update({"optional": False, "label": f"{label} (float value)"})
              if isinstance(param.default, float): float_attrs['value'] = str(param.default)
              else: float_attrs['value'] = ""
@@ -533,7 +583,7 @@ def get_method_params(method, module):
              cond.append(when_float)
              if has_callable_opt:
                  when_custom = When(value="custom")
-                 custom_attrs = {k:v for k,v in param_constructor_args.items() if k != 'value'}
+                 custom_attrs = {k:v for k,v in param_constructor_args.items() if k not in ['value', 'help']}
                  custom_attrs.update({"optional": False, "label": f"{label} (custom callable name)"})
                  if isinstance(param.default, str) and param.default!="auto" and not isinstance(param.default, (float, int)):
                       custom_attrs['value'] = param.default
@@ -548,6 +598,7 @@ def get_method_params(method, module):
              xml_params.append(cond)
 
         elif origin is Literal:
+             path_trace.append("is_literal")
              literal_options = dict([(str(o), str(o)) for o in args])
              current_literal_attrs = {**param_constructor_args}
              if param.default is not inspect.Parameter.empty and str(param.default) in literal_options:
@@ -560,10 +611,11 @@ def get_method_params(method, module):
                          current_literal_attrs['value'] = ""
              elif 'value' in current_literal_attrs and current_literal_attrs['value'] is None:
                 del current_literal_attrs['value']
-             xml_params.append(SelectParam(argument=param_name, options=literal_options, **current_literal_attrs))
+             xml_params.append(SelectParam(argument=param_name, options=literal_options, **add_debug_info_to_help(current_literal_attrs, path_trace)))
 
         elif (origin is Union and any(is_callable_type(a) for a in args) and
               any(get_origin(a) is Literal and all(lit_val in get_args(a) for lit_val in ("linear", "exponential")) for a in args)):
+            path_trace.append("is_union_callable_literal_model_conditional")
             cond = Conditional(name=f"{param_name}_cond")
             select_param_name = f"{param_name}_select_type"
             cond_options = {"linear": "Linear Model", "exponential": "Exponential Model", "custom": "Custom Callable"}
@@ -574,11 +626,15 @@ def get_method_params(method, module):
                 select_default_choice = "custom"
             elif optional and param.default is None: select_default_choice = "none"
             if select_default_choice not in cond_options and cond_options: select_default_choice = list(cond_options.keys())[0]
-            cond.append(SelectParam(name=select_param_name, label=f"{label} Model Type", options=cond_options, value=select_default_choice, optional=False))
+
+            select_args = add_debug_info_to_help(param_constructor_args, path_trace)
+            cond.append(SelectParam(name=select_param_name, label=f"{label} Model Type", help=select_args['help'], options=cond_options, value=select_default_choice, optional=False))
+            
             when_linear = When(value="linear"); when_linear.append(HiddenParam(name=param_name, value="linear")); cond.append(when_linear)
             when_exp = When(value="exponential"); when_exp.append(HiddenParam(name=param_name, value="exponential")); cond.append(when_exp)
+
             when_custom = When(value="custom")
-            custom_attrs = {k:v for k,v in param_constructor_args.items() if k != 'value'}
+            custom_attrs = {k:v for k,v in param_constructor_args.items() if k not in ['value', 'help']}
             custom_attrs.update({"optional": False, "label": f"{label} (Custom Callable Name)"})
             if isinstance(param.default, str) and param.default not in ("linear", "exponential"):
                 custom_attrs['value'] = param.default
@@ -588,16 +644,19 @@ def get_method_params(method, module):
                 custom_attrs['value'] = ""
             when_custom.append(TextParam(argument=param_name, **custom_attrs))
             cond.append(when_custom)
+            
             if "none" in cond_options:
                 when_none = When(value="none"); when_none.append(HiddenParam(name=param_name, value="__none__")); cond.append(when_none)
             xml_params.append(cond)
 
         elif origin in (pd.Series, pd.DataFrame, DictOfSeries, list, np.ndarray) or \
              (origin is Union and any(o_arg in (pd.Series, pd.DataFrame, DictOfSeries, list, np.ndarray) for o_arg in args)):
+            path_trace.append("is_data_like_text")
             param_constructor_args["help"] += " (Name of another data field/column or comma-separated list of columns)"
-            xml_params.append(TextParam(argument=param_name, **param_constructor_args))
+            xml_params.append(TextParam(argument=param_name, **add_debug_info_to_help(param_constructor_args, path_trace)))
 
         elif origin is Sequence and not (annotation == Sequence[ForwardRef("SaQC")] if isinstance(annotation, type) else False):
+             path_trace.append("is_generic_sequence_text")
              param_constructor_args["help"] += " (Enter items separated by commas, e.g., val1,val2,val3)"
              current_seq_attrs = {**param_constructor_args}
              if isinstance(param.default, Sequence) and not isinstance(param.default, str) :
@@ -606,17 +665,19 @@ def get_method_params(method, module):
                  current_seq_attrs['value'] = ""
              elif optional and 'value' in current_seq_attrs and current_seq_attrs['value'] is None:
                  del current_seq_attrs['value']
-             xml_params.append(TextParam(argument=param_name, **current_seq_attrs))
+             xml_params.append(TextParam(argument=param_name, **add_debug_info_to_help(current_seq_attrs, path_trace)))
 
         elif isinstance(annotation, type) and (annotation == Sequence[ForwardRef("SaQC")] or annotation == dict[ForwardRef("SaQC"), Union[str, Sequence[str]]]):
+            path_trace.append("is_complex_saqc_sequence_ignored")
             sys.stderr.write(f"Ignoring specific complex SaQC sequence/dict parameter {param_name} ({method.__name__})\n")
 
         else:
-             xml_params.append(TextParam(argument=param_name, **param_constructor_args))
+             path_trace.append("final_catch_all_fallback_text")
+             xml_params.append(TextParam(argument=param_name, **add_debug_info_to_help(param_constructor_args, path_trace)))
     return xml_params
 
 
-def get_methods_conditional(methods, module):
+def get_methods_conditional(methods, module, tracing=False):
     method_conditional = Conditional(name="method_cond", label="Method")
     method_select_options = []
     if not methods:
@@ -644,7 +705,7 @@ def get_methods_conditional(methods, module):
         method_name = method_obj.__name__
         method_when = When(value=method_name)
         try:
-            params = get_method_params(method_obj, module)
+            params = get_method_params(method_obj, module, tracing=tracing)
             if not params :
                  no_params_notice = TextParam(name=f"{method_name}_no_params_notice", type="text", value="This method has no configurable parameters.", label="Info")
                  method_when.append(no_params_notice)
@@ -956,7 +1017,7 @@ def generate_test_macros():
 
 
 
-def generate_tool_xml():
+def generate_tool_xml(tracing=False):
     """Generiert und druckt die XML-Definition des Galaxy-Tools."""
 
     # --- Tool Definition ---
@@ -1024,7 +1085,7 @@ def generate_tool_xml():
         module_when = When(value=module_name)
         methods = get_methods(module_obj)
         if methods:
-            methods_conditional_obj = get_methods_conditional(methods, module_obj)
+            methods_conditional_obj = get_methods_conditional(methods, module_obj, tracing=tracing)
             if methods_conditional_obj:
                  module_when.append(methods_conditional_obj)
             else:
@@ -1064,17 +1125,21 @@ if __name__ == "__main__":
         action='store_true',
         help='Generate the test macros file (test_macros.xml).'
     )
+    parser.add_argument(
+        '--tracing',
+        action='store_true',
+        help='Enable if-else path tracing in the help text of the generated tool XML.'
+    )
 
     args = parser.parse_args()
 
 
     if args.generate_tool:
         print("--- Generating Galaxy Tool XML ---", file=sys.stderr)
-        generate_tool_xml()
+        generate_tool_xml(tracing=args.tracing)
     elif args.generate_tests:
         print("--- Generating Galaxy Test Macros XML ---", file=sys.stderr)
         generate_test_macros()
     else:
-
         print("--- No argument specified, generating Galaxy Tool XML by default. ---", file=sys.stderr)
-        generate_tool_xml()
+        generate_tool_xml(tracing=args.tracing)

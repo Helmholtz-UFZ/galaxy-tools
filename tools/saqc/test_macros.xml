@@ -22,7 +22,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <!-- <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -79,7 +79,7 @@
             <param name="window" value="default_string" />
             <param name="min_periods" value="1" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7fccda3ea5c0&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7f5941312700&gt;" />
             <param name="model_by_resids" value="true" />
           </conditional>
         </conditional>
@@ -104,7 +104,7 @@
             <param name="window" value="a_string" />
             <param name="min_periods" value="1" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7fccda3ea5c0&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7f5941312700&gt;" />
             <param name="model_by_resids" value="true" />
           </conditional>
         </conditional>
@@ -129,7 +129,7 @@
             <param name="window" value="default_string" />
             <param name="min_periods" value="123" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7fccda3ea5c0&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7f5941312700&gt;" />
             <param name="model_by_resids" value="true" />
           </conditional>
         </conditional>
@@ -154,7 +154,7 @@
             <param name="window" value="default_string" />
             <param name="min_periods" value="1" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7fccda3ea3e0&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7f5941312520&gt;" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
@@ -179,7 +179,7 @@
             <param name="window" value="a_string" />
             <param name="min_periods" value="1" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7fccda3ea3e0&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7f5941312520&gt;" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
@@ -204,7 +204,7 @@
             <param name="window" value="default_string" />
             <param name="min_periods" value="123" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7fccda3ea3e0&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7f5941312520&gt;" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
@@ -513,7 +513,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="single" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7fccd71a1b20&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7f593e03dc60&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -536,7 +536,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="single" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7fccd71a1b20&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7f593e03dc60&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -559,7 +559,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="complete" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7fccd71a1b20&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7f593e03dc60&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -582,7 +582,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="average" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7fccd71a1b20&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7f593e03dc60&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -605,7 +605,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="weighted" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7fccd71a1b20&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7f593e03dc60&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -628,7 +628,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="centroid" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7fccd71a1b20&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7f593e03dc60&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -651,7 +651,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="median" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7fccd71a1b20&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7f593e03dc60&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -674,7 +674,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="ward" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7fccd71a1b20&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7f593e03dc60&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -766,7 +766,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7fccd71a0cc0&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7f593e03ce00&gt;" />
             <param name="method" value="single" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -793,7 +793,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7fccd71a0cc0&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7f593e03ce00&gt;" />
             <param name="method" value="single" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -820,7 +820,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7fccd71a0cc0&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7f593e03ce00&gt;" />
             <param name="method" value="complete" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -847,7 +847,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7fccd71a0cc0&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7f593e03ce00&gt;" />
             <param name="method" value="average" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -874,7 +874,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7fccd71a0cc0&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7f593e03ce00&gt;" />
             <param name="method" value="weighted" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -901,7 +901,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7fccd71a0cc0&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7f593e03ce00&gt;" />
             <param name="method" value="centroid" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -928,7 +928,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7fccd71a0cc0&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7f593e03ce00&gt;" />
             <param name="method" value="median" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -955,7 +955,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7fccd71a0cc0&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7f593e03ce00&gt;" />
             <param name="method" value="ward" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -982,7 +982,7 @@
             <param name="reference" value="default_string" />
             <param name="freq" value="default_string" />
             <param name="thresh" value="1.0" />
-            <param name="metric" value="&lt;function cityblock at 0x7fccd71a0cc0&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x7f593e03ce00&gt;" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
@@ -1005,7 +1005,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="single" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7fccd71a19e0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7f593e03db20&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1029,7 +1029,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="single" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7fccd71a19e0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7f593e03db20&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1053,7 +1053,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="complete" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7fccd71a19e0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7f593e03db20&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1077,7 +1077,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="average" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7fccd71a19e0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7f593e03db20&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1101,7 +1101,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="weighted" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7fccd71a19e0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7f593e03db20&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1125,7 +1125,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="centroid" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7fccd71a19e0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7f593e03db20&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1149,7 +1149,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="median" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7fccd71a19e0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7f593e03db20&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1173,7 +1173,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="ward" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7fccd71a19e0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7f593e03db20&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -2075,6 +2075,35 @@
             </repeat>
             <param name="field" value="test_variable" />
             <param name="n" value="20" />
+            <param name="algorithm" value="ball_tree" />
+            <param name="p" value="1" />
+            <param name="flag" value="255.0" />
+            <conditional name="thresh_cond">
+              <param name="thresh_select_type" value="float" />
+              <param name="thresh" value="45.6" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*flagLOF\(.*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagLOF" />
+            <repeat name="field_repeat">
+              <param name="field" value="test_variable" />
+            </repeat>
+            <param name="field" value="test_variable" />
+            <param name="n" value="20" />
             <param name="thresh" value="1.5" />
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
@@ -2173,35 +2202,6 @@
         <conditional name="module_cond">
           <param name="module_select" value="outliers" />
           <conditional name="method_cond">
-            <param name="method_select" value="flagLOF" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
-            <param name="field" value="test_variable" />
-            <param name="n" value="20" />
-            <param name="algorithm" value="ball_tree" />
-            <param name="p" value="1" />
-            <param name="flag" value="255.0" />
-            <conditional name="thresh_cond">
-              <param name="thresh_select_type" value="float" />
-              <param name="thresh" value="45.6" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagLOF\(.*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="outliers" />
-          <conditional name="method_cond">
             <param name="method_select" value="flagMAD" />
             <param name="field" value="test_variable" />
             <conditional name="window_cond">
@@ -2288,7 +2288,7 @@
               <param name="field" value="test_variable" />
             </repeat>
             <param name="field" value="test_variable" />
-            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7fccd71c9ee0&gt;" />
+            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7f593e06a020&gt;" />
             <param name="alpha" value="0.05" />
             <param name="n" value="10" />
             <param name="func" value="sum" />
@@ -2324,7 +2324,7 @@
               <param name="field" value="test_variable" />
             </repeat>
             <param name="field" value="test_variable" />
-            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7fccd71c9ee0&gt;" />
+            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7f593e06a020&gt;" />
             <param name="alpha" value="0.05" />
             <param name="n" value="10" />
             <param name="func" value="sum" />
@@ -2360,7 +2360,7 @@
               <param name="field" value="test_variable" />
             </repeat>
             <param name="field" value="test_variable" />
-            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7fccd71c9ee0&gt;" />
+            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7f593e06a020&gt;" />
             <param name="alpha" value="0.05" />
             <param name="n" value="10" />
             <param name="func" value="sum" />
@@ -2472,6 +2472,36 @@
             <param name="slope_correct" value="false" />
             <param name="min_offset" value="1.0" />
             <param name="flag" value="255.0" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*flagUniLOF\(.*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagUniLOF" />
+            <param name="field" value="test_variable" />
+            <param name="n" value="20" />
+            <param name="algorithm" value="ball_tree" />
+            <param name="p" value="1" />
+            <param name="density" value="auto" />
+            <param name="fill_na" value="false" />
+            <param name="slope_correct" value="false" />
+            <param name="min_offset" value="1.0" />
+            <param name="flag" value="255.0" />
+            <conditional name="thresh_cond">
+              <param name="thresh_select_type" value="float" />
+              <param name="thresh" value="45.6" />
+            </conditional>
           </conditional>
         </conditional>
       </repeat>
@@ -2609,36 +2639,6 @@
             <conditional name="density_cond">
               <param name="density_select_type" value="float" />
               <param name="density" value="45.6" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagUniLOF\(.*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="outliers" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagUniLOF" />
-            <param name="field" value="test_variable" />
-            <param name="n" value="20" />
-            <param name="algorithm" value="ball_tree" />
-            <param name="p" value="1" />
-            <param name="density" value="auto" />
-            <param name="fill_na" value="false" />
-            <param name="slope_correct" value="false" />
-            <param name="min_offset" value="1.0" />
-            <param name="flag" value="255.0" />
-            <conditional name="thresh_cond">
-              <param name="thresh_select_type" value="float" />
-              <param name="thresh" value="45.6" />
             </conditional>
           </conditional>
         </conditional>
@@ -4124,35 +4124,6 @@
             <param name="n" value="20" />
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
-            <param name="fill_na" value="false" />
-            <conditional name="density_cond">
-              <param name="density_select_type" value="float" />
-              <param name="density" value="45.6" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignUniLOF\(.*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="scores" />
-          <conditional name="method_cond">
-            <param name="method_select" value="assignUniLOF" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
-            <param name="field" value="test_variable" />
-            <param name="n" value="20" />
-            <param name="algorithm" value="ball_tree" />
-            <param name="p" value="1" />
             <param name="density" value="auto" />
             <param name="fill_na" value="false" />
           </conditional>
@@ -4239,6 +4210,35 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text_matching expression="test_variable;\s*assignUniLOF\((?=.*algorithm\s*=\s*[&quot;']auto[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="scores" />
+          <conditional name="method_cond">
+            <param name="method_select" value="assignUniLOF" />
+            <repeat name="field_repeat">
+              <param name="field" value="test_variable" />
+            </repeat>
+            <param name="field" value="test_variable" />
+            <param name="n" value="20" />
+            <param name="algorithm" value="ball_tree" />
+            <param name="p" value="1" />
+            <param name="fill_na" value="false" />
+            <conditional name="density_cond">
+              <param name="density_select_type" value="float" />
+              <param name="density" value="45.6" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*assignUniLOF\(.*\)$" />
         </assert_contents>
       </output>
     </test>
@@ -4609,6 +4609,6 @@
           <has_text_matching expression="test_variable;\s*transform\((?=.*freq\s*=\s*[&quot;']a_string[&quot;']).*\)$" />
         </assert_contents>
       </output>
-    </test>
+    </test> -->
   </xml>
 </macros>

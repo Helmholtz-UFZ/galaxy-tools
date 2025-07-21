@@ -176,7 +176,7 @@ jobs:
         else
           echo "omero=false" >> $GITHUB_OUTPUT
         fi
-        if egrep -q "virsorter|phabox|genomad" tool_list_chunk.txt; then
+        if egrep -q "virsorter|phabox|genomad|dfast" tool_list_chunk.txt; then
           echo "testdata=true" >> $GITHUB_OUTPUT
           echo "tool_list_chunk<<EOF" >> $GITHUB_OUTPUT
           cat tool_list_chunk.txt >> $GITHUB_OUTPUT

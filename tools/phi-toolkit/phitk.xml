@@ -62,6 +62,9 @@
         <requirement type="package" version="2.0.2">r-base64</requirement>
         <requirement type="package" version="3.5.0">r-pdftools</requirement>
     </requirements>
+    <version_command><![CDATA[
+        echo $(R --vanilla --slave -e 'required_packages <- c("tidyverse", "janitor", "here", "kableExtra", "gmoviz", "circlize", "GenomicRanges", "patchwork", "fs", "tools", "scales", "formattable", "pdftools", "base64"); invisible(lapply(required_packages, library, character.only = TRUE, quietly=TRUE, verbose=FALSE)); sessionInfo()' 2> /dev/null)
+    ]]></version_command>
     <command detect_errors="exit_code"><![CDATA[
         #import re
         mkdir -p data/genomes &&

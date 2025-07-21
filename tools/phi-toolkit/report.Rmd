@@ -31,6 +31,7 @@ cat("params$outdir:", params$outdir, "\n")
 
 ```{r setup_libraries, message=FALSE, warning=FALSE, echo=FALSE, results='asis'}
 # Define required packages
+# Note: update version_command if changed here!
 required_packages <- c(
   "tidyverse", "janitor", "here",
   "kableExtra", "gmoviz", "circlize",

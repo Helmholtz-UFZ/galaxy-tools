@@ -2,7 +2,7 @@
     <description></description>
     <icon src="logo.jpg"/>
     <macros>
-        <token name="@TOOL_VERSION@">0.1.0</token>
+        <token name="@TOOL_VERSION@">0.2.0</token>
         <token name="@VERSION_SUFFIX@">0</token>
 
         <xml name="zenodo_collection_element" tokens="id" token_suffix="">

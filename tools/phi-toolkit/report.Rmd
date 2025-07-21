@@ -25,6 +25,7 @@ params:
 
 ```{r setup_env, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(dev = 'svglite') # set output device to svg
 
 cat("params$outdir:", params$outdir, "\n")
 ```
@@ -252,8 +253,6 @@ result$summary <- result$summary %>%
 
 # Summary {.tabset .tabset-fade}
 
-## Overview Table
-
 This table provides sample-by-sample information on detected viruses and key host genome statistics. It includes taxonomy, virus count, genome quality classification, CheckM2 metrics (completeness and contamination), and genome assembly statistics such as size and N50.
 
 ```{r render_table, message=FALSE, warning=FALSE, echo=FALSE, results='asis'}
@@ -453,50 +452,6 @@ kableExtra::kbl(table_data,
     extra_css = "overflow-x: auto; border: 1px solid #ccc; border-radius: 4px;"
   )
 ```
-
-## Tools Documentation
-
-The following tools are utilized in this workflow. Each tool name below is a link to its respective documentation.
-
-**Host-analyses**
-
-- [**CheckM2 v1.1.0**](https://github.com/chklovski/CheckM2): Assesses the quality of the host. Most useful when working with assembled genomes.
-
-- [**GTDB-Tk v2.3.2**](https://ecogenomics.github.io/GTDBTk/index.html): Assigns a taxonomy to the host genome.
-
-- [**Defense-Finder v2.0.0, models 2.0.2**](https://ecogenomics.github.io/GTDBTk/index.html): Detects known anti-phage systems in the host.
-
-- [**geNomad v1.7.1**](https://portal.nersc.gov/genomad/): Predicts and annotates proviruses.
-
-**Virus-analyses**
-
-- [**CheckV v1.0.1**](https://pypi.org/project/checkv/): Evaluates the quality of viral genomes.
-
-- [**dRep v3.4.5**](https://drep.readthedocs.io/en/latest/): Compares viral genomes within the same host.
-
-- [**Abricate v1.0.1**](https://github.com/tseemann/abricate): Identifies virulence genes in the prophage genomes with the [VFDB database](https://www.mgc.ac.cn/VFs/).
-
-- [**iPHOP v1.3.3**](https://bitbucket.org/srouxjgi/iphop/src/main/): Predicts other potential hosts of viral genomes.
-
-- [**VIBRANT v1.2.1**](https://github.com/AnantharamanLab/VIBRANT): Used to identify Auxiliary Metabolic Genes in the prophages.
-
-## Workflow
-
-The workflow begins with the input of bacterial genomes by the user. These are processed by the **host-analyses** tools. Prophage prediction is  
-performed by **geNomad** only. Afterward, prophages identified by **geNomad** are processed by the **virus-analyses** tools.
-
-If more than one prophage is recovered in the same sample, **dRep** is used to compare and determine if the viruses are identical or different within the same host.
-
-*PLACEHOLDER FOR PIPELINE*
-
-## R Session Info
-
-Information about the R session used to render this markdown document.
-
-```{r}
-sessionInfo()
-```
-
 
 # Results {.tabset .tabset-fade}
 
@@ -1141,9 +1096,3 @@ render_all_samples <- function(test_mode = FALSE) {
 # Test mode processes one sample only
 render_all_samples(test_mode = F)
 ```
-
-# Citation
-
-Cite this work: XXXXX
-
-

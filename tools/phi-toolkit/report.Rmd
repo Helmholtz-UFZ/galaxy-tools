@@ -245,13 +245,6 @@ data_gtdbtk_host <- result$data_gtdbtk_host
 data_checkm_host <- result$data_checkm_host
 log_debug("Data extracted successfully")
 
-# Remove any extensions from names in data gtdbtk and checkm2
-data_gtdbtk_host <- data_gtdbtk_host %>%
-  dplyr::mutate(user_genome = stringr::str_remove(user_genome, "\\.[^.]+$"))
-
-data_checkm_host <- data_checkm_host %>%
-  dplyr::mutate(name = stringr::str_remove(name, "\\.[^.]+$"))
-
 result$summary <- result$summary %>%
   dplyr::mutate(Sample = stringr::str_remove(Sample, "_virus_summary.tsv"))
 ```
@@ -698,18 +691,18 @@ process_sample <- function(sample, combined_unique, host_genomes_paths, genome_d
         cat("No Defense-Finder systems detected.\n\n")
       }
 
-      if (is.null(genomad_summary) || nrow(genomad_summary) == 0) {
+      if (is.null(genomad_summary) || nrow(genomad_summary) == 0) {q
         log_debug(paste("No geNomad summary data found for sample:", sample))
         return()
       }
 
       if (length(GenomeInfoDb::seqlevels(host_genome_ideogram)) == 1) {
-        host_genome_size <- sum(BiocGenerics::width(host_genome_ideogram))
+        host_genome_size <- sum(width(host_genome_ideogram))
       } else {
         virus_containing_contigs <- unique(sub("\\|.*", "", genomad_summary$seq_name))
         virus_containing_contigs <- paste0("c_", as.numeric(factor(virus_containing_contigs)))
         filtered_host_genome <- subset_and_update_ideogram(host_genome_ideogram, virus_containing_contigs)
-        host_genome_size <- sum(BiocGenerics::width(filtered_host_genome))
+        host_genome_size <- sum(width(filtered_host_genome))
       }
 
       # Process proviruses
@@ -816,7 +809,7 @@ process_phage <- function(virus, genomad_summary, genomad_annotation, checkv_dat
     dplyr::mutate(arrow_pos = ifelse(strand == -1, "start", "end"))
 
 
-  cat("\n\n**Phage–Host Genome Ideogram:**\n\n")
+  cat("\n\n**Phage-Host Genome Ideogram:**\n\n")
 
   plot_phage_circos(virus, genomad_summary, current_annotations, virus_length, host_genome_size, provirus_start, provirus_end, checkv_data)
 
@@ -844,7 +837,7 @@ plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus
 
       # Check for NA or invalid values in input parameters
       if (is.na(virus_length) || virus_length <= 0) {
-        log_debug("Error: Invalid virus length")
+        log_debug("Error: Invalid virus length", virus_length)
         return(NULL)
       }
       if (is.na(host_genome_size) || host_genome_size <= 0) {

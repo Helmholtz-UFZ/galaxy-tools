@@ -1,5 +1,6 @@
 <tool id="phi_toolkit_report" name="PHI toolkit report" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01" license="MIT">
     <description></description>
+    <icon src="logo.jpg"/>
     <macros>
         <token name="@TOOL_VERSION@">0.1.0</token>
         <token name="@VERSION_SUFFIX@">0</token>

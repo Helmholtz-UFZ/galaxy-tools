@@ -11,6 +11,7 @@
         mkdir '$output_file.extra_files_path' &&
         wget http://ftp.ebi.ac.uk/pub/databases/metagenomics/eukcc/eukcc2_db_ver_${version}.tar.gz &&
         tar -xvf eukcc2_db_ver_${version}.tar.gz &&
+        rm eukcc2_db_ver_${version}.tar.gz &&
         mv eukcc2_db_ver_${version}/* '$output_file.extra_files_path'/ &&
         cp '$dmjson' '$output_file'
     ]]></command>

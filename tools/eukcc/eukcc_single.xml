@@ -105,13 +105,14 @@
 
     </outputs>
     <tests>
+        <!-- reference data to large for test in CI. Download locally with test-data.sh to run tests.
         <test expect_num_outputs="1">
             <param name="fasta" value="10000_lines_GCA_903798045.1_TARA_EukCC_1_genomic.fna"/>
             <param name="db" value="1.2"/>
             <output name="eukcc">
                 <assert_contents>
                     <has_text text="GCA_903798045.1"/>
-                    <has_text text="41874"/> <!-- 41874 = Bathycoccus -->
+                    <has_text text="41874"/> <!\-\- 41874 = Bathycoccus \-\->
                     <has_n_lines n="1"/>
                     <has_n_columns n="4"/>
                 </assert_contents>
@@ -136,7 +137,7 @@
                     <has_n_columns n="5"/>
                 </assert_contents>
             </output>
-        </test>
+        </test> -->
     </tests>
     <help><![CDATA[
 

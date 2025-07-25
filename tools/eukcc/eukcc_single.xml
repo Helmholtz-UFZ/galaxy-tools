@@ -102,7 +102,6 @@
                 <action type="metadata" name="column_names" default="target,query,bitscore,evalue,expected_GA"/>
             </actions>
         </data>
-
     </outputs>
     <tests>
         <!-- reference data to large for test in CI. Download locally with test-data.sh to run tests.

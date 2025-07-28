@@ -307,6 +307,7 @@ def get_method_params(method, module, tracing=False):
              sys.stderr.write(f"Warning: Annotation '{annotation}' for parameter '{param_name}' in method '{method.__name__}' resolved to a string. Treating as Any.\n")
              annotation = Any
 
+        # get origing and args of the annotation, e.g. O[A, ...] has origin O and args (A, ...)
         origin = get_origin(annotation)
         args = get_args(annotation)
         default = param.default if param.default is not inspect.Parameter.empty else None
@@ -393,9 +394,11 @@ def get_method_params(method, module, tracing=False):
             path_trace.append("is_simple_type")
             if annotation == bool:
                 path_trace.append("type_is_bool")
-                bool_attrs = {k:v for k,v in param_constructor_args.items() if k != 'value'}
-                bool_attrs['checked'] = True if param.default is True else False
-                xml_params.append(BooleanParam(argument=param_name, **add_debug_info_to_help(bool_attrs, path_trace)))
+                # bool has no default value but checked, and optional should not be set 
+                param_constructor_args.pop("value", None)
+                param_constructor_args['checked'] = True if param.default is True else False
+                param_constructor_args.pop("optional", None)
+                xml_params.append(BooleanParam(argument=param_name, **add_debug_info_to_help(param_constructor_args, path_trace)))
             elif annotation == str:
                 path_trace.append("type_is_str")
                 xml_params.append(TextParam(argument=param_name, **add_debug_info_to_help(param_constructor_args, path_trace)))

@@ -18,7 +18,7 @@
     --output-mesh-file output_2.vtu]]></command>
   <inputs>
     <param name="thickness" type="float" value="2.220446049250313e-16" optional="false" label="thickness" help="The minimum thickness of a layer to be integrated at any given " min="0"/>
-    <param name="raster_list" type="data" optional="false" label="raster list" help="An ascii-file containing a list of input raster files, starting from top " format="asc,grd,xyz" multiple="true"/>
+    <param name="raster_list" type="data" optional="false" label="raster list" help="An ascii-file containing a list of input raster files, starting from" format="asc,grd,xyz" multiple="true"/>
     <param name="keep_surface_material_ids" type="boolean" label="keep surface material ids" help="if the argument is present the materials defined in the surface mesh " checked="false" truevalue="--keep-surface-material-ids" falsevalue=""/>
     <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="The file name of the 2D input mesh " format="vtu" multiple="false"/>
   </inputs>

@@ -45,7 +45,6 @@ TCLAP_PATTERN_UNLABELED = re.compile(
 MIN_MAX_PATTERN = re.compile(r"\((min|max)\s*=\s*([^)]+)\)")
 ALLOWED_VALUES_PATTERN = re.compile(r"\(allowed values:\s*([^)]+)\)")
 STANDARD_PATTERN = re.compile(r"\(standard:\s*([^)]+)\)")
-# --- NEUE REGEX für mehrere Dateiendungen ---
 MULTIPLE_FORMATS_PATTERN = re.compile(r"\*\.([a-zA-Z0-9_]+)")
 
 def eprint(*args, **kwargs):
@@ -131,7 +130,6 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
 
         is_output = 'output' in full_arg_text_lower or long_flag.lower().startswith('out')
         if is_output:
-            # Für Outputs nehmen wir vorerst nur die erste gefundene Endung
             format_match = MULTIPLE_FORMATS_PATTERN.search(full_arg_text)
             file_format = format_match.group(1) if format_match else 'dat'
             static_filename = f"output_{output_idx}.{file_format}"
@@ -148,13 +146,11 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
                 "optional": 'true' not in remaining_args
             }
             
-            # --- NEUE LOGIK FÜR MEHRERE FORMATE ---
             format_matches = MULTIPLE_FORMATS_PATTERN.findall(full_arg_text)
             if format_matches:
                 attrs['format'] = ",".join(format_matches)
             else:
                 attrs['format'] = 'auto'
-            # --- ENDE NEUE LOGIK ---
                 
             attrs['multiple'] = "MultiArg" in param_info['arg_type'] or "list" in full_arg_text_lower
             galaxy_inputs.append(DataParam(**attrs))

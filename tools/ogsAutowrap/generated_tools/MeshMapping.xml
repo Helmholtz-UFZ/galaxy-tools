@@ -1,0 +1,42 @@
+<tool name="OGS: MeshMapping" id="ogs_meshmapping" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'MeshMapping'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[MeshMapping --version]]></version_command>
+  <command><![CDATA[MeshMapping
+    $lowpass
+    #for $f in $static:
+        --static '$f'
+    #end for
+    --distance '$distance'
+    #for $f in $mesh:
+        --mesh '$f'
+    #end for
+    #for $f in $raster:
+        --raster '$f'
+    #end for
+    #for $f in $input:
+        --input '$f'
+    #end for
+    --output output_1.vtu]]></command>
+  <inputs>
+    <param name="lowpass" type="boolean" label="lowpass" help="Applies a lowpass filter to elevation over connected nodes." checked="false" truevalue="--lowpass" falsevalue=""/>
+    <param name="static" type="data" optional="true" label="static" help="Static elevation to map the input file to. This can be combined with " format="auto" multiple="false"/>
+    <param name="distance" type="float" value="(min = 0)" optional="false" label="distance" help="Maximum distance to search for mesh nodes if there is no " min="0"/>
+    <param name="mesh" type="data" optional="true" label="mesh" help="2D mesh file to map the input file on, " format="vtu" multiple="false"/>
+    <param name="raster" type="data" optional="true" label="raster" help="Raster file to map the input file on, " format="asc,grd,xyz" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input mesh file " format="vtu,msh" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from MeshMapping">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **MeshMapping** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

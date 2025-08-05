@@ -1,0 +1,27 @@
+<tool name="OGS: ExtractBoundary" id="ogs_extractboundary" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'ExtractBoundary'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[ExtractBoundary --version]]></version_command>
+  <command><![CDATA[ExtractBoundary
+    #for $f in $mesh_input_file:
+        --mesh-input-file '$f'
+    #end for
+    --mesh-output-file output_1.vtu
+    --ascii-output output_2.dat]]></command>
+  <inputs>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="the name of the file containing the input mesh," format="vtu" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from ExtractBoundary">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **ExtractBoundary** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

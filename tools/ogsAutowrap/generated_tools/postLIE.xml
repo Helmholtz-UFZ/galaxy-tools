@@ -1,0 +1,28 @@
+<tool name="OGS: postLIE" id="ogs_postlie" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'postLIE'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[postLIE --version]]></version_command>
+  <command><![CDATA[postLIE
+    #for $f in $input_file:
+        --input-file '$f'
+    #end for
+    $no_overwrite
+    --output-file output_1.vtu]]></command>
+  <inputs>
+    <param name="input_file" type="data" optional="false" label="input file" help="the original PVD or VTU file name, " format="vtu,pvd" multiple="false"/>
+    <param name="no_overwrite" type="boolean" label="no overwrite" help="don" checked="false" truevalue="--no-overwrite" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from postLIE">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **postLIE** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

@@ -1,0 +1,26 @@
+<tool name="OGS: PVTU2VTU" id="ogs_pvtu2vtu" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'PVTU2VTU'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[PVTU2VTU --version]]></version_command>
+  <command><![CDATA[PVTU2VTU
+    #for $f in $input:
+        --input '$f'
+    #end for
+    --output output_1.vtu]]></command>
+  <inputs>
+    <param name="input" type="data" optional="false" label="input" help="the partitioned input mesh file (format = *.pvtu)" format="pvtu" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from PVTU2VTU">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **PVTU2VTU** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

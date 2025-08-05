@@ -1,0 +1,68 @@
+<tool name="OGS: removeMeshElements" id="ogs_removemeshelements" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'removeMeshElements'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[removeMeshElements --version]]></version_command>
+  <command><![CDATA[removeMeshElements
+    $invert
+    --z-max '$z_max'
+    --z-min '$z_min'
+    --y-max '$y_max'
+    --y-min '$y_min'
+    --x-max '$x_max'
+    --x-min '$x_min'
+    $zero_volume
+    #if str($element_type):
+        --element-type '$element_type'
+    #end if
+    --property-name '$property_name'
+    #if str($property_value):
+        --property-value '$property_value'
+    #end if
+    --min-value '$min_value'
+    --max-value '$max_value'
+    $inside
+    #for $f in $mesh_input_file:
+        --mesh-input-file '$f'
+    #end for
+    --outside output_1.dat
+    --mesh-output-file output_2.vtu]]></command>
+  <inputs>
+    <param name="invert" type="boolean" label="invert" help="inverts the specified bounding box" checked="false" truevalue="--invert" falsevalue=""/>
+    <param name="z_max" type="float" value="1.7976931348623157E+308" optional="false" label="z max" help="largest allowed extent in z-dimension"/>
+    <param name="z_min" type="float" value="-1.7976931348623157E+308" optional="false" label="z min" help="smallest allowed extent in z-dimension"/>
+    <param name="y_max" type="float" value="1.7976931348623157E+308" optional="false" label="y max" help="largest allowed extent in y-dimension"/>
+    <param name="y_min" type="float" value="-1.7976931348623157E+308" optional="false" label="y min" help="smallest allowed extent in y-dimension"/>
+    <param name="x_max" type="float" value="1.7976931348623157E+308" optional="false" label="x max" help="largest allowed extent in x-dimension"/>
+    <param name="x_min" type="float" value="-1.7976931348623157E+308" optional="false" label="x min" help="smallest allowed extent in x-dimension"/>
+    <param name="zero_volume" type="boolean" label="zero volume" help="remove zero volume elements" checked="false" truevalue="--zero-volume" falsevalue=""/>
+    <param name="element_type" type="select" optional="true" label="element type" help="element type to be removed, ">
+      <option value="point">point</option>
+      <option value="line">line</option>
+      <option value="tri">tri</option>
+      <option value="quad">quad</option>
+      <option value="hex">hex</option>
+      <option value="prism">prism</option>
+      <option value="tet">tet</option>
+      <option value="pyramid">pyramid</option>
+    </param>
+    <param name="property_name" type="text" value="MaterialIDs" optional="false" label="property name" help="name of property in the mesh"/>
+    <param name="property_value" type="integer" optional="true" label="property value" help="value of selected property to be removed"/>
+    <param name="min_value" type="float" value="0" optional="false" label="min value" help="minimum value of range for selected property"/>
+    <param name="max_value" type="float" value="0" optional="false" label="max value" help="maximum value of range for selected property"/>
+    <param name="inside" type="boolean" label="inside" help="remove all elements inside the given property range" checked="false" truevalue="--inside" falsevalue=""/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="the name of the file containing the input mesh, " format="vtu" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from removeMeshElements">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **removeMeshElements** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

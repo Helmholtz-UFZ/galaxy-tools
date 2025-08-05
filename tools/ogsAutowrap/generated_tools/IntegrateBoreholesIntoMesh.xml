@@ -1,0 +1,38 @@
+<tool name="OGS: IntegrateBoreholesIntoMesh" id="ogs_integrateboreholesintomesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'IntegrateBoreholesIntoMesh'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[IntegrateBoreholesIntoMesh --version]]></version_command>
+  <command><![CDATA[IntegrateBoreholesIntoMesh
+    --max-elevation '$max_elevation'
+    --min-elevation '$min_elevation'
+    --max-id '$max_id'
+    --min-id '$min_id'
+    #for $f in $geo:
+        --geo '$f'
+    #end for
+    #for $f in $input:
+        --input '$f'
+    #end for
+    --output output_1.vtu]]></command>
+  <inputs>
+    <param name="max_elevation" type="float" value="false" optional="false" label="max elevation" help="Maximum elevation for an integrated borehole, " min="0"/>
+    <param name="min_elevation" type="float" value="false" optional="false" label="min elevation" help="Minimum elevation for an integrated borehole, " min="0"/>
+    <param name="max_id" type="integer" value="-1" optional="false" label="max id" help="Maximum MaterialID for an integrated borehole"/>
+    <param name="min_id" type="integer" value="-1" optional="false" label="min id" help="Minimum MaterialID for an integrated borehole"/>
+    <param name="geo" type="data" optional="false" label="geo" help="Name of the input geometry file, " format="gml" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Name of the input mesh file, " format="vtu" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from IntegrateBoreholesIntoMesh">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **IntegrateBoreholesIntoMesh** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

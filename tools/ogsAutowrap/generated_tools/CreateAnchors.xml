@@ -1,0 +1,43 @@
+<tool name="OGS: CreateAnchors" id="ogs_createanchors" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'CreateAnchors'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[CreateAnchors --version]]></version_command>
+  <command><![CDATA[CreateAnchors
+    --log-level '$log_level'
+    #for $f in $input:
+        --input '$f'
+    #end for
+    #for $f in $json_file:
+        --json-file '$f'
+    #end for
+    --tolerance '$tolerance'
+    --max-iter '$max_iter'
+    --output output_1.vtu]]></command>
+  <inputs>
+    <param name="log_level" type="select" value="error" optional="false" label="log level" help="the verbosity of logging messages: ">
+      <option value="none">none</option>
+      <option value="error">error</option>
+      <option value="warn">warn</option>
+      <option value="info">info</option>
+      <option value="debug">debug</option>
+      <option value="all">all</option>
+    </param>
+    <param name="input" type="data" optional="false" label="input" help="Input bulk mesh file, " format="vtu" multiple="false"/>
+    <param name="json_file" type="data" optional="false" label="json file" help="Input JSON file containing anchor start and end points, " format="json" multiple="false"/>
+    <param name="tolerance" type="float" value="2.220446049250313e-16" optional="false" label="tolerance" help="Tolerance/Search length"/>
+    <param name="max_iter" type="text" value="(min = 0)" optional="false" label="max iter" help="maximum number of iterations of the internal root-finding " min="0"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from CreateAnchors">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **CreateAnchors** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

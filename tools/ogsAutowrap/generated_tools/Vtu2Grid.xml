@@ -1,0 +1,32 @@
+<tool name="OGS: Vtu2Grid" id="ogs_vtu2grid" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'Vtu2Grid'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[Vtu2Grid --version]]></version_command>
+  <command><![CDATA[Vtu2Grid
+    --cellsize-z '$cellsize_z'
+    --cellsize-y '$cellsize_y'
+    --cellsize-x '$cellsize_x'
+    #for $f in $input:
+        --input '$f'
+    #end for
+    --output output_1.vtu]]></command>
+  <inputs>
+    <param name="cellsize_z" type="float" value="(min = 0)" optional="false" label="cellsize z" help="edge length of cubes in z-direction " min="0"/>
+    <param name="cellsize_y" type="float" value="(min = 0)" optional="false" label="cellsize y" help="edge length of cubes in y-direction " min="0"/>
+    <param name="cellsize_x" type="float" value="(min = 0)" optional="false" label="cellsize x" help="edge length of cubes in x-direction (longitude) or all directions, if " min="0"/>
+    <param name="input" type="data" optional="false" label="input" help="the 3D input mesh file, " format="vtu,msh" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from Vtu2Grid">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **Vtu2Grid** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

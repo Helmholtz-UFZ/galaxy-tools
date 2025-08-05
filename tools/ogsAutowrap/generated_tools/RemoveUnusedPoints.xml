@@ -1,0 +1,26 @@
+<tool name="OGS: RemoveUnusedPoints" id="ogs_removeunusedpoints" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'RemoveUnusedPoints'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[RemoveUnusedPoints --version]]></version_command>
+  <command><![CDATA[RemoveUnusedPoints
+    #for $f in $input:
+        --input '$f'
+    #end for
+    --output output_1.gml]]></command>
+  <inputs>
+    <param name="input" type="data" optional="false" label="input" help="input geometry (format = *.gml)" format="gml" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from RemoveUnusedPoints">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **RemoveUnusedPoints** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

@@ -1,0 +1,29 @@
+<tool name="OGS: queryMesh" id="ogs_querymesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'queryMesh'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[queryMesh --version]]></version_command>
+  <command><![CDATA[queryMesh
+    #if str($element_id):
+        --element-id '$element_id'
+    #end if
+    #if str($node_id):
+        --node-id '$node_id'
+    #end if
+    $show_node_with_max_elements
+    '$mesh_file']]></command>
+  <inputs>
+    <param name="element_id" type="integer" optional="true" label="element id" help="element ID" min="0"/>
+    <param name="node_id" type="integer" optional="true" label="node id" help="node ID" min="0"/>
+    <param name="show_node_with_max_elements" type="boolean" label="show node with max elements" help="show a node having the max number of connected elements" checked="false" truevalue="--show-node-with-max-elements" falsevalue=""/>
+    <param name="mesh_file" type="data" optional="true" label="mesh file" help="input mesh file, &quot;&#10;                                                   &quot;(format = *.vtu)&quot;,&#10;                                                   true, &quot;" format="vtu" multiple="false"/>
+  </inputs>
+  <outputs/>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **queryMesh** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

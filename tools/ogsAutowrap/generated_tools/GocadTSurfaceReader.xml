@@ -1,0 +1,36 @@
+<tool name="OGS: GocadTSurfaceReader" id="ogs_gocadtsurfacereader" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'GocadTSurfaceReader'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[GocadTSurfaceReader --version]]></version_command>
+  <command><![CDATA[GocadTSurfaceReader
+    $write_binary
+    #for $f in $surfaces_only:
+        --surfaces-only '$f'
+    #end for
+    #for $f in $lines_only:
+        --lines-only '$f'
+    #end for
+    #for $f in $input_file:
+        --input-file '$f'
+    #end for
+    --output-dir output_1.dat]]></command>
+  <inputs>
+    <param name="write_binary" type="boolean" label="write binary" help="if set, OGS-Meshes will be written in binary format" checked="false" truevalue="--write-binary" falsevalue=""/>
+    <param name="surfaces_only" type="data" optional="true" label="surfaces only" help="if set, only TSurf datasets will be parsed from the input file" format="auto" multiple="false"/>
+    <param name="lines_only" type="data" optional="true" label="lines only" help="if set, only PLine datasets will be parsed from the input file" format="auto" multiple="false"/>
+    <param name="input_file" type="data" optional="false" label="input file" help="Gocad triangular surfaces file (format = *.ts). " format="ts" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from GocadTSurfaceReader">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **GocadTSurfaceReader** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

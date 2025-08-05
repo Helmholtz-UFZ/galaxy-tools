@@ -1,0 +1,33 @@
+<tool name="OGS: NodeReordering" id="ogs_nodereordering" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'NodeReordering'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[NodeReordering --version]]></version_command>
+  <command><![CDATA[NodeReordering
+    --method '$method'
+    #for $f in $input_mesh:
+        --input_mesh '$f'
+    #end for
+    --output_mesh output_1.vtu]]></command>
+  <inputs>
+    <param name="method" type="select" value="1" optional="false" label="method" help="reordering method selection, ">
+      <option value="0">0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+    </param>
+    <param name="input_mesh" type="data" optional="false" label="input mesh" help="the name of the input mesh file, " format="vtu,vtk,msh" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from NodeReordering">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **NodeReordering** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

@@ -1,0 +1,47 @@
+<tool name="OGS: PartitionMesh" id="ogs_partitionmesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'PartitionMesh'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[PartitionMesh --version]]></version_command>
+  <command><![CDATA[PartitionMesh
+    #for $f in $mesh_input_file:
+        --mesh-input-file '$f'
+    #end for
+    #for $f in $metis_mesh_input_file:
+        --metis-mesh-input-file '$f'
+    #end for
+    --np '$np'
+    #for $f in $ogs2metis:
+        --ogs2metis '$f'
+    #end for
+    $exe_metis
+    --log-level '$log_level'
+    --output output_1.dat]]></command>
+  <inputs>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="the name of the file containing the input mesh, (format = *.vtu)" format="vtu" multiple="false"/>
+    <param name="metis_mesh_input_file" type="data" optional="true" label="metis mesh input file" help="base name (without .mesh extension) of the file containing the metis " format="auto" multiple="false"/>
+    <param name="np" type="integer" value="false" optional="false" label="np" help="the number of partitions, " min="0"/>
+    <param name="ogs2metis" type="data" optional="true" label="ogs2metis" help="Indicator to convert the ogs mesh file to METIS input file" format="auto" multiple="false"/>
+    <param name="exe_metis" type="boolean" label="exe metis" help="Call mpmetis inside the programme via system()." checked="false" truevalue="--exe_metis" falsevalue=""/>
+    <param name="log_level" type="select" value="info" optional="false" label="log level" help="the verbosity of logging messages: (allowed values: none, error, ">
+      <option value="none">none</option>
+      <option value="error">error</option>
+      <option value="warn">warn</option>
+      <option value="info">info</option>
+      <option value="debug">debug</option>
+      <option value="all">all</option>
+    </param>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from PartitionMesh">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **PartitionMesh** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

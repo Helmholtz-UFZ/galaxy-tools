@@ -1,0 +1,39 @@
+<tool name="OGS: Raster2Mesh" id="ogs_raster2mesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'Raster2Mesh'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[Raster2Mesh --version]]></version_command>
+  <command><![CDATA[Raster2Mesh
+    --arrayname '$arrayname'
+    --pixel-type '$pixel_type'
+    --elem-type '$elem_type'
+    #for $f in $input:
+        --input '$f'
+    #end for
+    --output output_1.vtu]]></command>
+  <inputs>
+    <param name="arrayname" type="text" value="false" optional="false" label="arrayname" help="Name of the scalar array. Only required if assigning pixel values to "/>
+    <param name="pixel_type" type="select" value="materials" optional="false" label="pixel type" help="The choice how pixel values should be interpreted by the software: ">
+      <option value="elevation">elevation</option>
+      <option value="materials">materials</option>
+      <option value="scalar">scalar</option>
+    </param>
+    <param name="elem_type" type="select" value="quad)" optional="false" label="elem type" help="The element type used in the resulting OGS mesh. ">
+      <option value="tri">tri</option>
+      <option value="quad">quad</option>
+    </param>
+    <param name="input" type="data" optional="false" label="input" help="Name of the input raster file " format="asc" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from Raster2Mesh">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **Raster2Mesh** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

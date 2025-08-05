@@ -1,0 +1,28 @@
+<tool name="OGS: ExtractMaterials" id="ogs_extractmaterials" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'ExtractMaterials'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[ExtractMaterials --version]]></version_command>
+  <command><![CDATA[ExtractMaterials
+    --material-id '$material_id'
+    #for $f in $input:
+        --input '$f'
+    #end for
+    --output output_1.vtu]]></command>
+  <inputs>
+    <param name="material_id" type="integer" value="false" optional="false" label="material id" help="The MaterialID for which elements should be extracted into a new " min="0"/>
+    <param name="input" type="data" optional="false" label="input" help="Name of the input mesh " format="vtu" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from ExtractMaterials">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **ExtractMaterials** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

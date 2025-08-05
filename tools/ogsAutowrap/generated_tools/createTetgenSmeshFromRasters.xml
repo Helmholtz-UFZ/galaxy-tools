@@ -1,0 +1,31 @@
+<tool name="OGS: createTetgenSmeshFromRasters" id="ogs_createtetgensmeshfromrasters" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'createTetgenSmeshFromRasters'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[createTetgenSmeshFromRasters --version]]></version_command>
+  <command><![CDATA[createTetgenSmeshFromRasters
+    --thickness '$thickness'
+    --raster-list '$raster_list'
+    #for $f in $input_mesh_file:
+        --input-mesh-file '$f'
+    #end for
+    --ascii_output output_1.dat
+    --output-mesh-file output_2.smesh]]></command>
+  <inputs>
+    <param name="thickness" type="float" value="2.220446049250313e-16" optional="false" label="thickness" help="The minimum thickness of a layer to be integrated at any given " min="0"/>
+    <param name="raster_list" type="text" value="true" optional="false" label="raster list" help="An ascii-file containing a list of raster files, starting from top "/>
+    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="The file name of the 2D input mesh " format="vtu,msh" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from createTetgenSmeshFromRasters">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **createTetgenSmeshFromRasters** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

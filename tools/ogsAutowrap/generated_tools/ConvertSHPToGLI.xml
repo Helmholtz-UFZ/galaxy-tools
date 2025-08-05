@@ -1,0 +1,21 @@
+<tool name="OGS: ConvertSHPToGLI" id="ogs_convertshptogli" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'ConvertSHPToGLI'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[ConvertSHPToGLI --version]]></version_command>
+  <command><![CDATA[ConvertSHPToGLI
+    #for $f in $shape_file:
+        --shape-file '$f'
+    #end for]]></command>
+  <inputs>
+    <param name="shape_file" type="data" optional="false" label="shape file" help="the name of the input shape " format="shp" multiple="false"/>
+  </inputs>
+  <outputs/>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **ConvertSHPToGLI** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

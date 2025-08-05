@@ -1,0 +1,32 @@
+<tool name="OGS: AddFaultToVoxelGrid" id="ogs_addfaulttovoxelgrid" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'AddFaultToVoxelGrid'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[AddFaultToVoxelGrid --version]]></version_command>
+  <command><![CDATA[AddFaultToVoxelGrid
+    --material '$material'
+    #for $f in $fault:
+        --fault '$f'
+    #end for
+    #for $f in $input:
+        --input '$f'
+    #end for
+    --output output_1.vtu]]></command>
+  <inputs>
+    <param name="material" type="integer" value="mat_not_set" optional="false" label="material" help="material id for cells intersected by fault" min="0"/>
+    <param name="fault" type="data" optional="false" label="fault" help="name of input mesh file representing fault " format="vtu" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="name of the input file list containing the paths the all input " format="vtu" multiple="true"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from AddFaultToVoxelGrid">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **AddFaultToVoxelGrid** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

@@ -1,0 +1,35 @@
+<tool name="OGS: BinaryToPVTU" id="ogs_binarytopvtu" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'BinaryToPVTU'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[BinaryToPVTU --version]]></version_command>
+  <command><![CDATA[BinaryToPVTU
+    #for $f in $mesh_input_file_base:
+        --mesh-input-file-base '$f'
+    #end for
+    --log-level '$log_level'
+    --output output_1.dat]]></command>
+  <inputs>
+    <param name="mesh_input_file_base" type="data" optional="false" label="mesh input file base" help="the base name of the files containing the input mesh, i.e., the file " format="bin" multiple="false"/>
+    <param name="log_level" type="select" value="error" optional="false" label="log level" help="the verbosity of logging messages (allowed values: ">
+      <option value="none">none</option>
+      <option value="error">error</option>
+      <option value="warn">warn</option>
+      <option value="info">info</option>
+      <option value="debug">debug</option>
+      <option value="all">all</option>
+    </param>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from BinaryToPVTU">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **BinaryToPVTU** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

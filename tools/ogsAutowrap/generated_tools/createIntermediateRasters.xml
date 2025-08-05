@@ -1,0 +1,32 @@
+<tool name="OGS: createIntermediateRasters" id="ogs_createintermediaterasters" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'createIntermediateRasters'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[createIntermediateRasters --version]]></version_command>
+  <command><![CDATA[createIntermediateRasters
+    --number '$number'
+    #for $f in $file2:
+        --file2 '$f'
+    #end for
+    #for $f in $file1:
+        --file1 '$f'
+    #end for
+    --output-file output_1.asc]]></command>
+  <inputs>
+    <param name="number" type="integer" value="false" optional="false" label="number" help="number of rasters to be calculated, " min="0"/>
+    <param name="file2" type="data" optional="false" label="file2" help="Second DEM-raster input file, " format="asc" multiple="false"/>
+    <param name="file1" type="data" optional="false" label="file1" help="First DEM-raster input file, " format="asc" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from createIntermediateRasters">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **createIntermediateRasters** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

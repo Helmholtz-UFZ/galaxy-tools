@@ -1,0 +1,37 @@
+<tool name="OGS: convertVtkDataArrayToVtkDataArray" id="ogs_convertvtkdataarraytovtkdataarray" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'convertVtkDataArrayToVtkDataArray'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[convertVtkDataArrayToVtkDataArray --version]]></version_command>
+  <command><![CDATA[convertVtkDataArrayToVtkDataArray
+    --new-property-data-type '$new_property_data_type'
+    --new-property-name '$new_property_name'
+    #if str($existing_property_name):
+        --existing-property-name '$existing_property_name'
+    #end if
+    #for $f in $in_mesh:
+        --in-mesh '$f'
+    #end for
+    --out-mesh output_1.vtk]]></command>
+  <inputs>
+    <param name="new_property_data_type" type="select" value="int" optional="false" label="new property data type" help="the name of the data type as string (allowed values: int, double)">
+      <option value="int">int</option>
+      <option value="double">double</option>
+    </param>
+    <param name="new_property_name" type="text" value="false" optional="false" label="new property name" help="the name of the new cell data array (PropertyVector) the values are "/>
+    <param name="existing_property_name" type="text" optional="false" label="existing property name" help="the name of the existing cell data array (PropertyVector)"/>
+    <param name="in_mesh" type="data" optional="false" label="in mesh" help="input mesh file name, (format = *.vtk) " format="vtk" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from convertVtkDataArrayToVtkDataArray">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **convertVtkDataArrayToVtkDataArray** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

@@ -1,0 +1,35 @@
+<tool name="OGS: ExtractSurface" id="ogs_extractsurface" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'ExtractSurface'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[ExtractSurface --version]]></version_command>
+  <command><![CDATA[ExtractSurface
+    --angle '$angle'
+    --z-component '$z_component'
+    --y-component '$y_component'
+    --x-component '$x_component'
+    #for $f in $mesh_input_file:
+        --mesh-input-file '$f'
+    #end for
+    --ascii-output output_1.dat
+    --mesh-output-file output_2.vtu]]></command>
+  <inputs>
+    <param name="angle" type="float" value="(min = 0)" optional="false" label="angle" help="tolerated angle (in degrees) between given normal and " min="0" max="360"/>
+    <param name="z_component" type="float" value="-1.0" optional="false" label="z component" help="z component of the normal"/>
+    <param name="y_component" type="float" value="0" optional="false" label="y component" help="y component of the normal"/>
+    <param name="x_component" type="float" value="0" optional="false" label="x component" help="x component of the normal"/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="the name of the file containing the input mesh, " format="vtu" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from ExtractSurface">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **ExtractSurface** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

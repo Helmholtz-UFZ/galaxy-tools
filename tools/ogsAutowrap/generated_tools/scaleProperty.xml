@@ -1,0 +1,32 @@
+<tool name="OGS: scaleProperty" id="ogs_scaleproperty" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'scaleProperty'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[scaleProperty --version]]></version_command>
+  <command><![CDATA[scaleProperty
+    #if str($property_name):
+        --property-name '$property_name'
+    #end if
+    #for $f in $mesh:
+        --mesh '$f'
+    #end for
+    --input-unit '$input_unit'
+    --out-mesh output_1.vtu]]></command>
+  <inputs>
+    <param name="property_name" type="text" optional="false" label="property name" help="the name of the property the values are stored for"/>
+    <param name="mesh" type="data" optional="false" label="mesh" help="the input mesh is read from this file, " format="vtu" multiple="false"/>
+    <param name="input_unit" type="text" value="m/s" optional="false" label="input unit" help="input unit of the data"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from scaleProperty">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **scaleProperty** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

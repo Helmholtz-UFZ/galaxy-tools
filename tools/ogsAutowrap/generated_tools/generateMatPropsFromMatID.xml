@@ -1,0 +1,21 @@
+<tool name="OGS: generateMatPropsFromMatID" id="ogs_generatematpropsfrommatid" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'generateMatPropsFromMatID'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[generateMatPropsFromMatID --version]]></version_command>
+  <command><![CDATA[generateMatPropsFromMatID
+    #for $f in $mesh:
+        --mesh '$f'
+    #end for]]></command>
+  <inputs>
+    <param name="mesh" type="data" optional="true" label="mesh" help="the mesh to open from a file" format="msh" multiple="false"/>
+  </inputs>
+  <outputs/>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **generateMatPropsFromMatID** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

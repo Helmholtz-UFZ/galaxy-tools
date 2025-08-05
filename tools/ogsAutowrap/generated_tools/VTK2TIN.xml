@@ -1,0 +1,26 @@
+<tool name="OGS: VTK2TIN" id="ogs_vtk2tin" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'VTK2TIN'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[VTK2TIN --version]]></version_command>
+  <command><![CDATA[VTK2TIN
+    #for $f in $mesh_input_file:
+        --mesh-input-file '$f'
+    #end for
+    --TIN-output-file output_1.tin]]></command>
+  <inputs>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="the name of the file containing the input mesh " format="vtk" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from VTK2TIN">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **VTK2TIN** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

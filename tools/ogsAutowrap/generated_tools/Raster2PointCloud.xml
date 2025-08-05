@@ -1,0 +1,32 @@
+<tool name="OGS: Raster2PointCloud" id="ogs_raster2pointcloud" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'Raster2PointCloud'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[Raster2PointCloud --version]]></version_command>
+  <command><![CDATA[Raster2PointCloud
+    --gamma '$gamma'
+    --max-points '$max_points'
+    --max-elevation '$max_elevation'
+    #for $f in $input:
+        --input '$f'
+    #end for
+    --output output_1.vtp]]></command>
+  <inputs>
+    <param name="gamma" type="float" value="smaller or larger values indicate a logarithmic or &quot;&#10;        &quot;exponential increase" optional="false" label="gamma" help="Exponental increase coefficient. A value of "/>
+    <param name="max_points" type="integer" value="false" optional="false" label="max points" help="Maximum number of points per pixel (default: 1000), " min="0"/>
+    <param name="max_elevation" type="float" value="false" optional="false" label="max elevation" help="Maximum elevation of randomly created points "/>
+    <param name="input" type="data" optional="false" label="input" help="Path to input raster files (format = *.asc). " format="asc" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from Raster2PointCloud">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **Raster2PointCloud** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

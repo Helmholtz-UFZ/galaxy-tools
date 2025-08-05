@@ -1,0 +1,26 @@
+<tool name="OGS: AddElementQuality" id="ogs_addelementquality" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'AddElementQuality'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[AddElementQuality --version]]></version_command>
+  <command><![CDATA[AddElementQuality
+    #for $f in $input_mesh_file:
+        --input_mesh_file '$f'
+    #end for
+    --output_mesh_file output_1.vtu]]></command>
+  <inputs>
+    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="input mesh file " format="vtu,msh" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from AddElementQuality">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **AddElementQuality** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

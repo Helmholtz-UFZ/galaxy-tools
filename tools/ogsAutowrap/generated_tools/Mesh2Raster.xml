@@ -1,0 +1,28 @@
+<tool name="OGS: Mesh2Raster" id="ogs_mesh2raster" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'Mesh2Raster'.</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[Mesh2Raster --version]]></version_command>
+  <command><![CDATA[Mesh2Raster
+    --cellsize '$cellsize'
+    #for $f in $input_file:
+        --input-file '$f'
+    #end for
+    --output-file output_1.asc]]></command>
+  <inputs>
+    <param name="cellsize" type="float" value="1" optional="false" label="cellsize" help="edge length of raster cells in result. (min = 0)" min="0"/>
+    <param name="input_file" type="data" optional="false" label="input file" help="Mesh input file (format = *.vtu, *.msh)" format="vtu,msh" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from Mesh2Raster">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **Mesh2Raster** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

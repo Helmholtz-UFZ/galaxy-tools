@@ -1,5 +1,7 @@
 import sys
 import re
+import argparse
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
@@ -28,18 +30,18 @@ OUTPUT_DIR = Path("./generated_tools")
 # --- REGEX PATTERNS ---
 TCLAP_PATTERN_STD = re.compile(
     r"TCLAP::(?P<arg_type>(?:Value|Switch|Multi)Arg)\s*"
-    r"(?:<(?P<cpp_type>.*?)>)?\s*\w+\s*\("
+    r"(?:<(?P<cpp_type>.*?)>)?\s*\w+\s*[\({]\s*"
     r"\s*['\"](?P<short_flag>.*?)['\"],"
     r"\s*['\"](?P<long_flag>.*?)['\"],"
-    r"\s*['\"](?P<help_text>.*?)['\"](?P<remaining_args>.*?)\);",
+    r"\s*['\"](?P<help_text>.*?)['\"](?P<remaining_args>.*?)\s*[\)}];",
     re.DOTALL
 )
 TCLAP_PATTERN_UNLABELED = re.compile(
     r"TCLAP::(?P<arg_type>Unlabeled(?:Value|Multi)Arg)\s*"
-    r"(?:<(?P<cpp_type>.*?)>)?\s*\w+\s*\("
+    r"(?:<(?P<cpp_type>.*?)>)?\s*\w+\s*[\({]\s*"
     r"\s*['\"](?P<name_as_flag>.*?)['\"],"
     r"\s*['\"](?P<help_text>.*?)['\"],"
-    r"\s*['\"](?P<remaining_args>.*?)\);",
+    r"\s*['\"](?P<remaining_args>.*?)\s*[\)}];",
     re.DOTALL
 )
 MIN_MAX_PATTERN = re.compile(r"\((min|max)\s*=\s*([^)]+)\)")
@@ -96,7 +98,6 @@ def discover_tools() -> List[Dict[str, Any]]:
     eprint(f"-> Found and processed {len(all_tools_data)} tools with TCLAP definitions.")
     return sorted(all_tools_data, key=lambda x: x['name'])
 
-
 def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object], Dict[str, str]]:
     """Processes TCLAP parameters into Galaxy parameter objects."""
     galaxy_inputs = []
@@ -145,13 +146,11 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
                 "help": help_text, 
                 "optional": 'true' not in remaining_args
             }
-            
             format_matches = MULTIPLE_FORMATS_PATTERN.findall(full_arg_text)
             if format_matches:
                 attrs['format'] = ",".join(format_matches)
             else:
                 attrs['format'] = 'auto'
-                
             attrs['multiple'] = "MultiArg" in param_info['arg_type'] or "list" in full_arg_text_lower
             galaxy_inputs.append(DataParam(**attrs))
             continue
@@ -208,9 +207,8 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
 
     return galaxy_inputs, output_command_map
 
-
-def main():
-    """Main function: Finds tools and generates an XML file for each."""
+def generate_tools():
+    """Finds tools and generates an XML file for each."""
     if not OGS_REPO_PATH.is_dir():
         eprint(f"ERROR: The OGS repository directory '{OGS_REPO_PATH}' was not found.")
         return
@@ -232,7 +230,6 @@ def main():
             for param in galaxy_inputs:
                 is_galaxy_optional = getattr(param, 'optional', False) and not hasattr(param, 'value')
                 param_var = f'${param.name}'
-
                 original_long_flag = next((p['long_flag'] for p in tool_data['parameters'] if sanitize_name(p['long_flag']) == param.name), "")
                 is_unlabeled = any(p.get('is_unlabeled', False) for p in tool_data['parameters'] if sanitize_name(p['long_flag']) == param.name)
 
@@ -261,7 +258,7 @@ def main():
                 version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@",
                 description=f"Galaxy wrapper for the OGS utility '{tool_name}'.",
                 executable=tool_name,
-                macros=["macros.xml"],
+                macros=["macros.xml", "test_macros.xml"],
                 profile="22.01",
                 version_command=f"{tool_name} --version",
                 command_override=[command_str]
@@ -293,6 +290,86 @@ def main():
             traceback.print_exc(file=sys.stderr)
 
     eprint(f"\nFinished. {generated_count} of {len(parsed_tools)} tool wrappers were created in the '{OUTPUT_DIR}' directory.")
+
+def generate_tests():
+    """Generates a test_macros.xml file with a test case for each tool."""
+    eprint("--- Generating Test Macros ---")
+    parsed_tools = discover_tools()
+    if not parsed_tools:
+        eprint("No tools found, cannot generate tests.")
+        return
+
+    macros_root = ET.Element("macros")
+    tests_macro = ET.SubElement(macros_root, "xml", {"name": "ogsutilssuite_tests"})
+
+    for tool_data in parsed_tools:
+        tool_name = tool_data['name']
+        eprint(f"  Generating test for: {tool_name}")
+        
+        try:
+            test_case = ET.SubElement(tests_macro, "test", {"expect_num_outputs": "1"})
+            
+            galaxy_inputs, output_map = process_parameters(tool_data['parameters'])
+
+            for param in galaxy_inputs:
+                param_name = param.name
+                test_value = "" 
+                
+                if hasattr(param, 'value'):
+                    test_value = param.value
+                elif isinstance(param, DataParam):
+                    test_value = f"test-data/{param_name}.dat" 
+                elif isinstance(param, IntegerParam):
+                    test_value = getattr(param, 'min', "1")
+                elif isinstance(param, FloatParam):
+                    test_value = getattr(param, 'min', "1.0")
+                elif isinstance(param, BooleanParam):
+                    test_value = "true"
+                elif isinstance(param, SelectParam) and hasattr(param, 'options') and param.options:
+                    test_value = list(param.options.keys())[0]
+                else:
+                    test_value = f"test_{param_name}"
+
+                ET.SubElement(test_case, "param", {"name": param_name, "value": str(test_value)})
+
+            if output_map:
+                output_collection = ET.SubElement(test_case, "output_collection", {"name": "tool_outputs", "type": "list"})
+                ET.SubElement(output_collection, "assert_contents").append(
+                    ET.Element("has_size", {"n": str(len(output_map))})
+                )
+        except Exception as e:
+            eprint(f"!! ERROR while generating test for '{tool_name}': {e}")
+            import traceback
+            traceback.print_exc(file=sys.stderr)
+
+    tree = ET.ElementTree(macros_root)
+    ET.indent(tree, space="    ")
+    output_filename = "test_macros.xml"
+    with open(output_filename, "wb") as f:
+        f.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
+        tree.write(f, encoding="utf-8", xml_declaration=False)
+    eprint(f"\nSuccessfully created {output_filename} with {len(parsed_tools)} test cases.")
+
+def main():
+    """Parses command-line arguments and calls the appropriate function."""
+    parser = argparse.ArgumentParser(description="Galaxy XML Wrapper Generator for OGS Utilities")
+    parser.add_argument(
+        '--generate-tool',
+        action='store_true',
+        help='Generate individual tool XML wrappers (default action).'
+    )
+    parser.add_argument(
+        '--generate-tests',
+        action='store_true',
+        help='Generate a single test_macros.xml file for all tools.'
+    )
+    
+    args = parser.parse_args()
+
+    if args.generate_tests:
+        generate_tests()
+    else:
+        generate_tools()
 
 if __name__ == "__main__":
     main()

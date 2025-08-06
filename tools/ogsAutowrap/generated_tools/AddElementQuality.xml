@@ -6,11 +6,19 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[AddElementQuality --version]]></version_command>
   <command><![CDATA[AddElementQuality
+    --quality_criterion '$quality_criterion'
     #for $f in $input_mesh_file:
         --input_mesh_file '$f'
     #end for
     --output_mesh_file output_1.vtu]]></command>
   <inputs>
+    <param name="quality_criterion" type="select" value="EdgeRatio" optional="false" label="quality criterion" help="quality criterion, (allowed values: ">
+      <option value="ElementSize">ElementSize</option>
+      <option value="EdgeRatio">EdgeRatio</option>
+      <option value="EquiAngleSkew">EquiAngleSkew</option>
+      <option value="RadiusEdgeRatio">RadiusEdgeRatio</option>
+      <option value="SizeDifference">SizeDifference</option>
+    </param>
     <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="input mesh file " format="vtu,msh" multiple="false"/>
   </inputs>
   <outputs>

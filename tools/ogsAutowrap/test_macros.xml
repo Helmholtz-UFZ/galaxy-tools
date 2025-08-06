@@ -1,0 +1,779 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<macros>
+    <xml name="ogsutilssuite_tests">
+        <test expect_num_outputs="1">
+            <param name="quality_criterion" value="EdgeRatio" />
+            <param name="input_mesh_file" value="test-data/input_mesh_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="material" value="mat_not_set" />
+            <param name="fault" value="test-data/fault.dat" />
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="input_mesh_file" value="test-data/input_mesh_file.dat" />
+            <param name="layer_tickness" value="false" />
+            <param name="add_layer_on_bottom" value="true" />
+            <param name="copy_material_ids" value="true" />
+            <param name="set_material_id" value="0" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="nodata" value="false" />
+            <param name="cell_array" value="true" />
+            <param name="node_array" value="true" />
+            <param name="scalar_name" value="test_scalar_name" />
+            <param name="raster" value="test-data/raster.dat" />
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="mesh_input_file_base" value="test-data/mesh_input_file_base.dat" />
+            <param name="log_level" value="error" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="mesh_input_file" value="test-data/mesh_input_file.dat" />
+            <param name="id_prop_name" value="std::string(MeshLib::getBulkIDString(MeshLib::MeshItemType::Node))" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="shape_file" value="test-data/shape_file.dat" />
+        </test>
+        <test expect_num_outputs="1">
+            <param name="log_level" value="error" />
+            <param name="input" value="test-data/input.dat" />
+            <param name="json_file" value="test-data/json_file.dat" />
+            <param name="tolerance" value="2.220446049250313e-16" />
+            <param name="max_iter" value="(min = 0)" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="gml" value="true" />
+            <param name="type" value="default) are supported" />
+            <param name="search_length" value="2.220446049250313e-16" />
+            <param name="input_geometry" value="test-data/input_geometry.dat" />
+            <param name="mesh_file" value="test-data/mesh_file.dat" />
+            <param name="gmsh_path" value="test-data/gmsh_path.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="mesh_input_file" value="test-data/mesh_input_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="2" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="material_id" value="false" />
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="angle" value="(min = 0)" />
+            <param name="z_component" value="-1.0" />
+            <param name="y_component" value="0" />
+            <param name="x_component" value="0" />
+            <param name="mesh_input_file" value="test-data/mesh_input_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="2" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="in" value="test-data/in.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="in" value="test-data/in.dat" />
+            <param name="validation" value="true" />
+            <param name="boundaries" value="true" />
+            <param name="exclude_lines" value="true" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="generate_face_sets" value="true" />
+            <param name="sg" value="test_sg" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="write_binary" value="true" />
+            <param name="surfaces_only" value="test-data/surfaces_only.dat" />
+            <param name="lines_only" value="test-data/lines_only.dat" />
+            <param name="input_file" value="test-data/input_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="max_elevation" value="false" />
+            <param name="min_elevation" value="false" />
+            <param name="max_id" value="-1" />
+            <param name="min_id" value="-1" />
+            <param name="geo" value="test-data/geo.dat" />
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="dilate" value="true" />
+            <param name="cellsize_z" value="false" />
+            <param name="cellsize_y" value="false" />
+            <param name="cellsize_x" value="(min = 0)" />
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="mesh_file" value="test-data/mesh_file.dat" />
+            <param name="input_geometry" value="test-data/input_geometry.dat" />
+            <param name="additional_insert_mapping" value="true" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="bulk_mesh_input_file" value="test-data/bulk_mesh_input_file.dat" />
+            <param name="mesh_input_file" value="test-data/mesh_input_file.dat" />
+            <param name="pressure" value="0.0" />
+            <param name="gas_pressure" value="0.0" />
+            <param name="capillary_pressure" value="0.0" />
+            <param name="temperature" value="290.0" />
+            <param name="sigma_xx" value="0.0" />
+            <param name="sigma_yy" value="0.0" />
+            <param name="sigma_zz" value="0.0" />
+            <param name="material_id" value="0.0" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="cellsize" value="1" />
+            <param name="input_file" value="test-data/input_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="input_file" value="test-data/input_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="lowpass" value="true" />
+            <param name="static" value="test-data/static.dat" />
+            <param name="distance" value="(min = 0)" />
+            <param name="mesh" value="test-data/mesh.dat" />
+            <param name="raster" value="test-data/raster.dat" />
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="z" value="0.0" />
+            <param name="y" value="0.0" />
+            <param name="x" value="0.0" />
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="mesh" value="test-data/mesh.dat" />
+            <param name="x" value="0.0" />
+            <param name="y" value="0.0" />
+            <param name="z" value="0.0" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="nodata" value="false" />
+            <param name="elem_type" value="quad" />
+            <param name="images" value="true" />
+            <param name="multi_file" value="true" />
+            <param name="single_file" value="true" />
+            <param name="timestep_last" value="0" />
+            <param name="timestep_first" value="0" />
+            <param name="dim3" value="1" />
+            <param name="dim2" value="1" />
+            <param name="dim1" value="1" />
+            <param name="time" value="1" />
+            <param name="var" value="test_var" />
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="method" value="1" />
+            <param name="input_mesh" value="test-data/input_mesh.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="mesh_input_file" value="test-data/mesh_input_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="2" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="gmsh_path" value="test-data/gmsh_path.dat" />
+        </test>
+        <test expect_num_outputs="1">
+            <param name="log_level" value="error" />
+            <param name="pvd_file" value="test-data/pvd_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="mesh_input_file" value="test-data/mesh_input_file.dat" />
+            <param name="metis_mesh_input_file" value="test-data/metis_mesh_input_file.dat" />
+            <param name="np" value="false" />
+            <param name="ogs2metis" value="test-data/ogs2metis.dat" />
+            <param name="exe_metis" value="true" />
+            <param name="log_level" value="info" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="arrayname" value="false" />
+            <param name="pixel_type" value="materials" />
+            <param name="elem_type" value="quad)" />
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="gamma" value="smaller or larger values indicate a logarithmic or &quot;&#10;        &quot;exponential increase" />
+            <param name="max_points" value="false" />
+            <param name="max_elevation" value="false" />
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="polygon_name" value="test_polygon_name" />
+            <param name="geometry" value="test-data/geometry.dat" />
+            <param name="any_of" value="true" />
+            <param name="char_property_value" value="A" />
+            <param name="int_property_value" value="0" />
+            <param name="property_name" value="MaterialIDs" />
+            <param name="restrict_to_MaterialID" value="-1" />
+            <param name="mesh_input_file" value="test-data/mesh_input_file.dat" />
+            <param name="gmsh_path" value="test-data/gmsh_path.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="input" value="test-data/input.dat" />
+            <param name="subcatchment_vars" value="true" />
+            <param name="system_vars" value="true" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="5" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="input_tin_file" value="test-data/input_tin_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="split" value="true" />
+            <param name="convert" value="true" />
+            <param name="input_file" value="test-data/input_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="mesh_input_file" value="test-data/mesh_input_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="mesh_input_file" value="test-data/mesh_input_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="testdata" value="true" />
+            <param name="bounds" value="true" />
+            <param name="resolution" value="0" />
+            <param name="end_y" value="0" />
+            <param name="end_x" value="0" />
+            <param name="start_y" value="0" />
+            <param name="start_x" value="0" />
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="cellsize_z" value="(min = 0)" />
+            <param name="cellsize_y" value="(min = 0)" />
+            <param name="cellsize_x" value="(min = 0)" />
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="scaling_value" value="1" />
+            <param name="offset_value" value="false" />
+            <param name="ll_x" value="0" />
+            <param name="ll_y" value="0" />
+            <param name="ur_x" value="false" />
+            <param name="ur_y" value="false" />
+            <param name="function" value="exp" />
+            <param name="input" value="test-data/input.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="mesh_input_file" value="test-data/mesh_input_file.dat" />
+            <param name="geo_file" value="test-data/geo_file.dat" />
+            <param name="gmsh_path" value="test-data/gmsh_path.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="validation" value="true" />
+            <param name="print_properties" value="true" />
+            <param name="mesh_file" value="test-data/mesh_file.dat" />
+        </test>
+        <test expect_num_outputs="1">
+            <param name="mesh_input_file" value="test-data/mesh_input_file.dat" />
+            <param name="geo_file" value="test-data/geo_file.dat" />
+            <param name="gmsh_path" value="test-data/gmsh_path.dat" />
+        </test>
+        <test expect_num_outputs="1">
+            <param name="searchlength" value="1e-16" />
+            <param name="geometry" value="test-data/geometry.dat" />
+            <param name="mesh" value="test-data/mesh.dat" />
+            <param name="multiple_nodes_allowed" value="true" />
+        </test>
+        <test expect_num_outputs="1">
+            <param name="input_file" value="test-data/input_file.dat" />
+            <param name="gmsh_path" value="false" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="input_mesh_file" value="test-data/input_mesh_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="new_property_data_type" value="int" />
+            <param name="new_property_name" value="false" />
+            <param name="existing_property_name" value="test_existing_property_name" />
+            <param name="in_mesh" value="test-data/in_mesh.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="number" value="false" />
+            <param name="file2" value="test-data/file2.dat" />
+            <param name="file1" value="test-data/file1.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="thickness" value="2.220446049250313e-16" />
+            <param name="raster_list" value="test-data/raster_list.dat" />
+            <param name="keep_surface_material_ids" value="true" />
+            <param name="input_mesh_file" value="test-data/input_mesh_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="2" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="refine" value="1" />
+            <param name="raster_file" value="test-data/raster_file.dat" />
+            <param name="property_name" value="test_property_name" />
+            <param name="mesh" value="test-data/mesh.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="2" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="in_mesh" value="test-data/in_mesh.dat" />
+            <param name="property_in_name" value="true" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="2" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="input_mesh_file" value="test-data/input_mesh_file.dat" />
+            <param name="add_centre_node" value="true" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="n_rows" value="1000" />
+            <param name="n_cols" value="1000" />
+            <param name="cell_size" value="false" />
+            <param name="ll_y" value="0" />
+            <param name="ll_x" value="0" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="thickness" value="2.220446049250313e-16" />
+            <param name="raster_list" value="true" />
+            <param name="input_mesh_file" value="test-data/input_mesh_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="2" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="replace" value="true" />
+            <param name="condense" value="true" />
+            <param name="specify" value="true" />
+            <param name="mesh_input_file" value="test-data/mesh_input_file.dat" />
+            <param name="current_material_id" value="test_current_material_id" />
+            <param name="new_material_id" value="0" />
+            <param name="element_type" value="line" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="z0" value="0.0" />
+            <param name="y0" value="0.0" />
+            <param name="x0" value="0.0" />
+            <param name="z1" value="1.0" />
+            <param name="y1" value="1.0" />
+            <param name="x1" value="1.0" />
+            <param name="nx" value="0" />
+            <param name="nx1" value="-1" />
+            <param name="ny" value="0" />
+            <param name="ny1" value="-1" />
+            <param name="nz" value="0" />
+            <param name="nz1" value="-1" />
+            <param name="geometry_name" value="conceptual model" />
+            <param name="polyline_name" value="polyline" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="mesh" value="test-data/mesh.dat" />
+        </test>
+        <test expect_num_outputs="1">
+            <param name="element_type" value="tri" />
+            <param name="lx" value="false" />
+            <param name="ly" value="false" />
+            <param name="lz" value="false" />
+            <param name="nx" value="false" />
+            <param name="ny" value="false" />
+            <param name="nz" value="false" />
+            <param name="dx0" value="false" />
+            <param name="dy0" value="false" />
+            <param name="dz0" value="false" />
+            <param name="dx_max" value="false" />
+            <param name="dy_max" value="false" />
+            <param name="dz_max" value="false" />
+            <param name="mx" value="1" />
+            <param name="my" value="1" />
+            <param name="mz" value="1" />
+            <param name="ox" value="0" />
+            <param name="oy" value="0" />
+            <param name="oz" value="0" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="input" value="test-data/input.dat" />
+            <param name="max_points_in_quadtree_leaf" value="2" />
+            <param name="mesh_density_scaling_at_points" value="0.2" />
+            <param name="mesh_density_scaling_at_stations" value="0.05" />
+            <param name="average_point_density" value="(min = 0)" />
+            <param name="homogeneous" value="true" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="2" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="force" value="true" />
+            <param name="searchlength" value="1e-16" />
+            <param name="mesh" value="test-data/mesh.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="input_file" value="test-data/input_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="input_file" value="test-data/input_file.dat" />
+            <param name="no_overwrite" value="true" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="element_id" value="0" />
+            <param name="node_id" value="0" />
+            <param name="show_node_with_max_elements" value="true" />
+            <param name="mesh_file" value="test-data/mesh_file.dat" />
+        </test>
+        <test expect_num_outputs="1">
+            <param name="invert" value="true" />
+            <param name="z_max" value="1.7976931348623157E+308" />
+            <param name="z_min" value="-1.7976931348623157E+308" />
+            <param name="y_max" value="1.7976931348623157E+308" />
+            <param name="y_min" value="-1.7976931348623157E+308" />
+            <param name="x_max" value="1.7976931348623157E+308" />
+            <param name="x_min" value="-1.7976931348623157E+308" />
+            <param name="zero_volume" value="true" />
+            <param name="element_type" value="test_element_type" />
+            <param name="property_name" value="MaterialIDs" />
+            <param name="property_value" value="1" />
+            <param name="min_value" value="0" />
+            <param name="max_value" value="0" />
+            <param name="inside" value="true" />
+            <param name="mesh_input_file" value="test-data/mesh_input_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="2" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="min_ele_dim" value="1" />
+            <param name="eps" value="2.220446049250313e-16" />
+            <param name="input_mesh_file" value="test-data/input_mesh_file.dat" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="property_name" value="test_property_name" />
+            <param name="mesh" value="test-data/mesh.dat" />
+            <param name="input_unit" value="m/s" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="1">
+            <param name="input_mesh_file" value="test-data/input_mesh_file.dat" />
+            <param name="new_order" value="true" />
+            <output_collection name="tool_outputs" type="list">
+                <assert_contents>
+                    <has_size n="1" />
+                </assert_contents>
+            </output_collection>
+        </test>
+    </xml>
+</macros>

@@ -59,7 +59,6 @@ from typing_inspect import is_callable_type, is_union_type
 if TYPE_CHECKING:
     from types import ModuleType
 
-# Globale Liste zum Sammeln der Tracing-Daten
 TRACING_DATA = []
 
 def _get_doc(doc_str: Optional[str]) -> str:
@@ -267,18 +266,15 @@ def _param_to_element(p_obj: Any) -> ET.Element:
     indem es die Objektattribute direkt inspiziert und den Tag-Namen ableitet.
     """
     class_name = p_obj.__class__.__name__
-    
-    # Standard-Tag ist 'param', wird für Container überschrieben
+   
     tag = 'param'
     param_type = None
 
-    # Mapping für Container-Tags
     container_tags = {
         'Conditional': 'conditional', 'Repeat': 'repeat', 'When': 'when',
         'ValidatorParam': 'validator', 'DiscoverDatasets': 'discover_datasets'
     }
     
-    # Mapping für den 'type'-Attribut von <param>-Tags
     type_map = {
         'TextParam': 'text', 'IntegerParam': 'integer', 'FloatParam': 'float',
         'DataParam': 'data', 'BooleanParam': 'boolean', 'SelectParam': 'select',
@@ -289,8 +285,7 @@ def _param_to_element(p_obj: Any) -> ET.Element:
         tag = container_tags[class_name]
     elif class_name in type_map:
         param_type = type_map[class_name]
-    
-    # Attribute aus dem Objekt sammeln
+ 
     KNOWN_XML_ATTRIBUTES = [
         'argument', 'name', 'label', 'help', 'optional', 'value', 'format',
         'multiple', 'checked', 'min', 'max', 'title', 'from_work_dir',
@@ -309,15 +304,12 @@ def _param_to_element(p_obj: Any) -> ET.Element:
                     attribs[attr_name] = str(value).lower()
                 else:
                     attribs[attr_name] = str(value)
-    
-    # Spezialfall für Validator, der nur 'type' hat
+  
     if class_name == 'ValidatorParam' and hasattr(p_obj, 'type'):
         attribs['type'] = p_obj.type
 
-    # XML-Element erstellen
     elem = ET.Element(tag, attrib=attribs)
 
-    # Kind-Elemente (Text, Validatoren, Optionen, etc.) hinzufügen
     if hasattr(p_obj, 'text') and p_obj.text:
         elem.text = p_obj.text
     
@@ -332,7 +324,6 @@ def _param_to_element(p_obj: Any) -> ET.Element:
             if hasattr(p_obj, 'value') and str(p_obj.value) == str(opt_value):
                 opt_elem.set('selected', 'true')
     
-    # Rekursiver Aufruf für Container-Parameter
     if hasattr(p_obj, 'params') and p_obj.params:
         for child_p in p_obj.params:
             elem.append(_param_to_element(child_p))

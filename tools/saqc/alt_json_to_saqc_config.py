@@ -33,18 +33,25 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
         raw_field_val = None
         field_str = "undefined_field" 
 
-        # Logik zur Feldextraktion (mit 'target' als Alternative)
         if "field" in params_to_process:
             raw_field_val = params_to_process.pop("field")
-        elif "target" in params_to_process:
-             raw_field_val = params_to_process.pop("target")
-        elif "field_cond" in params_to_process and isinstance(params_to_process["field_cond"], dict):
-            raw_field_val = params_to_process.pop("field_cond").get("field")
-
-        if raw_field_val is None:
-            sys.stderr.write(f"Warning: Field name could not be determined for method '{method}'. Using '{field_str}'.\n")
+        elif "field_repeat" in params_to_process:
+            field_repeat_data = params_to_process.pop("field_repeat") 
+            if isinstance(field_repeat_data, list) and len(field_repeat_data) > 0:
+                first_field_item = field_repeat_data[0] 
+                if isinstance(first_field_item, dict) and "field" in first_field_item:
+                    raw_field_val = first_field_item.get("field")
+                else:
+                    sys.stderr.write(f"Warning: 'field_repeat' item is not a dict with a 'field' key for method '{method}'. Item: {first_field_item}\n")
+            else:
+                sys.stderr.write(f"Warning: 'field_repeat' is not a list or is empty for method '{method}'. Value: {field_repeat_data}\n")
+        
+        if raw_field_val is None or str(raw_field_val).strip() == "":
+            field_str = "undefined_field"
             field_str_for_error = "undefined_field (extraction failed or empty)"
+            sys.stderr.write(f"Warning: Field name could not be determined for method '{method}'. Using '{field_str}'.\n")
         else:
+            
             if isinstance(raw_field_val, list):
                 field_str = ','.join(map(str, raw_field_val))
             else:
@@ -55,7 +62,7 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
         saqc_args_dict = {}
 
         for param_key, param_value_json in params_to_process.items():
-            if param_key.endswith("_selector"): 
+            if param_key.endswith("_select_type"): 
                 continue
 
             actual_param_name_for_saqc = param_key
@@ -63,26 +70,16 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
 
             if isinstance(param_value_json, dict) and param_key.endswith("_cond"):
                 actual_param_name_for_saqc = param_key[:-5] 
-                inner_params = param_value_json.copy()
-                inner_params.pop(f"{actual_param_name_for_saqc}_selector", None)
-                
-                if len(inner_params) == 1:
-                    current_value_for_saqc = list(inner_params.values())[0]
-                else:
-                    if f"{actual_param_name_for_saqc}_start" in inner_params:
-                        start = inner_params.get(f"{actual_param_name_for_saqc}_start")
-                        end = inner_params.get(f"{actual_param_name_for_saqc}_end")
-                        current_value_for_saqc = f"slice({start}, {end})"
-                    elif f"{actual_param_name_for_saqc}_min" in inner_params:
-                        min_val = inner_params.get(f"{actual_param_name_for_saqc}_min")
-                        max_val = inner_params.get(f"{actual_param_name_for_saqc}_max")
-                        current_value_for_saqc = f"({min_val}, {max_val})"
-                    else:
-                        current_value_for_saqc = None
+                found_val_in_cond = False
+                for inner_k, inner_v in param_value_json.items():
+                    if not inner_k.endswith("_select_type"):
+                        current_value_for_saqc = inner_v
+                        found_val_in_cond = True
+                        break
+                if not found_val_in_cond:
+                    sys.stderr.write(f"Warning: Could not extract value from conditional block '{param_key}' for method '{method}'. Using None.\n")
+                    current_value_for_saqc = None
             
-            if isinstance(current_value_for_saqc, list) and not current_value_for_saqc:
-                continue
-
             if current_value_for_saqc == "__none__":
                 saqc_args_dict[actual_param_name_for_saqc] = None
             elif isinstance(current_value_for_saqc, str) and current_value_for_saqc == "" and \
@@ -98,38 +95,37 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
                 v_str_repr = "None"
             elif isinstance(v_saqc_raw, bool):
                 v_str_repr = "True" if v_saqc_raw else "False"
-            elif isinstance(v_saqc_raw, (float, int)):
+            elif isinstance(v_saqc_raw, float):
                 if v_saqc_raw == float('inf'): v_str_repr = "float('inf')"
                 elif v_saqc_raw == float('-inf'): v_str_repr = "float('-inf')"
-                elif isinstance(v_saqc_raw, float) and math.isnan(v_saqc_raw): v_str_repr = "float('nan')"
+                elif math.isnan(v_saqc_raw): v_str_repr = "float('nan')"
                 else: v_str_repr = repr(v_saqc_raw) 
+            elif isinstance(v_saqc_raw, int):
+                v_str_repr = str(v_saqc_raw)
             elif isinstance(v_saqc_raw, str):
-                val_lower = v_saqc_raw.lower()
-                if val_lower == "inf": v_str_repr = "float('inf')"
-                elif val_lower == "-inf": v_str_repr = "float('-inf')"
-                elif val_lower == "nan": v_str_repr = "float('nan')"
-                else:
-                    if v_saqc_raw.startswith(('slice(', '(', '[')):
-                        v_str_repr = v_saqc_raw
+                if not v_saqc_raw and k_saqc not in ["xscope", "yscope", "max_gap", "min_periods", "min_residuals", "min_offset"]: 
+                    
+                    if val_lower == "inf": v_str_repr = "float('inf')"
+                    elif val_lower == "-inf": v_str_repr = "float('-inf')"
+                    elif val_lower == "nan": v_str_repr = "float('nan')"
+                    else: 
+                        escaped_v = v_saqc_raw.replace('\\', '\\\\').replace('"', '\\"')
+                        v_str_repr = f'"{escaped_v}"'
+                else: 
+                    val_lower = v_saqc_raw.lower()
+                    if val_lower == "inf": v_str_repr = "float('inf')"
+                    elif val_lower == "-inf": v_str_repr = "float('-inf')"
+                    elif val_lower == "nan": v_str_repr = "float('nan')"
                     else:
                         escaped_v = v_saqc_raw.replace('\\', '\\\\').replace('"', '\\"')
                         v_str_repr = f'"{escaped_v}"'
-            elif isinstance(v_saqc_raw, list):
-                 if all(isinstance(i, dict) and 'key' in i for i in v_saqc_raw):
-                     dict_items = [f'"{i["key"]}": "{i["value"]}"' for i in v_saqc_raw]
-                     v_str_repr = f"{{{', '.join(dict_items)}}}"
-                 else:
-                     v_str_repr = f"[{', '.join(map(str, v_saqc_raw))}]"
             else:
                 sys.stderr.write(f"Warning: Param '{k_saqc}' for method '{method}' has unhandled type {type(v_saqc_raw)}. Converting to string representation: '{str(v_saqc_raw)}'.\n")
                 v_str_repr = repr(v_saqc_raw)
 
-            param_strings_for_saqc_call.append(f"{k_saqc}={v_str_repr}")
-        
-        # Holen des Modulnamens aus der JSON-Struktur
-        module_name = r_method_set.get("module_cond", {}).get("module_select", "unknown_module")
 
-        # === KORREKTUR HIER: Der Modulname wird entfernt, da saqc ihn nicht erwartet ===
+            param_strings_for_saqc_call.append(f"{k_saqc}={v_str_repr}")
+
         print(f"{field_str}; {method}({', '.join(param_strings_for_saqc_call)})", flush=True)
 
     except Exception as e:

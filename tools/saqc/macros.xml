@@ -1,130 +1,125 @@
 <macros>
-<xml name="requirements">
-    <requirements>
-        <requirement type="package" version="@TOOL_VERSION@">saqc</requirement>
-    </requirements>
-</xml>
+    <xml name="requirements">
+        <requirements>
+            <requirement type="package" version="@TOOL_VERSION@">saqc</requirement>
+        </requirements>
+    </xml>
 
-<token name="@TOOL_VERSION@">2.6.0</token>
-<token name="@VERSION_SUFFIX@">0</token>
+    <token name="@TOOL_VERSION@">2.6.0</token>
+    <token name="@VERSION_SUFFIX@">0</token>
 
-<xml name="citations">
-    <citations>
-        <citation type="doi">https://doi.org/10.1016/j.envsoft.2023.105809</citation>
-    </citations>
-</xml>
+    <xml name="citations">
+        <citations>
+            <citation type="doi">https://doi.org/10.1016/j.envsoft.2023.105809</citation>
+        </citations>
+    </xml>
 
-<xml name="field">
-    <param argument="field"
-           label="Field"
-           optional="false"
-           value=""
-           type="text"
-           help="Variable to process"/>
-</xml>
-
-<xml name="field_multiple">
-    <repeat name="field_repeat" title="field(s)" min="1">
+    <xml name="field">
         <param argument="field"
                label="Field"
                optional="false"
                value=""
                type="text"
                help="Variable to process"/>
-    </repeat>
-</xml>
+    </xml>
 
-<xml name="flag">
-    <param argument="flag"
-           label="Flag"
-           optional="true"
-           value="255.0"
-           type="float"
-           help="The flag value the function uses to mark observations"/>
-</xml>
+    <xml name="field_multiple">
+        <repeat name="field_repeat" title="field(s)" min="1">
+            <param argument="field"
+                   label="Field"
+                   optional="false"
+                   value=""
+                   type="text"
+                   help="Variable to process"/>
+        </repeat>
+    </xml>
 
-<xml name="saqc_tests">
+    <xml name="flag">
+        <param argument="flag"
+               label="Flag"
+               optional="true"
+               value="255.0"
+               type="float"
+               help="The flag value the function uses to mark observations"/>
+    </xml>
+
+    <xml name="saqc_tests">
     <tests>
-    <expand macro="config_tests"/>
-    <test>
-        <param name="data" value="test1/data.csv" ftype="csv"/>
-        <repeat name="methods_repeat">
-            <conditional name="module_cond">
-                <param name="module_select" value="outliers"/>
-                <conditional name="method_cond">
-                    <param name="method_select" value="flagRange"/>
-                    <param name="field" value="SM2"/>
-                    <param name="max" value="60.0"/>
-                    <param name="min" value="10.0"/>
-                    
-                    <param name="flag" value="255.0"/>
-                </conditional>
-            </conditional>
-        </repeat>
-        <repeat name="methods_repeat">
-            <conditional name="module_cond">
-                <param name="module_select" value="outliers"/>
-                <conditional name="method_cond">
-                
-                    <param name="method_select" value="flagZScore"/>
+        <expand macro="config_tests"/>
 
-                    <repeat name="field_repeat">
-                    <param name="field" value="SM2"/>
-                    </repeat>
-                    <param name="center" value="false"/>
-                    <conditional name="window_cond">
-                        <param name="window_select_type" value="timedelta"/>
-                        <param name="window" value="30d"/>
+        <test>
+            <param name="data" value="test1/data.csv" ftype="csv"/>
+            <repeat name="methods_repeat">
+                <conditional name="module_cond">
+                    <param name="module_select" value="outliers"/>
+                    <conditional name="method_cond">
+                        <param name="method_select" value="flagRange"/>
+                        <param name="field" value="SM2"/>
+                        <param name="max" value="60.0"/>
+                        <param name="min" value="10.0"/>
+                        <param name="flag" value="255.0"/>
                     </conditional>
-                    <param name="thresh" value="3.5"/>
-                    <param name="method" value="modified"/>
-                    
-                    <param name="flag" value="255.0"/>
                 </conditional>
-            </conditional> 
-        </repeat>
-        <repeat name="methods_repeat">
-            <conditional name="module_cond">
-                <param name="module_select" value="tools"/>
-                <conditional name="method_cond">
-                    <param name="method_select" value="plot"/>
-                    <param name="field" value="SM2"/>
-                    <param name="path" value="test"/>
-                    <conditional name="history_cond">
-                        <param name="history_select_type" value="valid" />
-                        <param name="history" value="valid" />
+            </repeat>
+            <repeat name="methods_repeat">
+                <conditional name="module_cond">
+                    <param name="module_select" value="outliers"/>
+                    <conditional name="method_cond">
+                        <param name="method_select" value="flagZScore"/>
+                        <param name="field" value="SM2"/>
+                        <param name="center" value="false"/>
+                        <conditional name="window_cond">
+                            <param name="window_selector" value="type_0"/>
+                            <param name="window" value="30d"/>
+                        </conditional>
+                        <param name="thresh" value="3.5"/>
+                        <param name="method" value="modified"/>
+                        <param name="flag" value="255.0"/>
                     </conditional>
-                    <param name="mode" value="oneplot"/>
-                    <param name="max_gap" value="" />
-                    <param name="xscope" value="" />
-                    <param name="yscope" value="" />
-                    <param name="marker_kwargs" value="" />
-                    <param name="plot_kwargs" value="" />
-                    <param name="dfilter" value="inf" />
                 </conditional>
-            </conditional>
-        </repeat>
+            </repeat>
+            <repeat name="methods_repeat">
+                <conditional name="module_cond">
+                    <param name="module_select" value="tools"/>
+                    <conditional name="method_cond">
+                        <param name="method_select" value="plot"/>
+                        <conditional name="field_cond">
+                            <param name="field_selector" value="type_0"/>
+                            <param name="field" value="SM2"/>
+                        </conditional>
+                        <param name="path" value="test"/>
+                        <conditional name="history_cond">
+                            <param name="history_selector" value="type_0"/>
+                            <param name="history" value="valid"/>
+                        </conditional>
+                        <conditional name="mode_cond">
+                             <param name="mode_selector" value="type_0"/>
+                             <param name="mode" value="oneplot"/>
+                        </conditional>
+                        <param name="dfilter" value="inf"/>
+                    </conditional>
+                </conditional>
+            </repeat>
 
-        <output name="output" value="test1/out.csv" ftype="csv"/>
-        <output name="config" ftype="txt">
-            <assert_contents>
-                <has_n_lines n="4"/>
-                <has_n_columns n="2" sep=";"/>
-                <has_text_matching expression="flagRange.*max=60.0.*min=10.0"/>
-                <has_text_matching expression='flagZScore.*method="modified".*thresh=3.5.*window="30d"'/>
-                <has_text_matching expression='plot.*dfilter=float\(&apos;inf&apos;\).*history="valid".*path="test"'/>
-            </assert_contents>
-        </output>
-            
-        <output_collection name="plots" type="list">
-            <element name="test" ftype="png">
+            <output name="output" file="test1/out.csv" ftype="csv"/>
+            <output name="config_out" ftype="txt">
                 <assert_contents>
-                    <has_text text="PNG"/>
-                    <has_size value="120k" delta="10k"/>
+                    <has_n_lines n="4"/>
+                    <has_n_columns n="2" sep=";"/>
+                    <has_text_matching expression="flagRange.*max=60.0.*min=10.0"/>
+                    <has_text_matching expression='flagZScore.*method="modified".*thresh=3.5.*window="30d"'/>
+                    <has_text_matching expression='plot.*dfilter=float\(&apos;inf&apos;\).*history="valid".*path="test"'/>
                 </assert_contents>
-            </element>
-        </output_collection>
-    </test>
+            </output>
+            <output_collection name="plots" type="list">
+                <element name="test" ftype="png">
+                    <assert_contents>
+                        <has_text text="PNG"/>
+                        <has_size value="120k" delta="10k"/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+        </test>
     </tests>
 </xml>
 </macros>

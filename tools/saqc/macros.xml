@@ -106,7 +106,7 @@
         </repeat>
 
         <output name="output" value="test1/out.csv" ftype="csv"/>
-        <output name="config" ftype="txt">
+        <output name="config_out" ftype="txt">
             <assert_contents>
                 <has_n_lines n="4"/>
                 <has_n_columns n="2" sep=";"/>

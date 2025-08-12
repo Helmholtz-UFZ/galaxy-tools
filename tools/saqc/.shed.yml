@@ -7,4 +7,5 @@ owner: ufz
 remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/blob/main/tools/saqc/
 homepage_url: https://git.ufz.de/rdm-software/saqc
 type: unrestricted
-exclude: gen.py
+exclude: 
+  gen.py

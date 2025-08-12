@@ -426,6 +426,7 @@ def get_method_params(method, module, tracing=False):
     for param_name, param in parameters.items():
         if param_name in ["self", "kwargs", "store_kwargs", "ax_kwargs"]:
             continue
+        original_annotation_str = str(param.annotation)
 
         path_trace = [f"Param: '{param_name}'", f"Annotation: '{param.annotation}'"]
         annotation = param.annotation
@@ -687,11 +688,15 @@ def get_method_params(method, module, tracing=False):
                 )
                 current_xml_params.append(text_param)
             else:
-                path_trace.append("type_is_unknown_simple_fallback_text")
-                text_param = _create_text_param_with_validator(
-                    optional, argument=param_name, **param_constructor_args
-                )
-                current_xml_params.append(text_param)
+                if annotation == dict:
+                    path_trace.append("is_dict_type_skipped")
+                    sys.stderr.write(f"Module {module.__name__} parameter {param_name} with type {original_annotation_str} not included\n")
+                else:
+                    path_trace.append("type_is_unknown_simple_fallback_text")
+                    text_param = _create_text_param_with_validator(
+                        optional, argument=param_name, **param_constructor_args
+                    )
+                    current_xml_params.append(text_param)
 
         elif origin is Union and str in args and pd.Timedelta in args:
             path_trace.append("is_union_str_timedelta")

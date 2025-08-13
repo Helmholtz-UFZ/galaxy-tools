@@ -11,12 +11,12 @@
 #else
   '$__tool_directory__'/json_to_saqc_config.py '$param_conf' > config.csv &&
   #for $i, $d in enumerate($data)
-      ##maybe link to element_identifier
-      ln -s '$d' '${i}.csv' &&
+    ##maybe link to element_identifier
+    ln -s '$d' '${i}.csv' &&
   #end for
   saqc --config config.csv
   #for $i, $d in enumerate($data)
-      --data '${i}.csv'
+    --data '${i}.csv'
   #end for
   --outfile output.csv
 #end if]]></command>
@@ -110,7 +110,7 @@
                 <validator type="empty_field"/>
               </param>
               <param argument="reduce_window" type="text" optional="true" label="reduce_window" help="The sliding window search method is not an exact CP search method and usually there won't be detected a single changepoint, but a  region  of change around a changepoint. If `reduce_window` is given, for every window of size `reduce_window`, there will be selected the value with index `reduce_func(x, y)` and the others will be dropped. If `reduce_window` is None, the reduction window size equals the twin window size, the changepoints have been detected with"/>
-              <param argument="reduce_func" type="text" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x788ecbe4ce00&gt;" optional="true" label="reduce_func" help="default argmax A function that must return an index value upon input of two arrays x and y. First input parameter will hold the result from the stat_func evaluation for every reduction window. Second input parameter holds the result from the thresh_func evaluation. The default reduction function just selects the value that maximizes the stat_func"/>
+              <param argument="reduce_func" type="text" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x789a868a0e00&gt;" optional="true" label="reduce_func" help="default argmax A function that must return an index value upon input of two arrays x and y. First input parameter will hold the result from the stat_func evaluation for every reduction window. Second input parameter holds the result from the thresh_func evaluation. The default reduction function just selects the value that maximizes the stat_func"/>
               <param argument="model_by_resids" type="boolean" label="If True, the results of `stat_funcs` are written, otherwise the regime labels" help="If True, the results of `stat_funcs` are written, otherwise the regime labels" checked="false" truevalue="model_by_resids" falsevalue=""/>
             </when>
             <when value="flagChangePoints">
@@ -130,7 +130,7 @@
                 <validator type="empty_field"/>
               </param>
               <param argument="reduce_window" type="text" optional="true" label="reduce_window" help="The sliding window search method is not an exact CP search method and usually there wont be detected a single changepoint, but a  region  of change around a changepoint.  If `reduce_window` is given, for every window of size `reduce_window`, there will be selected the value with index `reduce_func(x, y)` and the others will be dropped.  If `reduce_window` is None, the reduction window size equals the twin window size, the changepoints have been detected with"/>
-              <param argument="reduce_func" type="text" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x788ecbe4cc20&gt;" optional="true" label="reduce_func" help="default argmax A function that must return an index value upon input of two arrays x and y. First input parameter will hold the result from the stat_func evaluation for every reduction window. Second input parameter holds the result from the `thresh_func` evaluation. The default reduction function just selects the value that maximizes the `stat_func`"/>
+              <param argument="reduce_func" type="text" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x789a868a0c20&gt;" optional="true" label="reduce_func" help="default argmax A function that must return an index value upon input of two arrays x and y. First input parameter will hold the result from the stat_func evaluation for every reduction window. Second input parameter holds the result from the `thresh_func` evaluation. The default reduction function just selects the value that maximizes the `stat_func`"/>
               <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
             </when>
           </conditional>
@@ -233,7 +233,7 @@
                 <option value="median">median</option>
                 <option value="ward">ward</option>
               </param>
-              <param argument="metric" type="text" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x788ec8639800&gt;" optional="true" label="A metric function for calculating the dissimilarity between 2 regimes" help="Defaults to the absolute difference in mean"/>
+              <param argument="metric" type="text" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x789a8308d800&gt;" optional="true" label="A metric function for calculating the dissimilarity between 2 regimes" help="Defaults to the absolute difference in mean"/>
               <param argument="frac" type="float" value="0.5" optional="true" label="frac" help="The minimum percentage of samples, the  normal  group has to comprise to actually be the normal group. Must be in the closed interval `[0,1]`, otherwise a ValueError is raised"/>
             </when>
             <when value="correctDrift">
@@ -299,7 +299,7 @@
               </param>
               <param argument="spread" type="float" value="" label="Maximum spread allowed in the group of *normal* data" help="See Notes section for more details"/>
               <param argument="frac" type="float" value="0.5" optional="true" label="Fraction defining the normal group" help="Use a value from the interval [0,1]. The higher the value, the more stable the algorithm will be. For values below 0.5 the results are undefined"/>
-              <param argument="metric" type="text" value="&lt;function cityblock at 0x788ec86389a0&gt;" optional="true" label="metric" help="default cityblock Distance function that takes two arrays as input and returns a scalar float. This value is interpreted as the distance of the two input arrays. Defaults to the `averaged manhattan metric` (see Notes)"/>
+              <param argument="metric" type="text" value="&lt;function cityblock at 0x789a8308c9a0&gt;" optional="true" label="metric" help="default cityblock Distance function that takes two arrays as input and returns a scalar float. This value is interpreted as the distance of the two input arrays. Defaults to the `averaged manhattan metric` (see Notes)"/>
               <param argument="method" type="select" value="single" optional="true" label="Linkage method used for hierarchical (agglomerative) clustering of the data" help="`method` is directly passed to ``scipy.hierarchy.linkage``. See its documentation [1] for more details. For a general introduction on hierarchical clustering see [2]">
                 <option value="single">single</option>
                 <option value="complete">complete</option>
@@ -324,7 +324,7 @@
                 <validator type="empty_field"/>
               </param>
               <param argument="thresh" type="float" value="" label="Maximum deviation from reference" help="Maximum deviation from reference"/>
-              <param argument="metric" type="text" value="&lt;function cityblock at 0x788ec86389a0&gt;" optional="true" label="metric" help="default cityblock Distance function. Takes two arrays as input and returns a scalar float. This value is interpreted as the mutual distance of the two input arrays. Defaults to the `averaged manhattan metric` (see Notes)"/>
+              <param argument="metric" type="text" value="&lt;function cityblock at 0x789a8308c9a0&gt;" optional="true" label="metric" help="default cityblock Distance function. Takes two arrays as input and returns a scalar float. This value is interpreted as the mutual distance of the two input arrays. Defaults to the `averaged manhattan metric` (see Notes)"/>
               <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
             </when>
             <when value="flagRegimeAnomaly">
@@ -344,7 +344,7 @@
                 <option value="median">median</option>
                 <option value="ward">ward</option>
               </param>
-              <param argument="metric" type="text" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x788ec86396c0&gt;" optional="true" label="A metric function for calculating the dissimilarity between 2 regimes" help="Defaults to the absolute difference in mean"/>
+              <param argument="metric" type="text" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x789a8308d6c0&gt;" optional="true" label="A metric function for calculating the dissimilarity between 2 regimes" help="Defaults to the absolute difference in mean"/>
               <param argument="frac" type="float" value="0.5" optional="true" label="frac" help="The minimum percentage of samples, the  normal  group has to comprise to actually be the normal group. Must be in the closed interval `[0,1]`, otherwise a ValueError is raised"/>
               <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
             </when>
@@ -660,7 +660,7 @@
                   <validator type="empty_field"/>
                 </param>
               </repeat>
-              <param argument="trafo" type="text" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x788ec8661c60&gt;" optional="true" label="Transformation to be applied onto every column before scoring" help="For more fine-grained control, the data could also be transformed before :py:meth:`~saqc.SaQC.flagMVScores` is called"/>
+              <param argument="trafo" type="text" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x789a830b5c60&gt;" optional="true" label="Transformation to be applied onto every column before scoring" help="For more fine-grained control, the data could also be transformed before :py:meth:`~saqc.SaQC.flagMVScores` is called"/>
               <param argument="alpha" type="float" value="0.05" optional="true" label="alpha" help="Level of significance by which it is tested, if an observations score might be drawn from another distribution than the majority of the data"/>
               <param argument="n" type="integer" value="10" optional="true" label="Number of neighbors included in the scoring process for every datapoint" help="Number of neighbors included in the scoring process for every datapoint"/>
               <param argument="func" type="text" value="sum" optional="true" label="func" help="Function that aggregates a value's k-smallest distances, returning a scalar score"/>

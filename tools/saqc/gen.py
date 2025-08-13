@@ -1391,6 +1391,9 @@ def generate_test_variants(method: Callable) -> list:
     variants, base_params, complex_params_to_vary = [], {}, set()
 
     for name, info in param_info.items():
+        if info["annotation"] == dict:
+            continue
+
         default = info["default"]
         annotation = info["annotation"]
         origin = get_origin(annotation)
@@ -1724,12 +1727,12 @@ def generate_tool_xml(tracing=False):
 #else
   '$__tool_directory__'/json_to_saqc_config.py '$param_conf' > config.csv &&
   #for $i, $d in enumerate($data)
-      ##maybe link to element_identifier
-      ln -s '$d' '${i}.csv' &&
+    ##maybe link to element_identifier
+    ln -s '$d' '${i}.csv' &&
   #end for
   saqc --config config.csv
   #for $i, $d in enumerate($data)
-      --data '${i}.csv'
+    --data '${i}.csv'
   #end for
   --outfile output.csv
 #end if

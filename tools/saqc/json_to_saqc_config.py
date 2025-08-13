@@ -141,6 +141,5 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
         traceback.print_exc(file=sys.stderr)
         print(
             f"{field_str_for_error}; ERROR_PROCESSING_METHOD({method_str_for_error})",
-            flush=True,
-        )
+            flush=True,)
         continue

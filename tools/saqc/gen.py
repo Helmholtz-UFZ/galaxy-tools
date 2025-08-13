@@ -46,13 +46,14 @@ import matplotlib as mpl
 import numpy as np
 import pandas as pd
 import saqc
-from saqc.core import SaQC, DictOfSeries
+from saqc.core import DictOfSeries, SaQC
 from saqc.funcs.generic import GenericFunction
 from saqc.lib.types import CurveFitter
 from typing_inspect import is_callable_type, is_union_type
 
 
 if TYPE_CHECKING:
+    
     from types import ModuleType
 
 TRACING_DATA = []

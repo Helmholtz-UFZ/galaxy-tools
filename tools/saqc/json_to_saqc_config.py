@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import json
-import sys
 import math
+import sys
 
 
 def format_saqc_value_repr(value: any) -> str:
@@ -132,7 +132,10 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
 
     except Exception as e:
         sys.stderr.write(
-            f"FATAL Error processing a method entry in json_to_saqc_config.py: {r_method_set}\n"
+            f"FATAL Error processing a method entry: {type(e).__name__} - {e}\n"
+        )
+        sys.stderr.write(
+            f"Offending entry: {r_method_set}\n"
         )
         sys.stderr.write(
             f"Method context: {method_str_for_error}, Field context: {field_str_for_error}\n"
@@ -141,5 +144,6 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
         traceback.print_exc(file=sys.stderr)
         print(
             f"{field_str_for_error}; ERROR_PROCESSING_METHOD({method_str_for_error})",
-            flush=True,)
+            flush=True)
         continue
+    

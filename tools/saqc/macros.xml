@@ -46,7 +46,6 @@
     <xml name="saqc_tests">
     <tests>
         <expand macro="config_tests"/>
-
         <test>
             <param name="data" value="test1/data.csv" ftype="csv"/>
             <repeat name="methods_repeat">

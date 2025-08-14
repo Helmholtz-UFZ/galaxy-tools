@@ -33,7 +33,6 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
         raw_field_val = None
         field_str = "undefined_field" 
 
-        # Logik zur Feldextraktion (mit 'target' als Alternative)
         if "field" in params_to_process:
             raw_field_val = params_to_process.pop("field")
         elif "target" in params_to_process:
@@ -125,11 +124,9 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
                 v_str_repr = repr(v_saqc_raw)
 
             param_strings_for_saqc_call.append(f"{k_saqc}={v_str_repr}")
-        
-        # Holen des Modulnamens aus der JSON-Struktur
+
         module_name = r_method_set.get("module_cond", {}).get("module_select", "unknown_module")
 
-        # === KORREKTUR HIER: Der Modulname wird entfernt, da saqc ihn nicht erwartet ===
         print(f"{field_str}; {method}({', '.join(param_strings_for_saqc_call)})", flush=True)
 
     except Exception as e:

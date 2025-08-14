@@ -1377,88 +1377,6 @@ def get_param_info(method: Callable) -> Dict[str, Any]:
     return param_info
 
 
-def _structure_galaxy_params(params_for_variant: dict, param_info: dict, method: Callable) -> dict:
-    """
-    Wandelt ein flaches Parameter-Dictionary in eine verschachtelte Struktur um,
-    die die Conditional-Logik der Galaxy-UI widerspiegelt.
-    """
-    galaxy_params = {}
-
-    for name, value in params_for_variant.items():
-        info = param_info.get(name, {})
-        origin = info.get("origin")
-        args = info.get("args", [])
-
-        # Prüft, ob der Parameter Teil eines der bekannten Conditional-Muster ist
-        is_union_int_str = origin is Union and int in args and str in args
-        is_union_float_str = origin is Union and float in args and str in args
-        is_union_literal_list = origin is Union and list[str] in args and get_origin(next((a for a in args if get_origin(a) is Literal), None)) is Literal
-        is_union_auto_float = origin is Union and float in args and any(get_origin(a) is Literal and "auto" in get_args(a) for a in args)
-        is_union_model = origin is Union and any(is_callable_type(a) for a in args) and any(get_origin(a) is Literal for a in args)
-
-
-        if is_union_int_str or is_union_float_str:
-            cond_name = f"{name}_cond"
-            select_name = f"{name}_select_type"
-            
-            if isinstance(value, (int, float)):
-                select_value = "number"
-            elif isinstance(value, str) and name in ["limit", "window"]:
-                select_value = "timedelta"
-            elif isinstance(value, str) and name in ["cutoff", "freq"]:
-                 select_value = "offset"
-            else: # Fallback
-                select_value = "offset" if isinstance(value, str) else "number"
-
-            galaxy_params[cond_name] = {
-                select_name: select_value,
-                name: value
-            }
-
-        elif is_union_literal_list:
-            cond_name = f"{name}_cond"
-            select_name = f"{name}_select_type"
-            
-            if isinstance(value, list):
-                select_value = "list"
-                processed_value = ",".join(map(str, value))
-            else: 
-                select_value = str(value)
-                processed_value = str(value)
-                
-            galaxy_params[cond_name] = {
-                select_name: select_value,
-                name: processed_value
-            }
-
-        elif is_union_auto_float or is_union_model:
-            cond_name = f"{name}_cond"
-            select_name = f"{name}_select_type"
-            
-            if value == "auto":
-                select_value = "auto"
-            elif isinstance(value, float):
-                select_value = "float"
-            elif value in ["linear", "exponential"]:
-                 select_value = value
-            else: 
-                select_value = "custom"
-            
-            galaxy_params[cond_name] = {
-                select_name: select_value,
-                name: value
-            }
-            
-        elif name in ["field", "target"] and method.__name__ in REPEAT_FIELD_FUNCS:
-            val_list = [value] if not isinstance(value, list) else value
-            galaxy_params[f"{name}_repeat"] = [{name: v} for v in val_list]
-
-        else:
-            galaxy_params[name] = value
-            
-    return galaxy_params
-
-
 def generate_test_variants(method: Callable) -> list:
     """
     Generates a list of test case variants for a given method based on its
@@ -1468,7 +1386,6 @@ def generate_test_variants(method: Callable) -> list:
     if not param_info:
         return []
 
-    # Dieser Teil hat in meinem letzten Snippet gefehlt und definiert `variants`.
     variants, base_params, complex_params_to_vary = [], {}, set()
 
     for name, info in param_info.items():
@@ -1497,6 +1414,7 @@ def generate_test_variants(method: Callable) -> list:
             else:
                 base_params[name] = default
         else:
+
             assigned = False
             possible_types = args if origin is Union else [annotation]
 
@@ -1528,6 +1446,7 @@ def generate_test_variants(method: Callable) -> list:
         }
     )
 
+    # Create variants for complex parameters
     for name in complex_params_to_vary:
         info, options_to_test = param_info[name], []
         if info["origin"] is Literal:
@@ -1574,17 +1493,44 @@ def generate_test_variants(method: Callable) -> list:
                 }
             )
 
-    # Ab hier wird die `variants`-Liste verarbeitet, die nun korrekt definiert ist.
+    # Prepare final structure for XML generation
     final_variants = []
     for variant in variants:
-        saqc_params = variant["params"]
-        galaxy_params = _structure_galaxy_params(saqc_params, param_info, method)
+        galaxy_params = {}
+        for name, value in variant["params"].items():
+            info = param_info.get(name, {})
+            is_union_cond = (
+                info.get("origin") is Union
+                and any(t in info.get("args", []) for t in [int, float])
+                and str in info.get("args", [])
+            )
+
+            if name in ["field", "target"]:
+                if method.__name__ in REPEAT_FIELD_FUNCS:
+                    val_list = [value] if not isinstance(value, list) else value
+                    galaxy_params[f"{name}_repeat"] = [{name: v} for v in val_list]
+                    galaxy_params[name] = value
+                else:
+                    galaxy_params[name] = value
+            elif name.endswith("_cond") and isinstance(value, dict):
+                galaxy_params[name] = value
+            elif is_union_cond:
+                type_map = {int: "number", float: "number", str: "timedelta"}
+                val_type = type_map.get(type(value), "offset")
+                if name in ["freq", "cutoff"] and isinstance(value, str):
+                    val_type = "offset"
+                galaxy_params[f"{name}_cond"] = {
+                    f"{name}_select_type": val_type,
+                    name: value,
+                }
+            else:
+                galaxy_params[name] = value
 
         final_variants.append(
             {
                 "description": variant["description"],
                 "galaxy_params": galaxy_params,
-                "saqc_call_params": saqc_params,
+                "saqc_call_params": variant["params"],
             }
         )
     return final_variants

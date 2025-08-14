@@ -1,34 +1,29 @@
-import inspect
 import argparse
+import csv
+import inspect
+import math
 import re
 import sys
-import csv
-import math
 import xml.etree.ElementTree as ET
-
-
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
     ForwardRef,
-    get_args,
-    get_origin,
     Literal,
     Optional,
     Sequence,
     Tuple,
-    TYPE_CHECKING,
     Union,
+    get_args,
+    get_origin,
 )
-
 
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
 import saqc
-
-
 from galaxyxml.tool import Tool
 from galaxyxml.tool.parameters import (
     BooleanParam,
@@ -50,8 +45,6 @@ from galaxyxml.tool.parameters import (
     ValidatorParam,
     When,
 )
-
-
 
 from saqc.core import DictOfSeries, SaQC
 from saqc.funcs.generic import GenericFunction

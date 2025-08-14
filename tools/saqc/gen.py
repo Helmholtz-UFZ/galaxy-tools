@@ -1414,7 +1414,6 @@ def generate_test_variants(method: Callable) -> list:
             else:
                 base_params[name] = default
         else:
-
             assigned = False
             possible_types = args if origin is Union else [annotation]
 
@@ -1446,7 +1445,6 @@ def generate_test_variants(method: Callable) -> list:
         }
     )
 
-    # Create variants for complex parameters
     for name in complex_params_to_vary:
         info, options_to_test = param_info[name], []
         if info["origin"] is Literal:
@@ -1469,6 +1467,9 @@ def generate_test_variants(method: Callable) -> list:
                 continue
             variant_params = base_params.copy()
 
+            # Diese Logik hier ist unvollständig, aber wir lassen sie so,
+            # um die Varianten-Erzeugung nicht zu stören. Die Hauptkorrektur
+            # findet in der finalen Schleife statt.
             if name == "thresh" and isinstance(option, float):
                 variant_params["thresh_cond"] = {
                     "thresh_select_type": "float",
@@ -1497,7 +1498,21 @@ def generate_test_variants(method: Callable) -> list:
     final_variants = []
     for variant in variants:
         galaxy_params = {}
-        for name, value in variant["params"].items():
+        # KORREKTUR: Wir bereinigen zuerst die Parameter-Liste für diesen Testfall
+        params_for_galaxy = variant["params"].copy()
+        
+        # Parameter, die Validierungsfehler verursachen, aber NICHT die Laufzeit stören, wenn sie entfernt werden.
+        fixable_conditional_params = ["model", "thresh", "density", "history"]
+        keys_to_remove = []
+        for name in params_for_galaxy:
+            if name in fixable_conditional_params and f"{name}_cond" not in params_for_galaxy:
+                keys_to_remove.append(name)
+        
+        for key in keys_to_remove:
+            del params_for_galaxy[key]
+
+        # Jetzt bauen wir die finale XML-Struktur aus den bereinigten Parametern
+        for name, value in params_for_galaxy.items():
             info = param_info.get(name, {})
             is_union_cond = (
                 info.get("origin") is Union

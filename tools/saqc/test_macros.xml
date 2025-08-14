@@ -79,7 +79,7 @@
             <param name="window" value="default_string" />
             <param name="min_periods" value="1" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7437d1290e00&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x73a707fa60c0&gt;" />
             <param name="model_by_resids" value="true" />
           </conditional>
         </conditional>
@@ -104,7 +104,7 @@
             <param name="window" value="default_string" />
             <param name="min_periods" value="123" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7437d1290e00&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x73a707fa60c0&gt;" />
             <param name="model_by_resids" value="true" />
           </conditional>
         </conditional>
@@ -129,7 +129,7 @@
             <param name="window" value="a_string" />
             <param name="min_periods" value="1" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7437d1290e00&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x73a707fa60c0&gt;" />
             <param name="model_by_resids" value="true" />
           </conditional>
         </conditional>
@@ -154,7 +154,7 @@
             <param name="window" value="default_string" />
             <param name="min_periods" value="1" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7437d1290c20&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x73a707fa5ee0&gt;" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
@@ -179,7 +179,7 @@
             <param name="window" value="default_string" />
             <param name="min_periods" value="123" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7437d1290c20&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x73a707fa5ee0&gt;" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
@@ -204,7 +204,7 @@
             <param name="window" value="a_string" />
             <param name="min_periods" value="1" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x7437d1290c20&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x73a707fa5ee0&gt;" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
@@ -315,7 +315,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="single" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7437cda79800&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x73a7043e0cc0&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -407,7 +407,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7437cda789a0&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x73a704c8bce0&gt;" />
             <param name="method" value="single" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -434,7 +434,7 @@
             <param name="reference" value="default_string" />
             <param name="freq" value="default_string" />
             <param name="thresh" value="1.0" />
-            <param name="metric" value="&lt;function cityblock at 0x7437cda789a0&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x73a704c8bce0&gt;" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
@@ -457,7 +457,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="single" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7437cda796c0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x73a7043e0b80&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1572,7 +1572,7 @@
               <param name="field" value="test_variable" />
             </repeat>
             <param name="field" value="test_variable" />
-            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7437cdaa5c60&gt;" />
+            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x73a704185120&gt;" />
             <param name="alpha" value="0.05" />
             <param name="n" value="10" />
             <param name="func" value="sum" />
@@ -1608,7 +1608,7 @@
               <param name="field" value="test_variable" />
             </repeat>
             <param name="field" value="test_variable" />
-            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7437cdaa5c60&gt;" />
+            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x73a704185120&gt;" />
             <param name="alpha" value="0.05" />
             <param name="n" value="10" />
             <param name="func" value="sum" />
@@ -1644,7 +1644,7 @@
               <param name="field" value="test_variable" />
             </repeat>
             <param name="field" value="test_variable" />
-            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7437cdaa5c60&gt;" />
+            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x73a704185120&gt;" />
             <param name="alpha" value="0.05" />
             <param name="n" value="10" />
             <param name="func" value="sum" />
@@ -1979,70 +1979,6 @@
             <param name="field" value="test_variable" />
             <param name="method" value="standard" />
             <conditional name="window_cond">
-              <param name="window_select_type" value="timedelta" />
-              <param name="window" value="a_string" />
-            </conditional>
-            <param name="thresh" value="3" />
-            <param name="min_residuals" value="1" />
-            <param name="min_periods" value="1" />
-            <param name="center" value="false" />
-            <param name="axis" value="0" />
-            <param name="flag" value="255.0" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagZScore\((?=.*window\s*=\s*[&quot;']a_string[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="outliers" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagZScore" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
-            <param name="field" value="test_variable" />
-            <param name="method" value="standard" />
-            <conditional name="window_cond">
-              <param name="window_select_type" value="number" />
-              <param name="window" value="123" />
-            </conditional>
-            <param name="thresh" value="3" />
-            <param name="min_residuals" value="1" />
-            <param name="min_periods" value="1" />
-            <param name="center" value="false" />
-            <param name="axis" value="0" />
-            <param name="flag" value="255.0" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagZScore\((?=.*window\s*=\s*(?:[&quot;']?123[&quot;']?)).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="outliers" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagZScore" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
-            <param name="field" value="test_variable" />
-            <param name="method" value="standard" />
-            <conditional name="window_cond">
               <param name="window_select_type" value="number" />
               <param name="window" value="1" />
             </conditional>
@@ -2090,6 +2026,70 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text_matching expression="test_variable;\s*flagZScore\((?=.*method\s*=\s*[&quot;']modified[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagZScore" />
+            <repeat name="field_repeat">
+              <param name="field" value="test_variable" />
+            </repeat>
+            <param name="field" value="test_variable" />
+            <param name="method" value="standard" />
+            <conditional name="window_cond">
+              <param name="window_select_type" value="timedelta" />
+              <param name="window" value="a_string" />
+            </conditional>
+            <param name="thresh" value="3" />
+            <param name="min_residuals" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="center" value="false" />
+            <param name="axis" value="0" />
+            <param name="flag" value="255.0" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*flagZScore\((?=.*window\s*=\s*[&quot;']a_string[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagZScore" />
+            <repeat name="field_repeat">
+              <param name="field" value="test_variable" />
+            </repeat>
+            <param name="field" value="test_variable" />
+            <param name="method" value="standard" />
+            <conditional name="window_cond">
+              <param name="window_select_type" value="number" />
+              <param name="window" value="123" />
+            </conditional>
+            <param name="thresh" value="3" />
+            <param name="min_residuals" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="center" value="false" />
+            <param name="axis" value="0" />
+            <param name="flag" value="255.0" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*flagZScore\((?=.*window\s*=\s*(?:[&quot;']?123[&quot;']?)).*\)$" />
         </assert_contents>
       </output>
     </test>
@@ -2642,7 +2642,7 @@
             <param name="n" value="10" />
             <param name="func" value="sum" />
             <conditional name="freq_cond">
-              <param name="freq_select_type" value="timedelta" />
+              <param name="freq_select_type" value="offset" />
               <param name="freq" value="a_string" />
             </conditional>
             <param name="min_periods" value="2" />
@@ -2882,7 +2882,7 @@
             <param name="target" value="test_variable" />
             <param name="n" value="20" />
             <conditional name="freq_cond">
-              <param name="freq_select_type" value="timedelta" />
+              <param name="freq_select_type" value="offset" />
               <param name="freq" value="a_string" />
             </conditional>
             <param name="min_periods" value="2" />
@@ -3535,7 +3535,7 @@
             <param name="field" value="test_variable" />
             <param name="func" value="default_string" />
             <conditional name="freq_cond">
-              <param name="freq_select_type" value="timedelta" />
+              <param name="freq_select_type" value="offset" />
               <param name="freq" value="a_string" />
             </conditional>
           </conditional>

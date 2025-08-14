@@ -6,18 +6,18 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
     ForwardRef,
+    get_args,
+    get_origin,
     Literal,
     Optional,
     Sequence,
     Tuple,
+    TYPE_CHECKING,
     Union,
-    get_args,
-    get_origin,
 )
 
 import matplotlib as mpl
@@ -45,7 +45,6 @@ from galaxyxml.tool.parameters import (
     ValidatorParam,
     When,
 )
-
 from saqc.core import DictOfSeries, SaQC
 from saqc.funcs.generic import GenericFunction
 from saqc.lib.types import CurveFitter
@@ -1517,7 +1516,7 @@ def generate_test_variants(method: Callable) -> list:
                 galaxy_params[name] = value
             elif is_union_cond:
                 type_map = {int: "number", float: "number", str: "timedelta"}
-                val_type = type_map.get(type(value), "offset")
+                val_type = "offset" if name == "freq" and isinstance(value, str) else type_map.get(type(value), "offset")
                 galaxy_params[f"{name}_cond"] = {
                     f"{name}_select_type": val_type,
                     name: value,

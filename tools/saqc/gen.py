@@ -1,15 +1,10 @@
 import inspect
-import re
 import argparse
+import re
 import sys
 import csv
 import math
 import xml.etree.ElementTree as ET
-
-import matplotlib as mpl
-import numpy as np
-import pandas as pd
-import saqc
 
 
 from typing import (
@@ -26,6 +21,12 @@ from typing import (
     TYPE_CHECKING,
     Union,
 )
+
+
+import matplotlib as mpl
+import numpy as np
+import pandas as pd
+import saqc
 
 
 from galaxyxml.tool import Tool
@@ -49,6 +50,7 @@ from galaxyxml.tool.parameters import (
     ValidatorParam,
     When,
 )
+
 
 
 from saqc.core import DictOfSeries, SaQC

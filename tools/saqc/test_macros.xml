@@ -31,7 +31,6 @@
           <conditional name="method_cond">
             <param name="method_select" value="flagJumps" />
             <param name="field" value="test_variable" />
-            <param name="thresh" value="1.0" />
             <param name="window" value="default_string" />
             <param name="min_periods" value="1" />
             <param name="flag" value="255.0" />
@@ -79,7 +78,7 @@
             <param name="window" value="default_string" />
             <param name="min_periods" value="1" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x76955a5ca0c0&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x79f0e75ce0c0&gt;" />
             <param name="model_by_resids" value="true" />
           </conditional>
         </conditional>
@@ -101,35 +100,10 @@
             <param name="field" value="test_variable" />
             <param name="stat_func" value="default_string" />
             <param name="thresh_func" value="default_string" />
-            <param name="window" value="default_string" />
-            <param name="min_periods" value="123" />
-            <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x76955a5ca0c0&gt;" />
-            <param name="model_by_resids" value="true" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignChangePointCluster\((?=.*min_periods\s*=\s*(?:[&quot;']?123[&quot;']?)).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="changepoints" />
-          <conditional name="method_cond">
-            <param name="method_select" value="assignChangePointCluster" />
-            <param name="field" value="test_variable" />
-            <param name="stat_func" value="default_string" />
-            <param name="thresh_func" value="default_string" />
             <param name="window" value="a_string" />
             <param name="min_periods" value="1" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x76955a5ca0c0&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x79f0e75ce0c0&gt;" />
             <param name="model_by_resids" value="true" />
           </conditional>
         </conditional>
@@ -147,6 +121,31 @@
         <conditional name="module_cond">
           <param name="module_select" value="changepoints" />
           <conditional name="method_cond">
+            <param name="method_select" value="assignChangePointCluster" />
+            <param name="field" value="test_variable" />
+            <param name="stat_func" value="default_string" />
+            <param name="thresh_func" value="default_string" />
+            <param name="window" value="default_string" />
+            <param name="min_periods" value="123" />
+            <param name="reduce_window" value="default_string" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x79f0e75ce0c0&gt;" />
+            <param name="model_by_resids" value="true" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*assignChangePointCluster\((?=.*min_periods\s*=\s*(?:[&quot;']?123[&quot;']?)).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="changepoints" />
+          <conditional name="method_cond">
             <param name="method_select" value="flagChangePoints" />
             <param name="field" value="test_variable" />
             <param name="stat_func" value="default_string" />
@@ -154,7 +153,7 @@
             <param name="window" value="default_string" />
             <param name="min_periods" value="1" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x76955a5c9ee0&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x79f0e75cdee0&gt;" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
@@ -176,35 +175,10 @@
             <param name="field" value="test_variable" />
             <param name="stat_func" value="default_string" />
             <param name="thresh_func" value="default_string" />
-            <param name="window" value="default_string" />
-            <param name="min_periods" value="123" />
-            <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x76955a5c9ee0&gt;" />
-            <param name="flag" value="255.0" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagChangePoints\((?=.*min_periods\s*=\s*(?:[&quot;']?123[&quot;']?)).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="changepoints" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagChangePoints" />
-            <param name="field" value="test_variable" />
-            <param name="stat_func" value="default_string" />
-            <param name="thresh_func" value="default_string" />
             <param name="window" value="a_string" />
             <param name="min_periods" value="1" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x76955a5c9ee0&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x79f0e75cdee0&gt;" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
@@ -220,12 +194,36 @@
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
         <conditional name="module_cond">
+          <param name="module_select" value="changepoints" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagChangePoints" />
+            <param name="field" value="test_variable" />
+            <param name="stat_func" value="default_string" />
+            <param name="thresh_func" value="default_string" />
+            <param name="window" value="default_string" />
+            <param name="min_periods" value="123" />
+            <param name="reduce_window" value="default_string" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x79f0e75cdee0&gt;" />
+            <param name="flag" value="255.0" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*flagChangePoints\((?=.*min_periods\s*=\s*(?:[&quot;']?123[&quot;']?)).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
           <param name="module_select" value="constants" />
           <conditional name="method_cond">
             <param name="method_select" value="flagByVariance" />
             <param name="field" value="test_variable" />
             <param name="window" value="default_string" />
-            <param name="thresh" value="1.0" />
             <param name="maxna" value="1" />
             <param name="maxna_group" value="1" />
             <param name="flag" value="255.0" />
@@ -247,7 +245,6 @@
           <conditional name="method_cond">
             <param name="method_select" value="flagConstants" />
             <param name="field" value="test_variable" />
-            <param name="thresh" value="1.0" />
             <param name="window" value="default_string" />
             <param name="min_periods" value="2" />
             <param name="flag" value="255.0" />
@@ -315,7 +312,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="single" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7695569e4cc0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x79f0e39eccc0&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -336,7 +333,6 @@
             <param name="method_select" value="correctDrift" />
             <param name="field" value="test_variable" />
             <param name="maintenance_field" value="default_string" />
-            <param name="model" value="default_string" />
             <param name="cal_range" value="5" />
           </conditional>
         </conditional>
@@ -380,7 +376,6 @@
             <param name="method_select" value="correctRegimeAnomaly" />
             <param name="field" value="test_variable" />
             <param name="cluster_field" value="default_string" />
-            <param name="model" value="default_string" />
             <param name="tolerance" value="default_string" />
             <param name="epoch" value="true" />
           </conditional>
@@ -407,7 +402,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x7695571e3ce0&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x79f0e41e7ce0&gt;" />
             <param name="method" value="single" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -433,8 +428,7 @@
             <param name="field" value="test_variable" />
             <param name="reference" value="default_string" />
             <param name="freq" value="default_string" />
-            <param name="thresh" value="1.0" />
-            <param name="metric" value="&lt;function cityblock at 0x7695571e3ce0&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x79f0e41e7ce0&gt;" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
@@ -457,7 +451,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="1.0" />
             <param name="method" value="single" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x7695569e4b80&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x79f0e39ecb80&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -927,27 +921,6 @@
           <param name="module_select" value="generic" />
           <conditional name="method_cond">
             <param name="method_select" value="flagGeneric" />
-            <param name="field" value="a_string" />
-            <param name="func" value="default_string" />
-            <param name="target" value="test_variable" />
-            <param name="flag" value="255.0" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="a_string;\s*flagGeneric\(.*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="generic" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagGeneric" />
             <param name="field" value="test_variable" />
             <param name="func" value="default_string" />
             <param name="target" value="a_string" />
@@ -968,10 +941,52 @@
         <conditional name="module_cond">
           <param name="module_select" value="generic" />
           <conditional name="method_cond">
+            <param name="method_select" value="flagGeneric" />
+            <param name="field" value="a_string" />
+            <param name="func" value="default_string" />
+            <param name="target" value="test_variable" />
+            <param name="flag" value="255.0" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="a_string;\s*flagGeneric\(.*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="generic" />
+          <conditional name="method_cond">
             <param name="method_select" value="processGeneric" />
             <param name="field" value="test_variable" />
             <param name="func" value="default_string" />
             <param name="target" value="test_variable" />
+            <param name="dfilter" value="-inf" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*processGeneric\(.*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="generic" />
+          <conditional name="method_cond">
+            <param name="method_select" value="processGeneric" />
+            <param name="field" value="test_variable" />
+            <param name="func" value="default_string" />
+            <param name="target" value="a_string" />
             <param name="dfilter" value="-inf" />
           </conditional>
         </conditional>
@@ -1000,27 +1015,6 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text_matching expression="a_string;\s*processGeneric\(.*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="generic" />
-          <conditional name="method_cond">
-            <param name="method_select" value="processGeneric" />
-            <param name="field" value="test_variable" />
-            <param name="func" value="default_string" />
-            <param name="target" value="a_string" />
-            <param name="dfilter" value="-inf" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*processGeneric\(.*\)$" />
         </assert_contents>
       </output>
     </test>
@@ -1079,7 +1073,6 @@
             <param name="method_select" value="flagByScatterLowpass" />
             <param name="field" value="test_variable" />
             <param name="window" value="default_string" />
-            <param name="thresh" value="1.0" />
             <param name="func" value="std" />
             <param name="sub_window" value="1D" />
             <param name="sub_thresh" value="1.0" />
@@ -1104,7 +1097,6 @@
             <param name="method_select" value="flagByScatterLowpass" />
             <param name="field" value="test_variable" />
             <param name="window" value="default_string" />
-            <param name="thresh" value="1.0" />
             <param name="func" value="std" />
             <param name="sub_window" value="a_string" />
             <param name="sub_thresh" value="1.0" />
@@ -1129,7 +1121,6 @@
             <param name="method_select" value="flagByScatterLowpass" />
             <param name="field" value="test_variable" />
             <param name="window" value="default_string" />
-            <param name="thresh" value="1.0" />
             <param name="func" value="std" />
             <param name="sub_window" value="2H" />
             <param name="sub_thresh" value="1.0" />
@@ -1154,7 +1145,6 @@
             <param name="method_select" value="flagByStatLowPass" />
             <param name="field" value="test_variable" />
             <param name="window" value="default_string" />
-            <param name="thresh" value="1.0" />
             <param name="func" value="std" />
             <param name="sub_window" value="1D" />
             <param name="sub_thresh" value="1.0" />
@@ -1179,7 +1169,6 @@
             <param name="method_select" value="flagByStatLowPass" />
             <param name="field" value="test_variable" />
             <param name="window" value="default_string" />
-            <param name="thresh" value="1.0" />
             <param name="func" value="std" />
             <param name="sub_window" value="a_string" />
             <param name="sub_thresh" value="1.0" />
@@ -1204,7 +1193,6 @@
             <param name="method_select" value="flagByStatLowPass" />
             <param name="field" value="test_variable" />
             <param name="window" value="default_string" />
-            <param name="thresh" value="1.0" />
             <param name="func" value="std" />
             <param name="sub_window" value="2H" />
             <param name="sub_thresh" value="1.0" />
@@ -1333,7 +1321,6 @@
             </repeat>
             <param name="field" value="test_variable" />
             <param name="n" value="20" />
-            <param name="thresh" value="1.5" />
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
             <param name="flag" value="255.0" />
@@ -1359,7 +1346,6 @@
             </repeat>
             <param name="field" value="test_variable" />
             <param name="n" value="20" />
-            <param name="thresh" value="1.5" />
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
             <param name="flag" value="255.0" />
@@ -1385,7 +1371,6 @@
             </repeat>
             <param name="field" value="test_variable" />
             <param name="n" value="20" />
-            <param name="thresh" value="1.5" />
             <param name="algorithm" value="kd_tree" />
             <param name="p" value="1" />
             <param name="flag" value="255.0" />
@@ -1411,7 +1396,6 @@
             </repeat>
             <param name="field" value="test_variable" />
             <param name="n" value="20" />
-            <param name="thresh" value="1.5" />
             <param name="algorithm" value="brute" />
             <param name="p" value="1" />
             <param name="flag" value="255.0" />
@@ -1437,7 +1421,6 @@
             </repeat>
             <param name="field" value="test_variable" />
             <param name="n" value="20" />
-            <param name="thresh" value="1.5" />
             <param name="algorithm" value="auto" />
             <param name="p" value="1" />
             <param name="flag" value="255.0" />
@@ -1447,35 +1430,6 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text_matching expression="test_variable;\s*flagLOF\((?=.*algorithm\s*=\s*[&quot;']auto[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="outliers" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagLOF" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
-            <param name="field" value="test_variable" />
-            <param name="n" value="20" />
-            <param name="algorithm" value="ball_tree" />
-            <param name="p" value="1" />
-            <param name="flag" value="255.0" />
-            <conditional name="thresh_cond">
-              <param name="thresh_select_type" value="float" />
-              <param name="thresh" value="45.6" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagLOF\(.*\)$" />
         </assert_contents>
       </output>
     </test>
@@ -1572,7 +1526,7 @@
               <param name="field" value="test_variable" />
             </repeat>
             <param name="field" value="test_variable" />
-            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7695566b1120&gt;" />
+            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x79f0e36c9120&gt;" />
             <param name="alpha" value="0.05" />
             <param name="n" value="10" />
             <param name="func" value="sum" />
@@ -1584,7 +1538,6 @@
             <param name="min_periods" value="11" />
             <param name="stray_range" value="default_string" />
             <param name="drop_flagged" value="true" />
-            <param name="thresh" value="3.5" />
             <param name="min_periods_r" value="1" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1608,7 +1561,7 @@
               <param name="field" value="test_variable" />
             </repeat>
             <param name="field" value="test_variable" />
-            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7695566b1120&gt;" />
+            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x79f0e36c9120&gt;" />
             <param name="alpha" value="0.05" />
             <param name="n" value="10" />
             <param name="func" value="sum" />
@@ -1620,7 +1573,6 @@
             <param name="min_periods" value="11" />
             <param name="stray_range" value="default_string" />
             <param name="drop_flagged" value="true" />
-            <param name="thresh" value="3.5" />
             <param name="min_periods_r" value="1" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1644,7 +1596,7 @@
               <param name="field" value="test_variable" />
             </repeat>
             <param name="field" value="test_variable" />
-            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x7695566b1120&gt;" />
+            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x79f0e36c9120&gt;" />
             <param name="alpha" value="0.05" />
             <param name="n" value="10" />
             <param name="func" value="sum" />
@@ -1656,7 +1608,6 @@
             <param name="min_periods" value="11" />
             <param name="stray_range" value="default_string" />
             <param name="drop_flagged" value="true" />
-            <param name="thresh" value="3.5" />
             <param name="min_periods_r" value="1" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1679,7 +1630,6 @@
             <param name="field" value="test_variable" />
             <param name="tolerance" value="1.0" />
             <param name="window" value="default_string" />
-            <param name="thresh" value="1.0" />
             <param name="thresh_relative" value="1.0" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1700,7 +1650,6 @@
           <conditional name="method_cond">
             <param name="method_select" value="flagRaise" />
             <param name="field" value="test_variable" />
-            <param name="thresh" value="1.0" />
             <param name="raise_window" value="default_string" />
             <param name="freq" value="default_string" />
             <param name="average_window" value="default_string" />
@@ -1748,10 +1697,8 @@
             <param name="method_select" value="flagUniLOF" />
             <param name="field" value="test_variable" />
             <param name="n" value="20" />
-            <param name="thresh" value="1.5" />
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
-            <param name="density" value="auto" />
             <param name="fill_na" value="false" />
             <param name="slope_correct" value="false" />
             <param name="min_offset" value="1.0" />
@@ -1775,10 +1722,8 @@
             <param name="method_select" value="flagUniLOF" />
             <param name="field" value="test_variable" />
             <param name="n" value="20" />
-            <param name="thresh" value="1.5" />
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
-            <param name="density" value="auto" />
             <param name="fill_na" value="false" />
             <param name="slope_correct" value="false" />
             <param name="min_offset" value="1.0" />
@@ -1802,10 +1747,8 @@
             <param name="method_select" value="flagUniLOF" />
             <param name="field" value="test_variable" />
             <param name="n" value="20" />
-            <param name="thresh" value="1.5" />
             <param name="algorithm" value="kd_tree" />
             <param name="p" value="1" />
-            <param name="density" value="auto" />
             <param name="fill_na" value="false" />
             <param name="slope_correct" value="false" />
             <param name="min_offset" value="1.0" />
@@ -1829,10 +1772,8 @@
             <param name="method_select" value="flagUniLOF" />
             <param name="field" value="test_variable" />
             <param name="n" value="20" />
-            <param name="thresh" value="1.5" />
             <param name="algorithm" value="brute" />
             <param name="p" value="1" />
-            <param name="density" value="auto" />
             <param name="fill_na" value="false" />
             <param name="slope_correct" value="false" />
             <param name="min_offset" value="1.0" />
@@ -1856,10 +1797,8 @@
             <param name="method_select" value="flagUniLOF" />
             <param name="field" value="test_variable" />
             <param name="n" value="20" />
-            <param name="thresh" value="1.5" />
             <param name="algorithm" value="auto" />
             <param name="p" value="1" />
-            <param name="density" value="auto" />
             <param name="fill_na" value="false" />
             <param name="slope_correct" value="false" />
             <param name="min_offset" value="1.0" />
@@ -1880,66 +1819,6 @@
         <conditional name="module_cond">
           <param name="module_select" value="outliers" />
           <conditional name="method_cond">
-            <param name="method_select" value="flagUniLOF" />
-            <param name="field" value="test_variable" />
-            <param name="n" value="20" />
-            <param name="algorithm" value="ball_tree" />
-            <param name="p" value="1" />
-            <param name="density" value="auto" />
-            <param name="fill_na" value="false" />
-            <param name="slope_correct" value="false" />
-            <param name="min_offset" value="1.0" />
-            <param name="flag" value="255.0" />
-            <conditional name="thresh_cond">
-              <param name="thresh_select_type" value="float" />
-              <param name="thresh" value="45.6" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagUniLOF\(.*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="outliers" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagUniLOF" />
-            <param name="field" value="test_variable" />
-            <param name="n" value="20" />
-            <param name="thresh" value="1.5" />
-            <param name="algorithm" value="ball_tree" />
-            <param name="p" value="1" />
-            <param name="fill_na" value="false" />
-            <param name="slope_correct" value="false" />
-            <param name="min_offset" value="1.0" />
-            <param name="flag" value="255.0" />
-            <conditional name="density_cond">
-              <param name="density_select_type" value="float" />
-              <param name="density" value="45.6" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagUniLOF\(.*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="outliers" />
-          <conditional name="method_cond">
             <param name="method_select" value="flagZScore" />
             <repeat name="field_repeat">
               <param name="field" value="test_variable" />
@@ -1950,7 +1829,6 @@
               <param name="window_select_type" value="number" />
               <param name="window" value="1" />
             </conditional>
-            <param name="thresh" value="3" />
             <param name="min_residuals" value="1" />
             <param name="min_periods" value="1" />
             <param name="center" value="false" />
@@ -1979,74 +1857,9 @@
             <param name="field" value="test_variable" />
             <param name="method" value="standard" />
             <conditional name="window_cond">
-              <param name="window_select_type" value="number" />
-              <param name="window" value="1" />
-            </conditional>
-            <param name="thresh" value="3" />
-            <param name="min_residuals" value="1" />
-            <param name="min_periods" value="1" />
-            <param name="center" value="false" />
-            <param name="axis" value="0" />
-            <param name="flag" value="255.0" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagZScore\((?=.*method\s*=\s*[&quot;']standard[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="outliers" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagZScore" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
-            <param name="field" value="test_variable" />
-            <param name="method" value="modified" />
-            <conditional name="window_cond">
-              <param name="window_select_type" value="number" />
-              <param name="window" value="1" />
-            </conditional>
-            <param name="thresh" value="3" />
-            <param name="min_residuals" value="1" />
-            <param name="min_periods" value="1" />
-            <param name="center" value="false" />
-            <param name="axis" value="0" />
-            <param name="flag" value="255.0" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagZScore\((?=.*method\s*=\s*[&quot;']modified[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="outliers" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagZScore" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
-            <param name="field" value="test_variable" />
-            <param name="method" value="standard" />
-            <conditional name="window_cond">
               <param name="window_select_type" value="timedelta" />
               <param name="window" value="a_string" />
             </conditional>
-            <param name="thresh" value="3" />
             <param name="min_residuals" value="1" />
             <param name="min_periods" value="1" />
             <param name="center" value="false" />
@@ -2078,7 +1891,6 @@
               <param name="window_select_type" value="number" />
               <param name="window" value="123" />
             </conditional>
-            <param name="thresh" value="3" />
             <param name="min_residuals" value="1" />
             <param name="min_periods" value="1" />
             <param name="center" value="false" />
@@ -2090,6 +1902,68 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text_matching expression="test_variable;\s*flagZScore\((?=.*window\s*=\s*(?:[&quot;']?123[&quot;']?)).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagZScore" />
+            <repeat name="field_repeat">
+              <param name="field" value="test_variable" />
+            </repeat>
+            <param name="field" value="test_variable" />
+            <param name="method" value="standard" />
+            <conditional name="window_cond">
+              <param name="window_select_type" value="number" />
+              <param name="window" value="1" />
+            </conditional>
+            <param name="min_residuals" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="center" value="false" />
+            <param name="axis" value="0" />
+            <param name="flag" value="255.0" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*flagZScore\((?=.*method\s*=\s*[&quot;']standard[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagZScore" />
+            <repeat name="field_repeat">
+              <param name="field" value="test_variable" />
+            </repeat>
+            <param name="field" value="test_variable" />
+            <param name="method" value="modified" />
+            <conditional name="window_cond">
+              <param name="window_select_type" value="number" />
+              <param name="window" value="1" />
+            </conditional>
+            <param name="min_residuals" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="center" value="false" />
+            <param name="axis" value="0" />
+            <param name="flag" value="255.0" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*flagZScore\((?=.*method\s*=\s*[&quot;']modified[&quot;']).*\)$" />
         </assert_contents>
       </output>
     </test>
@@ -2642,7 +2516,7 @@
             <param name="n" value="10" />
             <param name="func" value="sum" />
             <conditional name="freq_cond">
-              <param name="freq_select_type" value="offset" />
+              <param name="freq_select_type" value="timedelta" />
               <param name="freq" value="a_string" />
             </conditional>
             <param name="min_periods" value="2" />
@@ -2882,7 +2756,7 @@
             <param name="target" value="test_variable" />
             <param name="n" value="20" />
             <conditional name="freq_cond">
-              <param name="freq_select_type" value="offset" />
+              <param name="freq_select_type" value="timedelta" />
               <param name="freq" value="a_string" />
             </conditional>
             <param name="min_periods" value="2" />
@@ -3044,7 +2918,6 @@
             <param name="n" value="20" />
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
-            <param name="density" value="auto" />
             <param name="fill_na" value="false" />
           </conditional>
         </conditional>
@@ -3070,7 +2943,6 @@
             <param name="n" value="20" />
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
-            <param name="density" value="auto" />
             <param name="fill_na" value="false" />
           </conditional>
         </conditional>
@@ -3096,7 +2968,6 @@
             <param name="n" value="20" />
             <param name="algorithm" value="kd_tree" />
             <param name="p" value="1" />
-            <param name="density" value="auto" />
             <param name="fill_na" value="false" />
           </conditional>
         </conditional>
@@ -3122,7 +2993,6 @@
             <param name="n" value="20" />
             <param name="algorithm" value="brute" />
             <param name="p" value="1" />
-            <param name="density" value="auto" />
             <param name="fill_na" value="false" />
           </conditional>
         </conditional>
@@ -3148,7 +3018,6 @@
             <param name="n" value="20" />
             <param name="algorithm" value="auto" />
             <param name="p" value="1" />
-            <param name="density" value="auto" />
             <param name="fill_na" value="false" />
           </conditional>
         </conditional>
@@ -3156,35 +3025,6 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text_matching expression="test_variable;\s*assignUniLOF\((?=.*algorithm\s*=\s*[&quot;']auto[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="scores" />
-          <conditional name="method_cond">
-            <param name="method_select" value="assignUniLOF" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
-            <param name="field" value="test_variable" />
-            <param name="n" value="20" />
-            <param name="algorithm" value="ball_tree" />
-            <param name="p" value="1" />
-            <param name="fill_na" value="false" />
-            <conditional name="density_cond">
-              <param name="density_select_type" value="float" />
-              <param name="density" value="45.6" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*assignUniLOF\(.*\)$" />
         </assert_contents>
       </output>
     </test>
@@ -3324,7 +3164,6 @@
             <param name="path" value="default_string" />
             <param name="max_gap" value="default_string" />
             <param name="mode" value="oneplot" />
-            <param name="history" value="valid" />
             <param name="xscope" value="default_string" />
             <param name="yscope" value="default_string" />
             <param name="ax" value="default_string" />
@@ -3350,7 +3189,6 @@
             <param name="path" value="default_string" />
             <param name="max_gap" value="default_string" />
             <param name="mode" value="a_string" />
-            <param name="history" value="valid" />
             <param name="xscope" value="default_string" />
             <param name="yscope" value="default_string" />
             <param name="ax" value="default_string" />
@@ -3376,7 +3214,6 @@
             <param name="path" value="default_string" />
             <param name="max_gap" value="default_string" />
             <param name="mode" value="oneplot" />
-            <param name="history" value="valid" />
             <param name="xscope" value="a_string" />
             <param name="yscope" value="default_string" />
             <param name="ax" value="default_string" />
@@ -3535,7 +3372,7 @@
             <param name="field" value="test_variable" />
             <param name="func" value="default_string" />
             <conditional name="freq_cond">
-              <param name="freq_select_type" value="offset" />
+              <param name="freq_select_type" value="timedelta" />
               <param name="freq" value="a_string" />
             </conditional>
           </conditional>

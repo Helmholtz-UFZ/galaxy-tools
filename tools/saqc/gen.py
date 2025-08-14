@@ -1389,6 +1389,9 @@ def generate_test_variants(method: Callable) -> list:
     variants, base_params, complex_params_to_vary = [], {}, set()
 
     for name, info in param_info.items():
+        conditional_params_to_ignore = ["model", "thresh", "density", "history"]
+        if name in conditional_params_to_ignore:
+            continue
         if info["annotation"] == dict:
             continue
 
@@ -1517,15 +1520,12 @@ def generate_test_variants(method: Callable) -> list:
             elif is_union_cond:
                 type_map = {int: "number", float: "number", str: "timedelta"}
                 val_type = type_map.get(type(value), "offset")
-                if name in ["freq", "cutoff"] and isinstance(value, str):
-                    val_type = "offset"
                 galaxy_params[f"{name}_cond"] = {
                     f"{name}_select_type": val_type,
                     name: value,
                 }
             else:
-                if f"{name}_cond" not in variant["params"] and f"{name}_repeat" not in variant["params"]:
-                    galaxy_params[name] = value
+                galaxy_params[name] = value
 
         final_variants.append(
             {

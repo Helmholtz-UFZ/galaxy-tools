@@ -1517,12 +1517,15 @@ def generate_test_variants(method: Callable) -> list:
             elif is_union_cond:
                 type_map = {int: "number", float: "number", str: "timedelta"}
                 val_type = type_map.get(type(value), "offset")
+                if name in ["freq", "cutoff"] and isinstance(value, str):
+                    val_type = "offset"
                 galaxy_params[f"{name}_cond"] = {
                     f"{name}_select_type": val_type,
                     name: value,
                 }
             else:
-                galaxy_params[name] = value
+                if f"{name}_cond" not in variant["params"] and f"{name}_repeat" not in variant["params"]:
+                    galaxy_params[name] = value
 
         final_variants.append(
             {

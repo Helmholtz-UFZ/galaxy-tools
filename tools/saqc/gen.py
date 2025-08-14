@@ -1414,6 +1414,7 @@ def generate_test_variants(method: Callable) -> list:
             else:
                 base_params[name] = default
         else:
+
             assigned = False
             possible_types = args if origin is Union else [annotation]
 
@@ -1445,6 +1446,7 @@ def generate_test_variants(method: Callable) -> list:
         }
     )
 
+    # Create variants for complex parameters
     for name in complex_params_to_vary:
         info, options_to_test = param_info[name], []
         if info["origin"] is Literal:
@@ -1467,9 +1469,6 @@ def generate_test_variants(method: Callable) -> list:
                 continue
             variant_params = base_params.copy()
 
-            # Diese Logik hier ist unvollständig, aber wir lassen sie so,
-            # um die Varianten-Erzeugung nicht zu stören. Die Hauptkorrektur
-            # findet in der finalen Schleife statt.
             if name == "thresh" and isinstance(option, float):
                 variant_params["thresh_cond"] = {
                     "thresh_select_type": "float",
@@ -1498,21 +1497,7 @@ def generate_test_variants(method: Callable) -> list:
     final_variants = []
     for variant in variants:
         galaxy_params = {}
-        # KORREKTUR: Wir bereinigen zuerst die Parameter-Liste für diesen Testfall
-        params_for_galaxy = variant["params"].copy()
-        
-        # Parameter, die Validierungsfehler verursachen, aber NICHT die Laufzeit stören, wenn sie entfernt werden.
-        fixable_conditional_params = ["model", "thresh", "density", "history"]
-        keys_to_remove = []
-        for name in params_for_galaxy:
-            if name in fixable_conditional_params and f"{name}_cond" not in params_for_galaxy:
-                keys_to_remove.append(name)
-        
-        for key in keys_to_remove:
-            del params_for_galaxy[key]
-
-        # Jetzt bauen wir die finale XML-Struktur aus den bereinigten Parametern
-        for name, value in params_for_galaxy.items():
+        for name, value in variant["params"].items():
             info = param_info.get(name, {})
             is_union_cond = (
                 info.get("origin") is Union
@@ -1554,28 +1539,22 @@ def generate_test_variants(method: Callable) -> list:
 def build_param_xml(parent: ET.Element, name: str, value: Any):
     """Recursively builds the XML <param> structure for Galaxy tests."""
     name_str = str(name)
-    if name_str.endswith("_repeat") and isinstance(value, list):
-        repeat = ET.SubElement(parent, "repeat", {"name": name_str})
-        for item_dict in value:
-            if isinstance(item_dict, dict):
-                for sub_name, sub_value in item_dict.items():
-                    build_param_xml(repeat, sub_name, sub_value)
-    elif name_str.endswith("_cond") and isinstance(value, dict):
-        conditional = ET.SubElement(parent, "conditional", {"name": name_str})
-        param_name_base = name_str.replace("_cond", "")
-        selector_name = f"{param_name_base}_select_type"
-        selector_value = value.get(selector_name)
-        if selector_value is not None:
-            ET.SubElement(
-                conditional,
-                "param",
-                {"name": selector_name, "value": str(selector_value)},
-            )
-            build_param_xml(conditional, param_name_base, value.get(param_name_base))
+
+    if name_str.endswith("_repeat"):
+        repeat_elem = ET.SubElement(parent, "repeat", {"name": name_str})
+        if isinstance(value, list):
+            for item_dict in value:
+                if isinstance(item_dict, dict):
+                    for sub_name, sub_value in item_dict.items():
+                        build_param_xml(repeat_elem, sub_name, sub_value)
+    elif name_str.endswith("_cond"):
+        cond_elem = ET.SubElement(parent, "conditional", {"name": name_str})
+        if isinstance(value, dict):
+            for sub_name, sub_value in value.items():
+                build_param_xml(cond_elem, sub_name, sub_value)
     else:
         val_str = (
-            str(value).lower()
-            if isinstance(value, bool)
+            str(value).lower() if isinstance(value, bool)
             else str(value) if value is not None else ""
         )
         ET.SubElement(parent, "param", {"name": name_str, "value": val_str})

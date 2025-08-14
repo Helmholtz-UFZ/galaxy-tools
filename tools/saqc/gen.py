@@ -1,14 +1,15 @@
 import inspect
 import re
-import sys
 import argparse
-import math
+import sys
 import csv
+import math
+import xml.etree.ElementTree as ET
+
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
 import saqc
-import xml.etree.ElementTree as ET
 
 
 from typing import (
@@ -49,12 +50,11 @@ from galaxyxml.tool.parameters import (
     When,
 )
 
+
 from saqc.core import DictOfSeries, SaQC
 from saqc.funcs.generic import GenericFunction
 from saqc.lib.types import CurveFitter
 from typing_inspect import is_callable_type, is_union_type
-
-
 
 if TYPE_CHECKING:
     from types import ModuleType

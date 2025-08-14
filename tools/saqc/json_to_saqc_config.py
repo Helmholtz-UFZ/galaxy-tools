@@ -146,4 +146,3 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
             f"{field_str_for_error}; ERROR_PROCESSING_METHOD({method_str_for_error})",
             flush=True)
         continue
-    

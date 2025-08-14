@@ -1,13 +1,23 @@
 import inspect
 import re
 import sys
+import argparse
+import math
+import csv
+import matplotlib as mpl
+import numpy as np
+import pandas as pd
+import saqc
+import xml.etree.ElementTree as ET
+
+
 from typing import (
-    get_args,
-    get_origin,
     Any,
     Callable,
     Dict,
     ForwardRef,
+    get_args,
+    get_origin,
     Literal,
     Optional,
     Sequence,
@@ -15,24 +25,20 @@ from typing import (
     TYPE_CHECKING,
     Union,
 )
-import argparse
-import math
-import xml.etree.ElementTree as ET
-import csv
 
 
 from galaxyxml.tool import Tool
 from galaxyxml.tool.parameters import (
     BooleanParam,
     Conditional,
-    Configfiles,
     ConfigfileDefaultInputs,
+    Configfiles,
     DataParam,
     DiscoverDatasets,
-    IntegerParam,
     FloatParam,
     HiddenParam,
     Inputs,
+    IntegerParam,
     OutputCollection,
     OutputData,
     Outputs,
@@ -42,18 +48,15 @@ from galaxyxml.tool.parameters import (
     ValidatorParam,
     When,
 )
-import matplotlib as mpl
-import numpy as np
-import pandas as pd
-import saqc
+
 from saqc.core import DictOfSeries, SaQC
 from saqc.funcs.generic import GenericFunction
 from saqc.lib.types import CurveFitter
 from typing_inspect import is_callable_type, is_union_type
 
 
+
 if TYPE_CHECKING:
-    
     from types import ModuleType
 
 TRACING_DATA = []

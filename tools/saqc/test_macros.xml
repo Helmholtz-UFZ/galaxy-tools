@@ -79,7 +79,7 @@
             <param name="window" value="default_string" />
             <param name="min_periods" value="default_string" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x77155631e980&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x753b7f62ab60&gt;" />
             <param name="model_by_resids" value="true" />
           </conditional>
         </conditional>
@@ -104,7 +104,7 @@
             <param name="window" value="default_string" />
             <param name="min_periods" value="default_string" />
             <param name="reduce_window" value="default_string" />
-            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x77155631e7a0&gt;" />
+            <param name="reduce_func" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x753b7f62a980&gt;" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
@@ -189,11 +189,210 @@
         <conditional name="module_cond">
           <param name="module_select" value="curvefit" />
           <conditional name="method_cond">
+            <param name="method_select" value="fitLowpassFilter" />
+            <param name="field" value="test_variable" />
+            <param name="cutoff" value="default_string" />
+            <param name="nyq" value="0.5" />
+            <param name="filter_order" value="2" />
+            <param name="fill_method" value="linear" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']linear[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="curvefit" />
+          <conditional name="method_cond">
+            <param name="method_select" value="fitLowpassFilter" />
+            <param name="field" value="test_variable" />
+            <param name="cutoff" value="default_string" />
+            <param name="nyq" value="0.5" />
+            <param name="filter_order" value="2" />
+            <param name="fill_method" value="nearest" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']nearest[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test> -->
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="curvefit" />
+          <conditional name="method_cond">
+            <param name="method_select" value="fitLowpassFilter" />
+            <param name="field" value="test_variable" />
+            <param name="cutoff" value="default_string" />
+            <param name="nyq" value="0.5" />
+            <param name="filter_order" value="2" />
+            <param name="fill_method" value="zero" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']zero[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <!-- <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="curvefit" />
+          <conditional name="method_cond">
+            <param name="method_select" value="fitLowpassFilter" />
+            <param name="field" value="test_variable" />
+            <param name="cutoff" value="default_string" />
+            <param name="nyq" value="0.5" />
+            <param name="filter_order" value="2" />
+            <param name="fill_method" value="slinear" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']slinear[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="curvefit" />
+          <conditional name="method_cond">
+            <param name="method_select" value="fitLowpassFilter" />
+            <param name="field" value="test_variable" />
+            <param name="cutoff" value="default_string" />
+            <param name="nyq" value="0.5" />
+            <param name="filter_order" value="2" />
+            <param name="fill_method" value="quadratic" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']quadratic[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="curvefit" />
+          <conditional name="method_cond">
+            <param name="method_select" value="fitLowpassFilter" />
+            <param name="field" value="test_variable" />
+            <param name="cutoff" value="default_string" />
+            <param name="nyq" value="0.5" />
+            <param name="filter_order" value="2" />
+            <param name="fill_method" value="cubic" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']cubic[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="curvefit" />
+          <conditional name="method_cond">
+            <param name="method_select" value="fitLowpassFilter" />
+            <param name="field" value="test_variable" />
+            <param name="cutoff" value="default_string" />
+            <param name="nyq" value="0.5" />
+            <param name="filter_order" value="2" />
+            <param name="fill_method" value="spline" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']spline[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="curvefit" />
+          <conditional name="method_cond">
+            <param name="method_select" value="fitLowpassFilter" />
+            <param name="field" value="test_variable" />
+            <param name="cutoff" value="default_string" />
+            <param name="nyq" value="0.5" />
+            <param name="filter_order" value="2" />
+            <param name="fill_method" value="barycentric" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']barycentric[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="curvefit" />
+          <conditional name="method_cond">
+            <param name="method_select" value="fitLowpassFilter" />
+            <param name="field" value="test_variable" />
+            <param name="cutoff" value="default_string" />
+            <param name="nyq" value="0.5" />
+            <param name="filter_order" value="2" />
+            <param name="fill_method" value="polynomial" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*fitLowpassFilter\((?=.*fill_method\s*=\s*[&quot;']polynomial[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="curvefit" />
+          <conditional name="method_cond">
             <param name="method_select" value="fitMomentFM" />
             <param name="field" value="test_variable" />
             <param name="ratio" value="4" />
             <param name="context" value="512" />
             <param name="agg" value="mean" />
+            <param name="model_spec" value="default_string" />
           </conditional>
         </conditional>
       </repeat>
@@ -215,6 +414,7 @@
             <param name="ratio" value="4" />
             <param name="context" value="512" />
             <param name="agg" value="center" />
+            <param name="model_spec" value="default_string" />
           </conditional>
         </conditional>
       </repeat>
@@ -236,6 +436,7 @@
             <param name="ratio" value="4" />
             <param name="context" value="512" />
             <param name="agg" value="mean" />
+            <param name="model_spec" value="default_string" />
           </conditional>
         </conditional>
       </repeat>
@@ -257,6 +458,7 @@
             <param name="ratio" value="4" />
             <param name="context" value="512" />
             <param name="agg" value="median" />
+            <param name="model_spec" value="default_string" />
           </conditional>
         </conditional>
       </repeat>
@@ -278,6 +480,7 @@
             <param name="ratio" value="4" />
             <param name="context" value="512" />
             <param name="agg" value="std" />
+            <param name="model_spec" value="default_string" />
           </conditional>
         </conditional>
       </repeat>
@@ -320,7 +523,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="method" value="single" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x771552fe72e0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x753b7c2df4c0&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -343,7 +546,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="method" value="single" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x771552fe72e0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x753b7c2df4c0&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -366,7 +569,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="method" value="complete" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x771552fe72e0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x753b7c2df4c0&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -389,7 +592,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="method" value="average" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x771552fe72e0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x753b7c2df4c0&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -412,7 +615,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="method" value="weighted" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x771552fe72e0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x753b7c2df4c0&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -422,7 +625,7 @@
           <has_text_matching expression="test_variable;\s*assignRegimeAnomaly\((?=.*method\s*=\s*[&quot;']weighted[&quot;']).*\)$" />
         </assert_contents>
       </output>
-    </test>
+    </test> -->
     <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
@@ -435,7 +638,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="method" value="centroid" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x771552fe72e0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x753b7c2df4c0&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -446,7 +649,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <!-- <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -458,7 +661,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="method" value="median" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x771552fe72e0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x753b7c2df4c0&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -481,7 +684,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="method" value="ward" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x771552fe72e0&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x753b7c2df4c0&gt;" />
             <param name="frac" value="0.5" />
           </conditional>
         </conditional>
@@ -535,7 +738,7 @@
           <has_text_matching expression="test_variable;\s*correctOffset\(.*\)$" />
         </assert_contents>
       </output>
-    </test> -->
+    </test>
     <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
@@ -558,7 +761,7 @@
         </assert_contents>
       </output>
     </test>
-    <!-- <test>
+    <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -572,7 +775,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x771552fd6200&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x753b7c2ce3e0&gt;" />
             <param name="method" value="single" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -598,7 +801,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x771552fd6200&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x753b7c2ce3e0&gt;" />
             <param name="method" value="single" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -609,7 +812,7 @@
           <has_text_matching expression="test_variable;\s*flagDriftFromNorm\((?=.*method\s*=\s*[&quot;']single[&quot;']).*\)$" />
         </assert_contents>
       </output>
-    </test>
+    </test> -->
     <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
@@ -624,7 +827,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x771552fd6200&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x753b7c2ce3e0&gt;" />
             <param name="method" value="complete" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -636,7 +839,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <!-- <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -650,7 +853,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x771552fd6200&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x753b7c2ce3e0&gt;" />
             <param name="method" value="average" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -676,7 +879,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x771552fd6200&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x753b7c2ce3e0&gt;" />
             <param name="method" value="weighted" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -702,7 +905,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x771552fd6200&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x753b7c2ce3e0&gt;" />
             <param name="method" value="centroid" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -728,7 +931,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x771552fd6200&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x753b7c2ce3e0&gt;" />
             <param name="method" value="median" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -754,7 +957,7 @@
             <param name="window" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="frac" value="0.5" />
-            <param name="metric" value="&lt;function cityblock at 0x771552fd6200&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x753b7c2ce3e0&gt;" />
             <param name="method" value="ward" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -780,7 +983,7 @@
             <param name="reference" value="default_string" />
             <param name="freq" value="default_string" />
             <param name="thresh" value="default_string" />
-            <param name="metric" value="&lt;function cityblock at 0x771552fd6200&gt;" />
+            <param name="metric" value="&lt;function cityblock at 0x753b7c2ce3e0&gt;" />
             <param name="flag" value="255.0" />
           </conditional>
         </conditional>
@@ -803,7 +1006,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="method" value="single" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x771552fe7240&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x753b7c2df420&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -827,7 +1030,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="method" value="single" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x771552fe7240&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x753b7c2df420&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -851,7 +1054,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="method" value="complete" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x771552fe7240&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x753b7c2df420&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -875,7 +1078,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="method" value="average" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x771552fe7240&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x753b7c2df420&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -899,7 +1102,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="method" value="weighted" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x771552fe7240&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x753b7c2df420&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -923,7 +1126,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="method" value="centroid" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x771552fe7240&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x753b7c2df420&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -947,7 +1150,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="method" value="median" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x771552fe7240&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x753b7c2df420&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -971,7 +1174,7 @@
             <param name="cluster_field" value="default_string" />
             <param name="spread" value="default_string" />
             <param name="method" value="ward" />
-            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x771552fe7240&gt;" />
+            <param name="metric" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x753b7c2df420&gt;" />
             <param name="frac" value="0.5" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -1082,11 +1285,57 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagManual\((?=.*method\s*=\s*[&quot;']left\-open[&quot;']).*\)$" />
+          <has_text_matching expression="test_variable;\s*flagManual\((?=.*mformat\s*=\s*[&quot;']start\-end[&quot;']).*\)$" />
         </assert_contents>
       </output>
     </test>
     <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="flagtools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagManual" />
+            <param name="field" value="test_variable" />
+            <param name="mdata" value="default_string" />
+            <param name="method" value="left-open" />
+            <param name="mformat" value="mflag" />
+            <param name="mflag" value="1" />
+            <param name="flag" value="255.0" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*flagManual\((?=.*mformat\s*=\s*[&quot;']mflag[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test> -->
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="flagtools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagManual" />
+            <param name="field" value="test_variable" />
+            <param name="mdata" value="default_string" />
+            <param name="method" value="left-open" />
+            <param name="mformat" value="start-end" />
+            <param name="mflag" value="1" />
+            <param name="flag" value="255.0" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*flagManual\((?=.*method\s*=\s*[&quot;']left\-open[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <!-- <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1108,7 +1357,7 @@
           <has_text_matching expression="test_variable;\s*flagManual\((?=.*method\s*=\s*[&quot;']right\-open[&quot;']).*\)$" />
         </assert_contents>
       </output>
-    </test> -->
+    </test>
     <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
@@ -1132,7 +1381,7 @@
         </assert_contents>
       </output>
     </test>
-    <!-- <test>
+    <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1175,52 +1424,6 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text_matching expression="test_variable;\s*flagManual\((?=.*method\s*=\s*[&quot;']ontime[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="flagtools" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagManual" />
-            <param name="field" value="test_variable" />
-            <param name="mdata" value="default_string" />
-            <param name="method" value="left-open" />
-            <param name="mformat" value="start-end" />
-            <param name="mflag" value="1" />
-            <param name="flag" value="255.0" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagManual\((?=.*mformat\s*=\s*[&quot;']start\-end[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="flagtools" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagManual" />
-            <param name="field" value="test_variable" />
-            <param name="mdata" value="default_string" />
-            <param name="method" value="left-open" />
-            <param name="mformat" value="mflag" />
-            <param name="mflag" value="1" />
-            <param name="flag" value="255.0" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*flagManual\((?=.*mformat\s*=\s*[&quot;']mflag[&quot;']).*\)$" />
         </assert_contents>
       </output>
     </test>
@@ -1422,8 +1625,8 @@
             <param name="method_select" value="align" />
             <param name="field" value="test_variable" />
             <conditional name="freq_cond">
-              <param name="freq_selector" value="type_1" />
-              <param name="freq" value="1" />
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="default_string" />
             </conditional>
             <param name="method" value="time" />
             <param name="order" value="2" />
@@ -1497,10 +1700,13 @@
           <conditional name="method_cond">
             <param name="method_select" value="flagByScatterLowpass" />
             <param name="field" value="test_variable" />
-            <param name="window" value="1D" />
+            <param name="window" value="default_string" />
             <param name="thresh" value="default_string" />
             <param name="func" value="std" />
-            <param name="sub_window" value="1D" />
+            <conditional name="sub_window_cond">
+              <param name="sub_window_selector" value="type_0" />
+              <param name="sub_window" value="default_string" />
+            </conditional>
             <param name="sub_thresh" value="default_string" />
             <param name="min_periods" value="default_string" />
             <param name="flag" value="255.0" />
@@ -1522,7 +1728,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="flagByScatterLowpass" />
             <param name="field" value="test_variable" />
-            <param name="window" value="1D" />
+            <param name="window" value="default_string" />
             <param name="thresh" value="default_string" />
             <param name="func" value="std" />
             <param name="sub_window" value="2H" />
@@ -1537,7 +1743,7 @@
           <has_text_matching expression="test_variable;\s*flagByScatterLowpass\((?=.*sub_window\s*=\s*[&quot;']2H[&quot;']).*\)$" />
         </assert_contents>
       </output>
-    </test>
+    </test> -->
     <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
@@ -1566,7 +1772,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <!-- <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1641,35 +1847,6 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text_matching expression="test_variable;\s*flagLOF\(.*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="outliers" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagLOF" />
-            <conditional name="field_cond">
-              <param name="field_selector" value="type_0" />
-              <param name="field" value="a_string_variant" />
-            </conditional>
-            <param name="n" value="20" />
-            <conditional name="thresh_cond">
-              <param name="thresh_selector" value="type_1" />
-              <param name="thresh" value="1.5" />
-            </conditional>
-            <param name="algorithm" value="ball_tree" />
-            <param name="p" value="1" />
-            <param name="flag" value="255.0" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="a_string_variant;\s*flagLOF\(.*\)$" />
         </assert_contents>
       </output>
     </test>
@@ -1796,6 +1973,35 @@
         <conditional name="module_cond">
           <param name="module_select" value="outliers" />
           <conditional name="method_cond">
+            <param name="method_select" value="flagLOF" />
+            <conditional name="field_cond">
+              <param name="field_selector" value="type_0" />
+              <param name="field" value="a_string_variant" />
+            </conditional>
+            <param name="n" value="20" />
+            <conditional name="thresh_cond">
+              <param name="thresh_selector" value="type_1" />
+              <param name="thresh" value="1.5" />
+            </conditional>
+            <param name="algorithm" value="ball_tree" />
+            <param name="p" value="1" />
+            <param name="flag" value="255.0" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="a_string_variant;\s*flagLOF\(.*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
             <param name="method_select" value="flagMAD" />
             <param name="field" value="test_variable" />
             <conditional name="window_cond">
@@ -1827,7 +2033,7 @@
             <repeat name="field_repeat">
               <param name="field" value="test_variable" />
             </repeat>
-            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x771552c4ec00&gt;" />
+            <param name="trafo" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x753b7bf3ede0&gt;" />
             <param name="alpha" value="0.05" />
             <param name="n" value="10" />
             <conditional name="func_cond">
@@ -1931,7 +2137,7 @@
             <param name="method_select" value="flagUniLOF" />
             <param name="field" value="test_variable" />
             <param name="n" value="20" />
-            <param name="thresh" value="default_string" />
+            <param name="thresh" value="auto" />
             <param name="probability" value="default_string" />
             <param name="corruption" value="default_string" />
             <param name="algorithm" value="ball_tree" />
@@ -1960,7 +2166,7 @@
             <param name="method_select" value="flagUniLOF" />
             <param name="field" value="test_variable" />
             <param name="n" value="20" />
-            <param name="thresh" value="default_string" />
+            <param name="thresh" value="auto" />
             <param name="probability" value="default_string" />
             <param name="corruption" value="default_string" />
             <param name="algorithm" value="ball_tree" />
@@ -1989,7 +2195,7 @@
             <param name="method_select" value="flagUniLOF" />
             <param name="field" value="test_variable" />
             <param name="n" value="20" />
-            <param name="thresh" value="default_string" />
+            <param name="thresh" value="auto" />
             <param name="probability" value="default_string" />
             <param name="corruption" value="default_string" />
             <param name="algorithm" value="kd_tree" />
@@ -2018,7 +2224,7 @@
             <param name="method_select" value="flagUniLOF" />
             <param name="field" value="test_variable" />
             <param name="n" value="20" />
-            <param name="thresh" value="default_string" />
+            <param name="thresh" value="auto" />
             <param name="probability" value="default_string" />
             <param name="corruption" value="default_string" />
             <param name="algorithm" value="brute" />
@@ -2047,7 +2253,7 @@
             <param name="method_select" value="flagUniLOF" />
             <param name="field" value="test_variable" />
             <param name="n" value="20" />
-            <param name="thresh" value="default_string" />
+            <param name="thresh" value="auto" />
             <param name="probability" value="default_string" />
             <param name="corruption" value="default_string" />
             <param name="algorithm" value="auto" />
@@ -2074,9 +2280,7 @@
           <param name="module_select" value="outliers" />
           <conditional name="method_cond">
             <param name="method_select" value="flagZScore" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
+            <param name="field" value="test_variable" />
             <param name="method" value="standard" />
             <conditional name="window_cond">
               <param name="window_selector" value="type_0" />
@@ -2105,9 +2309,7 @@
           <param name="module_select" value="outliers" />
           <conditional name="method_cond">
             <param name="method_select" value="flagZScore" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
+            <param name="field" value="test_variable" />
             <param name="method" value="standard" />
             <conditional name="window_cond">
               <param name="window_selector" value="type_0" />
@@ -2136,9 +2338,7 @@
           <param name="module_select" value="outliers" />
           <conditional name="method_cond">
             <param name="method_select" value="flagZScore" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
+            <param name="field" value="test_variable" />
             <param name="method" value="modified" />
             <conditional name="window_cond">
               <param name="window_selector" value="type_0" />
@@ -2223,7 +2423,10 @@
             <param name="target" value="test_variable" />
             <param name="method" value="auto" />
             <param name="invert" value="false" />
-            <param name="freq" value="1D" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="default_string" />
+            </conditional>
             <param name="drop" value="true" />
             <param name="squeeze" value="true" />
             <param name="override" value="true" />
@@ -2233,6 +2436,342 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text_matching expression="test_variable;\s*concatFlags\(.*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="concatFlags" />
+            <param name="field" value="test_variable" />
+            <param name="target" value="test_variable" />
+            <param name="method" value="fagg" />
+            <param name="invert" value="false" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="default_string" />
+            </conditional>
+            <param name="drop" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']fagg[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="concatFlags" />
+            <param name="field" value="test_variable" />
+            <param name="target" value="test_variable" />
+            <param name="method" value="bagg" />
+            <param name="invert" value="false" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="default_string" />
+            </conditional>
+            <param name="drop" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']bagg[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="concatFlags" />
+            <param name="field" value="test_variable" />
+            <param name="target" value="test_variable" />
+            <param name="method" value="nagg" />
+            <param name="invert" value="false" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="default_string" />
+            </conditional>
+            <param name="drop" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']nagg[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="concatFlags" />
+            <param name="field" value="test_variable" />
+            <param name="target" value="test_variable" />
+            <param name="method" value="fshift" />
+            <param name="invert" value="false" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="default_string" />
+            </conditional>
+            <param name="drop" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']fshift[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="concatFlags" />
+            <param name="field" value="test_variable" />
+            <param name="target" value="test_variable" />
+            <param name="method" value="bshift" />
+            <param name="invert" value="false" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="default_string" />
+            </conditional>
+            <param name="drop" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']bshift[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="concatFlags" />
+            <param name="field" value="test_variable" />
+            <param name="target" value="test_variable" />
+            <param name="method" value="nshift" />
+            <param name="invert" value="false" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="default_string" />
+            </conditional>
+            <param name="drop" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']nshift[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="concatFlags" />
+            <param name="field" value="test_variable" />
+            <param name="target" value="test_variable" />
+            <param name="method" value="sshift" />
+            <param name="invert" value="false" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="default_string" />
+            </conditional>
+            <param name="drop" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']sshift[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="concatFlags" />
+            <param name="field" value="test_variable" />
+            <param name="target" value="test_variable" />
+            <param name="method" value="mshift" />
+            <param name="invert" value="false" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="default_string" />
+            </conditional>
+            <param name="drop" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']mshift[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="concatFlags" />
+            <param name="field" value="test_variable" />
+            <param name="target" value="test_variable" />
+            <param name="method" value="match" />
+            <param name="invert" value="false" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="default_string" />
+            </conditional>
+            <param name="drop" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']match[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="concatFlags" />
+            <param name="field" value="test_variable" />
+            <param name="target" value="test_variable" />
+            <param name="method" value="auto" />
+            <param name="invert" value="false" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="default_string" />
+            </conditional>
+            <param name="drop" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']auto[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="concatFlags" />
+            <param name="field" value="test_variable" />
+            <param name="target" value="test_variable" />
+            <param name="method" value="linear" />
+            <param name="invert" value="false" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="default_string" />
+            </conditional>
+            <param name="drop" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']linear[&quot;']).*\)$" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="concatFlags" />
+            <param name="field" value="test_variable" />
+            <param name="target" value="test_variable" />
+            <param name="method" value="pad" />
+            <param name="invert" value="false" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="default_string" />
+            </conditional>
+            <param name="drop" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']pad[&quot;']).*\)$" />
         </assert_contents>
       </output>
     </test>
@@ -2268,306 +2807,6 @@
         <conditional name="module_cond">
           <param name="module_select" value="resampling" />
           <conditional name="method_cond">
-            <param name="method_select" value="concatFlags" />
-            <param name="field" value="test_variable" />
-            <param name="target" value="test_variable" />
-            <param name="method" value="fagg" />
-            <param name="invert" value="false" />
-            <param name="freq" value="1D" />
-            <param name="drop" value="true" />
-            <param name="squeeze" value="true" />
-            <param name="override" value="true" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']fagg[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="resampling" />
-          <conditional name="method_cond">
-            <param name="method_select" value="concatFlags" />
-            <param name="field" value="test_variable" />
-            <param name="target" value="test_variable" />
-            <param name="method" value="bagg" />
-            <param name="invert" value="false" />
-            <param name="freq" value="1D" />
-            <param name="drop" value="true" />
-            <param name="squeeze" value="true" />
-            <param name="override" value="true" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']bagg[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="resampling" />
-          <conditional name="method_cond">
-            <param name="method_select" value="concatFlags" />
-            <param name="field" value="test_variable" />
-            <param name="target" value="test_variable" />
-            <param name="method" value="nagg" />
-            <param name="invert" value="false" />
-            <param name="freq" value="1D" />
-            <param name="drop" value="true" />
-            <param name="squeeze" value="true" />
-            <param name="override" value="true" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']nagg[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="resampling" />
-          <conditional name="method_cond">
-            <param name="method_select" value="concatFlags" />
-            <param name="field" value="test_variable" />
-            <param name="target" value="test_variable" />
-            <param name="method" value="fshift" />
-            <param name="invert" value="false" />
-            <param name="freq" value="1D" />
-            <param name="drop" value="true" />
-            <param name="squeeze" value="true" />
-            <param name="override" value="true" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']fshift[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="resampling" />
-          <conditional name="method_cond">
-            <param name="method_select" value="concatFlags" />
-            <param name="field" value="test_variable" />
-            <param name="target" value="test_variable" />
-            <param name="method" value="bshift" />
-            <param name="invert" value="false" />
-            <param name="freq" value="1D" />
-            <param name="drop" value="true" />
-            <param name="squeeze" value="true" />
-            <param name="override" value="true" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']bshift[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="resampling" />
-          <conditional name="method_cond">
-            <param name="method_select" value="concatFlags" />
-            <param name="field" value="test_variable" />
-            <param name="target" value="test_variable" />
-            <param name="method" value="nshift" />
-            <param name="invert" value="false" />
-            <param name="freq" value="1D" />
-            <param name="drop" value="true" />
-            <param name="squeeze" value="true" />
-            <param name="override" value="true" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']nshift[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="resampling" />
-          <conditional name="method_cond">
-            <param name="method_select" value="concatFlags" />
-            <param name="field" value="test_variable" />
-            <param name="target" value="test_variable" />
-            <param name="method" value="sshift" />
-            <param name="invert" value="false" />
-            <param name="freq" value="1D" />
-            <param name="drop" value="true" />
-            <param name="squeeze" value="true" />
-            <param name="override" value="true" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']sshift[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="resampling" />
-          <conditional name="method_cond">
-            <param name="method_select" value="concatFlags" />
-            <param name="field" value="test_variable" />
-            <param name="target" value="test_variable" />
-            <param name="method" value="mshift" />
-            <param name="invert" value="false" />
-            <param name="freq" value="1D" />
-            <param name="drop" value="true" />
-            <param name="squeeze" value="true" />
-            <param name="override" value="true" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']mshift[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="resampling" />
-          <conditional name="method_cond">
-            <param name="method_select" value="concatFlags" />
-            <param name="field" value="test_variable" />
-            <param name="target" value="test_variable" />
-            <param name="method" value="match" />
-            <param name="invert" value="false" />
-            <param name="freq" value="1D" />
-            <param name="drop" value="true" />
-            <param name="squeeze" value="true" />
-            <param name="override" value="true" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']match[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="resampling" />
-          <conditional name="method_cond">
-            <param name="method_select" value="concatFlags" />
-            <param name="field" value="test_variable" />
-            <param name="target" value="test_variable" />
-            <param name="method" value="auto" />
-            <param name="invert" value="false" />
-            <param name="freq" value="1D" />
-            <param name="drop" value="true" />
-            <param name="squeeze" value="true" />
-            <param name="override" value="true" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']auto[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="resampling" />
-          <conditional name="method_cond">
-            <param name="method_select" value="concatFlags" />
-            <param name="field" value="test_variable" />
-            <param name="target" value="test_variable" />
-            <param name="method" value="linear" />
-            <param name="invert" value="false" />
-            <param name="freq" value="1D" />
-            <param name="drop" value="true" />
-            <param name="squeeze" value="true" />
-            <param name="override" value="true" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']linear[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="resampling" />
-          <conditional name="method_cond">
-            <param name="method_select" value="concatFlags" />
-            <param name="field" value="test_variable" />
-            <param name="target" value="test_variable" />
-            <param name="method" value="pad" />
-            <param name="invert" value="false" />
-            <param name="freq" value="1D" />
-            <param name="drop" value="true" />
-            <param name="squeeze" value="true" />
-            <param name="override" value="true" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text_matching expression="test_variable;\s*concatFlags\((?=.*method\s*=\s*[&quot;']pad[&quot;']).*\)$" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="resampling" />
-          <conditional name="method_cond">
             <param name="method_select" value="reindex" />
             <param name="field" value="test_variable" />
             <param name="index" value="default_string" />
@@ -2576,14 +2815,8 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="default_string" />
             </conditional>
-            <conditional name="data_aggregation_cond">
-              <param name="data_aggregation_selector" value="type_2" />
-              <param name="data_aggregation" value="1.0" />
-            </conditional>
-            <conditional name="flags_aggregation_cond">
-              <param name="flags_aggregation_selector" value="type_2" />
-              <param name="flags_aggregation" value="1.0" />
-            </conditional>
+            <param name="data_aggregation" value="sum" />
+            <param name="flags_aggregation" value="sum" />
             <param name="broadcast" value="false" />
             <param name="squeeze" value="true" />
             <param name="override" value="true" />
@@ -2611,14 +2844,8 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="default_string" />
             </conditional>
-            <conditional name="data_aggregation_cond">
-              <param name="data_aggregation_selector" value="type_2" />
-              <param name="data_aggregation" value="1.0" />
-            </conditional>
-            <conditional name="flags_aggregation_cond">
-              <param name="flags_aggregation_selector" value="type_2" />
-              <param name="flags_aggregation" value="1.0" />
-            </conditional>
+            <param name="data_aggregation" value="sum" />
+            <param name="flags_aggregation" value="sum" />
             <param name="broadcast" value="false" />
             <param name="squeeze" value="true" />
             <param name="override" value="true" />
@@ -2646,14 +2873,8 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="default_string" />
             </conditional>
-            <conditional name="data_aggregation_cond">
-              <param name="data_aggregation_selector" value="type_2" />
-              <param name="data_aggregation" value="1.0" />
-            </conditional>
-            <conditional name="flags_aggregation_cond">
-              <param name="flags_aggregation_selector" value="type_2" />
-              <param name="flags_aggregation" value="1.0" />
-            </conditional>
+            <param name="data_aggregation" value="sum" />
+            <param name="flags_aggregation" value="sum" />
             <param name="broadcast" value="false" />
             <param name="squeeze" value="true" />
             <param name="override" value="true" />
@@ -2665,7 +2886,7 @@
           <has_text_matching expression="test_variable;\s*reindex\((?=.*method\s*=\s*[&quot;']bagg[&quot;']).*\)$" />
         </assert_contents>
       </output>
-    </test>
+    </test> -->
     <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
@@ -2681,14 +2902,8 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="default_string" />
             </conditional>
-            <conditional name="data_aggregation_cond">
-              <param name="data_aggregation_selector" value="type_2" />
-              <param name="data_aggregation" value="1.0" />
-            </conditional>
-            <conditional name="flags_aggregation_cond">
-              <param name="flags_aggregation_selector" value="type_2" />
-              <param name="flags_aggregation" value="1.0" />
-            </conditional>
+            <param name="data_aggregation" value="sum" />
+            <param name="flags_aggregation" value="sum" />
             <param name="broadcast" value="false" />
             <param name="squeeze" value="true" />
             <param name="override" value="true" />
@@ -2701,7 +2916,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <!-- <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2716,14 +2931,8 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="default_string" />
             </conditional>
-            <conditional name="data_aggregation_cond">
-              <param name="data_aggregation_selector" value="type_2" />
-              <param name="data_aggregation" value="1.0" />
-            </conditional>
-            <conditional name="flags_aggregation_cond">
-              <param name="flags_aggregation_selector" value="type_2" />
-              <param name="flags_aggregation" value="1.0" />
-            </conditional>
+            <param name="data_aggregation" value="sum" />
+            <param name="flags_aggregation" value="sum" />
             <param name="broadcast" value="false" />
             <param name="squeeze" value="true" />
             <param name="override" value="true" />
@@ -2751,14 +2960,8 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="default_string" />
             </conditional>
-            <conditional name="data_aggregation_cond">
-              <param name="data_aggregation_selector" value="type_2" />
-              <param name="data_aggregation" value="1.0" />
-            </conditional>
-            <conditional name="flags_aggregation_cond">
-              <param name="flags_aggregation_selector" value="type_2" />
-              <param name="flags_aggregation" value="1.0" />
-            </conditional>
+            <param name="data_aggregation" value="sum" />
+            <param name="flags_aggregation" value="sum" />
             <param name="broadcast" value="false" />
             <param name="squeeze" value="true" />
             <param name="override" value="true" />
@@ -2786,14 +2989,8 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="default_string" />
             </conditional>
-            <conditional name="data_aggregation_cond">
-              <param name="data_aggregation_selector" value="type_2" />
-              <param name="data_aggregation" value="1.0" />
-            </conditional>
-            <conditional name="flags_aggregation_cond">
-              <param name="flags_aggregation_selector" value="type_2" />
-              <param name="flags_aggregation" value="1.0" />
-            </conditional>
+            <param name="data_aggregation" value="sum" />
+            <param name="flags_aggregation" value="sum" />
             <param name="broadcast" value="false" />
             <param name="squeeze" value="true" />
             <param name="override" value="true" />
@@ -2821,14 +3018,8 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="default_string" />
             </conditional>
-            <conditional name="data_aggregation_cond">
-              <param name="data_aggregation_selector" value="type_2" />
-              <param name="data_aggregation" value="1.0" />
-            </conditional>
-            <conditional name="flags_aggregation_cond">
-              <param name="flags_aggregation_selector" value="type_2" />
-              <param name="flags_aggregation" value="1.0" />
-            </conditional>
+            <param name="data_aggregation" value="sum" />
+            <param name="flags_aggregation" value="sum" />
             <param name="broadcast" value="false" />
             <param name="squeeze" value="true" />
             <param name="override" value="true" />
@@ -2856,14 +3047,8 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="default_string" />
             </conditional>
-            <conditional name="data_aggregation_cond">
-              <param name="data_aggregation_selector" value="type_2" />
-              <param name="data_aggregation" value="1.0" />
-            </conditional>
-            <conditional name="flags_aggregation_cond">
-              <param name="flags_aggregation_selector" value="type_2" />
-              <param name="flags_aggregation" value="1.0" />
-            </conditional>
+            <param name="data_aggregation" value="sum" />
+            <param name="flags_aggregation" value="sum" />
             <param name="broadcast" value="false" />
             <param name="squeeze" value="true" />
             <param name="override" value="true" />
@@ -2891,14 +3076,8 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="default_string" />
             </conditional>
-            <conditional name="data_aggregation_cond">
-              <param name="data_aggregation_selector" value="type_2" />
-              <param name="data_aggregation" value="1.0" />
-            </conditional>
-            <conditional name="flags_aggregation_cond">
-              <param name="flags_aggregation_selector" value="type_2" />
-              <param name="flags_aggregation" value="1.0" />
-            </conditional>
+            <param name="data_aggregation" value="sum" />
+            <param name="flags_aggregation" value="sum" />
             <param name="broadcast" value="false" />
             <param name="squeeze" value="true" />
             <param name="override" value="true" />
@@ -2926,14 +3105,8 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="default_string" />
             </conditional>
-            <conditional name="data_aggregation_cond">
-              <param name="data_aggregation_selector" value="type_2" />
-              <param name="data_aggregation" value="1.0" />
-            </conditional>
-            <conditional name="flags_aggregation_cond">
-              <param name="flags_aggregation_selector" value="type_2" />
-              <param name="flags_aggregation" value="1.0" />
-            </conditional>
+            <param name="data_aggregation" value="sum" />
+            <param name="flags_aggregation" value="sum" />
             <param name="broadcast" value="false" />
             <param name="squeeze" value="true" />
             <param name="override" value="true" />
@@ -2961,14 +3134,8 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="default_string" />
             </conditional>
-            <conditional name="data_aggregation_cond">
-              <param name="data_aggregation_selector" value="type_2" />
-              <param name="data_aggregation" value="1.0" />
-            </conditional>
-            <conditional name="flags_aggregation_cond">
-              <param name="flags_aggregation_selector" value="type_2" />
-              <param name="flags_aggregation" value="1.0" />
-            </conditional>
+            <param name="data_aggregation" value="sum" />
+            <param name="flags_aggregation" value="sum" />
             <param name="broadcast" value="false" />
             <param name="squeeze" value="true" />
             <param name="override" value="true" />
@@ -2996,14 +3163,8 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="default_string" />
             </conditional>
-            <conditional name="data_aggregation_cond">
-              <param name="data_aggregation_selector" value="type_2" />
-              <param name="data_aggregation" value="1.0" />
-            </conditional>
-            <conditional name="flags_aggregation_cond">
-              <param name="flags_aggregation_selector" value="type_2" />
-              <param name="flags_aggregation" value="1.0" />
-            </conditional>
+            <param name="data_aggregation" value="sum" />
+            <param name="flags_aggregation" value="sum" />
             <param name="broadcast" value="false" />
             <param name="squeeze" value="true" />
             <param name="override" value="true" />
@@ -3015,7 +3176,7 @@
           <has_text_matching expression="test_variable;\s*reindex\((?=.*method\s*=\s*[&quot;']mshift[&quot;']).*\)$" />
         </assert_contents>
       </output>
-    </test> -->
+    </test>
     <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
@@ -3031,14 +3192,8 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="default_string" />
             </conditional>
-            <conditional name="data_aggregation_cond">
-              <param name="data_aggregation_selector" value="type_2" />
-              <param name="data_aggregation" value="1.0" />
-            </conditional>
-            <conditional name="flags_aggregation_cond">
-              <param name="flags_aggregation_selector" value="type_2" />
-              <param name="flags_aggregation" value="1.0" />
-            </conditional>
+            <param name="data_aggregation" value="sum" />
+            <param name="flags_aggregation" value="sum" />
             <param name="broadcast" value="false" />
             <param name="squeeze" value="true" />
             <param name="override" value="true" />
@@ -3051,7 +3206,7 @@
         </assert_contents>
       </output>
     </test>
-    <!-- <test>
+    <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -3060,7 +3215,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="resample" />
             <param name="field" value="test_variable" />
-            <param name="freq" value="1D" />
+            <param name="freq" value="default_string" />
             <conditional name="func_cond">
               <param name="func_selector" value="type_1" />
               <param name="func" value="mean" />
@@ -3087,7 +3242,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="resample" />
             <param name="field" value="test_variable" />
-            <param name="freq" value="1D" />
+            <param name="freq" value="default_string" />
             <conditional name="func_cond">
               <param name="func_selector" value="type_1" />
               <param name="func" value="mean" />
@@ -3114,7 +3269,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="resample" />
             <param name="field" value="test_variable" />
-            <param name="freq" value="1D" />
+            <param name="freq" value="default_string" />
             <conditional name="func_cond">
               <param name="func_selector" value="type_1" />
               <param name="func" value="mean" />
@@ -3141,7 +3296,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="resample" />
             <param name="field" value="test_variable" />
-            <param name="freq" value="1D" />
+            <param name="freq" value="default_string" />
             <conditional name="func_cond">
               <param name="func_selector" value="type_1" />
               <param name="func" value="mean" />
@@ -3274,9 +3429,7 @@
             <repeat name="field_repeat">
               <param name="field" value="test_variable" />
             </repeat>
-            <repeat name="target_repeat">
-              <param name="target" value="test_variable" />
-            </repeat>
+            <param name="target" value="test_variable" />
             <param name="n" value="10" />
             <conditional name="func_cond">
               <param name="func_selector" value="type_1" />
@@ -3307,9 +3460,7 @@
             <repeat name="field_repeat">
               <param name="field" value="test_variable" />
             </repeat>
-            <repeat name="target_repeat">
-              <param name="target" value="test_variable" />
-            </repeat>
+            <param name="target" value="test_variable" />
             <param name="n" value="10" />
             <conditional name="func_cond">
               <param name="func_selector" value="type_1" />
@@ -3340,9 +3491,7 @@
             <repeat name="field_repeat">
               <param name="field" value="test_variable" />
             </repeat>
-            <repeat name="target_repeat">
-              <param name="target" value="test_variable" />
-            </repeat>
+            <param name="target" value="test_variable" />
             <param name="n" value="10" />
             <conditional name="func_cond">
               <param name="func_selector" value="type_1" />
@@ -3373,9 +3522,7 @@
             <repeat name="field_repeat">
               <param name="field" value="test_variable" />
             </repeat>
-            <repeat name="target_repeat">
-              <param name="target" value="test_variable" />
-            </repeat>
+            <param name="target" value="test_variable" />
             <param name="n" value="10" />
             <conditional name="func_cond">
               <param name="func_selector" value="type_1" />
@@ -3394,7 +3541,7 @@
           <has_text_matching expression="test_variable;\s*assignKNNScore\((?=.*algorithm\s*=\s*[&quot;']brute[&quot;']).*\)$" />
         </assert_contents>
       </output>
-    </test> -->
+    </test>
     <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
@@ -3406,9 +3553,7 @@
             <repeat name="field_repeat">
               <param name="field" value="test_variable" />
             </repeat>
-            <repeat name="target_repeat">
-              <param name="target" value="test_variable" />
-            </repeat>
+            <param name="target" value="test_variable" />
             <param name="n" value="10" />
             <conditional name="func_cond">
               <param name="func_selector" value="type_1" />
@@ -3428,7 +3573,7 @@
         </assert_contents>
       </output>
     </test>
-    <!-- <test>
+    <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -3439,9 +3584,7 @@
             <repeat name="field_repeat">
               <param name="field" value="test_variable" />
             </repeat>
-            <repeat name="target_repeat">
-              <param name="target" value="test_variable" />
-            </repeat>
+            <param name="target" value="test_variable" />
             <param name="n" value="20" />
             <param name="freq" value="inf" />
             <param name="min_periods" value="2" />
@@ -3467,9 +3610,7 @@
             <repeat name="field_repeat">
               <param name="field" value="test_variable" />
             </repeat>
-            <repeat name="target_repeat">
-              <param name="target" value="test_variable" />
-            </repeat>
+            <param name="target" value="test_variable" />
             <param name="n" value="20" />
             <param name="freq" value="inf" />
             <param name="min_periods" value="2" />
@@ -3483,7 +3624,7 @@
           <has_text_matching expression="test_variable;\s*assignLOF\((?=.*algorithm\s*=\s*[&quot;']ball_tree[&quot;']).*\)$" />
         </assert_contents>
       </output>
-    </test>
+    </test> -->
     <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
@@ -3495,9 +3636,7 @@
             <repeat name="field_repeat">
               <param name="field" value="test_variable" />
             </repeat>
-            <repeat name="target_repeat">
-              <param name="target" value="test_variable" />
-            </repeat>
+            <param name="target" value="test_variable" />
             <param name="n" value="20" />
             <param name="freq" value="inf" />
             <param name="min_periods" value="2" />
@@ -3512,7 +3651,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <!-- <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -3523,9 +3662,7 @@
             <repeat name="field_repeat">
               <param name="field" value="test_variable" />
             </repeat>
-            <repeat name="target_repeat">
-              <param name="target" value="test_variable" />
-            </repeat>
+            <param name="target" value="test_variable" />
             <param name="n" value="20" />
             <param name="freq" value="inf" />
             <param name="min_periods" value="2" />
@@ -3551,9 +3688,7 @@
             <repeat name="field_repeat">
               <param name="field" value="test_variable" />
             </repeat>
-            <repeat name="target_repeat">
-              <param name="target" value="test_variable" />
-            </repeat>
+            <param name="target" value="test_variable" />
             <param name="n" value="20" />
             <param name="freq" value="inf" />
             <param name="min_periods" value="2" />
@@ -3576,9 +3711,7 @@
           <param name="module_select" value="scores" />
           <conditional name="method_cond">
             <param name="method_select" value="assignUniLOF" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
+            <param name="field" value="test_variable" />
             <param name="n" value="20" />
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
@@ -3602,9 +3735,7 @@
           <param name="module_select" value="scores" />
           <conditional name="method_cond">
             <param name="method_select" value="assignUniLOF" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
+            <param name="field" value="test_variable" />
             <param name="n" value="20" />
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
@@ -3628,9 +3759,7 @@
           <param name="module_select" value="scores" />
           <conditional name="method_cond">
             <param name="method_select" value="assignUniLOF" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
+            <param name="field" value="test_variable" />
             <param name="n" value="20" />
             <param name="algorithm" value="kd_tree" />
             <param name="p" value="1" />
@@ -3654,9 +3783,7 @@
           <param name="module_select" value="scores" />
           <conditional name="method_cond">
             <param name="method_select" value="assignUniLOF" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
+            <param name="field" value="test_variable" />
             <param name="n" value="20" />
             <param name="algorithm" value="brute" />
             <param name="p" value="1" />
@@ -3680,9 +3807,7 @@
           <param name="module_select" value="scores" />
           <conditional name="method_cond">
             <param name="method_select" value="assignUniLOF" />
-            <repeat name="field_repeat">
-              <param name="field" value="test_variable" />
-            </repeat>
+            <param name="field" value="test_variable" />
             <param name="n" value="20" />
             <param name="algorithm" value="auto" />
             <param name="p" value="1" />
@@ -3848,7 +3973,7 @@
               <param name="history" value="valid" />
             </conditional>
             <conditional name="xscope_cond">
-              <param name="xscope_selector" value="type_1" />
+              <param name="xscope_selector" value="type_2" />
               <param name="xscope" value="default_string" />
             </conditional>
             <param name="yscope" value="default_string" />
@@ -3883,7 +4008,7 @@
               <param name="history" value="valid" />
             </conditional>
             <conditional name="xscope_cond">
-              <param name="xscope_selector" value="type_1" />
+              <param name="xscope_selector" value="type_2" />
               <param name="xscope" value="default_string" />
             </conditional>
             <param name="yscope" value="default_string" />
@@ -3918,7 +4043,7 @@
               <param name="history" value="valid" />
             </conditional>
             <conditional name="xscope_cond">
-              <param name="xscope_selector" value="type_1" />
+              <param name="xscope_selector" value="type_2" />
               <param name="xscope" value="a_string_variant" />
             </conditional>
             <param name="yscope" value="default_string" />

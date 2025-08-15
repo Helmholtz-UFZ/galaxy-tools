@@ -59,9 +59,11 @@
                 <validator type="empty_field"/>
               </param>
               <param argument="gap_window" type="text" label="Minimum gap size required before and after a data group to consider it isolated" help="See condition (2) and (3)">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="group_window" type="text" label="Maximum size of a data chunk to consider it a candidate for an isolated group" help="Data chunks that are bigger than the `group_window` are ignored. This does not include the possible gaps surrounding it. See condition (1)">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="flag" type="float" value="255.0" optional="true" label="flag" help=":py:class:`Any`, optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme"/>
@@ -72,6 +74,7 @@
               </param>
               <param argument="thresh" type="float" label="Threshold value by which the mean of data has to jump, to trigger flagging" help="Threshold value by which the mean of data has to jump, to trigger flagging" min="0"/>
               <param argument="window" type="text" label="Size of the two moving windows" help="This determines the number of observations used for calculating the mean in every window. The window size should be big enough to yield enough samples for a reliable mean calculation, but it should also not be arbitrarily big, since it also limits the density of jumps that can be detected. More precisely: Jumps that are not distanced to each other by more than three fourth (3/4) of the selected `window` size, will not be detected reliably">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="min_periods" type="integer" value="0" optional="true" label="min_periods" help="The minimum number of observations in `window` required to calculate a valid mean value" min="0"/>
@@ -110,11 +113,14 @@
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="window" type="text" label="Multiple values (Tuple) (one or more)" multiple="true"/>
+                  <param argument="window" type="text" label="Multiple values (Tuple) (one or more)" multiple="true">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+                  </param>
                 </when>
               </conditional>
               <conditional name="min_periods_cond" label="min_periods">
@@ -129,7 +135,9 @@
                   <param argument="min_periods" type="integer" label="tuple[Integer &gt;= 0, Integer &gt;= 0] (one or more)" min="0" multiple="true"/>
                 </when>
               </conditional>
-              <param argument="reduce_window" type="text" optional="true" label="reduce_window" help="The sliding window search method is not an exact CP search method and usually there won't be detected a single changepoint, but a  region  of change around a changepoint. If `reduce_window` is given, for every window of size `reduce_window`, there will be selected the value with index `reduce_func(x, y)` and the others will be dropped. If `reduce_window` is None, the reduction window size equals the twin window size, the changepoints have been detected with"/>
+              <param argument="reduce_window" type="text" optional="true" label="reduce_window" help="The sliding window search method is not an exact CP search method and usually there won't be detected a single changepoint, but a  region  of change around a changepoint. If `reduce_window` is given, for every window of size `reduce_window`, there will be selected the value with index `reduce_func(x, y)` and the others will be dropped. If `reduce_window` is None, the reduction window size equals the twin window size, the changepoints have been detected with">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+              </param>
               <param argument="reduce_func" type="text" optional="true" label="reduce_func" help="default argmax A function that must return an index value upon input of two arrays x and y. First input parameter will hold the result from the stat_func evaluation for every reduction window. Second input parameter holds the result from the thresh_func evaluation. The default reduction function just selects the value that maximizes the stat_func"/>
               <param argument="model_by_resids" type="boolean" label="If True, the results of `stat_funcs` are written, otherwise the regime labels" help="If True, the results of `stat_funcs` are written, otherwise the regime labels" checked="false" truevalue="model_by_resids" falsevalue=""/>
             </when>
@@ -150,11 +158,14 @@
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="window" type="text" label="Multiple values (Tuple) (one or more)" multiple="true"/>
+                  <param argument="window" type="text" label="Multiple values (Tuple) (one or more)" multiple="true">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+                  </param>
                 </when>
               </conditional>
               <conditional name="min_periods_cond" label="min_periods">
@@ -169,7 +180,9 @@
                   <param argument="min_periods" type="integer" label="tuple[Integer &gt;= 0, Integer &gt;= 0] (one or more)" min="0" multiple="true"/>
                 </when>
               </conditional>
-              <param argument="reduce_window" type="text" optional="true" label="reduce_window" help="The sliding window search method is not an exact CP search method and usually there wont be detected a single changepoint, but a  region  of change around a changepoint.  If `reduce_window` is given, for every window of size `reduce_window`, there will be selected the value with index `reduce_func(x, y)` and the others will be dropped.  If `reduce_window` is None, the reduction window size equals the twin window size, the changepoints have been detected with"/>
+              <param argument="reduce_window" type="text" optional="true" label="reduce_window" help="The sliding window search method is not an exact CP search method and usually there wont be detected a single changepoint, but a  region  of change around a changepoint.  If `reduce_window` is given, for every window of size `reduce_window`, there will be selected the value with index `reduce_func(x, y)` and the others will be dropped.  If `reduce_window` is None, the reduction window size equals the twin window size, the changepoints have been detected with">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+              </param>
               <param argument="reduce_func" type="text" optional="true" label="reduce_func" help="default argmax A function that must return an index value upon input of two arrays x and y. First input parameter will hold the result from the stat_func evaluation for every reduction window. Second input parameter holds the result from the `thresh_func` evaluation. The default reduction function just selects the value that maximizes the `stat_func`"/>
               <param argument="flag" type="float" value="255.0" optional="true" label="flag" help=":py:class:`Any`, optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme"/>
             </when>
@@ -186,6 +199,7 @@
                 <validator type="empty_field"/>
               </param>
               <param argument="window" type="text" label="Size of the moving window" help="This is the number of observations used for calculating the statistic. Each window will be a fixed size. If its an offset then this will be the time period of each window. Each window will be sized, based on the number of observations included in the time-period">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="thresh" type="float" label="Maximum total variance allowed per window" help="Maximum total variance allowed per window" min="0"/>
@@ -205,6 +219,7 @@
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -238,6 +253,7 @@
                 </when>
                 <when value="type_1">
                   <param argument="cutoff" type="text" label="Frequency String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -299,6 +315,7 @@
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -375,10 +392,13 @@
               <param argument="max_jump" type="float" label="max_jump" help="when searching for changepoints in mean - this is the threshold a mean difference in the sliding window search must exceed to trigger changepoint detection" min="0"/>
               <param argument="spread" type="float" label="spread" help="threshold denoting the maximum, regimes are allowed to abolutely differ in their means to form the  normal group  of values" min="0"/>
               <param argument="window" type="text" label="Size of the adjacent windows that are used to search for the mean changepoints" help="Size of the adjacent windows that are used to search for the mean changepoints">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="min_periods" type="integer" label="min_periods" help="Minimum number of periods a search window has to contain, for the result of the changepoint detection to be considered valid" min="0"/>
-              <param argument="tolerance" type="text" optional="true" label="tolerance" help="If an offset string is passed, a data chunk of length `offset` right from the start and right before the end of any regime is ignored when calculating a regimes mean for data correcture. This is to account for the unrelyability of data near the changepoints of regimes"/>
+              <param argument="tolerance" type="text" optional="true" label="tolerance" help="If an offset string is passed, a data chunk of length `offset` right from the start and right before the end of any regime is ignored when calculating a regimes mean for data correcture. This is to account for the unrelyability of data near the changepoints of regimes">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+              </param>
             </when>
             <when value="correctRegimeAnomaly">
               <param argument="field" type="text" label="Variable to process" help="Variable to process">
@@ -390,12 +410,15 @@
               <param argument="model" type="text" label="The model function to be fitted to the regimes" help="It must be a function of the form :math:`f(x, *p)`, where :math:`x` is the ``numpy.array`` holding the independent variables and :math:`p` are the model parameters that are to be obtained by fitting. Depending on the `x_date` parameter, independent variable x will either be the timestamps of every regime transformed to seconds from epoch, or it will be just seconds, counting the regimes length">
                 <validator type="empty_field"/>
               </param>
-              <param argument="tolerance" type="text" optional="true" label="tolerance" help="If an offset string is passed, a data chunk of length `offset` right at the start and right at the end is ignored when fitting the model. This is to account for the unreliability of data near the changepoints of regimes. Defaults to None"/>
+              <param argument="tolerance" type="text" optional="true" label="tolerance" help="If an offset string is passed, a data chunk of length `offset` right at the start and right at the end is ignored when fitting the model. This is to account for the unreliability of data near the changepoints of regimes. Defaults to None">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+              </param>
               <param argument="epoch" type="boolean" label="epoch" help="If True, use  seconds from epoch  as x input to the model func, instead of  seconds from regime start " checked="false" truevalue="epoch" falsevalue=""/>
             </when>
             <when value="flagDriftFromNorm">
               <param argument="field" type="text" label="Variable to process" help="Variable to process" multiple="true"/>
               <param argument="window" type="text" label="Frequency, that split the data in chunks" help="Frequency, that split the data in chunks">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="spread" type="float" label="Maximum spread allowed in the group of *normal* data" help="See Notes section for more details" min="0"/>
@@ -418,6 +441,7 @@
                 <validator type="empty_field"/>
               </param>
               <param argument="freq" type="text" label="Frequency, that split the data in chunks" help="Frequency, that split the data in chunks">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="thresh" type="float" label="Maximum deviation from reference" help="Maximum deviation from reference" min="0"/>
@@ -551,6 +575,7 @@
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -645,6 +670,7 @@
                 </param>
                 <when value="type_0">
                   <param argument="freq" type="text" label="Frequency String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -667,6 +693,7 @@
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -709,12 +736,13 @@
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
                 <when value="type_1">
                   <param argument="window" type="text" label="Pd.Timedelta">
-                    <validator type="regex" message="Please enter a valid Timedelta string (e.g., '30min', '2H', '1D')."><![CDATA[^\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*$]]></validator>
+                    <validator type="regex" message="Please enter a valid Timedelta string (e.g., '30min', '2H', '1D').">^\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -742,11 +770,13 @@
                   <option value="type_1">Pd.Timedelta</option>
                 </param>
                 <when value="type_0">
-                  <param argument="sub_window" type="text" optional="true" label="Offset String"/>
+                  <param argument="sub_window" type="text" optional="true" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+                  </param>
                 </when>
                 <when value="type_1">
                   <param argument="sub_window" type="text" optional="true" label="Pd.Timedelta">
-                    <validator type="regex" message="Please enter a valid Timedelta string (e.g., '30min', '2H', '1D')."><![CDATA[^\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*$]]></validator>
+                    <validator type="regex" message="Please enter a valid Timedelta string (e.g., '30min', '2H', '1D').">^\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*$</validator>
                   </param>
                 </when>
               </conditional>
@@ -759,6 +789,7 @@
                 <validator type="empty_field"/>
               </param>
               <param argument="window" type="text" label="window" help="">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="thresh" type="float" label="thresh" help="" min="0"/>
@@ -787,7 +818,9 @@
                   <param argument="sub_window" type="float" optional="true" label="(Float &gt; 0)" min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="sub_window" type="text" optional="true" label="Offset String"/>
+                  <param argument="sub_window" type="text" optional="true" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+                  </param>
                 </when>
               </conditional>
               <param argument="sub_thresh" type="float" optional="true" label="sub_thresh" help="" min="0"/>
@@ -821,6 +854,7 @@
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Frequency String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -843,7 +877,9 @@
                   <option value="type_1">(Integer &gt;= 1)</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" optional="true" label="Offset String"/>
+                  <param argument="window" type="text" optional="true" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+                  </param>
                 </when>
                 <when value="type_1">
                   <param argument="window" type="integer" optional="true" label="(Integer &gt;= 1)" min="1"/>
@@ -901,7 +937,9 @@
                   <option value="type_1">(Integer &gt;= 0)</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" optional="true" label="Frequency String"/>
+                  <param argument="window" type="text" optional="true" label="Frequency String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+                  </param>
                 </when>
                 <when value="type_1">
                   <param argument="window" type="integer" optional="true" label="(Integer &gt;= 0)" min="0"/>
@@ -940,11 +978,15 @@
                   <param argument="window" type="integer" optional="true" label="(Integer &gt;= 1)" min="1"/>
                 </when>
                 <when value="type_1">
-                  <param argument="window" type="text" optional="true" label="Offset String"/>
+                  <param argument="window" type="text" optional="true" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+                  </param>
                 </when>
               </conditional>
               <param argument="min_periods" type="integer" value="11" optional="true" label="min_periods" help="Only effective if `threshing` is set to ``'stray'`` and `partition` is an integer. Minimum number of periods per `partition` that have to be present for a valid outlier detection to be made in this partition" min="1"/>
-              <param argument="stray_range" type="text" optional="true" label="stray_range" help="If not ``None``, it is tried to reduce the stray result onto single outlier components of the input `field`. The offset string denotes the range of the temporal surrounding to include into the MAD testing while trying to reduce flags"/>
+              <param argument="stray_range" type="text" optional="true" label="stray_range" help="If not ``None``, it is tried to reduce the stray result onto single outlier components of the input `field`. The offset string denotes the range of the temporal surrounding to include into the MAD testing while trying to reduce flags">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+              </param>
               <param argument="drop_flagged" type="boolean" label="Only effective when `stray_range` is not ``None``" help="Whether or not to drop flagged values from the temporal surroundings" checked="false" truevalue="drop_flagged" falsevalue=""/>
               <param argument="thresh" type="float" value="3.5" optional="true" label="Only effective when `stray_range` is not ``None``" help="The 'critical' value, controlling wheather the MAD score is considered referring to an outlier or not. Higher values result in less rigid flagging. The default value is widely considered apropriate in the literature" min="0"/>
               <param argument="min_periods_r" type="integer" value="1" optional="true" label="Only effective when `stray_range` is not ``None``" help="Minimum number of measurements necessary in an interval to actually perform the reduction step" min="1"/>
@@ -956,6 +998,7 @@
               </param>
               <param argument="tolerance" type="float" label="tolerance" help="Maximum difference allowed between the value, directly preceding and the value directly succeeding an offset to trigger flagging of the offsetting values. See condition (4)" min="0"/>
               <param argument="window" type="text" label="window" help="Maximum length allowed for offset value courses, to trigger flagging of the offsetting values. See condition (5). Integer defined window length are only allowed for regularly sampled timeseries">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="thresh" type="float" optional="true" label="thresh" help="Minimum difference between a value and its successors, to consider the successors an anomalous offset group. See condition (1). If ``None``, condition (1) is not tested" min="0"/>
@@ -968,12 +1011,16 @@
               </param>
               <param argument="thresh" type="float" label="thresh" help="The threshold, for the total rise (`thresh` ``  0``), or total drop (`thresh` ``  0``), value courses must not exceed within a timespan of length `raise_window`"/>
               <param argument="raise_window" type="text" label="raise_window" help="An offset string, determining the timespan, the rise/drop thresholding refers to. Window is inclusively defined">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="freq" type="text" label="freq" help="An offset string, determining the frequency, the timeseries to flag is supposed to be sampled at. The window is inclusively defined">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                 <validator type="empty_field"/>
               </param>
-              <param argument="average_window" type="text" optional="true" label="See condition (2) of the description given in the Notes" help="Window is inclusively defined, defaults to 1.5 times the size of `raise_window`"/>
+              <param argument="average_window" type="text" optional="true" label="See condition (2) of the description given in the Notes" help="Window is inclusively defined, defaults to 1.5 times the size of `raise_window`">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+              </param>
               <param argument="raise_factor" type="float" value="2.0" optional="true" label="See condition (2)" help="See condition (2)" min="1"/>
               <param argument="slope" type="float" optional="true" label="See condition (3)" help="See condition (3)" min="0"/>
               <param argument="weight" type="float" value="0.8" optional="true" label="See condition (3)" help="See condition (3)" min="0"/>
@@ -1055,7 +1102,9 @@
                   <option value="type_1">(Integer &gt;= 0)</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" optional="true" label="Frequency String"/>
+                  <param argument="window" type="text" optional="true" label="Frequency String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+                  </param>
                 </when>
                 <when value="type_1">
                   <param argument="window" type="integer" optional="true" label="(Integer &gt;= 0)" min="0"/>
@@ -1100,6 +1149,7 @@
                 </when>
                 <when value="type_1">
                   <param argument="min_length" type="text" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -1113,7 +1163,9 @@
                   <param argument="max_length" type="integer" optional="true" label="(Integer &gt; 0)" min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="max_length" type="text" optional="true" label="Offset String"/>
+                  <param argument="max_length" type="text" optional="true" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+                  </param>
                 </when>
               </conditional>
               <param argument="min_jump" type="float" optional="true" label="min_jump" help="minimum margin anomalies/plateaus have to differ from directly preceding and succeeding periods. If ``None`` (default), the minimum jump threshold will be derived automatically from the median of the local absolute difference between any two periods in the vicinity of any potential anomaly" min="0"/>
@@ -1126,7 +1178,9 @@
                   <param argument="granularity" type="integer" optional="true" label="(Integer &gt; 0)" min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="granularity" type="text" optional="true" label="Offset String"/>
+                  <param argument="granularity" type="text" optional="true" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+                  </param>
                 </when>
               </conditional>
               <param argument="flag" type="float" value="255.0" optional="true" label="flag" help=":py:class:`Any`, optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme"/>
@@ -1166,11 +1220,13 @@
                   <option value="type_1">Pd.Timedelta</option>
                 </param>
                 <when value="type_0">
-                  <param argument="freq" type="text" optional="true" label="Frequency String"/>
+                  <param argument="freq" type="text" optional="true" label="Frequency String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+                  </param>
                 </when>
                 <when value="type_1">
                   <param argument="freq" type="text" optional="true" label="Pd.Timedelta">
-                    <validator type="regex" message="Please enter a valid Timedelta string (e.g., '30min', '2H', '1D')."><![CDATA[^\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*$]]></validator>
+                    <validator type="regex" message="Please enter a valid Timedelta string (e.g., '30min', '2H', '1D').">^\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*$</validator>
                   </param>
                 </when>
               </conditional>
@@ -1190,6 +1246,7 @@
                 </param>
                 <when value="type_0">
                   <param argument="index" type="text" label="Frequency String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -1225,11 +1282,13 @@
                   <option value="type_1">Offsetlike</option>
                 </param>
                 <when value="type_0">
-                  <param argument="tolerance" type="text" optional="true" label="Offset String"/>
+                  <param argument="tolerance" type="text" optional="true" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+                  </param>
                 </when>
                 <when value="type_1">
                   <param argument="tolerance" type="text" optional="true" label="Offsetlike">
-                    <validator type="regex" message="Please enter a valid Timedelta string (e.g., '30min', '2H', '1D')."><![CDATA[^\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*$]]></validator>
+                    <validator type="regex" message="Please enter a valid Timedelta string (e.g., '30min', '2H', '1D').">^\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*$</validator>
                   </param>
                 </when>
               </conditional>
@@ -1308,12 +1367,13 @@
                 </param>
                 <when value="type_0">
                   <param argument="freq" type="text" label="Frequency String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
                 <when value="type_1">
                   <param argument="freq" type="text" label="Pd.Timedelta">
-                    <validator type="regex" message="Please enter a valid Timedelta string (e.g., '30min', '2H', '1D')."><![CDATA[^\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*$]]></validator>
+                    <validator type="regex" message="Please enter a valid Timedelta string (e.g., '30min', '2H', '1D').">^\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -1358,6 +1418,7 @@
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -1379,6 +1440,7 @@
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -1417,6 +1479,7 @@
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -1488,7 +1551,9 @@
                   <param argument="freq" type="float" optional="true" label="(Float &gt;= 0)" min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="freq" type="text" optional="true" label="Frequency String"/>
+                  <param argument="freq" type="text" optional="true" label="Frequency String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+                  </param>
                 </when>
               </conditional>
               <param argument="min_periods" type="integer" value="2" optional="true" label="min_periods" help="The minimum number of periods that have to be present in a window for the kNN scoring to be applied. If the number of periods present is below `min_periods`, the score for the datapoints in that window will be np.nan" min="0"/>
@@ -1516,7 +1581,9 @@
                   <param argument="freq" type="float" optional="true" label="(Float &gt; 0)" min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="freq" type="text" optional="true" label="Frequency String"/>
+                  <param argument="freq" type="text" optional="true" label="Frequency String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+                  </param>
                 </when>
               </conditional>
               <param argument="min_periods" type="integer" value="2" optional="true" label="min_periods" help="" min="0"/>
@@ -1560,7 +1627,9 @@
               <param argument="field" type="text" label="Variable to process" help="Variable to process">
                 <validator type="empty_field"/>
               </param>
-              <param argument="window" type="text" optional="true" label="Size of the window" help="can be determined as: * Offset String, denoting the windows temporal extension * Integer, denoting the windows number of periods. * `None` (default), All data points share the same scoring window, which than equals the whole data"/>
+              <param argument="window" type="text" optional="true" label="Size of the window" help="can be determined as: * Offset String, denoting the windows temporal extension * Integer, denoting the windows number of periods. * `None` (default), All data points share the same scoring window, which than equals the whole data">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+              </param>
               <conditional name="norm_func_cond" label="norm_func">
                 <param name="norm_func_selector" type="select" label="Choose type for 'norm_func'" help="default mean Function to calculate the scaling for every window">
                   <option value="type_0">Custom Function</option>
@@ -1638,7 +1707,9 @@
             </when>
             <when value="flagByClick">
               <param argument="field" type="text" label="Variable to process" help="Variable to process" multiple="true"/>
-              <param argument="max_gap" type="text" optional="true" label="max_gap" help="If ``None``, all data points will be connected, resulting in long linear lines, in case of large data gaps. ``NaN`` values will be removed before plotting. If an offset string is passed, only points that have a distance below ``max_gap`` are connected via the plotting line"/>
+              <param argument="max_gap" type="text" optional="true" label="max_gap" help="If ``None``, all data points will be connected, resulting in long linear lines, in case of large data gaps. ``NaN`` values will be removed before plotting. If an offset string is passed, only points that have a distance below ``max_gap`` are connected via the plotting line">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+              </param>
               <param argument="gui_mode" type="select" value="GUI" optional="true" label="gui_mode" help="* `` GUI `` (default), spawns TK based pop-up GUI, enabling scrolling and binding for subplots * `` overlay ``, spawns matplotlib based pop-up GUI. May be less conflicting, but does not support scrolling or binding">
                 <option value="GUI">GUI</option>
                 <option value="overlay">overlay</option>
@@ -1661,7 +1732,9 @@
                 </when>
               </conditional>
               <param argument="path" type="text" optional="true" label="path" help="If ``None`` is passed, interactive mode is entered; plots are shown immediatly and a user need to close them manually before execution continues. If a filepath is passed instead, store-mode is entered and the plot is stored unter the passed location"/>
-              <param argument="max_gap" type="text" optional="true" label="max_gap" help="If ``None``, all data points will be connected, resulting in long linear lines, in case of large data gaps. ``NaN`` values will be removed before plotting. If an offset string is passed, only points that have a distance below ``max_gap`` are connected via the plotting line"/>
+              <param argument="max_gap" type="text" optional="true" label="max_gap" help="If ``None``, all data points will be connected, resulting in long linear lines, in case of large data gaps. ``NaN`` values will be removed before plotting. If an offset string is passed, only points that have a distance below ``max_gap`` are connected via the plotting line">
+                <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+              </param>
               <conditional name="mode_cond" label="mode">
                 <param name="mode_selector" type="select" label="Choose type for 'mode'" help="How to process multiple variables to be plotted:  * ` oneplot ` : plot all variables with their flags in one axis (default) * ` subplots ` : generate subplot grid where each axis contains one variable plot with associated flags * ` biplot ` : plotting first and second variable in field against each other in a scatter plot  (point cloud)">
                   <option value="type_0">Selection</option>
@@ -1703,7 +1776,9 @@
                   <param name="xscope_end" type="integer" optional="true" label="Determine a chunk of the data to be plotted (end index)" help="End index of the slice (exclusive)." min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="xscope" type="text" optional="true" label="Offset String"/>
+                  <param argument="xscope" type="text" optional="true" label="Offset String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+                  </param>
                 </when>
                 <when value="type_2">
                   <param argument="xscope" type="text" optional="true" label="Text"/>
@@ -1793,7 +1868,9 @@
                   <param argument="freq" type="integer" optional="true" label="(Integer &gt; 0)" min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="freq" type="text" optional="true" label="Frequency String"/>
+                  <param argument="freq" type="text" optional="true" label="Frequency String">
+                    <validator type="regex" message="Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D').">^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$</validator>
+                  </param>
                 </when>
               </conditional>
             </when>

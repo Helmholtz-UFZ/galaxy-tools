@@ -1405,7 +1405,7 @@ def _structure_galaxy_params(params_for_variant: dict, param_info: dict, method:
             elif isinstance(value, str) and name in ["limit", "window"]:
                 select_value = "timedelta"
             elif isinstance(value, str) and name in ["cutoff", "freq"]:
-                 select_value = "offset"
+                select_value = "offset"
             else:
                 select_value = "offset" if isinstance(value, str) else "number"
 
@@ -1421,7 +1421,7 @@ def _structure_galaxy_params(params_for_variant: dict, param_info: dict, method:
             if isinstance(value, list):
                 select_value = "list"
                 processed_value = ",".join(map(str, value))
-            else: 
+            else:
                 select_value = str(value)
                 processed_value = str(value)
 
@@ -1439,8 +1439,8 @@ def _structure_galaxy_params(params_for_variant: dict, param_info: dict, method:
             elif isinstance(value, float):
                 select_value = "float"
             elif value in ["linear", "exponential"]:
-                 select_value = value
-            else: 
+                select_value = value
+            else:
                 select_value = "custom"
 
             galaxy_params[cond_name] = {
@@ -1696,7 +1696,7 @@ def generate_test_macros():
 
                 method_params = {"method_select": method_name}
                 method_params.update(variant["galaxy_params"])
-                
+
                 galaxy_params_for_method = {
                     "method_cond": method_params
                 }
@@ -1736,7 +1736,7 @@ def generate_test_macros():
                                 lookaheads.append(
                                     f"(?=.*{varied_param_name}\\s*=\\s*{formatted_value})"
                                 )
-                    
+
                     if not lookaheads:
                         full_regex = f"{field_regex_part};\\s*{method_name}\\(.*\\)$"
                     else:

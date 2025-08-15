@@ -1396,18 +1396,17 @@ def _structure_galaxy_params(params_for_variant: dict, param_info: dict, method:
         is_union_auto_float = origin is Union and float in args and any(get_origin(a) is Literal and "auto" in get_args(a) for a in args)
         is_union_model = origin is Union and any(is_callable_type(a) for a in args) and any(get_origin(a) is Literal for a in args)
 
-
         if is_union_int_str or is_union_float_str:
             cond_name = f"{name}_cond"
             select_name = f"{name}_select_type"
-            
+
             if isinstance(value, (int, float)):
                 select_value = "number"
             elif isinstance(value, str) and name in ["limit", "window"]:
                 select_value = "timedelta"
             elif isinstance(value, str) and name in ["cutoff", "freq"]:
                  select_value = "offset"
-            else: # Fallback
+            else:
                 select_value = "offset" if isinstance(value, str) else "number"
 
             galaxy_params[cond_name] = {
@@ -1418,23 +1417,23 @@ def _structure_galaxy_params(params_for_variant: dict, param_info: dict, method:
         elif is_union_literal_list:
             cond_name = f"{name}_cond"
             select_name = f"{name}_select_type"
-            
+
             if isinstance(value, list):
                 select_value = "list"
                 processed_value = ",".join(map(str, value))
             else: 
                 select_value = str(value)
                 processed_value = str(value)
-                
+
             galaxy_params[cond_name] = {
                 select_name: select_value,
                 name: processed_value
             }
 
-        elif is_union_auto_float or is_union_model:
+        elif (is_union_auto_float or is_union_model) and name != 'func':
             cond_name = f"{name}_cond"
             select_name = f"{name}_select_type"
-            
+
             if value == "auto":
                 select_value = "auto"
             elif isinstance(value, float):
@@ -1443,12 +1442,11 @@ def _structure_galaxy_params(params_for_variant: dict, param_info: dict, method:
                  select_value = value
             else: 
                 select_value = "custom"
-            
+
             galaxy_params[cond_name] = {
                 select_name: select_value,
                 name: value
             }
-        
 
         elif name in ["field", "target"] and (origin in (list, Sequence) or annotation in (list[str], Sequence[str])):
             val_list = [value] if not isinstance(value, list) else value
@@ -1456,7 +1454,7 @@ def _structure_galaxy_params(params_for_variant: dict, param_info: dict, method:
 
         else:
             galaxy_params[name] = value
-            
+
     return galaxy_params
 
 

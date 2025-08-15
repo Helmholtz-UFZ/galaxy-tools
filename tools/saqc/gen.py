@@ -1388,8 +1388,8 @@ def _structure_galaxy_params(params_for_variant: dict, param_info: dict, method:
         info = param_info.get(name, {})
         origin = info.get("origin")
         args = info.get("args", [])
+        annotation = info.get("annotation")
 
-        # Prüft, ob der Parameter Teil eines der bekannten Conditional-Muster ist
         is_union_int_str = origin is Union and int in args and str in args
         is_union_float_str = origin is Union and float in args and str in args
         is_union_literal_list = origin is Union and list[str] in args and get_origin(next((a for a in args if get_origin(a) is Literal), None)) is Literal
@@ -1448,8 +1448,9 @@ def _structure_galaxy_params(params_for_variant: dict, param_info: dict, method:
                 select_name: select_value,
                 name: value
             }
-            
-        elif name in ["field", "target"] and method.__name__ in REPEAT_FIELD_FUNCS:
+        
+
+        elif name in ["field", "target"] and (origin in (list, Sequence) or annotation in (list[str], Sequence[str])):
             val_list = [value] if not isinstance(value, list) else value
             galaxy_params[f"{name}_repeat"] = [{name: v} for v in val_list]
 
@@ -1468,7 +1469,6 @@ def generate_test_variants(method: Callable) -> list:
     if not param_info:
         return []
 
-    # Dieser Teil hat in meinem letzten Snippet gefehlt und definiert `variants`.
     variants, base_params, complex_params_to_vary = [], {}, set()
 
     for name, info in param_info.items():
@@ -1574,7 +1574,6 @@ def generate_test_variants(method: Callable) -> list:
                 }
             )
 
-    # Ab hier wird die `variants`-Liste verarbeitet, die nun korrekt definiert ist.
     final_variants = []
     for variant in variants:
         saqc_params = variant["params"]
@@ -1588,36 +1587,6 @@ def generate_test_variants(method: Callable) -> list:
             }
         )
     return final_variants
-
-
-def build_param_xml(parent: ET.Element, name: str, value: Any):
-    """Recursively builds the XML <param> structure for Galaxy tests."""
-    name_str = str(name)
-    if name_str.endswith("_repeat") and isinstance(value, list):
-        repeat = ET.SubElement(parent, "repeat", {"name": name_str})
-        for item_dict in value:
-            if isinstance(item_dict, dict):
-                for sub_name, sub_value in item_dict.items():
-                    build_param_xml(repeat, sub_name, sub_value)
-    elif name_str.endswith("_cond") and isinstance(value, dict):
-        conditional = ET.SubElement(parent, "conditional", {"name": name_str})
-        param_name_base = name_str.replace("_cond", "")
-        selector_name = f"{param_name_base}_select_type"
-        selector_value = value.get(selector_name)
-        if selector_value is not None:
-            ET.SubElement(
-                conditional,
-                "param",
-                {"name": selector_name, "value": str(selector_value)},
-            )
-            build_param_xml(conditional, param_name_base, value.get(param_name_base))
-    else:
-        val_str = (
-            str(value).lower()
-            if isinstance(value, bool)
-            else str(value) if value is not None else ""
-        )
-        ET.SubElement(parent, "param", {"name": name_str, "value": val_str})
 
 
 def format_value_for_regex(value: Any, param_name: str) -> str:
@@ -1670,6 +1639,28 @@ def format_value_for_regex(value: Any, param_name: str) -> str:
     return re.escape(str(value))
 
 
+def build_test_xml_recursively(parent_element: ET.Element, params_dict: dict):
+    """
+    Baut rekursiv die korrekte, verschachtelte Test-XML-Struktur auf,
+    basierend auf einem verschachtelten Parameter-Dictionary.
+    Erzeugt <conditional> und <repeat> Blöcke, aber keine <when> Blöcke.
+    """
+    for name, value in params_dict.items():
+        if name.endswith("_cond") and isinstance(value, dict):
+            cond_elem = ET.SubElement(parent_element, "conditional", {"name": name})
+            build_test_xml_recursively(cond_elem, value)
+        elif name.endswith("_repeat") and isinstance(value, list):
+            repeat_elem = ET.SubElement(parent_element, "repeat", {"name": name})
+            for item_dict in value:
+                build_test_xml_recursively(repeat_elem, item_dict)
+        else:
+            val_str = (
+                str(value).lower() if isinstance(value, bool)
+                else str(value) if value is not None else ""
+            )
+            ET.SubElement(parent_element, "param", {"name": name, "value": val_str})
+
+
 def generate_test_macros():
     """Main function to generate the Galaxy test macros XML."""
     macros_root = ET.Element("macros")
@@ -1699,20 +1690,20 @@ def generate_test_macros():
                 ET.SubElement(
                     test_elem, "param", {"name": "run_test_mode", "value": "true"}
                 )
-                repeat = ET.SubElement(test_elem, "repeat", {"name": "methods_repeat"})
-                mod_cond = ET.SubElement(repeat, "conditional", {"name": "module_cond"})
-                ET.SubElement(
-                    mod_cond, "param", {"name": "module_select", "value": module_name}
-                )
-                meth_cond = ET.SubElement(
-                    mod_cond, "conditional", {"name": "method_cond"}
-                )
-                ET.SubElement(
-                    meth_cond, "param", {"name": "method_select", "value": method_name}
-                )
 
-                for p_name, p_value in variant["galaxy_params"].items():
-                    build_param_xml(meth_cond, p_name, p_value)
+                repeat_elem = ET.SubElement(test_elem, "repeat", {"name": "methods_repeat"})
+                module_cond_elem = ET.SubElement(repeat_elem, "conditional", {"name": "module_cond"})
+
+                ET.SubElement(module_cond_elem, "param", {"name": "module_select", "value": module_name})
+
+                method_params = {"method_select": method_name}
+                method_params.update(variant["galaxy_params"])
+                
+                galaxy_params_for_method = {
+                    "method_cond": method_params
+                }
+
+                build_test_xml_recursively(module_cond_elem, galaxy_params_for_method)
 
                 output_elem = ET.SubElement(
                     test_elem, "output", {"name": "config_out", "ftype": "txt"}
@@ -1728,7 +1719,6 @@ def generate_test_macros():
                 )
 
                 field_regex_part = re.escape(str(field_name))
-
                 lookaheads = []
 
                 if variant["description"].startswith("Test mit Defaults"):
@@ -1741,7 +1731,6 @@ def generate_test_macros():
                         varied_param_name = match.group(1)
                         if varied_param_name in params_to_check:
                             p_value = params_to_check[varied_param_name]
-
                             if varied_param_name not in ["field", "target"]:
                                 formatted_value = format_value_for_regex(
                                     p_value, varied_param_name
@@ -1749,7 +1738,7 @@ def generate_test_macros():
                                 lookaheads.append(
                                     f"(?=.*{varied_param_name}\\s*=\\s*{formatted_value})"
                                 )
-
+                    
                     if not lookaheads:
                         full_regex = f"{field_regex_part};\\s*{method_name}\\(.*\\)$"
                     else:

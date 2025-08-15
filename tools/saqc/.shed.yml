@@ -9,6 +9,7 @@ homepage_url: https://git.ufz.de/rdm-software/saqc
 type: unrestricted
 exclude:
   - gen.py
+  - tracing.tsv
 auto_tool_repositories:
   name_template: "{{ tool_id }}"
   description_template: "Wrapper for SAQC: {{ tool_name }}."

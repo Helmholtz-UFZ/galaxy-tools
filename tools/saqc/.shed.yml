@@ -7,3 +7,15 @@ owner: ufz
 remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/blob/main/tools/saqc/
 homepage_url: https://git.ufz.de/rdm-software/saqc
 type: unrestricted
+exclude:
+  - tracing.tsv
+  - gen.py
+  - tracing.tsv
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: "Wrapper for SAQC: {{ tool_name }}."
+suite:
+  name: "suite_saqc"
+  description: "A suite of tools that brings SAQC project into Galaxy."
+  long_description: |
+      Tools for quality control of time series data

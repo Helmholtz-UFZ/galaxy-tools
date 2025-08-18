@@ -69,7 +69,7 @@
                         <param name="center" value="false"/>
                         <conditional name="window_cond">
                             <param name="window_selector" value="type_0"/>
-                            <param name="window" value="30d"/>
+                            <param name="window" value="30D"/>
                         </conditional>
                         <param name="thresh" value="3.5"/>
                         <param name="method" value="modified"/>
@@ -106,7 +106,7 @@
                     <has_n_lines n="4"/>
                     <has_n_columns n="2" sep=";"/>
                     <has_text_matching expression="flagRange.*max=60.0.*min=10.0"/>
-                    <has_text_matching expression='flagZScore.*method="modified".*thresh=3.5.*window="30d"'/>
+                    <has_text_matching expression='flagZScore.*method="modified".*thresh=3.5.*window="30D"'/>
                     <has_text_matching expression='plot.*dfilter=float\(&apos;inf&apos;\).*history="valid".*path="test"'/>
                 </assert_contents>
             </output>

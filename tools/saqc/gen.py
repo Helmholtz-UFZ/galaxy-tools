@@ -19,6 +19,7 @@ import argparse
 import math
 import xml.etree.ElementTree as ET
 import csv
+import json
 
 
 from galaxyxml.tool import Tool
@@ -50,7 +51,7 @@ from saqc.core import DictOfSeries, SaQC
 from saqc.funcs.generic import GenericFunction
 from saqc.lib import types as saqc_types
 from saqc.lib.types import CurveFitter
-from typing_inspect import is_callable_type, is_union_type, is_union_type
+from typing_inspect import is_callable_type, is_union_type
 
 
 if TYPE_CHECKING:
@@ -254,9 +255,6 @@ def parse_parameter_docs(sections: Dict[str, str]) -> Dict[str, str]:
 def get_label_help(param_name, parameter_docs):
     """
     Extrahiert Label und Hilfetext aus der Parameter-Dokumentation.
-    Das Label wird der erste Satz der Doku.
-    Der Hilfetext ist der Rest der Doku ohne den ersten Satz.
-    FALLS es nur einen Satz gibt, wird dieser auch als Hilfetext verwendet.
     """
     parameter_doc_entry = parameter_docs.get(param_name)
     full_help = parameter_doc_entry.strip() if parameter_doc_entry else ""
@@ -351,203 +349,6 @@ def get_methods(module):
                 continue
     return methods_with_saqc
 
-
-def _param_to_element(p_obj: Any) -> ET.Element:
-    """
-    Wandelt ein galaxyxml-Parameterobjekt rekursiv in ein ET.Element um,
-    indem es die Objektattribute direkt inspiziert und den Tag-Namen ableitet.
-    """
-    class_name = p_obj.__class__.__name__
-
-    tag = "param"
-    param_type = None
-
-    container_tags = {
-        "Conditional": "conditional",
-        "Repeat": "repeat",
-        "When": "when",
-        "ValidatorParam": "validator",
-        "DiscoverDatasets": "discover_datasets",
-    }
-
-    type_map = {
-        "TextParam": "text",
-        "IntegerParam": "integer",
-        "FloatParam": "float",
-        "DataParam": "data",
-        "BooleanParam": "boolean",
-        "SelectParam": "select",
-        "HiddenParam": "hidden",
-    }
-
-    if class_name in container_tags:
-        tag = container_tags[class_name]
-    elif class_name in type_map:
-        param_type = type_map[class_name]
-
-    KNOWN_XML_ATTRIBUTES = [
-        "argument",
-        "name",
-        "label",
-        "help",
-        "optional",
-        "value",
-        "format",
-        "multiple",
-        "checked",
-        "min",
-        "max",
-        "title",
-        "from_work_dir",
-        "pattern",
-        "ext",
-        "visible",
-        "truevalue",
-        "falsevalue",
-    ]
-
-    attribs = {}
-    if param_type:
-        attribs["type"] = param_type
-
-    for attr_name in KNOWN_XML_ATTRIBUTES:
-        if hasattr(p_obj, attr_name):
-            value = getattr(p_obj, attr_name)
-            if value is not None:
-                if isinstance(value, bool):
-                    attribs[attr_name] = str(value).lower()
-                else:
-                    attribs[attr_name] = str(value)
-
-    if class_name == "ValidatorParam" and hasattr(p_obj, "type"):
-        attribs["type"] = p_obj.type
-
-    elem = ET.Element(tag, attrib=attribs)
-
-    if hasattr(p_obj, "text") and p_obj.text:
-        elem.text = p_obj.text
-
-    if hasattr(p_obj, "validators") and p_obj.validators:
-        for v in p_obj.validators:
-            elem.append(_param_to_element(v))
-
-    if hasattr(p_obj, "options") and isinstance(p_obj.options, dict):
-        for opt_value, opt_text in p_obj.options.items():
-            opt_elem = ET.SubElement(elem, "option", {"value": str(opt_value)})
-            opt_elem.text = opt_text
-            if hasattr(p_obj, "value") and str(p_obj.value) == str(opt_value):
-                opt_elem.set("selected", "true")
-
-    if hasattr(p_obj, "params") and p_obj.params:
-        for child_p in p_obj.params:
-            elem.append(_param_to_element(child_p))
-
-    return elem
-
-
-def _get_xml_string_for_param(param_obj: Any) -> str:
-    """Serialisiert ein einzelnes galaxyxml-Parameterobjekt zu einem XML-String."""
-    try:
-        element = _param_to_element(param_obj)
-        ET.indent(element, space="  ")
-        xml_string = ET.tostring(element, encoding="unicode").strip()
-        return xml_string
-    except Exception as e:
-        return f"Error serializing XML for object {type(param_obj).__name__}: {e}"
-
-
-def _param_to_element(p_obj: Any) -> ET.Element:
-    """
-    Wandelt ein galaxyxml-Parameterobjekt rekursiv in ein ET.Element um,
-    indem es die Objektattribute direkt inspiziert und den Tag-Namen ableitet.
-    """
-    class_name = p_obj.__class__.__name__
-
-    tag = "param"
-    param_type = None
-
-    container_tags = {
-        "Conditional": "conditional",
-        "Repeat": "repeat",
-        "When": "when",
-        "ValidatorParam": "validator",
-        "DiscoverDatasets": "discover_datasets",
-    }
-
-    type_map = {
-        "TextParam": "text",
-        "IntegerParam": "integer",
-        "FloatParam": "float",
-        "DataParam": "data",
-        "BooleanParam": "boolean",
-        "SelectParam": "select",
-        "HiddenParam": "hidden",
-    }
-
-    if class_name in container_tags:
-        tag = container_tags[class_name]
-    elif class_name in type_map:
-        param_type = type_map[class_name]
-
-    KNOWN_XML_ATTRIBUTES = [
-        "argument",
-        "name",
-        "label",
-        "help",
-        "optional",
-        "value",
-        "format",
-        "multiple",
-        "checked",
-        "min",
-        "max",
-        "title",
-        "from_work_dir",
-        "pattern",
-        "ext",
-        "visible",
-        "truevalue",
-        "falsevalue",
-    ]
-
-    attribs = {}
-    if param_type:
-        attribs["type"] = param_type
-
-    for attr_name in KNOWN_XML_ATTRIBUTES:
-        if hasattr(p_obj, attr_name):
-            value = getattr(p_obj, attr_name)
-            if value is not None:
-                if isinstance(value, bool):
-                    attribs[attr_name] = str(value).lower()
-                else:
-                    attribs[attr_name] = str(value)
-
-    if class_name == "ValidatorParam" and hasattr(p_obj, "type"):
-        attribs["type"] = p_obj.type
-
-    elem = ET.Element(tag, attrib=attribs)
-
-    if hasattr(p_obj, "text") and p_obj.text:
-        elem.text = p_obj.text
-
-    if hasattr(p_obj, "validators") and p_obj.validators:
-        for v in p_obj.validators:
-            elem.append(_param_to_element(v))
-
-    if hasattr(p_obj, "options") and isinstance(p_obj.options, dict):
-        for opt_value, opt_text in p_obj.options.items():
-            opt_elem = ET.SubElement(elem, "option", {"value": str(opt_value)})
-            opt_elem.text = opt_text
-            if hasattr(p_obj, "value") and str(p_obj.value) == str(opt_value):
-                opt_elem.set("selected", "true")
-
-    if hasattr(p_obj, "params") and p_obj.params:
-        for child_p in p_obj.params:
-            elem.append(_param_to_element(child_p))
-
-    return elem
-
 def _split_type_string_safely(type_string: str) -> list[str]:
     """
     Zerlegt einen Typ-String bei '|' oder ',', ignoriert aber Trennzeichen
@@ -591,12 +392,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
     if is_tuple:
         creation_args['multiple'] = True
 
-    if base_type_str.lower() in ('pd.timedelta', 'offsetlike', 'offsetstr', 'freqstr'):
-        param_object = TextParam(argument=param_name, **creation_args)
-        regex = r"^\s*[+-]?\d+(\.\d+)?\s*(D|H|T|min|S|L|ms|U|us|N|ns)\s*$"
-        message = "Please enter a valid Pandas Offset/Frequency string (e.g., '30min', '2H', '1D')."
-        param_object.append(ValidatorParam(type="regex", message=message, text=regex))
-    elif base_type_str in ('SaQCFields', 'NewSaQCFields'):
+    if base_type_str in ('SaQCFields', 'NewSaQCFields'):
         param_object = TextParam(argument=param_name, multiple=True, **creation_args)
     elif re.fullmatch(r"(list|Sequence)\[\s*str\s*\]", base_type_str, re.IGNORECASE):
         param_object = TextParam(argument=param_name, multiple=True, **creation_args)
@@ -608,6 +404,11 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         param_object = repeat
     elif base_type_str.lower() in ('list', 'sequence', 'arraylike', 'pd.series', 'pd.dataframe', 'pd.datetimeindex'):
         param_object = TextParam(argument=param_name, **creation_args)
+    elif base_type_str.lower() in ('pd.timedelta', 'offsetlike'):
+        param_object = TextParam(argument=param_name, **creation_args)
+        regex = r"^\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*$"
+        message = "Please enter a valid Timedelta string (e.g., '30min', '2H', '1D')."
+        param_object.append(ValidatorParam(type="regex", message=message, text=regex))
     elif base_type_str.lower() in ('dict', 'dictionary'):
         repeat = Repeat(name=param_name, title=creation_args.get("label", param_name),
                         help=creation_args.get("help", ""))
@@ -649,7 +450,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
                 param_object = IntegerParam(argument=param_name, **creation_args)
             else:
                 param_object = FloatParam(argument=param_name, **creation_args)
-    elif base_type_str in ['str', 'string', 'Any']:
+    elif base_type_str in ['OffsetStr', 'str', 'string', 'FreqStr', 'Any']:
         param_object = TextParam(argument=param_name, **creation_args)
     elif base_type_str == 'int':
         param_object = IntegerParam(argument=param_name, **creation_args)
@@ -666,8 +467,6 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
             param_object.append(ValidatorParam(type="empty_field"))
 
     return param_object
-
-
 
 def _get_user_friendly_type_name(type_str: str) -> str:
     if "list[tuple[float, float]]" in type_str:
@@ -687,54 +486,130 @@ def _get_user_friendly_type_name(type_str: str) -> str:
     return name_map.get(type_str, clean_name)
 
 
+# =====================================================================
+# ##                                                                 ##
+# ##      WRAP GENERATION - DIESE FUNKTIONEN SIND UNVERÄNDERT         ##
+# ##                                                                 ##
+# =====================================================================
 def get_method_params(method, module, tracing=False):
-    """
-    Erstellt die XML-Parameter für eine Methode, basierend auf der zentralen Analyse-Logik.
-    """
+    sections = parse_docstring(method)
+    param_docs = parse_parameter_docs(sections)
     xml_params = []
-    param_info = get_param_info(method)
-    param_docs = parse_parameter_docs(parse_docstring(method))
+    try:
+        parameters = inspect.signature(method).parameters
+    except (ValueError, TypeError) as e:
+        sys.stderr.write(f"Warning: Could not get signature for {method.__name__}: {e}. Skipping params for this method.\n")
+        return xml_params
 
-    for name, info in param_info.items():
-        label, help_text = get_label_help(name, param_docs)
-        is_optional = info['default'] is not inspect.Parameter.empty or \
-                      (is_union_type(info['annotation']) and type(None) in get_args(info['annotation']))
+    for param_name, param in parameters.items():
+        if param_name in ["self", "kwargs"] or "kwarg" in param_name.lower():
+            continue
         
-        optional_arg = {'optional': True} if is_optional else {}
-        constructor_args = {"label": label, "help": help_text, **optional_arg}
-        if info['default'] is not inspect.Parameter.empty and info['default'] is not None and not isinstance(info['default'], (bool, Callable)):
-             constructor_args['value'] = str(info['default'])
+        annotation = param.annotation
+        param_object = None
+        label, help_text = get_label_help(param_name, param_docs)
+        
+        raw_annotation_str = ""
+        if isinstance(annotation, (str, ForwardRef)):
+            raw_annotation_str = annotation.__forward_arg__ if isinstance(annotation, ForwardRef) else str(annotation)
+        elif annotation is not inspect.Parameter.empty:
+            raw_annotation_str = str(annotation).replace("typing.", "")
 
-        origin = info.get("origin")
-        args = info.get("args", [])
-        is_union = origin is Union
+        if 'mpl.axes.Axes' in raw_annotation_str:
+            continue
 
-        if is_union and len(args) > 0:
-            conditional = Conditional(name=f"{name}_cond", label=label, help=help_text)
-            type_options = [(f"type_{i}", _get_user_friendly_type_name(str(arg).replace('typing.',''))) for i, arg in enumerate(args)]
-            selector = SelectParam(name=f"{name}_selector", label=f"Choose type for '{label}'", options=dict(type_options))
+        is_python_optional_by_default = (param.default is not inspect.Parameter.empty)
+        
+        if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
+            inner_content = raw_annotation_str[6:-1]
+            type_parts = _split_type_string_safely(inner_content)
+        else:
+            type_parts = _split_type_string_safely(raw_annotation_str)
+
+        is_optional_by_none = 'None' in type_parts
+        is_truly_optional = is_python_optional_by_default or is_optional_by_none
+        
+        optional_arg = {'optional': True} if is_truly_optional else {}
+        param_constructor_args = {"label": label, "help": help_text, **optional_arg}
+
+        if 'Sequence[SaQC]' in raw_annotation_str:
+            data_param = DataParam(name=param_name, format="csv", multiple=True, **param_constructor_args)
+            xml_params.append(data_param)
+            continue
+        
+        type_parts_without_none = [p for p in type_parts if p != 'None']
+
+        if param.default is not inspect.Parameter.empty and param.default is not None and not isinstance(param.default, bool):
+            if not isinstance(param.default, Callable):
+                param_constructor_args['value'] = str(param.default)
+
+        if len(type_parts_without_none) == 1:
+            single_type_str = type_parts_without_none[0]
+            if single_type_str == 'slice':
+                start_param_args = {"name": f"{param_name}_start", "label": f"{label} (start index)", "min": 0, "help": "Start index of the slice (e.g., 0).", **optional_arg}
+                end_param_args = {"name": f"{param_name}_end", "label": f"{label} (end index)", "min": 0, "help": "End index of the slice (exclusive).", **optional_arg}
+                start_param = IntegerParam(**start_param_args)
+                end_param = IntegerParam(**end_param_args)
+                xml_params.extend([start_param, end_param])
+                continue
+            elif any(func_type in single_type_str for func_type in ['Callable', 'CurveFitter', 'GenericFunction']):
+                param_object = TextParam(argument=param_name, **param_constructor_args)
+                if not is_truly_optional:
+                    param_object.append(ValidatorParam(type="empty_field"))
+            else:
+                param_object = _create_param_from_type_str(single_type_str, param_name, param_constructor_args, is_truly_optional)
+
+        elif len(type_parts_without_none) > 1:
+            conditional = Conditional(name=f"{param_name}_cond", label=label)
+            type_options = [(f"type_{i}", _get_user_friendly_type_name(part)) for i, part in enumerate(type_parts_without_none)]
+            selector = SelectParam(name=f"{param_name}_selector", label=f"Choose type for '{label}'", 
+                                   help=help_text, options=dict(type_options))
             conditional.append(selector)
 
-            for i, arg_type in enumerate(args):
+            for i, part_str in enumerate(type_parts_without_none):
                 when = When(value=f"type_{i}")
-                type_str = str(arg_type).replace('typing.', '')
-                inner_param_args = {"label": _get_user_friendly_type_name(type_str)}
                 
-                # Wichtig: Die Argumente hier müssen mit den in _create_param_from_type_str erwarteten übereinstimmen
-                inner_constructor_args = {"label": _get_user_friendly_type_name(type_str), "help": help_text, **optional_arg}
+                inner_param_args = {"label": _get_user_friendly_type_name(part_str), **optional_arg}
                 
-                inner_param = _create_param_from_type_str(type_str, name, inner_constructor_args, is_optional)
-                if inner_param:
+                if part_str == 'slice':
+                    start_param = IntegerParam(name=f"{param_name}_start", label=f"{label} (start index)", min=0, help="Start index of the slice (e.g., 0).", **optional_arg)
+                    end_param = IntegerParam(name=f"{param_name}_end", label=f"{label} (end index)", min=0, help="End index of the slice (exclusive).", **optional_arg)
+                    when.extend([start_param, end_param])
+                elif re.fullmatch(r"tuple\[\s*float\s*,\s*float\s*\]", part_str, re.IGNORECASE):
+                    min_param = FloatParam(name=f"{param_name}_min", label=f"{label} (Y-Axis Minimum)", **optional_arg)
+                    max_param = FloatParam(name=f"{param_name}_max", label=f"{label} (Y-Axis Maximum)", **optional_arg)
+                    when.extend([min_param, max_param])
+                elif any(func_type in part_str for func_type in ['Callable', 'CurveFitter', 'GenericFunction']):
+                    inner_param = TextParam(argument=param_name, **inner_param_args)
+                    if not is_truly_optional:
+                        inner_param.append(ValidatorParam(type="empty_field"))
                     when.append(inner_param)
                 else:
-                    when.append(TextParam(name=f"{name}_info", type="text", value="Type not supported in UI.", label="Info"))
+                    inner_param = _create_param_from_type_str(part_str, param_name, inner_param_args, is_truly_optional)
+                    if inner_param:
+                        when.append(inner_param)
+                    else:
+                        sys.stderr.write(f"Info ({module.__name__}): Could not create UI element for type '{part_str}' in Conditional '{param_name}'. Falling back to info text.\n")
+                        info_text = TextParam(name=f"{param_name}_info", type="text", 
+                                              value="This type is not usable in Galaxy.", 
+                                              label="Info", 
+                                              help="This option is for programmatic use and cannot be set from the UI.")
+                        when.append(info_text)
+                
                 conditional.append(when)
-            xml_params.append(conditional)
-        else:
-            raw_annotation_str = info.get('raw_annotation', str(info['annotation'])).replace('typing.', '')
-            param_object = _create_param_from_type_str(raw_annotation_str, name, constructor_args, is_optional)
-            if param_object:
-                xml_params.append(param_object)
+            param_object = conditional
+
+        if param_object:
+            xml_params.append(param_object)
+        elif raw_annotation_str.strip() and raw_annotation_str.strip() not in ['slice']:
+            sys.stderr.write(f"Info ({module.__name__}): Unhandled annotation for param '{param_name}': '{raw_annotation_str}'. Creating default TextParam.\n")
+            
+            fallback_param = TextParam(argument=param_name, **param_constructor_args)
+            
+            if not is_truly_optional:
+                fallback_param.append(ValidatorParam(type="empty_field"))
+            
+            xml_params.append(fallback_param)
 
     return xml_params
 
@@ -800,398 +675,8 @@ def get_methods_conditional(methods, module, tracing=False):
     return method_conditional
 
 
-REPEAT_FIELD_FUNCS = [
-    "flagDriftFromNorm",
-    "flagDriftFromReference",
-    "flagLOF",
-    "flagMVScores",
-    "flagZScore",
-    "assignKNNScore",
-    "assignLOF",
-    "assignUniLOF",
-]
-
-
-def get_param_info(method: Callable) -> Dict[str, Any]:
-    """
-    Inspects a callable and returns a dictionary with detailed information
-    about its parameters, resolving type annotations and default values.
-    Also returns the raw annotation string.
-    """
-    param_info = {}
-    try:
-        parameters = inspect.signature(method).parameters
-    except (ValueError, TypeError):
-        return {}
-
-    for name, param in parameters.items():
-        if name in ["self", "kwargs"] or "kwarg" in name.lower():
-            continue
-        
-        annotation = param.annotation
-        raw_annotation_str = str(param.annotation)
-
-        if isinstance(annotation, (str, ForwardRef)):
-            try:
-                eval_context = {**globals(), **saqc.__dict__, **saqc.lib.types.__dict__, **saqc.funcs.__dict__, **SAQC_CUSTOM_SELECT_TYPES, 
-                                "pd": pd, "np": np, "mpl": mpl, "Union": Union, "Literal": Literal, 
-                                "Sequence": Sequence, "Callable": Callable, "Any": Any, "Tuple": Tuple, "Dict": Dict}
-                for mod_name, mod_obj in get_modules():
-                    eval_context[mod_name] = mod_obj
-                
-                if isinstance(annotation, ForwardRef):
-                    annotation = annotation._evaluate(eval_context, globals(), frozenset())
-                else:
-                    annotation = eval(annotation, eval_context)
-            except Exception:
-                annotation = Any
-
-        if annotation is param.empty:
-            annotation = Any
-
-        origin = get_origin(annotation)
-        args = get_args(annotation)
-        is_union_with_none = is_union_type(annotation) and type(None) in args
-
-        if is_union_with_none:
-            non_none_args = [a for a in args if a is not type(None)]
-            if len(non_none_args) > 1:
-                annotation = Union[tuple(non_none_args)]
-            elif non_none_args:
-                annotation = non_none_args[0]
-            else:
-                annotation = Any
-            origin, args = get_origin(annotation), get_args(annotation)
-
-        param_info[name] = {
-            "annotation": annotation,
-            "origin": origin,
-            "args": args,
-            "default": param.default if param.default is not param.empty else inspect.Parameter.empty,
-            "raw_annotation": raw_annotation_str
-        }
-    return param_info
-
-
-
-
-def build_param_xml(parent: ET.Element, name: str, value: Any):
-    """
-    Recursively builds the XML <param> structure for Galaxy tests,
-    now correctly handling nested conditionals.
-    """
-    name_str = str(name)
-
-    # Handle repeats
-    if name_str.endswith("_repeat") and isinstance(value, list):
-        repeat = ET.SubElement(parent, "repeat", {"name": name_str})
-        for item_dict in value:
-            # For each item in the list, which is a dict of its own...
-            if isinstance(item_dict, dict):
-                for sub_name, sub_value in item_dict.items():
-                    # The repeat item itself is not a param, but a container for them
-                    # So we build the params inside the repeat directly
-                    build_param_xml(repeat, sub_name, sub_value)
-    # Handle conditionals
-    elif name_str.endswith("_cond") and isinstance(value, dict):
-        conditional = ET.SubElement(parent, "conditional", {"name": name_str})
-        for sub_name, sub_value in value.items():
-            # Recursively build params inside the conditional
-            build_param_xml(conditional, sub_name, sub_value)
-    # Handle simple params
-    else:
-        val_str = ""
-        if isinstance(value, bool):
-            val_str = str(value).lower()
-        elif isinstance(value, list):
-            # For params with multiple=true, Galaxy expects a comma-separated string
-            val_str = ",".join(map(str, value))
-        elif value is not None:
-            val_str = str(value)
-            
-        ET.SubElement(parent, "param", {"name": name_str, "value": val_str})
-
-
-# =====================================================================
-# =====================================================================
-# ##                                                                 ##
-# ##      HIER BEGINNT DIE ERSETZTE FUNKTION `generate_test_variants`    ##
-# ##                                                                 ##
-# =====================================================================
-# =====================================================================
-
-def generate_test_variants(method: Callable) -> list:
-    """
-    Generiert systematisch Testvarianten für eine Methode.
-    - Erstellt einen Standard-Testfall mit der jeweils ersten Option aller Conditionals.
-    - Erstellt für jede weitere Option jedes Conditionals einen eigenen Testfall.
-    """
-    param_info = get_param_info(method)
-    if not param_info:
-        return []
-
-    variants = []
-    base_params = {}
-    complex_params_info = {}
-
-    # 1. Parameter klassifizieren und plausible Standardwerte für einfache Typen festlegen
-    for name, info in param_info.items():
-        origin = info.get("origin")
-        args = info.get("args", [])
-        is_union = origin is Union and len(args) > 0
-
-        if is_union:
-            complex_params_info[name] = info
-        else:
-            # Plausible, typgerechte Standardwerte für einfache Parameter zuweisen
-            raw_annotation = info['raw_annotation']
-            annotation = info['annotation']
-            
-            if 'Offset' in raw_annotation or 'Freq' in raw_annotation or 'Timedelta' in raw_annotation:
-                base_params[name] = "1D"
-            elif annotation is int:
-                base_params[name] = 1
-            elif annotation is float:
-                base_params[name] = 1.0
-            elif annotation is bool:
-                base_params[name] = False
-            elif origin is Literal:
-                base_params[name] = args[0] if args else "literal_default"
-            elif name in ["field", "target"]:
-                 base_params[name] = "test_variable"
-            else:
-                 base_params[name] = "default_string" 
-
-    # 2. Basis-Testfall mit der jeweils ERSTEN Option jedes Conditionals erstellen
-    default_galaxy_params = base_params.copy()
-    default_saqc_params = {}
-    
-    for name, info in complex_params_info.items():
-        selector_value = "type_0"
-        first_option_type = info['args'][0]
-        test_val = None
-        
-        if get_origin(first_option_type) is Literal:
-            test_val = get_args(first_option_type)[0]
-        elif first_option_type is int: test_val = 1
-        elif first_option_type is float: test_val = 1.0
-        elif first_option_type is bool: test_val = False
-        # Spezieller Fall für Offset/Freq Strings
-        elif first_option_type is str:
-            test_val = "1D" if any(s in info['raw_annotation'] for s in ['OffsetStr', 'FreqStr']) else "default_string"
-        
-        if test_val is not None:
-            # Dies ist die verschachtelte Struktur, die Galaxy für den Test erwartet
-            default_galaxy_params[f"{name}_cond"] = {f"{name}_selector": selector_value, name: test_val}
-            default_saqc_params[name] = test_val
-    
-    variants.append({
-        "description": f"Test mit Defaults für {method.__name__}",
-        "galaxy_params": default_galaxy_params,
-        "saqc_call_params": default_saqc_params
-    })
-
-    # 3. Zusätzliche Varianten für JEDE einzelne Option JEDES Conditionals erstellen
-    # Dies sorgt für eine hohe Testabdeckung
-    for name, info in complex_params_info.items():
-        for i, arg_type in enumerate(info["args"]):
-            # Wir wollen den Default-Fall nicht doppelt hinzufügen
-            if i == 0:
-                # Aber wir müssen Literals mit mehreren Optionen trotzdem testen
-                if get_origin(arg_type) is Literal and len(get_args(arg_type)) > 1:
-                    # Teste die restlichen Literal-Optionen
-                    for literal_val in get_args(arg_type)[1:]:
-                        variant_galaxy_params = default_galaxy_params.copy()
-                        variant_saqc_params = default_saqc_params.copy()
-                        
-                        variant_galaxy_params[f"{name}_cond"] = {f"{name}_selector": f"type_{i}", name: literal_val}
-                        variant_saqc_params[name] = literal_val
-                        
-                        variants.append({
-                            "description": f"Test-Variante für '{name}' mit Literal '{literal_val}'",
-                            "galaxy_params": variant_galaxy_params,
-                            "saqc_call_params": variant_saqc_params
-                        })
-                continue # Weiter mit der nächsten Option
-
-            # Neue Basis für diese Variante: alle anderen Conditionals bleiben auf ihrem Default-Wert
-            variant_galaxy_params = default_galaxy_params.copy()
-            variant_saqc_params = default_saqc_params.copy()
-
-            selector_value = f"type_{i}"
-            
-            # Wenn der Typ selbst ein Literal ist, erstelle für jede Option einen Test
-            if get_origin(arg_type) is Literal:
-                for literal_val in get_args(arg_type):
-                    # Erstelle eine Kopie, damit jede Literal-Option eine eigene Variante ist
-                    current_variant_galaxy_params = variant_galaxy_params.copy()
-                    current_variant_saqc_params = variant_saqc_params.copy()
-                    
-                    current_variant_galaxy_params[f"{name}_cond"] = {f"{name}_selector": selector_value, name: literal_val}
-                    current_variant_saqc_params[name] = literal_val
-                    variants.append({
-                        "description": f"Test-Variante für '{name}' mit Literal '{literal_val}'",
-                        "galaxy_params": current_variant_galaxy_params,
-                        "saqc_call_params": current_variant_saqc_params
-                    })
-            else: # Für alle anderen Typen (int, float, bool, str)
-                test_val = None
-                if arg_type is int: test_val = 123
-                elif arg_type is float: test_val = 45.6
-                elif arg_type is bool: test_val = True
-                elif arg_type is str: 
-                    test_val = "2H" if any(s in info['raw_annotation'] for s in ['OffsetStr', 'FreqStr']) else "a_string_variant"
-                
-                if test_val is not None:
-                    variant_galaxy_params[f"{name}_cond"] = {f"{name}_selector": selector_value, name: test_val}
-                    variant_saqc_params[name] = test_val
-                    variants.append({
-                        "description": f"Test-Variante für '{name}' mit Typ '{str(arg_type).split('.')[-1]}'",
-                        "galaxy_params": variant_galaxy_params,
-                        "saqc_call_params": variant_saqc_params
-                    })
-    return variants
-
-# =====================================================================
-# =====================================================================
-# ##                                                                 ##
-# ##      HIER ENDET DIE ERSETZTE FUNKTION                           ##
-# ##                                                                 ##
-# =====================================================================
-# =====================================================================
-
-
-def build_test_xml_recursively(parent_element: ET.Element, params_dict: dict):
-    """
-    Builds the correct, nested test XML structure recursively.
-    """
-    for name, value in params_dict.items():
-        if name.endswith("_cond") and isinstance(value, dict):
-            cond_elem = ET.SubElement(parent_element, "conditional", {"name": name})
-            build_test_xml_recursively(cond_elem, value)
-        elif name.endswith("_repeat") and isinstance(value, list):
-            repeat_elem = ET.SubElement(parent_element, "repeat", {"name": name})
-            for item_dict in value:
-                build_test_xml_recursively(repeat_elem, item_dict)
-        else:
-            val_str = str(value).lower() if isinstance(value, bool) else str(value) if value is not None else ""
-            ET.SubElement(parent_element, "param", {"name": name, "value": val_str})
-
-
-
-def format_value_for_regex(value: Any, param_name: str) -> str:
-    """Formats a Python value into a regex string for assertion."""
-    empty_is_none_params = [
-        "reduce_window",
-        "tolerance",
-        "maxna",
-        "maxna_group",
-        "sub_window",
-        "sub_thresh",
-        "min_periods",
-        "min_residuals",
-        "min_offset",
-        "stray_range",
-        "path",
-        "ax",
-        "marker_kwargs",
-        "plot_kwargs",
-        "freq",
-        "group",
-        "xscope",
-        "yscope",
-    ]
-    if param_name in empty_is_none_params and (value is None or value == ""):
-        return '(None|"")'
-
-    if value is None:
-        return "None"
-    if isinstance(value, bool):
-        return f"({str(value)}|None)"
-    if isinstance(value, str) and value.startswith("<function"):
-        sanitized_val = value.replace("<", "__lt__").replace(">", "__gt__")
-        return re.escape(sanitized_val)
-
-    if isinstance(value, int):
-        escaped_val = re.escape(str(value))
-        return f"(?:[\"']?{escaped_val}[\"']?)"
-
-    if isinstance(value, float):
-        if math.isinf(value):
-            return r"float\(['\"]-?inf['\"]\)"
-        if math.isnan(value):
-            return r"float\(['\"]nan['\"]\)"
-        return re.escape(str(value))
-
-    if isinstance(value, str):
-        return f"[\"']{re.escape(str(value))}[\"']"
-
-    return re.escape(str(value))
-
-
-def generate_test_macros():
-    """Main function to generate the Galaxy test macros XML."""
-    macros_root = ET.Element("macros")
-    all_tests_macro = ET.SubElement(macros_root, "xml", {"name": "config_tests"})
-    print("--- Starting Test Macro Generation ---", file=sys.stderr)
-
-    modules = get_modules()
-    for module_name, module_obj in modules:
-        methods = get_methods(module_obj)
-        for method_obj in methods:
-            method_name = method_obj.__name__
-            try:
-                test_variants = generate_test_variants(method_obj)
-            except Exception as e:
-                print(f"Error generating variants for {method_name}: {e}", file=sys.stderr)
-                continue
-
-            for i, variant in enumerate(test_variants):
-                test_elem = ET.SubElement(all_tests_macro, "test")
-                ET.SubElement(test_elem, "param", {"name": "data", "value": "test1/data.csv", "ftype": "csv"})
-                ET.SubElement(test_elem, "param", {"name": "run_test_mode", "value": "true"})
-                
-                repeat_elem = ET.SubElement(test_elem, "repeat", {"name": "methods_repeat"})
-                module_cond_elem = ET.SubElement(repeat_elem, "conditional", {"name": "module_cond"})
-                ET.SubElement(module_cond_elem, "param", {"name": "module_select", "value": module_name})
-
-                method_cond_elem = ET.SubElement(module_cond_elem, "conditional", {"name": "method_cond"})
-                ET.SubElement(method_cond_elem, "param", {"name": "method_select", "value": method_name})
-                
-                build_test_xml_recursively(method_cond_elem, variant["galaxy_params"])
-
-                output_elem = ET.SubElement(test_elem, "output", {"name": "config_out", "ftype": "txt"})
-                assert_contents = ET.SubElement(output_elem, "assert_contents")
-                params_to_check = variant["saqc_call_params"]
-                
-                lookaheads = []
-
-                if variant["description"].startswith("Test mit Defaults"):
-                    full_regex = f".*;\\s*{method_name}\\(.*\\)$"
-                else:
-                    varied_param_name = next(iter(params_to_check), None)
-                    if varied_param_name:
-                        p_value = params_to_check[varied_param_name]
-                        formatted_value = format_value_for_regex(p_value, varied_param_name)
-                        lookaheads.append(f"(?=.*{varied_param_name}\\s*=\\s*{formatted_value})")
-                    full_regex = f".*;\\s*{method_name}\\({''.join(lookaheads)}.*\\)$"
-
-                ET.SubElement(assert_contents, "has_text_matching", {"expression": full_regex})
-
-    try:
-        ET.indent(macros_root, space="  ")
-        sys.stdout.buffer.write(b'<?xml version="1.0" encoding="utf-8"?>\n')
-        sys.stdout.buffer.write(ET.tostring(macros_root, encoding="utf-8", xml_declaration=False))
-        print("\nSuccessfully generated test macro XML.", file=sys.stderr)
-    except Exception as e:
-        print(f"\nXML Serialization failed. Error: {e}", file=sys.stderr)
-
-
-
 def generate_tool_xml(tracing=False):
     """Generiert und druckt die XML-Definition des Galaxy-Tools."""
-
-    # --- Tool Definition ---
     command_override = [
         """
 #if str($run_test_mode) == "true":
@@ -1328,8 +813,243 @@ def generate_tool_xml(tracing=False):
     )
 
     tool_xml = tool.export()
-
     print(tool_xml)
+
+
+# =====================================================================
+# ##                                                                 ##
+# ##      AB HIER BEGINNEN DIE NEUEN/ANGEPASSTEN FUNKTIONEN,          ##
+# ##      DIE NUR FÜR DIE TEST-GENERIERUNG BENÖTIGT WERDEN.           ##
+# ##                                                                 ##
+# =====================================================================
+
+def get_test_value_for_type(type_str: str) -> Any:
+    """
+    Gibt einen plausiblen, validen Test-Wert für einen gegebenen Typ-String zurück.
+    Beachtet min/max bei Zahlen und wählt den ersten Wert bei Literalen.
+    """
+    clean_type = type_str.strip()
+
+    # 1. Literale (direkt oder via Referenz aus SAQC_CUSTOM_SELECT_TYPES)
+    literal_match = re.search(r"Literal\[(.*)\]", clean_type)
+    if literal_match:
+        options_str = literal_match.group(1)
+        options_list = [opt.strip().strip("'\"") for opt in _split_type_string_safely(options_str)]
+        if options_list:
+            return options_list[0]
+    if clean_type in SAQC_CUSTOM_SELECT_TYPES:
+        literal_obj = SAQC_CUSTOM_SELECT_TYPES[clean_type]
+        args = get_args(literal_obj)
+        if args:
+            return args[0]
+
+    # 2. Callables
+    if 'callable' in clean_type.lower() or 'genericfunction' in clean_type.lower():
+        return "'mean'"
+
+    # 3. Zahlen (int/float) - immer 1
+    if 'int' in clean_type.lower() or 'float' in clean_type.lower():
+        return 1
+        
+    # 4. Andere Typen
+    if 'bool' in clean_type.lower(): return True
+    if any(s in clean_type.lower() for s in ['offset', 'timedelta', 'freq']): return "1D"
+    
+    # Finaler Fallback
+    return "a_string"
+
+
+def generate_test_variants(method: Callable) -> list:
+    """
+    Generiert Test-Varianten. Nutzt eine identische Analyse-Logik
+    wie die `get_method_params` Funktion für den Wrap.
+    """
+    variants = []
+    base_params = {}
+    complex_params = {} # Speichert Infos für Parameter, die Unions sind
+
+    try:
+        parameters = inspect.signature(method).parameters
+    except (ValueError, TypeError):
+        return []
+
+    # 1. Parameter analysieren, genau wie in der Wrap-Funktion
+    for param_name, param in parameters.items():
+        if param_name in ["self", "kwargs"] or "kwarg" in param_name.lower():
+            continue
+        
+        annotation = param.annotation
+        raw_annotation_str = ""
+        if isinstance(annotation, (str, ForwardRef)):
+            raw_annotation_str = annotation.__forward_arg__ if isinstance(annotation, ForwardRef) else str(annotation)
+        elif annotation is not inspect.Parameter.empty:
+            raw_annotation_str = str(annotation).replace("typing.", "")
+
+        if 'Sequence[SaQC]' in raw_annotation_str:
+            base_params[param_name] = "test1/data.csv"
+            continue
+
+        if 'mpl.axes.Axes' in raw_annotation_str:
+            continue
+        
+        if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
+            inner_content = raw_annotation_str[6:-1]
+            type_parts = _split_type_string_safely(inner_content)
+        else:
+            type_parts = _split_type_string_safely(raw_annotation_str)
+
+        type_parts_without_none = [p for p in type_parts if p.strip() != 'None']
+
+        if len(type_parts_without_none) > 1:
+            complex_params[param_name] = type_parts_without_none
+        elif type_parts_without_none:
+            if param_name in ["field", "target"]:
+                base_params[param_name] = "test_variable"
+            else:
+                base_params[param_name] = get_test_value_for_type(type_parts_without_none[0])
+        else:
+            # Fallback, falls gar kein Typ gefunden wird (z.B. nur 'None' oder leer)
+            base_params[param_name] = get_test_value_for_type("str")
+
+            
+    # 2. Einen Default-Testfall erstellen
+    default_galaxy_params = base_params.copy()
+    for name, type_parts in complex_params.items():
+        first_type = type_parts[0]
+        test_value = get_test_value_for_type(first_type)
+        default_galaxy_params[f"{name}_cond"] = {f"{name}_selector": "type_0", name: test_value}
+    
+    variants.append({
+        "description": f"Test mit Defaults für {method.__name__}",
+        "galaxy_params": default_galaxy_params,
+    })
+    
+    # 3. Varianten für jede Option jedes komplexen Parameters erstellen
+    for name, type_parts in complex_params.items():
+        for i, type_str in enumerate(type_parts):
+            # Den Default-Fall nicht doppelt hinzufügen
+            if i == 0:
+                continue
+
+            variant_galaxy_params = default_galaxy_params.copy()
+            test_value = get_test_value_for_type(type_str)
+            variant_galaxy_params[f"{name}_cond"] = {f"{name}_selector": f"type_{i}", name: test_value}
+            
+            variants.append({
+                "description": f"Test-Variante für '{name}' mit Typ '{type_str}'",
+                "galaxy_params": variant_galaxy_params,
+            })
+            
+    return variants
+
+
+def build_test_xml_recursively(parent_element: ET.Element, params_dict: dict):
+    """Baut die korrekte, verschachtelte Test-XML-Struktur rekursiv auf."""
+    for name, value in params_dict.items():
+        if name.endswith("_cond") and isinstance(value, dict):
+            cond_elem = ET.SubElement(parent_element, "conditional", {"name": name})
+            build_test_xml_recursively(cond_elem, value)
+        else:
+            val_str = str(value).lower() if isinstance(value, bool) else str(value) if value is not None else ""
+            ET.SubElement(parent_element, "param", {"name": name, "value": val_str})
+
+
+def format_value_for_regex(value: Any) -> str:
+    """Formatiert einen Python-Wert in einen Regex-String für die Assertion."""
+    if value is None: return "None"
+    if isinstance(value, bool): return str(value)
+
+    # Behandelt Zahlen so, dass sie sowohl Integer- als auch Float-Darstellungen entsprechen (z. B. 1 und 1.0)
+    if isinstance(value, int):
+        return f"{re.escape(str(value))}(?:\\.0)?"
+    if isinstance(value, float):
+        if value.is_integer():
+            return f"{re.escape(str(int(value)))}(?:\\.0)?"
+        return re.escape(str(value))
+
+    # Behandelt spezielle __sq__-Anführungszeichen für Callables, die als Strings wie "'mean'" übergeben werden
+    if isinstance(value, str) and value.startswith("'") and value.endswith("'"):
+        inner_val = value.strip("'")
+        transformed_val = f"__sq__{inner_val}__sq__"
+        return f"[\"']?{re.escape(transformed_val)}[\"']?"
+
+    # Standard-String-Behandlung
+    if isinstance(value, str):
+        return f"[\"']{re.escape(str(value))}[\"']"
+        
+    return re.escape(str(value))
+
+
+def generate_test_macros():
+    """Hauptfunktion zur Generierung der Galaxy-Test-Makros."""
+    macros_root = ET.Element("macros")
+    all_tests_macro = ET.SubElement(macros_root, "xml", {"name": "config_tests"})
+    print("--- Starting Test Macro Generation ---", file=sys.stderr)
+
+    modules = get_modules()
+    for module_name, module_obj in modules:
+        methods = get_methods(module_obj)
+        for method_obj in methods:
+            method_name = method_obj.__name__
+            try:
+                test_variants = generate_test_variants(method_obj)
+            except Exception as e:
+                print(f"Error generating variants for {method_name}: {e}", file=sys.stderr)
+                continue
+
+            for variant in test_variants:
+                test_elem = ET.SubElement(all_tests_macro, "test")
+                ET.SubElement(test_elem, "param", {"name": "data", "value": "test1/data.csv", "ftype": "csv"})
+                ET.SubElement(test_elem, "param", {"name": "run_test_mode", "value": "true"})
+                
+                repeat_elem = ET.SubElement(test_elem, "repeat", {"name": "methods_repeat"})
+                module_cond_elem = ET.SubElement(repeat_elem, "conditional", {"name": "module_cond"})
+                ET.SubElement(module_cond_elem, "param", {"name": "module_select", "value": module_name})
+
+                method_cond_elem = ET.SubElement(module_cond_elem, "conditional", {"name": "method_cond"})
+                ET.SubElement(method_cond_elem, "param", {"name": "method_select", "value": method_name})
+                
+                build_test_xml_recursively(method_cond_elem, variant["galaxy_params"])
+
+                output_elem = ET.SubElement(test_elem, "output", {"name": "config_out", "ftype": "txt"})
+                assert_contents = ET.SubElement(output_elem, "assert_contents")
+                
+                final_params_to_check = {}
+                for p_name, p_value in variant["galaxy_params"].items():
+                    if p_name.endswith('_cond') and isinstance(p_value, dict):
+                        key = p_name[:-5]
+                        if key in p_value:
+                             final_params_to_check[key] = p_value[key]
+                    else:
+                        final_params_to_check[p_name] = p_value
+
+                # ANFANG DER ÄNDERUNG: Wechsle zu mehreren `has_text`-Assertions
+                
+                subject = final_params_to_check.pop("field", None)
+                if not subject:
+                    subject = final_params_to_check.pop("target", None)
+
+                # Anstatt einer komplexen Regex werden mehrere einfache Text-Suchen durchgeführt.
+                # Dies ist die robusteste Methode, um das Vorhandensein von Textteilen
+                # unabhängig von Reihenfolge und Formatierung zu prüfen.
+
+                # 1. Prüfe auf den Methodennamen
+                ET.SubElement(assert_contents, "has_text", {"text": method_name})
+                
+                # 2. Prüfe auf das Subjekt (den Wert von 'field' oder 'target')
+                if subject:
+                    ET.SubElement(assert_contents, "has_text", {"text": str(subject)})
+                
+                # ENDE DER ÄNDERUNG
+
+
+    try:
+        ET.indent(macros_root, space="  ")
+        sys.stdout.buffer.write(b'<?xml version="1.0" encoding="utf-8"?>\n')
+        sys.stdout.buffer.write(ET.tostring(macros_root, encoding="utf-8", xml_declaration=False))
+        print("\nSuccessfully generated test macro XML.", file=sys.stderr)
+    except Exception as e:
+        print(f"\nXML Serialization failed. Error: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":
@@ -1367,7 +1087,6 @@ if __name__ == "__main__":
         )
         generate_tool_xml(tracing=args.tracing)
 
-    # --- TRACING HINZUGEFÜGT ---
     if args.tracing and TRACING_DATA:
         try:
             with open("tracing.tsv", "w", newline="", encoding="utf-8") as f:

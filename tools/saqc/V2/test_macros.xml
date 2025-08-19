@@ -3238,7 +3238,7 @@
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
             <param name="fill_na" value="true" />
-            <param name="statistical_extent" value="a_string" />
+            <param name="statistical_extent" value="1" />
             <conditional name="density_cond">
               <param name="density_selector" value="type_0" />
               <param name="density" value="auto" />
@@ -3266,7 +3266,7 @@
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
             <param name="fill_na" value="true" />
-            <param name="statistical_extent" value="a_string" />
+            <param name="statistical_extent" value="1" />
             <conditional name="density_cond">
               <param name="density_selector" value="type_1" />
               <param name="density" value="1" />

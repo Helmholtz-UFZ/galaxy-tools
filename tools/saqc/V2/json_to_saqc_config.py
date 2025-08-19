@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import json
-import sys
 import math
+import sys
 
 
 print("varname; function")
@@ -17,7 +17,7 @@ except Exception as e:
 
 for r_method_set in params_from_galaxy.get("methods_repeat", []):
     method_str_for_error = "unknown_method_in_repeat"
-    field_str_for_error = "unknown_field_in_repeat" 
+    field_str_for_error = "unknown_field_in_repeat"
     try:
         method_cond_params = r_method_set.get("module_cond", {}).get("method_cond", {})
         if not method_cond_params:
@@ -28,15 +28,14 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
 
         method = params_to_process.pop("method_select", "unknown_method")
         method_str_for_error = method
-        
-        
+
         raw_field_val = None
-        field_str = "undefined_field" 
+        field_str = "undefined_field"
 
         if "field" in params_to_process:
             raw_field_val = params_to_process.pop("field")
         elif "target" in params_to_process:
-             raw_field_val = params_to_process.pop("target")
+            raw_field_val = params_to_process.pop("target")
         elif "field_cond" in params_to_process and isinstance(params_to_process["field_cond"], dict):
             raw_field_val = params_to_process.pop("field_cond").get("field")
 
@@ -49,22 +48,21 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
             else:
                 field_str = str(raw_field_val)
             field_str_for_error = field_str
-        
 
         saqc_args_dict = {}
 
         for param_key, param_value_json in params_to_process.items():
-            if param_key.endswith("_selector"): 
+            if param_key.endswith("_selector"):
                 continue
 
             actual_param_name_for_saqc = param_key
             current_value_for_saqc = param_value_json
 
             if isinstance(param_value_json, dict) and param_key.endswith("_cond"):
-                actual_param_name_for_saqc = param_key[:-5] 
+                actual_param_name_for_saqc = param_key[:-5]
                 inner_params = param_value_json.copy()
                 inner_params.pop(f"{actual_param_name_for_saqc}_selector", None)
-                
+
                 if len(inner_params) == 1:
                     current_value_for_saqc = list(inner_params.values())[0]
                 else:
@@ -78,18 +76,18 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
                         current_value_for_saqc = f"({min_val}, {max_val})"
                     else:
                         current_value_for_saqc = None
-            
+
             if isinstance(current_value_for_saqc, list) and not current_value_for_saqc:
                 continue
 
             if current_value_for_saqc == "__none__":
                 saqc_args_dict[actual_param_name_for_saqc] = None
             elif isinstance(current_value_for_saqc, str) and current_value_for_saqc == "" and \
-                 actual_param_name_for_saqc in ["xscope", "yscope", "max_gap", "min_periods", "min_residuals", "min_offset"]:
+                actual_param_name_for_saqc in ["xscope", "yscope", "max_gap", "min_periods", "min_residuals", "min_offset"]:
                 saqc_args_dict[actual_param_name_for_saqc] = None
             else:
                 saqc_args_dict[actual_param_name_for_saqc] = current_value_for_saqc
-        
+
         param_strings_for_saqc_call = []
         for k_saqc, v_saqc_raw in sorted(saqc_args_dict.items()):
             v_str_repr = ""
@@ -98,15 +96,22 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
             elif isinstance(v_saqc_raw, bool):
                 v_str_repr = "True" if v_saqc_raw else "False"
             elif isinstance(v_saqc_raw, (float, int)):
-                if v_saqc_raw == float('inf'): v_str_repr = "float('inf')"
-                elif v_saqc_raw == float('-inf'): v_str_repr = "float('-inf')"
-                elif isinstance(v_saqc_raw, float) and math.isnan(v_saqc_raw): v_str_repr = "float('nan')"
-                else: v_str_repr = repr(v_saqc_raw) 
+                if v_saqc_raw == float('inf'):
+                    v_str_repr = "float('inf')"
+                elif v_saqc_raw == float('-inf'):
+                    v_str_repr = "float('-inf')"
+                elif isinstance(v_saqc_raw, float) and math.isnan(v_saqc_raw):
+                    v_str_repr = "float('nan')"
+                else:
+                    v_str_repr = repr(v_saqc_raw)
             elif isinstance(v_saqc_raw, str):
                 val_lower = v_saqc_raw.lower()
-                if val_lower == "inf": v_str_repr = "float('inf')"
-                elif val_lower == "-inf": v_str_repr = "float('-inf')"
-                elif val_lower == "nan": v_str_repr = "float('nan')"
+                if val_lower == "inf":
+                    v_str_repr = "float('inf')"
+                elif val_lower == "-inf":
+                    v_str_repr = "float('-inf')"
+                elif val_lower == "nan":
+                    v_str_repr = "float('nan')"
                 else:
                     if v_saqc_raw.startswith(('slice(', '(', '[')):
                         v_str_repr = v_saqc_raw
@@ -115,10 +120,10 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
                         v_str_repr = f'"{escaped_v}"'
             elif isinstance(v_saqc_raw, list):
                  if all(isinstance(i, dict) and 'key' in i for i in v_saqc_raw):
-                     dict_items = [f'"{i["key"]}": "{i["value"]}"' for i in v_saqc_raw]
-                     v_str_repr = f"{{{', '.join(dict_items)}}}"
+                    dict_items = [f'"{i["key"]}": "{i["value"]}"' for i in v_saqc_raw]
+                    v_str_repr = f"{{{', '.join(dict_items)}}}"
                  else:
-                     v_str_repr = f"[{', '.join(map(str, v_saqc_raw))}]"
+                    v_str_repr = f"[{', '.join(map(str, v_saqc_raw))}]"
             else:
                 sys.stderr.write(f"Warning: Param '{k_saqc}' for method '{method}' has unhandled type {type(v_saqc_raw)}. Converting to string representation: '{str(v_saqc_raw)}'.\n")
                 v_str_repr = repr(v_saqc_raw)
@@ -130,8 +135,8 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
         print(f"{field_str}; {method}({', '.join(param_strings_for_saqc_call)})", flush=True)
 
     except Exception as e:
-        sys.stderr.write(f"FATAL Error processing a method entry in json_to_saqc_config.py: {r_method_set}\n")
-        sys.stderr.write(f"Method context: {method_str_for_error}, Field context: {field_str_for_error}\n") 
+        sys.stderr.write(f"FATAL Error processing a method entry in json_to_saqc_config.py: {type(e).__name__}\n")
+        sys.stderr.write(f"Method context: {method_str_for_error}, Field context: {field_str_for_error}\n")
         import traceback
         traceback.print_exc(file=sys.stderr)
         print(f"{field_str_for_error}; ERROR_PROCESSING_METHOD({method_str_for_error})", flush=True)

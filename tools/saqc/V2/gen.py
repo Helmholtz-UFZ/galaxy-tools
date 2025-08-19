@@ -22,14 +22,15 @@ from galaxyxml.tool import Tool
 from galaxyxml.tool.parameters import (
     BooleanParam,
     Conditional,
-    Configfiles,
     ConfigfileDefaultInputs,
+    Configfiles,
+    
     DataParam,
     DiscoverDatasets,
-    IntegerParam,
     FloatParam,
     HiddenParam,
     Inputs,
+    IntegerParam,
     OutputCollection,
     OutputData,
     Outputs,

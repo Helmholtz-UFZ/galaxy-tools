@@ -83,7 +83,7 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
             if current_value_for_saqc == "__none__":
                 saqc_args_dict[actual_param_name_for_saqc] = None
             elif isinstance(current_value_for_saqc, str) and current_value_for_saqc == "" and \
-                actual_param_name_for_saqc in ["xscope", "yscope", "max_gap", "min_periods", "min_residuals", "min_offset"]:
+            actual_param_name_for_saqc in ["xscope", "yscope", "max_gap", "min_periods", "min_residuals", "min_offset"]:
                 saqc_args_dict[actual_param_name_for_saqc] = None
             else:
                 saqc_args_dict[actual_param_name_for_saqc] = current_value_for_saqc
@@ -119,10 +119,10 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
                         escaped_v = v_saqc_raw.replace('\\', '\\\\').replace('"', '\\"')
                         v_str_repr = f'"{escaped_v}"'
             elif isinstance(v_saqc_raw, list):
-                 if all(isinstance(i, dict) and 'key' in i for i in v_saqc_raw):
+                if all(isinstance(i, dict) and 'key' in i for i in v_saqc_raw):
                     dict_items = [f'"{i["key"]}": "{i["value"]}"' for i in v_saqc_raw]
                     v_str_repr = f"{{{', '.join(dict_items)}}}"
-                 else:
+                else:
                     v_str_repr = f"[{', '.join(map(str, v_saqc_raw))}]"
             else:
                 sys.stderr.write(f"Warning: Param '{k_saqc}' for method '{method}' has unhandled type {type(v_saqc_raw)}. Converting to string representation: '{str(v_saqc_raw)}'.\n")

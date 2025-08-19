@@ -486,12 +486,6 @@ def _get_user_friendly_type_name(type_str: str) -> str:
     return name_map.get(type_str, clean_name)
 
 
-# =====================================================================
-# ##                                                                 ##
-# ##      WRAP GENERATION - DIESE FUNKTIONEN SIND UNVERÄNDERT         ##
-# ##      (MIT AUSNAHME EINER ERGÄNZUNG IN get_method_params)         ##
-# ##                                                                 ##
-# =====================================================================
 def get_method_params(method, module, tracing=False):
     sections = parse_docstring(method)
     param_docs = parse_parameter_docs(sections)
@@ -599,11 +593,10 @@ def get_method_params(method, module, tracing=False):
                 
                 conditional.append(when)
             param_object = conditional
-        
-        # <<< NEU: Fallback, wenn keine Annotation gefunden wurde, aber ein Default-Wert existiert
+
         if not param_object and not raw_annotation_str.strip() and param.default is not inspect.Parameter.empty:
             default_value = param.default
-            # Setze den Default-Wert auch im UI, falls es kein Boolean ist
+
             if not isinstance(default_value, bool):
                 param_constructor_args['value'] = str(default_value)
 
@@ -835,13 +828,6 @@ def generate_tool_xml(tracing=False):
     print(tool_xml)
 
 
-# =====================================================================
-# ##                                                                 ##
-# ##      AB HIER BEGINNEN DIE NEUEN/ANGEPASSTEN FUNKTIONEN,          ##
-# ##      DIE NUR FÜR DIE TEST-GENERIERUNG BENÖTIGT WERDEN.           ##
-# ##                                                                 ##
-# =====================================================================
-
 def get_test_value_for_type(type_str: str, param_name: str) -> Any:
     """
     Gibt einen plausiblen, validen Test-Wert oder eine Struktur für einen gegebenen Typ-String zurück.
@@ -849,7 +835,6 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
     """
     clean_type = type_str.strip()
 
-    # <<< GEÄNDERT: Logik für Dictionaries, Slices und Tupel hinzugefügt
     if clean_type.lower() in ('dict', 'dictionary'):
         return [{'key': 'test_key', 'value': 'test_value'}]
     if clean_type == 'slice':
@@ -859,7 +844,6 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
     if re.fullmatch(r"list\[\s*tuple\[\s*float\s*,\s*float\s*\]\s*\]", clean_type, re.IGNORECASE):
         return [{f"{param_name}_min": 0.0, f"{param_name}_max": 1.0}]
 
-    # 1. Literale (direkt oder via Referenz aus SAQC_CUSTOM_SELECT_TYPES)
     literal_match = re.search(r"Literal\[(.*)\]", clean_type)
     if literal_match:
         options_str = literal_match.group(1)
@@ -872,19 +856,15 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
         if args:
             return args[0]
 
-    # 2. Callables
     if 'callable' in clean_type.lower() or 'genericfunction' in clean_type.lower():
         return "'mean'"
 
-    # 3. Zahlen (int/float) - immer 1
     if 'int' in clean_type.lower() or 'float' in clean_type.lower():
         return 1
-        
-    # 4. Andere Typen
+
     if 'bool' in clean_type.lower(): return True
     if any(s in clean_type.lower() for s in ['offset', 'timedelta', 'freq']): return "1D"
-    
-    # Finaler Fallback
+
     return "a_string"
 
 
@@ -895,14 +875,13 @@ def generate_test_variants(method: Callable) -> list:
     """
     variants = []
     base_params = {}
-    complex_params = {} # Speichert Infos für Parameter, die Unions sind
+    complex_params = {}
 
     try:
         parameters = inspect.signature(method).parameters
     except (ValueError, TypeError):
         return []
 
-    # 1. Parameter analysieren, genau wie in der Wrap-Funktion
     for param_name, param in parameters.items():
         if param_name in ["self", "kwargs"] or "kwarg" in param_name.lower():
             continue
@@ -932,7 +911,6 @@ def generate_test_variants(method: Callable) -> list:
         if len(type_parts_without_none) > 1:
             complex_params[param_name] = type_parts_without_none
         elif type_parts_without_none:
-            # <<< GEÄNDERT: Logik zur Behandlung spezieller Typen (dict, slice, tuple)
             single_type_str = type_parts_without_none[0]
             if param_name in ["field", "target"]:
                  base_params[param_name] = "test_variable"
@@ -943,16 +921,13 @@ def generate_test_variants(method: Callable) -> list:
                 else:
                     base_params[param_name] = test_value
         else:
-            # <<< GEÄNDERT: Fallback für Parameter ohne Typ, aber mit Default-Wert
             if param.default is not inspect.Parameter.empty:
                 base_params[param_name] = param.default
             else:
                 base_params[param_name] = get_test_value_for_type("str", param_name)
-            
-    # 2. Einen Default-Testfall erstellen
+
     default_galaxy_params = base_params.copy()
     for name, type_parts in complex_params.items():
-        # <<< GEÄNDERT: Logik zur Behandlung spezieller Typen im Default-Testfall
         first_type = type_parts[0]
         test_value = get_test_value_for_type(first_type, name)
         
@@ -967,15 +942,13 @@ def generate_test_variants(method: Callable) -> list:
         "description": f"Test mit Defaults für {method.__name__}",
         "galaxy_params": default_galaxy_params,
     })
-    
-    # 3. Varianten für jede Option jedes komplexen Parameters erstellen
+
     for name, type_parts in complex_params.items():
         for i, type_str in enumerate(type_parts):
             if i == 0:
                 continue
 
             variant_galaxy_params = default_galaxy_params.copy()
-            # <<< GEÄNDERT: Logik zur Behandlung spezieller Typen in Test-Varianten
             test_value = get_test_value_for_type(type_str, name)
             
             when_params = {f"{name}_selector": f"type_{i}"}
@@ -996,7 +969,6 @@ def generate_test_variants(method: Callable) -> list:
 
 def build_test_xml_recursively(parent_element: ET.Element, params_dict: dict):
     """Baut die korrekte, verschachtelte Test-XML-Struktur rekursiv auf."""
-    # <<< GEÄNDERT: Logik zur Erstellung von <repeat>-Blöcken hinzugefügt
     for name, value in params_dict.items():
         if name.endswith("_cond") and isinstance(value, dict):
             cond_elem = ET.SubElement(parent_element, "conditional", {"name": name})
@@ -1014,22 +986,19 @@ def format_value_for_regex(value: Any) -> str:
     """Formatiert einen Python-Wert in einen Regex-String für die Assertion."""
     if value is None: return "None"
     if isinstance(value, bool): return str(value)
-
-    # Behandelt Zahlen so, dass sie sowohl Integer- als auch Float-Darstellungen entsprechen (z. B. 1 und 1.0)
     if isinstance(value, int):
         return f"{re.escape(str(value))}(?:\\.0)?"
+    
     if isinstance(value, float):
         if value.is_integer():
             return f"{re.escape(str(int(value)))}(?:\\.0)?"
         return re.escape(str(value))
-
-    # Behandelt spezielle __sq__-Anführungszeichen für Callables, die als Strings wie "'mean'" übergeben werden
+    
     if isinstance(value, str) and value.startswith("'") and value.endswith("'"):
         inner_val = value.strip("'")
         transformed_val = f"__sq__{inner_val}__sq__"
         return f"[\"']?{re.escape(transformed_val)}[\"']?"
 
-    # Standard-String-Behandlung
     if isinstance(value, str):
         return f"[\"']{re.escape(str(value))}[\"']"
         

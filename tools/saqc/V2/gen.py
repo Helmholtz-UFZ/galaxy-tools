@@ -1,27 +1,23 @@
+import argparse
+import csv
 import inspect
 import re
 import sys
+import xml.etree.ElementTree as ET
 from typing import (
-    get_args,
-    get_origin,
     Any,
     Callable,
     Dict,
     ForwardRef,
+    get_args,
+    get_origin,
     Literal,
     Optional,
-    Sequence,
     Tuple,
     TYPE_CHECKING,
-    Union,
 )
-import argparse
-import math
-import xml.etree.ElementTree as ET
-import csv
-import json
 
-
+import saqc
 from galaxyxml.tool import Tool
 from galaxyxml.tool.parameters import (
     BooleanParam,
@@ -43,22 +39,14 @@ from galaxyxml.tool.parameters import (
     ValidatorParam,
     When,
 )
-import matplotlib as mpl
-import numpy as np
-import pandas as pd
-import saqc
-from saqc.core import DictOfSeries, SaQC
-from saqc.funcs.generic import GenericFunction
-from saqc.lib import types as saqc_types
-from saqc.lib.types import CurveFitter
-from typing_inspect import is_callable_type, is_union_type
 
+from saqc.lib import types as saqc_types
 
 if TYPE_CHECKING:
-    
     from types import ModuleType
 
 TRACING_DATA = []
+
 
 def discover_literals(*modules_to_scan) -> Dict[str, Any]:
     """

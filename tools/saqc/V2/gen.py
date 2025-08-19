@@ -24,7 +24,6 @@ from galaxyxml.tool.parameters import (
     Conditional,
     ConfigfileDefaultInputs,
     Configfiles,
-    
     DataParam,
     DiscoverDatasets,
     FloatParam,

@@ -82,8 +82,7 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
 
             if current_value_for_saqc == "__none__":
                 saqc_args_dict[actual_param_name_for_saqc] = None
-            elif isinstance(current_value_for_saqc, str) and current_value_for_saqc == "" and \
-            actual_param_name_for_saqc in ["xscope", "yscope", "max_gap", "min_periods", "min_residuals", "min_offset"]:
+            elif isinstance(current_value_for_saqc, str) and current_value_for_saqc == "" and actual_param_name_for_saqc in ["xscope", "yscope", "max_gap", "min_periods", "min_residuals", "min_offset"]:
                 saqc_args_dict[actual_param_name_for_saqc] = None
             else:
                 saqc_args_dict[actual_param_name_for_saqc] = current_value_for_saqc

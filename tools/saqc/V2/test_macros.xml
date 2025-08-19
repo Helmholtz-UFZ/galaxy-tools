@@ -399,7 +399,10 @@
             <param name="ratio" value="1" />
             <param name="context" value="1" />
             <param name="agg" value="center" />
-            <param name="model_spec" value="a_string" />
+            <repeat name="model_spec">
+              <param name="key" value="test_key" />
+              <param name="value" value="test_value" />
+            </repeat>
             <conditional name="field_cond">
               <param name="field_selector" value="type_0" />
               <param name="field" value="a_string" />
@@ -425,7 +428,10 @@
             <param name="ratio" value="1" />
             <param name="context" value="1" />
             <param name="agg" value="center" />
-            <param name="model_spec" value="a_string" />
+            <repeat name="model_spec">
+              <param name="key" value="test_key" />
+              <param name="value" value="test_value" />
+            </repeat>
             <conditional name="field_cond">
               <param name="field_selector" value="type_1" />
               <param name="field" value="a_string" />
@@ -3512,11 +3518,15 @@
             </conditional>
             <conditional name="xscope_cond">
               <param name="xscope_selector" value="type_0" />
-              <param name="xscope" value="a_string" />
+              <param name="xscope_start" value="0" />
+              <param name="xscope_end" value="10" />
             </conditional>
             <conditional name="yscope_cond">
               <param name="yscope_selector" value="type_0" />
-              <param name="yscope" value="1" />
+              <repeat name="yscope">
+                <param name="yscope_min" value="0.0" />
+                <param name="yscope_max" value="1.0" />
+              </repeat>
             </conditional>
           </conditional>
         </conditional>
@@ -3553,11 +3563,15 @@
             </conditional>
             <conditional name="xscope_cond">
               <param name="xscope_selector" value="type_0" />
-              <param name="xscope" value="a_string" />
+              <param name="xscope_start" value="0" />
+              <param name="xscope_end" value="10" />
             </conditional>
             <conditional name="yscope_cond">
               <param name="yscope_selector" value="type_0" />
-              <param name="yscope" value="1" />
+              <repeat name="yscope">
+                <param name="yscope_min" value="0.0" />
+                <param name="yscope_max" value="1.0" />
+              </repeat>
             </conditional>
           </conditional>
         </conditional>
@@ -3594,11 +3608,15 @@
             </conditional>
             <conditional name="xscope_cond">
               <param name="xscope_selector" value="type_0" />
-              <param name="xscope" value="a_string" />
+              <param name="xscope_start" value="0" />
+              <param name="xscope_end" value="10" />
             </conditional>
             <conditional name="yscope_cond">
               <param name="yscope_selector" value="type_0" />
-              <param name="yscope" value="1" />
+              <repeat name="yscope">
+                <param name="yscope_min" value="0.0" />
+                <param name="yscope_max" value="1.0" />
+              </repeat>
             </conditional>
           </conditional>
         </conditional>
@@ -3635,11 +3653,15 @@
             </conditional>
             <conditional name="xscope_cond">
               <param name="xscope_selector" value="type_0" />
-              <param name="xscope" value="a_string" />
+              <param name="xscope_start" value="0" />
+              <param name="xscope_end" value="10" />
             </conditional>
             <conditional name="yscope_cond">
               <param name="yscope_selector" value="type_0" />
-              <param name="yscope" value="1" />
+              <repeat name="yscope">
+                <param name="yscope_min" value="0.0" />
+                <param name="yscope_max" value="1.0" />
+              </repeat>
             </conditional>
           </conditional>
         </conditional>
@@ -3680,7 +3702,10 @@
             </conditional>
             <conditional name="yscope_cond">
               <param name="yscope_selector" value="type_0" />
-              <param name="yscope" value="1" />
+              <repeat name="yscope">
+                <param name="yscope_min" value="0.0" />
+                <param name="yscope_max" value="1.0" />
+              </repeat>
             </conditional>
           </conditional>
         </conditional>
@@ -3721,7 +3746,10 @@
             </conditional>
             <conditional name="yscope_cond">
               <param name="yscope_selector" value="type_0" />
-              <param name="yscope" value="1" />
+              <repeat name="yscope">
+                <param name="yscope_min" value="0.0" />
+                <param name="yscope_max" value="1.0" />
+              </repeat>
             </conditional>
           </conditional>
         </conditional>
@@ -3758,11 +3786,13 @@
             </conditional>
             <conditional name="xscope_cond">
               <param name="xscope_selector" value="type_0" />
-              <param name="xscope" value="a_string" />
+              <param name="xscope_start" value="0" />
+              <param name="xscope_end" value="10" />
             </conditional>
             <conditional name="yscope_cond">
               <param name="yscope_selector" value="type_1" />
-              <param name="yscope" value="1" />
+              <param name="yscope_min" value="0.0" />
+              <param name="yscope_max" value="1.0" />
             </conditional>
           </conditional>
         </conditional>
@@ -3799,11 +3829,15 @@
             </conditional>
             <conditional name="xscope_cond">
               <param name="xscope_selector" value="type_0" />
-              <param name="xscope" value="a_string" />
+              <param name="xscope_start" value="0" />
+              <param name="xscope_end" value="10" />
             </conditional>
             <conditional name="yscope_cond">
               <param name="yscope_selector" value="type_2" />
-              <param name="yscope" value="a_string" />
+              <repeat name="yscope">
+                <param name="key" value="test_key" />
+                <param name="value" value="test_value" />
+              </repeat>
             </conditional>
           </conditional>
         </conditional>

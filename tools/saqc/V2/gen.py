@@ -486,11 +486,6 @@ def _get_user_friendly_type_name(type_str: str) -> str:
     return name_map.get(type_str, clean_name)
 
 
-# =====================================================================
-# ##                                                                 ##
-# ##      WRAP GENERATION - DIESE FUNKTIONEN SIND UNVERÄNDERT         ##
-# ##                                                                 ##
-# =====================================================================
 def get_method_params(method, module, tracing=False):
     sections = parse_docstring(method)
     param_docs = parse_parameter_docs(sections)
@@ -816,13 +811,6 @@ def generate_tool_xml(tracing=False):
     print(tool_xml)
 
 
-# =====================================================================
-# ##                                                                 ##
-# ##      AB HIER BEGINNEN DIE NEUEN/ANGEPASSTEN FUNKTIONEN,          ##
-# ##      DIE NUR FÜR DIE TEST-GENERIERUNG BENÖTIGT WERDEN.           ##
-# ##                                                                 ##
-# =====================================================================
-
 def get_test_value_for_type(type_str: str) -> Any:
     """
     Gibt einen plausiblen, validen Test-Wert für einen gegebenen Typ-String zurück.
@@ -830,7 +818,6 @@ def get_test_value_for_type(type_str: str) -> Any:
     """
     clean_type = type_str.strip()
 
-    # 1. Literale (direkt oder via Referenz aus SAQC_CUSTOM_SELECT_TYPES)
     literal_match = re.search(r"Literal\[(.*)\]", clean_type)
     if literal_match:
         options_str = literal_match.group(1)
@@ -843,19 +830,55 @@ def get_test_value_for_type(type_str: str) -> Any:
         if args:
             return args[0]
 
-    # 2. Callables
     if 'callable' in clean_type.lower() or 'genericfunction' in clean_type.lower():
         return "'mean'"
 
-    # 3. Zahlen (int/float) - immer 1
     if 'int' in clean_type.lower() or 'float' in clean_type.lower():
         return 1
-        
-    # 4. Andere Typen
+
     if 'bool' in clean_type.lower(): return True
     if any(s in clean_type.lower() for s in ['offset', 'timedelta', 'freq']): return "1D"
-    
-    # Finaler Fallback
+
+    return "a_string"
+
+
+def get_test_value_for_type(type_str: str, param_name: str) -> Any:
+    """
+    Gibt einen plausiblen, validen Test-Wert oder eine Struktur für einen gegebenen Typ-String zurück.
+    Beachtet spezielle Strukturen wie dicts, slices und tuples.
+    """
+    clean_type = type_str.strip()
+
+    if clean_type.lower() in ('dict', 'dictionary'):
+        return [{'key': 'test_key', 'value': 'test_value'}]
+    if clean_type == 'slice':
+        return {f"{param_name}_start": 0, f"{param_name}_end": 10}
+    if re.fullmatch(r"tuple\[\s*float\s*,\s*float\s*\]", clean_type, re.IGNORECASE):
+        return {f"{param_name}_min": 0.0, f"{param_name}_max": 1.0}
+    if re.fullmatch(r"list\[\s*tuple\[\s*float\s*,\s*float\s*\]\s*\]", clean_type, re.IGNORECASE):
+        return [{f"{param_name}_min": 0.0, f"{param_name}_max": 1.0}]
+
+    literal_match = re.search(r"Literal\[(.*)\]", clean_type)
+    if literal_match:
+        options_str = literal_match.group(1)
+        options_list = [opt.strip().strip("'\"") for opt in _split_type_string_safely(options_str)]
+        if options_list:
+            return options_list[0]
+    if clean_type in SAQC_CUSTOM_SELECT_TYPES:
+        literal_obj = SAQC_CUSTOM_SELECT_TYPES[clean_type]
+        args = get_args(literal_obj)
+        if args:
+            return args[0]
+
+    if 'callable' in clean_type.lower() or 'genericfunction' in clean_type.lower():
+        return "'mean'"
+
+    if 'int' in clean_type.lower() or 'float' in clean_type.lower():
+        return 1
+
+    if 'bool' in clean_type.lower(): return True
+    if any(s in clean_type.lower() for s in ['offset', 'timedelta', 'freq']): return "1D"
+
     return "a_string"
 
 
@@ -866,14 +889,13 @@ def generate_test_variants(method: Callable) -> list:
     """
     variants = []
     base_params = {}
-    complex_params = {} # Speichert Infos für Parameter, die Unions sind
+    complex_params = {}
 
     try:
         parameters = inspect.signature(method).parameters
     except (ValueError, TypeError):
         return []
 
-    # 1. Parameter analysieren, genau wie in der Wrap-Funktion
     for param_name, param in parameters.items():
         if param_name in ["self", "kwargs"] or "kwarg" in param_name.lower():
             continue
@@ -903,43 +925,55 @@ def generate_test_variants(method: Callable) -> list:
         if len(type_parts_without_none) > 1:
             complex_params[param_name] = type_parts_without_none
         elif type_parts_without_none:
+            single_type_str = type_parts_without_none[0]
             if param_name in ["field", "target"]:
-                base_params[param_name] = "test_variable"
+                 base_params[param_name] = "test_variable"
             else:
-                base_params[param_name] = get_test_value_for_type(type_parts_without_none[0])
+                test_value = get_test_value_for_type(single_type_str, param_name)
+                if isinstance(test_value, dict):
+                    base_params.update(test_value)
+                else:
+                    base_params[param_name] = test_value
         else:
-            # Fallback, falls gar kein Typ gefunden wird (z.B. nur 'None' oder leer)
-            base_params[param_name] = get_test_value_for_type("str")
+            base_params[param_name] = get_test_value_for_type("str", param_name)
 
-            
-    # 2. Einen Default-Testfall erstellen
     default_galaxy_params = base_params.copy()
     for name, type_parts in complex_params.items():
         first_type = type_parts[0]
-        test_value = get_test_value_for_type(first_type)
-        default_galaxy_params[f"{name}_cond"] = {f"{name}_selector": "type_0", name: test_value}
+        test_value = get_test_value_for_type(first_type, name)
+        
+        when_params = {f"{name}_selector": "type_0"}
+        if isinstance(test_value, dict):
+            when_params.update(test_value)
+        else:
+            when_params[name] = test_value
+        default_galaxy_params[f"{name}_cond"] = when_params
     
     variants.append({
         "description": f"Test mit Defaults für {method.__name__}",
         "galaxy_params": default_galaxy_params,
     })
-    
-    # 3. Varianten für jede Option jedes komplexen Parameters erstellen
+
     for name, type_parts in complex_params.items():
         for i, type_str in enumerate(type_parts):
-            # Den Default-Fall nicht doppelt hinzufügen
             if i == 0:
                 continue
 
             variant_galaxy_params = default_galaxy_params.copy()
-            test_value = get_test_value_for_type(type_str)
-            variant_galaxy_params[f"{name}_cond"] = {f"{name}_selector": f"type_{i}", name: test_value}
+            test_value = get_test_value_for_type(type_str, name)
+            
+            when_params = {f"{name}_selector": f"type_{i}"}
+            if isinstance(test_value, dict):
+                when_params.update(test_value)
+            else:
+                when_params[name] = test_value
+
+            variant_galaxy_params[f"{name}_cond"] = when_params
             
             variants.append({
                 "description": f"Test-Variante für '{name}' mit Typ '{type_str}'",
                 "galaxy_params": variant_galaxy_params,
             })
-            
     return variants
 
 
@@ -949,6 +983,10 @@ def build_test_xml_recursively(parent_element: ET.Element, params_dict: dict):
         if name.endswith("_cond") and isinstance(value, dict):
             cond_elem = ET.SubElement(parent_element, "conditional", {"name": name})
             build_test_xml_recursively(cond_elem, value)
+        elif isinstance(value, list):
+            repeat_elem = ET.SubElement(parent_element, "repeat", {"name": name})
+            for item_dict in value:
+                build_test_xml_recursively(repeat_elem, item_dict)
         else:
             val_str = str(value).lower() if isinstance(value, bool) else str(value) if value is not None else ""
             ET.SubElement(parent_element, "param", {"name": name, "value": val_str})
@@ -959,7 +997,6 @@ def format_value_for_regex(value: Any) -> str:
     if value is None: return "None"
     if isinstance(value, bool): return str(value)
 
-    # Behandelt Zahlen so, dass sie sowohl Integer- als auch Float-Darstellungen entsprechen (z. B. 1 und 1.0)
     if isinstance(value, int):
         return f"{re.escape(str(value))}(?:\\.0)?"
     if isinstance(value, float):
@@ -967,13 +1004,11 @@ def format_value_for_regex(value: Any) -> str:
             return f"{re.escape(str(int(value)))}(?:\\.0)?"
         return re.escape(str(value))
 
-    # Behandelt spezielle __sq__-Anführungszeichen für Callables, die als Strings wie "'mean'" übergeben werden
     if isinstance(value, str) and value.startswith("'") and value.endswith("'"):
         inner_val = value.strip("'")
         transformed_val = f"__sq__{inner_val}__sq__"
         return f"[\"']?{re.escape(transformed_val)}[\"']?"
 
-    # Standard-String-Behandlung
     if isinstance(value, str):
         return f"[\"']{re.escape(str(value))}[\"']"
         
@@ -1022,26 +1057,15 @@ def generate_test_macros():
                              final_params_to_check[key] = p_value[key]
                     else:
                         final_params_to_check[p_name] = p_value
-
-                # ANFANG DER ÄNDERUNG: Wechsle zu mehreren `has_text`-Assertions
                 
                 subject = final_params_to_check.pop("field", None)
                 if not subject:
                     subject = final_params_to_check.pop("target", None)
 
-                # Anstatt einer komplexen Regex werden mehrere einfache Text-Suchen durchgeführt.
-                # Dies ist die robusteste Methode, um das Vorhandensein von Textteilen
-                # unabhängig von Reihenfolge und Formatierung zu prüfen.
-
-                # 1. Prüfe auf den Methodennamen
                 ET.SubElement(assert_contents, "has_text", {"text": method_name})
-                
-                # 2. Prüfe auf das Subjekt (den Wert von 'field' oder 'target')
+
                 if subject:
                     ET.SubElement(assert_contents, "has_text", {"text": str(subject)})
-                
-                # ENDE DER ÄNDERUNG
-
 
     try:
         ET.indent(macros_root, space="  ")

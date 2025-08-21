@@ -49,8 +49,7 @@ TRACING_DATA = []
 
 def discover_literals(*modules_to_scan) -> Dict[str, Any]:
     """
-    Durchsucht die übergebenen Python-Module nach Literal-Definitionen
-    und gibt sie als Dictionary zurück.
+    Searches the modules for literal definitions.
     """
     discovered_literals = {}
     for module in modules_to_scan:
@@ -79,9 +78,7 @@ except (ImportError, TypeError) as e:
 
 def clean_annotation_string(s: str) -> str:
     """
-    Wandelt Nicht-Standard-Typ-Annotationen aus saqc in gültigen Python-Code um.
-    Diese Funktion dient als Fallback für komplexe Typen, die von eval() verarbeitet werden,
-    insbesondere für die Test-Generierung.
+    Translates non standard data types in standard types.
     """
     if not isinstance(s, str):
         return s
@@ -242,7 +239,7 @@ def parse_parameter_docs(sections: Dict[str, str]) -> Dict[str, str]:
 
 def get_label_help(param_name, parameter_docs):
     """
-    Extrahiert Label und Hilfetext aus der Parameter-Dokumentation.
+    Extracts label and help text.
     """
     parameter_doc_entry = parameter_docs.get(param_name)
     full_help = parameter_doc_entry.strip() if parameter_doc_entry else ""
@@ -339,10 +336,6 @@ def get_methods(module):
 
 
 def _split_type_string_safely(type_string: str) -> list[str]:
-    """
-    Zerlegt einen Typ-String bei '|' oder ',', ignoriert aber Trennzeichen
-    innerhalb von Klammern (eckig, rund).
-    """
     parts = []
     current_part = ""
     bracket_level = 0
@@ -679,7 +672,7 @@ def get_methods_conditional(methods, module, tracing=False):
 
 
 def generate_tool_xml(tracing=False):
-    """Generiert und druckt die XML-Definition des Galaxy-Tools."""
+    """Generates XML-Definition of Galaxy-Tools."""
     command_override = [
         """
 #if str($run_test_mode) == "true":
@@ -821,8 +814,7 @@ def generate_tool_xml(tracing=False):
 
 def get_test_value_for_type(type_str: str, param_name: str) -> Any:
     """
-    Gibt einen plausiblen, validen Test-Wert oder eine Struktur für einen gegebenen Typ-String zurück.
-    Beachtet spezielle Strukturen wie dicts, slices und tuples.
+    Gives valid test values and handles special types like dicts, slices und tuples.
     """
     clean_type = type_str.strip()
 
@@ -862,10 +854,6 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
 
 
 def generate_test_variants(method: Callable) -> list:
-    """
-    Generiert Test-Varianten. Nutzt eine identische Analyse-Logik
-    wie die `get_method_params` Funktion für den Wrap.
-    """
     variants = []
     base_params = {}
     complex_params = {}
@@ -961,7 +949,6 @@ def generate_test_variants(method: Callable) -> list:
 
 
 def build_test_xml_recursively(parent_element: ET.Element, params_dict: dict):
-    """Baut die korrekte, verschachtelte Test-XML-Struktur rekursiv auf."""
     for name, value in params_dict.items():
         if name.endswith("_cond") and isinstance(value, dict):
             cond_elem = ET.SubElement(parent_element, "conditional", {"name": name})
@@ -976,7 +963,6 @@ def build_test_xml_recursively(parent_element: ET.Element, params_dict: dict):
 
 
 def format_value_for_regex(value: Any) -> str:
-    """Formatiert einen Python-Wert in einen Regex-String für die Assertion."""
     if value is None:
         return "None"
     if isinstance(value, bool):
@@ -1001,7 +987,6 @@ def format_value_for_regex(value: Any) -> str:
 
 
 def generate_test_macros():
-    """Hauptfunktion zur Generierung der Galaxy-Test-Makros."""
     macros_root = ET.Element("macros")
     all_tests_macro = ET.SubElement(macros_root, "xml", {"name": "config_tests"})
     print("--- Starting Test Macro Generation ---", file=sys.stderr)

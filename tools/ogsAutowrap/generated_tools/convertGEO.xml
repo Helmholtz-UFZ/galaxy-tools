@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'convertGEO'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[convertGEO --version]]></version_command>
@@ -9,11 +10,13 @@
     #for $f in $input_file:
         --input-file '$f'
     #end for
-    --gmsh-path '$gmsh_path'
+    #for $f in $gmsh_path:
+        --gmsh-path '$f'
+    #end for
     --output-file output_1.dat]]></command>
   <inputs>
-    <param name="input_file" type="data" optional="false" label="input file" help="the name of the geometry file to be converted" format="gml,gli" multiple="false"/>
-    <param name="gmsh_path" type="text" value="false" optional="false" label="gmsh path" help="the path to the gmsh binary file (format "/>
+    <param name="input_file" type="data" optional="false" label="input file" help="Input (.gml|.gli). The name of the geometry file to be converted" format="gml,gli" multiple="false"/>
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the gmsh binary file" format="msh" multiple="true"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from convertGEO">

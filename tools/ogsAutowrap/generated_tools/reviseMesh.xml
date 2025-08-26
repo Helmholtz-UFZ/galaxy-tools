@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'reviseMesh'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[reviseMesh --version]]></version_command>
@@ -15,7 +16,7 @@
   <inputs>
     <param name="min_ele_dim" type="text" value="1" optional="false" label="min ele dim" help="Minimum dimension of elements to be inserted into new mesh"/>
     <param name="eps" type="float" value="2.220446049250313e-16" optional="false" label="eps" help="Minimum distance for nodes not to be collapsed"/>
-    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="input mesh file, " format="vtu" multiple="false"/>
+    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu) mesh file" format="vtu" multiple="false"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from reviseMesh">

@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'MoveGeometry'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[MoveGeometry --version]]></version_command>
@@ -17,7 +18,7 @@
     <param name="z" type="float" value="0.0" optional="false" label="z" help="displacement in z direction"/>
     <param name="y" type="float" value="0.0" optional="false" label="y" help="displacement in y direction"/>
     <param name="x" type="float" value="0.0" optional="false" label="x" help="displacement in x direction"/>
-    <param name="input" type="data" optional="false" label="input" help="input geometry file (format = *.gml)" format="gml" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.gml) geometry file" format="gml" multiple="false"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from MoveGeometry">

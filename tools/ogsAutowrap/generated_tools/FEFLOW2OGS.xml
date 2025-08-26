@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'FEFLOW2OGS'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[FEFLOW2OGS --version]]></version_command>
@@ -11,7 +12,7 @@
     #end for
     --out output_1.dat]]></command>
   <inputs>
-    <param name="in" type="data" optional="false" label="in" help="FEFLOW input file (format = *.fem)" format="fem" multiple="false"/>
+    <param name="in" type="data" optional="false" label="in" help="Input (.fem). FEFLOW input file" format="fem" multiple="false"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from FEFLOW2OGS">

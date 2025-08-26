@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'OGS2VTK'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[OGS2VTK --version]]></version_command>
@@ -9,10 +10,11 @@
     #for $f in $mesh_input_file:
         --mesh-input-file '$f'
     #end for
-    --mesh-output-file output_1.vtk
-    --ascii_output output_2.dat]]></command>
+    $ascii_output
+    --mesh-output-file output_1.vtk]]></command>
   <inputs>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="the name of the file containing the input mesh (format = *.msh)" format="msh" multiple="false"/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.msh). The name of the file containing the input mesh" format="msh" multiple="false"/>
+    <param name="ascii_output" type="boolean" label="ascii output" help="Write VTU output in ASCII file. Due to possible rounding the ascii" checked="false" truevalue="--ascii_output" falsevalue=""/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from OGS2VTK">

@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'postLIE'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[postLIE --version]]></version_command>
@@ -12,7 +13,7 @@
     $no_overwrite
     --output-file output_1.vtu]]></command>
   <inputs>
-    <param name="input_file" type="data" optional="false" label="input file" help="the original PVD or VTU file name, " format="vtu,pvd" multiple="false"/>
+    <param name="input_file" type="data" optional="false" label="input file" help="Input (.vtu | .pvd). The original PVD or VTU file name" format="vtu,pvd" multiple="true"/>
     <param name="no_overwrite" type="boolean" label="no overwrite" help="don" checked="false" truevalue="--no-overwrite" falsevalue=""/>
   </inputs>
   <outputs>

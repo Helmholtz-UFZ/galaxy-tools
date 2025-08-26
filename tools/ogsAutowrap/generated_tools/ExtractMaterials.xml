@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'ExtractMaterials'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[ExtractMaterials --version]]></version_command>
@@ -12,8 +13,8 @@
     #end for
     --output output_1.vtu]]></command>
   <inputs>
-    <param name="material_id" type="integer" value="false" optional="false" label="material id" help="The MaterialID for which elements should be extracted into a new " min="0"/>
-    <param name="input" type="data" optional="false" label="input" help="Name of the input mesh " format="vtu" multiple="false"/>
+    <param name="material_id" type="integer" value="false" optional="false" label="material id" help="The MaterialID for which elements should be extracted into a new" min="0"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). Name of the input mesh" format="vtu" multiple="false"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from ExtractMaterials">

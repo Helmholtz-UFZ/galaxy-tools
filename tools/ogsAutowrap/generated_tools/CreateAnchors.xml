@@ -2,11 +2,11 @@
   <description>Galaxy wrapper for the OGS utility 'CreateAnchors'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[CreateAnchors --version]]></version_command>
   <command><![CDATA[CreateAnchors
-    --log-level '$log_level'
     #for $f in $input:
         --input '$f'
     #end for
@@ -14,21 +14,15 @@
         --json-file '$f'
     #end for
     --tolerance '$tolerance'
-    --max-iter '$max_iter'
+    #if str($max_iter):
+        --max-iter '$max_iter'
+    #end if
     --output output_1.vtu]]></command>
   <inputs>
-    <param name="log_level" type="select" value="error" optional="false" label="log level" help="the verbosity of logging messages: ">
-      <option value="none">none</option>
-      <option value="error">error</option>
-      <option value="warn">warn</option>
-      <option value="info">info</option>
-      <option value="debug">debug</option>
-      <option value="all">all</option>
-    </param>
-    <param name="input" type="data" optional="false" label="input" help="Input bulk mesh file, " format="vtu" multiple="false"/>
-    <param name="json_file" type="data" optional="false" label="json file" help="Input JSON file containing anchor start and end points, " format="json" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu) bulk mesh file" format="vtu" multiple="false"/>
+    <param name="json_file" type="data" optional="false" label="json file" help="Input (.json) JSON file containing anchor start and end points" format="json" multiple="false"/>
     <param name="tolerance" type="float" value="2.220446049250313e-16" optional="false" label="tolerance" help="Tolerance/Search length"/>
-    <param name="max_iter" type="text" value="(min = 0)" optional="false" label="max iter" help="maximum number of iterations of the internal root-finding " min="0"/>
+    <param name="max_iter" type="text" optional="true" label="max iter" help="maximum number of iterations of the internal root-finding" min="0"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from CreateAnchors">

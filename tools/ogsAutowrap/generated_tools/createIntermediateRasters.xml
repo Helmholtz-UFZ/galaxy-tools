@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'createIntermediateRasters'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[createIntermediateRasters --version]]></version_command>
@@ -15,9 +16,9 @@
     #end for
     --output-file output_1.asc]]></command>
   <inputs>
-    <param name="number" type="integer" value="false" optional="false" label="number" help="number of rasters to be calculated, " min="0"/>
-    <param name="file2" type="data" optional="false" label="file2" help="Second DEM-raster input file, " format="asc" multiple="false"/>
-    <param name="file1" type="data" optional="false" label="file1" help="First DEM-raster input file, " format="asc" multiple="false"/>
+    <param name="number" type="integer" value="false" optional="false" label="number" help="number of rasters to be calculated," min="0"/>
+    <param name="file2" type="data" optional="false" label="file2" help="Input (.asc). Second DEM-raster input file" format="asc" multiple="false"/>
+    <param name="file1" type="data" optional="false" label="file1" help="Input (.asc) First DEM-raster input file" format="asc" multiple="false"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from createIntermediateRasters">

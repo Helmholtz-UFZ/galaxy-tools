@@ -2,31 +2,16 @@
   <description>Galaxy wrapper for the OGS utility 'BinaryToPVTU'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[BinaryToPVTU --version]]></version_command>
   <command><![CDATA[BinaryToPVTU
-    #for $f in $mesh_input_file_base:
-        --mesh-input-file-base '$f'
-    #end for
-    --log-level '$log_level'
-    --output output_1.dat]]></command>
+    --mesh-input-file-base '${$mesh_input_file_base.rsplit('.', 1)[0]}']]></command>
   <inputs>
-    <param name="mesh_input_file_base" type="data" optional="false" label="mesh input file base" help="the base name of the files containing the input mesh, i.e., the file " format="bin" multiple="false"/>
-    <param name="log_level" type="select" value="error" optional="false" label="log level" help="the verbosity of logging messages (allowed values: ">
-      <option value="none">none</option>
-      <option value="error">error</option>
-      <option value="warn">warn</option>
-      <option value="info">info</option>
-      <option value="debug">debug</option>
-      <option value="all">all</option>
-    </param>
+    <param name="mesh_input_file_base" type="data" optional="false" label="mesh input file base" help="Input (.bin). The base name of the files containing the input mesh, " format="bin" multiple="false"/>
   </inputs>
-  <outputs>
-    <collection name="tool_outputs" type="list" label="Outputs from BinaryToPVTU">
-      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
-    </collection>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="ogsutilssuite_tests"/>
   </tests>

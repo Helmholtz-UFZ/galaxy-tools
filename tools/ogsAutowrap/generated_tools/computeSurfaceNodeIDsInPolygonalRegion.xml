@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'computeSurfaceNodeIDsInPolygonalRegion'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[computeSurfaceNodeIDsInPolygonalRegion --version]]></version_command>
@@ -16,9 +17,9 @@
         --gmsh-path '$f'
     #end for]]></command>
   <inputs>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="the name of the file containing the input mesh, " format="vtu" multiple="false"/>
-    <param name="geo_file" type="data" optional="false" label="geo file" help="the name of the input file containing the polygons, " format="gml" multiple="false"/>
-    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="the path to the input binary file, " format="msh" multiple="false"/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtu" multiple="false"/>
+    <param name="geo_file" type="data" optional="false" label="geo file" help="Input (.gml). The name of the input file containing the polygons" format="gml" multiple="false"/>
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input binary file" format="msh" multiple="false"/>
   </inputs>
   <outputs/>
   <tests>

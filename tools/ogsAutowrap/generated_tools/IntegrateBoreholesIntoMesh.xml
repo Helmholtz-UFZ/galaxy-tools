@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'IntegrateBoreholesIntoMesh'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[IntegrateBoreholesIntoMesh --version]]></version_command>
@@ -18,12 +19,12 @@
     #end for
     --output output_1.vtu]]></command>
   <inputs>
-    <param name="max_elevation" type="float" value="false" optional="false" label="max elevation" help="Maximum elevation for an integrated borehole, " min="0"/>
-    <param name="min_elevation" type="float" value="false" optional="false" label="min elevation" help="Minimum elevation for an integrated borehole, " min="0"/>
+    <param name="max_elevation" type="float" value="false" optional="false" label="max elevation" help="Maximum elevation for an integrated borehole," min="0"/>
+    <param name="min_elevation" type="float" value="false" optional="false" label="min elevation" help="Minimum elevation for an integrated borehole," min="0"/>
     <param name="max_id" type="integer" value="-1" optional="false" label="max id" help="Maximum MaterialID for an integrated borehole"/>
     <param name="min_id" type="integer" value="-1" optional="false" label="min id" help="Minimum MaterialID for an integrated borehole"/>
-    <param name="geo" type="data" optional="false" label="geo" help="Name of the input geometry file, " format="gml" multiple="false"/>
-    <param name="input" type="data" optional="false" label="input" help="Name of the input mesh file, " format="vtu" multiple="false"/>
+    <param name="geo" type="data" optional="false" label="geo" help="Input (.gml). Name of the geometry file" format="gml" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). Name of the mesh file" format="vtu" multiple="false"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from IntegrateBoreholesIntoMesh">

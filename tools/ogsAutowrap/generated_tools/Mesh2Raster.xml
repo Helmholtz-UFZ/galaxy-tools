@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'Mesh2Raster'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[Mesh2Raster --version]]></version_command>
@@ -13,7 +14,7 @@
     --output-file output_1.asc]]></command>
   <inputs>
     <param name="cellsize" type="float" value="1" optional="false" label="cellsize" help="edge length of raster cells in result. (min = 0)" min="0"/>
-    <param name="input_file" type="data" optional="false" label="input file" help="Mesh input file (format = *.vtu, *.msh)" format="vtu,msh" multiple="false"/>
+    <param name="input_file" type="data" optional="false" label="input file" help="Input (.vtu | .msh). Mesh input file" format="vtu,msh" multiple="false"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from Mesh2Raster">

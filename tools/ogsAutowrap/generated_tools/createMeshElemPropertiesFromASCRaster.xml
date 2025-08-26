@@ -2,10 +2,12 @@
   <description>Galaxy wrapper for the OGS utility 'createMeshElemPropertiesFromASCRaster'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[createMeshElemPropertiesFromASCRaster --version]]></version_command>
   <command><![CDATA[createMeshElemPropertiesFromASCRaster
+    $output_refined_raster
     --refine '$refine'
     #for $f in $raster_file:
         --raster-file '$f'
@@ -16,13 +18,13 @@
     #for $f in $mesh:
         --mesh '$f'
     #end for
-    --out-mesh output_1.vtu
-    --output-refined-raster output_2.dat]]></command>
+    --out-mesh output_1.vtu]]></command>
   <inputs>
+    <param name="output_refined_raster" type="boolean" label="output refined raster" help="Write refined raster to an additional, new ASC file." checked="false" truevalue="--output-refined-raster" falsevalue=""/>
     <param name="refine" type="text" value="1" optional="false" label="refine" help="refinement factor that raises the resolution of the raster data"/>
-    <param name="raster_file" type="data" optional="false" label="raster file" help="the name of the input " format="asc" multiple="false"/>
+    <param name="raster_file" type="data" optional="false" label="raster file" help="Input (.asc). The name of the input " format="asc" multiple="false"/>
     <param name="property_name" type="text" optional="false" label="property name" help="the name of the property the values are stored for"/>
-    <param name="mesh" type="data" optional="false" label="mesh" help="the input mesh is read from this file, " format="vtu" multiple="false"/>
+    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The input mesh is read from this file" format="vtu" multiple="false"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from createMeshElemPropertiesFromASCRaster">

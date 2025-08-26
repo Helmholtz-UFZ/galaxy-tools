@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'convertToLinearMesh'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[convertToLinearMesh --version]]></version_command>
@@ -11,7 +12,7 @@
     #end for
     --output-mesh-file output_1.vtu]]></command>
   <inputs>
-    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="input mesh file " format="vtu,msh" multiple="false"/>
+    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu | .msh) mesh file" format="vtu,msh" multiple="false"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from convertToLinearMesh">

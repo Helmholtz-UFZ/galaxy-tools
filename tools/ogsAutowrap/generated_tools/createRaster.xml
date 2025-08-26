@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'createRaster'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[createRaster --version]]></version_command>
@@ -15,7 +16,7 @@
   <inputs>
     <param name="n_rows" type="integer" value="1000" optional="false" label="n rows" help="number of rows" min="0"/>
     <param name="n_cols" type="integer" value="1000" optional="false" label="n cols" help="number of columns" min="0"/>
-    <param name="cell_size" type="float" value="false" optional="false" label="cell size" help="cell size, " min="0"/>
+    <param name="cell_size" type="float" value="false" optional="false" label="cell size" help="cell size," min="0"/>
     <param name="ll_y" type="float" value="0" optional="false" label="ll y" help="y coordinate of lower left point of axis aligned rectangular region"/>
     <param name="ll_x" type="float" value="0" optional="false" label="ll x" help="x coordinate of lower left point of axis aligned rectangular region"/>
   </inputs>

@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'TIN2VTK'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[TIN2VTK --version]]></version_command>
@@ -11,7 +12,7 @@
     #end for
     --output-vtu-file output_1.vtu]]></command>
   <inputs>
-    <param name="input_tin_file" type="data" optional="false" label="input tin file" help="the name of the input file " format="tin" multiple="false"/>
+    <param name="input_tin_file" type="data" optional="false" label="input tin file" help="Input (.tin). The name " format="tin" multiple="false"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from TIN2VTK">

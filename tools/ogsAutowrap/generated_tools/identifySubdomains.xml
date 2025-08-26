@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'identifySubdomains'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[identifySubdomains --version]]></version_command>
@@ -11,11 +12,11 @@
     #for $f in $mesh:
         --mesh '$f'
     #end for
-    --output_prefix output_1.dat]]></command>
+    --output_prefix output_1]]></command>
   <inputs>
     <param name="force" type="boolean" label="force" help="Overwriting existing subdomain meshes." checked="false" truevalue="--force" falsevalue=""/>
-    <param name="searchlength" type="float" value="1e-16" optional="false" label="searchlength" help="search length determining radius for the node search algorithm. " min="0"/>
-    <param name="mesh" type="data" optional="false" label="mesh" help="the file name of the input bulk mesh, " format="vtu" multiple="false"/>
+    <param name="searchlength" type="float" value="false" optional="false" label="searchlength" help="search length determining radius for the node search algorithm." min="0"/>
+    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file name of the bulk mesh" format="vtu" multiple="false"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from identifySubdomains">

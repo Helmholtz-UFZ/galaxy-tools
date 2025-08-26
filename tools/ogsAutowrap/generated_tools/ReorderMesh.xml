@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'ReorderMesh'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[ReorderMesh --version]]></version_command>
@@ -11,7 +12,7 @@
     #end for
     --output output_1.vtu]]></command>
   <inputs>
-    <param name="input" type="data" optional="false" label="input" help="name of the input mesh file, " format="vtu" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). Name of the input mesh file" format="vtu" multiple="false"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from ReorderMesh">

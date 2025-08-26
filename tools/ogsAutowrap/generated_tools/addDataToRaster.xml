@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'addDataToRaster'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[addDataToRaster --version]]></version_command>
@@ -19,17 +20,17 @@
     --output_raster output_1.asc]]></command>
   <inputs>
     <param name="scaling_value" type="float" value="1" optional="false" label="scaling value" help="value the function sin(x pi) sin(y pi) will be scaled with"/>
-    <param name="offset_value" type="float" value="false" optional="false" label="offset value" help="constant added to the function "/>
+    <param name="offset_value" type="float" value="false" optional="false" label="offset value" help="constant added to the function"/>
     <param name="ll_x" type="float" value="0" optional="false" label="ll x" help="x coordinate of lower left point of axis aligned rectangular region"/>
     <param name="ll_y" type="float" value="0" optional="false" label="ll y" help="y coordinate of lower left point of axis aligned rectangular region"/>
-    <param name="ur_x" type="float" value="false" optional="false" label="ur x" help="x coordinate of the upper right point of "/>
-    <param name="ur_y" type="float" value="false" optional="false" label="ur y" help="y coordinate of the upper right point of "/>
-    <param name="function" type="select" value="exp" optional="false" label="function" help="Name of the function used to modify the raster, ">
+    <param name="ur_x" type="float" value="false" optional="false" label="ur x" help="x coordinate of the upper right point of"/>
+    <param name="ur_y" type="float" value="false" optional="false" label="ur y" help="y coordinate of the upper right point of"/>
+    <param name="function" type="select" label="function" help="Name of the function used to modify the raster">
       <option value="sinxsiny">sinxsiny</option>
       <option value="exp">exp</option>
       <option value="step">step</option>
     </param>
-    <param name="input" type="data" optional="false" label="input" help="Name of the input raster file, " format="asc" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.asc). " format="asc" multiple="false"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from addDataToRaster">

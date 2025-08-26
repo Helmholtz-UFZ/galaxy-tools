@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'checkMesh'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[checkMesh --version]]></version_command>
@@ -12,7 +13,7 @@
   <inputs>
     <param name="validation" type="boolean" label="validation" help="validate the mesh" checked="false" truevalue="--validation" falsevalue=""/>
     <param name="print_properties" type="boolean" label="print properties" help="print properties stored in the mesh" checked="false" truevalue="--print_properties" falsevalue=""/>
-    <param name="mesh_file" type="data" optional="true" label="mesh file" help="input mesh file (format = *.vtu, *.msh)&quot;, true, &quot;" format="vtu,msh" multiple="false"/>
+    <param name="mesh_file" type="data" optional="true" label="mesh file" help="Input (.vtu | .msh). Mesh file&quot;, true, &quot;" format="vtu,msh" multiple="false"/>
   </inputs>
   <outputs/>
   <tests>

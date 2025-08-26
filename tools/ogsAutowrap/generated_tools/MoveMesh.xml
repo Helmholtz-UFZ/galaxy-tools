@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'MoveMesh'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[MoveMesh --version]]></version_command>
@@ -14,7 +15,7 @@
     --z '$z'
     --output-mesh output_1.vtu]]></command>
   <inputs>
-    <param name="mesh" type="data" optional="false" label="mesh" help="input mesh file, " format="vtu" multiple="false"/>
+    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu) mesh file" format="vtu" multiple="false"/>
     <param name="x" type="float" value="0.0" optional="false" label="x" help="displacement in x direction"/>
     <param name="y" type="float" value="0.0" optional="false" label="y" help="displacement in y direction"/>
     <param name="z" type="float" value="0.0" optional="false" label="z" help="displacement in z direction"/>

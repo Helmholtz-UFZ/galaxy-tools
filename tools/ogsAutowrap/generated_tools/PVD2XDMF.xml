@@ -2,23 +2,15 @@
   <description>Galaxy wrapper for the OGS utility 'PVD2XDMF'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[PVD2XDMF --version]]></version_command>
   <command><![CDATA[PVD2XDMF
-    --log-level '$log_level'
     '$pvd_file'
     --output-directory output_1.dat]]></command>
   <inputs>
-    <param name="log_level" type="select" value="error" optional="false" label="log level" help="the verbosity of logging messages/ ">
-      <option value="none">none</option>
-      <option value="error">error</option>
-      <option value="warn">warn</option>
-      <option value="info">info</option>
-      <option value="debug">debug</option>
-      <option value="all">all</option>
-    </param>
-    <param name="pvd_file" type="data" optional="true" label="pvd file" help="input file &quot;&#10;                                                       &quot;(format = *.pvd)&quot;,&#10;                                                       true, &quot;" format="pvd" multiple="false"/>
+    <param name="pvd_file" type="data" optional="true" label="pvd file" help="Input (.pvd) file&quot;, true, &quot;" format="pvd" multiple="false"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from PVD2XDMF">

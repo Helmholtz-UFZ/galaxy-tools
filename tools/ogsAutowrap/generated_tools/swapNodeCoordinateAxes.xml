@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'swapNodeCoordinateAxes'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[swapNodeCoordinateAxes --version]]></version_command>
@@ -12,8 +13,8 @@
     --new-order '$new_order'
     --output-mesh-file output_1.vtu]]></command>
   <inputs>
-    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="input mesh file, " format="vtu" multiple="false"/>
-    <param name="new_order" type="text" value="true" optional="false" label="new order" help="the new order of swapped coordinate values (e.g. "/>
+    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu) mesh file" format="vtu" multiple="false"/>
+    <param name="new_order" type="text" value="true" optional="false" label="new order" help="the new order of swapped coordinate values (e.g."/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from swapNodeCoordinateAxes">

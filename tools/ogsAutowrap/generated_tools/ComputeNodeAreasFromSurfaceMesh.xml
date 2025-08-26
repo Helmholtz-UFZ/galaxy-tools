@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'ComputeNodeAreasFromSurfaceMesh'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[ComputeNodeAreasFromSurfaceMesh --version]]></version_command>
@@ -10,10 +11,15 @@
         --mesh-input-file '$f'
     #end for
     --id-prop-name '$id_prop_name'
-    --output-base-name output_1.csv]]></command>
+    --output-base-name output_1]]></command>
   <inputs>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="the name of the file containing the input mesh, " format="vtu" multiple="false"/>
-    <param name="id_prop_name" type="text" value="std::string(MeshLib::getBulkIDString(MeshLib::MeshItemType::Node))" optional="false" label="id prop name" help="the name of the property containing the id information"/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtu" multiple="false"/>
+    <param name="id_prop_name" type="select" label="id prop name" help="the name of the property containing the id information">
+      <option value="bulk_node_ids">bulk_node_ids</option>
+      <option value="bulk_element_ids">bulk_element_ids</option>
+      <option value="bulk_edge_ids">bulk_edge_ids</option>
+      <option value="bulk_face_ids">bulk_face_ids</option>
+    </param>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from ComputeNodeAreasFromSurfaceMesh">

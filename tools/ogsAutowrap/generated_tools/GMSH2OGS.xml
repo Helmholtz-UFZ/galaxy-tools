@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'GMSH2OGS'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[GMSH2OGS --version]]></version_command>
@@ -12,9 +13,9 @@
     $validation
     $boundaries
     $exclude_lines
-    --out output_1.dat]]></command>
+    --out output_1.msh]]></command>
   <inputs>
-    <param name="in" type="data" optional="false" label="in" help="input file, " format="msh" multiple="false"/>
+    <param name="in" type="data" optional="false" label="in" help="Input (.msh) file" format="msh" multiple="false"/>
     <param name="validation" type="boolean" label="validation" help="validate the mesh" checked="false" truevalue="--validation" falsevalue=""/>
     <param name="boundaries" type="boolean" label="boundaries" help="if set, boundary meshes will be generated" checked="false" truevalue="--boundaries" falsevalue=""/>
     <param name="exclude_lines" type="boolean" label="exclude lines" help="if set, lines will not be written to the ogs mesh" checked="false" truevalue="--exclude-lines" falsevalue=""/>

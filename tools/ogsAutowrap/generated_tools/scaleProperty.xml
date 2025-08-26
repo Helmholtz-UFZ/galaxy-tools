@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'scaleProperty'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[scaleProperty --version]]></version_command>
@@ -16,8 +17,12 @@
     --out-mesh output_1.vtu]]></command>
   <inputs>
     <param name="property_name" type="text" optional="false" label="property name" help="the name of the property the values are stored for"/>
-    <param name="mesh" type="data" optional="false" label="mesh" help="the input mesh is read from this file, " format="vtu" multiple="false"/>
-    <param name="input_unit" type="text" value="m/s" optional="false" label="input unit" help="input unit of the data"/>
+    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The input mesh is read from this file" format="vtu" multiple="false"/>
+    <param name="input_unit" type="select" label="input unit" help="input unit of the data">
+      <option value="mm/a">mm/a</option>
+      <option value="mm/month">mm/month</option>
+      <option value="m/s">m/s</option>
+    </param>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from scaleProperty">

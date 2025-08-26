@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'generateStructuredMesh'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[generateStructuredMesh --version]]></version_command>
@@ -27,7 +28,7 @@
     --oz '$oz'
     --mesh-output-file output_1.vtu]]></command>
   <inputs>
-    <param name="element_type" type="select" value="tri" optional="false" label="element type" help="element type to be created ">
+    <param name="element_type" type="select" label="element type" help="element type to be created">
       <option value="line">line</option>
       <option value="tri">tri</option>
       <option value="quad">quad</option>
@@ -36,18 +37,18 @@
       <option value="tet">tet</option>
       <option value="pyramid">pyramid</option>
     </param>
-    <param name="lx" type="float" value="false" optional="false" label="lx" help="length of a domain in x direction, " min="0"/>
-    <param name="ly" type="float" value="false" optional="false" label="ly" help="length of a domain in y direction, " min="0"/>
-    <param name="lz" type="float" value="false" optional="false" label="lz" help="length of a domain in z direction, " min="0"/>
-    <param name="nx" type="text" value="false" optional="false" label="nx" help="the number of subdivision in x direction, " min="0"/>
-    <param name="ny" type="text" value="false" optional="false" label="ny" help="the number of subdivision in y direction, " min="0"/>
-    <param name="nz" type="text" value="false" optional="false" label="nz" help="the number of subdivision in z direction, " min="0"/>
-    <param name="dx0" type="float" value="false" optional="false" label="dx0" help="initial cell length in x direction, " min="0"/>
-    <param name="dy0" type="float" value="false" optional="false" label="dy0" help="initial cell length in y direction, " min="0"/>
-    <param name="dz0" type="float" value="false" optional="false" label="dz0" help="initial cell length in z direction, " min="0"/>
-    <param name="dx_max" type="float" value="false" optional="false" label="dx max" help="maximum cell length in x direction, " min="0"/>
-    <param name="dy_max" type="float" value="false" optional="false" label="dy max" help="maximum cell length in y direction, " min="0"/>
-    <param name="dz_max" type="float" value="false" optional="false" label="dz max" help="maximum cell length in z direction, " min="0"/>
+    <param name="lx" type="float" value="false" optional="false" label="lx" help="length of a domain in x direction," min="0"/>
+    <param name="ly" type="float" value="false" optional="false" label="ly" help="length of a domain in y direction," min="0"/>
+    <param name="lz" type="float" value="false" optional="false" label="lz" help="length of a domain in z direction," min="0"/>
+    <param name="nx" type="text" value="false" optional="false" label="nx" help="the number of subdivision in x direction," min="0"/>
+    <param name="ny" type="text" value="false" optional="false" label="ny" help="the number of subdivision in y direction," min="0"/>
+    <param name="nz" type="text" value="false" optional="false" label="nz" help="the number of subdivision in z direction," min="0"/>
+    <param name="dx0" type="float" value="false" optional="false" label="dx0" help="initial cell length in x direction," min="0"/>
+    <param name="dy0" type="float" value="false" optional="false" label="dy0" help="initial cell length in y direction," min="0"/>
+    <param name="dz0" type="float" value="false" optional="false" label="dz0" help="initial cell length in z direction," min="0"/>
+    <param name="dx_max" type="float" value="false" optional="false" label="dx max" help="maximum cell length in x direction," min="0"/>
+    <param name="dy_max" type="float" value="false" optional="false" label="dy max" help="maximum cell length in y direction," min="0"/>
+    <param name="dz_max" type="float" value="false" optional="false" label="dz max" help="maximum cell length in z direction," min="0"/>
     <param name="mx" type="float" value="1" optional="false" label="mx" help="multiplier in x direction"/>
     <param name="my" type="float" value="1" optional="false" label="my" help="multiplier in y direction"/>
     <param name="mz" type="float" value="1" optional="false" label="mz" help="multiplier in z direction"/>

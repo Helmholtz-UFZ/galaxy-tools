@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'ExtractBoundary'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[ExtractBoundary --version]]></version_command>
@@ -9,10 +10,11 @@
     #for $f in $mesh_input_file:
         --mesh-input-file '$f'
     #end for
-    --mesh-output-file output_1.vtu
-    --ascii-output output_2.dat]]></command>
+    $ascii_output
+    --mesh-output-file output_1.vtu]]></command>
   <inputs>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="the name of the file containing the input mesh," format="vtu" multiple="false"/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtu" multiple="false"/>
+    <param name="ascii_output" type="boolean" label="ascii output" help="If the switch is set use ascii instead of" checked="false" truevalue="--ascii-output" falsevalue=""/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from ExtractBoundary">

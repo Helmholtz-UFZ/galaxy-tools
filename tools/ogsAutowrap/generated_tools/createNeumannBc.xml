@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'createNeumannBc'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[createNeumannBc --version]]></version_command>
@@ -10,11 +11,12 @@
         --in-mesh '$f'
     #end for
     --property-in-name '$property_in_name'
-    --property-out-name output_1.dat
-    --result-out output_2.txt]]></command>
+    --property-out-name '$property_out_name'
+    --result-out output_1.txt]]></command>
   <inputs>
-    <param name="in_mesh" type="data" optional="false" label="in mesh" help="the surface mesh input file that has an element property for the " format="vtu,msh" multiple="false"/>
-    <param name="property_in_name" type="text" value="true" optional="false" label="property in name" help="name of an element property used for the computation of the Neumann "/>
+    <param name="in_mesh" type="data" optional="false" label="in mesh" help="Input (.vtu | .msh). The surface mesh input file that has an element " format="vtu,msh" multiple="false"/>
+    <param name="property_in_name" type="text" value="true" optional="false" label="property in name" help="name of an element property used for the computation of the Neumann"/>
+    <param name="property_out_name" type="text" value="true" optional="false" label="property out name" help="name of the node based property used for the output of the Neumann"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from createNeumannBc">

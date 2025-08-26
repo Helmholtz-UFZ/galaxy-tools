@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'generateMatPropsFromMatID'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[generateMatPropsFromMatID --version]]></version_command>
@@ -10,7 +11,7 @@
         --mesh '$f'
     #end for]]></command>
   <inputs>
-    <param name="mesh" type="data" optional="true" label="mesh" help="the mesh to open from a file" format="msh" multiple="false"/>
+    <param name="mesh" type="data" optional="true" label="mesh" help="Input (.msh). The mesh to open from a file" format="msh" multiple="false"/>
   </inputs>
   <outputs/>
   <tests>

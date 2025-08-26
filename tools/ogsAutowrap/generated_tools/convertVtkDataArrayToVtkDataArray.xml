@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'convertVtkDataArrayToVtkDataArray'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[convertVtkDataArrayToVtkDataArray --version]]></version_command>
@@ -16,13 +17,13 @@
     #end for
     --out-mesh output_1.vtk]]></command>
   <inputs>
-    <param name="new_property_data_type" type="select" value="int" optional="false" label="new property data type" help="the name of the data type as string (allowed values: int, double)">
+    <param name="new_property_data_type" type="select" label="new property data type" help="the name of the data type as string">
       <option value="int">int</option>
       <option value="double">double</option>
     </param>
-    <param name="new_property_name" type="text" value="false" optional="false" label="new property name" help="the name of the new cell data array (PropertyVector) the values are "/>
+    <param name="new_property_name" type="text" value="false" optional="false" label="new property name" help="the name of the new cell data array (PropertyVector) the values are"/>
     <param name="existing_property_name" type="text" optional="false" label="existing property name" help="the name of the existing cell data array (PropertyVector)"/>
-    <param name="in_mesh" type="data" optional="false" label="in mesh" help="input mesh file name, (format = *.vtk) " format="vtk" multiple="false"/>
+    <param name="in_mesh" type="data" optional="false" label="in mesh" help="Input (.vtk) mesh file name" format="vtk" multiple="false"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from convertVtkDataArrayToVtkDataArray">

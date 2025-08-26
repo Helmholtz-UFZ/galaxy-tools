@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'PVTU2VTU'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[PVTU2VTU --version]]></version_command>
@@ -11,7 +12,7 @@
     #end for
     --output output_1.vtu]]></command>
   <inputs>
-    <param name="input" type="data" optional="false" label="input" help="the partitioned input mesh file (format = *.pvtu)" format="pvtu" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.pvtu). The partitioned input mesh file" format="pvtu" multiple="false"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from PVTU2VTU">

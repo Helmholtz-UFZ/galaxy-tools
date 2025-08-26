@@ -2,6 +2,7 @@
   <description>Galaxy wrapper for the OGS utility 'Raster2PointCloud'.</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[Raster2PointCloud --version]]></version_command>
@@ -14,10 +15,10 @@
     #end for
     --output output_1.vtp]]></command>
   <inputs>
-    <param name="gamma" type="float" value="smaller or larger values indicate a logarithmic or &quot;&#10;        &quot;exponential increase" optional="false" label="gamma" help="Exponental increase coefficient. A value of "/>
-    <param name="max_points" type="integer" value="false" optional="false" label="max points" help="Maximum number of points per pixel (default: 1000), " min="0"/>
-    <param name="max_elevation" type="float" value="false" optional="false" label="max elevation" help="Maximum elevation of randomly created points "/>
-    <param name="input" type="data" optional="false" label="input" help="Path to input raster files (format = *.asc). " format="asc" multiple="false"/>
+    <param name="gamma" type="float" value="smaller or larger values indicate a logarithmic or &quot;&#10;        &quot;exponential increase" optional="false" label="gamma" help="Exponental increase coefficient. A value of"/>
+    <param name="max_points" type="integer" value="false" optional="false" label="max points" help="Maximum number of points per pixel (default: 1000)," min="0"/>
+    <param name="max_elevation" type="float" value="false" optional="false" label="max elevation" help="Maximum elevation of randomly created points"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.asc). Path to input raster files. " format="asc" multiple="false"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from Raster2PointCloud">

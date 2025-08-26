@@ -1,0 +1,7 @@
+varname;test
+SM2;align(freq="15Min", method="nshift")
+'.*';flagRange(min=10, max=60)
+SM2;flagMissing()
+SM2;flagRange(min=10, max=60)
+SM2;flagZScore(window="30d", thresh=3.5, method='modified', center=False)
+Dummy;flag(func=(isflagged(SM1) | isflagged(SM2)))

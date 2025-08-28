@@ -260,7 +260,6 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
                 "format": ",".join(formats) if formats else 'data', "multiple": is_multiple
             }
             param = DataParam(**attrs)
-            # --- ÄNDERUNG HIER ---
             param.tclap_marker = final_tclap_arg
         else:
             is_required_in_tclap = cleaned_rem_args_parts and cleaned_rem_args_parts[0] == 'true'
@@ -340,14 +339,10 @@ def generate_tools():
                 is_unlabeled = getattr(param, 'is_unlabeled', False)
                 tclap_marker = getattr(param, 'tclap_marker', '')
 
-                # --- FINALE KORREKTUR DER "OPTIONAL"-LOGIK ---
-                # 1. Prüfe, ob das Attribut 'optional' auf "true" gesetzt ist.
                 optional_attr = getattr(param, 'optional', False)
                 is_optional_in_xml = (optional_attr is True or str(optional_attr).lower() == 'true')
-                
-                # 2. Die #if-Abfrage hängt NUR noch von dieser Eigenschaft ab.
+
                 needs_if_wrapper = is_optional_in_xml
-                # --- ENDE DER KORREKTUR ---
 
                 if isinstance(param, BooleanParam):
                     command_lines.append(f"    {param_var}")

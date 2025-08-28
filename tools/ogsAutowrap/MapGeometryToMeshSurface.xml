@@ -1,0 +1,27 @@
+<tool name="OGS: MapGeometryToMeshSurface" id="ogs_mapgeometrytomeshsurface" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'MapGeometryToMeshSurface'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[MapGeometryToMeshSurface --version]]></version_command>
+  <command><![CDATA[MapGeometryToMeshSurface
+    --mesh-file '$mesh_file'
+    --input-geometry '$input_geometry'
+    $additional_insert_mapping
+    --output-geometry output_1.gml]]></command>
+  <inputs>
+    <param name="mesh_file" type="data" optional="false" label="mesh file" help="Input (.vtu). the input file containing the mesh" format="vtu" multiple="false"/>
+    <param name="input_geometry" type="data" optional="false" label="input geometry" help="Input (.gml). the file containing the input geometry" format="gml" multiple="false"/>
+    <param name="additional_insert_mapping" type="boolean" label="additional insert mapping" help="Advanced mapping algorithm will be applied, i.e. a new geometry will be created and possibly new points will be inserted." checked="false" truevalue="--additional-insert-mapping" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data name="output_MapGeometryToMeshSurface" format="gml" label="Output file from MapGeometryToMeshSurface" from_work_dir="output_1.gml" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **MapGeometryToMeshSurface** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

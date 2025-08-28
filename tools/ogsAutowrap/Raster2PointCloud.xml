@@ -1,0 +1,35 @@
+<tool name="OGS: Raster2PointCloud" id="ogs_raster2pointcloud" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'Raster2PointCloud'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[Raster2PointCloud --version]]></version_command>
+  <command><![CDATA[Raster2PointCloud
+    #if str($gamma):
+        --gamma '$gamma'
+    #end if
+    #if str($max_points):
+        --max-points '$max_points'
+    #end if
+    #if str($max_elevation):
+        --max-elevation '$max_elevation'
+    #end if
+    --input '$input'
+    --output output_1.vtp]]></command>
+  <inputs>
+    <param name="gamma" type="float" value="0.0" optional="true" label="gamma" help="Exponental increase coefficient. A value of '1' indicates a linear increase, smaller or larger values indicate a logarithmic or exponential increase, respectively (default: 1)."/>
+    <param name="max_points" type="integer" value="0" optional="true" label="max points" help="Maximum number of points per pixel (default: 1000), (min = 0)." min="0"/>
+    <param name="max_elevation" type="float" value="0.0" optional="true" label="max elevation" help="Maximum elevation of randomly created points (default: 5000)."/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.asc). Path to input raster files. Specifying 'file.asc' will make the programme look for a series of files called 'file0.asc', 'file1.asc', etc." format="asc" multiple="false"/>
+  </inputs>
+  <outputs>
+    <data name="output_Raster2PointCloud" format="vtp" label="Output file from Raster2PointCloud" from_work_dir="output_1.vtp" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **Raster2PointCloud** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

@@ -1,0 +1,26 @@
+<tool name="OGS: computeSurfaceNodeIDsInPolygonalRegion" id="ogs_computesurfacenodeidsinpolygonalregion" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'computeSurfaceNodeIDsInPolygonalRegion'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[computeSurfaceNodeIDsInPolygonalRegion --version]]></version_command>
+  <command><![CDATA[computeSurfaceNodeIDsInPolygonalRegion
+    --mesh-input-file '$mesh_input_file'
+    --geo-file '$geo_file'
+    #if str($gmsh_path):
+        --gmsh-path '$gmsh_path'
+    #end if]]></command>
+  <inputs>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtu" multiple="false"/>
+    <param name="geo_file" type="data" optional="false" label="geo file" help="Input (.gml). the input file containing the polygons" format="gml" multiple="false"/>
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input binary file" format="msh" multiple="false"/>
+  </inputs>
+  <outputs/>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **computeSurfaceNodeIDsInPolygonalRegion** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

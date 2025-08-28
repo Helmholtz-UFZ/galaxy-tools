@@ -1,0 +1,24 @@
+<tool name="OGS: checkMesh" id="ogs_checkmesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'checkMesh'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[checkMesh --version]]></version_command>
+  <command><![CDATA[checkMesh
+    $validation
+    $print_properties
+    '$mesh_file']]></command>
+  <inputs>
+    <param name="validation" type="boolean" label="validation" help="validate the mesh" checked="false" truevalue="--validation" falsevalue=""/>
+    <param name="print_properties" type="boolean" label="print properties" help="print properties stored in the mesh" checked="false" truevalue="--print_properties" falsevalue=""/>
+    <param name="mesh_file" type="data" optional="false" label="mesh file" help="Input (.vtu | .msh). Mesh file" format="vtu,msh" multiple="false"/>
+  </inputs>
+  <outputs/>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **checkMesh** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

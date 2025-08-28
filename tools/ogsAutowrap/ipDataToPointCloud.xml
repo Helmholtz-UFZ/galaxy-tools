@@ -1,0 +1,23 @@
+<tool name="OGS: ipDataToPointCloud" id="ogs_ipdatatopointcloud" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'ipDataToPointCloud'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[ipDataToPointCloud --version]]></version_command>
+  <command><![CDATA[ipDataToPointCloud
+    --input-file '$input_file'
+    --output-file output_1.vtu]]></command>
+  <inputs>
+    <param name="input_file" type="data" optional="false" label="input file" help="Input (.vtu). The input mesh" format="vtu" multiple="false"/>
+  </inputs>
+  <outputs>
+    <data name="output_ipDataToPointCloud" format="vtu" label="Output file from ipDataToPointCloud" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **ipDataToPointCloud** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

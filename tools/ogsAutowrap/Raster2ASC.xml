@@ -1,0 +1,23 @@
+<tool name="OGS: Raster2ASC" id="ogs_raster2asc" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'Raster2ASC'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[Raster2ASC --version]]></version_command>
+  <command><![CDATA[Raster2ASC
+    --input '$input'
+    --output output_1.asc]]></command>
+  <inputs>
+    <param name="input" type="data" optional="false" label="input" help="Input (.grd | .xyz). Filename for input raster" format="grd,xyz" multiple="false"/>
+  </inputs>
+  <outputs>
+    <data name="output_Raster2ASC" format="asc" label="Output file from Raster2ASC" from_work_dir="output_1.asc" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **Raster2ASC** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

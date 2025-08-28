@@ -1,0 +1,57 @@
+<tool name="OGS: MergeMeshToBulkMesh" id="ogs_mergemeshtobulkmesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'MergeMeshToBulkMesh'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[MergeMeshToBulkMesh --version]]></version_command>
+  <command><![CDATA[MergeMeshToBulkMesh
+    --bulk-mesh-input-file '$bulk_mesh_input_file'
+    --mesh-input-file '$mesh_input_file'
+    #if str($pressure):
+        --pressure '$pressure'
+    #end if
+    #if str($gas_pressure):
+        --gas_pressure '$gas_pressure'
+    #end if
+    #if str($capillary_pressure):
+        --capillary_pressure '$capillary_pressure'
+    #end if
+    #if str($temperature):
+        --temperature '$temperature'
+    #end if
+    #if str($sigma_xx):
+        --sigma_xx '$sigma_xx'
+    #end if
+    #if str($sigma_yy):
+        --sigma_yy '$sigma_yy'
+    #end if
+    #if str($sigma_zz):
+        --sigma_zz '$sigma_zz'
+    #end if
+    #if str($material_id):
+        --material_id '$material_id'
+    #end if
+    --mesh-output-file output_1.vtk]]></command>
+  <inputs>
+    <param name="bulk_mesh_input_file" type="data" optional="false" label="bulk mesh input file" help="Input (.vtk | .msh). the file containing the input bulk mesh" format="vtk,msh" multiple="false"/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtk | .msh). the file containing the input mesh to be merged" format="vtk,msh" multiple="false"/>
+    <param name="pressure" type="float" value="0.0" optional="true" label="pressure" help="initial pressure value in the mesh to be merged"/>
+    <param name="gas_pressure" type="float" value="0.0" optional="true" label="gas pressure" help="initial gas pressure value in the mesh to be merged"/>
+    <param name="capillary_pressure" type="float" value="0.0" optional="true" label="capillary pressure" help="initial capillary pressure value in the mesh to be merged"/>
+    <param name="temperature" type="float" value="290.0" optional="true" label="temperature" help="initial temperature value in the mesh to be merged"/>
+    <param name="sigma_xx" type="float" value="0.0" optional="true" label="sigma xx" help="initial stress xx value in the mesh to be merged"/>
+    <param name="sigma_yy" type="float" value="0.0" optional="true" label="sigma yy" help="initial stress yy value in the mesh to be merged"/>
+    <param name="sigma_zz" type="float" value="0.0" optional="true" label="sigma zz" help="initial stress zz value in the mesh to be merged"/>
+    <param name="material_id" type="integer" value="0.0" optional="true" label="material id" help="Material ID of the mesh to be merged, (min = 0)" min="0"/>
+  </inputs>
+  <outputs>
+    <data name="output_MergeMeshToBulkMesh" format="vtk" label="Output file from MergeMeshToBulkMesh" from_work_dir="output_1.vtk" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **MergeMeshToBulkMesh** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

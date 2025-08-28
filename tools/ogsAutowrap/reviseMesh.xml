@@ -1,0 +1,31 @@
+<tool name="OGS: reviseMesh" id="ogs_revisemesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'reviseMesh'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[reviseMesh --version]]></version_command>
+  <command><![CDATA[reviseMesh
+    #if str($min_ele_dim):
+        --min-ele-dim '$min_ele_dim'
+    #end if
+    #if str($eps):
+        --eps '$eps'
+    #end if
+    --input-mesh-file '$input_mesh_file'
+    --output-mesh-file output_1.vtu]]></command>
+  <inputs>
+    <param name="min_ele_dim" type="text" value="1" optional="true" label="min ele dim" help="Minimum dimension of elements to be inserted into new mesh"/>
+    <param name="eps" type="float" value="2.220446049250313e-16" optional="true" label="eps" help="Minimum distance for nodes not to be collapsed"/>
+    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu) mesh file" format="vtu" multiple="false"/>
+  </inputs>
+  <outputs>
+    <data name="output_reviseMesh" format="vtu" label="Output file from reviseMesh" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **reviseMesh** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

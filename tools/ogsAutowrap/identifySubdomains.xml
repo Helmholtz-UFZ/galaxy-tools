@@ -1,0 +1,33 @@
+<tool name="OGS: identifySubdomains" id="ogs_identifysubdomains" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'identifySubdomains'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[identifySubdomains --version]]></version_command>
+  <command><![CDATA[identifySubdomains
+    $force
+    #if str($searchlength):
+        --searchlength '$searchlength'
+    #end if
+    --mesh '$mesh'
+    '$subdomain_meshes_filenames'
+    --output_prefix output_1]]></command>
+  <inputs>
+    <param name="force" type="boolean" label="force" help="Overwriting existing subdomain meshes." checked="false" truevalue="--force" falsevalue=""/>
+    <param name="searchlength" type="float" value="1e-16" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number (min = 0)" min="0"/>
+    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file the bulk mesh" format="vtu" multiple="false"/>
+    <param name="subdomain_meshes_filenames" type="text" value="SUBDOMAIN_NAME" optional="false" label="subdomain meshes filenames" help="mesh file names."/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from identifySubdomains">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **identifySubdomains** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

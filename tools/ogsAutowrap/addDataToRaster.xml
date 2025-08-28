@@ -1,0 +1,53 @@
+<tool name="OGS: addDataToRaster" id="ogs_adddatatoraster" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'addDataToRaster'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[addDataToRaster --version]]></version_command>
+  <command><![CDATA[addDataToRaster
+    #if str($scaling_value):
+        --scaling_value '$scaling_value'
+    #end if
+    #if str($offset_value):
+        --offset_value '$offset_value'
+    #end if
+    #if str($ll_x):
+        --ll_x '$ll_x'
+    #end if
+    #if str($ll_y):
+        --ll_y '$ll_y'
+    #end if
+    #if str($ur_x):
+        --ur_x '$ur_x'
+    #end if
+    #if str($ur_y):
+        --ur_y '$ur_y'
+    #end if
+    --function '$function'
+    --input '$input'
+    --output_raster output_1.asc]]></command>
+  <inputs>
+    <param name="scaling_value" type="float" value="1" optional="true" label="scaling value" help="value the function sin(x pi) sin(y pi) will be scaled with"/>
+    <param name="offset_value" type="float" value="0" optional="true" label="offset value" help="constant added to the function 'scaling * sin(x pi) * sin(y pi)'"/>
+    <param name="ll_x" type="float" value="0" optional="true" label="ll x" help="x coordinate of lower left point of axis aligned rectangular region"/>
+    <param name="ll_y" type="float" value="0" optional="true" label="ll y" help="y coordinate of lower left point of axis aligned rectangular region"/>
+    <param name="ur_x" type="float" value="0" optional="true" label="ur x" help="x coordinate of the upper right point of axis aligned rectangular region"/>
+    <param name="ur_y" type="float" value="0" optional="true" label="ur y" help="y coordinate of the upper right point of axis aligned rectangular region"/>
+    <param name="function" type="select" label="function" help="the function used to modify the raster">
+      <option value="sinxsiny">sinxsiny</option>
+      <option value="exp">exp</option>
+      <option value="step">step</option>
+    </param>
+    <param name="input" type="data" optional="false" label="input" help="Input (.asc). the input raster file" format="asc" multiple="false"/>
+  </inputs>
+  <outputs>
+    <data name="output_addDataToRaster" format="asc" label="Output file from addDataToRaster" from_work_dir="output_1.asc" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **addDataToRaster** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

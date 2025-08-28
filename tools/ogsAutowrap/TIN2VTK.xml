@@ -1,0 +1,23 @@
+<tool name="OGS: TIN2VTK" id="ogs_tin2vtk" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'TIN2VTK'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[TIN2VTK --version]]></version_command>
+  <command><![CDATA[TIN2VTK
+    --input-tin-file '$input_tin_file'
+    --output-vtu-file output_1.vtu]]></command>
+  <inputs>
+    <param name="input_tin_file" type="data" optional="false" label="input tin file" help="Input (.tin). the input file containing the input TIN" format="tin" multiple="false"/>
+  </inputs>
+  <outputs>
+    <data name="output_TIN2VTK" format="vtu" label="Output file from TIN2VTK" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **TIN2VTK** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

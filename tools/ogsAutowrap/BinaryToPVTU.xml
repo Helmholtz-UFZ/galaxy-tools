@@ -1,0 +1,20 @@
+<tool name="OGS: BinaryToPVTU" id="ogs_binarytopvtu" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'BinaryToPVTU'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[BinaryToPVTU --version]]></version_command>
+  <command><![CDATA[BinaryToPVTU
+    --mesh-input-file-base '$mesh_input_file_base']]></command>
+  <inputs>
+    <param name="mesh_input_file_base" type="data" optional="false" label="mesh input file base" help="Input (.bin). The base the files containing the input mesh, i.e., the file name without the string beginning with '_partitioned' and ending with" format="bin" multiple="false"/>
+  </inputs>
+  <outputs/>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **BinaryToPVTU** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

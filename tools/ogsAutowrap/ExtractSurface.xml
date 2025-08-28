@@ -1,0 +1,41 @@
+<tool name="OGS: ExtractSurface" id="ogs_extractsurface" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'ExtractSurface'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[ExtractSurface --version]]></version_command>
+  <command><![CDATA[ExtractSurface
+    $ascii_output
+    #if str($angle):
+        --angle '$angle'
+    #end if
+    #if str($z_component):
+        --z-component '$z_component'
+    #end if
+    #if str($y_component):
+        --y-component '$y_component'
+    #end if
+    #if str($x_component):
+        --x-component '$x_component'
+    #end if
+    --mesh-input-file '$mesh_input_file'
+    --mesh-output-file output_1.vtu]]></command>
+  <inputs>
+    <param name="ascii_output" type="boolean" label="ascii output" help="If the switch is set use ascii instead of binary format for data in the vtu output." checked="false" truevalue="--ascii-output" falsevalue=""/>
+    <param name="angle" type="float" value="90" optional="true" label="angle" help="tolerated angle (in degrees) between given normal and element normal, (min = 0), (max = 360)" min="0" max="360"/>
+    <param name="z_component" type="float" value="-1.0" optional="true" label="z component" help="z component of the normal"/>
+    <param name="y_component" type="float" value="0" optional="true" label="y component" help="y component of the normal"/>
+    <param name="x_component" type="float" value="0" optional="true" label="x component" help="x component of the normal"/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtu" multiple="false"/>
+  </inputs>
+  <outputs>
+    <data name="output_ExtractSurface" format="vtu" label="Output file from ExtractSurface" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **ExtractSurface** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

@@ -26,7 +26,7 @@ from galaxyxml.tool.parameters import (
 # --- CONFIGURATION ---
 OGS_REPO_PATH = Path("/home/stehling/gitProjects/ogs")
 UTILS_SUBDIR = "Applications/Utils"
-OUTPUT_DIR = Path(".")
+OUTPUT_DIR = Path("./generated_tools")
 
 TCLAP_PATTERN_STD = re.compile(
     r"TCLAP::(?P<arg_type>(?:Value|Switch|Multi)Arg)\s*"

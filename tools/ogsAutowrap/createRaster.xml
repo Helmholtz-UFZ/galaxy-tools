@@ -1,0 +1,41 @@
+<tool name="OGS: createRaster" id="ogs_createraster" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'createRaster'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[createRaster --version]]></version_command>
+  <command><![CDATA[createRaster
+    #if str($n_rows):
+        --n_rows '$n_rows'
+    #end if
+    #if str($n_cols):
+        --n_cols '$n_cols'
+    #end if
+    #if str($cell_size):
+        --cell_size '$cell_size'
+    #end if
+    #if str($ll_y):
+        --ll_y '$ll_y'
+    #end if
+    #if str($ll_x):
+        --ll_x '$ll_x'
+    #end if
+    --output output_1.asc]]></command>
+  <inputs>
+    <param name="n_rows" type="integer" value="1000" optional="true" label="n rows" help="number of rows" min="0"/>
+    <param name="n_cols" type="integer" value="1000" optional="true" label="n cols" help="number of columns" min="0"/>
+    <param name="cell_size" type="float" value="10.0" optional="true" label="cell size" help="cell size, (min = 0)" min="0"/>
+    <param name="ll_y" type="float" value="0" optional="true" label="ll y" help="y coordinate of lower left point of axis aligned rectangular region"/>
+    <param name="ll_x" type="float" value="0" optional="true" label="ll x" help="x coordinate of lower left point of axis aligned rectangular region"/>
+  </inputs>
+  <outputs>
+    <data name="output_createRaster" format="asc" label="Output file from createRaster" from_work_dir="output_1.asc" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **createRaster** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

@@ -4,17 +4,17 @@
             <requirement type="package" version="@TOOL_VERSION@">ogs</requirement>
         </requirements>
     </xml>
-        <token name="@TOOL_VERSION@">6.5.4</token>
+        <token name="@TOOL_VERSION@">6.5.5</token>
         <token name="@VERSION_SUFFIX@">0</token>
     <xml name="citations">
         <citations>
             <citation type="bibtex">
                 @misc{ogs,
                   author = {The OpenGeoSys Community},
-                  title = {OpenGeoSys Software},
-                  year = {2025},
+                  title = {OpenGeoSys},
+                  doi          = {10.5281/zenodo.15496721},
                   url = {http://www.opengeosys.org},
-                  note = {UFZ-Helmholtz Centre for Environmental Research}
+                  note = {https://doi.org/10.5281/zenodo.15496721}
                 }
             </citation>
         </citations>

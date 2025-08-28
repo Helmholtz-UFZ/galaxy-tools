@@ -1,0 +1,23 @@
+<tool name="OGS: FEFLOW2OGS" id="ogs_feflow2ogs" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'FEFLOW2OGS'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[FEFLOW2OGS --version]]></version_command>
+  <command><![CDATA[FEFLOW2OGS
+    --in '$in'
+    --out output_1.if extension is msh, old OGS file format is written]]></command>
+  <inputs>
+    <param name="in" type="data" optional="false" label="in" help="Input (.fem). FEFLOW input file" format="fem" multiple="false"/>
+  </inputs>
+  <outputs>
+    <data name="output_FEFLOW2OGS" format="if extension is msh, old OGS file format is written" label="Output file from FEFLOW2OGS" from_work_dir="output_1.if extension is msh, old OGS file format is written" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **FEFLOW2OGS** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

@@ -1,0 +1,35 @@
+<tool name="OGS: AddLayer" id="ogs_addlayer" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'AddLayer'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[AddLayer --version]]></version_command>
+  <command><![CDATA[AddLayer
+    --input-mesh-file '$input_mesh_file'
+    #if str($layer_tickness):
+        --layer-tickness '$layer_tickness'
+    #end if
+    $add_layer_on_bottom
+    $copy_material_ids
+    #if str($set_material_id):
+        --set-material-id '$set_material_id'
+    #end if
+    --output-mesh-file output_1.vtu]]></command>
+  <inputs>
+    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu). the file containing the mesh" format="vtu" multiple="false"/>
+    <param name="layer_tickness" type="float" value="10" optional="true" label="layer tickness" help="the thickness of the new layer, (min = 0)" min="0"/>
+    <param name="add_layer_on_bottom" type="boolean" label="add layer on bottom" help="Per default the layer is add on the top, if this argument is set the layer is add on the bottom." checked="false" truevalue="--add-layer-on-bottom" falsevalue=""/>
+    <param name="copy_material_ids" type="boolean" label="copy material ids" help="Copy the existing material distribution of the layer which is to be extended. If the switch isn't given a new material id will be created." checked="false" truevalue="--copy-material-ids" falsevalue=""/>
+    <param name="set_material_id" type="integer" value="0" optional="true" label="set material id" help="the material id of the new layer, (min = 0)" min="0"/>
+  </inputs>
+  <outputs>
+    <data name="output_AddLayer" format="vtu" label="Output file from AddLayer" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="ogsutilssuite_tests"/>
+  </tests>
+  <help><![CDATA[This tool runs the **AddLayer** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

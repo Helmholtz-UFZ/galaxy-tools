@@ -34,7 +34,7 @@
     <data name="output_IntegrateBoreholesIntoMesh" format="vtu" label="Output file from IntegrateBoreholesIntoMesh" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="integrateboreholesintomesh_test"/>
   </tests>
   <help><![CDATA[This tool runs the **IntegrateBoreholesIntoMesh** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

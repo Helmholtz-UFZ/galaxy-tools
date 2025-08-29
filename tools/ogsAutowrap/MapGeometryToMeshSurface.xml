@@ -20,7 +20,7 @@
     <data name="output_MapGeometryToMeshSurface" format="gml" label="Output file from MapGeometryToMeshSurface" from_work_dir="output_1.gml" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="mapgeometrytomeshsurface_test"/>
   </tests>
   <help><![CDATA[This tool runs the **MapGeometryToMeshSurface** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

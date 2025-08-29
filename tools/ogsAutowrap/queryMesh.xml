@@ -23,7 +23,7 @@
   </inputs>
   <outputs/>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="querymesh_test"/>
   </tests>
   <help><![CDATA[This tool runs the **queryMesh** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

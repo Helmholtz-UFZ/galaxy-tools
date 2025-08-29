@@ -24,7 +24,7 @@
     <data name="output_GMSH2OGS" format="msh" label="Output file from GMSH2OGS" from_work_dir="output_1.msh" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="gmsh2ogs_test"/>
   </tests>
   <help><![CDATA[This tool runs the **GMSH2OGS** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

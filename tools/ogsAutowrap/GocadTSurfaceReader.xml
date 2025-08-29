@@ -24,7 +24,7 @@
     </collection>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="gocadtsurfacereader_test"/>
   </tests>
   <help><![CDATA[This tool runs the **GocadTSurfaceReader** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

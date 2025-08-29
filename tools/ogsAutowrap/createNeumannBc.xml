@@ -20,7 +20,7 @@
     <data name="output_createNeumannBc" format="txt" label="Output file from createNeumannBc" from_work_dir="output_1.txt" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="createneumannbc_test"/>
   </tests>
   <help><![CDATA[This tool runs the **createNeumannBc** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

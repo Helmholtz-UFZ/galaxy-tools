@@ -28,7 +28,7 @@
     </collection>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="createanchors_test"/>
   </tests>
   <help><![CDATA[This tool runs the **CreateAnchors** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

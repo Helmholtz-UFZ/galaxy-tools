@@ -18,7 +18,7 @@
     <data name="output_swapNodeCoordinateAxes" format="vtu" label="Output file from swapNodeCoordinateAxes" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="swapnodecoordinateaxes_test"/>
   </tests>
   <help><![CDATA[This tool runs the **swapNodeCoordinateAxes** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

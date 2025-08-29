@@ -41,7 +41,7 @@
     <data name="output_editMaterialID" format="vtu" label="Output file from editMaterialID" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="editmaterialid_test"/>
   </tests>
   <help><![CDATA[This tool runs the **editMaterialID** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

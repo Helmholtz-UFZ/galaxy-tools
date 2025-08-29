@@ -16,7 +16,7 @@
     <data name="output_VTK2TIN" format="tin" label="Output file from VTK2TIN" from_work_dir="output_1.tin" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="vtk2tin_test"/>
   </tests>
   <help><![CDATA[This tool runs the **VTK2TIN** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

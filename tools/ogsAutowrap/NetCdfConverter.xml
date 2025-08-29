@@ -77,7 +77,7 @@
     <data name="output_NetCdfConverter" format="vtu" label="Output file from NetCdfConverter" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="netcdfconverter_test"/>
   </tests>
   <help><![CDATA[This tool runs the **NetCdfConverter** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

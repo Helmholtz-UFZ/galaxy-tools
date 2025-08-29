@@ -28,7 +28,7 @@
     </collection>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="swmmconverter_test"/>
   </tests>
   <help><![CDATA[This tool runs the **SWMMConverter** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

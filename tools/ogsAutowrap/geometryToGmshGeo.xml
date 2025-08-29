@@ -37,7 +37,7 @@
     </collection>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="geometrytogmshgeo_test"/>
   </tests>
   <help><![CDATA[This tool runs the **geometryToGmshGeo** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

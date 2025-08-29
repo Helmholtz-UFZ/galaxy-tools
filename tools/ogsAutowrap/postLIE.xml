@@ -20,7 +20,7 @@
     </collection>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="postlie_test"/>
   </tests>
   <help><![CDATA[This tool runs the **postLIE** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

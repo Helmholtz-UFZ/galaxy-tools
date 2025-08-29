@@ -18,7 +18,7 @@
     </collection>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="pvd2xdmf_test"/>
   </tests>
   <help><![CDATA[This tool runs the **PVD2XDMF** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

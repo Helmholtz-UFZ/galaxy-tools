@@ -34,7 +34,7 @@
     <data name="output_createRaster" format="asc" label="Output file from createRaster" from_work_dir="output_1.asc" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="createraster_test"/>
   </tests>
   <help><![CDATA[This tool runs the **createRaster** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

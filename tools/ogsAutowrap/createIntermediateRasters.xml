@@ -22,7 +22,7 @@
     <data name="output_createIntermediateRasters" format="asc" label="Output file from createIntermediateRasters" from_work_dir="output_1.asc" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="createintermediaterasters_test"/>
   </tests>
   <help><![CDATA[This tool runs the **createIntermediateRasters** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

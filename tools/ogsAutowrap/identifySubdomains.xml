@@ -26,7 +26,7 @@
     </collection>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="identifysubdomains_test"/>
   </tests>
   <help><![CDATA[This tool runs the **identifySubdomains** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

@@ -16,7 +16,7 @@
     <data name="output_RemoveUnusedPoints" format="gml" label="Output file from RemoveUnusedPoints" from_work_dir="output_1.gml" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="removeunusedpoints_test"/>
   </tests>
   <help><![CDATA[This tool runs the **RemoveUnusedPoints** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

@@ -42,7 +42,7 @@
     <data name="output_ResetPropertiesInPolygonalRegion" format="dat" label="Output file from ResetPropertiesInPolygonalRegion" from_work_dir="output_1.dat" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="resetpropertiesinpolygonalregion_test"/>
   </tests>
   <help><![CDATA[This tool runs the **ResetPropertiesInPolygonalRegion** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

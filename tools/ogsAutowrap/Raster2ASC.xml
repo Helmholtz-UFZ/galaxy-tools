@@ -16,7 +16,7 @@
     <data name="output_Raster2ASC" format="asc" label="Output file from Raster2ASC" from_work_dir="output_1.asc" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="raster2asc_test"/>
   </tests>
   <help><![CDATA[This tool runs the **Raster2ASC** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

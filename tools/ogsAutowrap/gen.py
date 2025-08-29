@@ -4,6 +4,7 @@ import argparse
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
+import shlex  # Import für sicheres Parsen der Argumente
 
 from galaxyxml.tool import Tool
 from galaxyxml.tool.parameters import (
@@ -241,7 +242,8 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
                 'filename': f"output_{output_idx}.{file_format}",
                 'format': file_format,
                 'is_base_filename': is_base_filename_output,
-                'type': output_type
+                'type': output_type,
+                'short_flag': short_flag
             }
             output_idx += 1
             continue
@@ -307,6 +309,7 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
                     param = param_class(**attrs)
         if param:
             param.original_long_flag = long_flag
+            param.original_short_flag = short_flag
             param.is_unlabeled = is_unlabeled
             galaxy_inputs.append(param)
     return galaxy_inputs, output_command_map
@@ -419,9 +422,13 @@ def generate_tools():
                     collection.append(DiscoverDatasets(pattern=r"output_.+\..+", format="auto", visible=True))
                     outputs_tag.append(collection)
             
+            # --- KORRIGIERTE TEST-VERKNÜPFUNG ---
             tests_section = Tests()
-            tests_section.append(Expand(macro="ogsutilssuite_tests"))
+            macro_name = f"{tool_name.lower()}_test"
+            tests_section.append(Expand(macro=macro_name))
             tool.tests = tests_section
+            # --- ENDE KORREKTUR ---
+
             tool.help = (f"This tool runs the **{tool_name}** utility from the OpenGeoSys suite.")
 
             xml_string = tool.export()
@@ -439,63 +446,208 @@ def generate_tools():
     eprint(f"\nFinished. {generated_count} of {len(all_tools_data)} tool wrappers were created in the '{OUTPUT_DIR}' directory.")
 
 
+def parse_diff_data(diff_str: str, base_url: str, workdir: str) -> List[Dict[str, str]]:
+    """Extrahiert Referenz- und Output-Dateien aus einem DIFF_DATA Block."""
+    diff_files = []
+    file_pattern = re.compile(r"[\w\-\./<>\$]+\.(?:vtu|gml|bin|asc|pvtu|msh|smesh|geo|xdmf|grd|xyz|ts|inp|json)")
+    
+    for line in diff_str.strip().split('\n'):
+        line = line.strip()
+        found_files = file_pattern.findall(line)
+        if not found_files:
+            continue
+        
+        # Heuristik: Einzelne Datei -> Referenz = Generiert
+        if len(found_files) == 1:
+            ref_url = f"{base_url}/{workdir}/{found_files[0]}"
+            diff_files.append({"reference": ref_url, "generated": found_files[0], "ftype": found_files[0].split('.')[-1]})
+        # Heuristik: Zwei Dateien -> Erste ist Referenz, Zweite ist Generiert
+        elif len(found_files) >= 2:
+            ref_url = f"{base_url}/{workdir}/{found_files[0]}"
+            diff_files.append({"reference": ref_url, "generated": found_files[1], "ftype": found_files[1].split('.')[-1]})
+
+    return diff_files
+
+
 def generate_tests():
-    eprint("--- Generating Test Macros ---")
-    parsed_tools = discover_tools()
-    if not parsed_tools:
-        eprint("No tools found, cannot generate tests.")
+    """
+    Generiert individuelle, benannte Test-Makros für jedes Tool.
+    Verarbeitet nur den ERSTEN gefundenen Test pro Werkzeug.
+    Kann jetzt Pfad-Platzhalter auflösen.
+    """
+    eprint("--- Generating Test Macros from Tests.cmake with GitLab URLs ---")
+    
+    CMAKE_TESTS_FILE = Path("/home/stehling/gitProjects/ogs/Applications/Utils/Tests.cmake")
+    RAW_GITLAB_TEST_DATA_URL = "https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data"
+    RAW_GITLAB_PROJECT_ROOT_URL = "https://gitlab.opengeosys.org/ogs/ogs/-/raw/master"
+
+    if not CMAKE_TESTS_FILE.is_file():
+        eprint(f"FEHLER: Die Testdefinitionsdatei '{CMAKE_TESTS_FILE}' wurde nicht gefunden.")
         return
 
-    macros_root = ET.Element("macros")
-    tests_macro = ET.SubElement(macros_root, "xml", {"name": "ogsutilssuite_tests"})
+    all_tools_data = discover_tools()
+    if not all_tools_data:
+        eprint("Keine Tools gefunden, Tests können nicht generiert werden.")
+        return
+        
+    tools_map_lower = {tool['name'].lower(): tool for tool in all_tools_data}
+    wrapper_tool_names_lower = list(tools_map_lower.keys())
 
-    for tool_data in parsed_tools:
-        tool_name = tool_data['name']
-        eprint(f"  Generating test for: {tool_name}")
+    macros_root = ET.Element("macros")
+    
+    cmake_content = CMAKE_TESTS_FILE.read_text(encoding='utf-8', errors='ignore')
+    addtest_pattern = re.compile(r"AddTest\s*\((.*?)\)", re.DOTALL)
+    
+    # WIEDERHERGESTELLT: Die Logik, die nur einen Test pro Tool erlaubt.
+    processed_tools_lower = set()
+    test_case_count = 0
+
+    for match in addtest_pattern.finditer(cmake_content):
+        test_block_content = "\n" + match.group(1).strip() + "\n"
+        test_block_content_lower = test_block_content.lower()
+        
+        path_var_match = re.search(r"\s+set\s*\(\s*Path\s+([^\s\)]+)\s*\)", test_block_content)
+        path_replacement = path_var_match.group(1) if path_var_match else ""
+
+        found_matches = [
+            t for t in wrapper_tool_names_lower
+            if re.search(r'(?:[\s/_-]|^)' + re.escape(t) + r'(?:[\s/_-]|$)', test_block_content_lower)
+        ]
+        
+        matched_tool_name_lower = None
+        if len(found_matches) == 1:
+            matched_tool_name_lower = found_matches[0]
+        elif len(found_matches) > 1:
+            exec_match = re.search(r"\s+EXECUTABLE\s+([^\s\)]+)", test_block_content)
+            if exec_match:
+                executable_name_lower = exec_match.group(1).lower()
+                if executable_name_lower in found_matches:
+                    matched_tool_name_lower = executable_name_lower
+        
+        # WIEDERHERGESTELLT: Prüfung, ob für dieses Tool schon ein Test verarbeitet wurde.
+        if not matched_tool_name_lower or matched_tool_name_lower in processed_tools_lower:
+            continue
+
+        args_match = re.search(r"\s+EXECUTABLE_ARGS\s+(.*?)(?=\s+\w+\s+|\s*\))", test_block_content, re.DOTALL)
+        if not args_match:
+            continue
+
+        workdir_match = re.search(r"\s+WORKING_DIRECTORY\s+\$\{Data_SOURCE_DIR\}/([^\s\)]+)", test_block_content)
+        workdir_subpath = workdir_match.group(1).strip() if workdir_match else ""
+            
+        tool_name = tools_map_lower[matched_tool_name_lower]['name']
+        test_name_match = re.search(r"\s+NAME\s+([^\s\)]+)", test_block_content)
+        test_name = test_name_match.group(1) if test_name_match else "UnknownTest"
+        eprint(f"  Generating test for: {tool_name} (from test '{test_name}')")
         
         try:
-            test_case = ET.SubElement(tests_macro, "test", {"expect_num_outputs": "1"})
-            
+            args_str = args_match.group(1).strip().replace('\n', ' ')
+            tool_data = tools_map_lower[matched_tool_name_lower]
             galaxy_inputs, output_map = process_parameters(tool_data['parameters'])
 
-            for param in galaxy_inputs:
-                param_name = param.name
-                test_value = "" 
-                
-                if hasattr(param, 'value'):
-                    test_value = param.value
-                elif isinstance(param, DataParam):
-                    test_value = f"test-data/{param_name}.dat" 
-                elif isinstance(param, IntegerParam):
-                    test_value = getattr(param, 'min', "1")
-                elif isinstance(param, FloatParam):
-                    test_value = getattr(param, 'min', "1.0")
-                elif isinstance(param, BooleanParam):
-                    test_value = "true"
-                elif isinstance(param, SelectParam) and hasattr(param, 'options') and param.options:
-                    test_value = list(param.options.keys())[0]
+            if not output_map:
+                eprint(f"!! INFO: Skipping test '{test_name}' for '{tool_name}' because the tool itself has no output parameters defined.")
+                continue
+            
+            flag_map = {f"--{p.original_long_flag}": p for p in galaxy_inputs if not p.is_unlabeled and p.original_long_flag}
+            flag_map.update({f"-{p.original_short_flag}": p for p in galaxy_inputs if not p.is_unlabeled and p.original_short_flag})
+            unlabeled_params = [p for p in galaxy_inputs if p.is_unlabeled]
+            output_flags = {f"--{flag}" for flag in output_map}
+            output_flags.update({f"-{info['short_flag']}" for flag, info in output_map.items() if info.get('short_flag')})
+
+            # WIEDERHERGESTELLT: Originale, einfache Benennung der Makros.
+            macro_name = f"{matched_tool_name_lower}_test"
+            macro_xml = ET.SubElement(macros_root, "xml", {"name": macro_name})
+            test_case = ET.SubElement(macro_xml, "test")
+
+            params_in_test = {}
+            args_list = shlex.split(args_str)
+            i = 0
+            unlabeled_idx = 0
+            
+            while i < len(args_list):
+                arg = args_list[i]
+                if arg == '--': i += 1; continue
+                if arg in flag_map:
+                    param = flag_map[arg]
+                    is_value_arg = (i + 1 < len(args_list)) and (not args_list[i+1].startswith('-'))
+                    if isinstance(param, BooleanParam) or not is_value_arg:
+                        params_in_test[param.name] = "true"; i += 1
+                    else:
+                        params_in_test[param.name] = args_list[i+1]; i += 2
                 else:
-                    test_value = f"test_{param_name}"
+                    if unlabeled_idx < len(unlabeled_params):
+                        param = unlabeled_params[unlabeled_idx]
+                        params_in_test[param.name] = arg; unlabeled_idx += 1
+                    i += 1
+            
+            all_params_map = {p.name: p for p in galaxy_inputs}
+            for name, value in params_in_test.items():
+                param = all_params_map.get(name)
+                if param and (f"--{param.original_long_flag}" in output_flags or (param.original_short_flag and f"-{param.original_short_flag}" in output_flags)):
+                    continue
+                
+                final_value = value
+                
+                if path_replacement:
+                    final_value = final_value.replace("<PATH>", path_replacement)
+                
+                if "<SOURCE_PATH>/" in final_value:
+                    final_value = final_value.replace("<SOURCE_PATH>/", "")
 
-                ET.SubElement(test_case, "param", {"name": param_name, "value": str(test_value)})
+                if '<' in final_value or '>' in final_value:
+                    raise ValueError(f"Test contains unresolved XML placeholder: {final_value}")
+                
+                if isinstance(param, DataParam):
+                    if final_value.startswith("${Data_BINARY_DIR}/"): final_value = f"{RAW_GITLAB_PROJECT_ROOT_URL}/{final_value.replace('${Data_BINARY_DIR}/', '', 1)}"
+                    elif final_value.startswith("${Data_SOURCE_DIR}/"): final_value = f"{RAW_GITLAB_PROJECT_ROOT_URL}/{final_value.replace('${Data_SOURCE_DIR}/', '', 1)}"
+                    elif final_value != "true" and workdir_subpath: final_value = f"{RAW_GITLAB_TEST_DATA_URL}/{workdir_subpath}/{final_value}"
 
-            if output_map:
-                output_collection = ET.SubElement(test_case, "output_collection", {"name": "tool_outputs", "type": "list"})
-                ET.SubElement(output_collection, "assert_contents").append(
-                    ET.Element("has_size", {"n": str(len(output_map))})
-                )
+                ET.SubElement(test_case, "param", {"name": name, "value": final_value})
+            
+            diff_data_match = re.search(r"\s+DIFF_DATA\s+(.*?)(?=\s+\w+\s+|\s*\))", test_block_content, re.DOTALL)
+            diff_files = []
+            if diff_data_match and workdir_subpath:
+                diff_files = parse_diff_data(diff_data_match.group(1), RAW_GITLAB_TEST_DATA_URL, workdir_subpath)
+
+            single_file_outputs = [v for v in output_map.values() if v.get('type') == 'file']
+            is_single_output_file = len(single_file_outputs) == 1 and len(output_map) == 1
+
+            if is_single_output_file:
+                output_name = sanitize_name(f"output_{tool_name}")
+                attrs = {"name": output_name}
+                if diff_files:
+                    attrs["file"] = diff_files[0]["reference"]
+                    attrs["ftype"] = diff_files[0]["ftype"]
+                ET.SubElement(test_case, "output", attrs)
+            else:
+                if not diff_files:
+                    ET.SubElement(test_case, "output_collection", {
+                        "name": "tool_outputs", "type": "list", "count": str(len(output_map))
+                    })
+                else:
+                    collection = ET.SubElement(test_case, "output_collection", {"name": "tool_outputs", "type": "list"})
+                    for diff_file in diff_files:
+                         ET.SubElement(collection, "element", {
+                            "name": diff_file["generated"],
+                            "file": diff_file["reference"],
+                            "ftype": diff_file["ftype"]
+                         })
+
+            # WIEDERHERGESTELLT: Das Tool wird zur Liste der verarbeiteten Tools hinzugefügt.
+            processed_tools_lower.add(matched_tool_name_lower)
+            test_case_count += 1
+            
         except Exception as e:
-            eprint(f"!! ERROR while generating test for '{tool_name}': {e}")
-            import traceback
-            traceback.print_exc(file=sys.stderr)
+            eprint(f"!! FEHLER beim Generieren des Tests für '{tool_name}' (Test '{test_name}'): {e}")
 
     tree = ET.ElementTree(macros_root)
     ET.indent(tree, space="    ")
     output_filename = "test_macros.xml"
     with open(output_filename, "wb") as f:
-        f.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
+        f.write(b'<?xml version="1.e" encoding="UTF-8"?>\n')
         tree.write(f, encoding="utf-8", xml_declaration=False)
-    eprint(f"\nSuccessfully created {output_filename} with {len(parsed_tools)} test cases.")
+    eprint(f"\nErfolgreich '{output_filename}' mit {test_case_count} Testfällen erstellt.")
 
 def main():
     parser = argparse.ArgumentParser(description="Galaxy XML Wrapper Generator for OGS Utilities")

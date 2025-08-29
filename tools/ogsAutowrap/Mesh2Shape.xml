@@ -16,7 +16,7 @@
     <data name="output_Mesh2Shape" format="shp" label="Output file from Mesh2Shape" from_work_dir="output_1.shp" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="mesh2shape_test"/>
   </tests>
   <help><![CDATA[This tool runs the **Mesh2Shape** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

@@ -58,7 +58,7 @@
     <data name="output_generateGeometry" format="gml" label="Output file from generateGeometry" from_work_dir="output_1.gml" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="generategeometry_test"/>
   </tests>
   <help><![CDATA[This tool runs the **generateGeometry** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

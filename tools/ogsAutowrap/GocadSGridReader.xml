@@ -18,7 +18,7 @@
     <data name="output_GocadSGridReader" format="vtu" label="Output file from GocadSGridReader" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="gocadsgridreader_test"/>
   </tests>
   <help><![CDATA[This tool runs the **GocadSGridReader** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

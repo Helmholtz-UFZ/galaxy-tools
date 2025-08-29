@@ -27,7 +27,7 @@
     <data name="output_createTetgenSmeshFromRasters" format="smesh" label="Output file from createTetgenSmeshFromRasters" from_work_dir="output_1.smesh" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="createtetgensmeshfromrasters_test"/>
   </tests>
   <help><![CDATA[This tool runs the **createTetgenSmeshFromRasters** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

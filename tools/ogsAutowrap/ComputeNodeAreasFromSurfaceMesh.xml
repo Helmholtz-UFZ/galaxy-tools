@@ -25,7 +25,7 @@
     </collection>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="computenodeareasfromsurfacemesh_test"/>
   </tests>
   <help><![CDATA[This tool runs the **ComputeNodeAreasFromSurfaceMesh** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

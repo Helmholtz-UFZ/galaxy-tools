@@ -30,7 +30,7 @@
     </collection>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="partitionmesh_test"/>
   </tests>
   <help><![CDATA[This tool runs the **PartitionMesh** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

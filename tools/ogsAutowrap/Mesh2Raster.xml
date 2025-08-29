@@ -20,7 +20,7 @@
     <data name="output_Mesh2Raster" format="asc" label="Output file from Mesh2Raster" from_work_dir="output_1.asc" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="mesh2raster_test"/>
   </tests>
   <help><![CDATA[This tool runs the **Mesh2Raster** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

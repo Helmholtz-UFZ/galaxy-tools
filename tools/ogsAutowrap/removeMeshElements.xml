@@ -75,7 +75,7 @@
     <data name="output_removeMeshElements" format="vtu" label="Output file from removeMeshElements" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
-    <expand macro="ogsutilssuite_tests"/>
+    <expand macro="removemeshelements_test"/>
   </tests>
   <help><![CDATA[This tool runs the **removeMeshElements** utility from the OpenGeoSys suite.]]></help>
   <expand macro="citations"/>

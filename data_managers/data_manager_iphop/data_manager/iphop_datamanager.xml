@@ -67,6 +67,7 @@ Download and extract iPHoP reference data:
 
 - iPHoP_db_Jun25_rw: Full database updated in June 2025 for version 1.4 and later. Host genomes extracted from GTDB r226, IMG unrestricted bins as of April 2025, MGnify MAG collections as of April 2025. This is the current default database, starting with the release of iPHoP version 1.4.1.
 - iPHoP_db_Aug23_rw: Full database updated in Aug 2023 for version 1.3 and later. Host genomes extracted from GTDB r214, IMG published genomes as of Aug. 2023, MGnify MAG collections, and GEMv1. This was the default database starting with iPHoP v1.3.3.
+- iPHoP_db_rw_for-test: Subset of the database, used with the test input file to check iPHoP installation
 - iPHoP_db_rw_1.4_for-test: Subset of the database, used with the test input file to check iPHoP installation for version 1.4 and later.
     ]]></help>
     <citations>

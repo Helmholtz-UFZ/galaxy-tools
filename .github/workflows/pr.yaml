@@ -15,7 +15,7 @@ on:
       - '*'
 env:
   GALAXY_FORK: galaxyproject
-  GALAXY_BRANCH: release_24.2
+  GALAXY_BRANCH: release_25.0
   MAX_CHUNKS: 4
   MAX_FILE_SIZE: 1M
 concurrency:
@@ -125,11 +125,11 @@ jobs:
         path: ~/.cache/pip
         key: pip_cache_py_${{ matrix.python-version }}_gxy_${{ needs.setup.outputs.galaxy-head-sha }}
 
-    - name: Set fail level for pull request
+    - name: Set skip version check for push event (i.e. merge to main)
       if: ${{ github.event_name != 'pull_request' }}
       run:
         echo "EXTRA_SKIP=--skip version_bumped" >> "$GITHUB_ENV"
-    - name: Set fail level for merge
+    - name: Set no skip vor pull_request events
       if: ${{ github.event_name == 'pull_request' }}
       run:
         echo "EXTRA_SKIP=" >> "$GITHUB_ENV"
@@ -209,7 +209,7 @@ jobs:
           any::argparse 
           any::styler
           any::knitr
-    - name: lintr
+    - name: Run styler
       run: |
         set -eo pipefail
         echo '${{ needs.setup.outputs.repository-list }}' | xargs -d '\n' -n 1 ./.github/styler.R --dry off

@@ -1,0 +1,14 @@
+categories:
+- Metagenomics
+name: eukcc
+description: Galaxy wrapper for EukCC
+long_description: EukCC is a completeness and contamination estimator for metagenomic assembled microbial eukaryotic genomes.
+owner: ufz
+remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/eukcc
+homepage_url: https://github.com/EBI-Metagenomics/EukCC
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: "Wrapper command line tools of the EukCC package: {{ tool_name }}."
+suite:
+  name: "suite_eukcc"
+  description: "A suite of EukCC commands."

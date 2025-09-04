@@ -7,6 +7,7 @@
     </macros>
     <requirements>
         <requirement type="package" version="@TOOL_VERSION@">iphop</requirement>
+        <requirement type="package" version="1.4.10">findutils</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mkdir tmp_download/ &&

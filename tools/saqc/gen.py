@@ -87,7 +87,7 @@ def clean_annotation_string(s: str) -> str:
     if all_literals:
         s = re.sub(fr'\b({all_literals})\b', "str", s)
 
-    s = re.sub(r'\b(FreqStr|OffsetStr|SaQCFields|NewSaQCFields)\b', "str", s)
+    s = re.sub(r'\b(FreqStr|OffsetStr)\b', "str", s)
     s = s.replace("GenericFunction", "Callable")
     s = s.replace("ArrayLike", "list")
     s = re.sub(r'\bInt\s*(?:\[.*?\]|[><=]\s*\d+)?', 'int', s)
@@ -110,6 +110,7 @@ def _get_doc(doc_str: Optional[str]) -> str:
         doc_str.strip(" .,")
         .replace(":py:attr:", "")
         .replace(":py:class:`Any`,", "")
+        .replace(":py:class:", "")
         .replace("&#10;", " ")
         .replace("<", " ")
         .replace(">", " ")
@@ -256,6 +257,7 @@ def get_label_help(param_name, parameter_docs):
         full_help.replace("\n", " ")
         .replace("&#10;", " ")
         .replace(":py:attr:", "")
+        .replace(":py:class:", "")
         .replace(":py:class:`Any`,", "")
         .removesuffix(".")
         .strip()
@@ -384,12 +386,17 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
 
 
     if base_type_str in ('SaQCFields', 'NewSaQCFields'):
-        param_object = TextParam(argument=param_name, multiple=True, **creation_args)
+        creation_args.pop("value", None)
+        creation_args['type'] = "data_column"
+        creation_args['data_ref'] = "data"
+        creation_args['multiple'] = True
+        creation_args['display'] = "checkboxes"
+        param_object = SelectParam(argument=param_name, **creation_args)
     elif re.fullmatch(r"(list|Sequence)\[\s*str\s*\]", base_type_str, re.IGNORECASE):
         param_object = TextParam(argument=param_name, multiple=True, **creation_args)
     elif re.fullmatch(r"list\[\s*tuple\[\s*float\s*,\s*float\s*\]\s*\]", base_type_str, re.IGNORECASE):
         repeat = Repeat(name=param_name, title=creation_args.get("label", param_name),
-                        help=creation_args.get("help", ""))
+            help=creation_args.get("help", ""))
         repeat.append(FloatParam(name=f"{param_name}_min", label=f"{param_name}_min"))
         repeat.append(FloatParam(name=f"{param_name}_max", label=f"{param_name}_max"))
         param_object = repeat
@@ -441,17 +448,13 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
                 param_object = IntegerParam(argument=param_name, **creation_args)
             else:
                 param_object = FloatParam(argument=param_name, **creation_args)
-    
-    # --- START: Modifizierter Block ---
+
     elif base_type_str in ['OffsetStr', 'FreqStr']:
-        # Logik aus Skript 1 für FreqStr/OffsetStr
         creation_args["help"] = creation_args.get("help", "") + " (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')"
         param_object = TextParam(argument=param_name, **creation_args)
-        param_object.append(offset_validator) # Validator hinzufügen
+        param_object.append(offset_validator)
     elif base_type_str in ['str', 'string', 'Any']:
-        # Ursprüngliche Logik für str/Any
         param_object = TextParam(argument=param_name, **creation_args)
-    # --- ENDE: Modifizierter Block ---
     
     elif base_type_str == 'int':
         param_object = IntegerParam(argument=param_name, **creation_args)
@@ -544,6 +547,26 @@ def get_method_params(method, module, tracing=False):
         if not type_parts_cleaned and type_parts_without_none:
             sys.stderr.write(f"Info ({module.__name__}): Skipping param '{param_name}' because its type is 'dict' (or Union of dicts), which is not UI-configurable.\n")
             continue
+
+        if param_name in ["field", "target"]:
+            creation_args = param_constructor_args.copy()
+            creation_args.pop("value", None)
+            creation_args['type'] = "data_column"
+            creation_args['data_ref'] = "data"
+            creation_args['multiple'] = True
+            creation_args['display'] = "checkboxes"
+            param_object = SelectParam(argument=param_name, **creation_args)
+            xml_params.append(param_object)
+            continue
+
+        is_all_saqc_fields = False
+        if len(type_parts_cleaned) > 1:
+            is_all_saqc_fields = all(
+                p in ('SaQCFields', 'NewSaQCFields') for p in type_parts_cleaned
+            )
+
+        if is_all_saqc_fields:
+            type_parts_cleaned = ['SaQCFields']
 
         if param.default is not inspect.Parameter.empty and param.default is not None and not isinstance(param.default, bool):
             if not isinstance(param.default, Callable):
@@ -848,8 +871,38 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
         return [{'key': 'test_key', 'value': 'test_value'}]
     if clean_type == 'slice':
         return {f"{param_name}_start": 0, f"{param_name}_end": 10}
-    if re.fullmatch(r"tuple\[\s*float\s*,\s*float\s*\]", clean_type, re.IGNORECASE):
-        return {f"{param_name}_min": 0.0, f"{param_name}_max": 1.0}
+
+    tuple_match = re.fullmatch(r"tuple\[\s*(.+)\s*\]", clean_type, re.IGNORECASE)
+    if tuple_match:
+        inner_types_str = tuple_match.group(1).replace("...", "").strip()
+        inner_types_list = _split_type_string_safely(inner_types_str)
+
+        type_0 = "str"
+        if len(inner_types_list) >= 1:
+            type_0 = inner_types_list[0]
+        
+        type_1 = "str"
+        if len(inner_types_list) >= 2:
+            type_1 = inner_types_list[1]
+        elif len(inner_types_list) == 1:
+            type_1 = inner_types_list[0]
+
+        def get_simple_val(typ):
+            clean_typ = typ.strip()
+            if clean_typ == 'int' or 'Int' in clean_typ: return 1
+            if clean_typ == 'float' or 'Float' in clean_typ: return 1.0
+            if clean_typ == 'bool': return True
+            if 'OffsetStr' in clean_typ or 'FreqStr' in clean_typ or 'timedelta' in clean_typ: return "1D"
+            if 'SaQCFields' in clean_typ or 'NewSaQCFields' in clean_typ: return 1
+            return "test_string"
+
+        val_0 = get_simple_val(type_0)
+        val_1 = get_simple_val(type_1)
+
+        return [
+            { f"{param_name}_pos0": val_0, f"{param_name}_pos1": val_1 }
+        ]
+
     if re.fullmatch(r"list\[\s*tuple\[\s*float\s*,\s*float\s*\]\s*\]", clean_type, re.IGNORECASE):
         return [{f"{param_name}_min": 0.0, f"{param_name}_max": 1.0}]
 
@@ -867,10 +920,8 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
 
     if 'callable' in clean_type.lower() or 'genericfunction' in clean_type.lower():
         return "'mean'"
-
     if 'int' in clean_type.lower() or 'float' in clean_type.lower():
         return 1
-
     if 'bool' in clean_type.lower():
         return True
     if any(s in clean_type.lower() for s in ['offset', 'timedelta', 'freq']):
@@ -890,7 +941,11 @@ def generate_test_variants(method: Callable) -> list:
         return []
 
     for param_name, param in parameters.items():
-        if param_name in ["self", "kwargs"] or "kwarg" in param_name.lower():
+        if param_name in ["self", "kwargs", "reduce_func"] or "kwarg" in param_name.lower():
+            continue
+
+        if param_name in ["field", "target"]:
+            base_params[param_name] = 1
             continue
 
         annotation = param.annotation
@@ -915,16 +970,40 @@ def generate_test_variants(method: Callable) -> list:
 
         type_parts_without_none = [p for p in type_parts if p.strip() != 'None']
 
-        if len(type_parts_without_none) > 1:
-            complex_params[param_name] = type_parts_without_none
-        elif type_parts_without_none:
-            single_type_str = type_parts_without_none[0]
-            if param_name in ["field", "target"]:
-                base_params[param_name] = "test_variable"
+        type_parts_cleaned = [
+            p for p in type_parts_without_none
+            if p.lower() not in ('dict', 'dictionary')
+        ]
+        if not type_parts_cleaned and type_parts_without_none:
+            continue
+
+        if not type_parts_cleaned and type_parts_without_none:
+            continue
+
+        is_all_saqc_fields = False
+        if len(type_parts_cleaned) > 1:
+            is_all_saqc_fields = all(
+                p in ('SaQCFields', 'NewSaQCFields') for p in type_parts_cleaned
+            )
+
+        if is_all_saqc_fields:
+            type_parts_cleaned = ['SaQCFields']
+
+        if len(type_parts_cleaned) > 1:
+            complex_params[param_name] = type_parts_cleaned
+
+        if len(type_parts_cleaned) > 1:
+            complex_params[param_name] = type_parts_cleaned
+        elif type_parts_cleaned:
+            single_type_str = type_parts_cleaned[0]
+            if single_type_str in ('SaQCFields', 'NewSaQCFields'):
+                base_params[param_name] = 1
             else:
                 test_value = get_test_value_for_type(single_type_str, param_name)
                 if isinstance(test_value, dict):
                     base_params.update(test_value)
+                elif isinstance(test_value, list):
+                    base_params[param_name] = test_value
                 else:
                     base_params[param_name] = test_value
         else:

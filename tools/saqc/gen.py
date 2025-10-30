@@ -109,6 +109,7 @@ def _get_doc(doc_str: Optional[str]) -> str:
     doc_str = (
         doc_str.strip(" .,")
         .replace(":py:attr:", "")
+        .replace(":py:class:`Any`,", "")
         .replace("&#10;", " ")
         .replace("<", " ")
         .replace(">", " ")
@@ -240,64 +241,31 @@ def parse_parameter_docs(sections: Dict[str, str]) -> Dict[str, str]:
 def get_label_help(param_name, parameter_docs):
     """
     Extracts label and help text.
+    Label is *always* the param_name.
+    Help text is the full, cleaned docstring.
     """
     parameter_doc_entry = parameter_docs.get(param_name)
     full_help = parameter_doc_entry.strip() if parameter_doc_entry else ""
 
-    if not full_help:
-        return param_name, ""
-
     label = param_name
-    remaining_help = full_help
-    sentence_match = re.match(r"([^.!?]+(?:[.!?](?=\s|$)|[.!?]$|$))", full_help)
 
-    label_candidate = ""
-    if sentence_match:
-        label_candidate = sentence_match.group(1).strip()
+    if not full_help:
+        return label, ""
 
-    is_bad_label = False
-    if (
-        not label_candidate
-        or "|" in label_candidate
-        or "[" in label_candidate
-        or not label_candidate[0].isupper()
-        or " " not in label_candidate
-        or len(label_candidate) > 80
-    ):
-        is_bad_label = True
-
-    if not is_bad_label and label_candidate:
-        label = label_candidate
-
-        if full_help.startswith(label_candidate):
-            remaining_help = full_help[len(label_candidate):].strip()
-            remaining_help = remaining_help.lstrip(".\n\r").strip()
-
-        if not remaining_help:
-            remaining_help = full_help
-
-    label = (
-        label.replace("\n", " ")
+    help_text = (
+        full_help.replace("\n", " ")
         .replace("&#10;", " ")
         .replace(":py:attr:", "")
-        .removesuffix(".")
-        .strip()
-    )
-    remaining_help = (
-        remaining_help.replace("\n", " ")
-        .replace("&#10;", " ")
-        .replace(":py:attr:", "")
+        .replace(":py:class:`Any`,", "")
         .removesuffix(".")
         .strip()
     )
 
-    label = label.replace("<", " ").replace(">", " ").replace('"', " ")
-    remaining_help = (
-        remaining_help.replace("<", " ").replace(">", " ").replace('"', " ")
+    help_text = (
+        help_text.replace("<", " ").replace(">", " ").replace('"', " ")
     )
 
-    return label, remaining_help
-
+    return label, help_text
 
 def get_modules() -> list[Tuple[str, "ModuleType"]]:
     return inspect.getmembers(saqc.funcs, inspect.ismodule)
@@ -359,21 +327,61 @@ def _split_type_string_safely(type_string: str) -> list[str]:
 
 
 def _create_param_from_type_str(type_str: str, param_name: str, param_constructor_args: dict, is_optional: bool) -> Optional[object]:
+    offset_regex = r"^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$"
+    offset_message = "Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."
+    offset_validator = ValidatorParam(type="regex", message=offset_message, value=offset_regex)
+   
     param_object = None
     base_type_str = type_str.strip()
-    is_tuple = False
-
-    tuple_match = re.fullmatch(r"tuple\[\s*([^,]+).*", base_type_str, re.IGNORECASE)
-    if tuple_match:
-        is_tuple = True
-        inner_type_str = tuple_match.group(1).strip()
-        base_type_str = inner_type_str
-        param_constructor_args["label"] = param_constructor_args.get("label", inner_type_str) + " (one or more)"
-
+    
     creation_args = param_constructor_args.copy()
 
-    if is_tuple:
-        creation_args['multiple'] = True
+
+    tuple_match = re.fullmatch(r"tuple\[\s*(.+)\s*\]", base_type_str, re.IGNORECASE)
+
+    if tuple_match:
+        inner_types_str = tuple_match.group(1)
+        inner_types_str = inner_types_str.replace("...", "").strip()
+        inner_types_list = _split_type_string_safely(inner_types_str)
+
+        type_0 = "str"
+        type_1 = "str"
+
+        if len(inner_types_list) == 1:
+
+            type_0 = inner_types_list[0]
+            type_1 = inner_types_list[0]
+        elif len(inner_types_list) >= 2:
+
+            type_0 = inner_types_list[0]
+            type_1 = inner_types_list[1]
+
+        repeat_args = param_constructor_args.copy()
+        repeat_args.pop("value", None)
+        repeat_args["title"] = repeat_args.get("label", param_name)
+        
+        repeat = Repeat(name=param_name, **repeat_args)
+
+        inner_args_0 = {'label': f"{param_name}_pos0", 'help': f"First element (index 0) of the {param_name} tuple.", 'optional': is_optional}
+
+        param_0 = _create_param_from_type_str(type_0, f"{param_name}_pos0", inner_args_0, is_optional)
+
+        inner_args_1 = {'label': f"{param_name}_pos1", 'help': f"Second element (index 1) of the {param_name} tuple.", 'optional': is_optional}
+        param_1 = _create_param_from_type_str(type_1, f"{param_name}_pos1", inner_args_1, is_optional)
+
+        if param_0:
+            repeat.append(param_0)
+        else:
+            repeat.append(TextParam(name=f"{param_name}_pos0", **inner_args_0))
+            
+        if param_1:
+            repeat.append(param_1)
+        else:
+            repeat.append(TextParam(name=f"{param_name}_pos1", **inner_args_1))
+
+        param_object = repeat
+        return param_object
+
 
     if base_type_str in ('SaQCFields', 'NewSaQCFields'):
         param_object = TextParam(argument=param_name, multiple=True, **creation_args)
@@ -382,8 +390,8 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
     elif re.fullmatch(r"list\[\s*tuple\[\s*float\s*,\s*float\s*\]\s*\]", base_type_str, re.IGNORECASE):
         repeat = Repeat(name=param_name, title=creation_args.get("label", param_name),
                         help=creation_args.get("help", ""))
-        repeat.append(FloatParam(name=f"{param_name}_min", label="Y-Axis Minimum"))
-        repeat.append(FloatParam(name=f"{param_name}_max", label="Y-Axis Maximum"))
+        repeat.append(FloatParam(name=f"{param_name}_min", label=f"{param_name}_min"))
+        repeat.append(FloatParam(name=f"{param_name}_max", label=f"{param_name}_max"))
         param_object = repeat
     elif base_type_str.lower() in ('list', 'sequence', 'arraylike', 'pd.series', 'pd.dataframe', 'pd.datetimeindex'):
         param_object = TextParam(argument=param_name, **creation_args)
@@ -433,8 +441,18 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
                 param_object = IntegerParam(argument=param_name, **creation_args)
             else:
                 param_object = FloatParam(argument=param_name, **creation_args)
-    elif base_type_str in ['OffsetStr', 'str', 'string', 'FreqStr', 'Any']:
+    
+    # --- START: Modifizierter Block ---
+    elif base_type_str in ['OffsetStr', 'FreqStr']:
+        # Logik aus Skript 1 für FreqStr/OffsetStr
+        creation_args["help"] = creation_args.get("help", "") + " (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')"
         param_object = TextParam(argument=param_name, **creation_args)
+        param_object.append(offset_validator) # Validator hinzufügen
+    elif base_type_str in ['str', 'string', 'Any']:
+        # Ursprüngliche Logik für str/Any
+        param_object = TextParam(argument=param_name, **creation_args)
+    # --- ENDE: Modifizierter Block ---
+    
     elif base_type_str == 'int':
         param_object = IntegerParam(argument=param_name, **creation_args)
     elif base_type_str == 'float':
@@ -481,7 +499,7 @@ def get_method_params(method, module, tracing=False):
         return xml_params
 
     for param_name, param in parameters.items():
-        if param_name in ["self", "kwargs"] or "kwarg" in param_name.lower():
+        if param_name in ["self", "kwargs", "reduce_func"] or "kwarg" in param_name.lower():
             continue
 
         annotation = param.annotation
@@ -518,15 +536,24 @@ def get_method_params(method, module, tracing=False):
 
         type_parts_without_none = [p for p in type_parts if p != 'None']
 
+        type_parts_cleaned = [
+            p for p in type_parts_without_none
+            if p.lower() not in ('dict', 'dictionary')
+        ]
+
+        if not type_parts_cleaned and type_parts_without_none:
+            sys.stderr.write(f"Info ({module.__name__}): Skipping param '{param_name}' because its type is 'dict' (or Union of dicts), which is not UI-configurable.\n")
+            continue
+
         if param.default is not inspect.Parameter.empty and param.default is not None and not isinstance(param.default, bool):
             if not isinstance(param.default, Callable):
                 param_constructor_args['value'] = str(param.default)
 
-        if len(type_parts_without_none) == 1:
-            single_type_str = type_parts_without_none[0]
+        if len(type_parts_cleaned) == 1:
+            single_type_str = type_parts_cleaned[0]
             if single_type_str == 'slice':
-                start_param_args = {"name": f"{param_name}_start", "label": f"{label} (start index)", "min": 0, "help": "Start index of the slice (e.g., 0).", **optional_arg}
-                end_param_args = {"name": f"{param_name}_end", "label": f"{label} (end index)", "min": 0, "help": "End index of the slice (exclusive).", **optional_arg}
+                start_param_args = {"name": f"{param_name}_start", "label": f"{param_name}_start", "min": 0, "help": "Start index of the slice (e.g., 0).", **optional_arg}
+                end_param_args = {"name": f"{param_name}_end", "label": f"{param_name}_end", "min": 0, "help": "End index of the slice (exclusive).", **optional_arg}
                 start_param = IntegerParam(**start_param_args)
                 end_param = IntegerParam(**end_param_args)
                 xml_params.extend([start_param, end_param])
@@ -538,25 +565,24 @@ def get_method_params(method, module, tracing=False):
             else:
                 param_object = _create_param_from_type_str(single_type_str, param_name, param_constructor_args, is_truly_optional)
 
-        elif len(type_parts_without_none) > 1:
+        elif len(type_parts_cleaned) > 1:
             conditional = Conditional(name=f"{param_name}_cond", label=label)
-            type_options = [(f"type_{i}", _get_user_friendly_type_name(part)) for i, part in enumerate(type_parts_without_none)]
+            type_options = [(f"type_{i}", _get_user_friendly_type_name(part)) for i, part in enumerate(type_parts_cleaned)]
             selector = SelectParam(name=f"{param_name}_selector", label=f"Choose type for '{label}'",
                                    help=help_text, options=dict(type_options))
             conditional.append(selector)
 
-            for i, part_str in enumerate(type_parts_without_none):
+            for i, part_str in enumerate(type_parts_cleaned):
                 when = When(value=f"type_{i}")
-
-                inner_param_args = {"label": _get_user_friendly_type_name(part_str), **optional_arg}
+                inner_param_args = {"label": label, "help": help_text, **optional_arg}
 
                 if part_str == 'slice':
                     start_param = IntegerParam(name=f"{param_name}_start", label=f"{label} (start index)", min=0, help="Start index of the slice (e.g., 0).", **optional_arg)
                     end_param = IntegerParam(name=f"{param_name}_end", label=f"{label} (end index)", min=0, help="End index of the slice (exclusive).", **optional_arg)
                     when.extend([start_param, end_param])
                 elif re.fullmatch(r"tuple\[\s*float\s*,\s*float\s*\]", part_str, re.IGNORECASE):
-                    min_param = FloatParam(name=f"{param_name}_min", label=f"{label} (Y-Axis Minimum)", **optional_arg)
-                    max_param = FloatParam(name=f"{param_name}_max", label=f"{label} (Y-Axis Maximum)", **optional_arg)
+                    min_param = FloatParam(name=f"{param_name}_min", label=f"{param_name}_min", **optional_arg)
+                    max_param = FloatParam(name=f"{param_name}_max", label=f"{param_name}_max", **optional_arg)
                     when.extend([min_param, max_param])
                 elif any(func_type in part_str for func_type in ['Callable', 'CurveFitter', 'GenericFunction']):
                     inner_param = TextParam(argument=param_name, **inner_param_args)

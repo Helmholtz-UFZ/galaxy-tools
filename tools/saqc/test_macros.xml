@@ -73,6 +73,27 @@
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
         <conditional name="module_cond">
+          <param name="module_select" value="breaks" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagNAN" />
+            <param name="field" value="test_variable" />
+            <param name="flag" value="1" />
+            <param name="dfilter" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagNAN" />
+          <has_text text="test_variable" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
           <param name="module_select" value="changepoints" />
           <conditional name="method_cond">
             <param name="method_select" value="assignChangePointCluster" />
@@ -1437,102 +1458,6 @@
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
         <conditional name="module_cond">
-          <param name="module_select" value="noise" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagByStatLowPass" />
-            <param name="field" value="test_variable" />
-            <param name="window" value="1D" />
-            <param name="thresh" value="1" />
-            <param name="sub_thresh" value="1" />
-            <param name="min_periods" value="1" />
-            <param name="flag" value="1" />
-            <conditional name="func_cond">
-              <param name="func_selector" value="type_0" />
-              <param name="func" value="std" />
-            </conditional>
-            <conditional name="sub_window_cond">
-              <param name="sub_window_selector" value="type_0" />
-              <param name="sub_window" value="1" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="flagByStatLowPass" />
-          <has_text text="test_variable" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="noise" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagByStatLowPass" />
-            <param name="field" value="test_variable" />
-            <param name="window" value="1D" />
-            <param name="thresh" value="1" />
-            <param name="sub_thresh" value="1" />
-            <param name="min_periods" value="1" />
-            <param name="flag" value="1" />
-            <conditional name="func_cond">
-              <param name="func_selector" value="type_1" />
-              <param name="func" value="'mean'" />
-            </conditional>
-            <conditional name="sub_window_cond">
-              <param name="sub_window_selector" value="type_0" />
-              <param name="sub_window" value="1" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="flagByStatLowPass" />
-          <has_text text="test_variable" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="noise" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagByStatLowPass" />
-            <param name="field" value="test_variable" />
-            <param name="window" value="1D" />
-            <param name="thresh" value="1" />
-            <param name="sub_thresh" value="1" />
-            <param name="min_periods" value="1" />
-            <param name="flag" value="1" />
-            <conditional name="func_cond">
-              <param name="func_selector" value="type_0" />
-              <param name="func" value="std" />
-            </conditional>
-            <conditional name="sub_window_cond">
-              <param name="sub_window_selector" value="type_1" />
-              <param name="sub_window" value="1D" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="flagByStatLowPass" />
-          <has_text text="test_variable" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
           <param name="module_select" value="outliers" />
           <conditional name="method_cond">
             <param name="method_select" value="flagByGrubbs" />
@@ -1902,11 +1827,41 @@
           <conditional name="method_cond">
             <param name="method_select" value="flagOffset" />
             <param name="field" value="test_variable" />
-            <param name="tolerance" value="1" />
             <param name="window" value="1D" />
+            <param name="tolerance" value="1" />
             <param name="thresh" value="1" />
-            <param name="thresh_relative" value="1" />
             <param name="flag" value="1" />
+            <conditional name="thresh_relative_cond">
+              <param name="thresh_relative_selector" value="type_0" />
+              <param name="thresh_relative" value="a_string" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagOffset" />
+          <has_text text="test_variable" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagOffset" />
+            <param name="field" value="test_variable" />
+            <param name="window" value="1D" />
+            <param name="tolerance" value="1" />
+            <param name="thresh" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="thresh_relative_cond">
+              <param name="thresh_relative_selector" value="type_1" />
+              <param name="thresh_relative" value="1" />
+            </conditional>
           </conditional>
         </conditional>
       </repeat>
@@ -3058,7 +3013,7 @@
             </conditional>
             <conditional name="func_cond">
               <param name="func_selector" value="type_1" />
-              <param name="func" value="a_string" />
+              <param name="func" value="sum" />
             </conditional>
           </conditional>
         </conditional>
@@ -3379,11 +3334,8 @@
           <param name="module_select" value="tools" />
           <conditional name="method_cond">
             <param name="method_select" value="copyField" />
+            <param name="field" value="test_variable" />
             <param name="overwrite" value="true" />
-            <conditional name="field_cond">
-              <param name="field_selector" value="type_0" />
-              <param name="field" value="a_string" />
-            </conditional>
             <conditional name="target_cond">
               <param name="target_selector" value="type_0" />
               <param name="target" value="a_string" />
@@ -3394,7 +3346,7 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="copyField" />
-          <has_text text="a_string" />
+          <has_text text="test_variable" />
         </assert_contents>
       </output>
     </test>
@@ -3406,38 +3358,8 @@
           <param name="module_select" value="tools" />
           <conditional name="method_cond">
             <param name="method_select" value="copyField" />
+            <param name="field" value="test_variable" />
             <param name="overwrite" value="true" />
-            <conditional name="field_cond">
-              <param name="field_selector" value="type_1" />
-              <param name="field" value="a_string" />
-            </conditional>
-            <conditional name="target_cond">
-              <param name="target_selector" value="type_0" />
-              <param name="target" value="a_string" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="copyField" />
-          <has_text text="a_string" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="tools" />
-          <conditional name="method_cond">
-            <param name="method_select" value="copyField" />
-            <param name="overwrite" value="true" />
-            <conditional name="field_cond">
-              <param name="field_selector" value="type_0" />
-              <param name="field" value="a_string" />
-            </conditional>
             <conditional name="target_cond">
               <param name="target_selector" value="type_1" />
               <param name="target" value="a_string" />
@@ -3448,7 +3370,7 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="copyField" />
-          <has_text text="a_string" />
+          <has_text text="test_variable" />
         </assert_contents>
       </output>
     </test>

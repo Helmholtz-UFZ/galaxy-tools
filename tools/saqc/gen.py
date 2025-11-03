@@ -331,7 +331,7 @@ def _split_type_string_safely(type_string: str) -> list[str]:
 def _create_param_from_type_str(type_str: str, param_name: str, param_constructor_args: dict, is_optional: bool) -> Optional[object]:
     offset_regex = r"^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$"
     offset_message = "Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."
-    offset_validator = ValidatorParam(type="regex", message=offset_message, value=offset_regex)
+    offset_validator = ValidatorParam(type="regex", message=offset_message, text=offset_regex)
    
     param_object = None
     base_type_str = type_str.strip()

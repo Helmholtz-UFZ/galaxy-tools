@@ -991,9 +991,6 @@ def generate_test_variants(method: Callable) -> list:
 
         if len(type_parts_cleaned) > 1:
             complex_params[param_name] = type_parts_cleaned
-
-        if len(type_parts_cleaned) > 1:
-            complex_params[param_name] = type_parts_cleaned
         elif type_parts_cleaned:
             single_type_str = type_parts_cleaned[0]
             if single_type_str in ('SaQCFields', 'NewSaQCFields'):

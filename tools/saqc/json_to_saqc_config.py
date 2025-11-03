@@ -3,7 +3,14 @@
 import json
 import math
 import sys
+import traceback
+import numpy as np
 
+
+def translateColumn(inputData: str, index: int):
+    collumns = open(inputData, "r").readline()
+    array = np.array(collumns.strip().split(','))
+    return array[index]
 
 print("varname; function")
 
@@ -14,6 +21,22 @@ try:
 except Exception as e:
     sys.stderr.write(f"Error opening or reading JSON file {infile}: {type(e).__name__} - {e}\n")
     sys.exit(1)
+input_data_files = params_from_galaxy.get("data", [])
+primary_input_file = None
+if input_data_files:
+    primary_input_file = input_data_files[0] # Galaxy übergibt hier den vollen Pfad
+    
+if not primary_input_file:
+    sys.stderr.write("WARNUNG: 'data'-Parameter nicht im JSON gefunden. Versuche Fallback für planemo...\n")
+    job_inputs = params_from_galaxy.get("__job_inputs__", {})
+    for input_details in job_inputs.values():
+        if input_details.get("name") == "data":
+            primary_input_file = input_details.get("values", [{}])[0].get("path")
+            break
+
+if not primary_input_file:
+    sys.stderr.write("FATAL: Konnte Eingabedatei-Pfad nicht finden. Spaltenkonvertierung unmöglich.\n")
+    sys.exit(2)
 
 for r_method_set in params_from_galaxy.get("methods_repeat", []):
     method_str_for_error = "unknown_method_in_repeat"
@@ -25,10 +48,8 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
             continue
 
         params_to_process = method_cond_params.copy()
-
         method = params_to_process.pop("method_select", "unknown_method")
         method_str_for_error = method
-
         raw_field_val = None
         field_str = "undefined_field"
 
@@ -36,17 +57,30 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
             raw_field_val = params_to_process.pop("field")
         elif "target" in params_to_process:
             raw_field_val = params_to_process.pop("target")
-        elif "field_cond" in params_to_process and isinstance(params_to_process["field_cond"], dict):
-            raw_field_val = params_to_process.pop("field_cond").get("field")
 
         if raw_field_val is None:
-            sys.stderr.write(f"Warning: Field name could not be determined for method '{method}'. Using '{field_str}'.\n")
-            field_str_for_error = "undefined_field (extraction failed or empty)"
+            field_str = "no_field_applicable"
+            field_str_for_error = field_str
         else:
-            if isinstance(raw_field_val, list):
-                field_str = ','.join(map(str, raw_field_val))
-            else:
-                field_str = str(raw_field_val)
+            try:
+                indices_from_galaxy = []
+                if isinstance(raw_field_val, list):
+                    indices_from_galaxy = raw_field_val
+                else:
+                    indices_from_galaxy = [raw_field_val] 
+
+                column_names = []
+                for index_str in indices_from_galaxy:
+                    index_int = int(index_str) 
+                    name = translateColumn(primary_input_file, index_int)
+                    column_names.append(name)
+                field_str = ','.join(column_names) 
+                    
+            except Exception as e:
+                sys.stderr.write(f"FATAL: translateColumn failed for method '{method}' with index '{raw_field_val}'. Error: {e}\n")
+                traceback.print_exc(file=sys.stderr)
+                field_str = f"ERROR_CONVERSION_FAILED_{raw_field_val}"
+                
             field_str_for_error = field_str
 
         saqc_args_dict = {}
@@ -118,11 +152,39 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
                         escaped_v = v_saqc_raw.replace('\\', '\\\\').replace('"', '\\"')
                         v_str_repr = f'"{escaped_v}"'
             elif isinstance(v_saqc_raw, list):
-                if all(isinstance(i, dict) and 'key' in i for i in v_saqc_raw):
-                    dict_items = [f'"{i["key"]}": "{i["value"]}"' for i in v_saqc_raw]
-                    v_str_repr = f"{{{', '.join(dict_items)}}}"
+
+                if v_saqc_raw and isinstance(v_saqc_raw[0], dict):
+                    inner_dict = v_saqc_raw[0]
+
+                    if f"{actual_param_name_for_saqc}_pos0" in inner_dict:
+                        pos0_val_raw = inner_dict.get(f"{actual_param_name_for_saqc}_pos0")
+                        pos1_val_raw = inner_dict.get(f"{actual_param_name_for_saqc}_pos1")
+
+                        def format_val(val):
+                            if val is None: return "None"
+                            if isinstance(val, str):
+                                if val.startswith("'") and val.endswith("'"): return val
+                                return f'"{val}"'
+                            if isinstance(val, (int, float)): return str(val)
+                            return repr(val)
+                        v_str_repr = f"({format_val(pos0_val_raw)}, {format_val(pos1_val_raw)})"
+
+                    elif 'key' in inner_dict:
+                        dict_items = [f'"{i["key"]}": "{i["value"]}"' for i in v_saqc_raw]
+                        v_str_repr = f"{{{', '.join(dict_items)}}}"
+                    
+                    else:
+                        v_str_repr = f"[{', '.join(map(str, v_saqc_raw))}]"
+
                 else:
-                    v_str_repr = f"[{', '.join(map(str, v_saqc_raw))}]"
+                    formatted_list_items = []
+                    for item in v_saqc_raw:
+                        if isinstance(item, str):
+                            formatted_list_items.append(f'"{item}"')
+                        else:
+                            formatted_list_items.append(str(item))
+                    v_str_repr = f"[{', '.join(formatted_list_items)}]"
+
             else:
                 sys.stderr.write(f"Warning: Param '{k_saqc}' for method '{method}' has unhandled type {type(v_saqc_raw)}. Converting to string representation: '{str(v_saqc_raw)}'.\n")
                 v_str_repr = repr(v_saqc_raw)

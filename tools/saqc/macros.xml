@@ -5,42 +5,13 @@
         </requirements>
     </xml>
 
-    <token name="@TOOL_VERSION@">2.6.0</token>
+    <token name="@TOOL_VERSION@">2.7.0</token>
     <token name="@VERSION_SUFFIX@">0</token>
 
     <xml name="citations">
         <citations>
             <citation type="doi">https://doi.org/10.1016/j.envsoft.2023.105809</citation>
         </citations>
-    </xml>
-
-    <xml name="field">
-        <param argument="field"
-               label="Field"
-               optional="false"
-               value=""
-               type="text"
-               help="Variable to process"/>
-    </xml>
-
-    <xml name="field_multiple">
-        <repeat name="field_repeat" title="field(s)" min="1">
-            <param argument="field"
-                   label="Field"
-                   optional="false"
-                   value=""
-                   type="text"
-                   help="Variable to process"/>
-        </repeat>
-    </xml>
-
-    <xml name="flag">
-        <param argument="flag"
-               label="Flag"
-               optional="true"
-               value="255.0"
-               type="float"
-               help="The flag value the function uses to mark observations"/>
     </xml>
 
     <xml name="saqc_tests">
@@ -53,7 +24,7 @@
                     <param name="module_select" value="outliers"/>
                     <conditional name="method_cond">
                         <param name="method_select" value="flagRange"/>
-                        <param name="field" value="SM2"/>
+                        <param name="field" value="3"/>
                         <param name="max" value="60.0"/>
                         <param name="min" value="10.0"/>
                         <param name="flag" value="255.0"/>
@@ -65,7 +36,7 @@
                     <param name="module_select" value="outliers"/>
                     <conditional name="method_cond">
                         <param name="method_select" value="flagZScore"/>
-                        <param name="field" value="SM2"/>
+                        <param name="field" value="3"/>
                         <param name="center" value="false"/>
                         <conditional name="window_cond">
                             <param name="window_selector" value="type_0"/>
@@ -82,10 +53,7 @@
                     <param name="module_select" value="tools"/>
                     <conditional name="method_cond">
                         <param name="method_select" value="plot"/>
-                        <conditional name="field_cond">
-                            <param name="field_selector" value="type_0"/>
-                            <param name="field" value="SM2"/>
-                        </conditional>
+                            <param name="field" value="3"/>
                         <param name="path" value="test"/>
                         <conditional name="history_cond">
                             <param name="history_selector" value="type_0"/>

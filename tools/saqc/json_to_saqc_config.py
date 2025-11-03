@@ -8,9 +8,12 @@ import numpy as np
 
 
 def translateColumn(inputData: str, index: int):
-    collumns = open(inputData, "r").readline()
-    array = np.array(collumns.strip().split(','))
-    return array[index]
+    try:
+        collumns = open(inputData, "r").readline()
+        array = np.array(collumns.strip().split(','))
+        return array[index]
+    except:
+        sys.stderr.write("Could not find dataset")
 
 print("varname; function")
 
@@ -21,22 +24,18 @@ try:
 except Exception as e:
     sys.stderr.write(f"Error opening or reading JSON file {infile}: {type(e).__name__} - {e}\n")
     sys.exit(1)
-input_data_files = params_from_galaxy.get("data", [])
 primary_input_file = None
-if input_data_files:
-    primary_input_file = input_data_files[0] # Galaxy übergibt hier den vollen Pfad
-    
-if not primary_input_file:
-    sys.stderr.write("WARNUNG: 'data'-Parameter nicht im JSON gefunden. Versuche Fallback für planemo...\n")
-    job_inputs = params_from_galaxy.get("__job_inputs__", {})
-    for input_details in job_inputs.values():
-        if input_details.get("name") == "data":
-            primary_input_file = input_details.get("values", [{}])[0].get("path")
-            break
+try:
+    primary_input_file = sys.argv[2]
+except IndexError:
+    sys.stderr.write("FATAL: Dem Skript wurde kein zweites Argument (der Dateipfad) übergeben.\n")
+    sys.exit(2)
 
 if not primary_input_file:
-    sys.stderr.write("FATAL: Konnte Eingabedatei-Pfad nicht finden. Spaltenkonvertierung unmöglich.\n")
+    sys.stderr.write("FATAL: Konnte Eingabedatei-Pfad nicht aus sys.argv[2] lesen.\n")
     sys.exit(2)
+    
+sys.stderr.write(f"INFO: Verwende Dateipfad für Spaltennamen: {primary_input_file}\n")
 
 for r_method_set in params_from_galaxy.get("methods_repeat", []):
     method_str_for_error = "unknown_method_in_repeat"

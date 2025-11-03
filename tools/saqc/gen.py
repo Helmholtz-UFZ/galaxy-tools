@@ -724,10 +724,11 @@ def generate_tool_xml(tracing=False):
     """Generates XML-Definition of Galaxy-Tools."""
     command_override = [
         """
+#set $first_data_file = $data[0]
 #if str($run_test_mode) == "true":
-  '$__tool_directory__'/json_to_saqc_config.py '$param_conf' > config.csv
+  '$__tool_directory__'/json_to_saqc_config.py '$param_conf' '$first_data_file' > config.csv
 #else
-  '$__tool_directory__'/json_to_saqc_config.py '$param_conf' > config.csv &&
+  '$__tool_directory__'/json_to_saqc_config.py '$param_conf' '$first_data_file' > config.csv &&
   #for $i, $d in enumerate($data)
     ##maybe link to element_identifier
     ln -s '$d' '${i}.csv' &&

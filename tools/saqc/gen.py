@@ -328,6 +328,61 @@ def _split_type_string_safely(type_string: str) -> list[str]:
     return [p for p in parts if p]
 
 
+def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> bool:
+    """
+    Checks if method should be skipped due to this criteria:
+    
+    Criteria:
+    - Contains 'func' i name
+    - AND is not a literal
+    - AND not in generic.flagGeneric or generic.processGeneric
+    - AND is not optional
+    
+    returns true if it should be skipped.
+    """
+    try:
+        parameters = inspect.signature(method).parameters
+    except (ValueError, TypeError):
+        return False
+
+    for param_name, param in parameters.items():
+        if "func" not in param_name.lower():
+            continue
+
+        annotation = param.annotation
+        raw_annotation_str = ""
+        if isinstance(annotation, (str, ForwardRef)):
+            raw_annotation_str = annotation.__forward_arg__ if isinstance(annotation, ForwardRef) else str(annotation)
+        elif annotation is not inspect.Parameter.empty:
+            raw_annotation_str = str(annotation).replace("typing.", "")
+
+        is_literal_type = "Literal[" in raw_annotation_str or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
+        if is_literal_type:
+            continue
+
+        is_generic_module = module.__name__.endswith(".generic") 
+        is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
+        if is_generic_module and is_generic_method:
+            continue
+
+        is_python_optional_by_default = (param.default is not inspect.Parameter.empty)
+        if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
+             inner_content = raw_annotation_str[6:-1]
+             type_parts = _split_type_string_safely(inner_content)
+        else:
+             type_parts = _split_type_string_safely(raw_annotation_str)
+        is_optional_by_none = 'None' in type_parts
+        is_truly_optional = is_python_optional_by_default or is_optional_by_none
+
+        if is_truly_optional:
+            continue
+
+        sys.stderr.write(f"Info ({module.__name__}): Skipping method '{method.__name__}' from XML. Reason: Contains non-optional, non-literal 'func'-parameter, not in module generic: '{param_name}'\n")
+        return True
+
+    return False
+
+
 def _create_param_from_type_str(type_str: str, param_name: str, param_constructor_args: dict, is_optional: bool) -> Optional[object]:
     offset_regex = r"^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$"
     offset_message = "Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."
@@ -338,11 +393,14 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
     
     creation_args = param_constructor_args.copy()
 
-
-    tuple_match = re.fullmatch(r"tuple\[\s*(.+)\s*\]", base_type_str, re.IGNORECASE)
+    tuple_match = re.fullmatch(r"tuple(?:\[\s*(.*)\s*\])?", base_type_str, re.IGNORECASE)
 
     if tuple_match:
         inner_types_str = tuple_match.group(1)
+
+        if inner_types_str is None:
+            inner_types_str = ""
+
         inner_types_str = inner_types_str.replace("...", "").strip()
         inner_types_list = _split_type_string_safely(inner_types_str)
 
@@ -505,15 +563,69 @@ def get_method_params(method, module, tracing=False):
         if param_name in ["self", "kwargs", "reduce_func"] or "kwarg" in param_name.lower():
             continue
 
-        annotation = param.annotation
-        param_object = None
-        label, help_text = get_label_help(param_name, param_docs)
+        is_func_param = "func" in param_name.lower()
 
+        annotation = param.annotation
         raw_annotation_str = ""
         if isinstance(annotation, (str, ForwardRef)):
             raw_annotation_str = annotation.__forward_arg__ if isinstance(annotation, ForwardRef) else str(annotation)
         elif annotation is not inspect.Parameter.empty:
             raw_annotation_str = str(annotation).replace("typing.", "")
+            
+        is_literal_type = "Literal[" in raw_annotation_str or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
+
+        if is_func_param:
+            is_generic_module = module.__name__.endswith(".generic")
+            is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
+            if is_generic_module and is_generic_method:
+                PY_CODE_REGEX = r"^(?!\s*$).+"
+                PY_CODE_MSG = "Must provide a valid function name (e.g., 'mean') or Python expression."
+
+                label, help_text = get_label_help(param_name, param_docs)
+                
+                is_python_optional_by_default = (param.default is not inspect.Parameter.empty)
+                if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
+                        inner_content = raw_annotation_str[6:-1]
+                        type_parts = _split_type_string_safely(inner_content)
+                else:
+                        type_parts = _split_type_string_safely(raw_annotation_str)
+                is_optional_by_none = 'None' in type_parts
+                is_truly_optional = is_python_optional_by_default or is_optional_by_none
+                optional_arg = {'optional': True} if is_truly_optional else {}
+                
+                param_constructor_args = {"label": label, "help": help_text, **optional_arg}
+                param_object = TextParam(argument=param_name, **param_constructor_args)
+                
+                if not is_truly_optional:
+                    param_object.append(ValidatorParam(type="regex", message=PY_CODE_MSG, text=PY_CODE_REGEX))
+                
+                xml_params.append(param_object)
+                continue
+
+            if is_literal_type:
+                pass 
+
+            else:
+                is_python_optional_by_default = (param.default is not inspect.Parameter.empty)
+                if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
+                        inner_content = raw_annotation_str[6:-1]
+                        type_parts = _split_type_string_safely(inner_content)
+                else:
+                        type_parts = _split_type_string_safely(raw_annotation_str)
+                is_optional_by_none = 'None' in type_parts
+                is_truly_optional = is_python_optional_by_default or is_optional_by_none
+
+                if is_truly_optional:
+                    sys.stderr.write(f"Info ({module.__name__}): Überspringe optionalen 'func'-Parameter '{param_name}' in Methode '{method.__name__}'.\n")
+                    continue
+                else:
+                    sys.stderr.write(f"Warnung ({module.__name__}): Überspringe nicht-optionalen 'func'-Parameter '{param_name}' in Methode '{method.__name__}', da er nicht im 'generic'-Modul ist.\n")
+                    continue
+
+
+        param_object = None
+        label, help_text = get_label_help(param_name, param_docs)
+
 
         if 'mpl.axes.Axes' in raw_annotation_str:
             continue
@@ -571,6 +683,27 @@ def get_method_params(method, module, tracing=False):
         if param.default is not inspect.Parameter.empty and param.default is not None and not isinstance(param.default, bool):
             if not isinstance(param.default, Callable):
                 param_constructor_args['value'] = str(param.default)
+
+        if len(type_parts_cleaned) > 1:
+            is_generic_module = module.__name__.endswith(".generic")
+            is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
+            
+            if not (is_generic_module and is_generic_method):
+                
+                has_literal = any(
+                    "Literal[" in part or part in SAQC_CUSTOM_SELECT_TYPES for part in type_parts_cleaned
+                )
+                
+                if has_literal:
+                    original_count = len(type_parts_cleaned)
+                    type_parts_cleaned = [
+                        part for part in type_parts_cleaned 
+                        if not any(func_type in part for func_type in ['Callable', 'CurveFitter', 'GenericFunction'])
+                    ]
+                    
+                    if len(type_parts_cleaned) < original_count:
+                        sys.stderr.write(f"Info ({module.__name__}): Hide 'Callable/Function' option for parameter '{param_name}' in method '{method.__name__}', cause literal-option in union.\n")
+
 
         if len(type_parts_cleaned) == 1:
             single_type_str = type_parts_cleaned[0]
@@ -660,12 +793,19 @@ def get_method_params(method, module, tracing=False):
 
 
 def get_methods_conditional(methods, module, tracing=False):
+
+    filtered_methods = []
+    for method_obj in methods:
+        if check_method_for_skip_condition(method_obj, module):
+            continue
+        filtered_methods.append(method_obj)
     method_conditional = Conditional(name="method_cond", label="Method")
     method_select_options = []
-    if not methods:
+
+    if not filtered_methods:
         return None
 
-    for method_obj in methods:
+    for method_obj in filtered_methods:
         method_name = method_obj.__name__
         method_doc = _get_doc(method_obj.__doc__)
         if not method_doc:
@@ -688,7 +828,7 @@ def get_methods_conditional(methods, module, tracing=False):
         )
         method_conditional.append(no_options_notice)
 
-    for method_obj in methods:
+    for method_obj in filtered_methods:
         method_name = method_obj.__name__
         method_when = When(value=method_name)
         try:
@@ -873,9 +1013,14 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
     if clean_type == 'slice':
         return {f"{param_name}_start": 0, f"{param_name}_end": 10}
 
-    tuple_match = re.fullmatch(r"tuple\[\s*(.+)\s*\]", clean_type, re.IGNORECASE)
+    tuple_match = re.fullmatch(r"tuple(?:\[\s*(.*)\s*\])?", clean_type, re.IGNORECASE)
     if tuple_match:
-        inner_types_str = tuple_match.group(1).replace("...", "").strip()
+        inner_types_str = tuple_match.group(1)
+
+        if inner_types_str is None:
+            inner_types_str = ""
+
+        inner_types_str = inner_types_str.replace("...", "").strip()
         inner_types_list = _split_type_string_safely(inner_types_str)
 
         type_0 = "str"
@@ -931,7 +1076,7 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
     return "a_string"
 
 
-def generate_test_variants(method: Callable) -> list:
+def generate_test_variants(method: Callable, module: "ModuleType") -> list:
     variants = []
     base_params = {}
     complex_params = {}
@@ -948,7 +1093,7 @@ def generate_test_variants(method: Callable) -> list:
         if param_name in ["field", "target"]:
             base_params[param_name] = 1
             continue
-
+            
         annotation = param.annotation
         raw_annotation_str = ""
         if isinstance(annotation, (str, ForwardRef)):
@@ -962,6 +1107,41 @@ def generate_test_variants(method: Callable) -> list:
 
         if 'mpl.axes.Axes' in raw_annotation_str:
             continue
+
+        is_func_param = "func" in param_name.lower()
+        is_literal_type = "Literal[" in raw_annotation_str or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
+
+        if is_func_param:
+            is_generic_module = module.__name__.endswith(".generic")
+            is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
+            if is_generic_module and is_generic_method:
+                if method.__name__ == "flagGeneric":
+                    base_params[param_name] = "lambda x: x > 10"
+                elif method.__name__ == "processGeneric":
+                    base_params[param_name] = "lambda x: x * 2"
+                else:
+                    base_params[param_name] = "lambda x: x"
+                
+                continue
+
+            if is_literal_type:
+                pass
+
+            else:
+                is_python_optional_by_default = (param.default is not inspect.Parameter.empty)
+                if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
+                        inner_content = raw_annotation_str[6:-1]
+                        type_parts = _split_type_string_safely(inner_content)
+                else:
+                        type_parts = _split_type_string_safely(raw_annotation_str)
+                is_optional_by_none = 'None' in type_parts
+                is_truly_optional = is_python_optional_by_default or is_optional_by_none
+
+                if is_truly_optional:
+                    continue
+                else:
+                    continue
+
 
         if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
             inner_content = raw_annotation_str[6:-1]
@@ -977,10 +1157,7 @@ def generate_test_variants(method: Callable) -> list:
         ]
         if not type_parts_cleaned and type_parts_without_none:
             continue
-
-        if not type_parts_cleaned and type_parts_without_none:
-            continue
-
+            
         is_all_saqc_fields = False
         if len(type_parts_cleaned) > 1:
             is_all_saqc_fields = all(
@@ -989,6 +1166,24 @@ def generate_test_variants(method: Callable) -> list:
 
         if is_all_saqc_fields:
             type_parts_cleaned = ['SaQCFields']
+
+
+        if len(type_parts_cleaned) > 1:
+            is_generic_module = module.__name__.endswith(".generic")
+            is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
+            
+            if not (is_generic_module and is_generic_method):
+                has_literal = any(
+                    "Literal[" in part or part in SAQC_CUSTOM_SELECT_TYPES for part in type_parts_cleaned
+                )
+                
+                if has_literal:
+                    type_parts_cleaned = [
+                        part for part in type_parts_cleaned 
+                        if not any(func_type in part for func_type in ['Callable', 'CurveFitter', 'GenericFunction'])
+                    ]
+
+
 
         if len(type_parts_cleaned) > 1:
             complex_params[param_name] = type_parts_cleaned
@@ -1000,8 +1195,6 @@ def generate_test_variants(method: Callable) -> list:
                 test_value = get_test_value_for_type(single_type_str, param_name)
                 if isinstance(test_value, dict):
                     base_params.update(test_value)
-                elif isinstance(test_value, list):
-                    base_params[param_name] = test_value
                 else:
                     base_params[param_name] = test_value
         else:
@@ -1012,6 +1205,8 @@ def generate_test_variants(method: Callable) -> list:
 
     default_galaxy_params = base_params.copy()
     for name, type_parts in complex_params.items():
+        if not type_parts:
+             continue
         first_type = type_parts[0]
         test_value = get_test_value_for_type(first_type, name)
 
@@ -1098,9 +1293,13 @@ def generate_test_macros():
     for module_name, module_obj in modules:
         methods = get_methods(module_obj)
         for method_obj in methods:
+
+            if check_method_for_skip_condition(method_obj, module_obj):
+                continue
+
             method_name = method_obj.__name__
             try:
-                test_variants = generate_test_variants(method_obj)
+                test_variants = generate_test_variants(method_obj, module_obj) 
             except Exception as e:
                 print(f"Error generating variants for {method_name}: {e}", file=sys.stderr)
                 continue
@@ -1136,9 +1335,6 @@ def generate_test_macros():
                     subject = final_params_to_check.pop("target", None)
 
                 ET.SubElement(assert_contents, "has_text", {"text": method_name})
-
-                if subject:
-                    ET.SubElement(assert_contents, "has_text", {"text": str(subject)})
 
     try:
         ET.indent(macros_root, space="  ")

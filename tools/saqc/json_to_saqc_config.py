@@ -144,25 +144,31 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
                     v_str_repr = "float('-inf')"
                 elif val_lower == "nan":
                     v_str_repr = "float('nan')"
+            
+                elif "func" in k_saqc.lower():
+                    v_str_repr = v_saqc_raw
+
+                elif v_saqc_raw.startswith(('slice(', '(', '[', "'", '"')):
+                    v_str_repr = v_saqc_raw
+
                 else:
-                    if v_saqc_raw.startswith(('slice(', '(', '[')):
-                        v_str_repr = v_saqc_raw
-                    else:
-                        escaped_v = v_saqc_raw.replace('\\', '\\\\').replace('"', '\\"')
-                        v_str_repr = f'"{escaped_v}"'
+                    escaped_v = v_saqc_raw.replace('\\', '\\\\').replace('"', '\\"')
+                    v_str_repr = f'"{escaped_v}"'
+
             elif isinstance(v_saqc_raw, list):
 
                 if v_saqc_raw and isinstance(v_saqc_raw[0], dict):
                     inner_dict = v_saqc_raw[0]
 
-                    if f"{actual_param_name_for_saqc}_pos0" in inner_dict:
-                        pos0_val_raw = inner_dict.get(f"{actual_param_name_for_saqc}_pos0")
-                        pos1_val_raw = inner_dict.get(f"{actual_param_name_for_saqc}_pos1")
+                    if f"{k_saqc}_pos0" in inner_dict:
+                        pos0_val_raw = inner_dict.get(f"{k_saqc}_pos0")
+                        pos1_val_raw = inner_dict.get(f"{k_saqc}_pos1")
 
                         def format_val(val):
                             if val is None: return "None"
                             if isinstance(val, str):
                                 if val.startswith("'") and val.endswith("'"): return val
+                                if val.lower() in ['np.mean', 'np.min', 'np.max', 'np.std']: return val
                                 return f'"{val}"'
                             if isinstance(val, (int, float)): return str(val)
                             return repr(val)

@@ -92,116 +92,7 @@
           </conditional>
         </when>
         <when value="changepoints">
-          <conditional name="method_cond" label="Method">
-            <param name="method_select" type="select" label="Method">
-              <option value="assignChangePointCluster">assignChangePointCluster: Label data where it changes significantly</option>
-              <option value="flagChangePoints">flagChangePoints: Flag values that represent a system state transition</option>
-            </param>
-            <when value="assignChangePointCluster">
-              <param argument="field" type="data_column" label="field" help="Variable to process" data_ref="data" display="checkboxes" multiple="true"/>
-              <param argument="stat_func" type="text" label="stat_func" help="A function that assigns a value to every twin window. Left window content will be passed to first variable, right window content will be passed to the second">
-                <validator type="empty_field"/>
-              </param>
-              <param argument="thresh_func" type="text" label="thresh_func" help="A function that determines the value level, exceeding wich qualifies a timestamps func value as denoting a changepoint">
-                <validator type="empty_field"/>
-              </param>
-              <conditional name="window_cond" label="window">
-                <param name="window_selector" type="select" label="Choose type for 'window'" help="Size of the rolling windows the calculation is performed in. If it is a single frequency offset, it applies for the backward- and the forward-facing window.  If two offsets (as a tuple) is passed the first defines the size of the backward facing window, the second the size of the forward facing window">
-                  <option value="type_0">Offset String</option>
-                  <option value="type_1">Multiple values (Tuple)</option>
-                </param>
-                <when value="type_0">
-                  <param argument="window" type="text" label="window" help="Size of the rolling windows the calculation is performed in. If it is a single frequency offset, it applies for the backward- and the forward-facing window.  If two offsets (as a tuple) is passed the first defines the size of the backward facing window, the second the size of the forward facing window (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
-                    <validator type="empty_field"/>
-                  </param>
-                </when>
-                <when value="type_1">
-                  <repeat name="window" title="window" label="window" help="Size of the rolling windows the calculation is performed in. If it is a single frequency offset, it applies for the backward- and the forward-facing window.  If two offsets (as a tuple) is passed the first defines the size of the backward facing window, the second the size of the forward facing window">
-                    <param argument="window_pos0" type="text" optional="false" label="window_pos0" help="First element (index 0) of the window tuple. (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
-                      <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
-                      <validator type="empty_field"/>
-                    </param>
-                    <param argument="window_pos1" type="text" optional="false" label="window_pos1" help="Second element (index 1) of the window tuple. (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
-                      <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
-                      <validator type="empty_field"/>
-                    </param>
-                  </repeat>
-                </when>
-              </conditional>
-              <conditional name="min_periods_cond" label="min_periods">
-                <param name="min_periods_selector" type="select" label="Choose type for 'min_periods'" help="Minimum number of observations in a window required to perform the changepoint test. If it is a tuple of two int, the first refer to the backward-, the second to the forward-facing window">
-                  <option value="type_0">(Integer &gt;= 0)</option>
-                  <option value="type_1">tuple[Integer &gt;= 0, Integer &gt;= 0]</option>
-                </param>
-                <when value="type_0">
-                  <param argument="min_periods" type="integer" label="min_periods" help="Minimum number of observations in a window required to perform the changepoint test. If it is a tuple of two int, the first refer to the backward-, the second to the forward-facing window" min="0"/>
-                </when>
-                <when value="type_1">
-                  <repeat name="min_periods" title="min_periods" label="min_periods" help="Minimum number of observations in a window required to perform the changepoint test. If it is a tuple of two int, the first refer to the backward-, the second to the forward-facing window">
-                    <param argument="min_periods_pos0" type="integer" optional="false" label="min_periods_pos0" help="First element (index 0) of the min_periods tuple." min="0"/>
-                    <param argument="min_periods_pos1" type="integer" optional="false" label="min_periods_pos1" help="Second element (index 1) of the min_periods tuple." min="0"/>
-                  </repeat>
-                </when>
-              </conditional>
-              <param argument="reduce_window" type="text" optional="true" label="reduce_window" help="The sliding window search method is not an exact CP search method and usually there won't be detected a single changepoint, but a  region  of change around a changepoint. If `reduce_window` is given, for every window of size `reduce_window`, there will be selected the value with index `reduce_func(x, y)` and the others will be dropped. If `reduce_window` is None, the reduction window size equals the twin window size, the changepoints have been detected with (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
-              </param>
-              <param argument="model_by_resids" type="boolean" label="model_by_resids" help="If True, the results of `stat_funcs` are written, otherwise the regime labels" checked="false" truevalue="model_by_resids" falsevalue=""/>
-            </when>
-            <when value="flagChangePoints">
-              <param argument="field" type="data_column" label="field" help="Variable to process" data_ref="data" display="checkboxes" multiple="true"/>
-              <param argument="stat_func" type="text" label="stat_func" help="A function that assigns a value to every twin window. The backward-facing window content will be passed as the first array, the forward-facing window content as the second">
-                <validator type="empty_field"/>
-              </param>
-              <param argument="thresh_func" type="text" label="thresh_func" help="A function that determines the value level, exceeding wich qualifies a timestamps func value as denoting a change-point">
-                <validator type="empty_field"/>
-              </param>
-              <conditional name="window_cond" label="window">
-                <param name="window_selector" type="select" label="Choose type for 'window'" help="Size of the moving windows. This is the number of observations used for calculating the statistic.  If it is a single frequency offset, it applies for the backward- and the forward-facing window.  If two offsets (as a tuple) is passed the first defines the size of the backward facing window, the second the size of the forward facing window">
-                  <option value="type_0">Offset String</option>
-                  <option value="type_1">Multiple values (Tuple)</option>
-                </param>
-                <when value="type_0">
-                  <param argument="window" type="text" label="window" help="Size of the moving windows. This is the number of observations used for calculating the statistic.  If it is a single frequency offset, it applies for the backward- and the forward-facing window.  If two offsets (as a tuple) is passed the first defines the size of the backward facing window, the second the size of the forward facing window (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
-                    <validator type="empty_field"/>
-                  </param>
-                </when>
-                <when value="type_1">
-                  <repeat name="window" title="window" label="window" help="Size of the moving windows. This is the number of observations used for calculating the statistic.  If it is a single frequency offset, it applies for the backward- and the forward-facing window.  If two offsets (as a tuple) is passed the first defines the size of the backward facing window, the second the size of the forward facing window">
-                    <param argument="window_pos0" type="text" optional="false" label="window_pos0" help="First element (index 0) of the window tuple. (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
-                      <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
-                      <validator type="empty_field"/>
-                    </param>
-                    <param argument="window_pos1" type="text" optional="false" label="window_pos1" help="Second element (index 1) of the window tuple. (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
-                      <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
-                      <validator type="empty_field"/>
-                    </param>
-                  </repeat>
-                </when>
-              </conditional>
-              <conditional name="min_periods_cond" label="min_periods">
-                <param name="min_periods_selector" type="select" label="Choose type for 'min_periods'" help="Minimum number of observations in a window required to perform the changepoint test. If it is a tuple of two int, the first refer to the backward-, the second to the forward-facing window">
-                  <option value="type_0">(Integer &gt;= 0)</option>
-                  <option value="type_1">tuple[Integer &gt;= 0, Integer &gt;= 0]</option>
-                </param>
-                <when value="type_0">
-                  <param argument="min_periods" type="integer" label="min_periods" help="Minimum number of observations in a window required to perform the changepoint test. If it is a tuple of two int, the first refer to the backward-, the second to the forward-facing window" min="0"/>
-                </when>
-                <when value="type_1">
-                  <repeat name="min_periods" title="min_periods" label="min_periods" help="Minimum number of observations in a window required to perform the changepoint test. If it is a tuple of two int, the first refer to the backward-, the second to the forward-facing window">
-                    <param argument="min_periods_pos0" type="integer" optional="false" label="min_periods_pos0" help="First element (index 0) of the min_periods tuple." min="0"/>
-                    <param argument="min_periods_pos1" type="integer" optional="false" label="min_periods_pos1" help="Second element (index 1) of the min_periods tuple." min="0"/>
-                  </repeat>
-                </when>
-              </conditional>
-              <param argument="reduce_window" type="text" optional="true" label="reduce_window" help="The sliding window search method is not an exact CP search method and usually there wont be detected a single changepoint, but a  region  of change around a changepoint.  If `reduce_window` is given, for every window of size `reduce_window`, there will be selected the value with index `reduce_func(x, y)` and the others will be dropped.  If `reduce_window` is None, the reduction window size equals the twin window size, the changepoints have been detected with (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
-              </param>
-              <param argument="flag" type="float" value="255.0" optional="true" label="flag" help="`Any`, optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme"/>
-            </when>
-          </conditional>
+          <param name="changepoints_no_methods_conditional" type="text" value="Could not generate method selection for module 'changepoints'." label="Notice"/>
         </when>
         <when value="constants">
           <conditional name="method_cond" label="Method">
@@ -348,23 +239,10 @@
               <param argument="maintenance_field" type="text" label="maintenance_field" help="Column holding the support-points information. The data is expected to have the following form: The index of the series represents the beginning of a maintenance event, wheras the values represent its endings">
                 <validator type="empty_field"/>
               </param>
-              <conditional name="model_cond" label="model">
-                <param name="model_selector" type="select" label="Choose type for 'model'" help="A model function describing the drift behavior, that is to be corrected. Either use built-in exponential or linear drift model by passing a string, or pass a custom callable. The model function must always contain the keyword parameters 'origin' and 'target'. The starting parameter must always be the parameter, by wich the data is passed to the model. After the data parameter, there can occure an arbitrary number of model calibration arguments in the signature. See the Notes section for an extensive description">
-                  <option value="type_0">Custom Function</option>
-                  <option value="type_1">Selection</option>
-                </param>
-                <when value="type_0">
-                  <param argument="model" type="text" label="model" help="A model function describing the drift behavior, that is to be corrected. Either use built-in exponential or linear drift model by passing a string, or pass a custom callable. The model function must always contain the keyword parameters 'origin' and 'target'. The starting parameter must always be the parameter, by wich the data is passed to the model. After the data parameter, there can occure an arbitrary number of model calibration arguments in the signature. See the Notes section for an extensive description">
-                    <validator type="empty_field"/>
-                  </param>
-                </when>
-                <when value="type_1">
-                  <param argument="model" type="select" label="model" help="A model function describing the drift behavior, that is to be corrected. Either use built-in exponential or linear drift model by passing a string, or pass a custom callable. The model function must always contain the keyword parameters 'origin' and 'target'. The starting parameter must always be the parameter, by wich the data is passed to the model. After the data parameter, there can occure an arbitrary number of model calibration arguments in the signature. See the Notes section for an extensive description">
-                    <option value="linear">linear</option>
-                    <option value="exponential">exponential</option>
-                  </param>
-                </when>
-              </conditional>
+              <param argument="model" type="select" label="model" help="A model function describing the drift behavior, that is to be corrected. Either use built-in exponential or linear drift model by passing a string, or pass a custom callable. The model function must always contain the keyword parameters 'origin' and 'target'. The starting parameter must always be the parameter, by wich the data is passed to the model. After the data parameter, there can occure an arbitrary number of model calibration arguments in the signature. See the Notes section for an extensive description">
+                <option value="linear">linear</option>
+                <option value="exponential">exponential</option>
+              </param>
               <param argument="cal_range" type="integer" value="5" optional="true" label="cal_range" help="Number of values to calculate the mean of, for obtaining the value level directly after and directly before a maintenance event. Needed for shift calibration" min="0"/>
             </when>
             <when value="correctOffset">
@@ -577,7 +455,7 @@
             <when value="flagGeneric">
               <param argument="field" type="data_column" label="field" help="Variable to process" data_ref="data" display="checkboxes" multiple="true"/>
               <param argument="func" type="text" label="func" help="Function to call. The function needs to accept the same number of arguments (of type pandas.Series) as variables given in ``field`` and return an iterable of array-like objects of data type ``bool`` with the same length as ``target``">
-                <validator type="empty_field"/>
+                <validator type="regex" message="Must provide a valid function name (e.g., 'mean') or Python expression."><![CDATA[^(?!\s*$).+]]></validator>
               </param>
               <param argument="target" type="data_column" optional="true" label="target" help="`SaQCFields` | `newSaQCFields` , optional Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`" data_ref="data" display="checkboxes" multiple="true"/>
               <param argument="flag" type="float" value="255.0" optional="true" label="flag" help="`Any`, optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme"/>
@@ -585,7 +463,7 @@
             <when value="processGeneric">
               <param argument="field" type="data_column" label="field" help="Variable to process" data_ref="data" display="checkboxes" multiple="true"/>
               <param argument="func" type="text" label="func" help="Function to call on the variables given in ``field``. The return value will be written to ``target`` or ``field`` if the former is not given. This implies, that the function needs to accept the same number of arguments (of type pandas.Series) as variables given in ``field`` and should return an iterable of array-like objects with the same number of elements as given in ``target`` (or ``field`` if ``target`` is not specified)">
-                <validator type="empty_field"/>
+                <validator type="regex" message="Must provide a valid function name (e.g., 'mean') or Python expression."><![CDATA[^(?!\s*$).+]]></validator>
               </param>
               <param argument="target" type="data_column" optional="true" label="target" help="`SaQCFields` | `newSaQCFields` , optional Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`" data_ref="data" display="checkboxes" multiple="true"/>
               <param argument="dfilter" type="float" value="-inf" optional="true" label="dfilter" help="`Any`, optional Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme"/>
@@ -636,18 +514,6 @@
                   <param argument="window" type="integer" label="window" help="The size of the window, the aggregation is computed from. An integer define the number of periods to be used, a string is interpreted as an offset. ( see `pandas.rolling` for more information). Integer windows may result in screwed aggregations if called on none-harmonized or irregular data" min="0"/>
                 </when>
               </conditional>
-              <conditional name="func_cond" label="func">
-                <param name="func_selector" type="select" label="Choose type for 'func'" help="default median The function used for aggregation">
-                  <option value="type_0">Custom Function</option>
-                  <option value="type_1">Text</option>
-                </param>
-                <when value="type_0">
-                  <param argument="func" type="text" optional="true" label="func" help="default median The function used for aggregation"/>
-                </when>
-                <when value="type_1">
-                  <param argument="func" type="text" optional="true" label="func" help="default median The function used for aggregation"/>
-                </when>
-              </conditional>
               <param argument="center" type="boolean" label="center" help="Center the window around the value. Can only be used with integer windows, otherwise it is silently ignored" checked="false" truevalue="center" falsevalue=""/>
               <param argument="min_periods" type="integer" value="0" optional="true" label="min_periods" help="Minimum number of valid (not np.nan) values that have to be available in a window for its aggregation to be computed" min="0"/>
               <param argument="flag" type="float" value="-inf" optional="true" label="flag" help="`Any`, optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme"/>
@@ -680,22 +546,11 @@
                 </when>
               </conditional>
               <param argument="thresh" type="float" label="thresh" help="float Threshold, the statistic of the main chunk is checked against. ``func(chunk)   thresh``" min="0"/>
-              <conditional name="func_cond" label="func">
-                <param name="func_selector" type="select" label="Choose type for 'func'" help="{ std ,  var ,  mad } or Callable[[np.ndarray, pd.Series], float] Function to compute deviation for each chunk: * `` std `` — standard deviation * `` var `` — variance * `` mad `` — median absolute deviation * Callable — custom function mapping 1D arrays to scalars">
-                  <option value="type_0">Selection</option>
-                  <option value="type_1">Custom Function</option>
-                </param>
-                <when value="type_0">
-                  <param argument="func" type="select" optional="true" label="func" help="{ std ,  var ,  mad } or Callable[[np.ndarray, pd.Series], float] Function to compute deviation for each chunk: * `` std `` — standard deviation * `` var `` — variance * `` mad `` — median absolute deviation * Callable — custom function mapping 1D arrays to scalars">
-                    <option value="std">std</option>
-                    <option value="var">var</option>
-                    <option value="mad">mad</option>
-                  </param>
-                </when>
-                <when value="type_1">
-                  <param argument="func" type="text" optional="true" label="func" help="{ std ,  var ,  mad } or Callable[[np.ndarray, pd.Series], float] Function to compute deviation for each chunk: * `` std `` — standard deviation * `` var `` — variance * `` mad `` — median absolute deviation * Callable — custom function mapping 1D arrays to scalars"/>
-                </when>
-              </conditional>
+              <param argument="func" type="select" value="std" optional="true" label="func" help="{ std ,  var ,  mad } or Callable[[np.ndarray, pd.Series], float] Function to compute deviation for each chunk: * `` std `` — standard deviation * `` var `` — variance * `` mad `` — median absolute deviation * Callable — custom function mapping 1D arrays to scalars">
+                <option value="std">std</option>
+                <option value="var">var</option>
+                <option value="mad">mad</option>
+              </param>
               <conditional name="sub_window_cond" label="sub_window">
                 <param name="sub_window_selector" type="select" label="Choose type for 'sub_window'" help="str or pandas.Timedelta, optional Size of sub-chunks for secondary testing">
                   <option value="type_0">Offset String</option>
@@ -828,18 +683,6 @@
               <param argument="trafo" type="text" optional="true" label="trafo" help="Transformation to be applied onto every column before scoring. For more fine-grained control, the data could also be transformed before :py:meth:`~saqc.SaQC.flagMVScores` is called"/>
               <param argument="alpha" type="float" value="0.05" optional="true" label="alpha" help="Level of significance by which it is tested, if an observations score might be drawn from another distribution than the majority of the data" min="0" max="1"/>
               <param argument="n" type="integer" value="10" optional="true" label="n" help="Number of neighbors included in the scoring process for every datapoint" min="1"/>
-              <conditional name="func_cond" label="func">
-                <param name="func_selector" type="select" label="Choose type for 'func'" help="Function that aggregates a value's k-smallest distances, returning a scalar score">
-                  <option value="type_0">Custom Function</option>
-                  <option value="type_1">Text</option>
-                </param>
-                <when value="type_0">
-                  <param argument="func" type="text" optional="true" label="func" help="Function that aggregates a value's k-smallest distances, returning a scalar score"/>
-                </when>
-                <when value="type_1">
-                  <param argument="func" type="text" optional="true" label="func" help="Function that aggregates a value's k-smallest distances, returning a scalar score"/>
-                </when>
-              </conditional>
               <param argument="iter_start" type="float" value="0.5" optional="true" label="iter_start" help="Value in ``[0,1]`` that determines which percentage of data is considered  normal . 0.5 results in the threshing algorithm to search only the upper 50% of the scores for the cut-off point. (See reference section for more information)" min="0" max="1"/>
               <conditional name="window_cond" label="window">
                 <param name="window_selector" type="select" label="Choose type for 'window'" help="Only effective if `threshing` is set to ``'stray'``. Determines the size of the data partitions, the data is decomposed into. Each partition is checked seperately for outliers. Either given as an Offset String, denoting the windows temporal extension or as an integer, denoting the windows number of periods. ``NaN`` also count as periods. If ``None``, all data points share the same scoring window, which than equals the whole data">
@@ -878,7 +721,10 @@
                   <option value="type_1">Float</option>
                 </param>
                 <when value="type_0">
-                  <param name="thresh_relative_info" type="text" value="This type is not usable in Galaxy." label="Info" help="This option is for programmatic use and cannot be set from the UI."/>
+                  <repeat name="thresh_relative" title="thresh_relative" label="thresh_relative" help="float or None Minimum relative change between a value and its successors to consider the successors a possible anomalous offset sequence (conditions 2 and 3). If None, this condition is ignored. The parameter constrains the detection to either upwards (positive value passed) or downwards (negative values passed) offsets. To assign detection of offsets bigger than `a`, positive as well as negative, pass the tuple `(a,-a)`. Differing positive and negative threshold values are possible as well. See condition (2). If ``None``, condition (2) is not tested" optional="true">
+                    <param argument="thresh_relative_pos0" type="text" optional="true" label="thresh_relative_pos0" help="First element (index 0) of the thresh_relative tuple."/>
+                    <param argument="thresh_relative_pos1" type="text" optional="true" label="thresh_relative_pos1" help="Second element (index 1) of the thresh_relative tuple."/>
+                  </repeat>
                 </when>
                 <when value="type_1">
                   <param argument="thresh_relative" type="float" optional="true" label="thresh_relative" help="float or None Minimum relative change between a value and its successors to consider the successors a possible anomalous offset sequence (conditions 2 and 3). If None, this condition is ignored. The parameter constrains the detection to either upwards (positive value passed) or downwards (negative values passed) offsets. To assign detection of offsets bigger than `a`, positive as well as negative, pass the tuple `(a,-a)`. Differing positive and negative threshold values are possible as well. See condition (2). If ``None``, condition (2) is not tested"/>
@@ -1166,8 +1012,7 @@
               <conditional name="data_aggregation_cond" label="data_aggregation">
                 <param name="data_aggregation_selector" type="select" label="Choose type for 'data_aggregation'" help="Function string or custom Function, determining how to aggregate new data values from the values at the periods selected according to the `index_selection_method`. If a scalar value is passed, the new data series will just evaluate to that scalar at any new index">
                   <option value="type_0">Agg Func Literals</option>
-                  <option value="type_1">Custom Function</option>
-                  <option value="type_2">Float</option>
+                  <option value="type_1">Float</option>
                 </param>
                 <when value="type_0">
                   <param argument="data_aggregation" type="select" optional="true" label="data_aggregation" help="Function string or custom Function, determining how to aggregate new data values from the values at the periods selected according to the `index_selection_method`. If a scalar value is passed, the new data series will just evaluate to that scalar at any new index">
@@ -1187,17 +1032,13 @@
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="data_aggregation" type="text" optional="true" label="data_aggregation" help="Function string or custom Function, determining how to aggregate new data values from the values at the periods selected according to the `index_selection_method`. If a scalar value is passed, the new data series will just evaluate to that scalar at any new index"/>
-                </when>
-                <when value="type_2">
                   <param argument="data_aggregation" type="float" optional="true" label="data_aggregation" help="Function string or custom Function, determining how to aggregate new data values from the values at the periods selected according to the `index_selection_method`. If a scalar value is passed, the new data series will just evaluate to that scalar at any new index"/>
                 </when>
               </conditional>
               <conditional name="flags_aggregation_cond" label="flags_aggregation">
                 <param name="flags_aggregation_selector" type="select" label="Choose type for 'flags_aggregation'" help="Function string or custom Function, determining how to aggregate new flags values from the values at the periods selected according to the `index_selection_method`. If a scalar value is passed, the new flags series will just evaluate to that scalar at any new index">
                   <option value="type_0">Agg Func Literals</option>
-                  <option value="type_1">Custom Function</option>
-                  <option value="type_2">Float</option>
+                  <option value="type_1">Float</option>
                 </param>
                 <when value="type_0">
                   <param argument="flags_aggregation" type="select" optional="true" label="flags_aggregation" help="Function string or custom Function, determining how to aggregate new flags values from the values at the periods selected according to the `index_selection_method`. If a scalar value is passed, the new flags series will just evaluate to that scalar at any new index">
@@ -1217,9 +1058,6 @@
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="flags_aggregation" type="text" optional="true" label="flags_aggregation" help="Function string or custom Function, determining how to aggregate new flags values from the values at the periods selected according to the `index_selection_method`. If a scalar value is passed, the new flags series will just evaluate to that scalar at any new index"/>
-                </when>
-                <when value="type_2">
                   <param argument="flags_aggregation" type="float" optional="true" label="flags_aggregation" help="Function string or custom Function, determining how to aggregate new flags values from the values at the periods selected according to the `index_selection_method`. If a scalar value is passed, the new flags series will just evaluate to that scalar at any new index"/>
                 </when>
               </conditional>
@@ -1245,18 +1083,6 @@
                     <validator type="regex" message="Please enter a valid Timedelta string (e.g., '30min', '2H', '1D')."><![CDATA[^\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*$]]></validator>
                     <validator type="empty_field"/>
                   </param>
-                </when>
-              </conditional>
-              <conditional name="func_cond" label="func">
-                <param name="func_selector" type="select" label="Choose type for 'func'" help="Aggregation function. See notes for performance considerations">
-                  <option value="type_0">Custom Function</option>
-                  <option value="type_1">Text</option>
-                </param>
-                <when value="type_0">
-                  <param argument="func" type="text" optional="true" label="func" help="Aggregation function. See notes for performance considerations"/>
-                </when>
-                <when value="type_1">
-                  <param argument="func" type="text" optional="true" label="func" help="Aggregation function. See notes for performance considerations"/>
                 </when>
               </conditional>
               <param argument="method" type="select" value="bagg" optional="true" label="method" help="Specifies which intervals to be aggregated for a certain timestamp. (preceding, succeeding or  surrounding  interval). See description above for more details">
@@ -1313,18 +1139,6 @@
                   <param argument="window" type="integer" label="window" help="The size of the window you want to roll with. If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. For regularly sampled timeseries, the period number will be casted down to an odd number if ``center=True``" min="0"/>
                 </when>
               </conditional>
-              <conditional name="func_cond" label="func">
-                <param name="func_selector" type="select" label="Choose type for 'func'" help="default mean Function to roll with">
-                  <option value="type_0">Custom Function</option>
-                  <option value="type_1">Text</option>
-                </param>
-                <when value="type_0">
-                  <param argument="func" type="text" optional="true" label="func" help="default mean Function to roll with"/>
-                </when>
-                <when value="type_1">
-                  <param argument="func" type="text" optional="true" label="func" help="default mean Function to roll with"/>
-                </when>
-              </conditional>
               <param argument="min_periods" type="integer" value="0" optional="true" label="min_periods" help="The minimum number of periods to get a valid value" min="0"/>
               <param argument="center" type="boolean" label="center" help="If True, center the rolling window" checked="false" truevalue="center" falsevalue=""/>
             </when>
@@ -1353,29 +1167,18 @@
                 </when>
               </conditional>
               <param argument="target" type="data_column" optional="true" label="target" help="`SaQCFields` | `newSaQCFields` , optional Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`" data_ref="data" display="checkboxes" multiple="true"/>
-              <conditional name="func_cond" label="func">
-                <param name="func_selector" type="select" label="Choose type for 'func'" help="callable or str Function to apply to window at each shift. Can either be a custom callable, expecting a ``pandas.Series`` object as its input, or a literal from the following list:  -  sum     : Sum of values in the window -  mean    : Average of values -  median  : Median -  min     : Minimum -  max     : Maximum -  std     : Standard deviation -  var     : Variance -  skew    : Skewness -  kurt    : Kurtosis -  count   : Number of non-NA observations in the window">
-                  <option value="type_0">Custom Function</option>
-                  <option value="type_1">Selection</option>
-                </param>
-                <when value="type_0">
-                  <param argument="func" type="text" optional="true" label="func" help="callable or str Function to apply to window at each shift. Can either be a custom callable, expecting a ``pandas.Series`` object as its input, or a literal from the following list:  -  sum     : Sum of values in the window -  mean    : Average of values -  median  : Median -  min     : Minimum -  max     : Maximum -  std     : Standard deviation -  var     : Variance -  skew    : Skewness -  kurt    : Kurtosis -  count   : Number of non-NA observations in the window"/>
-                </when>
-                <when value="type_1">
-                  <param argument="func" type="select" optional="true" label="func" help="callable or str Function to apply to window at each shift. Can either be a custom callable, expecting a ``pandas.Series`` object as its input, or a literal from the following list:  -  sum     : Sum of values in the window -  mean    : Average of values -  median  : Median -  min     : Minimum -  max     : Maximum -  std     : Standard deviation -  var     : Variance -  skew    : Skewness -  kurt    : Kurtosis -  count   : Number of non-NA observations in the window">
-                    <option value="sum">sum</option>
-                    <option value="mean">mean</option>
-                    <option value="median">median</option>
-                    <option value="min">min</option>
-                    <option value="max">max</option>
-                    <option value="std">std</option>
-                    <option value="var">var</option>
-                    <option value="skew">skew</option>
-                    <option value="kurt">kurt</option>
-                    <option value="count">count</option>
-                  </param>
-                </when>
-              </conditional>
+              <param argument="func" type="select" value="mean" optional="true" label="func" help="callable or str Function to apply to window at each shift. Can either be a custom callable, expecting a ``pandas.Series`` object as its input, or a literal from the following list:  -  sum     : Sum of values in the window -  mean    : Average of values -  median  : Median -  min     : Minimum -  max     : Maximum -  std     : Standard deviation -  var     : Variance -  skew    : Skewness -  kurt    : Kurtosis -  count   : Number of non-NA observations in the window">
+                <option value="sum">sum</option>
+                <option value="mean">mean</option>
+                <option value="median">median</option>
+                <option value="min">min</option>
+                <option value="max">max</option>
+                <option value="std">std</option>
+                <option value="var">var</option>
+                <option value="skew">skew</option>
+                <option value="kurt">kurt</option>
+                <option value="count">count</option>
+              </param>
               <param argument="min_periods" type="integer" value="0" optional="true" label="min_periods" help="int Minimum number of valid observations in the window required to calculate a value" min="0"/>
               <param argument="center" type="boolean" label="center" help="bool If ``True``, function results are assigned to the timestamp at the center of the windows; if ``False``, they are assigned to the highest timestamp in the windows" checked="false" truevalue="center" falsevalue=""/>
             </when>
@@ -1393,18 +1196,6 @@
               <param argument="field" type="data_column" label="field" help="List of variables names to process" data_ref="data" display="checkboxes" multiple="true"/>
               <param argument="target" type="data_column" label="target" help="`SaQCFields` | `newSaQCFields` Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`" data_ref="data" display="checkboxes" multiple="true"/>
               <param argument="n" type="integer" value="10" optional="true" label="n" help=": The number of nearest neighbors to which the distance is comprised in every datapoints scoring calculation" min="0"/>
-              <conditional name="func_cond" label="func">
-                <param name="func_selector" type="select" label="Choose type for 'func'" help="default sum A function that assigns a score to every one dimensional array, containing the distances to every datapoints `n` nearest neighbors">
-                  <option value="type_0">Custom Function</option>
-                  <option value="type_1">Text</option>
-                </param>
-                <when value="type_0">
-                  <param argument="func" type="text" optional="true" label="func" help="default sum A function that assigns a score to every one dimensional array, containing the distances to every datapoints `n` nearest neighbors"/>
-                </when>
-                <when value="type_1">
-                  <param argument="func" type="text" optional="true" label="func" help="default sum A function that assigns a score to every one dimensional array, containing the distances to every datapoints `n` nearest neighbors"/>
-                </when>
-              </conditional>
               <conditional name="freq_cond" label="freq">
                 <param name="freq_selector" type="select" label="Choose type for 'freq'" help="Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually.  * ``np.inf``: Apply Scoring on whole data set at once * ``x``   0 : Apply scoring on successive data chunks of periods length ``x`` * Offset String : Apply scoring on successive partitions of temporal extension matching the passed offset string">
                   <option value="type_0">(Float &gt;= 0)</option>
@@ -1488,30 +1279,6 @@
               <param argument="window" type="text" optional="true" label="window" help="Size of the window. can be determined as: * Offset String, denoting the windows temporal extension * Integer, denoting the windows number of periods. * `None` (default), All data points share the same scoring window, which than equals the whole data (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
                 <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
               </param>
-              <conditional name="norm_func_cond" label="norm_func">
-                <param name="norm_func_selector" type="select" label="Choose type for 'norm_func'" help="default mean Function to calculate the scaling for every window">
-                  <option value="type_0">Custom Function</option>
-                  <option value="type_1">Text</option>
-                </param>
-                <when value="type_0">
-                  <param argument="norm_func" type="text" optional="true" label="norm_func" help="default mean Function to calculate the scaling for every window"/>
-                </when>
-                <when value="type_1">
-                  <param argument="norm_func" type="text" optional="true" label="norm_func" help="default mean Function to calculate the scaling for every window"/>
-                </when>
-              </conditional>
-              <conditional name="model_func_cond" label="model_func">
-                <param name="model_func_selector" type="select" label="Choose type for 'model_func'" help="default std Function to calculate the center moment in every window">
-                  <option value="type_0">Custom Function</option>
-                  <option value="type_1">Text</option>
-                </param>
-                <when value="type_0">
-                  <param argument="model_func" type="text" optional="true" label="model_func" help="default std Function to calculate the center moment in every window"/>
-                </when>
-                <when value="type_1">
-                  <param argument="model_func" type="text" optional="true" label="model_func" help="default std Function to calculate the center moment in every window"/>
-                </when>
-              </conditional>
               <param argument="center" type="boolean" label="center" help="Weather or not to center the target value in the scoring window. If `False`, the target value is the last value in the window" checked="false" truevalue="center" falsevalue=""/>
               <param argument="min_periods" type="integer" optional="true" label="min_periods" help="Minimum number of valid meassurements in a scoring window, to consider the resulting score valid" min="0"/>
             </when>
@@ -1639,44 +1406,7 @@
           </conditional>
         </when>
         <when value="transformation">
-          <conditional name="method_cond" label="Method">
-            <param name="method_select" type="select" label="Method">
-              <option value="transform">transform: Transform data by applying a custom function on data chunks of variable size. Existing flags are preserved</option>
-            </param>
-            <when value="transform">
-              <param argument="field" type="data_column" label="field" help="Variable to process" data_ref="data" display="checkboxes" multiple="true"/>
-              <conditional name="func_cond" label="func">
-                <param name="func_selector" type="select" label="Choose type for 'func'" help="Transformation function">
-                  <option value="type_0">Custom Function</option>
-                  <option value="type_1">Text</option>
-                </param>
-                <when value="type_0">
-                  <param argument="func" type="text" label="func" help="Transformation function">
-                    <validator type="empty_field"/>
-                  </param>
-                </when>
-                <when value="type_1">
-                  <param argument="func" type="text" label="func" help="Transformation function">
-                    <validator type="empty_field"/>
-                  </param>
-                </when>
-              </conditional>
-              <conditional name="freq_cond" label="freq">
-                <param name="freq_selector" type="select" label="Choose type for 'freq'" help="Size of the data window. The transformation is applied on each window individually  * ``None``: Apply transformation on the entire data set at once * ``int`` : Apply transformation on successive data chunks of the given length. Must be grater than 0. * Offset String : Apply transformation on successive data chunks of the given temporal extension">
-                  <option value="type_0">(Integer &gt; 0)</option>
-                  <option value="type_1">Frequency String</option>
-                </param>
-                <when value="type_0">
-                  <param argument="freq" type="integer" optional="true" label="freq" help="Size of the data window. The transformation is applied on each window individually  * ``None``: Apply transformation on the entire data set at once * ``int`` : Apply transformation on successive data chunks of the given length. Must be grater than 0. * Offset String : Apply transformation on successive data chunks of the given temporal extension" min="0"/>
-                </when>
-                <when value="type_1">
-                  <param argument="freq" type="text" optional="true" label="freq" help="Size of the data window. The transformation is applied on each window individually  * ``None``: Apply transformation on the entire data set at once * ``int`` : Apply transformation on successive data chunks of the given length. Must be grater than 0. * Offset String : Apply transformation on successive data chunks of the given temporal extension (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
-                  </param>
-                </when>
-              </conditional>
-            </when>
-          </conditional>
+          <param name="transformation_no_methods_conditional" type="text" value="Could not generate method selection for module 'transformation'." label="Notice"/>
         </when>
       </conditional>
     </repeat>

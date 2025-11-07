@@ -549,245 +549,413 @@ def _get_user_friendly_type_name(type_str: str) -> str:
     return name_map.get(type_str, clean_name)
 
 
+def _parse_parameter_annotation(
+    param: inspect.Parameter, module_name: str
+) -> Tuple[str, list[str], bool]:
+    """
+    Parses a parameter's type annotation to extract its raw string,
+    a cleaned list of type parts (for Unions), and its optionality.
+    """
+    annotation = param.annotation
+    raw_annotation_str = ""
+    if isinstance(annotation, (str, ForwardRef)):
+        raw_annotation_str = (
+            annotation.__forward_arg__
+            if isinstance(annotation, ForwardRef)
+            else str(annotation)
+        )
+    elif annotation is not inspect.Parameter.empty:
+        raw_annotation_str = str(annotation).replace("typing.", "")
+
+    is_python_optional_by_default = param.default is not inspect.Parameter.empty
+
+    if raw_annotation_str.startswith("Union[") and raw_annotation_str.endswith("]"):
+        inner_content = raw_annotation_str[6:-1]
+        type_parts = _split_type_string_safely(inner_content)
+    else:
+        type_parts = _split_type_string_safely(raw_annotation_str)
+
+    is_optional_by_none = "None" in type_parts
+    is_truly_optional = is_python_optional_by_default or is_optional_by_none
+
+    type_parts_without_none = [p for p in type_parts if p != "None"]
+
+    type_parts_cleaned = [
+        p
+        for p in type_parts_without_none
+        if p.lower() not in ("dict", "dictionary")
+    ]
+
+    if not type_parts_cleaned and type_parts_without_none:
+        sys.stderr.write(
+            f"Info ({module_name}): Skipping param '{param.name}' "
+            "because its type is 'dict' (or Union of dicts), "
+            "which is not UI-configurable.\n"
+        )
+        return raw_annotation_str, [], is_truly_optional
+
+    is_all_saqc_fields = False
+    if len(type_parts_cleaned) > 1:
+        is_all_saqc_fields = all(
+            p in ("SaQCFields", "NewSaQCFields") for p in type_parts_cleaned
+        )
+
+    if is_all_saqc_fields:
+        type_parts_cleaned = ["SaQCFields"]
+
+    return raw_annotation_str, type_parts_cleaned, is_truly_optional
+
+
+def _handle_func_parameter(
+    param_name: str,
+    raw_annotation_str: str,
+    is_literal_type: bool,
+    method: Callable,
+    module: "ModuleType",
+    param_constructor_args: dict,
+    is_truly_optional: bool,
+) -> Tuple[Optional[object], bool]:
+    """
+    Handles logic for parameters identified as 'func' parameters.
+    """
+    is_generic_module = module.__name__.endswith(".generic")
+    is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
+
+    if is_generic_module and is_generic_method:
+        PY_CODE_REGEX = r"^(?!\s*$).+"
+        PY_CODE_MSG = "Must provide a valid function name (e.g., 'mean') or Python expression."
+
+        param_object = TextParam(argument=param_name, **param_constructor_args)
+
+        if not is_truly_optional:
+            param_object.append(
+                ValidatorParam(type="regex", message=PY_CODE_MSG, text=PY_CODE_REGEX)
+            )
+        return param_object, False
+
+    if is_literal_type:
+        return None, False
+    if is_truly_optional:
+        sys.stderr.write(
+            f"Info ({module.__name__}): Skipping optional 'func'-parameter "
+            f"'{param_name}' in method '{method.__name__}'.\n"
+        )
+    else:
+        sys.stderr.write(
+            f"Warning ({module.__name__}): Skipping non-optional 'func'-parameter "
+            f"'{param_name}' in method '{method.__name__}', "
+            "as it is not in the 'generic' module.\n"
+        )
+    return None, True
+
+
+def _create_parameter_widget(
+    param_name: str,
+    type_parts_cleaned: list[str],
+    param_constructor_args: dict,
+    is_truly_optional: bool,
+    label: str,
+    help_text: str,
+    module: "ModuleType",
+    method: Callable,
+    optional_arg: dict,
+) -> Optional[object]:
+    """
+    Creates the main parameter widget (e.g., Text, Select, Conditional)
+    based on the cleaned list of type annotations.
+    """
+    param_object = None
+
+    if len(type_parts_cleaned) > 1:
+        is_generic_module = module.__name__.endswith(".generic")
+        is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
+
+        if not (is_generic_module and is_generic_method):
+            has_literal = any(
+                "Literal[" in part or part in SAQC_CUSTOM_SELECT_TYPES
+                for part in type_parts_cleaned
+            )
+
+            if has_literal:
+                original_count = len(type_parts_cleaned)
+                type_parts_cleaned = [
+                    part
+                    for part in type_parts_cleaned
+                    if not any(
+                        func_type in part
+                        for func_type in ["Callable", "CurveFitter", "GenericFunction"]
+                    )
+                ]
+
+                if len(type_parts_cleaned) < original_count:
+                    sys.stderr.write(
+                        f"Info ({module.__name__}): Hiding 'Callable/Function' option "
+                        f"for parameter '{param_name}' in method '{method.__name__}', "
+                        "as a Literal option exists in the Union.\n"
+                    )
+
+    if len(type_parts_cleaned) == 1:
+        single_type_str = type_parts_cleaned[0]
+        if single_type_str == "slice":
+            return None
+        elif any(
+            func_type in single_type_str
+            for func_type in ["Callable", "CurveFitter", "GenericFunction"]
+        ):
+            param_object = TextParam(argument=param_name, **param_constructor_args)
+            if not is_truly_optional:
+                param_object.append(ValidatorParam(type="empty_field"))
+        else:
+            param_object = _create_param_from_type_str(
+                single_type_str, param_name, param_constructor_args, is_truly_optional
+            )
+
+    elif len(type_parts_cleaned) > 1:
+        conditional = Conditional(name=f"{param_name}_cond", label=label)
+        type_options = [
+            (f"type_{i}", _get_user_friendly_type_name(part))
+            for i, part in enumerate(type_parts_cleaned)
+        ]
+        selector = SelectParam(
+            name=f"{param_name}_selector",
+            label=f"Choose type for '{label}'",
+            help=help_text,
+            options=dict(type_options),
+        )
+        conditional.append(selector)
+
+        for i, part_str in enumerate(type_parts_cleaned):
+            when = When(value=f"type_{i}")
+            inner_param_args = {"label": label, "help": help_text, **optional_arg}
+
+            if part_str == "slice":
+                start_param = IntegerParam(
+                    name=f"{param_name}_start",
+                    label=f"{label} (start index)",
+                    min=0,
+                    help="Start index of the slice (e.g., 0).",
+                    **optional_arg,
+                )
+                end_param = IntegerParam(
+                    name=f"{param_name}_end",
+                    label=f"{label} (end index)",
+                    min=0,
+                    help="End index of the slice (exclusive).",
+                    **optional_arg,
+                )
+                when.extend([start_param, end_param])
+            elif re.fullmatch(
+                r"tuple\[\s*float\s*,\s*float\s*\]", part_str, re.IGNORECASE
+            ):
+                min_param = FloatParam(
+                    name=f"{param_name}_min", label=f"{param_name}_min", **optional_arg
+                )
+                max_param = FloatParam(
+                    name=f"{param_name}_max", label=f"{param_name}_max", **optional_arg
+                )
+                when.extend([min_param, max_param])
+            elif any(
+                func_type in part_str
+                for func_type in ["Callable", "CurveFitter", "GenericFunction"]
+            ):
+                inner_param = TextParam(argument=param_name, **inner_param_args)
+                if not is_truly_optional:
+                    inner_param.append(ValidatorParam(type="empty_field"))
+                when.append(inner_param)
+            else:
+                inner_param = _create_param_from_type_str(
+                    part_str, param_name, inner_param_args, is_truly_optional
+                )
+                if inner_param:
+                    when.append(inner_param)
+                else:
+                    sys.stderr.write(
+                        f"Info ({module.__name__}): Could not create UI element "
+                        f"for type '{part_str}' in Conditional '{param_name}'. "
+                        "Falling back to info text.\n"
+                    )
+                    info_text = TextParam(
+                        name=f"{param_name}_info",
+                        type="text",
+                        value="This type is not usable in Galaxy.",
+                        label="Info",
+                        help="This option is for programmatic use and cannot be set from the UI.",
+                    )
+                    when.append(info_text)
+
+            conditional.append(when)
+        param_object = conditional
+
+    return param_object
+
+
+def _create_param_from_default(
+    param: inspect.Parameter, param_constructor_args: dict
+) -> Optional[object]:
+    """
+    Creates a parameter widget based on the default value,
+    used when no type annotation is present.
+    """
+    param_object = None
+    default_value = param.default
+
+    if not isinstance(default_value, bool):
+        param_constructor_args["value"] = str(default_value)
+
+    if isinstance(default_value, bool):
+        param_constructor_args.pop("value", None)
+        param_constructor_args.pop("optional", None)
+        param_object = BooleanParam(
+            argument=param.name, checked=default_value, **param_constructor_args
+        )
+    elif isinstance(default_value, int):
+        param_object = IntegerParam(argument=param.name, **param_constructor_args)
+    elif isinstance(default_value, float):
+        param_object = FloatParam(argument=param.name, **param_constructor_args)
+    elif isinstance(default_value, str):
+        param_object = TextParam(argument=param.name, **param_constructor_args)
+
+    return param_object
+
+
 def get_method_params(method, module, tracing=False):
+    """
+    Generates a list of Galaxy XML parameter objects for a given method.
+    """
     sections = parse_docstring(method)
     param_docs = parse_parameter_docs(sections)
     xml_params = []
     try:
         parameters = inspect.signature(method).parameters
     except (ValueError, TypeError) as e:
-        sys.stderr.write(f"Warning: Could not get signature for {method.__name__}: {e}. Skipping params for this method.\n")
+        sys.stderr.write(
+            f"Warning: Could not get signature for {method.__name__}: {e}. "
+            "Skipping params for this method.\n"
+        )
         return xml_params
 
     for param_name, param in parameters.items():
-        if param_name in ["self", "kwargs", "reduce_func"] or "kwarg" in param_name.lower():
+        if (
+            param_name in ["self", "kwargs", "reduce_func"]
+            or "kwarg" in param_name.lower()
+        ):
             continue
+
+        (
+            raw_annotation_str,
+            type_parts_cleaned,
+            is_truly_optional,
+        ) = _parse_parameter_annotation(param, module.__name__)
+
+        if not type_parts_cleaned and raw_annotation_str:
+            continue
+
+        label, help_text = get_label_help(param_name, param_docs)
+        optional_arg = {"optional": True} if is_truly_optional else {}
+        param_constructor_args = {"label": label, "help": help_text, **optional_arg}
+        param_object = None
 
         is_func_param = "func" in param_name.lower()
-
-        annotation = param.annotation
-        raw_annotation_str = ""
-        if isinstance(annotation, (str, ForwardRef)):
-            raw_annotation_str = annotation.__forward_arg__ if isinstance(annotation, ForwardRef) else str(annotation)
-        elif annotation is not inspect.Parameter.empty:
-            raw_annotation_str = str(annotation).replace("typing.", "")
-            
-        is_literal_type = "Literal[" in raw_annotation_str or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
+        is_literal_type = (
+            "Literal[" in raw_annotation_str
+            or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
+        )
 
         if is_func_param:
-
-            is_generic_module = module.__name__.endswith(".generic")
-            is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
-            if is_generic_module and is_generic_method:
-                PY_CODE_REGEX = r"^(?!\s*$).+"
-                PY_CODE_MSG = "Must provide a valid function name (e.g., 'mean') or Python expression."
-
-                label, help_text = get_label_help(param_name, param_docs)
-                
-                is_python_optional_by_default = (param.default is not inspect.Parameter.empty)
-                if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
-                        inner_content = raw_annotation_str[6:-1]
-                        type_parts = _split_type_string_safely(inner_content)
-                else:
-                        type_parts = _split_type_string_safely(raw_annotation_str)
-                is_optional_by_none = 'None' in type_parts
-                is_truly_optional = is_python_optional_by_default or is_optional_by_none
-                optional_arg = {'optional': True} if is_truly_optional else {}
-                
-                param_constructor_args = {"label": label, "help": help_text, **optional_arg}
-                param_object = TextParam(argument=param_name, **param_constructor_args)
-                
-                if not is_truly_optional:
-                    param_object.append(ValidatorParam(type="regex", message=PY_CODE_MSG, text=PY_CODE_REGEX))
-                
-                xml_params.append(param_object)
+            func_param_obj, should_skip = _handle_func_parameter(
+                param_name,
+                raw_annotation_str,
+                is_literal_type,
+                method,
+                module,
+                param_constructor_args,
+                is_truly_optional,
+            )
+            if should_skip:
+                continue
+            if func_param_obj:
+                xml_params.append(func_param_obj)
                 continue
 
-            if is_literal_type:
-                pass 
-
-            else:
-                is_python_optional_by_default = (param.default is not inspect.Parameter.empty)
-                if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
-                        inner_content = raw_annotation_str[6:-1]
-                        type_parts = _split_type_string_safely(inner_content)
-                else:
-                        type_parts = _split_type_string_safely(raw_annotation_str)
-                is_optional_by_none = 'None' in type_parts
-                is_truly_optional = is_python_optional_by_default or is_optional_by_none
-
-                if is_truly_optional:
-                    sys.stderr.write(f"Info ({module.__name__}): Überspringe optionalen 'func'-Parameter '{param_name}' in Methode '{method.__name__}'.\n")
-                    continue
-                else:
-                    sys.stderr.write(f"Warnung ({module.__name__}): Überspringe nicht-optionalen 'func'-Parameter '{param_name}' in Methode '{method.__name__}', da er nicht im 'generic'-Modul ist.\n")
-                    continue
-        
-
-        param_object = None
-        label, help_text = get_label_help(param_name, param_docs)
-
-
-        if 'mpl.axes.Axes' in raw_annotation_str:
+        if "mpl.axes.Axes" in raw_annotation_str:
             continue
 
-        is_python_optional_by_default = (param.default is not inspect.Parameter.empty)
-
-        if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
-            inner_content = raw_annotation_str[6:-1]
-            type_parts = _split_type_string_safely(inner_content)
-        else:
-            type_parts = _split_type_string_safely(raw_annotation_str)
-
-        is_optional_by_none = 'None' in type_parts
-        is_truly_optional = is_python_optional_by_default or is_optional_by_none
-
-        optional_arg = {'optional': True} if is_truly_optional else {}
-        param_constructor_args = {"label": label, "help": help_text, **optional_arg}
-
-        if 'Sequence[SaQC]' in raw_annotation_str:
-            data_param = DataParam(name=param_name, format="csv", multiple=True, **param_constructor_args)
+        if "Sequence[SaQC]" in raw_annotation_str:
+            data_param = DataParam(
+                name=param_name, format="csv", multiple=True, **param_constructor_args
+            )
             xml_params.append(data_param)
-            continue
-
-        type_parts_without_none = [p for p in type_parts if p != 'None']
-
-        type_parts_cleaned = [
-            p for p in type_parts_without_none
-            if p.lower() not in ('dict', 'dictionary')
-        ]
-
-        if not type_parts_cleaned and type_parts_without_none:
-            sys.stderr.write(f"Info ({module.__name__}): Skipping param '{param_name}' because its type is 'dict' (or Union of dicts), which is not UI-configurable.\n")
             continue
 
         if param_name in ["field", "target"]:
             creation_args = param_constructor_args.copy()
             creation_args.pop("value", None)
-            creation_args['type'] = "data_column"
-            creation_args['data_ref'] = "data"
-            creation_args['multiple'] = True
-            creation_args['display'] = "checkboxes"
+            creation_args["type"] = "data_column"
+            creation_args["data_ref"] = "data"
+            creation_args["multiple"] = True
+            creation_args["display"] = "checkboxes"
             param_object = SelectParam(argument=param_name, **creation_args)
             xml_params.append(param_object)
             continue
 
-        is_all_saqc_fields = False
-        if len(type_parts_cleaned) > 1:
-            is_all_saqc_fields = all(
-                p in ('SaQCFields', 'NewSaQCFields') for p in type_parts_cleaned
-            )
-
-        if is_all_saqc_fields:
-            type_parts_cleaned = ['SaQCFields']
-
-        if param.default is not inspect.Parameter.empty and param.default is not None and not isinstance(param.default, bool):
+        if (
+            param.default is not inspect.Parameter.empty
+            and param.default is not None
+            and not isinstance(param.default, bool)
+        ):
             if not isinstance(param.default, Callable):
-                param_constructor_args['value'] = str(param.default)
+                param_constructor_args["value"] = str(param.default)
 
-        if len(type_parts_cleaned) > 1:
-            is_generic_module = module.__name__.endswith(".generic")
-            is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
-            
-            if not (is_generic_module and is_generic_method):
-                
-                has_literal = any(
-                    "Literal[" in part or part in SAQC_CUSTOM_SELECT_TYPES for part in type_parts_cleaned
-                )
-                
-                if has_literal:
-                    original_count = len(type_parts_cleaned)
-                    type_parts_cleaned = [
-                        part for part in type_parts_cleaned 
-                        if not any(func_type in part for func_type in ['Callable', 'CurveFitter', 'GenericFunction'])
-                    ]
-                    
-                    if len(type_parts_cleaned) < original_count:
-                        sys.stderr.write(f"Info ({module.__name__}): Verstecke 'Callable/Function' Option für Parameter '{param_name}' in Methode '{method.__name__}', da eine Literal-Option in der Union existiert.\n")
+        param_object = _create_parameter_widget(
+            param_name,
+            type_parts_cleaned,
+            param_constructor_args,
+            is_truly_optional,
+            label,
+            help_text,
+            module,
+            method,
+            optional_arg,
+        )
 
+        if param_object is None and "slice" in type_parts_cleaned:
+            start_param_args = {
+                "name": f"{param_name}_start",
+                "label": f"{param_name}_start",
+                "min": 0,
+                "help": "Start index of the slice (e.g., 0).",
+                **optional_arg,
+            }
+            end_param_args = {
+                "name": f"{param_name}_end",
+                "label": f"{param_name}_end",
+                "min": 0,
+                "help": "End index of the slice (exclusive).",
+                **optional_arg,
+            }
+            start_param = IntegerParam(**start_param_args)
+            end_param = IntegerParam(**end_param_args)
+            xml_params.extend([start_param, end_param])
+            continue
 
-        if len(type_parts_cleaned) == 1:
-            single_type_str = type_parts_cleaned[0]
-            if single_type_str == 'slice':
-                start_param_args = {"name": f"{param_name}_start", "label": f"{param_name}_start", "min": 0, "help": "Start index of the slice (e.g., 0).", **optional_arg}
-                end_param_args = {"name": f"{param_name}_end", "label": f"{param_name}_end", "min": 0, "help": "End index of the slice (exclusive).", **optional_arg}
-                start_param = IntegerParam(**start_param_args)
-                end_param = IntegerParam(**end_param_args)
-                xml_params.extend([start_param, end_param])
-                continue
-            elif any(func_type in single_type_str for func_type in ['Callable', 'CurveFitter', 'GenericFunction']):
-                param_object = TextParam(argument=param_name, **param_constructor_args)
-                if not is_truly_optional:
-                    param_object.append(ValidatorParam(type="empty_field"))
-            else:
-                param_object = _create_param_from_type_str(single_type_str, param_name, param_constructor_args, is_truly_optional)
-
-        elif len(type_parts_cleaned) > 1:
-            conditional = Conditional(name=f"{param_name}_cond", label=label)
-            type_options = [(f"type_{i}", _get_user_friendly_type_name(part)) for i, part in enumerate(type_parts_cleaned)]
-            selector = SelectParam(name=f"{param_name}_selector", label=f"Choose type for '{label}'",
-                                   help=help_text, options=dict(type_options))
-            conditional.append(selector)
-
-            for i, part_str in enumerate(type_parts_cleaned):
-                when = When(value=f"type_{i}")
-                inner_param_args = {"label": label, "help": help_text, **optional_arg}
-
-                if part_str == 'slice':
-                    start_param = IntegerParam(name=f"{param_name}_start", label=f"{label} (start index)", min=0, help="Start index of the slice (e.g., 0).", **optional_arg)
-                    end_param = IntegerParam(name=f"{param_name}_end", label=f"{label} (end index)", min=0, help="End index of the slice (exclusive).", **optional_arg)
-                    when.extend([start_param, end_param])
-                elif re.fullmatch(r"tuple\[\s*float\s*,\s*float\s*\]", part_str, re.IGNORECASE):
-                    min_param = FloatParam(name=f"{param_name}_min", label=f"{param_name}_min", **optional_arg)
-                    max_param = FloatParam(name=f"{param_name}_max", label=f"{param_name}_max", **optional_arg)
-                    when.extend([min_param, max_param])
-                elif any(func_type in part_str for func_type in ['Callable', 'CurveFitter', 'GenericFunction']):
-                    inner_param = TextParam(argument=param_name, **inner_param_args)
-                    if not is_truly_optional:
-                        inner_param.append(ValidatorParam(type="empty_field"))
-                    when.append(inner_param)
-                else:
-                    inner_param = _create_param_from_type_str(part_str, param_name, inner_param_args, is_truly_optional)
-                    if inner_param:
-                        when.append(inner_param)
-                    else:
-                        sys.stderr.write(f"Info ({module.__name__}): Could not create UI element for type '{part_str}' in Conditional '{param_name}'. Falling back to info text.\n")
-                        info_text = TextParam(name=f"{param_name}_info", type="text",
-                                              value="This type is not usable in Galaxy.",
-                                              label="Info",
-                                              help="This option is for programmatic use and cannot be set from the UI.")
-                        when.append(info_text)
-
-                conditional.append(when)
-            param_object = conditional
-
-        if not param_object and not raw_annotation_str.strip() and param.default is not inspect.Parameter.empty:
-            default_value = param.default
-
-            if not isinstance(default_value, bool):
-                param_constructor_args['value'] = str(default_value)
-
-            if isinstance(default_value, bool):
-                param_constructor_args.pop("value", None)
-                param_constructor_args.pop("optional", None)
-                param_object = BooleanParam(argument=param_name, checked=default_value, **param_constructor_args)
-            elif isinstance(default_value, int):
-                param_object = IntegerParam(argument=param_name, **param_constructor_args)
-            elif isinstance(default_value, float):
-                param_object = FloatParam(argument=param_name, **param_constructor_args)
-            elif isinstance(default_value, str):
-                param_object = TextParam(argument=param_name, **param_constructor_args)
+        if (
+            not param_object
+            and not raw_annotation_str.strip()
+            and param.default is not inspect.Parameter.empty
+        ):
+            param_object = _create_param_from_default(param, param_constructor_args)
 
         if param_object:
             xml_params.append(param_object)
-        elif raw_annotation_str.strip() and raw_annotation_str.strip() not in ['slice']:
-            sys.stderr.write(f"Info ({module.__name__}): Unhandled annotation for param '{param_name}': '{raw_annotation_str}'. Creating default TextParam.\n")
-
+        elif raw_annotation_str.strip() and raw_annotation_str.strip() not in ["slice"]:
+            sys.stderr.write(
+                f"Info ({module.__name__}): Unhandled annotation for param "
+                f"'{param_name}': '{raw_annotation_str}'. "
+                "Creating default TextParam.\n"
+            )
             fallback_param = TextParam(argument=param_name, **param_constructor_args)
-
             if not is_truly_optional:
                 fallback_param.append(ValidatorParam(type="empty_field"))
-
             xml_params.append(fallback_param)
 
     return xml_params

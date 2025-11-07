@@ -575,6 +575,7 @@ def get_method_params(method, module, tracing=False):
         is_literal_type = "Literal[" in raw_annotation_str or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
 
         if is_func_param:
+
             is_generic_module = module.__name__.endswith(".generic")
             is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
             if is_generic_module and is_generic_method:
@@ -621,7 +622,7 @@ def get_method_params(method, module, tracing=False):
                 else:
                     sys.stderr.write(f"Warnung ({module.__name__}): Überspringe nicht-optionalen 'func'-Parameter '{param_name}' in Methode '{method.__name__}', da er nicht im 'generic'-Modul ist.\n")
                     continue
-
+        
 
         param_object = None
         label, help_text = get_label_help(param_name, param_docs)
@@ -702,7 +703,7 @@ def get_method_params(method, module, tracing=False):
                     ]
                     
                     if len(type_parts_cleaned) < original_count:
-                        sys.stderr.write(f"Info ({module.__name__}): Hide 'Callable/Function' option for parameter '{param_name}' in method '{method.__name__}', cause literal-option in union.\n")
+                        sys.stderr.write(f"Info ({module.__name__}): Verstecke 'Callable/Function' Option für Parameter '{param_name}' in Methode '{method.__name__}', da eine Literal-Option in der Union existiert.\n")
 
 
         if len(type_parts_cleaned) == 1:

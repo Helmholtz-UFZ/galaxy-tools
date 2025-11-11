@@ -393,6 +393,16 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
     
     creation_args = param_constructor_args.copy()
 
+    text_types = ('list', 'sequence', 'arraylike', 'pd.series', 'pd.dataframe', 'pd.datetimeindex',
+                  'pd.timedelta', 'offsetlike', 'OffsetStr', 'FreqStr', 'str', 'string', 'Any')
+    
+    is_text_type = base_type_str.lower() in text_types
+    is_list_str = re.fullmatch(r"(list|Sequence)\[\s*str\s*\]", base_type_str, re.IGNORECASE)
+
+    if is_text_type or is_list_str:
+        creation_args.pop("optional", None)
+
+
     tuple_match = re.fullmatch(r"tuple(?:\[\s*(.*)\s*\])?", base_type_str, re.IGNORECASE)
 
     if tuple_match:
@@ -415,12 +425,16 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
 
             type_0 = inner_types_list[0]
             type_1 = inner_types_list[1]
-
-        repeat_args = param_constructor_args.copy()
-        repeat_args.pop("value", None)
-        repeat_args["title"] = repeat_args.get("label", param_name)
         
-        repeat = Repeat(name=param_name, **repeat_args)
+        title = param_constructor_args.get("label", param_name) 
+        help_text = param_constructor_args.get("help", "")
+
+        repeat_constructor_args = {
+            "title": title,
+            "help": help_text
+        }
+        
+        repeat = Repeat(name=param_name, **repeat_constructor_args)
 
         inner_args_0 = {'label': f"{param_name}_pos0", 'help': f"First element (index 0) of the {param_name} tuple.", 'optional': is_optional}
 
@@ -450,7 +464,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         creation_args['multiple'] = True
         creation_args['display'] = "checkboxes"
         param_object = SelectParam(argument=param_name, **creation_args)
-    elif re.fullmatch(r"(list|Sequence)\[\s*str\s*\]", base_type_str, re.IGNORECASE):
+    elif is_list_str:
         param_object = TextParam(argument=param_name, multiple=True, **creation_args)
     elif re.fullmatch(r"list\[\s*tuple\[\s*float\s*,\s*float\s*\]\s*\]", base_type_str, re.IGNORECASE):
         repeat = Repeat(name=param_name, title=creation_args.get("label", param_name),
@@ -625,13 +639,30 @@ def _handle_func_parameter(
         PY_CODE_REGEX = r"^(?!\s*$).+"
         PY_CODE_MSG = "Must provide a valid function name (e.g., 'mean') or Python expression."
 
-        param_object = TextParam(argument=param_name, **param_constructor_args)
+        local_constructor_args = param_constructor_args.copy()
+        local_constructor_args.pop("optional", None)
+        param_object = TextParam(argument=param_name, **local_constructor_args)
 
         if not is_truly_optional:
             param_object.append(
                 ValidatorParam(type="regex", message=PY_CODE_MSG, text=PY_CODE_REGEX)
             )
         return param_object, False
+
+    if is_literal_type:
+        return None, False
+    if is_truly_optional:
+        sys.stderr.write(
+            f"Info ({module.__name__}): Skipping optional 'func'-parameter "
+            f"'{param_name}' in method '{method.__name__}'.\n"
+        )
+    else:
+        sys.stderr.write(
+            f"Warning ({module.__name__}): Skipping non-optional 'func'-parameter "
+            f"'{param_name}' in method '{method.__name__}', "
+            "as it is not in the 'generic' module.\n"
+        )
+    return None, True
 
     if is_literal_type:
         return None, False
@@ -702,7 +733,9 @@ def _create_parameter_widget(
             func_type in single_type_str
             for func_type in ["Callable", "CurveFitter", "GenericFunction"]
         ):
-            param_object = TextParam(argument=param_name, **param_constructor_args)
+            local_constructor_args = param_constructor_args.copy()
+            local_constructor_args.pop("optional", None)
+            param_object = TextParam(argument=param_name, **local_constructor_args)
             if not is_truly_optional:
                 param_object.append(ValidatorParam(type="empty_field"))
         else:
@@ -747,6 +780,7 @@ def _create_parameter_widget(
             elif re.fullmatch(
                 r"tuple\[\s*float\s*,\s*float\s*\]", part_str, re.IGNORECASE
             ):
+
                 min_param = FloatParam(
                     name=f"{param_name}_min", label=f"{param_name}_min", **optional_arg
                 )
@@ -758,6 +792,8 @@ def _create_parameter_widget(
                 func_type in part_str
                 for func_type in ["Callable", "CurveFitter", "GenericFunction"]
             ):
+
+                inner_param_args.pop("optional", None)
                 inner_param = TextParam(argument=param_name, **inner_param_args)
                 if not is_truly_optional:
                     inner_param.append(ValidatorParam(type="empty_field"))
@@ -953,7 +989,11 @@ def get_method_params(method, module, tracing=False):
                 f"'{param_name}': '{raw_annotation_str}'. "
                 "Creating default TextParam.\n"
             )
-            fallback_param = TextParam(argument=param_name, **param_constructor_args)
+
+            local_constructor_args = param_constructor_args.copy()
+            local_constructor_args.pop("optional", None)
+            fallback_param = TextParam(argument=param_name, **local_constructor_args)
+
             if not is_truly_optional:
                 fallback_param.append(ValidatorParam(type="empty_field"))
             xml_params.append(fallback_param)

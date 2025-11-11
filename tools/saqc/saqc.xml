@@ -231,7 +231,7 @@
                 <option value="median">median</option>
                 <option value="ward">ward</option>
               </param>
-              <param argument="metric" type="text" optional="true" label="metric" help="A metric function for calculating the dissimilarity between 2 regimes. Defaults to the absolute difference in mean"/>
+              <param argument="metric" type="text" label="metric" help="A metric function for calculating the dissimilarity between 2 regimes. Defaults to the absolute difference in mean"/>
               <param argument="frac" type="float" value="0.5" optional="true" label="frac" help="The minimum percentage of samples, the  normal  group has to comprise to actually be the normal group. Must be in the closed interval `[0,1]`, otherwise a ValueError is raised" min="0" max="1"/>
             </when>
             <when value="correctDrift">
@@ -279,7 +279,7 @@
               </param>
               <param argument="spread" type="float" label="spread" help="Maximum spread allowed in the group of *normal* data. See Notes section for more details" min="0"/>
               <param argument="frac" type="float" value="0.5" optional="true" label="frac" help="Fraction defining the normal group. Use a value from the interval [0,1]. The higher the value, the more stable the algorithm will be. For values below 0.5 the results are undefined" min="0" max="1"/>
-              <param argument="metric" type="text" optional="true" label="metric" help="default cityblock Distance function that takes two arrays as input and returns a scalar float. This value is interpreted as the distance of the two input arrays. Defaults to the `averaged manhattan metric` (see Notes)"/>
+              <param argument="metric" type="text" label="metric" help="default cityblock Distance function that takes two arrays as input and returns a scalar float. This value is interpreted as the distance of the two input arrays. Defaults to the `averaged manhattan metric` (see Notes)"/>
               <param argument="method" type="select" value="single" optional="true" label="method" help="Linkage method used for hierarchical (agglomerative) clustering of the data. `method` is directly passed to ``scipy.hierarchy.linkage``. See its documentation [1] for more details. For a general introduction on hierarchical clustering see [2]">
                 <option value="single">single</option>
                 <option value="complete">complete</option>
@@ -301,7 +301,7 @@
                 <validator type="empty_field"/>
               </param>
               <param argument="thresh" type="float" label="thresh" help="Maximum deviation from reference" min="0"/>
-              <param argument="metric" type="text" optional="true" label="metric" help="default cityblock Distance function. Takes two arrays as input and returns a scalar float. This value is interpreted as the mutual distance of the two input arrays. Defaults to the `averaged manhattan metric` (see Notes)"/>
+              <param argument="metric" type="text" label="metric" help="default cityblock Distance function. Takes two arrays as input and returns a scalar float. This value is interpreted as the mutual distance of the two input arrays. Defaults to the `averaged manhattan metric` (see Notes)"/>
               <param argument="flag" type="float" value="255.0" optional="true" label="flag" help="`Any`, optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme"/>
             </when>
             <when value="flagRegimeAnomaly">
@@ -319,7 +319,7 @@
                 <option value="median">median</option>
                 <option value="ward">ward</option>
               </param>
-              <param argument="metric" type="text" optional="true" label="metric" help="A metric function for calculating the dissimilarity between 2 regimes. Defaults to the absolute difference in mean"/>
+              <param argument="metric" type="text" label="metric" help="A metric function for calculating the dissimilarity between 2 regimes. Defaults to the absolute difference in mean"/>
               <param argument="frac" type="float" value="0.5" optional="true" label="frac" help="The minimum percentage of samples, the  normal  group has to comprise to actually be the normal group. Must be in the closed interval `[0,1]`, otherwise a ValueError is raised" min="0" max="1"/>
               <param argument="flag" type="float" value="255.0" optional="true" label="flag" help="`Any`, optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme"/>
             </when>
@@ -493,7 +493,7 @@
                   <param argument="freq" type="integer" label="freq" help="str or int Target frequency (e.g.,  1H ,  15min , 60)"/>
                 </when>
               </conditional>
-              <param argument="method" type="text" value="time" optional="true" label="method" help="str Interpolation technique to use. Supported values include:  * ``'nshift'``: Shift grid points to the nearest time stamp within +/- 0.5 * ``freq``. * ``'bshift'``: Shift grid points to the first succeeding time stamp. * ``'fshift'``: Shift grid points to the last preceding time stamp. * ``'linear'``, ``'time'``, ``'index'``, ``'values'``: Use numerical values of the index. (Note: internally mapped to ``'mshift'``.) * ``'pad'``: Fill NaNs using existing values (same as ``'fshift'``). * ``'spline'``, ``'polynomial'``: Passed to ``scipy.interpolate.interp1d``. Requires specifying ``order``. * ``'nearest'``, ``'zero'``, ``'slinear'``, ``'quadratic'``, ``'cubic'``, ``'barycentric'``: Passed to ``scipy.interpolate.interp1d``. * ``'krogh'``, ``'pchip'``, ``'akima'``, ``'cubicspline'``: Wrappers around SciPy interpolation methods. * ``'from_derivatives'``: Uses ``scipy.interpolate.BPoly.from_derivatives``"/>
+              <param argument="method" type="text" value="time" label="method" help="str Interpolation technique to use. Supported values include:  * ``'nshift'``: Shift grid points to the nearest time stamp within +/- 0.5 * ``freq``. * ``'bshift'``: Shift grid points to the first succeeding time stamp. * ``'fshift'``: Shift grid points to the last preceding time stamp. * ``'linear'``, ``'time'``, ``'index'``, ``'values'``: Use numerical values of the index. (Note: internally mapped to ``'mshift'``.) * ``'pad'``: Fill NaNs using existing values (same as ``'fshift'``). * ``'spline'``, ``'polynomial'``: Passed to ``scipy.interpolate.interp1d``. Requires specifying ``order``. * ``'nearest'``, ``'zero'``, ``'slinear'``, ``'quadratic'``, ``'cubic'``, ``'barycentric'``: Passed to ``scipy.interpolate.interp1d``. * ``'krogh'``, ``'pchip'``, ``'akima'``, ``'cubicspline'``: Wrappers around SciPy interpolation methods. * ``'from_derivatives'``: Uses ``scipy.interpolate.BPoly.from_derivatives``"/>
               <param argument="order" type="integer" value="2" optional="true" label="order" help="int Order of the interpolation method. Used only by methods that support it (e.g., polynomial, spline). Ignored otherwise" min="0"/>
               <param argument="overwrite" type="boolean" label="overwrite" help="bool If ``True``, existing flags will be cleared" checked="false" truevalue="overwrite" falsevalue=""/>
             </when>
@@ -562,7 +562,7 @@
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="sub_window" type="text" optional="true" label="sub_window" help="str or pandas.Timedelta, optional Size of sub-chunks for secondary testing">
+                  <param argument="sub_window" type="text" label="sub_window" help="str or pandas.Timedelta, optional Size of sub-chunks for secondary testing">
                     <validator type="regex" message="Please enter a valid Timedelta string (e.g., '30min', '2H', '1D')."><![CDATA[^\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*$]]></validator>
                   </param>
                 </when>
@@ -680,7 +680,7 @@
             </when>
             <when value="flagMVScores">
               <param argument="field" type="data_column" label="field" help="List of variables names to process" data_ref="data" display="checkboxes" multiple="true"/>
-              <param argument="trafo" type="text" optional="true" label="trafo" help="Transformation to be applied onto every column before scoring. For more fine-grained control, the data could also be transformed before :py:meth:`~saqc.SaQC.flagMVScores` is called"/>
+              <param argument="trafo" type="text" label="trafo" help="Transformation to be applied onto every column before scoring. For more fine-grained control, the data could also be transformed before :py:meth:`~saqc.SaQC.flagMVScores` is called"/>
               <param argument="alpha" type="float" value="0.05" optional="true" label="alpha" help="Level of significance by which it is tested, if an observations score might be drawn from another distribution than the majority of the data" min="0" max="1"/>
               <param argument="n" type="integer" value="10" optional="true" label="n" help="Number of neighbors included in the scoring process for every datapoint" min="1"/>
               <param argument="iter_start" type="float" value="0.5" optional="true" label="iter_start" help="Value in ``[0,1]`` that determines which percentage of data is considered  normal . 0.5 results in the threshing algorithm to search only the upper 50% of the scores for the cut-off point. (See reference section for more information)" min="0" max="1"/>
@@ -721,9 +721,9 @@
                   <option value="type_1">Float</option>
                 </param>
                 <when value="type_0">
-                  <repeat name="thresh_relative" title="thresh_relative" label="thresh_relative" help="float or None Minimum relative change between a value and its successors to consider the successors a possible anomalous offset sequence (conditions 2 and 3). If None, this condition is ignored. The parameter constrains the detection to either upwards (positive value passed) or downwards (negative values passed) offsets. To assign detection of offsets bigger than `a`, positive as well as negative, pass the tuple `(a,-a)`. Differing positive and negative threshold values are possible as well. See condition (2). If ``None``, condition (2) is not tested" optional="true">
-                    <param argument="thresh_relative_pos0" type="text" optional="true" label="thresh_relative_pos0" help="First element (index 0) of the thresh_relative tuple."/>
-                    <param argument="thresh_relative_pos1" type="text" optional="true" label="thresh_relative_pos1" help="Second element (index 1) of the thresh_relative tuple."/>
+                  <repeat name="thresh_relative" title="thresh_relative" help="float or None Minimum relative change between a value and its successors to consider the successors a possible anomalous offset sequence (conditions 2 and 3). If None, this condition is ignored. The parameter constrains the detection to either upwards (positive value passed) or downwards (negative values passed) offsets. To assign detection of offsets bigger than `a`, positive as well as negative, pass the tuple `(a,-a)`. Differing positive and negative threshold values are possible as well. See condition (2). If ``None``, condition (2) is not tested">
+                    <param argument="thresh_relative_pos0" type="text" label="thresh_relative_pos0" help="First element (index 0) of the thresh_relative tuple."/>
+                    <param argument="thresh_relative_pos1" type="text" label="thresh_relative_pos1" help="Second element (index 1) of the thresh_relative tuple."/>
                   </repeat>
                 </when>
                 <when value="type_1">
@@ -944,7 +944,7 @@
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="freq" type="text" optional="true" label="freq" help="Projection range. If ``None`` the sampling frequency of `field` is used">
+                  <param argument="freq" type="text" label="freq" help="Projection range. If ``None`` the sampling frequency of `field` is used">
                     <validator type="regex" message="Please enter a valid Timedelta string (e.g., '30min', '2H', '1D')."><![CDATA[^\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*$]]></validator>
                   </param>
                 </when>
@@ -1004,7 +1004,7 @@
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="tolerance" type="text" optional="true" label="tolerance" help="Limiting the distance, values can be shifted or comprised into aggregation">
+                  <param argument="tolerance" type="text" label="tolerance" help="Limiting the distance, values can be shifted or comprised into aggregation">
                     <validator type="regex" message="Please enter a valid Timedelta string (e.g., '30min', '2H', '1D')."><![CDATA[^\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*$]]></validator>
                   </param>
                 </when>
@@ -1217,7 +1217,7 @@
                 <option value="brute">brute</option>
                 <option value="auto">auto</option>
               </param>
-              <param argument="metric" type="text" value="minkowski" optional="true" label="metric" help="The metric the distances to any datapoints neighbors is computed with. The default of `metric` together with the default of `p` result in the euclidian to be applied. The keyword just gets passed on to the underlying sklearn method. See reference [1] for more information on the algorithm"/>
+              <param argument="metric" type="text" value="minkowski" label="metric" help="The metric the distances to any datapoints neighbors is computed with. The default of `metric` together with the default of `p` result in the euclidian to be applied. The keyword just gets passed on to the underlying sklearn method. See reference [1] for more information on the algorithm"/>
               <param argument="p" type="integer" value="2" optional="true" label="p" help=": The grade of the metrice specified by parameter `metric`. The keyword just gets passed on to the underlying sklearn method. See reference [1] for more information on the algorithm" min="0"/>
             </when>
             <when value="assignLOF">
@@ -1315,7 +1315,7 @@
             </when>
             <when value="plot">
               <param argument="field" type="data_column" label="field" help="Variable to process" data_ref="data" display="checkboxes" multiple="true"/>
-              <param argument="path" type="text" optional="true" label="path" help="If ``None`` is passed, interactive mode is entered; plots are shown immediatly and a user need to close them manually before execution continues. If a filepath is passed instead, store-mode is entered and the plot is stored unter the passed location"/>
+              <param argument="path" type="text" label="path" help="If ``None`` is passed, interactive mode is entered; plots are shown immediatly and a user need to close them manually before execution continues. If a filepath is passed instead, store-mode is entered and the plot is stored unter the passed location"/>
               <param argument="max_gap" type="text" optional="true" label="max_gap" help="If ``None``, all data points will be connected, resulting in long linear lines, in case of large data gaps. ``NaN`` values will be removed before plotting. If an offset string is passed, only points that have a distance below ``max_gap`` are connected via the plotting line (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
                 <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
               </param>
@@ -1331,7 +1331,7 @@
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="mode" type="text" optional="true" label="mode" help="How to process multiple variables to be plotted:  * ` oneplot ` : plot all variables with their flags in one axis (default) * ` subplots ` : generate subplot grid where each axis contains one variable plot with associated flags * ` biplot ` : plotting first and second variable in field against each other in a scatter plot  (point cloud)"/>
+                  <param argument="mode" type="text" label="mode" help="How to process multiple variables to be plotted:  * ` oneplot ` : plot all variables with their flags in one axis (default) * ` subplots ` : generate subplot grid where each axis contains one variable plot with associated flags * ` biplot ` : plotting first and second variable in field against each other in a scatter plot  (point cloud)"/>
                 </when>
               </conditional>
               <conditional name="history_cond" label="history">
@@ -1346,7 +1346,7 @@
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="history" type="text" optional="true" label="history" help="Discriminate the plotted flags with respect to the tests they originate from.  * `` valid ``: Only plot flags, that are not overwritten by subsequent tests. Only list tests in the legend, that actually contributed flags to the overall result. * ``None``: Just plot the resulting flags for one variable, without any historical and/or meta information. * list of strings: List of tests. Plot flags from the given tests, only. * ``complete`` (not recommended, deprecated): Plot all the flags set by any test, independently from them being removed or modified by subsequent modifications. (this means: plotted flags do not necessarily match with flags ultimately assigned to the data)" multiple="true"/>
+                  <param argument="history" type="text" label="history" help="Discriminate the plotted flags with respect to the tests they originate from.  * `` valid ``: Only plot flags, that are not overwritten by subsequent tests. Only list tests in the legend, that actually contributed flags to the overall result. * ``None``: Just plot the resulting flags for one variable, without any historical and/or meta information. * list of strings: List of tests. Plot flags from the given tests, only. * ``complete`` (not recommended, deprecated): Plot all the flags set by any test, independently from them being removed or modified by subsequent modifications. (this means: plotted flags do not necessarily match with flags ultimately assigned to the data)" multiple="true"/>
                 </when>
               </conditional>
               <conditional name="xscope_cond" label="xscope">
@@ -1365,7 +1365,7 @@
                   </param>
                 </when>
                 <when value="type_2">
-                  <param argument="xscope" type="text" optional="true" label="xscope" help="Determine a chunk of the data to be plotted. ``xscope`` can be anything, that is a valid argument to the ``pandas.Series.__getitem__`` method"/>
+                  <param argument="xscope" type="text" label="xscope" help="Determine a chunk of the data to be plotted. ``xscope`` can be anything, that is a valid argument to the ``pandas.Series.__getitem__`` method"/>
                 </when>
               </conditional>
               <conditional name="yscope_cond" label="yscope">
@@ -1398,9 +1398,9 @@
                 <option value="periodic">periodic</option>
                 <option value="selection_field">selection_field</option>
               </param>
-              <param argument="selection_field" type="text" optional="true" label="selection_field" help="Only effective if mode ==  mask_var  Fieldname of the column, holding the data that is to be used as mask. (must be boolean series) Neither the series` length nor its labels have to match data[field]`s index and length. An inner join of the indices will be calculated and values get masked where the values of the inner join are ``True``"/>
-              <param argument="start" type="text" optional="true" label="start" help="Only effective if mode ==  seasonal  String denoting starting point of every period. Formally, it has to be a truncated instance of  mm-ddTHH:MM:SS . Has to be of same length as `end` parameter. See examples section below for some examples"/>
-              <param argument="end" type="text" optional="true" label="end" help="Only effective if mode ==  periodic  String denoting starting point of every period. Formally, it has to be a truncated instance of  mm-ddTHH:MM:SS . Has to be of same length as `end` parameter. See examples section below for some examples"/>
+              <param argument="selection_field" type="text" label="selection_field" help="Only effective if mode ==  mask_var  Fieldname of the column, holding the data that is to be used as mask. (must be boolean series) Neither the series` length nor its labels have to match data[field]`s index and length. An inner join of the indices will be calculated and values get masked where the values of the inner join are ``True``"/>
+              <param argument="start" type="text" label="start" help="Only effective if mode ==  seasonal  String denoting starting point of every period. Formally, it has to be a truncated instance of  mm-ddTHH:MM:SS . Has to be of same length as `end` parameter. See examples section below for some examples"/>
+              <param argument="end" type="text" label="end" help="Only effective if mode ==  periodic  String denoting starting point of every period. Formally, it has to be a truncated instance of  mm-ddTHH:MM:SS . Has to be of same length as `end` parameter. See examples section below for some examples"/>
               <param argument="closed" type="boolean" label="closed" help="Wheather or not to include the mask defining bounds to the mask" checked="false" truevalue="closed" falsevalue=""/>
             </when>
           </conditional>

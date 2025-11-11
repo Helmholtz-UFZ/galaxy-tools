@@ -4,6 +4,7 @@ import json
 import math
 import sys
 import traceback
+
 import numpy as np
 
 
@@ -12,8 +13,9 @@ def translateColumn(inputData: str, index: int):
         collumns = open(inputData, "r").readline()
         array = np.array(collumns.strip().split(','))
         return array[index]
-    except:
+    except Exception:
         sys.stderr.write("Could not find dataset")
+
 
 print("varname; function")
 
@@ -34,7 +36,7 @@ except IndexError:
 if not primary_input_file:
     sys.stderr.write("FATAL: Konnte Eingabedatei-Pfad nicht aus sys.argv[2] lesen.\n")
     sys.exit(2)
-    
+
 sys.stderr.write(f"INFO: Verwende Dateipfad für Spaltennamen: {primary_input_file}\n")
 
 for r_method_set in params_from_galaxy.get("methods_repeat", []):
@@ -66,20 +68,20 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
                 if isinstance(raw_field_val, list):
                     indices_from_galaxy = raw_field_val
                 else:
-                    indices_from_galaxy = [raw_field_val] 
+                    indices_from_galaxy = [raw_field_val]
 
                 column_names = []
                 for index_str in indices_from_galaxy:
-                    index_int = int(index_str) 
+                    index_int = int(index_str)
                     name = translateColumn(primary_input_file, index_int)
                     column_names.append(name)
-                field_str = ','.join(column_names) 
-                    
+                field_str = ','.join(column_names)
+
             except Exception as e:
                 sys.stderr.write(f"FATAL: translateColumn failed for method '{method}' with index '{raw_field_val}'. Error: {e}\n")
                 traceback.print_exc(file=sys.stderr)
                 field_str = f"ERROR_CONVERSION_FAILED_{raw_field_val}"
-                
+
             field_str_for_error = field_str
 
         saqc_args_dict = {}
@@ -144,7 +146,7 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
                     v_str_repr = "float('-inf')"
                 elif val_lower == "nan":
                     v_str_repr = "float('nan')"
-            
+
                 elif "func" in k_saqc.lower():
                     v_str_repr = v_saqc_raw
 
@@ -165,19 +167,23 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
                         pos1_val_raw = inner_dict.get(f"{k_saqc}_pos1")
 
                         def format_val(val):
-                            if val is None: return "None"
+                            if val is None:
+                                return "None"
                             if isinstance(val, str):
-                                if val.startswith("'") and val.endswith("'"): return val
-                                if val.lower() in ['np.mean', 'np.min', 'np.max', 'np.std']: return val
+                                if val.startswith("'") and val.endswith("'"):
+                                    return val
+                                if val.lower() in ['np.mean', 'np.min', 'np.max', 'np.std']:
+                                    return val
                                 return f'"{val}"'
-                            if isinstance(val, (int, float)): return str(val)
+                            if isinstance(val, (int, float)):
+                                return str(val)
                             return repr(val)
                         v_str_repr = f"({format_val(pos0_val_raw)}, {format_val(pos1_val_raw)})"
 
                     elif 'key' in inner_dict:
                         dict_items = [f'"{i["key"]}": "{i["value"]}"' for i in v_saqc_raw]
                         v_str_repr = f"{{{', '.join(dict_items)}}}"
-                    
+
                     else:
                         v_str_repr = f"[{', '.join(map(str, v_saqc_raw))}]"
 

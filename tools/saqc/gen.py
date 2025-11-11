@@ -269,6 +269,7 @@ def get_label_help(param_name, parameter_docs):
 
     return label, help_text
 
+
 def get_modules() -> list[Tuple[str, "ModuleType"]]:
     return inspect.getmembers(saqc.funcs, inspect.ismodule)
 
@@ -331,13 +332,13 @@ def _split_type_string_safely(type_string: str) -> list[str]:
 def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> bool:
     """
     Checks if method should be skipped due to this criteria:
-    
+
     Criteria:
     - Contains 'func' i name
     - AND is not a literal
     - AND not in generic.flagGeneric or generic.processGeneric
     - AND is not optional
-    
+
     returns true if it should be skipped.
     """
     try:
@@ -360,17 +361,17 @@ def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> b
         if is_literal_type:
             continue
 
-        is_generic_module = module.__name__.endswith(".generic") 
+        is_generic_module = module.__name__.endswith(".generic")
         is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
         if is_generic_module and is_generic_method:
             continue
 
         is_python_optional_by_default = (param.default is not inspect.Parameter.empty)
         if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
-             inner_content = raw_annotation_str[6:-1]
-             type_parts = _split_type_string_safely(inner_content)
+            inner_content = raw_annotation_str[6:-1]
+            type_parts = _split_type_string_safely(inner_content)
         else:
-             type_parts = _split_type_string_safely(raw_annotation_str)
+            type_parts = _split_type_string_safely(raw_annotation_str)
         is_optional_by_none = 'None' in type_parts
         is_truly_optional = is_python_optional_by_default or is_optional_by_none
 
@@ -387,21 +388,20 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
     offset_regex = r"^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$"
     offset_message = "Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."
     offset_validator = ValidatorParam(type="regex", message=offset_message, text=offset_regex)
-   
+
     param_object = None
     base_type_str = type_str.strip()
-    
+
     creation_args = param_constructor_args.copy()
 
     text_types = ('list', 'sequence', 'arraylike', 'pd.series', 'pd.dataframe', 'pd.datetimeindex',
                   'pd.timedelta', 'offsetlike', 'OffsetStr', 'FreqStr', 'str', 'string', 'Any')
-    
+
     is_text_type = base_type_str.lower() in text_types
     is_list_str = re.fullmatch(r"(list|Sequence)\[\s*str\s*\]", base_type_str, re.IGNORECASE)
 
     if is_text_type or is_list_str:
         creation_args.pop("optional", None)
-
 
     tuple_match = re.fullmatch(r"tuple(?:\[\s*(.*)\s*\])?", base_type_str, re.IGNORECASE)
 
@@ -425,15 +425,15 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
 
             type_0 = inner_types_list[0]
             type_1 = inner_types_list[1]
-        
-        title = param_constructor_args.get("label", param_name) 
+
+        title = param_constructor_args.get("label", param_name)
         help_text = param_constructor_args.get("help", "")
 
         repeat_constructor_args = {
             "title": title,
             "help": help_text
         }
-        
+
         repeat = Repeat(name=param_name, **repeat_constructor_args)
 
         inner_args_0 = {'label': f"{param_name}_pos0", 'help': f"First element (index 0) of the {param_name} tuple.", 'optional': is_optional}
@@ -447,7 +447,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
             repeat.append(param_0)
         else:
             repeat.append(TextParam(name=f"{param_name}_pos0", **inner_args_0))
-            
+
         if param_1:
             repeat.append(param_1)
         else:
@@ -455,7 +455,6 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
 
         param_object = repeat
         return param_object
-
 
     if base_type_str in ('SaQCFields', 'NewSaQCFields'):
         creation_args.pop("value", None)
@@ -467,8 +466,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
     elif is_list_str:
         param_object = TextParam(argument=param_name, multiple=True, **creation_args)
     elif re.fullmatch(r"list\[\s*tuple\[\s*float\s*,\s*float\s*\]\s*\]", base_type_str, re.IGNORECASE):
-        repeat = Repeat(name=param_name, title=creation_args.get("label", param_name),
-            help=creation_args.get("help", ""))
+        repeat = Repeat(name=param_name, title=creation_args.get("label", param_name), help=creation_args.get("help", ""))
         repeat.append(FloatParam(name=f"{param_name}_min", label=f"{param_name}_min"))
         repeat.append(FloatParam(name=f"{param_name}_max", label=f"{param_name}_max"))
         param_object = repeat
@@ -527,7 +525,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         param_object.append(offset_validator)
     elif base_type_str in ['str', 'string', 'Any']:
         param_object = TextParam(argument=param_name, **creation_args)
-    
+
     elif base_type_str == 'int':
         param_object = IntegerParam(argument=param_name, **creation_args)
     elif base_type_str == 'float':
@@ -1222,6 +1220,8 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
     if clean_type == 'slice':
         return {f"{param_name}_start": 0, f"{param_name}_end": 10}
 
+    if re.fullmatch(r"tuple\[\s*float\s*,\s*float\s*\]", clean_type, re.IGNORECASE):
+        return {f"{param_name}_min": 0.0, f"{param_name}_max": 1.0}
     tuple_match = re.fullmatch(r"tuple(?:\[\s*(.*)\s*\])?", clean_type, re.IGNORECASE)
     if tuple_match:
         inner_types_str = tuple_match.group(1)
@@ -1235,7 +1235,7 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
         type_0 = "str"
         if len(inner_types_list) >= 1:
             type_0 = inner_types_list[0]
-        
+
         type_1 = "str"
         if len(inner_types_list) >= 2:
             type_1 = inner_types_list[1]
@@ -1244,18 +1244,23 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
 
         def get_simple_val(typ):
             clean_typ = typ.strip()
-            if clean_typ == 'int' or 'Int' in clean_typ: return 1
-            if clean_typ == 'float' or 'Float' in clean_typ: return 1.0
-            if clean_typ == 'bool': return True
-            if 'OffsetStr' in clean_typ or 'FreqStr' in clean_typ or 'timedelta' in clean_typ: return "1D"
-            if 'SaQCFields' in clean_typ or 'NewSaQCFields' in clean_typ: return 1
+            if clean_typ == 'int' or 'Int' in clean_typ:
+                return 1
+            if clean_typ == 'float' or 'Float' in clean_typ:
+                return 1.0
+            if clean_typ == 'bool':
+                return True
+            if 'OffsetStr' in clean_typ or 'FreqStr' in clean_typ or 'timedelta' in clean_typ:
+                return "1D"
+            if 'SaQCFields' in clean_typ or 'NewSaQCFields' in clean_typ:
+                return 1
             return "test_string"
 
         val_0 = get_simple_val(type_0)
         val_1 = get_simple_val(type_1)
 
         return [
-            { f"{param_name}_pos0": val_0, f"{param_name}_pos1": val_1 }
+            {f"{param_name}_pos0": val_0, f"{param_name}_pos1": val_1}
         ]
 
     if re.fullmatch(r"list\[\s*tuple\[\s*float\s*,\s*float\s*\]\s*\]", clean_type, re.IGNORECASE):
@@ -1302,7 +1307,7 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
         if param_name in ["field", "target"]:
             base_params[param_name] = 1
             continue
-            
+
         annotation = param.annotation
         raw_annotation_str = ""
         if isinstance(annotation, (str, ForwardRef)):
@@ -1330,7 +1335,7 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
                     base_params[param_name] = "lambda x: x * 2"
                 else:
                     base_params[param_name] = "lambda x: x"
-                
+
                 continue
 
             if is_literal_type:
@@ -1339,10 +1344,10 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
             else:
                 is_python_optional_by_default = (param.default is not inspect.Parameter.empty)
                 if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
-                        inner_content = raw_annotation_str[6:-1]
-                        type_parts = _split_type_string_safely(inner_content)
+                    inner_content = raw_annotation_str[6:-1]
+                    type_parts = _split_type_string_safely(inner_content)
                 else:
-                        type_parts = _split_type_string_safely(raw_annotation_str)
+                    type_parts = _split_type_string_safely(raw_annotation_str)
                 is_optional_by_none = 'None' in type_parts
                 is_truly_optional = is_python_optional_by_default or is_optional_by_none
 
@@ -1350,7 +1355,6 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
                     continue
                 else:
                     continue
-
 
         if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
             inner_content = raw_annotation_str[6:-1]
@@ -1366,7 +1370,7 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
         ]
         if not type_parts_cleaned and type_parts_without_none:
             continue
-            
+
         is_all_saqc_fields = False
         if len(type_parts_cleaned) > 1:
             is_all_saqc_fields = all(
@@ -1376,23 +1380,20 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
         if is_all_saqc_fields:
             type_parts_cleaned = ['SaQCFields']
 
-
         if len(type_parts_cleaned) > 1:
             is_generic_module = module.__name__.endswith(".generic")
             is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
-            
+
             if not (is_generic_module and is_generic_method):
                 has_literal = any(
                     "Literal[" in part or part in SAQC_CUSTOM_SELECT_TYPES for part in type_parts_cleaned
                 )
-                
+
                 if has_literal:
                     type_parts_cleaned = [
-                        part for part in type_parts_cleaned 
+                        part for part in type_parts_cleaned
                         if not any(func_type in part for func_type in ['Callable', 'CurveFitter', 'GenericFunction'])
                     ]
-
-
 
         if len(type_parts_cleaned) > 1:
             complex_params[param_name] = type_parts_cleaned
@@ -1415,7 +1416,7 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
     default_galaxy_params = base_params.copy()
     for name, type_parts in complex_params.items():
         if not type_parts:
-             continue
+            continue
         first_type = type_parts[0]
         test_value = get_test_value_for_type(first_type, name)
 
@@ -1508,7 +1509,7 @@ def generate_test_macros():
 
             method_name = method_obj.__name__
             try:
-                test_variants = generate_test_variants(method_obj, module_obj) 
+                test_variants = generate_test_variants(method_obj, module_obj)
             except Exception as e:
                 print(f"Error generating variants for {method_name}: {e}", file=sys.stderr)
                 continue

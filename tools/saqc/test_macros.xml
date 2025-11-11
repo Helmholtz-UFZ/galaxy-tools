@@ -2684,10 +2684,8 @@
             </conditional>
             <conditional name="yscope_cond">
               <param name="yscope_selector" value="type_1" />
-              <repeat name="yscope">
-                <param name="yscope_pos0" value="1.0" />
-                <param name="yscope_pos1" value="1.0" />
-              </repeat>
+              <param name="yscope_min" value="0.0" />
+              <param name="yscope_max" value="1.0" />
             </conditional>
           </conditional>
         </conditional>

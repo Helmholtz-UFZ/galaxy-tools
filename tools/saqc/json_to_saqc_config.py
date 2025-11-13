@@ -10,11 +10,12 @@ import numpy as np
 
 def translateColumn(inputData: str, index: int):
     try:
-        collumns = open(inputData, "r").readline()
-        array = np.array(collumns.strip().split(','))
-        return array[index]
-    except Exception:
-        sys.stderr.write("Could not find dataset")
+        with open(inputData, "r") as f:
+            columns = f.readline()
+            array = np.array(columns.strip().split(','))
+            return array[index]
+    except Exception as e:
+        print("Could not open dataset. Error: ", e)
 
 
 print("varname; function")
@@ -30,14 +31,14 @@ primary_input_file = None
 try:
     primary_input_file = sys.argv[2]
 except IndexError:
-    sys.stderr.write("FATAL: Dem Skript wurde kein zweites Argument (der Dateipfad) übergeben.\n")
+    sys.stderr.write("FATAL: No second argument handed to the script (data path).\n")
     sys.exit(2)
 
 if not primary_input_file:
-    sys.stderr.write("FATAL: Konnte Eingabedatei-Pfad nicht aus sys.argv[2] lesen.\n")
+    sys.stderr.write("FATAL: could not read input data path sys.argv[2] .\n")
     sys.exit(2)
 
-sys.stderr.write(f"INFO: Verwende Dateipfad für Spaltennamen: {primary_input_file}\n")
+sys.stderr.write(f"INFO: Use data path as column name: {primary_input_file}\n")
 
 for r_method_set in params_from_galaxy.get("methods_repeat", []):
     method_str_for_error = "unknown_method_in_repeat"

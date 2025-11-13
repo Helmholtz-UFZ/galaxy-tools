@@ -270,6 +270,7 @@ def get_label_help(param_name, parameter_docs):
     return label, help_text
 
 
+
 def get_modules() -> list[Tuple[str, "ModuleType"]]:
     return inspect.getmembers(saqc.funcs, inspect.ismodule)
 
@@ -461,7 +462,6 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         creation_args['type'] = "data_column"
         creation_args['data_ref'] = "data"
         creation_args['multiple'] = True
-        creation_args['display'] = "checkboxes"
         param_object = SelectParam(argument=param_name, **creation_args)
     elif is_list_str:
         param_object = TextParam(argument=param_name, multiple=True, **creation_args)
@@ -660,7 +660,7 @@ def _handle_func_parameter(
             f"'{param_name}' in method '{method.__name__}', "
             "as it is not in the 'generic' module.\n"
         )
-    return None, True
+        return None, True
 
     if is_literal_type:
         return None, False
@@ -742,7 +742,7 @@ def _create_parameter_widget(
             )
 
     elif len(type_parts_cleaned) > 1:
-        conditional = Conditional(name=f"{param_name}_cond", label=label)
+        conditional = Conditional(name=f"{param_name}_cond")
         type_options = [
             (f"type_{i}", _get_user_friendly_type_name(part))
             for i, part in enumerate(type_parts_cleaned)
@@ -926,8 +926,7 @@ def get_method_params(method, module, tracing=False):
             creation_args.pop("value", None)
             creation_args["type"] = "data_column"
             creation_args["data_ref"] = "data"
-            creation_args["multiple"] = True
-            creation_args["display"] = "checkboxes"
+            creation_args["multiple"] = False
             param_object = SelectParam(argument=param_name, **creation_args)
             xml_params.append(param_object)
             continue
@@ -1006,7 +1005,7 @@ def get_methods_conditional(methods, module, tracing=False):
         if check_method_for_skip_condition(method_obj, module):
             continue
         filtered_methods.append(method_obj)
-    method_conditional = Conditional(name="method_cond", label="Method")
+    method_conditional = Conditional(name="method_cond")
     method_select_options = []
 
     if not filtered_methods:
@@ -1119,7 +1118,7 @@ def generate_tool_xml(tracing=False):
     )
     inputs_section.append(module_repeat)
 
-    module_conditional = Conditional(name="module_cond", label="SaQC Module")
+    module_conditional = Conditional(name="module_cond")
     module_select_options = []
     for module_name, module_obj in modules:
         module_doc = _get_doc(module_obj.__doc__)
@@ -1142,7 +1141,6 @@ def generate_tool_xml(tracing=False):
                 name="no_modules_found",
                 type="text",
                 value="No SaQC modules found.",
-                label="Error",
             )
         )
 
@@ -1161,7 +1159,6 @@ def generate_tool_xml(tracing=False):
                         name=f"{module_name}_no_methods_conditional",
                         type="text",
                         value=f"Could not generate method selection for module '{module_name}'.",
-                        label="Notice",
                     )
                 )
         else:

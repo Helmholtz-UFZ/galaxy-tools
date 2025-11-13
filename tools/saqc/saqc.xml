@@ -53,7 +53,6 @@
             <param name="method_select" type="select" label="Method">
               <option value="flagIsolated">flagIsolated: Find and flag temporally isolated groups of data</option>
               <option value="flagJumps">flagJumps: Flag jumps and drops in data</option>
-              <option value="flagMissing">flagMissing: deprecated:: 2.7.0</option>
               <option value="flagNAN">flagNAN: Flag NaNs in data</option>
             </param>
             <when value="flagIsolated">
@@ -76,11 +75,6 @@
                 <validator type="empty_field"/>
               </param>
               <param argument="min_periods" type="integer" value="0" optional="true" label="min_periods" help="int Minimum number of timestamps in `window` required to calculate a valid mean. If no valid mean for the window can be calculated, flagging wont be triggered for the associated change point" min="0"/>
-              <param argument="flag" type="float" value="255.0" optional="true" label="flag" help="`Any`, optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme"/>
-              <param argument="dfilter" type="float" value="-inf" optional="true" label="dfilter" help="`Any`, optional Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme"/>
-            </when>
-            <when value="flagMissing">
-              <param argument="field" type="data_column" label="field" help="Variable to process" data_ref="data" multiple="false"/>
               <param argument="flag" type="float" value="255.0" optional="true" label="flag" help="`Any`, optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme"/>
               <param argument="dfilter" type="float" value="-inf" optional="true" label="dfilter" help="`Any`, optional Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme"/>
             </when>
@@ -331,7 +325,6 @@
               <option value="andGroup">andGroup: Logical AND operation for Flags</option>
               <option value="clearFlags">clearFlags: Assign the flag UNFLAGGED to all timestamps</option>
               <option value="flagDummy">flagDummy: Function does nothing but returning data and flags</option>
-              <option value="flagManual">flagManual: Include flags listed in external data</option>
               <option value="flagUnflagged">flagUnflagged: Assign a `flag` to all timestamps</option>
               <option value="forceFlags">forceFlags: Set whole column to a flag value</option>
               <option value="orGroup">orGroup: Logical OR operation for Flags</option>
@@ -349,56 +342,6 @@
             </when>
             <when value="flagDummy">
               <param argument="field" type="data_column" label="field" help="Variable to process" data_ref="data" multiple="false"/>
-            </when>
-            <when value="flagManual">
-              <param argument="field" type="data_column" label="field" help="Variable to process" data_ref="data" multiple="false"/>
-              <conditional name="mdata_cond">
-                <param name="mdata_selector" type="select" label="Choose type for 'mdata'" help="Determines which values or intervals will be flagged. Supported input types:  * ``pd.Series``: Needs a datetime index and values of type:  - datetime, for `method` values `` right-closed ``, `` left-closed ``, `` closed `` - or any scalar, for `method` values `` plain ``, `` ontime ``  * ``str``: Variable holding the manual flag information. * ``pd.DataFrame``, ``DictOfSeries``: Need to provide a ``pd.Series`` with column name `field`. * ``list``, ``np.ndarray``: Only supported with `method` value `` plain `` and `mformat` value `` mflag ``">
-                  <option value="type_0">Text</option>
-                  <option value="type_1">Pd.Series</option>
-                  <option value="type_2">Arraylike</option>
-                  <option value="type_3">List</option>
-                  <option value="type_4">Pd.Dataframe</option>
-                </param>
-                <when value="type_0">
-                  <param argument="mdata" type="text" label="mdata" help="Determines which values or intervals will be flagged. Supported input types:  * ``pd.Series``: Needs a datetime index and values of type:  - datetime, for `method` values `` right-closed ``, `` left-closed ``, `` closed `` - or any scalar, for `method` values `` plain ``, `` ontime ``  * ``str``: Variable holding the manual flag information. * ``pd.DataFrame``, ``DictOfSeries``: Need to provide a ``pd.Series`` with column name `field`. * ``list``, ``np.ndarray``: Only supported with `method` value `` plain `` and `mformat` value `` mflag ``">
-                    <validator type="empty_field"/>
-                  </param>
-                </when>
-                <when value="type_1">
-                  <param argument="mdata" type="text" label="mdata" help="Determines which values or intervals will be flagged. Supported input types:  * ``pd.Series``: Needs a datetime index and values of type:  - datetime, for `method` values `` right-closed ``, `` left-closed ``, `` closed `` - or any scalar, for `method` values `` plain ``, `` ontime ``  * ``str``: Variable holding the manual flag information. * ``pd.DataFrame``, ``DictOfSeries``: Need to provide a ``pd.Series`` with column name `field`. * ``list``, ``np.ndarray``: Only supported with `method` value `` plain `` and `mformat` value `` mflag ``">
-                    <validator type="empty_field"/>
-                  </param>
-                </when>
-                <when value="type_2">
-                  <param argument="mdata" type="text" label="mdata" help="Determines which values or intervals will be flagged. Supported input types:  * ``pd.Series``: Needs a datetime index and values of type:  - datetime, for `method` values `` right-closed ``, `` left-closed ``, `` closed `` - or any scalar, for `method` values `` plain ``, `` ontime ``  * ``str``: Variable holding the manual flag information. * ``pd.DataFrame``, ``DictOfSeries``: Need to provide a ``pd.Series`` with column name `field`. * ``list``, ``np.ndarray``: Only supported with `method` value `` plain `` and `mformat` value `` mflag ``">
-                    <validator type="empty_field"/>
-                  </param>
-                </when>
-                <when value="type_3">
-                  <param argument="mdata" type="text" label="mdata" help="Determines which values or intervals will be flagged. Supported input types:  * ``pd.Series``: Needs a datetime index and values of type:  - datetime, for `method` values `` right-closed ``, `` left-closed ``, `` closed `` - or any scalar, for `method` values `` plain ``, `` ontime ``  * ``str``: Variable holding the manual flag information. * ``pd.DataFrame``, ``DictOfSeries``: Need to provide a ``pd.Series`` with column name `field`. * ``list``, ``np.ndarray``: Only supported with `method` value `` plain `` and `mformat` value `` mflag ``">
-                    <validator type="empty_field"/>
-                  </param>
-                </when>
-                <when value="type_4">
-                  <param argument="mdata" type="text" label="mdata" help="Determines which values or intervals will be flagged. Supported input types:  * ``pd.Series``: Needs a datetime index and values of type:  - datetime, for `method` values `` right-closed ``, `` left-closed ``, `` closed `` - or any scalar, for `method` values `` plain ``, `` ontime ``  * ``str``: Variable holding the manual flag information. * ``pd.DataFrame``, ``DictOfSeries``: Need to provide a ``pd.Series`` with column name `field`. * ``list``, ``np.ndarray``: Only supported with `method` value `` plain `` and `mformat` value `` mflag ``">
-                    <validator type="empty_field"/>
-                  </param>
-                </when>
-              </conditional>
-              <param argument="method" type="select" value="left-open" optional="true" label="method" help="Defines how `mdata` is projected to data:  * `` plain ``: `mdata` must have the same length as `field`, flags are set, where the values in `mdata` equal `mflag`. * `` ontime ``: Expects datetime indexed `mdata` (types ``pd.Series``, ``pd.DataFrame``, ``DictOfSeries``). Flags are set, where the values in `mdata` equal `mflag` and the indices of `field` and `mdata` match. * `` right-open ``: Expects datetime indexed `mdata`, which will be interpreted as a number of time intervals ``t_1, t_2``. Flags are set to all timestamps ``t`` of `field` with ``t_1  = t   t_2``. * `` left-open ``: like `` right-open ``, but the interval covers all ``t`` with ``t_1   t  = t_2``. * `` closed ``: like `` right-open ``, but the interval now covers all ``t`` with ``t_1  = t  = t_2``">
-                <option value="left-open">left-open</option>
-                <option value="right-open">right-open</option>
-                <option value="closed">closed</option>
-                <option value="plain">plain</option>
-                <option value="ontime">ontime</option>
-              </param>
-              <param argument="mformat" type="select" value="start-end" optional="true" label="mformat" help="Controls the interval definition in `mdata` (see examples):  * `` start-end ``: expects datetime indexed `mdata` (types ``pd.Series``, ``pd.DataFrame``, ``DictOfSeries``) with values of type datetime. Each index-value pair is interpreted as an interval to flag, the index defines the left bound, the respective value the right bound. * `` mflag ``:  - `mdata` of type ``pd.Series``, ``pd.DataFrame``, ``DictOfSeries``: Two successive index values ``i_1, i_2`` will be interpreted as an interval ``t_1, t_2`` to flag, if the value of ``t_1`` equals `mflag` - `mdata` of type ``list``, ``np.ndarray``: Flags all `field` where `mdata` euqals `mflag`">
-                <option value="start-end">start-end</option>
-                <option value="mflag">mflag</option>
-              </param>
-              <param argument="mflag" type="text" value="1" optional="true" label="mflag" help="Value in `mdata` indicating that a flag should be set at the respective position, timestamp or interval. Ignored if `mformat` is set to `` start-end ``"/>
-              <param argument="flag" type="float" value="255.0" optional="true" label="flag" help="`Any`, optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme"/>
             </when>
             <when value="flagUnflagged">
               <param argument="field" type="data_column" label="field" help="Variable to process" data_ref="data" multiple="false"/>
@@ -576,39 +519,13 @@
         <when value="outliers">
           <conditional name="method_cond">
             <param name="method_select" type="select" label="Method">
-              <option value="flagByGrubbs">flagByGrubbs: Flag outliers using the Grubbs algorithm</option>
               <option value="flagByStray">flagByStray: Flag outliers in 1-dimensional (score) data using the STRAY Algorithm</option>
               <option value="flagLOF">flagLOF: Flag values where the Local Outlier Factor (LOF) exceeds cutoff</option>
-              <option value="flagMAD">flagMAD: Flag outliers using the modified Z-score outlier detection method</option>
-              <option value="flagMVScores">flagMVScores: The algorithm implements a 3-step outlier detection procedure for</option>
               <option value="flagOffset">flagOffset: Flag offsetting value courses</option>
-              <option value="flagRaise">flagRaise: The function flags raises and drops in value courses, that exceed a certain threshold within a certain timespan</option>
               <option value="flagRange">flagRange: Flag values outside the closed interval [`min`, `max`]</option>
               <option value="flagUniLOF">flagUniLOF: Flag anomalous values using the *Univariate Local Outlier Factor (UniLOF)* method</option>
               <option value="flagZScore">flagZScore: Uses standard score cutoffs to detect outliers. (For example,  *3*-sigma rule .)</option>
             </param>
-            <when value="flagByGrubbs">
-              <param argument="field" type="data_column" label="field" help="Variable to process" data_ref="data" multiple="false"/>
-              <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'window'" help="Size of the testing window. If an integer, the fixed number of observations used for each window. If an offset string the time period of each window">
-                  <option value="type_0">Frequency String</option>
-                  <option value="type_1">(Integer &gt;= 0)</option>
-                </param>
-                <when value="type_0">
-                  <param argument="window" type="text" label="window" help="Size of the testing window. If an integer, the fixed number of observations used for each window. If an offset string the time period of each window (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
-                    <validator type="empty_field"/>
-                  </param>
-                </when>
-                <when value="type_1">
-                  <param argument="window" type="integer" label="window" help="Size of the testing window. If an integer, the fixed number of observations used for each window. If an offset string the time period of each window" min="0"/>
-                </when>
-              </conditional>
-              <param argument="alpha" type="float" value="0.05" optional="true" label="alpha" help="Level of significance, the grubbs test is to be performed at. Must be between 0 and 1" min="0" max="1"/>
-              <param argument="min_periods" type="integer" value="8" optional="true" label="min_periods" help="Minimum number of values needed in a `window` in order to perform the grubs test. Ignored if `window` is an integer" min="1"/>
-              <param argument="pedantic" type="boolean" label="pedantic" help="If ``True``, every value gets checked twice. First in the initial rolling `window` and second in a rolling window that is lagging by `window` / 2. Recommended to avoid false positives at the window edges. Ignored if `window` is an offset string" checked="false" truevalue="pedantic" falsevalue=""/>
-              <param argument="flag" type="float" value="255.0" optional="true" label="flag" help="`Any`, optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme"/>
-            </when>
             <when value="flagByStray">
               <param argument="field" type="data_column" label="field" help="Variable to process" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
@@ -656,57 +573,6 @@
               <param argument="p" type="integer" value="1" optional="true" label="p" help="Degree of the metric ( Minkowski ), according to which the distance to neighbors is determined. Most important values are:  * ``1`` - Manhattan Metric * ``2`` - Euclidian Metric" min="0"/>
               <param argument="flag" type="float" value="255.0" optional="true" label="flag" help="`Any`, optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme"/>
             </when>
-            <when value="flagMAD">
-              <param argument="field" type="data_column" label="field" help="Variable to process" data_ref="data" multiple="false"/>
-              <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'window'" help="Size of the window. Either given as an Offset String, denoting the window's temporal extension or as an integer, denoting the window's number of periods. ``NaN`` also count as periods. If ``None``, all data points share the same scoring window, which than equals the whole data">
-                  <option value="type_0">Frequency String</option>
-                  <option value="type_1">(Integer &gt;= 0)</option>
-                </param>
-                <when value="type_0">
-                  <param argument="window" type="text" optional="true" label="window" help="Size of the window. Either given as an Offset String, denoting the window's temporal extension or as an integer, denoting the window's number of periods. ``NaN`` also count as periods. If ``None``, all data points share the same scoring window, which than equals the whole data (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
-                  </param>
-                </when>
-                <when value="type_1">
-                  <param argument="window" type="integer" optional="true" label="window" help="Size of the window. Either given as an Offset String, denoting the window's temporal extension or as an integer, denoting the window's number of periods. ``NaN`` also count as periods. If ``None``, all data points share the same scoring window, which than equals the whole data" min="0"/>
-                </when>
-              </conditional>
-              <param argument="z" type="float" value="3.5" optional="true" label="z" help="The value the Z-score is tested against. Defaulting to ``3.5`` (Recommendation of [1])" min="0"/>
-              <param argument="min_residuals" type="integer" optional="true" label="min_residuals" help="" min="0"/>
-              <param argument="min_periods" type="integer" optional="true" label="min_periods" help="Minimum number of valid meassurements in a scoring window, to consider the resulting score valid" min="0"/>
-              <param argument="center" type="boolean" label="center" help="Weather or not to center the target value in the scoring window. If ``False``, the target value is the last value in the window" checked="false" truevalue="center" falsevalue=""/>
-              <param argument="flag" type="float" value="255.0" optional="true" label="flag" help="`Any`, optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme"/>
-            </when>
-            <when value="flagMVScores">
-              <param argument="field" type="data_column" label="field" help="List of variables names to process" data_ref="data" multiple="false"/>
-              <param argument="trafo" type="text" label="trafo" help="Transformation to be applied onto every column before scoring. For more fine-grained control, the data could also be transformed before :py:meth:`~saqc.SaQC.flagMVScores` is called"/>
-              <param argument="alpha" type="float" value="0.05" optional="true" label="alpha" help="Level of significance by which it is tested, if an observations score might be drawn from another distribution than the majority of the data" min="0" max="1"/>
-              <param argument="n" type="integer" value="10" optional="true" label="n" help="Number of neighbors included in the scoring process for every datapoint" min="1"/>
-              <param argument="iter_start" type="float" value="0.5" optional="true" label="iter_start" help="Value in ``[0,1]`` that determines which percentage of data is considered  normal . 0.5 results in the threshing algorithm to search only the upper 50% of the scores for the cut-off point. (See reference section for more information)" min="0" max="1"/>
-              <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'window'" help="Only effective if `threshing` is set to ``'stray'``. Determines the size of the data partitions, the data is decomposed into. Each partition is checked seperately for outliers. Either given as an Offset String, denoting the windows temporal extension or as an integer, denoting the windows number of periods. ``NaN`` also count as periods. If ``None``, all data points share the same scoring window, which than equals the whole data">
-                  <option value="type_0">(Integer &gt;= 1)</option>
-                  <option value="type_1">Offset String</option>
-                </param>
-                <when value="type_0">
-                  <param argument="window" type="integer" optional="true" label="window" help="Only effective if `threshing` is set to ``'stray'``. Determines the size of the data partitions, the data is decomposed into. Each partition is checked seperately for outliers. Either given as an Offset String, denoting the windows temporal extension or as an integer, denoting the windows number of periods. ``NaN`` also count as periods. If ``None``, all data points share the same scoring window, which than equals the whole data" min="1"/>
-                </when>
-                <when value="type_1">
-                  <param argument="window" type="text" optional="true" label="window" help="Only effective if `threshing` is set to ``'stray'``. Determines the size of the data partitions, the data is decomposed into. Each partition is checked seperately for outliers. Either given as an Offset String, denoting the windows temporal extension or as an integer, denoting the windows number of periods. ``NaN`` also count as periods. If ``None``, all data points share the same scoring window, which than equals the whole data (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
-                  </param>
-                </when>
-              </conditional>
-              <param argument="min_periods" type="integer" value="11" optional="true" label="min_periods" help="Only effective if `threshing` is set to ``'stray'`` and `partition` is an integer. Minimum number of periods per `partition` that have to be present for a valid outlier detection to be made in this partition" min="1"/>
-              <param argument="stray_range" type="text" optional="true" label="stray_range" help="If not ``None``, it is tried to reduce the stray result onto single outlier components of the input `field`. The offset string denotes the range of the temporal surrounding to include into the MAD testing while trying to reduce flags (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
-              </param>
-              <param argument="drop_flagged" type="boolean" label="drop_flagged" help="Only effective when `stray_range` is not ``None``. Whether or not to drop flagged values from the temporal surroundings" checked="false" truevalue="drop_flagged" falsevalue=""/>
-              <param argument="thresh" type="float" value="3.5" optional="true" label="thresh" help="Only effective when `stray_range` is not ``None``. The 'critical' value, controlling wheather the MAD score is considered referring to an outlier or not. Higher values result in less rigid flagging. The default value is widely considered apropriate in the literature" min="0"/>
-              <param argument="min_periods_r" type="integer" value="1" optional="true" label="min_periods_r" help="Only effective when `stray_range` is not ``None``. Minimum number of measurements necessary in an interval to actually perform the reduction step" min="1"/>
-              <param argument="flag" type="float" value="255.0" optional="true" label="flag" help="`Any`, optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme"/>
-            </when>
             <when value="flagOffset">
               <param argument="field" type="data_column" label="field" help="Variable to process" data_ref="data" multiple="false"/>
               <param argument="window" type="text" label="window" help="str Maximum temporal length allowed for an offset sequence to trigger flagging (condition 5). Integer-defined windows are only allowed for regularly sampled timestamps (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
@@ -730,25 +596,6 @@
                   <param argument="thresh_relative" type="float" optional="true" label="thresh_relative" help="float or None Minimum relative change between a value and its successors to consider the successors a possible anomalous offset sequence (conditions 2 and 3). If None, this condition is ignored. The parameter constrains the detection to either upwards (positive value passed) or downwards (negative values passed) offsets. To assign detection of offsets bigger than `a`, positive as well as negative, pass the tuple `(a,-a)`. Differing positive and negative threshold values are possible as well. See condition (2). If ``None``, condition (2) is not tested"/>
                 </when>
               </conditional>
-              <param argument="flag" type="float" value="255.0" optional="true" label="flag" help="`Any`, optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme"/>
-            </when>
-            <when value="flagRaise">
-              <param argument="field" type="data_column" label="field" help="Variable to process" data_ref="data" multiple="false"/>
-              <param argument="thresh" type="float" label="thresh" help="The threshold, for the total rise (`thresh` ``  0``), or total drop (`thresh` ``  0``), value courses must not exceed within a timespan of length `raise_window`"/>
-              <param argument="raise_window" type="text" label="raise_window" help="An offset string, determining the timespan, the rise/drop thresholding refers to. Window is inclusively defined (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
-                <validator type="empty_field"/>
-              </param>
-              <param argument="freq" type="text" label="freq" help="An offset string, determining the frequency, the timeseries to flag is supposed to be sampled at. The window is inclusively defined (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
-                <validator type="empty_field"/>
-              </param>
-              <param argument="average_window" type="text" optional="true" label="average_window" help="See condition (2) of the description given in the Notes. Window is inclusively defined, defaults to 1.5 times the size of `raise_window` (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$]]></validator>
-              </param>
-              <param argument="raise_factor" type="float" value="2.0" optional="true" label="raise_factor" help="See condition (2)" min="1"/>
-              <param argument="slope" type="float" optional="true" label="slope" help="See condition (3)" min="0"/>
-              <param argument="weight" type="float" value="0.8" optional="true" label="weight" help="See condition (3)" min="0"/>
               <param argument="flag" type="float" value="255.0" optional="true" label="flag" help="`Any`, optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme"/>
             </when>
             <when value="flagRange">

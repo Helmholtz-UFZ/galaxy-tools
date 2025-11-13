@@ -342,6 +342,28 @@ def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> b
 
     returns true if it should be skipped.
     """
+
+    docstring = method.__doc__
+
+    if docstring:
+        if ".. deprecated::" in docstring.lower():
+            sys.stderr.write(
+                f"Info ({module.__name__}): Skipping deprecated method '{method.__name__}'. (Reason: Found '.. deprecated::' directive).\n"
+            )
+            return True
+
+        param_section_match = re.search(r"^\s*Parameters\s*\n\s*--", docstring, re.MULTILINE)
+        summary_text = docstring
+
+        if param_section_match:
+            summary_text = docstring[:param_section_match.start()]
+
+        if "deprecated" in summary_text.lower():
+            sys.stderr.write(
+                f"Info ({module.__name__}): Skipping deprecated method '{method.__name__}'. (Reason: Found 'deprecated' in method summary).\n"
+            )
+            return True
+
     try:
         parameters = inspect.signature(method).parameters
     except (ValueError, TypeError):
@@ -1307,6 +1329,9 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
     base_params = {}
     complex_params = {}
 
+    sections = parse_docstring(method)
+    param_docs = parse_parameter_docs(sections)
+
     try:
         parameters = inspect.signature(method).parameters
     except (ValueError, TypeError):
@@ -1314,6 +1339,17 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
 
     for param_name, param in parameters.items():
         if param_name in ["self", "kwargs", "reduce_func"] or "kwarg" in param_name.lower():
+            continue
+
+        param_doc_entry = param_docs.get(param_name, "")
+        param_doc_lines = param_doc_entry.split('\n')
+        first_line = param_doc_lines[0].lower().strip() if param_doc_lines else ""
+        is_deprecated = "deprecated" in first_line
+
+        if not is_deprecated:
+            is_deprecated = ".. deprecated::" in param_doc_entry.lower()
+
+        if is_deprecated:
             continue
 
         if param_name in ["field", "target"]:

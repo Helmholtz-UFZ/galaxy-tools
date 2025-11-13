@@ -55,14 +55,17 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
         raw_field_val = None
         field_str = "undefined_field"
 
+        #"field" is deleted from the param list because it contains an index from galaxy.
         if "field" in params_to_process:
             raw_field_val = params_to_process.pop("field")
+        #"target" is deleted from the param list because it contains an index from galaxy.
         elif "target" in params_to_process:
             raw_field_val = params_to_process.pop("target")
-
+        #Callback
         if raw_field_val is None:
             field_str = "no_field_applicable"
             field_str_for_error = field_str
+        #Translating indices of field and target to the real column names
         else:
             try:
                 indices_from_galaxy = []
@@ -93,7 +96,7 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
 
             actual_param_name_for_saqc = param_key
             current_value_for_saqc = param_value_json
-
+            #Refactor galaxy param names (params in select) to saqc param names
             if isinstance(param_value_json, dict) and param_key.endswith("_cond"):
                 actual_param_name_for_saqc = param_key[:-5]
                 inner_params = param_value_json.copy()
@@ -101,6 +104,7 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
 
                 if len(inner_params) == 1:
                     current_value_for_saqc = list(inner_params.values())[0]
+                #Refactoring two galaxy params (interval tuple representation) to one saqc tuple
                 else:
                     if f"{actual_param_name_for_saqc}_start" in inner_params:
                         start = inner_params.get(f"{actual_param_name_for_saqc}_start")
@@ -115,7 +119,7 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
 
             if isinstance(current_value_for_saqc, list) and not current_value_for_saqc:
                 continue
-
+            #Setting parameter value of "xscope", "yscope", "max_gap", "min_periods", "min_residuals", "min_offset" to None if the String is empty (optional String param handling).
             if current_value_for_saqc == "__none__":
                 saqc_args_dict[actual_param_name_for_saqc] = None
             elif isinstance(current_value_for_saqc, str) and current_value_for_saqc == "" and actual_param_name_for_saqc in ["xscope", "yscope", "max_gap", "min_periods", "min_residuals", "min_offset"]:
@@ -124,12 +128,16 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
                 saqc_args_dict[actual_param_name_for_saqc] = current_value_for_saqc
 
         param_strings_for_saqc_call = []
+        #Refactor special values so saqc understands them
         for k_saqc, v_saqc_raw in sorted(saqc_args_dict.items()):
             v_str_repr = ""
+            #handling value None
             if v_saqc_raw is None:
                 v_str_repr = "None"
+            #Boolean value set = True, Boolean value not set = False
             elif isinstance(v_saqc_raw, bool):
                 v_str_repr = "True" if v_saqc_raw else "False"
+            #inf -inf translation for float or int
             elif isinstance(v_saqc_raw, (float, int)):
                 if v_saqc_raw == float('inf'):
                     v_str_repr = "float('inf')"
@@ -139,6 +147,7 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
                     v_str_repr = "float('nan')"
                 else:
                     v_str_repr = repr(v_saqc_raw)
+            #inf -inf translation for String
             elif isinstance(v_saqc_raw, str):
                 val_lower = v_saqc_raw.lower()
                 if val_lower == "inf":
@@ -157,7 +166,7 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
                 else:
                     escaped_v = v_saqc_raw.replace('\\', '\\\\').replace('"', '\\"')
                     v_str_repr = f'"{escaped_v}"'
-
+            #Refactoring two galaxy params (tuple representation) to one saqc tuple
             elif isinstance(v_saqc_raw, list):
 
                 if v_saqc_raw and isinstance(v_saqc_raw[0], dict):
@@ -187,7 +196,7 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
 
                     else:
                         v_str_repr = f"[{', '.join(map(str, v_saqc_raw))}]"
-
+                #Refactor multiple String inputs (Lists)
                 else:
                     formatted_list_items = []
                     for item in v_saqc_raw:

@@ -109,11 +109,19 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
                     if f"{actual_param_name_for_saqc}_start" in inner_params:
                         start = inner_params.get(f"{actual_param_name_for_saqc}_start")
                         end = inner_params.get(f"{actual_param_name_for_saqc}_end")
-                        current_value_for_saqc = f"slice({start}, {end})"
+                        if start is None and end is None:
+                            current_value_for_saqc = None
+                        else:
+                            current_value_for_saqc = f"slice({start}, {end})"
+
                     elif f"{actual_param_name_for_saqc}_min" in inner_params:
                         min_val = inner_params.get(f"{actual_param_name_for_saqc}_min")
                         max_val = inner_params.get(f"{actual_param_name_for_saqc}_max")
-                        current_value_for_saqc = f"({min_val}, {max_val})"
+                        if min_val is None and max_val is None:
+                            current_value_for_saqc = None
+                        else:
+                            current_value_for_saqc = f"({min_val}, {max_val})"
+
                     else:
                         current_value_for_saqc = None
 
@@ -133,7 +141,7 @@ for r_method_set in params_from_galaxy.get("methods_repeat", []):
             v_str_repr = ""
             #handling value None
             if v_saqc_raw is None:
-                v_str_repr = "None"
+                continue
             #Boolean value set = True, Boolean value not set = False
             elif isinstance(v_saqc_raw, bool):
                 v_str_repr = "True" if v_saqc_raw else "False"

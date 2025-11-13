@@ -874,6 +874,21 @@ def get_method_params(method, module, tracing=False):
             or "kwarg" in param_name.lower()
         ):
             continue
+        #Filtering deprecated parameters
+        param_doc_entry = param_docs.get(param_name, "")
+        param_doc_lines = param_doc_entry.split('\n')
+        first_line = param_doc_lines[0].lower().strip() if param_doc_lines else ""
+        is_deprecated = "deprecated" in first_line
+
+        if not is_deprecated:
+            is_deprecated = ".. deprecated::" in param_doc_entry.lower()
+
+        if is_deprecated:
+            sys.stderr.write(
+                f"Info ({module.__name__}): Skipping deprecated parameter '{param_name}' "
+                f"in method '{method.__name__}'. (Reason: Found 'deprecated' marker in docstring).\n"
+            )
+            continue
 
         (
             raw_annotation_str,

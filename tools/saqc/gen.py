@@ -406,6 +406,33 @@ def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> b
 
     return False
 
+def is_module_deprecated(module: "ModuleType") -> bool:
+    """Prüft, ob ein Modul basierend auf seinem Docstring als veraltet markiert ist."""
+    docstring = module.__doc__
+    if not docstring:
+        return False
+
+    if ".. deprecated::" in docstring.lower():
+        sys.stderr.write(
+            f"Info: Überspringe veraltetes Modul '{module.__name__}'. (Grund: '.. deprecated::' gefunden).\n"
+        )
+        return True
+
+    param_section_match = re.search(
+        r"^\s*Parameters\s*\n\s*--", docstring, re.MULTILINE
+    )
+    summary_text = docstring
+    if param_section_match:
+        summary_text = docstring[: param_section_match.start()]
+
+    if "deprecated" in summary_text.lower():
+        sys.stderr.write(
+            f"Info: Überspringe veraltetes Modul '{module.__name__}'. (Grund: 'deprecated' in der Modul-Zusammenfassung gefunden).\n"
+        )
+        return True
+
+    return False
+
 
 def _create_param_from_type_str(type_str: str, param_name: str, param_constructor_args: dict, is_optional: bool) -> Optional[object]:
     offset_regex = r"^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$"
@@ -1103,17 +1130,16 @@ def get_methods_conditional(methods, module, tracing=False):
     return method_conditional
 
 
+## MODIFIZIERTE FUNKTION ##
 def generate_tool_xml(tracing=False):
     """Generates XML-Definition of Galaxy-Tools."""
     command_override = [
         """
 #set $first_data_file = $data[0]
-#if str($run_test_mode) == "true":
   '$__tool_directory__'/json_to_saqc_config.py '$param_conf' '$first_data_file' > config.csv
-#else
-  '$__tool_directory__'/json_to_saqc_config.py '$param_conf' '$first_data_file' > config.csv &&
+#if str($run_test_mode) == "false":
+  &&
   #for $i, $d in enumerate($data)
-    ##maybe link to element_identifier
     ln -s '$d' '${i}.csv' &&
   #end for
   saqc --config config.csv
@@ -1156,12 +1182,34 @@ def generate_tool_xml(tracing=False):
     inputs_section.append(module_repeat)
 
     module_conditional = Conditional(name="module_cond")
+
     module_select_options = []
+    valid_modules_data = []
+
     for module_name, module_obj in modules:
-        module_doc = _get_doc(module_obj.__doc__)
-        if not module_doc:
-            module_doc = module_name
-        module_select_options.append((module_name, f"{module_name}: {module_doc}"))
+        if is_module_deprecated(module_obj):
+            continue
+
+        methods = get_methods(module_obj)
+        if not methods:
+            continue
+
+        has_valid_methods = False
+        valid_methods_list = []
+
+        for method_obj in methods:
+            if not check_method_for_skip_condition(method_obj, module_obj):
+                has_valid_methods = True
+                valid_methods_list.append(method_obj)
+
+        if has_valid_methods:
+            valid_modules_data.append((module_name, module_obj, valid_methods_list))
+            module_doc = _get_doc(module_obj.__doc__)
+            if not module_doc:
+                module_doc = module_name
+            module_select_options.append((module_name, f"{module_name}: {module_doc}"))
+        else:
+            pass
 
     if module_select_options:
         module_select = SelectParam(
@@ -1181,30 +1229,21 @@ def generate_tool_xml(tracing=False):
             )
         )
 
-    for module_name, module_obj in modules:
+    for module_name, module_obj, valid_methods in valid_modules_data:
         module_when = When(value=module_name)
-        methods = get_methods(module_obj)
-        if methods:
-            methods_conditional_obj = get_methods_conditional(
-                methods, module_obj, tracing=tracing
-            )
-            if methods_conditional_obj:
-                module_when.append(methods_conditional_obj)
-            else:
-                module_when.append(
-                    TextParam(
-                        name=f"{module_name}_no_methods_conditional",
-                        type="text",
-                        value=f"Could not generate method selection for module '{module_name}'.",
-                    )
-                )
+
+        methods_conditional_obj = get_methods_conditional(
+            valid_methods, module_obj, tracing=tracing
+        )
+
+        if methods_conditional_obj:
+            module_when.append(methods_conditional_obj)
         else:
             module_when.append(
                 TextParam(
-                    name=f"{module_name}_no_methods_found",
+                    name=f"{module_name}_no_methods_conditional",
                     type="text",
-                    value=f"No SaQC methods detected for module '{module_name}'.",
-                    label="Notice",
+                    value=f"Could not generate method selection for module '{module_name}'.",
                 )
             )
         module_conditional.append(module_when)
@@ -1549,6 +1588,9 @@ def generate_test_macros():
 
     modules = get_modules()
     for module_name, module_obj in modules:
+        if is_module_deprecated(module_obj):
+            continue
+
         methods = get_methods(module_obj)
         for method_obj in methods:
 

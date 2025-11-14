@@ -7,12 +7,10 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[python -c 'import saqc; print(saqc.__version__)']]></version_command>
   <command><![CDATA[#set $first_data_file = $data[0]
-#if str($run_test_mode) == "true":
   '$__tool_directory__'/json_to_saqc_config.py '$param_conf' '$first_data_file' > config.csv
-#else
-  '$__tool_directory__'/json_to_saqc_config.py '$param_conf' '$first_data_file' > config.csv &&
+#if str($run_test_mode) == "false":
+  &&
   #for $i, $d in enumerate($data)
-    ##maybe link to element_identifier
     ln -s '$d' '${i}.csv' &&
   #end for
   saqc --config config.csv
@@ -31,7 +29,6 @@
       <conditional name="module_cond">
         <param name="module_select" type="select" label="Select SaQC module">
           <option value="breaks">breaks: Detecting breaks in data</option>
-          <option value="changepoints">changepoints: changepoints</option>
           <option value="constants">constants: constants</option>
           <option value="curvefit">curvefit: curvefit</option>
           <option value="drift">drift: drift</option>
@@ -46,7 +43,6 @@
           <option value="rolling">rolling: rolling</option>
           <option value="scores">scores: scores</option>
           <option value="tools">tools: tools</option>
-          <option value="transformation">transformation: transformation</option>
         </param>
         <when value="breaks">
           <conditional name="method_cond">
@@ -84,9 +80,6 @@
               <param argument="dfilter" type="float" value="-inf" optional="true" label="dfilter" help="`Any`, optional Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme"/>
             </when>
           </conditional>
-        </when>
-        <when value="changepoints">
-          <param name="changepoints_no_methods_conditional" type="text" value="Could not generate method selection for module 'changepoints'." label="Author did not provide help for this parameter... "/>
         </when>
         <when value="constants">
           <conditional name="method_cond">
@@ -1251,9 +1244,6 @@
               <param argument="closed" type="boolean" label="closed" help="Wheather or not to include the mask defining bounds to the mask" checked="false" truevalue="closed" falsevalue=""/>
             </when>
           </conditional>
-        </when>
-        <when value="transformation">
-          <param name="transformation_no_methods_conditional" type="text" value="Could not generate method selection for module 'transformation'." label="Author did not provide help for this parameter... "/>
         </when>
       </conditional>
     </repeat>

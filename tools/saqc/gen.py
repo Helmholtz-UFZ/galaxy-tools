@@ -242,33 +242,71 @@ def parse_parameter_docs(sections: Dict[str, str]) -> Dict[str, str]:
 def get_label_help(param_name, parameter_docs):
     """
     Extracts label and help text.
-    Label is *always* the param_name.
-    Help text is the full, cleaned docstring.
+    Label is the first sentence. Help text is the rest.
+    NEW: If doc is one long sentence (>80 chars), splits at the second comma.
     """
-    parameter_doc_entry = parameter_docs.get(param_name)
-    full_help = parameter_doc_entry.strip() if parameter_doc_entry else ""
+    doc_string = parameter_docs.get(param_name, "").strip()
 
-    label = param_name
+    if not doc_string:
+        return param_name, ""
 
-    if not full_help:
-        return label, ""
-
-    help_text = (
-        full_help.replace("\n", " ")
-        .replace("&#10;", " ")
-        .replace(":py:attr:", "")
+    clean_doc = (
+        doc_string.replace(":py:attr:", "")
         .replace(":py:class:", "")
         .replace(":py:class:`Any`,", "")
-        .removesuffix(".")
+        .replace("&#10;", " ")
+        .replace("<", " ")
+        .replace(">", " ")
+        .replace('"', " ")
         .strip()
     )
 
-    help_text = (
-        help_text.replace("<", " ").replace(">", " ").replace('"', " ")
-    )
+    if not clean_doc:
+        return param_name, ""
+
+    paragraphs = re.split(r'\n\s*\n', clean_doc, maxsplit=1)
+    first_paragraph = paragraphs[0].replace("\n", " ").strip()
+    rest_of_paragraphs = paragraphs[1].strip() if len(paragraphs) > 1 else ""
+
+    sentence_split = re.split(r'(\.\s+)', first_paragraph, maxsplit=1)
+
+    is_single_sentence = len(sentence_split) == 1
+    is_single_paragraph = not rest_of_paragraphs
+    is_long = len(first_paragraph) > 80
+
+    help_text = ""
+
+    if is_single_sentence and is_single_paragraph and is_long:
+        parts = first_paragraph.split(',')
+
+        if len(parts) > 2:
+            label = parts[0] + "," + parts[1]
+            help_text = ",".join(parts[2:]).strip()
+        else:
+
+            label = first_paragraph
+            help_text = ""
+
+    else:
+        label = sentence_split[0].strip()
+        if not label:
+            return param_name, ""
+
+        rest_of_first_paragraph = ""
+        if len(sentence_split) > 1:
+            label += "."
+            rest_of_first_paragraph = "".join(sentence_split[1:]).strip()
+
+        if rest_of_first_paragraph and rest_of_paragraphs:
+            help_text = rest_of_first_paragraph + "\n\n" + rest_of_paragraphs
+        elif rest_of_first_paragraph:
+            help_text = rest_of_first_paragraph
+        else:
+            help_text = rest_of_paragraphs
+
+    help_text = help_text.replace("\n", " ").strip()
 
     return label, help_text
-
 
 
 def get_modules() -> list[Tuple[str, "ModuleType"]]:

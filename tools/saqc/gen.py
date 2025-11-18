@@ -631,21 +631,35 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
 
 
 def _get_user_friendly_type_name(type_str: str) -> str:
-    if "list[tuple[float, float]]" in type_str:
-        return "List of Y-Ranges"
-    if "tuple[float, float]" in type_str:
-        return "Single Y-Range"
-    if type_str.startswith("Callable") or type_str.startswith("CurveFitter"):
-        return "Custom Function"
-    if "Int >" in type_str or "Float >" in type_str:
-        return type_str.replace("Int", "Integer").replace("Float", "Float")
-    if type_str.startswith("tuple"):
-        return "Multiple values (Tuple)"
-    if type_str.startswith("Literal"):
+    """
+    Maps types strictly to Galaxy UI basic types:
+    Integer, Float, String, Boolean, List, Selection.
+    """
+    s = type_str.strip().lower()
+
+    if any(x in s for x in ['list', 'sequence', 'array']):
+        return "List"
+
+    if 'tuple' in s:
+        return "Tuple" 
+
+    if 'literal' in s or 'saqcfields' in s or s in SAQC_CUSTOM_SELECT_TYPES:
         return "Selection"
-    name_map = {"OffsetStr": "Offset String", "FreqStr": "Frequency String", "str": "Text", "int": "Integer", "float": "Float", "bool": "Boolean"}
-    clean_name = type_str.replace("_", " ").title()
-    return name_map.get(type_str, clean_name)
+
+    if 'bool' in s:
+        return "Boolean"
+
+    if re.search(r"(^|[^a-z])int(eger)?([^a-z]|$)", s):
+        return "Integer"
+
+    if re.search(r"(^|[^a-z])float([^a-z]|$)", s):
+        return "Float"
+
+    if 'dict' in s:
+        return "Dictionary"
+
+    # FALLBACK -> String
+    return "String"
 
 
 def _parse_parameter_annotation(

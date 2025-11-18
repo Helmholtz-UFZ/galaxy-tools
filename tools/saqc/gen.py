@@ -242,8 +242,9 @@ def parse_parameter_docs(sections: Dict[str, str]) -> Dict[str, str]:
 def get_label_help(param_name, parameter_docs):
     """
     Extracts label and help text.
-    Label is the first sentence. Help text is the rest.
-    NEW: If doc is one long sentence (>80 chars), splits at the second comma.
+    1. Iteratively eats technical terms from the start of the string (The 'Pac-Man' approach).
+    2. Removes brackets containing technical terms.
+    3. Splits into Label and Help.
     """
     doc_string = parameter_docs.get(param_name, "").strip()
 
@@ -251,7 +252,8 @@ def get_label_help(param_name, parameter_docs):
         return param_name, ""
 
     clean_doc = (
-        doc_string.replace(":py:attr:", "")
+        doc_string.replace("`", "") 
+        .replace(":py:attr:", "")
         .replace(":py:class:", "")
         .replace(":py:class:`Any`,", "")
         .replace("&#10;", " ")
@@ -260,6 +262,54 @@ def get_label_help(param_name, parameter_docs):
         .replace('"', " ")
         .strip()
     )
+
+    tech_indicators = r"(?:int|float|str|bool|pandas|offset|freq|optional|default|union|list|tuple|dict|none|any|saqc|curvefitter)"
+
+    clean_doc = re.sub(
+        fr"[\(\[\{{][^\)\]\}}]*?\b{tech_indicators}\b[^\)\]\}}]*?[\)\]\}}]", 
+        "", 
+        clean_doc, 
+        flags=re.IGNORECASE
+    )
+
+    banned_words = {
+        "int", "integer", "integers", "float", "floats", "str", "string", "strings", 
+        "bool", "boolean", "booleans", "list", "lists", "tuple", "tuples", 
+        "dict", "dicts", "dictionary", "set", "sets", "callable", "iterable", 
+        "sequence", "array", "arrays", "object", "objects", "none", "any", 
+        "optional", "default", "union", "literal", "type", "types", "scalar",
+        "pandas", "pd", "numpy", "np", "saqc", "saqcfields", "newsaqcfields",
+        "offset", "offsets", "freq", "frequency", "frequencies", "timedelta", 
+        "period", "periods", "interval", "intervals", "timestamp", "datetime", 
+        "regex", "column", "columns", "field", "fields", "axis", "min", "max",
+        "method", "mode", "func", "function", "curvefitter", "genericfunction",
+        "input", "output", "target", "source"
+    }
+
+    while True:
+        clean_doc = clean_doc.strip()
+        if not clean_doc:
+            break
+
+        match = re.match(r"^([a-zA-Z0-9_\.]+)(.*)", clean_doc, re.DOTALL)
+        
+        if not match:
+            break
+
+        first_word = match.group(1).lower()
+        remainder = match.group(2)
+
+        is_lib_call = first_word.startswith("pd.") or first_word.startswith("np.") or first_word.startswith("saqc.")
+
+        if first_word in banned_words or is_lib_call:
+            clean_doc = remainder
+
+            clean_doc = re.sub(r"^\s*(?:/|\||or|and|,|\.|:|-)\s*", "", clean_doc, flags=re.IGNORECASE)
+        else:
+            break
+
+    clean_doc = clean_doc.strip()
+    clean_doc = re.sub(r'^[,\.:;-]+\s*', '', clean_doc).strip()
 
     if not clean_doc:
         return param_name, ""
@@ -274,29 +324,26 @@ def get_label_help(param_name, parameter_docs):
     is_single_paragraph = not rest_of_paragraphs
     is_long = len(first_paragraph) > 80
 
-    help_text = ""
+    help_text = "" 
 
     if is_single_sentence and is_single_paragraph and is_long:
         parts = first_paragraph.split(',')
-
-        if len(parts) > 2:
-            label = parts[0] + "," + parts[1]
-            help_text = ",".join(parts[2:]).strip()
+        if len(parts) > 2: 
+            label = parts[0] + "," + parts[1] 
+            help_text = ",".join(parts[2:]).strip() 
         else:
-
             label = first_paragraph
-            help_text = ""
-
+            help_text = "" 
     else:
         label = sentence_split[0].strip()
-        if not label:
+        if not label: 
             return param_name, ""
 
         rest_of_first_paragraph = ""
-        if len(sentence_split) > 1:
-            label += "."
+        if len(sentence_split) > 1: 
+            label += "." 
             rest_of_first_paragraph = "".join(sentence_split[1:]).strip()
-
+        
         if rest_of_first_paragraph and rest_of_paragraphs:
             help_text = rest_of_first_paragraph + "\n\n" + rest_of_paragraphs
         elif rest_of_first_paragraph:
@@ -445,14 +492,13 @@ def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> b
     return False
 
 def is_module_deprecated(module: "ModuleType") -> bool:
-    """Prüft, ob ein Modul basierend auf seinem Docstring als veraltet markiert ist."""
     docstring = module.__doc__
     if not docstring:
         return False
 
     if ".. deprecated::" in docstring.lower():
         sys.stderr.write(
-            f"Info: Überspringe veraltetes Modul '{module.__name__}'. (Grund: '.. deprecated::' gefunden).\n"
+            f"Info: Skip deprecated module '{module.__name__}'. (Reason: '.. deprecated::' found).\n"
         )
         return True
 
@@ -465,7 +511,7 @@ def is_module_deprecated(module: "ModuleType") -> bool:
 
     if "deprecated" in summary_text.lower():
         sys.stderr.write(
-            f"Info: Überspringe veraltetes Modul '{module.__name__}'. (Grund: 'deprecated' in der Modul-Zusammenfassung gefunden).\n"
+            f"Info: Skip deprecated module '{module.__name__}'. (Reason: 'deprecated' found).\n"
         )
         return True
 

@@ -266,7 +266,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="assignRegimeAnomaly" />
             <param name="field" value="1" />
-            <param name="cluster_field" value="a_string" />
+            <param name="cluster_field" value="1" />
             <param name="spread" value="1" />
             <param name="method" value="single" />
             <param name="metric" value="'mean'" />
@@ -289,7 +289,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="correctDrift" />
             <param name="field" value="1" />
-            <param name="maintenance_field" value="a_string" />
+            <param name="maintenance_field" value="1" />
             <param name="model" value="linear" />
             <param name="cal_range" value="1" />
           </conditional>
@@ -333,7 +333,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="correctRegimeAnomaly" />
             <param name="field" value="1" />
-            <param name="cluster_field" value="a_string" />
+            <param name="cluster_field" value="1" />
             <param name="model" value="a_string" />
             <param name="tolerance" value="1D" />
             <param name="epoch" value="true" />
@@ -402,7 +402,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="flagRegimeAnomaly" />
             <param name="field" value="1" />
-            <param name="cluster_field" value="a_string" />
+            <param name="cluster_field" value="1" />
             <param name="spread" value="1" />
             <param name="method" value="single" />
             <param name="metric" value="'mean'" />
@@ -2379,7 +2379,7 @@
             <param name="method_select" value="selectTime" />
             <param name="field" value="1" />
             <param name="mode" value="periodic" />
-            <param name="selection_field" value="a_string" />
+            <param name="selection_field" value="1" />
             <param name="start" value="a_string" />
             <param name="end" value="a_string" />
             <param name="closed" value="true" />

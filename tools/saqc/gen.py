@@ -1084,12 +1084,15 @@ def get_method_params(method, module, tracing=False):
             xml_params.append(data_param)
             continue
 
-        if param_name in ["field", "target"]:
+        if "field" in param_name.lower() or param_name == "target":
             creation_args = param_constructor_args.copy()
             creation_args.pop("value", None)
             creation_args["type"] = "data_column"
             creation_args["data_ref"] = "data"
             creation_args["multiple"] = False
+            if "list" in raw_annotation_str.lower() or "sequence" in raw_annotation_str.lower():
+                 creation_args["multiple"] = True
+                 
             param_object = SelectParam(argument=param_name, **creation_args)
             xml_params.append(param_object)
             continue
@@ -1490,7 +1493,7 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
         if is_deprecated:
             continue
 
-        if param_name in ["field", "target"]:
+        if "field" in param_name.lower() or param_name == "target":
             base_params[param_name] = 1
             continue
 

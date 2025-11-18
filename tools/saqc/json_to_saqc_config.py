@@ -100,14 +100,7 @@ def process_main_column(params_to_process: Dict[str, Any], primary_input_file: s
 def process_parameters(params_to_process: Dict[str, Any], primary_input_file: str) -> Dict[str, Any]:
     """
     Processes remaining params: resolves conditionals, translates secondary
-    columns (like 'target'), and handles 'None' values.
-
-    Args:
-        params_to_process: The remaining parameters from Galaxy.
-        primary_input_file: Path to the data file for column translation.
-
-    Returns:
-        Dict[str, Any]: A clean dict of parameters ready for formatting.
+    columns (like 'target' or '*field*'), and handles 'None' values.
     """
     saqc_args_dict = {}
     
@@ -149,8 +142,8 @@ def process_parameters(params_to_process: Dict[str, Any], primary_input_file: st
         elif isinstance(current_value_for_saqc, str) and current_value_for_saqc == "" and actual_param_name_for_saqc in ["xscope", "yscope", "max_gap", "min_periods", "min_residuals", "min_offset"]:
             saqc_args_dict[actual_param_name_for_saqc] = None
         
-        # Translate secondary column params (those not used as main column)
-        elif actual_param_name_for_saqc in ["target", "field"]:
+        # Translate secondary column params
+        elif "field" in actual_param_name_for_saqc.lower() or actual_param_name_for_saqc == "target":
             try:
                 indices_from_galaxy = []
                 if isinstance(current_value_for_saqc, list):

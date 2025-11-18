@@ -726,7 +726,7 @@ def _parse_parameter_annotation(
     elif annotation is not inspect.Parameter.empty:
         raw_annotation_str = str(annotation).replace("typing.", "")
 
-    is_python_optional_by_default = param.default is not inspect.Parameter.empty
+    is_default_none = param.default is None
 
     if raw_annotation_str.startswith("Union[") and raw_annotation_str.endswith("]"):
         inner_content = raw_annotation_str[6:-1]
@@ -735,7 +735,8 @@ def _parse_parameter_annotation(
         type_parts = _split_type_string_safely(raw_annotation_str)
 
     is_optional_by_none = "None" in type_parts
-    is_truly_optional = is_python_optional_by_default or is_optional_by_none
+ 
+    is_truly_optional = is_default_none or is_optional_by_none
 
     type_parts_without_none = [p for p in type_parts if p != "None"]
 

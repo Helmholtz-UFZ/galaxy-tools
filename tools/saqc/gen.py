@@ -529,7 +529,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
     creation_args = param_constructor_args.copy()
 
     text_types = ('list', 'sequence', 'arraylike', 'pd.series', 'pd.dataframe', 'pd.datetimeindex',
-                  'pd.timedelta', 'offsetlike', 'OffsetStr', 'FreqStr', 'str', 'string', 'Any')
+                  'pd.timedelta', 'offsetlike', 'offsetstr', 'freqstr', 'str', 'string', 'any')
 
     is_text_type = base_type_str.lower() in text_types
     is_list_str = re.fullmatch(r"(list|Sequence)\[\s*str\s*\]", base_type_str, re.IGNORECASE)
@@ -538,40 +538,20 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         creation_args.pop("optional", None)
 
     tuple_match = re.fullmatch(r"tuple(?:\[\s*(.*)\s*\])?", base_type_str, re.IGNORECASE)
-
     if tuple_match:
-        inner_types_str = tuple_match.group(1)
-
-        if inner_types_str is None:
-            inner_types_str = ""
-
+        inner_types_str = tuple_match.group(1) or ""
         inner_types_str = inner_types_str.replace("...", "").strip()
         inner_types_list = _split_type_string_safely(inner_types_str)
 
-        type_0 = "str"
-        type_1 = "str"
-
-        if len(inner_types_list) == 1:
-
-            type_0 = inner_types_list[0]
-            type_1 = inner_types_list[0]
-        elif len(inner_types_list) >= 2:
-
-            type_0 = inner_types_list[0]
-            type_1 = inner_types_list[1]
+        type_0 = inner_types_list[0] if len(inner_types_list) >= 1 else "str"
+        type_1 = inner_types_list[1] if len(inner_types_list) >= 2 else (inner_types_list[0] if len(inner_types_list) == 1 else "str")
 
         title = param_constructor_args.get("label", param_name)
         help_text = param_constructor_args.get("help", "")
 
-        repeat_constructor_args = {
-            "title": title,
-            "help": help_text
-        }
-
-        repeat = Repeat(name=param_name, **repeat_constructor_args)
+        repeat = Repeat(name=param_name, title=title, help=help_text)
 
         inner_args_0 = {'label': f"{param_name}_pos0", 'help': f"First element (index 0) of the {param_name} tuple.", 'optional': is_optional}
-
         param_0 = _create_param_from_type_str(type_0, f"{param_name}_pos0", inner_args_0, is_optional)
 
         inner_args_1 = {'label': f"{param_name}_pos1", 'help': f"Second element (index 1) of the {param_name} tuple.", 'optional': is_optional}
@@ -580,15 +560,22 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         if param_0:
             repeat.append(param_0)
         else:
-            repeat.append(TextParam(name=f"{param_name}_pos0", **inner_args_0))
+            fallback_args_0 = inner_args_0.copy()
+            fallback_args_0.pop("optional", None)
+            p0 = TextParam(name=f"{param_name}_pos0", **fallback_args_0)
+            if not is_optional: p0.append(ValidatorParam(type="empty_field"))
+            repeat.append(p0)
 
         if param_1:
             repeat.append(param_1)
         else:
-            repeat.append(TextParam(name=f"{param_name}_pos1", **inner_args_1))
+            fallback_args_1 = inner_args_1.copy()
+            fallback_args_1.pop("optional", None)
+            p1 = TextParam(name=f"{param_name}_pos1", **fallback_args_1)
+            if not is_optional: p1.append(ValidatorParam(type="empty_field"))
+            repeat.append(p1)
 
-        param_object = repeat
-        return param_object
+        return repeat
 
     if base_type_str in ('SaQCFields', 'NewSaQCFields'):
         creation_args.pop("value", None)
@@ -596,23 +583,27 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         creation_args['data_ref'] = "data"
         creation_args['multiple'] = True
         param_object = SelectParam(argument=param_name, **creation_args)
+    
     elif is_list_str:
         param_object = TextParam(argument=param_name, multiple=True, **creation_args)
+    
     elif re.fullmatch(r"list\[\s*tuple\[\s*float\s*,\s*float\s*\]\s*\]", base_type_str, re.IGNORECASE):
         repeat = Repeat(name=param_name, title=creation_args.get("label", param_name), help=creation_args.get("help", ""))
         repeat.append(FloatParam(name=f"{param_name}_min", label=f"{param_name}_min"))
         repeat.append(FloatParam(name=f"{param_name}_max", label=f"{param_name}_max"))
         param_object = repeat
+
     elif base_type_str.lower() in ('list', 'sequence', 'arraylike', 'pd.series', 'pd.dataframe', 'pd.datetimeindex'):
         param_object = TextParam(argument=param_name, **creation_args)
+    
     elif base_type_str.lower() in ('pd.timedelta', 'offsetlike'):
         param_object = TextParam(argument=param_name, **creation_args)
         regex = r"^\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*$"
         message = "Please enter a valid Timedelta string (e.g., '30min', '2H', '1D')."
         param_object.append(ValidatorParam(type="regex", message=message, text=regex))
+
     elif base_type_str.lower() in ('dict', 'dictionary'):
-        repeat = Repeat(name=param_name, title=creation_args.get("label", param_name),
-                        help=creation_args.get("help", ""))
+        repeat = Repeat(name=param_name, title=creation_args.get("label", param_name), help=creation_args.get("help", ""))
         key_param = TextParam(name="key", label="Key", help="Name of the dictionary key.")
         key_param.append(ValidatorParam(type="empty_field"))
         value_param = TextParam(name="value", label="Value", help="Value for the key (e.g., 'min,max').")
@@ -620,6 +611,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         repeat.append(key_param)
         repeat.append(value_param)
         param_object = repeat
+
     elif re.match(r"Literal\[(.*)\]", base_type_str):
         literal_match = re.match(r"Literal\[(.*)\]", base_type_str)
         options_str = literal_match.group(1)
@@ -627,12 +619,14 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         if options_list:
             options = {o: o for o in options_list}
             param_object = SelectParam(argument=param_name, options=options, **creation_args)
+            
     elif base_type_str in SAQC_CUSTOM_SELECT_TYPES:
         type_obj = SAQC_CUSTOM_SELECT_TYPES[base_type_str]
         args = get_args(type_obj)
         if get_origin(type_obj) is Literal and args:
             options = {str(o): str(o) for o in args}
             param_object = SelectParam(argument=param_name, options=options, **creation_args)
+
     elif (range_match := re.fullmatch(r"(Float|Int)\[\s*([0-9.-]+)\s*,\s*([0-9.-]+)\s*\]", base_type_str, re.IGNORECASE)):
         type_name, min_val, max_val = range_match.groups()
         creation_args['min'] = min_val
@@ -641,6 +635,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
             param_object = FloatParam(argument=param_name, **creation_args)
         else:
             param_object = IntegerParam(argument=param_name, **creation_args)
+            
     elif "Int >" in base_type_str or "Float >" in base_type_str:
         pattern = re.compile(r"\(?\s*(Int|Float)\s*(>=?)\s*(\d+(?:\.\d+)?)\s*\)?")
         match = pattern.search(base_type_str)
@@ -656,6 +651,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         creation_args["help"] = creation_args.get("help", "") + " (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')"
         param_object = TextParam(argument=param_name, **creation_args)
         param_object.append(offset_validator)
+        
     elif base_type_str in ['str', 'string', 'Any']:
         param_object = TextParam(argument=param_name, **creation_args)
 
@@ -669,9 +665,15 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         creation_args.pop("optional", None)
         param_object = BooleanParam(argument=param_name, checked=False, **creation_args)
 
-    if param_object and not is_optional:
+    if param_object:
         if isinstance(param_object, TextParam) and not getattr(param_object, 'multiple', False):
-            param_object.append(ValidatorParam(type="empty_field"))
+            if hasattr(param_object, 'optional'):
+                delattr(param_object, 'optional') 
+                if 'optional' in param_object.attrib:
+                    del param_object.attrib['optional']
+
+            if not is_optional:
+                param_object.append(ValidatorParam(type="empty_field"))
 
     return param_object
 

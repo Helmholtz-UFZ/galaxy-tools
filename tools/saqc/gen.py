@@ -417,15 +417,16 @@ def _split_type_string_safely(type_string: str) -> list[str]:
 
 def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> bool:
     """
-    Checks if method should be skipped due to this criteria:
-
+    Checks if method should be skipped.
+    
     Criteria:
-    - Contains 'func' i name
-    - AND is not a literal
+    - Contains a parameter expecting a Function/CurveFitter
+      (detected by name 'func' OR type 'Callable'/'CurveFitter'/'GenericFunction')
+    - AND is not a Literal (Selection)
     - AND not in generic.flagGeneric or generic.processGeneric
-    - AND is not optional
-
-    returns true if it should be skipped.
+    - AND is NOT optional (Mandatory)
+    
+    Returns True if the entire method should be skipped.
     """
 
     docstring = method.__doc__
@@ -455,15 +456,18 @@ def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> b
         return False
 
     for param_name, param in parameters.items():
-        if "func" not in param_name.lower():
-            continue
-
         annotation = param.annotation
         raw_annotation_str = ""
         if isinstance(annotation, (str, ForwardRef)):
             raw_annotation_str = annotation.__forward_arg__ if isinstance(annotation, ForwardRef) else str(annotation)
         elif annotation is not inspect.Parameter.empty:
             raw_annotation_str = str(annotation).replace("typing.", "")
+
+        is_func_name = "func" in param_name.lower()
+        is_func_type = any(t in raw_annotation_str for t in ["Callable", "GenericFunction", "CurveFitter"])
+        
+        if not (is_func_name or is_func_type):
+            continue
 
         is_literal_type = "Literal[" in raw_annotation_str or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
         if is_literal_type:
@@ -474,22 +478,25 @@ def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> b
         if is_generic_module and is_generic_method:
             continue
 
-        is_python_optional_by_default = (param.default is not inspect.Parameter.empty)
         if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
             inner_content = raw_annotation_str[6:-1]
             type_parts = _split_type_string_safely(inner_content)
         else:
             type_parts = _split_type_string_safely(raw_annotation_str)
+            
+        is_python_optional_by_default = (param.default is not inspect.Parameter.empty)
         is_optional_by_none = 'None' in type_parts
+        
         is_truly_optional = is_python_optional_by_default or is_optional_by_none
 
         if is_truly_optional:
             continue
 
-        sys.stderr.write(f"Info ({module.__name__}): Skipping method '{method.__name__}' from XML. Reason: Contains non-optional, non-literal 'func'-parameter, not in module generic: '{param_name}'\n")
+        sys.stderr.write(f"Info ({module.__name__}): Skipping method '{method.__name__}' from XML. Reason: Contains MANDATORY function-parameter '{param_name}' (Type: {raw_annotation_str}) which cannot be mapped to Galaxy UI.\n")
         return True
 
     return False
+
 
 def is_module_deprecated(module: "ModuleType") -> bool:
     docstring = module.__doc__
@@ -519,7 +526,7 @@ def is_module_deprecated(module: "ModuleType") -> bool:
 
 
 def _create_param_from_type_str(type_str: str, param_name: str, param_constructor_args: dict, is_optional: bool) -> Optional[object]:
-    offset_regex = r"^(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)+$"
+    offset_regex = r"(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)"
     offset_message = "Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."
     offset_validator = ValidatorParam(type="regex", message=offset_message, text=offset_regex)
 
@@ -598,7 +605,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
     
     elif base_type_str.lower() in ('pd.timedelta', 'offsetlike'):
         param_object = TextParam(argument=param_name, **creation_args)
-        regex = r"^\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*$"
+        regex = r"(^$)|(\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*)"
         message = "Please enter a valid Timedelta string (e.g., '30min', '2H', '1D')."
         param_object.append(ValidatorParam(type="regex", message=message, text=regex))
 
@@ -1054,7 +1061,10 @@ def get_method_params(method, module, tracing=False):
         param_constructor_args = {"label": label, "help": help_text, **optional_arg}
         param_object = None
 
-        is_func_param = "func" in param_name.lower()
+        is_func_name = "func" in param_name.lower()
+        is_func_type = any(t in raw_annotation_str for t in ["Callable", "GenericFunction", "CurveFitter"])
+        is_func_param = is_func_name or is_func_type
+
         is_literal_type = (
             "Literal[" in raw_annotation_str
             or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
@@ -1495,6 +1505,7 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
         if is_deprecated:
             continue
 
+        # ÄNDERUNG 1: Auch hier "field" im Namen als Spaltenindex (1) behandeln
         if "field" in param_name.lower() or param_name == "target":
             base_params[param_name] = 1
             continue
@@ -1513,12 +1524,18 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
         if 'mpl.axes.Axes' in raw_annotation_str:
             continue
 
-        is_func_param = "func" in param_name.lower()
+        # ÄNDERUNG 2: Erweiterte Erkennung analog zu get_method_params
+        is_func_name = "func" in param_name.lower()
+        is_func_type = any(t in raw_annotation_str for t in ["Callable", "GenericFunction", "CurveFitter"])
+        is_func_param = is_func_name or is_func_type
+        
         is_literal_type = "Literal[" in raw_annotation_str or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
 
         if is_func_param:
             is_generic_module = module.__name__.endswith(".generic")
             is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
+            
+            # Sonderfall Generic Modul: Hier wollen wir echte Strings testen
             if is_generic_module and is_generic_method:
                 if method.__name__ == "flagGeneric":
                     base_params[param_name] = "lambda x: x > 10"
@@ -1526,13 +1543,13 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
                     base_params[param_name] = "lambda x: x * 2"
                 else:
                     base_params[param_name] = "lambda x: x"
-
                 continue
 
             if is_literal_type:
-                pass
+                pass # Wird unten als normales Literal behandelt
 
             else:
+                # Prüfen auf Optionalität
                 is_python_optional_by_default = (param.default is not inspect.Parameter.empty)
                 if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
                     inner_content = raw_annotation_str[6:-1]
@@ -1543,9 +1560,15 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
                 is_truly_optional = is_python_optional_by_default or is_optional_by_none
 
                 if is_truly_optional:
+                    # Optionaler CurveFitter/Func -> Wird im XML übersprungen -> Also auch im Test überspringen
                     continue
                 else:
+                    # Pflicht CurveFitter/Func -> Die ganze Methode wurde schon vorher von 
+                    # check_method_for_skip_condition rausgeworfen. Dieser Code sollte 
+                    # theoretisch nicht erreicht werden, aber sicherheitshalber continue.
                     continue
+
+        # --- Ab hier Standard-Logik für Typen ---
 
         if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
             inner_content = raw_annotation_str[6:-1]

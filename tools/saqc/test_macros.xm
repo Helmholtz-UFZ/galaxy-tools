@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <macros>
   <xml name="config_tests">
-    <!-- <test>
+    <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2257,6 +2257,6 @@
           <has_text text="selectTime" />
         </assert_contents>
       </output>
-    </test> -->
+    </test>
   </xml>
 </macros>

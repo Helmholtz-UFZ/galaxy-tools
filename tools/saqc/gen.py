@@ -904,10 +904,13 @@ def _create_parameter_widget(
             (f"type_{i}", _get_user_friendly_type_name(part))
             for i, part in enumerate(type_parts_cleaned)
         ]
+
+        selector_help = "The parameter supports different input formats, you can choose which one suites your application."
+
         selector = SelectParam(
             name=f"{param_name}_selector",
             label=f"Choose type for '{label}'",
-            help=help_text,
+            help=selector_help, 
             options=dict(type_options),
         )
         conditional.append(selector)

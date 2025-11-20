@@ -102,7 +102,7 @@
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <param argument="thresh" type="float" label="Maximum total change allowed per window." help="" min="0"/>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'Size of the rolling window.'" help=". If an integer is passed, it represents the number of timestamps per window. If an offset string is passed, it represents the windows total temporal extent.">
+                <param name="window_selector" type="select" label="Choose type for 'Size of the rolling window.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">String</option>
                   <option value="type_1">Integer</option>
                 </param>
@@ -131,7 +131,7 @@
             <when value="fitLowpassFilter">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="cutoff_cond">
-                <param name="cutoff_selector" type="select" label="Choose type for 'The cutoff-frequency, either an offset freq string'" help="or expressed in multiples of the sampling rate.">
+                <param name="cutoff_selector" type="select" label="Choose type for 'The cutoff-frequency, either an offset freq string'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Float</option>
                   <option value="type_1">String</option>
                 </param>
@@ -173,7 +173,7 @@
             <when value="fitPolynomial">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'Size of the fitting window.'" help=". If an integer is passed, it represents the number of timestamps in each window. If an offset string is passed, it represents the window's temporal extent. The window is centered around the timestamp being fitted. For uniformly sampled data, an odd number of timestamps is always used to constitute a window (subtracted by 1, if the total is even).">
+                <param name="window_selector" type="select" label="Choose type for 'Size of the fitting window.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">String</option>
                   <option value="type_1">Integer</option>
                 </param>
@@ -329,7 +329,7 @@
             <when value="propagateFlags">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'Size of the repetition window.'" help=". An integer defines the exact number of periods to propagate, while a string is interpreted as a time offset.">
+                <param name="window_selector" type="select" label="Choose type for 'Size of the repetition window.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">String</option>
                   <option value="type_1">Integer</option>
                 </param>
@@ -391,7 +391,7 @@
             <when value="align">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="freq_cond">
-                <param name="freq_selector" type="select" label="Choose type for '(e.g.,  1H ,  15min , 60).'" help="">
+                <param name="freq_selector" type="select" label="Choose type for '(e.g.,  1H ,  15min , 60).'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">String</option>
                   <option value="type_1">Integer</option>
                 </param>
@@ -414,7 +414,7 @@
             <when value="interpolateByRolling">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'The size of the window, the aggregation is computed from.'" help=". An integer define the number of periods to be used, a string is interpreted as an offset. . Integer windows may result in screwed aggregations if called on none-harmonized or irregular data.">
+                <param name="window_selector" type="select" label="Choose type for 'The size of the window, the aggregation is computed from.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">String</option>
                   <option value="type_1">Integer</option>
                 </param>
@@ -442,7 +442,7 @@
             <when value="flagByScatterLowpass">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'pandas.Timedelta Size of the main chunk (time-based).'" help="">
+                <param name="window_selector" type="select" label="Choose type for 'pandas.Timedelta Size of the main chunk (time-based).'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">String</option>
                   <option value="type_1">String</option>
                 </param>
@@ -466,7 +466,7 @@
                 <option value="mad">mad</option>
               </param>
               <conditional name="sub_window_cond">
-                <param name="sub_window_selector" type="select" label="Choose type for 'pandas.Timedelta, optional Size of sub-chunks for secondary testing.'" help="">
+                <param name="sub_window_selector" type="select" label="Choose type for 'pandas.Timedelta, optional Size of sub-chunks for secondary testing.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">String</option>
                   <option value="type_1">String</option>
                 </param>
@@ -500,7 +500,7 @@
             <when value="flagByStray">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually.'" help="* None: Apply Scoring on whole data set at once * int: Apply scoring on successive data chunks of periods with the given length. Must be greater than 0. * offset String : Apply scoring on successive partitions of temporal extension matching the passed offset string">
+                <param name="window_selector" type="select" label="Choose type for 'Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">String</option>
                   <option value="type_1">Integer</option>
                 </param>
@@ -522,7 +522,7 @@
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="true"/>
               <param argument="n" type="integer" value="20" label="Number of neighbors to be included into the LOF calculation." help=". Defaults to 20, which is a value found to be suitable in the literature.  * n determines the  locality  of an observation (its n nearest neighbors) and sets the upper limit to the number of values in outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than n/2 may not be detected reliably. * The larger n, the lesser the algorithm's sensitivity to local outliers and small or singleton outliers points. Higher values greatly increase numerical costs." min="0"/>
               <conditional name="thresh_cond">
-                <param name="thresh_selector" type="select" label="Choose type for 'The threshold for flagging the calculated LOF.'" help=". A LOF of around 1 is considered normal and most likely corresponds to inlier points.  * The  automatic  threshing introduced with the publication of the algorithm defaults to 1.5. * In this implementation, thresh defaults ('auto') to flagging the scores with a modified 3-sigma rule.">
+                <param name="thresh_selector" type="select" label="Choose type for 'The threshold for flagging the calculated LOF.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Selection</option>
                   <option value="type_1">Float</option>
                 </param>
@@ -553,7 +553,7 @@
               <param argument="tolerance" type="float" optional="true" label="Maximum allowed difference between the value preceding and succeeding an offset sequence to trigger flagging (condition 4)." help="" min="0"/>
               <param argument="thresh" type="float" optional="true" label="Minimum absolute difference between a value and its successors to consider the successors a possible anomalous offset sequence (condition 1)." help=". If None, this condition is ignored." min="0"/>
               <conditional name="thresh_relative_cond">
-                <param name="thresh_relative_selector" type="select" label="Choose type for 'Minimum relative change between a value and its successors to consider the successors a possible anomalous offset sequence (conditions 2 and 3).'" help=". If None, this condition is ignored. The parameter constrains the detection to either upwards (positive value passed) or downwards (negative values passed) offsets. To assign detection of offsets bigger than a, positive as well as negative, pass the tuple (a,-a). Differing positive and negative threshold values are possible as well. See condition (2). If None, condition (2) is not tested.">
+                <param name="thresh_relative_selector" type="select" label="Choose type for 'Minimum relative change between a value and its successors to consider the successors a possible anomalous offset sequence (conditions 2 and 3).'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Tuple</option>
                   <option value="type_1">Float</option>
                 </param>
@@ -579,7 +579,7 @@
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <param argument="n" type="integer" value="20" label="Number of samples to include in the LOF neighborhood (the n nearest neighbors)." help="" min="0"/>
               <conditional name="thresh_cond">
-                <param name="thresh_selector" type="select" label="Choose type for 'optional Outlier-factor cutoff.'" help=". Values with LOF scores greater than this threshold are flagged.">
+                <param name="thresh_selector" type="select" label="Choose type for 'optional Outlier-factor cutoff.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Selection</option>
                   <option value="type_1">Float</option>
                 </param>
@@ -594,7 +594,7 @@
               </conditional>
               <param argument="probability" type="float" optional="true" label="Outlier-probability cutoff." help=". Values with probabilities greater than this threshold are flagged." min="0" max="1"/>
               <conditional name="corruption_cond">
-                <param name="corruption_selector" type="select" label="Choose type for 'Portion of data assumed to be anomalous, either as a fraction in [0'" help="1] or as an integer specifying the number of anomalous samples.">
+                <param name="corruption_selector" type="select" label="Choose type for 'Portion of data assumed to be anomalous, either as a fraction in [0'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Float</option>
                   <option value="type_1">Integer</option>
                 </param>
@@ -613,7 +613,7 @@
               </param>
               <param argument="p" type="integer" value="1" label="Degree of the Minkowski metric used for neighbor distances (e.g., 1 Manhattan" help="2 Euclidean)." min="0"/>
               <conditional name="density_cond">
-                <param name="density_selector" type="select" label="Choose type for 'How to derive temporal density.'" help=". 'auto' uses the median absolute step size; a float sets a fixed increment.">
+                <param name="density_selector" type="select" label="Choose type for 'How to derive temporal density.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Selection</option>
                   <option value="type_1">Float</option>
                 </param>
@@ -638,7 +638,7 @@
                 <option value="modified">modified</option>
               </param>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'Size of the scoring window.'" help=". Either an integer (number of periods) or an offset string (time span). If None , all data share a single window.">
+                <param name="window_selector" type="select" label="Choose type for 'Size of the scoring window.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">String</option>
                   <option value="type_1">Integer</option>
                 </param>
@@ -679,7 +679,7 @@
             <when value="flagPlateau">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="min_length_cond">
-                <param name="min_length_selector" type="select" label="Choose type for 'Minimum temporal extension of a value course to qualify as a plateau.'" help="">
+                <param name="min_length_selector" type="select" label="Choose type for 'Minimum temporal extension of a value course to qualify as a plateau.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Integer</option>
                   <option value="type_1">String</option>
                 </param>
@@ -694,7 +694,7 @@
                 </when>
               </conditional>
               <conditional name="max_length_cond">
-                <param name="max_length_selector" type="select" label="Choose type for 'or None Maximum temporal extension of a value course to qualify as a plateau (upper detection limit).'" help=". If None, a detection limit based on the data length is used.">
+                <param name="max_length_selector" type="select" label="Choose type for 'or None Maximum temporal extension of a value course to qualify as a plateau (upper detection limit).'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Integer</option>
                   <option value="type_1">String</option>
                 </param>
@@ -709,7 +709,7 @@
               </conditional>
               <param argument="min_jump" type="float" optional="true" label="Minimum difference a plateau must have from directly preceding and succeeding periods." help=". If None, the minimum jump threshold is derived automatically from the median of local absolute differences in the vicinity of potential anomalies." min="0"/>
               <conditional name="granularity_cond">
-                <param name="granularity_selector" type="select" label="Choose type for 'or None Precision of the search.'" help=". Smaller values increase precision but also computational cost. If None, defaults to 5.">
+                <param name="granularity_selector" type="select" label="Choose type for 'or None Precision of the search.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Integer</option>
                   <option value="type_1">String</option>
                 </param>
@@ -752,7 +752,7 @@
               </param>
               <param argument="invert" type="boolean" label="If True, not the actual method is applied, but its inversion-method." help="" checked="false" truevalue="invert" falsevalue=""/>
               <conditional name="freq_cond">
-                <param name="freq_selector" type="select" label="Choose type for 'Projection range.'" help=". If None the sampling frequency of field is used.">
+                <param name="freq_selector" type="select" label="Choose type for 'Projection range.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">String</option>
                   <option value="type_1">String</option>
                 </param>
@@ -774,7 +774,7 @@
             <when value="reindex">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="index_cond">
-                <param name="index_selector" type="select" label="Choose type for 'Determines the new index.'" help="* If an offset string: new index will range from start to end of the original index of field, exhibting a uniform sampling rate of idx * If a str that matches a field present in the SaQC object, that fields index will be used as new index of field * If an pd.index object is passed, that will be the new index of field.">
+                <param name="index_selector" type="select" label="Choose type for 'Determines the new index.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">String</option>
                   <option value="type_1">String</option>
                   <option value="type_2">String</option>
@@ -812,7 +812,7 @@
                 <option value="invert">invert</option>
               </param>
               <conditional name="tolerance_cond">
-                <param name="tolerance_selector" type="select" label="Choose type for 'Limiting the distance, values can be shifted or comprised into aggregation.'" help="">
+                <param name="tolerance_selector" type="select" label="Choose type for 'Limiting the distance, values can be shifted or comprised into aggregation.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">String</option>
                   <option value="type_1">String</option>
                 </param>
@@ -834,7 +834,7 @@
             <when value="resample">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="freq_cond">
-                <param name="freq_selector" type="select" label="Choose type for 'string.'" help=". Sampling rate of the target frequency grid.">
+                <param name="freq_selector" type="select" label="Choose type for 'string.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">String</option>
                   <option value="type_1">String</option>
                 </param>
@@ -871,7 +871,7 @@
             <when value="calculatePolynomialResiduals">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'The size of the window you want to use for fitting.'" help=". If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. The window will be centered around the vaule-to-be-fitted. For regularly sampled timeseries the period number will be casted down to an odd number if even.">
+                <param name="window_selector" type="select" label="Choose type for 'The size of the window you want to use for fitting.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">String</option>
                   <option value="type_1">Integer</option>
                 </param>
@@ -891,7 +891,7 @@
             <when value="calculateRollingResiduals">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'The size of the window you want to roll with.'" help=". If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. For regularly sampled timeseries, the period number will be casted down to an odd number if center=True.">
+                <param name="window_selector" type="select" label="Choose type for 'The size of the window you want to roll with.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">String</option>
                   <option value="type_1">Integer</option>
                 </param>
@@ -918,7 +918,7 @@
             <when value="rolling">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'Size of the rolling window.'" help=". If an integer, it determines the window size as the number of periods it has to contain at every shift. If an offset string, it determines the window size as its constant temporal extension. For regularly sampled data, the period number is rounded down to an odd number in case center  is True.">
+                <param name="window_selector" type="select" label="Choose type for 'Size of the rolling window.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">String</option>
                   <option value="type_1">Integer</option>
                 </param>
@@ -963,7 +963,7 @@
               <param argument="target" type="data_column" label="Variable name to which the results are written." help=". target will be created if it does not exist. Defaults to field." data_ref="data" multiple="false"/>
               <param argument="n" type="integer" value="10" label="The number of nearest neighbors to which the distance is comprised in every datapoints scoring calculation." help="" min="0"/>
               <conditional name="freq_cond">
-                <param name="freq_selector" type="select" label="Choose type for 'Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually.'" help="* np.inf: Apply Scoring on whole data set at once * x   0 : Apply scoring on successive data chunks of periods length x * Offset String : Apply scoring on successive partitions of temporal extension matching the passed offset string">
+                <param name="freq_selector" type="select" label="Choose type for 'Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Float</option>
                   <option value="type_1">String</option>
                 </param>
@@ -994,7 +994,7 @@
               <param argument="target" type="data_column" label="Variable name to which the results are written." help=". target will be created if it does not exist. Defaults to field." data_ref="data" multiple="false"/>
               <param argument="n" type="integer" value="20" label="Number of periods to be included into the LOF calculation." help=". Defaults to 20, which is a value found to be suitable in the literature." min="0"/>
               <conditional name="freq_cond">
-                <param name="freq_selector" type="select" label="Choose type for 'Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually.'" help="">
+                <param name="freq_selector" type="select" label="Choose type for 'Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Float</option>
                   <option value="type_1">String</option>
                 </param>
@@ -1028,7 +1028,7 @@
               </param>
               <param argument="p" type="integer" value="1" label="Degree of the metric ( Minkowski ), according to wich distance to neighbors is determined." help=". Most important values are:  * 1 - Manhatten Metric * 2 - Euclidian Metric" min="0"/>
               <conditional name="density_cond">
-                <param name="density_selector" type="select" label="Choose type for 'How to calculate the temporal distance/density for the variable-to-be-flagged.'" help="* float - introduces linear density with an increment equal to density * Callable - calculates the density by applying the function passed onto the variable to be flagged (passed as Series).">
+                <param name="density_selector" type="select" label="Choose type for 'How to calculate the temporal distance/density for the variable-to-be-flagged.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Selection</option>
                   <option value="type_1">Float</option>
                 </param>
@@ -1090,7 +1090,7 @@
                 <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
               </param>
               <conditional name="mode_cond">
-                <param name="mode_selector" type="select" label="Choose type for 'How to process multiple variables to be plotted:'" help="*  oneplot  : plot all variables with their flags in one axis  *  subplots  : generate subplot grid where each axis contains one variable plot with associated flags *  biplot  : plotting first and second variable in field against each other in a scatter plot  (point cloud).">
+                <param name="mode_selector" type="select" label="Choose type for 'How to process multiple variables to be plotted:'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Selection</option>
                   <option value="type_1">String</option>
                 </param>
@@ -1107,7 +1107,7 @@
                 </when>
               </conditional>
               <conditional name="history_cond">
-                <param name="history_selector" type="select" label="Choose type for 'Discriminate the plotted flags with respect to the tests they originate from.'" help="*  valid : Only plot flags, that are not overwritten by subsequent tests. Only list tests in the legend, that actually contributed flags to the overall result. * None: Just plot the resulting flags for one variable, without any historical and/or meta information. * list of strings: List of tests. Plot flags from the given tests, only. * complete (not recommended, deprecated): Plot all the flags set by any test, independently from them being removed or modified by subsequent modifications. (this means: plotted flags do not necessarily match with flags ultimately assigned to the data)">
+                <param name="history_selector" type="select" label="Choose type for 'Discriminate the plotted flags with respect to the tests they originate from.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Selection</option>
                   <option value="type_1">List</option>
                 </param>
@@ -1122,7 +1122,7 @@
                 </when>
               </conditional>
               <conditional name="xscope_cond">
-                <param name="xscope_selector" type="select" label="Choose type for 'Determine a chunk of the data to be plotted.'" help=". xscope can be anything, that is a valid argument to the pandas.Series.__getitem__ method.">
+                <param name="xscope_selector" type="select" label="Choose type for 'Determine a chunk of the data to be plotted.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">String</option>
                   <option value="type_1">String</option>
                   <option value="type_2">String</option>
@@ -1141,7 +1141,7 @@
                 </when>
               </conditional>
               <conditional name="yscope_cond">
-                <param name="yscope_selector" type="select" label="Choose type for 'Either a tuple of 2 scalars that determines all plots' y-view limits, or a list of those tuples'" help="determining the different variables y-view limits (must match number of variables) or a dictionary with variables as keys and the y-view tuple as values.">
+                <param name="yscope_selector" type="select" label="Choose type for 'Either a tuple of 2 scalars that determines all plots' y-view limits, or a list of those tuples'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">List</option>
                   <option value="type_1">Tuple</option>
                 </param>

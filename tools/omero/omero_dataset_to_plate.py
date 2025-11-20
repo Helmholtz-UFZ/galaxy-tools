@@ -1,21 +1,67 @@
 import argparse
 import csv
-import json
 import re
 import sys
+import os
 from collections import defaultdict
 
-
+import ezomero as ez
 import omero
+
 from omero.gateway import BlitzGateway
 from omero.rtypes import rint, rstring
+from pathlib import Path
+from typing import Optional
+
+# Import environmental variables
+usr = os.getenv("OMERO_USER")
+psw = os.getenv("OMERO_PASSWORD")
+uuid_key = os.getenv("UUID_SESSION_KEY")
 
 
-def convert_dataset_to_plate(host, user, pws, port, dataset_id, log_file, mapping_file, delete_dataset):
+def convert_dataset_to_plate(
+    host: str,
+    port: str,
+    dataset_id: str,
+    log_file: Path,
+    mapping_file: str,
+    delete_dataset: bool,
+    uuid_key: Optional[str] = None,
+    ses_close: Optional[bool] = True
+) -> str:
     """
     Connect to OMERO server, convert a dataset to a plate using the specified well mapping file
+
+    Parameters
+    ----------
+     host : str
+        OMERO server host (i.e. OMERO address or domain name)"
+    port : int
+        OMERO server port (default:4064)
+    dataset_id : str
+        Dataset ID to convert plate
+    log_file : str
+        Output path for the log file
+    mapping_file: str
+        Tabular file mapping filenames to well positions (2 columns: filename, Well)
+    delete_dataset: bool
+        Input to delete the original dataset convert to plate or not
+    uuid_key : str, optional
+        OMERO UUID session key to connect without password
+    ses_close : bool
+        Decide if close or not the section after executing the script. Defaulf value is true, useful when connecting with the UUID session key.
+
+    Returns
+    -------
+    str
+        Return log file with info on the conversion
     """
-    conn = BlitzGateway(user, pws, host=host, port=port, secure=True)
+    # Try to connect with UUID or with username and password
+    if uuid_key is not None:
+        conn = BlitzGateway(username="", passwd="", host=host, port=port, secure=True)
+        conn.connect(sUuid=uuid_key)
+    else:
+        conn = ez.connect(usr, psw, "", host, port, secure=True)
     if not conn.connect():
         sys.exit("ERROR: Failed to connect to OMERO server")
 
@@ -94,34 +140,28 @@ def convert_dataset_to_plate(host, user, pws, port, dataset_id, log_file, mappin
     if delete_dataset is True:
         conn.deleteObjects("Dataset", [dataset_id], wait=True)
     log_message(f"Images from Dataset {dataset_id} successfully added to Plate {plate.id.val}")
-    conn.close()
+    if ses_close:
+        conn.close()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Convert an OMERO dataset to a plate.")
-    parser.add_argument("--credential-file", dest="credential_file", type=str, required=True,
-                        help="Credential file (JSON file with username and password for OMERO)")
-    parser.add_argument('--host', required=True, help='OMERO host')
-    parser.add_argument('--port', required=True, type=int, help='OMERO port')
+    parser.add_argument('--host', required=True, help="OMERO server host (i.e. OMERO address or domain name)")
+    parser.add_argument('--port', required=True, type=int, help="OMERO server port (default:4064)")
     parser.add_argument('--dataset_id', type=int, required=True, help="Dataset ID to convert plate")
-    parser.add_argument('--log_file', default='metadata_import_log.txt',
-                        help='Path to the log file')
-    parser.add_argument('--mapping_file',
-                        help='Tabular file mapping filenames to well positions (2 columns: filename, Well)')
-    parser.add_argument('--delete_dataset', action='store_true',
-                        help='Flag to delete the original dataset')
+    parser.add_argument('--log_file', default='metadata_import_log.txt', help="Output path for the log file")
+    parser.add_argument('--mapping_file', help='Tabular file mapping filenames to well positions (2 columns: filename, Well)')
+    parser.add_argument('--session_close', required=False, help='Namespace or title for the annotation')
+    parser.add_argument('--delete_dataset', action='store_true', help='Flag to delete the original dataset')
+
     args = parser.parse_args()
 
-    with open(args.credential_file, 'r') as f:
-        crds = json.load(f)
-
     convert_dataset_to_plate(
-        user=crds['username'],
-        pws=crds['password'],
         host=args.host,
         port=args.port,
         dataset_id=args.dataset_id,
         log_file=args.log_file,
         mapping_file=args.mapping_file,
+        ses_close=args.session_close,
         delete_dataset=args.delete_dataset
     )

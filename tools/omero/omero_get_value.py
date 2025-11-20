@@ -1,14 +1,63 @@
 import argparse
 import csv
-import json
 import os
 import sys
 
 import ezomero as ez
 import pandas as pd
 
+from omero.gateway import BlitzGateway
+from typing import Optional
 
-def get_object_ezo(user, pws, host, port, obj_type, ids, out_dir):
+# Import environmental variables
+usr = os.getenv("OMERO_USER")
+psw = os.getenv("OMERO_PASSWORD")
+uuid_key = os.getenv("UUID_SESSION_KEY")
+
+
+def get_object_ezo(
+        host: str,
+        port: int,
+        obj_type: str,
+        ids: list,
+        out_dir: str,
+        uuid_key: Optional[str] = None,
+        ses_close: Optional[bool] = True
+) -> str | dict:
+
+    """
+Fetch OMERO objects (Annotation, Table and Key-Value Pairs list) and save them as TSV based on object type.
+
+Parameters
+----------
+host : str
+    OMERO server host (i.e. OMERO address or domain name)"
+port : int
+    OMERO server port (default:4064)
+obj_type : str
+    Type of object to fetch ID: Project, Dataset, Image, Annotation, Tag, ROI, or Table.
+ids : list
+    IDs of the OMERO objects.
+out_dir : str
+    Output path of the file
+uuid_key : str, optional
+    OMERO UUID session key to connect without password
+ses_close : bool
+    Decide if close or not the section after executing the script. Defaulf value is true, useful when connecting with the UUID session key.
+Returns
+-------
+csv.writer
+    A CSV writer object configured to write TSV data.
+"""
+    # Try to connect with UUID or with username and password
+    if uuid_key is not None:
+        conn = BlitzGateway(username="", passwd="", host=host, port=port, secure=True)
+        conn.connect(sUuid=uuid_key)
+    else:
+        conn = ez.connect(usr, psw, "", host, port, secure=True)
+    if not conn.connect():
+        sys.exit("ERROR: Failed to connect to OMERO server")
+
     # Function to write tabular file from the ezomero output
     def write_values_to_tsv(data, header):
         with open("output.tsv", 'w', newline='') as f:
@@ -31,7 +80,8 @@ def get_object_ezo(user, pws, host, port, obj_type, ids, out_dir):
             for row in data:
                 f.write('\t'.join([str(val) for val in row]) + '\n')
 
-    with ez.connect(user, pws, "", host, port, secure=True) as conn:
+    try:
+        # Fetch different object according to the user input
         if obj_type == "Annotation":
             ma_dict = {}
             for maid in ids:
@@ -61,25 +111,22 @@ def get_object_ezo(user, pws, host, port, obj_type, ids, out_dir):
         else:
             sys.exit(f"Unsupported object type: {filter}")
 
+    finally:
+        if ses_close:
+            conn.close()
 
-# Argument parsing
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Fetch and save data as TSV based on object type.")
-    parser.add_argument("--credential-file", dest="credential_file", type=str,
-                        required=True, help="Credential file (JSON file with username and password for OMERO)")
-    parser.add_argument('--host', required=True,
-                        help="Host server address.")
-    parser.add_argument('--port', required=True, type=int,
-                        help='OMERO port')
-    parser.add_argument('--obj_type', required=True,
-                        help="Type of object to fetch: Annotation, Table or Tag.")
+    parser.add_argument('--host', required=True, help="OMERO server host (i.e. OMERO address or domain name)")
+    parser.add_argument('--port', required=True, type=int, help="OMERO server port (default:4064)")
+    parser.add_argument('--obj_type', required=True, help="Type of object to fetch: Annotation, Table or Tag.")
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('--ids', nargs='+', type=int,
-                       help="IDs of the OMERO objects.")
-    group.add_argument('--ids_path',
-                       help="File with IDs of the OMERO objects (one per line).")
-    parser.add_argument('--out_dir', required=True,
-                        help="Output path.")
+    group.add_argument('--ids', nargs='+', type=int, help="IDs of the OMERO objects.")
+    group.add_argument('--ids_path', help="File with IDs of the OMERO objects (one per line).")
+    parser.add_argument('--session_close', required=False, help='Namespace or title for the annotation')
+    parser.add_argument('--out_dir', required=True, help="Output path.")
+
     args = parser.parse_args()
 
     if args.ids_path:
@@ -93,12 +140,10 @@ if __name__ == "__main__":
         if len(args.ids) == 0:
             raise ValueError("Cound not find a single ID in the file.")
 
-    with open(args.credential_file, 'r') as f:
-        crds = json.load(f)
-
     # Call the main function to get the object and save it as a TSV
-    get_object_ezo(user=crds['username'], pws=crds['password'], host=args.host,
+    get_object_ezo(host=args.host,
                    port=args.port,
                    obj_type=args.obj_type,
                    ids=args.ids,
+                   ses_close=args.session_close,
                    out_dir=args.out_dir)

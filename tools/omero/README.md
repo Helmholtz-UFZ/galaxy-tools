@@ -1,4 +1,4 @@
-# OMERO import images
+# OMERO suite toolbox
 
 ## Set up user credentials on Galaxy to connect to other omero instance
 

@@ -143,7 +143,7 @@ def process_parameters(params_to_process: Dict[str, Any], primary_input_file: st
             saqc_args_dict[actual_param_name_for_saqc] = None
         
         # Translate secondary column params
-        elif "field" in actual_param_name_for_saqc.lower() or actual_param_name_for_saqc == "target":
+        elif "field" in actual_param_name_for_saqc.lower() or actual_param_name_for_saqc in ["target", "reference"]:
             try:
                 indices_from_galaxy = []
                 if isinstance(current_value_for_saqc, list):

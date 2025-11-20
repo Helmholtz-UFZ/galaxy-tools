@@ -260,9 +260,7 @@
             </when>
             <when value="flagDriftFromReference">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="true"/>
-              <param argument="reference" type="text" label="Reference variable, the deviation is calculated from." help="">
-                <validator type="empty_field"/>
-              </param>
+              <param argument="reference" type="data_column" label="Reference variable, the deviation is calculated from." help="" data_ref="data" multiple="false"/>
               <param argument="freq" type="text" label="that split the data in chunks." help=" (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')">
                 <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                 <validator type="empty_field"/>
@@ -668,9 +666,7 @@
             </param>
             <when value="flagPatternByDTW">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="reference" type="text" label="The name in data which holds the pattern." help=". The pattern must not have NaNs, have a datetime index and must not be empty.">
-                <validator type="empty_field"/>
-              </param>
+              <param argument="reference" type="data_column" label="The name in data which holds the pattern." help=". The pattern must not have NaNs, have a datetime index and must not be empty." data_ref="data" multiple="false"/>
               <param argument="max_distance" type="float" value="0.0" label="Maximum dtw-distance between chunk and pattern, if the distance is lower than max_distance the data gets flagged." help=". With default, 0.0, only exact matches are flagged." min="0"/>
               <param argument="normalize" type="boolean" label="If False, return unmodified distances." help=". If True, normalize distances by the number of observations of the reference. This helps to make it easier to find a good cutoff threshold for further processing. The distances then refer to the mean distance per datapoint, expressed in the datas units." checked="false" truevalue="normalize" falsevalue=""/>
               <param argument="plot" type="boolean" label="Show a calibration plot, which can be quite helpful to find the right threshold for max_distance." help=". It works best with normalize=True. Do not use in automatic setups / pipelines. The plot show three lines:  - data: the data the function was called on - distances: the calculated distances by the algorithm - indicator: have to distinct levels: 0 and the value of max_distance. If max_distance is 0.0 it defaults to 1. Everywhere where the indicator is not 0 the data will be flagged." checked="false" truevalue="plot" falsevalue=""/>

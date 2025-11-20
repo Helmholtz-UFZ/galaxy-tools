@@ -1099,7 +1099,7 @@ def get_method_params(method, module, tracing=False):
             xml_params.append(data_param)
             continue
 
-        if "field" in param_name.lower() or param_name == "target":
+        if "field" in param_name.lower() or param_name in ["target", "reference"]:
             creation_args = param_constructor_args.copy()
             creation_args.pop("value", None)
             creation_args["type"] = "data_column"
@@ -1246,8 +1246,6 @@ def get_methods_conditional(methods, module, tracing=False):
 
     return method_conditional
 
-
-## MODIFIZIERTE FUNKTION ##
 def generate_tool_xml(tracing=False):
     """Generates XML-Definition of Galaxy-Tools."""
     command_override = [
@@ -1508,8 +1506,7 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
         if is_deprecated:
             continue
 
-        # ÄNDERUNG 1: Auch hier "field" im Namen als Spaltenindex (1) behandeln
-        if "field" in param_name.lower() or param_name == "target":
+        if "field" in param_name.lower() or param_name in ["target", "reference"]:
             base_params[param_name] = 1
             continue
 
@@ -1527,7 +1524,6 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
         if 'mpl.axes.Axes' in raw_annotation_str:
             continue
 
-        # ÄNDERUNG 2: Erweiterte Erkennung analog zu get_method_params
         is_func_name = "func" in param_name.lower()
         is_func_type = any(t in raw_annotation_str for t in ["Callable", "GenericFunction", "CurveFitter"])
         is_func_param = is_func_name or is_func_type
@@ -1537,8 +1533,7 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
         if is_func_param:
             is_generic_module = module.__name__.endswith(".generic")
             is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
-            
-            # Sonderfall Generic Modul: Hier wollen wir echte Strings testen
+
             if is_generic_module and is_generic_method:
                 if method.__name__ == "flagGeneric":
                     base_params[param_name] = "lambda x: x > 10"
@@ -1549,10 +1544,9 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
                 continue
 
             if is_literal_type:
-                pass # Wird unten als normales Literal behandelt
+                pass
 
             else:
-                # Prüfen auf Optionalität
                 is_python_optional_by_default = (param.default is not inspect.Parameter.empty)
                 if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
                     inner_content = raw_annotation_str[6:-1]
@@ -1563,15 +1557,9 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
                 is_truly_optional = is_python_optional_by_default or is_optional_by_none
 
                 if is_truly_optional:
-                    # Optionaler CurveFitter/Func -> Wird im XML übersprungen -> Also auch im Test überspringen
                     continue
                 else:
-                    # Pflicht CurveFitter/Func -> Die ganze Methode wurde schon vorher von 
-                    # check_method_for_skip_condition rausgeworfen. Dieser Code sollte 
-                    # theoretisch nicht erreicht werden, aber sicherheitshalber continue.
                     continue
-
-        # --- Ab hier Standard-Logik für Typen ---
 
         if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
             inner_content = raw_annotation_str[6:-1]

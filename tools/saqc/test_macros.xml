@@ -355,7 +355,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="flagDriftFromReference" />
             <param name="field" value="1" />
-            <param name="reference" value="a_string" />
+            <param name="reference" value="1" />
             <param name="freq" value="1D" />
             <param name="thresh" value="1" />
             <param name="flag" value="1" />
@@ -1212,7 +1212,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="flagPatternByDTW" />
             <param name="field" value="1" />
-            <param name="reference" value="a_string" />
+            <param name="reference" value="1" />
             <param name="max_distance" value="1" />
             <param name="normalize" value="true" />
             <param name="plot" value="true" />

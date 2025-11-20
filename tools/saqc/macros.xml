@@ -87,6 +87,28 @@
                 </element>
             </output_collection>
         </test>
+        <test>
+        <param name="data" value="test2/data.csv" ftype="csv" />
+        <repeat name="methods_repeat">
+            <conditional name="module_cond">
+                <param name="module_select" value="flagtools"/>
+                <conditional name="method_cond">
+                    <param name="method_select" value="orGroup"/>
+                    <param name="field" value="1"/>
+                    <param name="group" value="test2/left_data.csv,test2/right_data.csv" ftype="csv"/>
+                    <param name="target" value="1"/>
+                    <param name="flag" value="255.0"/>
+                </conditional>
+            </conditional>
+        </repeat>
+        <output name="output" ftype="csv">
+            <assert_contents>
+                <has_line_matching expression=".*Data.*" />
+                <has_text text="2020-01-01 00:00:00" />
+                <has_n_lines n="7" />
+            </assert_contents>
+        </output>
+    </test>
     </tests>
 </xml>
 </macros>

@@ -1,57 +1,1224 @@
 <tool name="SaQC" id="saqc" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
-  <description>quality control for time series</description>
-  <creator>
-    <organization name="Helmholtz Centre for Environmental Research - UFZ, Research Data Management"
-                  url ="https://www.ufz.de/index.php?en=45348"/>
-  </creator>
+  <description>quality control pipelines for environmental sensor data</description>
   <macros>
     <import>macros.xml</import>
+    <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[python -c 'import saqc; print(saqc.__version__)']]></version_command>
-   <command detect_errors="exit_code"><![CDATA[
-  ln -s '$config' config.csv &&
+  <command><![CDATA[#if str($run_test_mode) == "true":
+  '$__tool_directory__'/json_to_saqc_config.py '$param_conf' > config.csv
+#else
+  '$__tool_directory__'/json_to_saqc_config.py '$param_conf' > config.csv &&
   #for $i, $d in enumerate($data)
-      ln -s '$d' '${i}.csv' &&
+    ##maybe link to element_identifier
+    ln -s '$d' '${i}.csv' &&
   #end for
-  saqc -c config.csv
+  saqc --config config.csv
   #for $i, $d in enumerate($data)
-      -d '${i}.csv'
+    --data '${i}.csv'
   #end for
-  -o output.csv
-  ]]></command>
+  --outfile output.csv
+#end if]]></command>
+  <configfiles>
+    <inputs name="param_conf"/>
+  </configfiles>
   <inputs>
-    <param label="Input Table(s)"
-           argument="--data"
-           type="data"
-           format="csv"
-           multiple="true"
-           optional="false"
-    />
-    <param label="Configuration"
-           argument="--config"
-           type="data"
-           format="txt"
-           optional="false"/>
+    <param argument="--data" type="data" label="Input table(s)" format="csv" multiple="true"/>
+    <param name="run_test_mode" type="hidden" value="false" label=""/>
+    <repeat name="methods_repeat" title="Methods (add multiple QC steps)">
+      <conditional name="module_cond" label="SaQC Module">
+        <param name="module_select" type="select" label="Select SaQC module">
+          <option value="breaks">breaks: Detecting breaks in data</option>
+          <option value="changepoints">changepoints: changepoints</option>
+          <option value="constants">constants: constants</option>
+          <option value="curvefit">curvefit: curvefit</option>
+          <option value="drift">drift: drift</option>
+          <option value="flagtools">flagtools: flagtools</option>
+          <option value="generic">generic: generic</option>
+          <option value="interpolation">interpolation: interpolation</option>
+          <option value="noise">noise: noise</option>
+          <option value="outliers">outliers: outliers</option>
+          <option value="pattern">pattern: pattern</option>
+          <option value="resampling">resampling: resampling</option>
+          <option value="residuals">residuals: residuals</option>
+          <option value="rolling">rolling: rolling</option>
+          <option value="scores">scores: scores</option>
+          <option value="tools">tools: tools</option>
+          <option value="transformation">transformation: transformation</option>
+        </param>
+        <when value="breaks">
+          <conditional name="method_cond" label="Method">
+            <param name="method_select" type="select" label="Method">
+              <option value="flagIsolated">flagIsolated: Find and flag temporal isolated groups of data</option>
+              <option value="flagJumps">flagJumps: Flag jumps and drops in data</option>
+              <option value="flagMissing">flagMissing: Flag NaNs in data</option>
+            </param>
+            <when value="flagIsolated">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="gap_window" type="text" value="" label="Minimum gap size required before and after a data group to consider it isolated" help="See condition (2) and (3)">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="group_window" type="text" value="" label="Maximum size of a data chunk to consider it a candidate for an isolated group" help="Data chunks that are bigger than the `group_window` are ignored. This does not include the possible gaps surrounding it. See condition (1)">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="flagJumps">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="thresh" type="float" value="" label="Threshold value by which the mean of data has to jump, to trigger flagging" help="Threshold value by which the mean of data has to jump, to trigger flagging"/>
+              <param argument="window" type="text" value="" label="Size of the two moving windows" help="This determines the number of observations used for calculating the mean in every window. The window size should be big enough to yield enough samples for a reliable mean calculation, but it should also not be arbitrarily big, since it also limits the density of jumps that can be detected. More precisely: Jumps that are not distanced to each other by more than three fourth (3/4) of the selected `window` size, will not be detected reliably">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="min_periods" type="integer" value="1" optional="true" label="min_periods" help="The minimum number of observations in `window` required to calculate a valid mean value"/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+              <param argument="dfilter" type="float" value="-inf" optional="true" label="dfilter" help="Any, optional Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme"/>
+            </when>
+            <when value="flagMissing">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+              <param argument="dfilter" type="float" value="-inf" optional="true" label="dfilter" help="Any, optional Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme"/>
+            </when>
+          </conditional>
+        </when>
+        <when value="changepoints">
+          <conditional name="method_cond" label="Method">
+            <param name="method_select" type="select" label="Method">
+              <option value="assignChangePointCluster">assignChangePointCluster: Label data where it changes significantly</option>
+              <option value="flagChangePoints">flagChangePoints: Flag values that represent a system state transition</option>
+            </param>
+            <when value="assignChangePointCluster">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="stat_func" type="text" value="" label="A function that assigns a value to every twin window" help="Left window content will be passed to first variable, right window content will be passed to the second">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="thresh_func" type="text" value="" label="thresh_func" help="A function that determines the value level, exceeding wich qualifies a timestamps func value as denoting a changepoint">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="window" type="text" value="" label="Size of the rolling windows the calculation is performed in" help="If it is a single frequency offset, it applies for the backward- and the forward-facing window.  If two offsets (as a tuple) is passed the first defines the size of the backward facing window, the second the size of the forward facing window (String or two comma-separated strings, e.g., val1,val2)">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="min_periods" type="text" value="" label="min_periods" help="Minimum number of observations in a window required to perform the changepoint test. If it is a tuple of two int, the first refer to the backward-, the second to the forward-facing window (Integer or two comma-separated integers, e.g., 1,2)">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="reduce_window" type="text" optional="true" label="reduce_window" help="The sliding window search method is not an exact CP search method and usually there won't be detected a single changepoint, but a  region  of change around a changepoint. If `reduce_window` is given, for every window of size `reduce_window`, there will be selected the value with index `reduce_func(x, y)` and the others will be dropped. If `reduce_window` is None, the reduction window size equals the twin window size, the changepoints have been detected with"/>
+              <param argument="reduce_func" type="text" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x789a868a0e00&gt;" optional="true" label="reduce_func" help="default argmax A function that must return an index value upon input of two arrays x and y. First input parameter will hold the result from the stat_func evaluation for every reduction window. Second input parameter holds the result from the thresh_func evaluation. The default reduction function just selects the value that maximizes the stat_func"/>
+              <param argument="model_by_resids" type="boolean" label="If True, the results of `stat_funcs` are written, otherwise the regime labels" help="If True, the results of `stat_funcs` are written, otherwise the regime labels" checked="false" truevalue="model_by_resids" falsevalue=""/>
+            </when>
+            <when value="flagChangePoints">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="stat_func" type="text" value="" label="A function that assigns a value to every twin window" help="The backward-facing window content will be passed as the first array, the forward-facing window content as the second">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="thresh_func" type="text" value="" label="thresh_func" help="A function that determines the value level, exceeding wich qualifies a timestamps func value as denoting a change-point">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="window" type="text" value="" label="Size of the moving windows" help="This is the number of observations used for calculating the statistic.  If it is a single frequency offset, it applies for the backward- and the forward-facing window.  If two offsets (as a tuple) is passed the first defines the size of the backward facing window, the second the size of the forward facing window (String or two comma-separated strings, e.g., val1,val2)">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="min_periods" type="text" value="" label="min_periods" help="Minimum number of observations in a window required to perform the changepoint test. If it is a tuple of two int, the first refer to the backward-, the second to the forward-facing window (Integer or two comma-separated integers, e.g., 1,2)">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="reduce_window" type="text" optional="true" label="reduce_window" help="The sliding window search method is not an exact CP search method and usually there wont be detected a single changepoint, but a  region  of change around a changepoint.  If `reduce_window` is given, for every window of size `reduce_window`, there will be selected the value with index `reduce_func(x, y)` and the others will be dropped.  If `reduce_window` is None, the reduction window size equals the twin window size, the changepoints have been detected with"/>
+              <param argument="reduce_func" type="text" value="&lt;function ChangepointsMixin.&lt;lambda&gt; at 0x789a868a0c20&gt;" optional="true" label="reduce_func" help="default argmax A function that must return an index value upon input of two arrays x and y. First input parameter will hold the result from the stat_func evaluation for every reduction window. Second input parameter holds the result from the `thresh_func` evaluation. The default reduction function just selects the value that maximizes the `stat_func`"/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+          </conditional>
+        </when>
+        <when value="constants">
+          <conditional name="method_cond" label="Method">
+            <param name="method_select" type="select" label="Method">
+              <option value="flagByVariance">flagByVariance: Flag low-variance data</option>
+              <option value="flagConstants">flagConstants: Flag constant data values</option>
+            </param>
+            <when value="flagByVariance">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="window" type="text" value="" label="Size of the moving window" help="This is the number of observations used for calculating the statistic. Each window will be a fixed size. If its an offset then this will be the time period of each window. Each window will be sized, based on the number of observations included in the time-period">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="thresh" type="float" value="" label="Maximum total variance allowed per window" help="Maximum total variance allowed per window"/>
+              <param argument="maxna" type="integer" optional="true" label="Maximum number of NaNs allowed in window" help="If more NaNs are present, the window is not flagged"/>
+              <param argument="maxna_group" type="integer" optional="true" label="Same as `maxna` but for consecutive NaNs" help="Same as `maxna` but for consecutive NaNs"/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="flagConstants">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="thresh" type="float" value="" label="Maximum total change allowed per window" help="Maximum total change allowed per window"/>
+              <param argument="window" type="text" value="" label="Size of the moving window" help="This determines the number of observations used for calculating the absolute change per window. Each window will either contain a fixed number of periods (integer defined window), or will have a fixed temporal extension (offset defined window)">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="min_periods" type="integer" value="2" optional="true" label="Minimum number of observations in window required to generate a flag" help="This can be used to exclude underpopulated *offset* defined windows from flagging. (Integer defined windows will always contain exactly *window* samples). Must be an integer greater or equal `2`, because a single value would always be considered constant. Defaults to `2`"/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+          </conditional>
+        </when>
+        <when value="curvefit">
+          <conditional name="method_cond" label="Method">
+            <param name="method_select" type="select" label="Method">
+              <option value="fitLowpassFilter">fitLowpassFilter: Fits the data using the butterworth filter</option>
+              <option value="fitPolynomial">fitPolynomial: Fits a polynomial model to the data</option>
+            </param>
+            <when value="fitLowpassFilter">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="cutoff" type="text" value="" label="cutoff" help="The cutoff-frequency, either an offset freq string, or expressed in multiples of the sampling rate">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="nyq" type="float" value="0.5" optional="true" label="The niquist-frequency" help="expressed in multiples if the sampling rate"/>
+              <param argument="filter_order" type="integer" value="2" optional="true" label="filter_order" help=""/>
+              <param argument="fill_method" type="select" value="linear" optional="true" label="fill_method" help="Fill method to be applied on the data before filtering (butterfilter cant handle ''np.nan''). See documentation of pandas.Series.interpolate method for details on the methods associated with the different keywords">
+                <option value="linear">linear</option>
+                <option value="nearest">nearest</option>
+                <option value="zero">zero</option>
+                <option value="slinear">slinear</option>
+                <option value="quadratic">quadratic</option>
+                <option value="cubic">cubic</option>
+                <option value="spline">spline</option>
+                <option value="barycentric">barycentric</option>
+                <option value="polynomial">polynomial</option>
+              </param>
+            </when>
+            <when value="fitPolynomial">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="window" type="text" value="" label="Size of the window you want to use for fitting" help="If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. The window will be centered around the vaule-to-be-fitted. For regularly sampled data always a odd number of periods will be used for the fit (periods-1 if periods is even)">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="order" type="integer" value="" label="Degree of the polynomial used for fitting" help="Degree of the polynomial used for fitting"/>
+              <param argument="min_periods" type="integer" value="0" optional="true" label="min_periods" help="Minimum number of observations in a window required to perform the fit, otherwise NaNs will be assigned. If ``None``, `min_periods` defaults to 1 for integer windows and to the size of the window for offset based windows. Passing 0, disables the feature and will result in over-fitting for too sparse windows"/>
+            </when>
+          </conditional>
+        </when>
+        <when value="drift">
+          <conditional name="method_cond" label="Method">
+            <param name="method_select" type="select" label="Method">
+              <option value="assignRegimeAnomaly">assignRegimeAnomaly: A function to detect values belonging to an anomalous regime regarding modelling</option>
+              <option value="correctDrift">correctDrift: The function corrects drifting behavior</option>
+              <option value="correctOffset">correctOffset: Parameters</option>
+              <option value="correctRegimeAnomaly">correctRegimeAnomaly: Function fits the passed model to the different regimes in data[field] and tries to correct</option>
+              <option value="flagDriftFromNorm">flagDriftFromNorm: Flags data that deviates from an avarage data course</option>
+              <option value="flagDriftFromReference">flagDriftFromReference: Flags data that deviates from a reference course. Deviation is measured by a</option>
+              <option value="flagRegimeAnomaly">flagRegimeAnomaly: Flags anomalous regimes regarding to modelling regimes of ``field``</option>
+            </param>
+            <when value="assignRegimeAnomaly">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="cluster_field" type="text" value="" label="Column in data, holding the cluster labels for the samples in field" help="(has to be indexed equal to field)">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="spread" type="float" value="" label="A threshold denoting the value level, up to wich clusters a agglomerated" help="A threshold denoting the value level, up to wich clusters a agglomerated"/>
+              <param argument="method" type="select" value="single" optional="true" label="The linkage method for hierarchical (agglomerative) clustering of the variables" help="The linkage method for hierarchical (agglomerative) clustering of the variables">
+                <option value="single">single</option>
+                <option value="complete">complete</option>
+                <option value="average">average</option>
+                <option value="weighted">weighted</option>
+                <option value="centroid">centroid</option>
+                <option value="median">median</option>
+                <option value="ward">ward</option>
+              </param>
+              <param argument="metric" type="text" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x789a8308d800&gt;" optional="true" label="A metric function for calculating the dissimilarity between 2 regimes" help="Defaults to the absolute difference in mean"/>
+              <param argument="frac" type="float" value="0.5" optional="true" label="frac" help="The minimum percentage of samples, the  normal  group has to comprise to actually be the normal group. Must be in the closed interval `[0,1]`, otherwise a ValueError is raised"/>
+            </when>
+            <when value="correctDrift">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="maintenance_field" type="text" value="" label="Column holding the support-points information" help="The data is expected to have the following form: The index of the series represents the beginning of a maintenance event, wheras the values represent its endings">
+                <validator type="empty_field"/>
+              </param>
+              <conditional name="model_cond">
+                <param name="model_select_type" type="select" value="linear" label="A model function describing the drift behavior, that is to be corrected Model Type" help="Either use built-in exponential or linear drift model by passing a string, or pass a custom callable. The model function must always contain the keyword parameters 'origin' and 'target'. The starting parameter must always be the parameter, by wich the data is passed to the model. After the data parameter, there can occure an arbitrary number of model calibration arguments in the signature. See the Notes section for an extensive description">
+                  <option value="linear">Linear Model</option>
+                  <option value="exponential">Exponential Model</option>
+                  <option value="custom">Custom Callable</option>
+                </param>
+                <when value="linear">
+                  <param name="model" type="hidden" value="linear" label=""/>
+                </when>
+                <when value="exponential">
+                  <param name="model" type="hidden" value="exponential" label=""/>
+                </when>
+                <when value="custom">
+                  <param argument="model" type="text" value="" label="A model function describing the drift behavior, that is to be corrected (Custom Callable Name)">
+                    <validator type="empty_field"/>
+                  </param>
+                </when>
+              </conditional>
+              <param argument="cal_range" type="integer" value="5" optional="true" label="cal_range" help="Number of values to calculate the mean of, for obtaining the value level directly after and directly before a maintenance event. Needed for shift calibration"/>
+            </when>
+            <when value="correctOffset">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="max_jump" type="float" value="" label="max_jump" help="when searching for changepoints in mean - this is the threshold a mean difference in the sliding window search must exceed to trigger changepoint detection"/>
+              <param argument="spread" type="float" value="" label="spread" help="threshold denoting the maximum, regimes are allowed to abolutely differ in their means to form the  normal group  of values"/>
+              <param argument="window" type="text" value="" label="Size of the adjacent windows that are used to search for the mean changepoints" help="Size of the adjacent windows that are used to search for the mean changepoints">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="min_periods" type="integer" value="" label="min_periods" help="Minimum number of periods a search window has to contain, for the result of the changepoint detection to be considered valid"/>
+              <param argument="tolerance" type="text" optional="true" label="tolerance" help="If an offset string is passed, a data chunk of length `offset` right from the start and right before the end of any regime is ignored when calculating a regimes mean for data correcture. This is to account for the unrelyability of data near the changepoints of regimes"/>
+            </when>
+            <when value="correctRegimeAnomaly">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="cluster_field" type="text" value="" label="cluster_field" help="A string denoting the field in data, holding the cluster label for the data you want to correct">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="model" type="text" value="" label="The model function to be fitted to the regimes" help="It must be a function of the form :math:`f(x, *p)`, where :math:`x` is the ``numpy.array`` holding the independent variables and :math:`p` are the model parameters that are to be obtained by fitting. Depending on the `x_date` parameter, independent variable x will either be the timestamps of every regime transformed to seconds from epoch, or it will be just seconds, counting the regimes length (Expects a function reference: (...).)">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="tolerance" type="text" optional="true" label="tolerance" help="If an offset string is passed, a data chunk of length `offset` right at the start and right at the end is ignored when fitting the model. This is to account for the unreliability of data near the changepoints of regimes. Defaults to None"/>
+              <param argument="epoch" type="boolean" label="epoch" help="If True, use  seconds from epoch  as x input to the model func, instead of  seconds from regime start " checked="false" truevalue="epoch" falsevalue=""/>
+            </when>
+            <when value="flagDriftFromNorm">
+              <repeat name="field_repeat" title="Field(s)" min="1">
+                <param argument="field" type="text" value="" label="Name for field" help="Name of the variable to process.">
+                  <validator type="empty_field"/>
+                </param>
+              </repeat>
+              <param argument="window" type="text" value="" label="Frequency, that split the data in chunks" help="Frequency, that split the data in chunks">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="spread" type="float" value="" label="Maximum spread allowed in the group of *normal* data" help="See Notes section for more details"/>
+              <param argument="frac" type="float" value="0.5" optional="true" label="Fraction defining the normal group" help="Use a value from the interval [0,1]. The higher the value, the more stable the algorithm will be. For values below 0.5 the results are undefined"/>
+              <param argument="metric" type="text" value="&lt;function cityblock at 0x789a8308c9a0&gt;" optional="true" label="metric" help="default cityblock Distance function that takes two arrays as input and returns a scalar float. This value is interpreted as the distance of the two input arrays. Defaults to the `averaged manhattan metric` (see Notes)"/>
+              <param argument="method" type="select" value="single" optional="true" label="Linkage method used for hierarchical (agglomerative) clustering of the data" help="`method` is directly passed to ``scipy.hierarchy.linkage``. See its documentation [1] for more details. For a general introduction on hierarchical clustering see [2]">
+                <option value="single">single</option>
+                <option value="complete">complete</option>
+                <option value="average">average</option>
+                <option value="weighted">weighted</option>
+                <option value="centroid">centroid</option>
+                <option value="median">median</option>
+                <option value="ward">ward</option>
+              </param>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="flagDriftFromReference">
+              <repeat name="field_repeat" title="Field(s)" min="1">
+                <param argument="field" type="text" value="" label="Name for field" help="Name of the variable to process.">
+                  <validator type="empty_field"/>
+                </param>
+              </repeat>
+              <param argument="reference" type="text" value="" label="Reference variable, the deviation is calculated from" help="Reference variable, the deviation is calculated from">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="freq" type="text" value="" label="Frequency, that split the data in chunks" help="Frequency, that split the data in chunks">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="thresh" type="float" value="" label="Maximum deviation from reference" help="Maximum deviation from reference"/>
+              <param argument="metric" type="text" value="&lt;function cityblock at 0x789a8308c9a0&gt;" optional="true" label="metric" help="default cityblock Distance function. Takes two arrays as input and returns a scalar float. This value is interpreted as the mutual distance of the two input arrays. Defaults to the `averaged manhattan metric` (see Notes)"/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="flagRegimeAnomaly">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="cluster_field" type="text" value="" label="Column in data, holding the cluster labels for the samples in field" help="(has to be indexed equal to field)">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="spread" type="float" value="" label="A threshold denoting the value level, up to wich clusters a agglomerated" help="A threshold denoting the value level, up to wich clusters a agglomerated"/>
+              <param argument="method" type="select" value="single" optional="true" label="The linkage method for hierarchical (agglomerative) clustering of the variables" help="The linkage method for hierarchical (agglomerative) clustering of the variables">
+                <option value="single">single</option>
+                <option value="complete">complete</option>
+                <option value="average">average</option>
+                <option value="weighted">weighted</option>
+                <option value="centroid">centroid</option>
+                <option value="median">median</option>
+                <option value="ward">ward</option>
+              </param>
+              <param argument="metric" type="text" value="&lt;function DriftMixin.&lt;lambda&gt; at 0x789a8308d6c0&gt;" optional="true" label="A metric function for calculating the dissimilarity between 2 regimes" help="Defaults to the absolute difference in mean"/>
+              <param argument="frac" type="float" value="0.5" optional="true" label="frac" help="The minimum percentage of samples, the  normal  group has to comprise to actually be the normal group. Must be in the closed interval `[0,1]`, otherwise a ValueError is raised"/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+          </conditional>
+        </when>
+        <when value="flagtools">
+          <conditional name="method_cond" label="Method">
+            <param name="method_select" type="select" label="Method">
+              <option value="andGroup">andGroup: Flag all values, if all the given ``field`` values are already flagged</option>
+              <option value="clearFlags">clearFlags: Assign UNFLAGGED value to all periods in field</option>
+              <option value="flagDummy">flagDummy: Function does nothing but returning data and flags</option>
+              <option value="flagManual">flagManual: Include flags listed in external data</option>
+              <option value="flagUnflagged">flagUnflagged: Function sets a flag at all unflagged positions</option>
+              <option value="forceFlags">forceFlags: Set whole column to a flag value</option>
+              <option value="orGroup">orGroup: Flag all values, if at least one of the given ``field`` values is already flagged</option>
+              <option value="propagateFlags">propagateFlags: Flag values before or after flags set by the last test</option>
+              <option value="transferFlags">transferFlags: Transfer Flags of one variable to another</option>
+            </param>
+            <when value="andGroup">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="group" type="text" optional="true" label="A collection of ``SaQC`` objects" help="Flag checks are performed on all ``SaQC`` objects based on the variables specified in ``field``. Whenever all monitored variables are flagged, the associated timestamps will receive a flag"/>
+              <param argument="target" type="text" optional="true" label="Target" help="The name of the variable to process."/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="clearFlags">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+            </when>
+            <when value="flagDummy">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+            </when>
+            <when value="flagManual">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="mdata" type="text" value="" label="Determines which values or intervals will be flagged" help="Supported input types:  * ``pd.Series``: Needs a datetime index and values of type:  - datetime, for `method` values `` right-closed ``, `` left-closed ``, `` closed `` - or any scalar, for `method` values `` plain ``, `` ontime ``  * ``str``: Variable holding the manual flag information. * ``pd.DataFrame``, ``DictOfSeries``: Need to provide a ``pd.Series`` with column name `field`. * ``list``, ``np.ndarray``: Only supported with `method` value `` plain `` and `mformat` value `` mflag ``">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="method" type="select" value="left-open" optional="true" label="method" help="Defines how `mdata` is projected to data:  * `` plain ``: `mdata` must have the same length as `field`, flags are set, where the values in `mdata` equal `mflag`. * `` ontime ``: Expects datetime indexed `mdata` (types ``pd.Series``, ``pd.DataFrame``, ``DictOfSeries``). Flags are set, where the values in `mdata` equal `mflag` and the indices of `field` and `mdata` match. * `` right-open ``: Expects datetime indexed `mdata`, which will be interpreted as a number of time intervals ``t_1, t_2``. Flags are set to all timestamps ``t`` of `field` with ``t_1  = t   t_2``. * `` left-open ``: like `` right-open ``, but the interval covers all ``t`` with ``t_1   t  = t_2``. * `` closed ``: like `` right-open ``, but the interval now covers all ``t`` with ``t_1  = t  = t_2``">
+                <option value="left-open">left-open</option>
+                <option value="right-open">right-open</option>
+                <option value="closed">closed</option>
+                <option value="plain">plain</option>
+                <option value="ontime">ontime</option>
+              </param>
+              <param argument="mformat" type="select" value="start-end" optional="true" label="mformat" help="Controls the interval definition in `mdata` (see examples):  * `` start-end ``: expects datetime indexed `mdata` (types ``pd.Series``, ``pd.DataFrame``, ``DictOfSeries``) with values of type datetime. Each index-value pair is interpreted as an interval to flag, the index defines the left bound, the respective value the right bound. * `` mflag ``:  - `mdata` of type ``pd.Series``, ``pd.DataFrame``, ``DictOfSeries``: Two successive index values ``i_1, i_2`` will be interpreted as an interval ``t_1, t_2`` to flag, if the value of ``t_1`` equals `mflag` - `mdata` of type ``list``, ``np.ndarray``: Flags all `field` where `mdata` euqals `mflag`">
+                <option value="start-end">start-end</option>
+                <option value="mflag">mflag</option>
+              </param>
+              <param argument="mflag" type="text" optional="true" label="mflag" help="Value in `mdata` indicating that a flag should be set at the respective position, timestamp or interval. Ignored if `mformat` is set to `` start-end ``"/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="flagUnflagged">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="forceFlags">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="flag" type="float" value="255.0" optional="true" label="flag" help=""/>
+            </when>
+            <when value="orGroup">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="group" type="text" optional="true" label="A collection of ``SaQC`` objects" help="Flag checks are performed on all ``SaQC`` objects based on the variables specified in `field`. Whenever any of monitored variables is flagged, the associated timestamps will receive a flag"/>
+              <param argument="target" type="text" optional="true" label="Target" help="The name of the variable to process."/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="propagateFlags">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="window" type="text" value="" label="Size of the repetition window" help="An integer defines the exact number of repetitions, strings are interpreted as time offsets to fill with">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="method" type="select" value="ffill" optional="true" label="Direction of repetetion" help="With  ffill  the subsequent values receive the flag to repeat, with  bfill  the previous values">
+                <option value="ffill">ffill</option>
+                <option value="bfill">bfill</option>
+              </param>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+              <param argument="dfilter" type="float" value="-inf" optional="true" label="dfilter" help="Any, optional Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme"/>
+            </when>
+            <when value="transferFlags">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="target" type="text" optional="true" label="Target" help="The name of the variable to process."/>
+              <param argument="squeeze" type="boolean" label="squeeze" help="Squeeze the history into a single column if ``True``, function specific flag information is lost" checked="false" truevalue="squeeze" falsevalue=""/>
+              <param argument="overwrite" type="boolean" label="Overwrite existing flags if ``True``" help="Overwrite existing flags if ``True``" checked="false" truevalue="overwrite" falsevalue=""/>
+            </when>
+          </conditional>
+        </when>
+        <when value="generic">
+          <conditional name="method_cond" label="Method">
+            <param name="method_select" type="select" label="Method">
+              <option value="flagGeneric">flagGeneric: Flag data based on a given function</option>
+              <option value="processGeneric">processGeneric: Generate/process data with user defined functions</option>
+            </param>
+            <when value="flagGeneric">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="func" type="text" value="" label="Function to call" help="The function needs to accept the same number of arguments (of type pandas.Series) as variables given in ``field`` and return an iterable of array-like objects of data type ``bool`` with the same length as ``target`` (Expects a function reference: (...).)">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="target" type="text" optional="true" label="Target" help="The name of the variable to process."/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="processGeneric">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="func" type="text" value="" label="Function to call on the variables given in ``field``" help="The return value will be written to ``target`` or ``field`` if the former is not given. This implies, that the function needs to accept the same number of arguments (of type pandas.Series) as variables given in ``field`` and should return an iterable of array-like objects with the same number of elements as given in ``target`` (or ``field`` if ``target`` is not specified) (Expects a function reference: (...).)">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="target" type="text" optional="true" label="Target" help="The name of the variable to process."/>
+              <param argument="dfilter" type="float" value="-inf" optional="true" label="dfilter" help="Any, optional Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme"/>
+            </when>
+          </conditional>
+        </when>
+        <when value="interpolation">
+          <conditional name="method_cond" label="Method">
+            <param name="method_select" type="select" label="Method">
+              <option value="align">align: Convert time series to specified frequency. Values affected by</option>
+              <option value="interpolateByRolling">interpolateByRolling: Replace NaN by the aggregation result of the surrounding window</option>
+            </param>
+            <when value="align">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="freq" type="text" value="" label="Target frequency" help="Target frequency">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="method" type="text" value="time" optional="true" label="Interpolation technique to use" help="One of:  * ``'nshift'``: Shift grid points to the nearest time stamp in the range = +/- 0.5 * ``freq``. * ``'bshift'``: Shift grid points to the first succeeding time stamp (if any). * ``'fshift'``: Shift grid points to the last preceeding time stamp (if any). * ``'linear'``: Ignore the index and treat the values as equally spaced. * ``'time'``, ``'index'``, ``'values'``: Use the actual numerical values of the index. * ``'pad'``: Fill in NaNs using existing values. * ``'spline'``, ``'polynomial'``: Passed to ``scipy.interpolate.interp1d``. These methods use the numerical values of the index.  An ``order`` must be specified, e.g. ``qc.interpolate(method='polynomial', order=5)``. * ``'nearest'``, ``'zero'``, ``'slinear'``, ``'quadratic'``, ``'cubic'``, ``'barycentric'``: Passed to ``scipy.interpolate.interp1d``. These methods use the numerical values of the index. * ``'krogh'``, ``'spline'``, ``'pchip'``, ``'akima'``, ``'cubicspline'``: Wrappers around the SciPy interpolation methods of similar names. * ``'from_derivatives'``: Refers to ``scipy.interpolate.BPoly.from_derivatives``"/>
+              <param argument="order" type="integer" value="2" optional="true" label="order" help="Order of the interpolation method, ignored if not supported by the chosen ``method``"/>
+              <param argument="overwrite" type="boolean" label="If set to `True`, existing flags will be cleared" help="If set to `True`, existing flags will be cleared" checked="false" truevalue="overwrite" falsevalue=""/>
+            </when>
+            <when value="interpolateByRolling">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="window" type="text" value="" label="The size of the window, the aggregation is computed from" help="An integer define the number of periods to be used, a string is interpreted as an offset. ( see `pandas.rolling` for more information). Integer windows may result in screwed aggregations if called on none-harmonized or irregular data">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="func" type="text" value="median" optional="true" label="func" help="default median The function used for aggregation"/>
+              <param argument="center" type="boolean" label="Center the window around the value" help="Can only be used with integer windows, otherwise it is silently ignored" checked="true" truevalue="center" falsevalue=""/>
+              <param argument="min_periods" type="integer" value="0" optional="true" label="min_periods" help="Minimum number of valid (not np.nan) values that have to be available in a window for its aggregation to be computed"/>
+              <param argument="flag" type="float" value="-inf" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+          </conditional>
+        </when>
+        <when value="noise">
+          <conditional name="method_cond" label="Method">
+            <param name="method_select" type="select" label="Method">
+              <option value="flagByScatterLowpass">flagByScatterLowpass: Flag data chunks of length ``window`` dependent on the data deviation</option>
+              <option value="flagByStatLowPass">flagByStatLowPass: Flag data chunks of length ``window`` dependent on the data deviation</option>
+            </param>
+            <when value="flagByScatterLowpass">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="window" type="text" value="" label="window" help="Window (i.e. chunk) size">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="thresh" type="float" value="" label="thresh" help="Threshold. A given chunk is flagged, if the return value of ``func`` excceeds ``thresh``"/>
+              <param argument="func" type="text" value="std" optional="true" label="func" help="Either a string, determining the aggregation function applied on every chunk:  * 'std': standard deviation * 'var': variance * 'mad': median absolute deviation  Or a Callable, mapping 1 dimensional array likes onto scalars"/>
+              <param argument="sub_window" type="text" optional="true" label="sub_window" help="Window size of sub chunks, that are additionally tested for exceeding ``sub_thresh`` with respect to ``func`` (Pandas timedelta string or offset, e.g., '1D', '2H30M')"/>
+              <param argument="sub_thresh" type="float" optional="true" label="sub_thresh" help="Threshold. A given sub chunk is flagged, if the return value of ``func` excceeds ``sub_thresh``"/>
+              <param argument="min_periods" type="integer" optional="true" label="Minimum number of values needed in a chunk to perfom the test" help="Ignored if ``window`` is an integer"/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="flagByStatLowPass">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="window" type="text" value="" label="window" help="">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="thresh" type="float" value="" label="thresh" help=""/>
+              <param argument="func" type="text" value="std" optional="true" label="func" help="Either a String value, determining the aggregation function applied on every chunk.  * 'std': standard deviation * 'var': variance * 'mad': median absolute deviation  Or a Callable function mapping 1 dimensional arraylikes onto scalars.  window : Window (i.e. chunk) size.  thresh : Threshold. A given chunk is flagged, if the return value of ``func`` excceeds ``thresh``.  sub_window : Window size of sub chunks, that are additionally tested for exceeding ``sub_thresh`` with respect to ``func``.  sub_thresh : Threshold. A given sub chunk is flagged, if the return value of ``func` excceeds ``sub_thresh``.  min_periods : Minimum number of values needed in a chunk to perfom the test. Ignored if ``window`` is an integer"/>
+              <param argument="sub_window" type="text" optional="true" label="sub_window" help=" (Pandas timedelta string or offset, e.g., '1D', '2H30M')"/>
+              <param argument="sub_thresh" type="float" optional="true" label="sub_thresh" help=""/>
+              <param argument="min_periods" type="integer" optional="true" label="min_periods" help=""/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="flag" help=""/>
+            </when>
+          </conditional>
+        </when>
+        <when value="outliers">
+          <conditional name="method_cond" label="Method">
+            <param name="method_select" type="select" label="Method">
+              <option value="flagByGrubbs">flagByGrubbs: Flag outliers using the Grubbs algorithm</option>
+              <option value="flagByStray">flagByStray: Flag outliers in 1-dimensional (score) data using the STRAY Algorithm</option>
+              <option value="flagLOF">flagLOF: Flag values where the Local Outlier Factor (LOF) exceeds cutoff</option>
+              <option value="flagMAD">flagMAD: Flag outiers using the modified Z-score outlier detection method</option>
+              <option value="flagMVScores">flagMVScores: The algorithm implements a 3-step outlier detection procedure for</option>
+              <option value="flagOffset">flagOffset: A basic outlier test that works on regularly and irregularly sampled data</option>
+              <option value="flagRaise">flagRaise: The function flags raises and drops in value courses, that exceed a certain threshold within a certain timespan</option>
+              <option value="flagRange">flagRange: Function flags values exceeding the closed</option>
+              <option value="flagUniLOF">flagUniLOF: Flag  univariate  Local Outlier Factor (LOF) exceeding cutoff</option>
+              <option value="flagZScore">flagZScore: Flag data where its (rolling) Zscore exceeds a threshold</option>
+            </param>
+            <when value="flagByGrubbs">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="window" type="text" value="" label="Size of the testing window" help="If an integer, the fixed number of observations used for each window. If an offset string the time period of each window">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="alpha" type="float" value="0.05" optional="true" label="Level of significance, the grubbs test is to be performed at" help="Must be between 0 and 1"/>
+              <param argument="min_periods" type="integer" value="8" optional="true" label="min_periods" help="Minimum number of values needed in a `window` in order to perform the grubs test. Ignored if `window` is an integer"/>
+              <param argument="pedantic" type="boolean" label="If ``True``, every value gets checked twice" help="First in the initial rolling `window` and second in a rolling window that is lagging by `window` / 2. Recommended to avoid false positives at the window edges. Ignored if `window` is an offset string" checked="false" truevalue="pedantic" falsevalue=""/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="flagByStray">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <conditional name="window_cond">
+                <param name="window_select_type" type="select" value="none" label="window Input Mode" help="Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually.  * ``None``: Apply Scoring on whole data set at once * ``int``: Apply scoring on successive data chunks of periods with the given length. Must be greater than 0. * offset String : Apply scoring on successive partitions of temporal extension matching the passed offset string">
+                  <option value="number">Number</option>
+                  <option value="timedelta">Timedelta</option>
+                  <option value="none">None (use default)</option>
+                </param>
+                <when value="number">
+                  <param argument="window" type="integer" value="" label="window (as number)"/>
+                </when>
+                <when value="timedelta">
+                  <param argument="window" type="text" value="" label="window (as timedelta string)">
+                    <validator type="empty_field"/>
+                  </param>
+                </when>
+                <when value="none">
+                  <param name="window" type="hidden" value="__none__" label=""/>
+                </when>
+              </conditional>
+              <param argument="min_periods" type="integer" value="11" optional="true" label="min_periods" help="Minimum number of periods per partition that have to be present for a valid outlier detection to be made in this partition"/>
+              <param argument="iter_start" type="float" value="0.5" optional="true" label="iter_start" help="Float in ``[0, 1]`` that determines which percentage of data is considered  normal . ``0.5`` results in the stray algorithm to search only the upper 50% of the scores for the cut off point. (See reference section for more information)"/>
+              <param argument="alpha" type="float" value="0.05" optional="true" label="alpha" help="Level of significance by which it is tested, if a score might be drawn from another distribution than the majority of the data"/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="flagLOF">
+              <repeat name="field_repeat" title="Field(s)" min="1">
+                <param argument="field" type="text" value="" label="Name for field" help="Name of the variable to process.">
+                  <validator type="empty_field"/>
+                </param>
+              </repeat>
+              <param argument="n" type="integer" value="20" optional="true" label="Number of neighbors to be included into the LOF calculation" help="Defaults to ``20``, which is a value found to be suitable in the literature.  * `n` determines the  locality  of an observation (its `n` nearest neighbors) and sets the upper limit to the number of values in outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than `n`/2 may not be detected reliably. * The larger `n`, the lesser the algorithm's sensitivity to local outliers and small or singleton outliers points. Higher values greatly increase numerical costs"/>
+              <conditional name="thresh_cond">
+                <param name="thresh_select_type" type="select" value="float" label="The threshold for flagging the calculated LOF Mode" help="A LOF of around ``1`` is considered normal and most likely corresponds to inlier points.  * The  automatic  threshing introduced with the publication of the algorithm defaults to ``1.5``. * In this implementation, `thresh` defaults (``'auto'``) to flagging the scores with a modified 3-sigma rule">
+                  <option value="auto">Automatic ('auto')</option>
+                  <option value="float">Specific Value (float)</option>
+                  <option value="none">None (use default)</option>
+                </param>
+                <when value="auto">
+                  <param name="thresh" type="hidden" value="auto" label=""/>
+                </when>
+                <when value="float">
+                  <param argument="thresh" type="float" value="1.5" label="The threshold for flagging the calculated LOF (float value)"/>
+                </when>
+                <when value="none">
+                  <param name="thresh" type="hidden" value="__none__" label=""/>
+                </when>
+              </conditional>
+              <param argument="algorithm" type="select" value="ball_tree" optional="true" label="Algorithm used for calculating the `n`-nearest neighbors" help="Algorithm used for calculating the `n`-nearest neighbors">
+                <option value="ball_tree">ball_tree</option>
+                <option value="kd_tree">kd_tree</option>
+                <option value="brute">brute</option>
+                <option value="auto">auto</option>
+              </param>
+              <param argument="p" type="integer" value="1" optional="true" label="p" help="Degree of the metric ( Minkowski ), according to which the distance to neighbors is determined. Most important values are:  * ``1`` - Manhattan Metric * ``2`` - Euclidian Metric"/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="flagMAD">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <conditional name="window_cond">
+                <param name="window_select_type" type="select" value="none" label="Size of the window Input Mode" help="Either given as an Offset String, denoting the window's temporal extension or as an integer, denoting the window's number of periods. ``NaN`` also count as periods. If ``None``, all data points share the same scoring window, which than equals the whole data">
+                  <option value="number">Number</option>
+                  <option value="timedelta">Timedelta</option>
+                  <option value="none">None (use default)</option>
+                </param>
+                <when value="number">
+                  <param argument="window" type="integer" value="" label="Size of the window (as number)"/>
+                </when>
+                <when value="timedelta">
+                  <param argument="window" type="text" value="" label="Size of the window (as timedelta string)">
+                    <validator type="empty_field"/>
+                  </param>
+                </when>
+                <when value="none">
+                  <param name="window" type="hidden" value="__none__" label=""/>
+                </when>
+              </conditional>
+              <param argument="z" type="float" value="3.5" optional="true" label="The value the Z-score is tested against" help="Defaulting to ``3.5`` (Recommendation of [1])"/>
+              <param argument="min_residuals" type="integer" optional="true" label="min_residuals" help=""/>
+              <param argument="min_periods" type="integer" optional="true" label="min_periods" help="Minimum number of valid meassurements in a scoring window, to consider the resulting score valid"/>
+              <param argument="center" type="boolean" label="Weather or not to center the target value in the scoring window" help="If ``False``, the target value is the last value in the window" checked="false" truevalue="center" falsevalue=""/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="flagMVScores">
+              <repeat name="field_repeat" title="Field(s)" min="1">
+                <param argument="field" type="text" value="" label="Name for field" help="Name of the variable to process.">
+                  <validator type="empty_field"/>
+                </param>
+              </repeat>
+              <param argument="trafo" type="text" value="&lt;function OutliersMixin.&lt;lambda&gt; at 0x789a830b5c60&gt;" optional="true" label="Transformation to be applied onto every column before scoring" help="For more fine-grained control, the data could also be transformed before :py:meth:`~saqc.SaQC.flagMVScores` is called"/>
+              <param argument="alpha" type="float" value="0.05" optional="true" label="alpha" help="Level of significance by which it is tested, if an observations score might be drawn from another distribution than the majority of the data"/>
+              <param argument="n" type="integer" value="10" optional="true" label="Number of neighbors included in the scoring process for every datapoint" help="Number of neighbors included in the scoring process for every datapoint"/>
+              <param argument="func" type="text" value="sum" optional="true" label="func" help="Function that aggregates a value's k-smallest distances, returning a scalar score"/>
+              <param argument="iter_start" type="float" value="0.5" optional="true" label="iter_start" help="Value in ``[0,1]`` that determines which percentage of data is considered  normal . 0.5 results in the threshing algorithm to search only the upper 50% of the scores for the cut-off point. (See reference section for more information)"/>
+              <conditional name="window_cond">
+                <param name="window_select_type" type="select" value="none" label="Only effective if `threshing` is set to ``'stray'`` Input Mode" help="Determines the size of the data partitions, the data is decomposed into. Each partition is checked seperately for outliers. Either given as an Offset String, denoting the windows temporal extension or as an integer, denoting the windows number of periods. ``NaN`` also count as periods. If ``None``, all data points share the same scoring window, which than equals the whole data">
+                  <option value="number">Number</option>
+                  <option value="timedelta">Timedelta</option>
+                  <option value="none">None (use default)</option>
+                </param>
+                <when value="number">
+                  <param argument="window" type="integer" value="" label="Only effective if `threshing` is set to ``'stray'`` (as number)"/>
+                </when>
+                <when value="timedelta">
+                  <param argument="window" type="text" value="" label="Only effective if `threshing` is set to ``'stray'`` (as timedelta string)">
+                    <validator type="empty_field"/>
+                  </param>
+                </when>
+                <when value="none">
+                  <param name="window" type="hidden" value="__none__" label=""/>
+                </when>
+              </conditional>
+              <param argument="min_periods" type="integer" value="11" optional="true" label="min_periods" help="Only effective if `threshing` is set to ``'stray'`` and `partition` is an integer. Minimum number of periods per `partition` that have to be present for a valid outlier detection to be made in this partition"/>
+              <param argument="stray_range" type="text" optional="true" label="stray_range" help="If not ``None``, it is tried to reduce the stray result onto single outlier components of the input `field`. The offset string denotes the range of the temporal surrounding to include into the MAD testing while trying to reduce flags"/>
+              <param argument="drop_flagged" type="boolean" label="Only effective when `stray_range` is not ``None``" help="Whether or not to drop flagged values from the temporal surroundings" checked="false" truevalue="drop_flagged" falsevalue=""/>
+              <param argument="thresh" type="float" value="3.5" optional="true" label="Only effective when `stray_range` is not ``None``" help="The 'critical' value, controlling wheather the MAD score is considered referring to an outlier or not. Higher values result in less rigid flagging. The default value is widely considered apropriate in the literature"/>
+              <param argument="min_periods_r" type="integer" value="1" optional="true" label="Only effective when `stray_range` is not ``None``" help="Minimum number of measurements necessary in an interval to actually perform the reduction step"/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="flagOffset">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="tolerance" type="float" value="" label="tolerance" help="Maximum difference allowed between the value, directly preceding and the value directly succeeding an offset to trigger flagging of the offsetting values. See condition (4)"/>
+              <param argument="window" type="text" value="" label="window" help="Maximum length allowed for offset value courses, to trigger flagging of the offsetting values. See condition (5). Integer defined window length are only allowed for regularly sampled timeseries">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="thresh" type="float" optional="true" label="thresh" help="Minimum difference between a value and its successors, to consider the successors an anomalous offset group. See condition (1). If ``None``, condition (1) is not tested"/>
+              <param argument="thresh_relative" type="float" optional="true" label="thresh_relative" help="Minimum relative change between a value and its successors, to consider the successors an anomalous offset group. See condition (2). If ``None``, condition (2) is not tested"/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="flagRaise">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="thresh" type="float" value="" label="thresh" help="The threshold, for the total rise (`thresh` ``  0``), or total drop (`thresh` ``  0``), value courses must not exceed within a timespan of length `raise_window`"/>
+              <param argument="raise_window" type="text" value="" label="raise_window" help="An offset string, determining the timespan, the rise/drop thresholding refers to. Window is inclusively defined">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="freq" type="text" value="" label="freq" help="An offset string, determining the frequency, the timeseries to flag is supposed to be sampled at. The window is inclusively defined">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="average_window" type="text" optional="true" label="See condition (2) of the description given in the Notes" help="Window is inclusively defined, defaults to 1.5 times the size of `raise_window`"/>
+              <param argument="raise_factor" type="float" value="2.0" optional="true" label="See condition (2)" help="See condition (2)"/>
+              <param argument="slope" type="float" optional="true" label="See condition (3)" help="See condition (3)"/>
+              <param argument="weight" type="float" value="0.8" optional="true" label="See condition (3)" help="See condition (3)"/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="flagRange">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="min" type="float" value="-inf" optional="true" label="Lower bound for valid data" help="Lower bound for valid data"/>
+              <param argument="max" type="float" value="inf" optional="true" label="Upper bound for valid data" help="Upper bound for valid data"/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="flagUniLOF">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="n" type="integer" value="20" optional="true" label="Number of periods to be included into the LOF calculation" help="Defaults to `20`, which is a value found to be suitable in the literature.  * `n` determines the  locality  of an observation (its `n` nearest neighbors) and sets the upper limit to the number of values in an outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than `n`/2 may not be detected reliably. * The larger `n`, the lesser the algorithm's sensitivity to local outliers and small or singleton outlier points. Higher values greatly increase numerical costs"/>
+              <conditional name="thresh_cond">
+                <param name="thresh_select_type" type="select" value="float" label="The threshold for flagging the calculated LOF Mode" help="A LOF of around ``1`` is considered normal and most likely corresponds to inlier points. This parameter is considered the main calibration parameter of the algorithm.  * The threshing defaults to ``1.5``, wich is the default value found to be suitable in the literature. * ``'auto'`` enables flagging the scores with a modified 3-sigma rule, resulting in a thresh around ``4``, which usually greatly mitigates overflagging compared to the literature recommendation, but often is too high. * sensitive range for the parameter may be ``[1,15]``, assuming default settings for the other parameters">
+                  <option value="auto">Automatic ('auto')</option>
+                  <option value="float">Specific Value (float)</option>
+                  <option value="none">None (use default)</option>
+                </param>
+                <when value="auto">
+                  <param name="thresh" type="hidden" value="auto" label=""/>
+                </when>
+                <when value="float">
+                  <param argument="thresh" type="float" value="1.5" label="The threshold for flagging the calculated LOF (float value)"/>
+                </when>
+                <when value="none">
+                  <param name="thresh" type="hidden" value="__none__" label=""/>
+                </when>
+              </conditional>
+              <param argument="algorithm" type="select" value="ball_tree" optional="true" label="algorithm" help="Algorithm used for calculating the `n`-nearest neighbors needed for LOF calculation">
+                <option value="ball_tree">ball_tree</option>
+                <option value="kd_tree">kd_tree</option>
+                <option value="brute">brute</option>
+                <option value="auto">auto</option>
+              </param>
+              <param argument="p" type="integer" value="1" optional="true" label="p" help="Degree of the metric ( Minkowski ), according to which distance to neighbors is determined. Most important values are:  * ``1`` - Manhatten Metric * ``2`` - Euclidian Metric"/>
+              <conditional name="density_cond">
+                <param name="density_select_type" type="select" value="auto" label="How to calculate the temporal distance/density for the variable to flag Mode" help="* ``'auto'`` - introduces linear density with an increment equal to the median of the absolute diff of the variable to flag. * ``float`` - introduces linear density with an increment equal to `density`">
+                  <option value="auto">Automatic ('auto')</option>
+                  <option value="float">Specific Value (float)</option>
+                  <option value="none">None (use default)</option>
+                </param>
+                <when value="auto">
+                  <param name="density" type="hidden" value="auto" label=""/>
+                </when>
+                <when value="float">
+                  <param argument="density" type="float" value="" label="How to calculate the temporal distance/density for the variable to flag (float value)"/>
+                </when>
+                <when value="none">
+                  <param name="density" type="hidden" value="__none__" label=""/>
+                </when>
+              </conditional>
+              <param argument="fill_na" type="boolean" label="If True, NaNs in the data are filled with a linear interpolation" help="If True, NaNs in the data are filled with a linear interpolation" checked="true" truevalue="fill_na" falsevalue=""/>
+              <param argument="slope_correct" type="boolean" label="slope_correct" help="if True, a correction is applied, that removes outlier cluster that actually just seem to be steep slopes" checked="true" truevalue="slope_correct" falsevalue=""/>
+              <param argument="min_offset" type="float" optional="true" label="min_offset" help="If set, only those outlier cluster will be flagged, that are preceeded and succeeeded by sufficiently large value  jumps . Defaults to estimating the sufficient value jumps from the median over the absolute step sizes between data points"/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+            <when value="flagZScore">
+              <repeat name="field_repeat" title="Field(s)" min="1">
+                <param argument="field" type="text" value="" label="Name for field" help="Name of the variable to process.">
+                  <validator type="empty_field"/>
+                </param>
+              </repeat>
+              <param argument="method" type="select" value="standard" optional="true" label="method" help="Which method to use for ZScoring:  * ` standard `: standard Zscoring, using *mean* for the expectation and *standard deviation (std)* as scaling factor * ` modified `: modified Zscoring, using *median* as the expectation and *median absolute deviation (MAD)* as the scaling Factor  See notes section for detailed scoring formula">
+                <option value="standard">standard</option>
+                <option value="modified">modified</option>
+              </param>
+              <conditional name="window_cond">
+                <param name="window_select_type" type="select" value="none" label="Size of the window Input Mode" help="Either determined via an offset string, denoting the windows temporal extension or by an integer, denoting the windows number of periods. ``NaN`` also count as periods. If ``None`` is passed, all data points share the same scoring window, which than equals the whole data">
+                  <option value="number">Number</option>
+                  <option value="timedelta">Timedelta</option>
+                  <option value="none">None (use default)</option>
+                </param>
+                <when value="number">
+                  <param argument="window" type="integer" value="" label="Size of the window (as number)"/>
+                </when>
+                <when value="timedelta">
+                  <param argument="window" type="text" value="" label="Size of the window (as timedelta string)">
+                    <validator type="empty_field"/>
+                  </param>
+                </when>
+                <when value="none">
+                  <param name="window" type="hidden" value="__none__" label=""/>
+                </when>
+              </conditional>
+              <param argument="thresh" type="float" value="3" optional="true" label="thresh" help="Cutoff level for the Zscores, above which associated points are marked as outliers"/>
+              <param argument="min_residuals" type="integer" optional="true" label="Minimum residual value points must have to be considered outliers" help="Minimum residual value points must have to be considered outliers"/>
+              <param argument="min_periods" type="integer" optional="true" label="min_periods" help="Minimum number of valid meassurements in a scoring window, to consider the resulting score valid"/>
+              <param argument="center" type="boolean" label="Weather or not to center the target value in the scoring window" help="If ``False``, the target value is the last value in the window" checked="true" truevalue="center" falsevalue=""/>
+              <param argument="axis" type="integer" value="0" optional="true" label="axis" help="Along which axis to calculate the scoring statistics:  * `0` (default) - calculate statistics along time axis * `1` - calculate statistics over multiple variables  See Notes section for a visual clarification of the workings of `axis` and `window`"/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+          </conditional>
+        </when>
+        <when value="pattern">
+          <conditional name="method_cond" label="Method">
+            <param name="method_select" type="select" label="Method">
+              <option value="flagPatternByDTW">flagPatternByDTW: Pattern Recognition via Dynamic Time Warping</option>
+            </param>
+            <when value="flagPatternByDTW">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="reference" type="text" value="" label="The name in `data` which holds the pattern" help="The pattern must not have NaNs, have a datetime index and must not be empty">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="max_distance" type="float" value="0.0" optional="true" label="max_distance" help="Maximum dtw-distance between chunk and pattern, if the distance is lower than ``max_distance`` the data gets flagged. With default, ``0.0``, only exact matches are flagged"/>
+              <param argument="normalize" type="boolean" label="If `False`, return unmodified distances" help="If `True`, normalize distances by the number of observations of the reference. This helps to make it easier to find a good cutoff threshold for further processing. The distances then refer to the mean distance per datapoint, expressed in the datas units" checked="true" truevalue="normalize" falsevalue=""/>
+              <param argument="plot" type="boolean" label="plot" help="Show a calibration plot, which can be quite helpful to find the right threshold for `max_distance`. It works best with `normalize=True`. Do not use in automatic setups / pipelines. The plot show three lines:  - data: the data the function was called on - distances: the calculated distances by the algorithm - indicator: have to distinct levels: `0` and the value of `max_distance`. If `max_distance` is `0.0` it defaults to `1`. Everywhere where the indicator is not `0` the data will be flagged" checked="false" truevalue="plot" falsevalue=""/>
+              <param argument="flag" type="float" value="255.0" optional="true" label="Any, optional The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
+            </when>
+          </conditional>
+        </when>
+        <when value="resampling">
+          <conditional name="method_cond" label="Method">
+            <param name="method_select" type="select" label="Method">
+              <option value="concatFlags">concatFlags: Project flags/history of `field` to `target` and adjust to the frequeny grid</option>
+              <option value="reindex">reindex: Change a variables index</option>
+              <option value="resample">resample: Resample data points and flags to a regular frequency</option>
+            </param>
+            <when value="concatFlags">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="target" type="text" optional="true" label="Target" help="The name of the variable to process."/>
+              <param argument="method" type="select" value="auto" optional="true" label="method" help="Method to project the flags of `field` to the flags to `target`:  * ``'auto'``: invert the last alignment/resampling operation (that is not already inverted) * ``'nagg'``: project a flag of `field` to all timestamps of `target` within the range +/- `freq`/2. * ``'bagg'``: project a flag of `field` to all preceeding timestamps of `target` within the range `freq` * ``'fagg'``: project a flag of `field` to all succeeding timestamps of `target` within the range `freq` * ``'interpolation'`` - project a flag of `field` to all timestamps of `target` within the range +/- `freq` * ``'sshift'`` - same as interpolation * ``'nshift'`` - project a flag of `field` to the neaerest timestamps in `target` within the range +/- `freq`/2 * ``'bshift'`` - project a flag of `field` to nearest preceeding timestamps in `target` * ``'nshift'`` - project a flag of `field` to nearest succeeding timestamps in `target` * ``'match'`` - project a flag of `field` to all identical timestamps `target`">
+                <option value="fagg">fagg</option>
+                <option value="bagg">bagg</option>
+                <option value="nagg">nagg</option>
+                <option value="fshift">fshift</option>
+                <option value="bshift">bshift</option>
+                <option value="nshift">nshift</option>
+                <option value="sshift">sshift</option>
+                <option value="match">match</option>
+                <option value="auto">auto</option>
+              </param>
+              <param argument="invert" type="boolean" label="If True, not the actual method is applied, but its inversion-method" help="If True, not the actual method is applied, but its inversion-method" checked="true" truevalue="invert" falsevalue=""/>
+              <param argument="freq" type="text" optional="true" label="Projection range" help="If ``None`` the sampling frequency of `field` is used"/>
+              <param argument="drop" type="boolean" label="Remove `field` if ``True``" help="Remove `field` if ``True``" checked="false" truevalue="drop" falsevalue=""/>
+              <param argument="squeeze" type="boolean" label="squeeze" help="Squeeze the history into a single column if ``True``, function specific flag information is lost" checked="false" truevalue="squeeze" falsevalue=""/>
+              <param argument="override" type="boolean" label="Overwrite existing flags if ``True``" help="Overwrite existing flags if ``True``" checked="false" truevalue="override" falsevalue=""/>
+            </when>
+            <when value="reindex">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="index" type="text" value="" label="Determines the new index" help="* If an `offset` string: new index will range from start to end of the original index of `field`, exhibting a uniform sampling rate of `idx` * If a `str` that matches a field present in the `SaQC` object, that fields index will be used as new index of `field` * If an `pd.index` object is passed, that will be the new index of `field`">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="method" type="select" value="match" optional="true" label="method" help="Determines which of the origins indexes periods to comprise into the calculation of a new flag and a new data value at any period of the new index.  * Aggregations Reindexer. Aggregations are data and flags independent, (pure) index selection methods: * `'bagg'`/`'fagg'`:  backwards/forwards aggregation . Any new index period gets assigned an aggregation of the values at periods in the original index, that lie between itself and its successor/predecessor. * `'nagg'`:  nearest aggregation : Any new index period gets assigned an aggregation of the values at periods in the original index between its direcet predecessor and successor, it is the nearest neighbor to. * Rolling reindexer. Rolling reindexers are equal to aggregations, when projecting between regular and irregular sampling grids forth and back. But due to there simple rolling window construction, they are easier to comprehend, predict and parametrize. On the downside, they are much more expensive computationally and Also, periods can get included in the aggregation to multpiple target periods, (when rolling windows overlap). * `'broll'`/`'froll'`: Any new index period gets assigned an aggregation of all the values at periods of the original index, that fall into a directly preceeding/succeeding window of size `reindex_window`. * Shifts. Shifting methods are shortcuts for aggregation reindex methods, combined with selecting 'last' or 'first' as the `data_aggregation` method. Therefor, both, the `flags_aggregation` and the `data_aggregation` are ignored when using a `shift` reindexer. Also, periods where the data evaluates to `NaN` are dropped before shift index selection. * `'bshift'`/`fshift`:  backwards/forwards shift . Any new index period gets assigned the first/last valid (not a data NaN) value it succeeds/preceeds * `'nshift'`:  nearest shift : Any new index period gets assigned the value of its closest neighbor in the original index. * Pillar point Mappings. Index selection method designed to select indices suitable for linearly interpolating index values from surrounding pillar points in the original index, or inverting such a selection. Periods where the data evaluates to `NaN`, are dropped from consideration. * `'mshift'`:  Merge  predecessors and successors. Any new index period gets assigned an aggregation/interpolation comprising the last and the next valid period in the original index. * `'sshift'`:  Split -map values onto predecessors and successors. Same as `mshift`, but with a correction that prevents missing value flags from being mapped to continuous data chunk bounds. * Inversion of last method: try to select the method, that * `'invert``">
+                <option value="fagg">fagg</option>
+                <option value="bagg">bagg</option>
+                <option value="nagg">nagg</option>
+                <option value="froll">froll</option>
+                <option value="broll">broll</option>
+                <option value="nroll">nroll</option>
+                <option value="fshift">fshift</option>
+                <option value="bshift">bshift</option>
+                <option value="nshift">nshift</option>
+                <option value="match">match</option>
+                <option value="sshift">sshift</option>
+                <option value="mshift">mshift</option>
+                <option value="invert">invert</option>
+              </param>
+              <param argument="tolerance" type="text" optional="true" label="Limiting the distance, values can be shifted or comprised into aggregation" help="Limiting the distance, values can be shifted or comprised into aggregation"/>
+              <param argument="data_aggregation" type="text" optional="true" label="data_aggregation" help="Function string or custom Function, determining how to aggregate new data values from the values at the periods selected according to the `index_selection_method`. If a scalar value is passed, the new data series will just evaluate to that scalar at any new index"/>
+              <param argument="flags_aggregation" type="text" optional="true" label="flags_aggregation" help="Function string or custom Function, determining how to aggregate new flags values from the values at the periods selected according to the `index_selection_method`. If a scalar value is passed, the new flags series will just evaluate to that scalar at any new index"/>
+              <param argument="broadcast" type="boolean" label="broadcast" help="Weather to propagate aggregation result to full reindex window when using aggregation reindexer. (as opposed to only assign to next/previous/closest)" checked="true" truevalue="broadcast" falsevalue=""/>
+              <param argument="squeeze" type="boolean" label="squeeze" help="" checked="false" truevalue="squeeze" falsevalue=""/>
+              <param argument="override" type="boolean" label="override" help="" checked="false" truevalue="override" falsevalue=""/>
+            </when>
+            <when value="resample">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="freq" type="text" value="" label="Offset string" help="Sampling rate of the target frequency grid">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="func" type="text" value="mean" optional="true" label="Aggregation function" help="See notes for performance considerations"/>
+              <param argument="method" type="select" value="bagg" optional="true" label="Specifies which intervals to be aggregated for a certain timestamp" help="(preceding, succeeding or  surrounding  interval). See description above for more details">
+                <option value="fagg">fagg</option>
+                <option value="bagg">bagg</option>
+                <option value="nagg">nagg</option>
+              </param>
+              <param argument="maxna" type="integer" optional="true" label="Maximum number of allowed ``NaN``s in a resampling interval" help="If exceeded, the aggregation of the interval evaluates to ``NaN``"/>
+              <param argument="maxna_group" type="integer" optional="true" label="Same as `maxna` but for consecutive NaNs" help="Same as `maxna` but for consecutive NaNs"/>
+              <param argument="squeeze" type="boolean" label="squeeze" help="" checked="false" truevalue="squeeze" falsevalue=""/>
+            </when>
+          </conditional>
+        </when>
+        <when value="residuals">
+          <conditional name="method_cond" label="Method">
+            <param name="method_select" type="select" label="Method">
+              <option value="calculatePolynomialResiduals">calculatePolynomialResiduals: Fits a polynomial model to the data and calculate the residuals</option>
+              <option value="calculateRollingResiduals">calculateRollingResiduals: Calculate the diff of a rolling-window function and the data</option>
+            </param>
+            <when value="calculatePolynomialResiduals">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="window" type="text" value="" label="The size of the window you want to use for fitting" help="If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. The window will be centered around the vaule-to-be-fitted. For regularly sampled timeseries the period number will be casted down to an odd number if even">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="order" type="integer" value="" label="The degree of the polynomial used for fitting" help="The degree of the polynomial used for fitting"/>
+              <param argument="min_periods" type="integer" value="0" optional="true" label="min_periods" help="The minimum number of periods, that has to be available in every values fitting surrounding for the polynomial fit to be performed. If there are not enough values, np.nan gets assigned. Default (0) results in fitting regardless of the number of values present (results in overfitting for too sparse intervals). To automatically set the minimum number of periods to the number of values in an offset defined window size, pass np.nan"/>
+            </when>
+            <when value="calculateRollingResiduals">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="window" type="text" value="" label="The size of the window you want to roll with" help="If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. For regularly sampled timeseries, the period number will be casted down to an odd number if ``center=True``">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="func" type="text" value="mean" optional="true" label="func" help="default mean Function to roll with"/>
+              <param argument="min_periods" type="integer" value="0" optional="true" label="The minimum number of periods to get a valid value" help="The minimum number of periods to get a valid value"/>
+              <param argument="center" type="boolean" label="If True, center the rolling window" help="If True, center the rolling window" checked="true" truevalue="center" falsevalue=""/>
+            </when>
+          </conditional>
+        </when>
+        <when value="rolling">
+          <conditional name="method_cond" label="Method">
+            <param name="method_select" type="select" label="Method">
+              <option value="rolling">rolling: Calculate a rolling-window function on the data</option>
+            </param>
+            <when value="rolling">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="window" type="text" value="" label="The size of the window you want to roll with" help="If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. For regularly sampled timeseries, the period number will be casted down to an odd number if ``center=True``">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="func" type="text" value="mean" optional="true" label="func" help="default mean Function to roll with"/>
+              <param argument="min_periods" type="integer" value="0" optional="true" label="The minimum number of periods to get a valid value" help="The minimum number of periods to get a valid value"/>
+              <param argument="center" type="boolean" label="If True, center the rolling window" help="If True, center the rolling window" checked="true" truevalue="center" falsevalue=""/>
+            </when>
+          </conditional>
+        </when>
+        <when value="scores">
+          <conditional name="method_cond" label="Method">
+            <param name="method_select" type="select" label="Method">
+              <option value="assignKNNScore">assignKNNScore: Score datapoints by an aggregation of the distances to their `k` nearest neighbors</option>
+              <option value="assignLOF">assignLOF: Assign Local Outlier Factor (LOF)</option>
+              <option value="assignUniLOF">assignUniLOF: Assign  univariate  Local Outlier Factor (LOF)</option>
+              <option value="assignZScore">assignZScore: Calculate (rolling) Zscores</option>
+            </param>
+            <when value="assignKNNScore">
+              <repeat name="field_repeat" title="Field(s)" min="1">
+                <param argument="field" type="text" value="" label="Name for field" help="Name of the variable to process.">
+                  <validator type="empty_field"/>
+                </param>
+              </repeat>
+              <param argument="target" type="text" value="" label="Target" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="n" type="integer" value="10" optional="true" label="n" help=": The number of nearest neighbors to which the distance is comprised in every datapoints scoring calculation"/>
+              <param argument="func" type="text" value="sum" optional="true" label="func" help="default sum A function that assigns a score to every one dimensional array, containing the distances to every datapoints `n` nearest neighbors"/>
+              <conditional name="freq_cond">
+                <param name="freq_select_type" type="select" value="number" label="freq Input Mode" help="Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually.  * ``np.inf``: Apply Scoring on whole data set at once * ``x``   0 : Apply scoring on successive data chunks of periods length ``x`` * Offset String : Apply scoring on successive partitions of temporal extension matching the passed offset string">
+                  <option value="number">Frequency as Value (float)</option>
+                  <option value="offset">Frequency as Offset string</option>
+                  <option value="none">None (use default)</option>
+                </param>
+                <when value="number">
+                  <param argument="freq" type="float" value="inf" label="freq (Frequency as Value (float))"/>
+                </when>
+                <when value="offset">
+                  <param argument="freq" type="text" value="" label="freq (Frequency as Offset string)">
+                    <validator type="empty_field"/>
+                  </param>
+                </when>
+                <when value="none">
+                  <param name="freq" type="hidden" value="__none__" label=""/>
+                </when>
+              </conditional>
+              <param argument="min_periods" type="integer" value="2" optional="true" label="min_periods" help="The minimum number of periods that have to be present in a window for the kNN scoring to be applied. If the number of periods present is below `min_periods`, the score for the datapoints in that window will be np.nan"/>
+              <param argument="algorithm" type="select" value="ball_tree" optional="true" label="The search algorithm to find each datapoints k nearest neighbors" help="The keyword just gets passed on to the underlying sklearn method. See reference [1] for more information on the algorithm">
+                <option value="ball_tree">ball_tree</option>
+                <option value="kd_tree">kd_tree</option>
+                <option value="brute">brute</option>
+                <option value="auto">auto</option>
+              </param>
+              <param argument="metric" type="text" value="minkowski" optional="true" label="The metric the distances to any datapoints neighbors is computed with" help="The default of `metric` together with the default of `p` result in the euclidian to be applied. The keyword just gets passed on to the underlying sklearn method. See reference [1] for more information on the algorithm"/>
+              <param argument="p" type="integer" value="2" optional="true" label="p" help=": The grade of the metrice specified by parameter `metric`. The keyword just gets passed on to the underlying sklearn method. See reference [1] for more information on the algorithm"/>
+            </when>
+            <when value="assignLOF">
+              <repeat name="field_repeat" title="Field(s)" min="1">
+                <param argument="field" type="text" value="" label="Name for field" help="Name of the variable to process.">
+                  <validator type="empty_field"/>
+                </param>
+              </repeat>
+              <param argument="target" type="text" value="" label="Target" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="n" type="integer" value="20" optional="true" label="Number of periods to be included into the LOF calculation" help="Defaults to `20`, which is a value found to be suitable in the literature"/>
+              <conditional name="freq_cond">
+                <param name="freq_select_type" type="select" value="number" label="freq Input Mode" help="Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually">
+                  <option value="number">Frequency as Value (float)</option>
+                  <option value="offset">Frequency as Offset string</option>
+                  <option value="none">None (use default)</option>
+                </param>
+                <when value="number">
+                  <param argument="freq" type="float" value="inf" label="freq (Frequency as Value (float))"/>
+                </when>
+                <when value="offset">
+                  <param argument="freq" type="text" value="" label="freq (Frequency as Offset string)">
+                    <validator type="empty_field"/>
+                  </param>
+                </when>
+                <when value="none">
+                  <param name="freq" type="hidden" value="__none__" label=""/>
+                </when>
+              </conditional>
+              <param argument="min_periods" type="integer" value="2" optional="true" label="min_periods" help=""/>
+              <param argument="algorithm" type="select" value="ball_tree" optional="true" label="algorithm" help="Algorithm used for calculating the `n`-nearest neighbors needed for LOF calculation">
+                <option value="ball_tree">ball_tree</option>
+                <option value="kd_tree">kd_tree</option>
+                <option value="brute">brute</option>
+                <option value="auto">auto</option>
+              </param>
+              <param argument="p" type="integer" value="2" optional="true" label="p" help="Degree of the metric ( Minkowski ), according to wich distance to neighbors is determined. Most important values are:  * `1` - Manhatten Metric * `2` - Euclidian Metric"/>
+            </when>
+            <when value="assignUniLOF">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="n" type="integer" value="20" optional="true" label="Number of periods to be included into the LOF calculation" help="Defaults to `20`, which is a value found to be suitable in the literature.  * `n` determines the  locality  of an observation (its `n` nearest neighbors) and sets the upper limit of values of an outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than `n/2` may not be detected reliably. * The larger `n`, the lesser the algorithm's sensitivity to local outliers and small or singleton outliers points. Higher values greatly increase numerical costs"/>
+              <param argument="algorithm" type="select" value="ball_tree" optional="true" label="algorithm" help="Algorithm used for calculating the `n`-nearest neighbors needed for LOF calculation">
+                <option value="ball_tree">ball_tree</option>
+                <option value="kd_tree">kd_tree</option>
+                <option value="brute">brute</option>
+                <option value="auto">auto</option>
+              </param>
+              <param argument="p" type="integer" value="1" optional="true" label="p" help="Degree of the metric ( Minkowski ), according to wich distance to neighbors is determined. Most important values are:  * `1` - Manhatten Metric * `2` - Euclidian Metric"/>
+              <conditional name="density_cond">
+                <param name="density_select_type" type="select" value="auto" label="How to calculate the temporal distance/density for the variable-to-be-flagged Mode" help="* float - introduces linear density with an increment equal to `density` * Callable - calculates the density by applying the function passed onto the variable to be flagged (passed as Series)">
+                  <option value="auto">Automatic ('auto')</option>
+                  <option value="float">Specific Value (float)</option>
+                  <option value="none">None (use default)</option>
+                </param>
+                <when value="auto">
+                  <param name="density" type="hidden" value="auto" label=""/>
+                </when>
+                <when value="float">
+                  <param argument="density" type="float" value="" label="How to calculate the temporal distance/density for the variable-to-be-flagged (float value)"/>
+                </when>
+                <when value="none">
+                  <param name="density" type="hidden" value="__none__" label=""/>
+                </when>
+              </conditional>
+              <param argument="fill_na" type="boolean" label="If True, NaNs in the data are filled with a linear interpolation" help="If True, NaNs in the data are filled with a linear interpolation" checked="true" truevalue="fill_na" falsevalue=""/>
+            </when>
+            <when value="assignZScore">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="window" type="text" optional="true" label="Size of the window" help="can be determined as: * Offset String, denoting the windows temporal extension * Integer, denoting the windows number of periods. * `None` (default), All data points share the same scoring window, which than equals the whole data"/>
+              <param argument="norm_func" type="text" value="std" optional="true" label="norm_func" help="default mean Function to calculate the scaling for every window"/>
+              <param argument="model_func" type="text" value="mean" optional="true" label="model_func" help="default std Function to calculate the center moment in every window"/>
+              <param argument="center" type="boolean" label="Weather or not to center the target value in the scoring window" help="If `False`, the target value is the last value in the window" checked="true" truevalue="center" falsevalue=""/>
+              <param argument="min_periods" type="integer" optional="true" label="min_periods" help="Minimum number of valid meassurements in a scoring window, to consider the resulting score valid"/>
+            </when>
+          </conditional>
+        </when>
+        <when value="tools">
+          <conditional name="method_cond" label="Method">
+            <param name="method_select" type="select" label="Method">
+              <option value="copyField">copyField: Make a copy of the data and flags of `field`</option>
+              <option value="dropField">dropField: Drops field from the data and flags</option>
+              <option value="flagByClick">flagByClick: Pop up GUI for adding or removing flags by selection of points in the data plot</option>
+              <option value="plot">plot: Plot data and flags or store plot to file</option>
+              <option value="renameField">renameField: Rename field in data and flags</option>
+              <option value="selectTime">selectTime: Realizes masking within saqc</option>
+            </param>
+            <when value="copyField">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="target" type="text" value="" label="Target" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="overwrite" type="boolean" label="overwrite" help="overwrite target, if already existant" checked="false" truevalue="overwrite" falsevalue=""/>
+            </when>
+            <when value="dropField">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+            </when>
+            <when value="flagByClick">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="max_gap" type="text" optional="true" label="max_gap" help="If ``None``, all data points will be connected, resulting in long linear lines, in case of large data gaps. ``NaN`` values will be removed before plotting. If an offset string is passed, only points that have a distance below ``max_gap`` are connected via the plotting line"/>
+              <param argument="gui_mode" type="select" value="GUI" optional="true" label="gui_mode" help="* `` GUI `` (default), spawns TK based pop-up GUI, enabling scrolling and binding for subplots * `` overlay ``, spawns matplotlib based pop-up GUI. May be less conflicting, but does not support scrolling or binding">
+                <option value="GUI">GUI</option>
+                <option value="overlay">overlay</option>
+              </param>
+              <param argument="dfilter" type="float" value="255.0" optional="true" label="dfilter" help="Any, optional Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme"/>
+            </when>
+            <when value="plot">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="path" type="text" optional="true" label="path" help="If ``None`` is passed, interactive mode is entered; plots are shown immediatly and a user need to close them manually before execution continues. If a filepath is passed instead, store-mode is entered and the plot is stored unter the passed location"/>
+              <param argument="max_gap" type="text" optional="true" label="max_gap" help="If ``None``, all data points will be connected, resulting in long linear lines, in case of large data gaps. ``NaN`` values will be removed before plotting. If an offset string is passed, only points that have a distance below ``max_gap`` are connected via the plotting line"/>
+              <param argument="mode" type="text" value="oneplot" optional="true" label="mode" help="How to process multiple variables to be plotted:  * ` oneplot ` : plot all variables with their flags in one axis (default) * ` subplots ` : generate subplot grid where each axis contains one variable plot with associated flags * ` biplot ` : plotting first and second variable in field against each other in a scatter plot  (point cloud)"/>
+              <conditional name="history_cond">
+                <param name="history_select_type" type="select" value="valid" label="Discriminate the plotted flags with respect to the tests they originate from Mode" help="* `` valid ``: Only plot flags, that are not overwritten by subsequent tests. Only list tests in the legend, that actually contributed flags to the overall result. * ``None``: Just plot the resulting flags for one variable, without any historical and/or meta information. * list of strings: List of tests. Plot flags from the given tests, only. * ``complete`` (not recommended, deprecated): Plot all the flags set by any test, independently from them being removed or modified by subsequent modifications. (this means: plotted flags do not necessarily match with flags ultimately assigned to the data)">
+                  <option value="valid">Valid</option>
+                  <option value="complete">Complete</option>
+                  <option value="list">Custom List</option>
+                  <option value="none">None (use default)</option>
+                </param>
+                <when value="valid">
+                  <param name="history" type="hidden" value="valid" label=""/>
+                </when>
+                <when value="complete">
+                  <param name="history" type="hidden" value="complete" label=""/>
+                </when>
+                <when value="list">
+                  <param argument="history" type="text" value="" label="Discriminate the plotted flags with respect to the tests they originate from (comma-separated)">
+                    <validator type="empty_field"/>
+                  </param>
+                </when>
+                <when value="none">
+                  <param name="history" type="hidden" value="__none__" label=""/>
+                </when>
+              </conditional>
+              <param argument="xscope" type="text" optional="true" label="Determine a chunk of the data to be plotted" help="``xscope`` can be anything, that is a valid argument to the ``pandas.Series.__getitem__`` method"/>
+              <param argument="yscope" type="text" optional="true" label="yscope" help="Either a tuple of 2 scalars that determines all plots' y-view limits, or a list of those tuples, determining the different variables y-view limits (must match number of variables) or a dictionary with variables as keys and the y-view tuple as values"/>
+              <param argument="ax" type="text" optional="true" label="ax" help="If not ``None``, plot into the given ``matplotlib.Axes`` instance, instead of a newly created ``matplotlib.Figure``. This option offers a possibility to integrate ``SaQC`` plots into custom figure layouts"/>
+              <param argument="dfilter" type="float" value="inf" optional="true" label="dfilter" help="Any, optional Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme"/>
+            </when>
+            <when value="renameField">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="new_name" type="text" value="" label="String, field is to be replaced with" help="String, field is to be replaced with">
+                <validator type="empty_field"/>
+              </param>
+            </when>
+            <when value="selectTime">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="mode" type="select" value="" label="The masking mode" help="-  periodic : parameters  period_start ,  end  are evaluated to generate a periodical mask -  mask_var : data[mask_var] is expected to be a boolean valued timeseries and is used as mask">
+                <option value="periodic">periodic</option>
+                <option value="selection_field">selection_field</option>
+              </param>
+              <param argument="selection_field" type="text" optional="true" label="selection_field" help="Only effective if mode ==  mask_var  Fieldname of the column, holding the data that is to be used as mask. (must be boolean series) Neither the series` length nor its labels have to match data[field]`s index and length. An inner join of the indices will be calculated and values get masked where the values of the inner join are ``True``"/>
+              <param argument="start" type="text" optional="true" label="start" help="Only effective if mode ==  seasonal  String denoting starting point of every period. Formally, it has to be a truncated instance of  mm-ddTHH:MM:SS . Has to be of same length as `end` parameter. See examples section below for some examples"/>
+              <param argument="end" type="text" optional="true" label="end" help="Only effective if mode ==  periodic  String denoting starting point of every period. Formally, it has to be a truncated instance of  mm-ddTHH:MM:SS . Has to be of same length as `end` parameter. See examples section below for some examples"/>
+              <param argument="closed" type="boolean" label="Wheather or not to include the mask defining bounds to the mask" help="Wheather or not to include the mask defining bounds to the mask" checked="true" truevalue="closed" falsevalue=""/>
+            </when>
+          </conditional>
+        </when>
+        <when value="transformation">
+          <conditional name="method_cond" label="Method">
+            <param name="method_select" type="select" label="Method">
+              <option value="transform">transform: Transform data by applying a custom function on data chunks of variable size. Existing flags are preserved</option>
+            </param>
+            <when value="transform">
+              <param argument="field" type="text" value="" label="Field" help="The name of the variable to process.">
+                <validator type="empty_field"/>
+              </param>
+              <param argument="func" type="text" value="" label="Transformation function" help="Transformation function">
+                <validator type="empty_field"/>
+              </param>
+              <conditional name="freq_cond">
+                <param name="freq_select_type" type="select" value="none" label="Size of the data window Input Mode" help="The transformation is applied on each window individually  * ``None``: Apply transformation on the entire data set at once * ``int`` : Apply transformation on successive data chunks of the given length. Must be grater than 0. * Offset String : Apply transformation on successive data chunks of the given temporal extension">
+                  <option value="number">Frequency as Value (float)</option>
+                  <option value="offset">Frequency as Offset string</option>
+                  <option value="none">None (use default)</option>
+                </param>
+                <when value="number">
+                  <param argument="freq" type="float" value="" label="Size of the data window (Frequency as Value (float))"/>
+                </when>
+                <when value="offset">
+                  <param argument="freq" type="text" value="" label="Size of the data window (Frequency as Offset string)">
+                    <validator type="empty_field"/>
+                  </param>
+                </when>
+                <when value="none">
+                  <param name="freq" type="hidden" value="__none__" label=""/>
+                </when>
+              </conditional>
+            </when>
+          </conditional>
+        </when>
+      </conditional>
+    </repeat>
   </inputs>
   <outputs>
-      <data name="output"
-            format="csv"
-            from_work_dir="output.csv"
-            hidden="false"/>
+    <data name="output" format="csv" label="${tool.name} on ${on_string}: Processed Data" from_work_dir="output.csv" hidden="false"/>
+    <collection name="plots" type="list" label="${tool.name} on ${on_string}: Plots (if any generated)">
+      <discover_datasets pattern="(?P&lt;name&gt;.*)\.png" ext="png" visible="true"/>
+    </collection>
+    <data name="config_out" format="txt" label="${tool.name} on ${on_string}: Generated SaQC Configuration" from_work_dir="config.csv" hidden="false"/>
   </outputs>
-  <tests>
-    <test>
-      <!-- https://rdm-software.pages.ufz.de/saqc/cookbooks/MultivariateFlagging.html -->
-      <param name="data" value="data.csv,maint.csv" ftype="csv"/>
-      <param name="config" value="config.txt" ftype="txt"/>
-      <output name="output" value="out.csv" ftype="csv"/>
-    </test>
-  </tests>
-  <help><![CDATA[
-  This tool runs the SaQC quality control pipeline specified by a config file on the input data.
-  Just upload your data and a config file, and the tool will run the SaQC pipeline on the data.
-]]></help>
+  <expand macro="saqc_tests"/>
+  <help><![CDATA[This tool provides access to SaQC functions for quality control of time series data. Select a module and method, then configure its parameters.]]></help>
   <expand macro="citations"/>
 </tool>
 

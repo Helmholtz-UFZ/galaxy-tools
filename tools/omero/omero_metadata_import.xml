@@ -2,7 +2,7 @@
     <description> with ezomero </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">4</token>
+        <token name="@VERSION_SUFFIX@">5</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -54,6 +54,7 @@
         <param argument="ann_type" type="select" optional="false" label="Annotation type" help="Select annotation format">
             <option value="table">Table</option>
             <option value="KV">Key-Value Pairs</option>
+            <option value="attachement">File Attachment</option>
         </param>
         <param argument="ann_file" type="data" format="tabular" optional="false" label="Annotation file" help="Select annotation file"/>
         <param argument="an_name" type="text" optional="false" label="Annotation Name"/>
@@ -112,6 +113,25 @@
             <param name="OMERO_USER" value="root"/>
             <param name="OMERO_PASSWORD" value="omero"/>
             <output name="log" value="output_target_import.txt" ftype="txt">
+                <assert_contents>
+                    <has_text text="SUCCESS: Successfully uploaded metadata for dataset"/>
+                </assert_contents>
+            </output>
+        </test>
+            <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="dataset"/>
+            <param name="ann_type" value="attachement"/>
+            <conditional name="object_id">
+                <param name="object_id_selection" value="existing_object"/>
+                <param name="did" value="1"/>
+            </conditional>
+            <param name="ann_file" value="metadata.tsv"/>
+            <param name="an_name" value="attachement_test"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="log" value="output_attachement_import.txt" ftype="txt">
                 <assert_contents>
                     <has_text text="SUCCESS: Successfully uploaded metadata for dataset"/>
                 </assert_contents>

@@ -82,6 +82,9 @@ def metadata_import_ezo(
                                           headers=True)
                 tb_dict = ez.get_table(conn, id_tb_ann)
                 return tb_dict
+            elif ann_type == "attachement":
+                id_file_attach = ez.post_file_annotation(conn, file_path=data_dict, ns=an_name, object_type=obj_type, object_id=int(did))
+                return id_file_attach
         except Exception as e:
             log_error(f"Error uploading metadata for {obj_type} with ID {did}: {str(e)}")
             return None
@@ -104,6 +107,8 @@ def metadata_import_ezo(
         data_dict = df.to_dict(orient='records')
     elif ann_type == "KV":
         data_dict = {col: df[col].iloc[0] for col in df.columns}
+    elif ann_type == "attachement":
+        data_dict = ann_file
 
     try:
         if obj_type == "project":
@@ -146,7 +151,7 @@ if __name__ == "__main__":
                         choices=['project', 'screen', 'dataset', 'plate', 'well ', 'image'],
                         help='Type of OMERO object')
     parser.add_argument('--did', type=int, help='ID of the object (if it exists)')
-    parser.add_argument('--ann_type', required=True, choices=['table', 'KV'], help='Annotation type')
+    parser.add_argument('--ann_type', required=True, choices=['table', 'KV', "attachement"], help='Annotation type')
     parser.add_argument('--ann_file', required=True, help='Path to the annotation file')
     parser.add_argument('--an_name', required=True, help='Namespace or title for the annotation')
     parser.add_argument('--session_close', required=False, help='Namespace or title for the annotation')

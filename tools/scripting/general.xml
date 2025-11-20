@@ -1,4 +1,4 @@
-<tool id="singularity_scriptrunner" name="scriptrunner" version="0.2" profile="22.05">
+<tool id="singularity_scriptrunner" name="scriptrunner" version="0.3" profile="22.05">
     <description>singularity</description>
     <creator>
         <person givenName="Matthias" familyName="Bernt" email="m.bernt@ufz.de" />
@@ -28,7 +28,7 @@
             ## --cpus 1 # disabled because rootless cgroups requires cgroups v2
             ## --memory "\$((1024 * \${GALAY_MEMORY_MB:-8192}))" # not needed on EVE
             ## bind Galaxy's file dir, otherwise we need to copy input file to JWD
-            --bind '$__app__.config.file_path:$__app__.config.file_path'
+            --bind '$__app__.config.file_path:$__app__.config.file_path:ro'
             $image.fields.container_params
         '$image.fields.image'
         $image.fields.interpreter 'script/script'

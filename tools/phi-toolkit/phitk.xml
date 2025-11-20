@@ -1,0 +1,315 @@
+<tool id="phi_toolkit_report" name="PHI toolkit report" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01" license="MIT">
+    <description></description>
+    <icon src="logo.jpg"/>
+    <macros>
+        <token name="@TOOL_VERSION@">0.2.0</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+
+        <xml name="zenodo_collection_element" tokens="id" token_suffix="">
+            <element name="@ID@@SUFFIX@" location="https://zenodo.org/records/15594463/files/@ID@.fasta.fasta?download=1" value="genomes/@ID@.fasta" ftype="fasta"/>
+        </xml>
+
+        <xml name="test_collection_element" tokens="id,folder,ext,suffix">
+            <element name="@ID@@SUFFIX@" value="@FOLDER@/@ID@.fasta.@EXT@" ftype="@EXT@"/>
+        </xml>
+        <xml name="test_collection_non_empty" tokens="name,folder,ext" token_suffix="">
+            <param name="@NAME@">
+                <collection type="list">
+                    <expand macro="test_collection_element" id="NC_000913" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_002737" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_008261" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_009012" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_014168" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_014212" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_014364" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_015761" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_017033" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_018068" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_018515" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_019936" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                    <expand macro="test_collection_element" id="NC_021184" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                    <yield/>
+                </collection>
+            </param>
+        </xml>
+        <xml name="test_collection" tokens="name,folder,ext" token_suffix="">
+            <expand macro="test_collection_non_empty" name="@NAME@" folder="@FOLDER@" ext="@EXT@" suffix="@SUFFIX@">
+                <expand macro="test_collection_element" id="NC_003450" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                <expand macro="test_collection_element" id="NC_012982" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                <expand macro="test_collection_element" id="NC_014008" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                <expand macro="test_collection_element" id="NC_014211" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                <expand macro="test_collection_element" id="NC_014363" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                <expand macro="test_collection_element" id="NC_017095" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                <expand macro="test_collection_element" id="NC_018014" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                <expand macro="test_collection_element" id="NC_019897" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+                <expand macro="test_collection_element" id="NC_019904" suffix="@SUFFIX@" folder="@FOLDER@" ext="@EXT@"/>
+            </expand>
+        </xml>
+        
+    </macros>
+    <!-- TODO <xrefs>
+        <xref type="bio.tools"></xref>
+    </xrefs> -->
+    <requirements>
+        <requirement type="package" version="2.74.0">bioconductor-biostrings</requirement>
+        <requirement type="package" version="1.58.0">bioconductor-genomicranges</requirement>
+        <requirement type="package" version="1.18.0">bioconductor-gmoviz</requirement>
+        <requirement type="package" version="0.2.1">r-formattable</requirement>
+        <requirement type="package" version="1.0.1">r-here</requirement>
+        <requirement type="package" version="2.2.1">r-janitor</requirement>
+        <requirement type="package" version="1.4.0">r-kableextra</requirement>
+        <requirement type="package" version="1.3.0">r-patchwork</requirement>
+        <requirement type="package" version="2.0.0">r-tidyverse</requirement>
+        <requirement type="package" version="2.0.2">r-base64</requirement>
+        <requirement type="package" version="3.5.0">r-pdftools</requirement>
+    </requirements>
+    <version_command><![CDATA[
+        echo $(R --vanilla --slave -e 'required_packages <- c("tidyverse", "janitor", "here", "kableExtra", "gmoviz", "circlize", "GenomicRanges", "patchwork", "fs", "tools", "scales", "formattable", "pdftools", "base64"); invisible(lapply(required_packages, library, character.only = TRUE, quietly=TRUE, verbose=FALSE)); sessionInfo()' 2> /dev/null)
+    ]]></version_command>
+    <command detect_errors="exit_code"><![CDATA[
+        #import re
+        mkdir -p data/genomes &&
+        #for e in $genomes
+            #set id=re.sub(r'[^\w\-.]', '_', $e.element_identifier)
+            ln -s '$e' 'data/genomes/${id}.fna' &&
+        #end for
+
+        mkdir -p data/host_analyses &&
+        mkdir -p data/virus_analyses &&
+
+        ## checkm
+        mkdir -p data/host_analyses/checkm2 &&
+        ln -s '$checkm' data/host_analyses/checkm2/quality_report.tsv &&
+
+        ## defense-finder inputs
+        mkdir -p data/host_analyses/defense-finder &&
+        #for e in $defense_finder
+            #set id=re.sub(r'[^\w\-.]', '_', $e.element_identifier)
+            mkdir -p 'data/host_analyses/defense-finder/${id}/' &&
+            ln -s '$e' 'data/host_analyses/defense-finder/${id}/${id}_defense_finder_systems.tsv' &&
+        #end for
+
+        ## genomad inputs
+        mkdir -p data/host_analyses/genomad &&
+        #for e in $genomad
+            #set id=re.sub(r'[^\w\-.]', '_', $e.element_identifier)
+            mkdir -p 'data/host_analyses/genomad/${id}/${id}_summary/' &&
+            ln -s '$e' 'data/host_analyses/genomad/${id}/${id}_summary/${id}_virus_summary.tsv' &&
+        #end for
+        #for e in $genomad_phages
+            #set id=re.sub(r'[^\w\-.]', '_', $e.element_identifier)
+            mkdir -p 'data/host_analyses/genomad/${id}/${id}_summary/' &&
+            ln -s '$e' 'data/host_analyses/genomad/${id}/${id}_summary/${id}_virus.fna' &&
+        #end for
+        #for e in $genomad_annotations
+            #set id=re.sub(r'[^\w\-.]', '_', $e.element_identifier)
+            mkdir -p 'data/host_analyses/genomad/${id}/${id}_summary/' &&
+            ln -s '$e' 'data/host_analyses/genomad/${id}/${id}_summary/${id}_virus_genes.tsv' &&
+        #end for
+
+        ## GTDBTK
+        mkdir -p data/host_analyses/gtdbtk &&
+        ln -s '$gtdb_summary' data/host_analyses/gtdbtk/gtdbtk.bac120.summary.tsv &&
+
+        ## CheckV
+        mkdir -p data/virus_analyses/checkv &&
+        #for e in $checkv
+            #set id=re.sub(r'[^\w\-.]', '_', $e.element_identifier)
+            mkdir -p 'data/virus_analyses/checkv/${id}/' &&
+            ln -s '$e' 'data/virus_analyses/checkv/${id}/quality_summary.tsv' &&
+        #end for
+
+        ## drep compare
+        mkdir -p data/virus_analyses/drep_compare &&
+        #for e in $drep_compare
+            #set id=re.sub(r'[^\w\-.]', '_', $e.element_identifier)
+            mkdir -p 'data/virus_analyses/drep_compare/${id}/data_tables' &&
+            ln -s '$e' 'data/virus_analyses/drep_compare/${id}/data_tables/Cdb.csv' &&
+        #end for
+        #for e in $drep_compare_clustering_dendrogram
+            #set id=re.sub(r'[^\w\-.]', '_', $e.element_identifier)
+            mkdir 'data/virus_analyses/drep_compare/${id}/figures/' &&
+            ln -s '$e' 'data/virus_analyses/drep_compare/${id}/figures/Primary_clustering_dendrogram.pdf' &&
+        #end for
+
+        ## iphop
+        mkdir -p data/virus_analyses/iphop &&
+        #for e in $iphop
+            #set id=re.sub(r'[^\w\-.]', '_', $e.element_identifier)
+            mkdir -p 'data/virus_analyses/iphop/${id}/' &&
+            ln -s '$e' 'data/virus_analyses/iphop/${id}/Host_prediction_to_genome_m90.csv' &&
+        #end for
+
+        ## abricate
+        mkdir -p data/virus_analyses/abricate &&
+        #for e in $abricate
+            #set id=re.sub(r'[^\w\-.]', '_', $e.element_identifier)
+            mkdir -p 'data/virus_analyses/abricate/${id}/' &&
+            ln -s '$e' 'data/virus_analyses/abricate/${id}/${id}_virus_vfdb.tsv' &&
+        #end for
+
+        ## vibrant
+        mkdir -p data/virus_analyses/vibrant &&
+        #for e in $vibrant
+            #set id=re.sub(r'[^\w\-.]', '_', $e.element_identifier)
+            mkdir -p 'data/virus_analyses/vibrant/${id}/VIBRANT_${id}_virus/VIBRANT_results_${id}_virus/' &&
+            ln -s '$e' 'data/virus_analyses/vibrant/${id}/VIBRANT_${id}_virus/VIBRANT_results_${id}_virus/VIBRANT_AMG_individuals_${id}_virus.tsv' &&
+        #end for
+
+        Rscript -e "library(rmarkdown); render('$__tool_directory__/report.Rmd', output_dir='"\$(pwd)"', output_format = 'html_document', intermediates_dir = '"\$(pwd)"', knit_root_dir='"\$(pwd)"')" &&
+        cp report.html '$report'
+        && >&2 echo "debug.log:"
+        && >&2 cat debug.log
+    ]]></command>
+    <inputs>
+        <param type="data_collection" name="genomes" format="fasta" label="Genomes"/>
+        <param type="data" name="checkm" format="tabular" label="Checkm2 quality report"/>
+        <param type="data_collection" name="genomad" format="tabular" label="geNomad Virus Summary"/>
+        <param type="data_collection" name="genomad_phages" format="fasta" label="geNomad Virus fasta"/>
+        <param type="data_collection" name="genomad_annotations" format="tabular" label="geNomad Virus genes"/>
+        <param type="data_collection" name="defense_finder" format="tabular" label="DefenseFinder systems"/>
+        <param type="data" name="gtdb_summary" format="tsv" label="GTDB-Tk summary"/>
+        <param type="data_collection" name="checkv" format="tabular" label="CheckV Quality summary"/> 
+        <param type="data_collection" name="drep_compare" format="csv" label="drep compare Cdb.csv"/>
+        <param type="data_collection" name="drep_compare_clustering_dendrogram" format="pdf" label="drep compare clustering dendrogram"/>
+        <param type="data_collection" name="iphop" format="csv" label="iPHop Host prediction to genome"/>
+        <param type="data_collection" name="abricate" format="tabular" label="Abricate results"/> 
+        <param type="data_collection" name="vibrant" format="tabular" label="Vibrant Individual predicted virus AMGs" help="Vibrant output option 'Individual predicted virus AMGs by protein and its respective genome'"/>
+    </inputs>
+    <outputs>
+        <data name="report" format="html"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="genomes">
+                <collection type="list">
+                    <expand macro="zenodo_collection_element" id="NC_000913"/>
+                    <expand macro="zenodo_collection_element" id="NC_002737"/>
+                    <expand macro="zenodo_collection_element" id="NC_008261"/>
+                    <expand macro="zenodo_collection_element" id="NC_009012"/>
+                    <expand macro="zenodo_collection_element" id="NC_014168"/>
+                    <expand macro="zenodo_collection_element" id="NC_014212"/>
+                    <expand macro="zenodo_collection_element" id="NC_014364"/>
+                    <expand macro="zenodo_collection_element" id="NC_015761"/>
+                    <expand macro="zenodo_collection_element" id="NC_017033"/>
+                    <expand macro="zenodo_collection_element" id="NC_018068"/>
+                    <expand macro="zenodo_collection_element" id="NC_018515"/>
+                    <expand macro="zenodo_collection_element" id="NC_019936"/>
+                    <expand macro="zenodo_collection_element" id="NC_021184"/>
+                    <expand macro="zenodo_collection_element" id="NC_003450"/>
+                    <expand macro="zenodo_collection_element" id="NC_012982"/>
+                    <expand macro="zenodo_collection_element" id="NC_014008"/>
+                    <expand macro="zenodo_collection_element" id="NC_014211"/>
+                    <expand macro="zenodo_collection_element" id="NC_014363"/>
+                    <expand macro="zenodo_collection_element" id="NC_017095"/>
+                    <expand macro="zenodo_collection_element" id="NC_018014"/>
+                    <expand macro="zenodo_collection_element" id="NC_019897"/>
+                    <expand macro="zenodo_collection_element" id="NC_019904"/>
+                </collection>
+            </param>
+            <param name="checkm" value="checkm2.Quality_report.tabular"/>
+            <expand macro="test_collection" name="genomad" folder="genomad_virus_summary" ext="tabular"/>
+            <expand macro="test_collection" name="genomad_phages" folder="genomad_virus_fasta" ext="fasta"/>
+            <expand macro="test_collection" name="genomad_annotations" folder="genomad_virus_genes" ext="tabular"/>
+            <expand macro="test_collection" name="defense_finder" folder="defense_finder_systems" ext="tabular"/>
+            <param name="gtdb_summary" value="gtdbtk.bac120.summary"/>
+            <expand macro="test_collection_non_empty" name="checkv" folder="checkv_quality_summary" ext="tabular"/>
+            <expand macro="test_collection_non_empty" name="drep_compare" folder="drep_compare" ext="csv"/>
+            <expand macro="test_collection_non_empty" name="drep_compare_clustering_dendrogram" folder="drep_compare_clustering_dendrogram" ext="pdf"/>
+            <expand macro="test_collection_non_empty" name="iphop" folder="iphop_host_prediction_to_genome" ext="csv"/> 
+            <expand macro="test_collection_non_empty" name="abricate" folder="abricate_results" ext="tabular"/> 
+            <expand macro="test_collection_non_empty" name="vibrant" folder="vibrant_amg_individuals" ext="tabular"/> 
+            <output name="report">
+                <assert_contents>
+                    <has_size min="100"/>
+                    <has_line line="&lt;html&gt;"/>
+                    <has_text text="Error: " negate="true"/>
+                </assert_contents>
+            </output>
+        </test>
+
+        <!-- test with collection element identifiers contain suffix .fasta
+             also GTDBTk and CheckM2 output tables contain the .fasta suffix-->
+        <test>
+            <param name="genomes">
+                <collection type="list">
+                    <expand macro="zenodo_collection_element" id="NC_000913" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_002737" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_008261" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_009012" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_014168" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_014212" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_014364" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_015761" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_017033" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_018068" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_018515" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_019936" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_021184" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_003450" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_012982" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_014008" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_014211" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_014363" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_017095" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_018014" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_019897" suffix=".fasta"/>
+                    <expand macro="zenodo_collection_element" id="NC_019904" suffix=".fasta"/>
+                </collection>
+            </param>
+            <param name="checkm" value="checkm2.Quality_report-wext.tabular"/>
+            <expand macro="test_collection" name="genomad" suffix=".fasta" folder="genomad_virus_summary" ext="tabular"/>
+            <expand macro="test_collection" name="genomad_phages" suffix=".fasta" folder="genomad_virus_fasta" ext="fasta"/>
+            <expand macro="test_collection" name="genomad_annotations" suffix=".fasta" folder="genomad_virus_genes" ext="tabular"/>
+            <expand macro="test_collection" name="defense_finder" suffix=".fasta" folder="defense_finder_systems" ext="tabular"/>
+            <param name="gtdb_summary" value="gtdbtk.bac120-wext.summary"/>
+            <expand macro="test_collection_non_empty" name="checkv" suffix=".fasta" folder="checkv_quality_summary" ext="tabular"/>
+            <expand macro="test_collection_non_empty" name="drep_compare" suffix=".fasta" folder="drep_compare" ext="csv"/>
+            <expand macro="test_collection_non_empty" name="drep_compare_clustering_dendrogram" suffix=".fasta" folder="drep_compare_clustering_dendrogram" ext="pdf"/>
+            <expand macro="test_collection_non_empty" name="iphop" suffix=".fasta" folder="iphop_host_prediction_to_genome" ext="csv"/> 
+            <!-- TODO remove from test-data <expand macro="test_collection_non_empty" name="phatyp" folder="phabox_phatyp" ext="tabular"/>  -->
+            <expand macro="test_collection_non_empty" name="abricate" suffix=".fasta" folder="abricate_results" ext="tabular"/> 
+            <expand macro="test_collection_non_empty" name="vibrant" suffix=".fasta" folder="vibrant_amg_individuals" ext="tabular"/> 
+            <output name="report">
+                <assert_contents>
+                    <has_size min="100"/>
+                    <has_line line="&lt;html&gt;"/>
+                    <has_text text="Error: " negate="true"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+
+.. class:: infomark
+
+**What it does**
+
+Create a report for the PHI toolkit workflow.
+
+Usage
+.....
+
+**Input**
+
+- Genomes
+- Checkm2 quality report
+- geNomad Virus Summary
+- geNomad Virus genes
+- DefenseFinder systems
+- GTDB-Tk summary
+- CheckV Quality summary
+- drep compare Cdb.csv
+- drep compare clustering dendrogram
+- iPHop Host prediction to genome
+- Abricate results
+- Vibrant Individual predicted virus AMGs
+
+**Output**
+
+A html report summarizing the results.
+    ]]></help>
+    <!-- <citations>
+        <citation type="doi"> </citation>
+    </citations> -->
+</tool>

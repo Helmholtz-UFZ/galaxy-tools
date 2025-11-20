@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cd test-data/
-wget -O - https://zenodo.org/records/11945948/files/genomad_microdb.tar.gz?download=1 | tar -xz 
+wget -O - https://github.com/user-attachments/files/20716815/genomad_microdb.tar.gz | tar -xz 

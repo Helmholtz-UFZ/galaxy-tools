@@ -20,7 +20,6 @@
             <yield/>
         </requirements>
     </xml>
-    
 
     <xml name="host_port">
         <param name="omero_host" type="text" label="OMERO host URL">
@@ -30,27 +29,30 @@
         <param argument="omero_port" type="integer" optional="false" value="4064" label="OMERO port"/>
         <param name="test_username" type="hidden" value=""/>
         <param name="test_password" type="hidden" value=""/>
+        <conditional name="session_id">
+            <param name="session_id_input" type="select" label="Create an OMERO session using a UUID key?" help="Connect to OMERO trough an existing connection (no password/username input)">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+            </param>
+            <when value="yes">
+                <param name="close_connection" type="boolean" truevalue="True" falsevalue="False" label="Close the connection after executing the tool?"
+                help="If yes, the current OMERO connection will be closed after tools execution. UUID key cannot be used again in further tools."/>
+            </when>
+        </conditional>
     </xml>
     <token name="@HOST_PORT@">
         --host '$omero_host'
         --port $omero_port
     </token>
 
-    <xml name="credentials">
-        <configfile name="credentials"><![CDATA[
-{
-    "username": "$__user__.extra_preferences.get('omero_account|username', $test_username)",
-    "password": "$__user__.extra_preferences.get('omero_account|password', $test_password)"
-}
-        ]]></configfile>
-    </xml>
-
     <token name="@SECURITY_DISCLAIMER@">
-    **OMERO-suite Security Diclaimer:** To utilize the OMERO tools, the user must trust Galaxy instances.
-    The configuration file, which contains your OMERO password and username, is stored in the job working directory.
-    This directory only exists during the runtime of the job and should only be accessible by the system user that runs the job.
-    However, please be aware that your username and password may be exposed to users with administrative rights.
-    We are working on increasing the security of the OMERO suite
+    To use the OMERO tools, you **MUST** trust the Galaxy instance and its administrators.
+
+	Your OMERO username and password will be stored temporarily in the job directory. This directory exists (1) during the execution of the job and (2) remains accessible if the job fails. In both 		cases, the folder can be accessed by users with administrative privileges.
+
+	Please be aware: your username and password may be visible to users with administrative rights. The creators of the OMERO tools do not take responsibility for any potential password exposure. We strongly recommend using a temporary token or the UUID session option instead of your main credentials.
+
+	We are actively working on improving the security of the OMERO suite.
     </token>
 
 </macros>

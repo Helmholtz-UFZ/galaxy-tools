@@ -7,11 +7,16 @@
     <xrefs>
         <xref type="bio.tools">omero</xref>
     </xrefs>
-    <expand macro="ezomero_requirements"/>
+    <expand macro="ezomero_requirements">
+            <credentials name="OMERO" version="0.1" label="OMERO credentials" description="Credentials for accessing OMERO">
+            <variable name="username" inject_as_env="OMERO_USER" optional="true" label="OMERO username" description="Your OMERO username" />
+            <secret name="password" inject_as_env="OMERO_PASSWORD" optional="true" label="OMERO password" description="Your OMERO password" />
+            <secret name="uuid-key" inject_as_env="UUID_SESSION_KEY" optional="true" label="Session Key" description="Session_Key" />
+        </credentials>
+    </expand>
     <command detect_errors="exit_code"><![CDATA[
         mkdir output;
         python '$__tool_directory__/omero_get_value.py'
-        --credential-file '$credentials'
         @HOST_PORT@
         --obj_type '$obj_type'
         #if $ids_input.ids_format == "values"
@@ -19,11 +24,13 @@
         #else
             --ids_path '$ids_input.ids_path'
         #end if
+        #if $session_id.session_id_input== "yes"
+            --session_close $close_connection
+        #else
+            --session_close "True"
+        #end if
         --out_dir ./output/
     ]]></command>
-    <configfiles>
-        <expand macro="credentials"/>
-    </configfiles>
     <inputs>
         <expand macro="host_port"/>
         <param argument="obj_type" type="select" optional="false" label="Type of object to fetch:">
@@ -65,8 +72,8 @@
                 <param name="ids_format" value="values"/>
                 <param name="ids" value="1"/>
             </conditional>
-            <param name="test_username" value="root"/>
-            <param name="test_password" value="omero"/>
+            <param name="OMERO_USER" value="root"/>
+            <param name="OMERO_PASSWORD" value="omero"/>
             <output name="tsv" ftype="tabular">
                 <assert_contents>
                     <has_text text="test_tag"/>
@@ -82,8 +89,8 @@
                 <param name="ids_format" value="values"/>
                 <param name="ids" value="7"/>
             </conditional>
-            <param name="test_username" value="root"/>
-            <param name="test_password" value="omero"/>
+            <param name="OMERO_USER" value="root"/>
+            <param name="OMERO_PASSWORD" value="omero"/>
             <output name="tsv" ftype="tabular">
                 <assert_contents>
                     <has_n_lines n="4"/>
@@ -98,8 +105,8 @@
                 <param name="ids_format" value="values"/>
                 <param name="ids" value="2,3,4"/>
             </conditional>
-            <param name="test_username" value="root"/>
-            <param name="test_password" value="omero"/>
+            <param name="OMERO_USER" value="root"/>
+            <param name="OMERO_PASSWORD" value="omero"/>
             <output_collection name="split_output" type="list" count="3">
                 <element name="ID_2_attachment">
                     <assert_contents>
@@ -126,8 +133,8 @@
                 <param name="ids_format" value="values"/>
                 <param name="ids" value="5,6"/>
             </conditional>
-            <param name="test_username" value="root"/>
-            <param name="test_password" value="omero"/>
+            <param name="OMERO_USER" value="root"/>
+            <param name="OMERO_PASSWORD" value="omero"/>
             <output_collection name="split_output" type="list" count="2">
                 <element name="ID_5_table">
                     <assert_contents>

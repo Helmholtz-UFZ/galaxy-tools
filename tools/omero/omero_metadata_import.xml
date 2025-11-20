@@ -7,23 +7,30 @@
     <xrefs>
         <xref type="bio.tools">omero</xref>
     </xrefs>
-    <expand macro="ezomero_requirements"/>
+    <expand macro="ezomero_requirements">
+            <credentials name="OMERO" version="0.1" label="OMERO credentials" description="Credentials for accessing OMERO">
+            <variable name="username" inject_as_env="OMERO_USER" optional="true" label="OMERO username" description="Your OMERO username" />
+            <secret name="password" inject_as_env="OMERO_PASSWORD" optional="true" label="OMERO password" description="Your OMERO password" />
+            <secret name="uuid-key" inject_as_env="UUID_SESSION_KEY" optional="true" label="Session Key" description="Session_Key" />
+        </credentials>
+    </expand>
     <command detect_errors="exit_code"><![CDATA[
-        python $__tool_directory__/omero_metadata_upload.py
-        --credential-file '$credentials'
+        python '$__tool_directory__'/omero_metadata_upload.py
         @HOST_PORT@
         --obj_type $obj_type
         --ann_type $ann_type
         --ann_file $ann_file
         --an_name $an_name
         --log_file $log
+        #if $session_id.session_id_input== "yes"
+            --session_close $close_connection
+        #end if
+        #else
+            --session_close "True"
         #if $object_id_selection == "existing_object"
             --did "$did"
         #end if
     ]]></command>
-    <configfiles>
-        <expand macro="credentials"/>
-    </configfiles>
     <inputs>
         <expand macro="host_port"/>
         <param argument="obj_type" type="select" optional="true" label="Target Object Type">
@@ -65,8 +72,8 @@
             </conditional>
             <param name="ann_file" value="metadata.tsv"/>
             <param name="an_name" value="Table_Test"/>
-            <param name="test_username" value="root"/>
-            <param name="test_password" value="omero"/>
+            <param name="OMERO_USER" value="root"/>
+            <param name="OMERO_PASSWORD" value="omero"/>
             <output name="log" value="output_table_import.txt" ftype="txt">
                 <assert_contents>
                     <has_text text="SUCCESS: Successfully uploaded metadata for project"/>
@@ -83,8 +90,8 @@
             </conditional>
             <param name="ann_file" value="metadata.tsv"/>
             <param name="an_name" value="KV_Test"/>
-            <param name="test_username" value="root"/>
-            <param name="test_password" value="omero"/>
+            <param name="OMERO_USER" value="root"/>
+            <param name="OMERO_PASSWORD" value="omero"/>
             <output name="log" value="output_KV_import.txt" ftype="txt">
                 <assert_contents>
                     <has_text text="SUCCESS: Successfully uploaded metadata for dataset"/>
@@ -102,8 +109,8 @@
             </conditional>
             <param name="ann_file" value="metadata.tsv"/>
             <param name="an_name" value="Additional_KV_Values"/>
-            <param name="test_username" value="root"/>
-            <param name="test_password" value="omero"/>
+            <param name="OMERO_USER" value="root"/>
+            <param name="OMERO_PASSWORD" value="omero"/>
             <output name="log" value="output_target_import.txt" ftype="txt">
                 <assert_contents>
                     <has_text text="SUCCESS: Successfully uploaded metadata for dataset"/>

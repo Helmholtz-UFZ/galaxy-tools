@@ -7,19 +7,26 @@
    <xrefs>
        <xref type="bio.tools">omero</xref>
    </xrefs>
-   <expand macro="omeropy_requirements"/>
+   <expand macro="omeropy_requirements">
+           <credentials name="OMERO" version="0.1" label="OMERO credentials" description="Credentials for accessing OMERO">
+            <variable name="username" inject_as_env="OMERO_USER" optional="true" label="OMERO username" description="Your OMERO username" />
+            <secret name="password" inject_as_env="OMERO_PASSWORD" optional="true" label="OMERO password" description="Your OMERO password" />
+            <secret name="uuid-key" inject_as_env="UUID_SESSION_KEY" optional="true" label="Session Key" description="Session_Key" />
+        </credentials>
+    </expand>
    <command detect_errors="exit_code"><![CDATA[
        python '$__tool_directory__/omero_dataset_to_plate.py'
-       --credential-file '$credentials'
        @HOST_PORT@
        --dataset_id '$dataset_id'
        --log_file '$log'
        --mapping_file '$mapping'
+       #if $session_id.session_id_input== "yes"
+            --session_close $close_connection
+        #else
+            --session_close "True"
+        #end if
        '$delete_dataset'
    ]]></command>
-   <configfiles>
-       <expand macro="credentials"/>
-   </configfiles>
    <inputs>
        <expand macro="host_port"/>
        <param name="dataset_id" type="integer" optional="false" min="1" value="" label="Dataset ID to convert to a plate"/>
@@ -34,8 +41,8 @@
            <param name="omero_host" value="host.docker.internal"/>
            <param name="omero_port" value="6064"/>
            <param name="dataset_id" value="2"/>
-           <param name="test_username" value="root"/>
-           <param name="test_password" value="omero"/>
+           <param name="OMERO_USER" value="root"/>
+           <param name="OMERO_PASSWORD" value="omero"/>
            <param name="mapping" value="mapping.tsv"/>
            <param name="delete_dataset" value="True"/>
            <output name="log" value="dataset_conversion_log.txt" ftype="txt">

@@ -7,18 +7,25 @@
     <xrefs>
         <xref type="bio.tools">omero</xref>
     </xrefs>
-    <expand macro="ezomero_requirements"/>
+    <expand macro="ezomero_requirements">
+            <credentials name="OMERO" version="0.1" label="OMERO credentials" description="Credentials for accessing OMERO">
+            <variable name="username" inject_as_env="OMERO_USER" optional="true" label="OMERO username" description="Your OMERO username" />
+            <secret name="password" inject_as_env="OMERO_PASSWORD" optional="true" label="OMERO password" description="Your OMERO password" />
+            <secret name="uuid-key" inject_as_env="UUID_SESSION_KEY" optional="true" label="Session Key" description="Session_Key" />
+        </credentials>
+    </expand>
     <command detect_errors="exit_code"><![CDATA[
+        @HOST_PORT@
         python '$__tool_directory__/omero_roi_upload.py'
         --input_file '$input'
         --image_id $id
-        --credential-file '$credentials'
-        @HOST_PORT@
+        #if $session_id.session_id_input== "yes"
+            --session_close $close_connection
+        #else
+            --session_close "True"
+        #end if
         --log_file '$log'
     ]]></command>
-    <configfiles>
-        <expand macro="credentials"/>
-    </configfiles>
     <inputs>
         <expand macro="host_port"/>
         <param argument="input" type="data" format="tabular" optional="false" label="Tab File with ROIs" help="Select ROIs Tabular file"/>
@@ -33,8 +40,8 @@
             <param name="omero_port" value="6064"/>
             <param name="id" value="1"/>
             <param name="input" value="input_roi.tsv"/>
-            <param name="test_username" value="root"/>
-            <param name="test_password" value="omero"/>
+            <param name="OMERO_USER" value="root"/>
+            <param name="OMERO_PASSWORD" value="omero"/>
             <output name="log" value="output_table_roi.txt" ftype="txt">
                 <assert_contents>
                     <has_text text="ROI ID: 7 for row 7"/>
@@ -46,8 +53,8 @@
             <param name="omero_port" value="6064"/>
             <param name="id" value="1"/>
             <param name="input" value="input_roi_minimal.tsv"/>
-            <param name="test_username" value="root"/>
-            <param name="test_password" value="omero"/>
+            <param name="OMERO_USER" value="root"/>
+            <param name="OMERO_PASSWORD" value="omero"/>
             <output name="log" value="output_table_roi_minimal.txt" ftype="txt">
                 <assert_contents>
                     <has_text text="ROI ID: 8 for row 1"/>

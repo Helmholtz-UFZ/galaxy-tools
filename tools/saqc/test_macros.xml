@@ -1743,7 +1743,6 @@
             <param name="n" value="1" />
             <param name="min_periods" value="1" />
             <param name="algorithm" value="ball_tree" />
-            <param name="metric" value="a_string" />
             <param name="p" value="1" />
             <conditional name="freq_cond">
               <param name="freq_selector" value="type_0" />
@@ -1771,7 +1770,6 @@
             <param name="n" value="1" />
             <param name="min_periods" value="1" />
             <param name="algorithm" value="ball_tree" />
-            <param name="metric" value="a_string" />
             <param name="p" value="1" />
             <conditional name="freq_cond">
               <param name="freq_selector" value="type_1" />

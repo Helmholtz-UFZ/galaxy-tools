@@ -673,11 +673,6 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         creation_args.pop("optional", None)
         param_object = BooleanParam(argument=param_name, checked=False, **creation_args)
 
-        if 'truevalue' in param_object.node.attrib:
-            del param_object.node.attrib['truevalue']
-        if 'falsevalue' in param_object.node.attrib:
-            del param_object.node.attrib['falsevalue']
-
     if param_object:
         if isinstance(param_object, TextParam) and not getattr(param_object, 'multiple', False):
             if hasattr(param_object, 'optional'):
@@ -1005,16 +1000,9 @@ def _create_param_from_default(
     if isinstance(default_value, bool):
         param_constructor_args.pop("value", None)
         param_constructor_args.pop("optional", None)
-
         param_object = BooleanParam(
             argument=param.name, checked=default_value, **param_constructor_args
         )
-
-        if 'truevalue' in param_object.node.attrib:
-            del param_object.node.attrib['truevalue']
-        if 'falsevalue' in param_object.node.attrib:
-            del param_object.node.attrib['falsevalue']
-
     elif isinstance(default_value, int):
         param_object = IntegerParam(argument=param.name, **param_constructor_args)
     elif isinstance(default_value, float):

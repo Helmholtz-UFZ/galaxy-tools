@@ -4,7 +4,7 @@ import json
 import math
 import sys
 import traceback
-from typing import Any, Dict, List, Tuple, Optional
+from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
 
@@ -26,7 +26,7 @@ def translateColumn(inputData: str, index: int) -> str:
 def load_inputs() -> Tuple[Dict[str, Any], str]:
     """
     Loads JSON params and data file path from sys.argv. Exits on error.
-    
+
     Returns:
         Tuple[Dict[str, Any], str]: (params_from_galaxy, primary_input_file)
     """
@@ -48,7 +48,7 @@ def load_inputs() -> Tuple[Dict[str, Any], str]:
     if not primary_input_file:
         sys.stderr.write("FATAL: could not read input data path sys.argv[2] .\n")
         sys.exit(2)
-    
+
     return params_from_galaxy, primary_input_file
 
 
@@ -103,7 +103,7 @@ def process_parameters(params_to_process: Dict[str, Any], primary_input_file: st
     columns (like 'target' or '*field*'), and handles 'None' values.
     """
     saqc_args_dict = {}
-    
+
     for param_key, param_value_json in params_to_process.items():
         if param_key.endswith("_selector"):
             continue
@@ -135,13 +135,13 @@ def process_parameters(params_to_process: Dict[str, Any], primary_input_file: st
         # Skip empty lists
         if isinstance(current_value_for_saqc, list) and not current_value_for_saqc:
             continue
-        
+
         # Handle 'None' values
         if current_value_for_saqc == "__none__":
             saqc_args_dict[actual_param_name_for_saqc] = None
         elif isinstance(current_value_for_saqc, str) and current_value_for_saqc == "" and actual_param_name_for_saqc in ["xscope", "yscope", "max_gap", "min_periods", "min_residuals", "min_offset"]:
             saqc_args_dict[actual_param_name_for_saqc] = None
-        
+
         # Translate secondary column params
         elif "field" in actual_param_name_for_saqc.lower() or actual_param_name_for_saqc in ["target", "reference"]:
             try:
@@ -150,7 +150,7 @@ def process_parameters(params_to_process: Dict[str, Any], primary_input_file: st
                     indices_from_galaxy = current_value_for_saqc
                 else:
                     indices_from_galaxy = [current_value_for_saqc]
-                
+
                 column_names = []
                 for index_str in indices_from_galaxy:
                     index_int = int(index_str)
@@ -161,41 +161,41 @@ def process_parameters(params_to_process: Dict[str, Any], primary_input_file: st
                     saqc_args_dict[actual_param_name_for_saqc] = column_names
                 else:
                     saqc_args_dict[actual_param_name_for_saqc] = column_names[0]
-            
+
             except Exception as e:
                 sys.stderr.write(f"FATAL: translateColumn failed for PARAMETER '{actual_param_name_for_saqc}' with index '{current_value_for_saqc}'. Error: {e}\n")
                 traceback.print_exc(file=sys.stderr)
                 saqc_args_dict[actual_param_name_for_saqc] = f"ERROR_CONVERSION_FAILED_{current_value_for_saqc}"
-        
+
         # Add normal parameter
         else:
             saqc_args_dict[actual_param_name_for_saqc] = current_value_for_saqc
-            
+
     return saqc_args_dict
 
 
 def format_saqc_value(v_saqc_raw: Any, k_saqc: str) -> Optional[str]:
     """
     Formats a Python value into a SaQC-compatible string.
-    
+
     Handles 'inf', 'nan', bools, lists, and Galaxy-specific dicts
     (tuples, key-value repeats). Returns None if the param should be skipped.
 
     Args:
         v_saqc_raw: The raw Python value (e.g., True, 1.0, "inf").
         k_saqc: The parameter name (needed for 'func' logic).
-        
+
     Returns:
         Optional[str]: The formatted string (e.g., "True", '["a", "b"]').
     """
     v_str_repr = ""
-    
+
     if v_saqc_raw is None:
         return None
 
     elif isinstance(v_saqc_raw, bool):
         v_str_repr = "True" if v_saqc_raw else "False"
-    
+
     elif isinstance(v_saqc_raw, (float, int)):
         if v_saqc_raw == float('inf'):
             v_str_repr = "float('inf')"
@@ -205,7 +205,7 @@ def format_saqc_value(v_saqc_raw: Any, k_saqc: str) -> Optional[str]:
             v_str_repr = "float('nan')"
         else:
             v_str_repr = repr(v_saqc_raw)
-    
+
     elif isinstance(v_saqc_raw, str):
         val_lower = v_saqc_raw.lower()
         if val_lower == "inf":
@@ -221,7 +221,7 @@ def format_saqc_value(v_saqc_raw: Any, k_saqc: str) -> Optional[str]:
         else:
             escaped_v = v_saqc_raw.replace('\\', '\\\\').replace('"', '\\"')
             v_str_repr = f'"{escaped_v}"'
-            
+
     elif isinstance(v_saqc_raw, list):
         if v_saqc_raw and isinstance(v_saqc_raw[0], dict):
             inner_dict = v_saqc_raw[0]
@@ -231,23 +231,27 @@ def format_saqc_value(v_saqc_raw: Any, k_saqc: str) -> Optional[str]:
                 pos1_val_raw = inner_dict.get(f"{k_saqc}_pos1")
 
                 def format_tuple_val(val):
-                    if val is None: return "None"
+                    if val is None:
+                        return "None"
                     if isinstance(val, str):
-                        if val.startswith("'") and val.endswith("'"): return val
-                        if val.lower() in ['np.mean', 'np.min', 'np.max', 'np.std']: return val
+                        if val.startswith("'") and val.endswith("'"):
+                            return val
+                        if val.lower() in ['np.mean', 'np.min', 'np.max', 'np.std']:
+                            return val
                         return f'"{val}"'
-                    if isinstance(val, (int, float)): return str(val)
+                    if isinstance(val, (int, float)):
+                        return str(val)
                     return repr(val)
-                
+
                 v_str_repr = f"({format_tuple_val(pos0_val_raw)}, {format_tuple_val(pos1_val_raw)})"
             # Galaxy dict repeat
             elif 'key' in inner_dict:
                 dict_items = [f'"{i["key"]}": "{i["value"]}"' for i in v_saqc_raw]
                 v_str_repr = f"{{{', '.join(dict_items)}}}"
-                
-            else: # Fallback for unknown dict list
+
+            else:  # Fallback for unknown dict list
                 v_str_repr = f"[{', '.join(map(str, v_saqc_raw))}]"
-        
+
         else:  # Normal list (e.g., from "multiple: True" text/select)
             formatted_list_items = []
             for item in v_saqc_raw:
@@ -256,11 +260,11 @@ def format_saqc_value(v_saqc_raw: Any, k_saqc: str) -> Optional[str]:
                 else:
                     formatted_list_items.append(str(item))
             v_str_repr = f"[{', '.join(formatted_list_items)}]"
-            
+
     else:
         sys.stderr.write(f"Warning: Param '{k_saqc}' has unhandled type {type(v_saqc_raw)}. Converting to string representation: '{str(v_saqc_raw)}'.\n")
         v_str_repr = repr(v_saqc_raw)
-        
+
     return v_str_repr
 
 
@@ -269,7 +273,7 @@ def main():
     Main script execution logic.
     """
     print("varname; function")
-    
+
     try:
         params_from_galaxy, primary_input_file = load_inputs()
     except SystemExit:
@@ -315,6 +319,7 @@ def main():
             traceback.print_exc(file=sys.stderr)
             print(f"{field_str_for_error}; ERROR_PROCESSING_METHOD({method_str_for_error})", flush=True)
             continue
+
 
 if __name__ == "__main__":
     main()

@@ -266,14 +266,14 @@ def get_label_help(param_name, parameter_docs):
     clean_doc = re.sub(r'\b(Callable|Union|Optional|List|Tuple|Dict|Sequence|Literal)\[.*?\]', '', clean_doc, flags=re.IGNORECASE)
 
     banned_words = {
-        "int", "integer", "integers", "float", "floats", "str", "string", "strings", 
-        "bool", "boolean", "booleans", "list", "lists", "tuple", "tuples", 
-        "dict", "dicts", "dictionary", "set", "sets", "callable", "iterable", 
-        "sequence", "array", "arrays", "object", "objects", "none", "any", 
+        "int", "integer", "integers", "float", "floats", "str", "string", "strings",
+        "bool", "boolean", "booleans", "list", "lists", "tuple", "tuples",
+        "dict", "dicts", "dictionary", "set", "sets", "callable", "iterable",
+        "sequence", "array", "arrays", "object", "objects", "none", "any",
         "optional", "default", "union", "literal", "type", "types", "scalar",
         "pandas", "pd", "numpy", "np", "saqc", "saqcfields", "newsaqcfields",
-        "offset", "offsets", "freq", "frequency", "frequencies", "timedelta", 
-        "period", "periods", "interval", "intervals", "timestamp", "datetime", 
+        "offset", "offsets", "freq", "frequency", "frequencies", "timedelta",
+        "period", "periods", "interval", "intervals", "timestamp", "datetime",
         "regex", "column", "columns", "field", "fields", "axis", "min", "max",
         "method", "mode", "func", "function", "curvefitter", "genericfunction",
         "input", "output", "target", "source", "offsetstr", "freqstr", "offsetlike"
@@ -281,9 +281,9 @@ def get_label_help(param_name, parameter_docs):
 
     tech_indicators = r"(?:int|float|str|bool|pandas|offset|freq|optional|default|union|list|tuple|dict|none|any|saqc|curvefitter)"
     clean_doc = re.sub(
-        fr"[\(\[\{{][^\)\]\}}]*?\b{tech_indicators}\b[^\)\]\}}]*?[\)\]\}}]", 
-        "", 
-        clean_doc, 
+        fr"[\(\[\{{][^\)\]\}}]*?\b{tech_indicators}\b[^\)\]\}}]*?[\)\]\}}]",
+        "",
+        clean_doc,
         flags=re.IGNORECASE
     )
 
@@ -322,26 +322,26 @@ def get_label_help(param_name, parameter_docs):
     is_single_paragraph = not rest_of_paragraphs
     is_long = len(first_paragraph) > 80
 
-    help_text = "" 
+    help_text = ""
 
     if is_single_sentence and is_single_paragraph and is_long:
         parts = first_paragraph.split(',')
-        if len(parts) > 2: 
-            label = parts[0] + "," + parts[1] 
-            help_text = ",".join(parts[2:]).strip() 
+        if len(parts) > 2:
+            label = parts[0] + "," + parts[1]
+            help_text = ",".join(parts[2:]).strip()
         else:
             label = first_paragraph
-            help_text = "" 
+            help_text = ""
     else:
         label = sentence_split[0].strip()
-        if not label: 
+        if not label:
             return param_name, ""
 
         rest_of_first_paragraph = ""
-        if len(sentence_split) > 1: 
-            label += "." 
+        if len(sentence_split) > 1:
+            label += "."
             rest_of_first_paragraph = "".join(sentence_split[1:]).strip()
-        
+
         if rest_of_first_paragraph and rest_of_paragraphs:
             help_text = rest_of_first_paragraph + "\n\n" + rest_of_paragraphs
         elif rest_of_first_paragraph:
@@ -417,13 +417,13 @@ def _split_type_string_safely(type_string: str) -> list[str]:
 def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> bool:
     """
     Checks if method should be skipped.
-    
+
     Criteria:
     - Contains a parameter expecting a Function/CurveFitter
       (detected by name 'func' OR type 'Callable'/'CurveFitter'/'GenericFunction')
     - AND is not a Literal (Selection)
     - AND is NOT optional (Mandatory)
-    
+
     Returns True if the entire method should be skipped.
     """
 
@@ -476,10 +476,10 @@ def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> b
             type_parts = _split_type_string_safely(inner_content)
         else:
             type_parts = _split_type_string_safely(raw_annotation_str)
-            
+
         is_python_optional_by_default = (param.default is not inspect.Parameter.empty)
         is_optional_by_none = 'None' in type_parts
-        
+
         is_truly_optional = is_python_optional_by_default or is_optional_by_none
 
         if is_truly_optional:
@@ -521,13 +521,13 @@ def is_module_deprecated(module: "ModuleType") -> bool:
 def _create_param_from_type_str(type_str: str, param_name: str, param_constructor_args: dict, is_optional: bool) -> Optional[object]:
 
     pattern_offset = r"\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*"
-    
+
     regex_offset_full = f"(^$)|({pattern_offset})"
     msg_offset = "Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."
     validator_offset = ValidatorParam(type="regex", message=msg_offset, text=regex_offset_full)
 
     pattern_timedelta = r"-?(\d+(\.\d*)?|\.\d+)\s*(W|D|days?|d|H|hours?|hr|h|T|minutes?|min|m|S|seconds?|sec|s|L|milliseconds?|ms|U|microseconds?|us|N|nanoseconds?|ns)\s*"
-    
+
     regex_timedelta_full = f"(^$)|(^{pattern_timedelta}$)"
     msg_timedelta = "Must be a valid Pandas Timedelta string (e.g., '1d', '2.5h', '30min'). Month (M) or Year (Y) are NOT allowed."
     validator_timedelta = ValidatorParam(type="regex", message=msg_timedelta, text=regex_timedelta_full)
@@ -535,7 +535,6 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
     regex_combined = f"(^$)|({pattern_offset})|(^{pattern_timedelta}$)"
     msg_combined = "Accepts both Pandas Frequencies (e.g. '1M', 'W-SAT') AND Timedeltas (e.g. '3 days', '1.5h')."
     validator_combined = ValidatorParam(type="regex", message=msg_combined, text=regex_combined)
-
 
     param_object = None
     base_type_str = type_str.strip()
@@ -562,7 +561,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         type_1 = inner_types_list[1] if len(inner_types_list) >= 2 else (inner_types_list[0] if len(inner_types_list) == 1 else "str")
 
         title = param_constructor_args.get("label", param_name)
-        
+
         repeat = Repeat(name=param_name, title=title, help=base_help)
 
         inner_args_0 = {'label': f"{param_name}_pos0", 'help': f"First element (index 0) of the {param_name} tuple.", 'optional': is_optional}
@@ -577,7 +576,8 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
             fallback_args_0 = inner_args_0.copy()
             fallback_args_0.pop("optional", None)
             p0 = TextParam(name=f"{param_name}_pos0", **fallback_args_0)
-            if not is_optional: p0.append(ValidatorParam(type="empty_field"))
+            if not is_optional:
+                p0.append(ValidatorParam(type="empty_field"))
             repeat.append(p0)
 
         if param_1:
@@ -586,7 +586,8 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
             fallback_args_1 = inner_args_1.copy()
             fallback_args_1.pop("optional", None)
             p1 = TextParam(name=f"{param_name}_pos1", **fallback_args_1)
-            if not is_optional: p1.append(ValidatorParam(type="empty_field"))
+            if not is_optional:
+                p1.append(ValidatorParam(type="empty_field"))
             repeat.append(p1)
 
         return repeat
@@ -597,10 +598,10 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         creation_args['data_ref'] = "data"
         creation_args['multiple'] = True
         param_object = SelectParam(argument=param_name, **creation_args)
-    
+
     elif is_list_str:
         param_object = TextParam(argument=param_name, multiple=True, **creation_args)
-    
+
     elif re.fullmatch(r"list\[\s*tuple\[\s*float\s*,\s*float\s*\]\s*\]", base_type_str, re.IGNORECASE):
         repeat = Repeat(name=param_name, title=creation_args.get("label", param_name), help=creation_args.get("help", ""))
         repeat.append(FloatParam(name=f"{param_name}_min", label=f"{param_name}_min"))
@@ -645,7 +646,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         if options_list:
             options = {o: o for o in options_list}
             param_object = SelectParam(argument=param_name, options=options, **creation_args)
-            
+
     elif base_type_str in SAQC_CUSTOM_SELECT_TYPES:
         type_obj = SAQC_CUSTOM_SELECT_TYPES[base_type_str]
         args = get_args(type_obj)
@@ -661,7 +662,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
             param_object = FloatParam(argument=param_name, **creation_args)
         else:
             param_object = IntegerParam(argument=param_name, **creation_args)
-            
+
     elif "Int >" in base_type_str or "Float >" in base_type_str:
         pattern = re.compile(r"\(?\s*(Int|Float)\s*(>=?)\s*(\d+(?:\.\d+)?)\s*\)?")
         match = pattern.search(base_type_str)
@@ -672,7 +673,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
                 param_object = IntegerParam(argument=param_name, **creation_args)
             else:
                 param_object = FloatParam(argument=param_name, **creation_args)
-        
+
     elif base_type_str in ['str', 'string', 'Any']:
         param_object = TextParam(argument=param_name, **creation_args)
 
@@ -715,16 +716,15 @@ def _get_user_friendly_type_name(type_str: str) -> str:
     clean = s.replace("typing.", "").strip()
     lower = clean.lower()
 
-    
     if 'pd.timedelta' in lower:
         return "pd.Timedelta"
 
     if 'offsetlike' in lower or 'OffsetLike' in clean:
         return "Time Object (Offset/Timedelta)"
-    
+
     if any(x in clean for x in ['OffsetStr', 'FreqStr']):
         return "OffsetStr (Pandas Frequency)"
-    
+
     if 'saqcfields' in lower:
         return "Column Selection"
 
@@ -740,8 +740,8 @@ def _get_user_friendly_type_name(type_str: str) -> str:
         if inner_content:
             inner_name = _get_user_friendly_type_name(inner_content)
 
-            if not inner_name.endswith('s') and inner_name not in ["Integer", "Float", "String", "Boolean", "pd.Timedelta"]: 
-                 return f"List of {inner_name}s"
+            if not inner_name.endswith('s') and inner_name not in ["Integer", "Float", "String", "Boolean", "pd.Timedelta"]:
+                return f"List of {inner_name}s"
             return f"List of {inner_name}"
         return "List"
 
@@ -750,8 +750,8 @@ def _get_user_friendly_type_name(type_str: str) -> str:
         inner_content = tuple_match.group(1)
         if inner_content:
             if "..." in inner_content:
-                 base_type = inner_content.split(',')[0]
-                 return f"Tuple of {_get_user_friendly_type_name(base_type)}s"
+                base_type = inner_content.split(',')[0]
+                return f"Tuple of {_get_user_friendly_type_name(base_type)}s"
 
             parts = [p.strip() for p in inner_content.split(',')]
             if not any('[' in p for p in parts):
@@ -807,7 +807,7 @@ def _parse_parameter_annotation(
         type_parts = _split_type_string_safely(raw_annotation_str)
 
     is_optional_by_none = "None" in type_parts
- 
+
     is_truly_optional = is_default_none or is_optional_by_none
 
     type_parts_without_none = [p for p in type_parts if p != "None"]
@@ -940,7 +940,7 @@ def _create_parameter_widget(
         selector = SelectParam(
             name=f"{param_name}_selector",
             label=f"Choose type for '{label}'",
-            help=selector_help, 
+            help=selector_help,
             options=dict(type_options),
         )
         conditional.append(selector)
@@ -1143,8 +1143,8 @@ def get_method_params(method, module, tracing=False):
             creation_args["data_ref"] = "data"
             creation_args["multiple"] = False
             if "list" in raw_annotation_str.lower() or "sequence" in raw_annotation_str.lower():
-                 creation_args["multiple"] = True
-                 
+                creation_args["multiple"] = True
+
             param_object = SelectParam(argument=param_name, **creation_args)
             xml_params.append(param_object)
             continue
@@ -1282,6 +1282,7 @@ def get_methods_conditional(methods, module, tracing=False):
         method_conditional.append(method_when)
 
     return method_conditional
+
 
 def generate_tool_xml(tracing=False):
     """Generates XML-Definition of Galaxy-Tools."""
@@ -1480,7 +1481,7 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
                 return "1d"
             if 'OffsetStr' in clean_typ or 'FreqStr' in clean_typ or 'OffsetLike' in clean_typ:
                 return "1D"
-            
+
             if 'SaQCFields' in clean_typ or 'NewSaQCFields' in clean_typ:
                 return 1
             return "test_string"
@@ -1571,7 +1572,7 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
         is_func_name = "func" in param_name.lower()
         is_func_type = any(t in raw_annotation_str for t in ["Callable", "GenericFunction", "CurveFitter"])
         is_func_param = is_func_name or is_func_type
-        
+
         is_literal_type = "Literal[" in raw_annotation_str or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
 
         if is_func_param:
@@ -1618,7 +1619,7 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
             type_parts_cleaned = ['SaQCFields']
 
         if len(type_parts_cleaned) > 1:
-            
+
             has_literal = any(
                 "Literal[" in part or part in SAQC_CUSTOM_SELECT_TYPES for part in type_parts_cleaned
             )

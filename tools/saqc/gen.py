@@ -242,9 +242,7 @@ def parse_parameter_docs(sections: Dict[str, str]) -> Dict[str, str]:
 def get_label_help(param_name, parameter_docs):
     """
     Extracts label and help text.
-    1. Iteratively eats technical terms from the start of the string (The 'Pac-Man' approach).
-    2. Removes brackets containing technical terms.
-    3. Splits into Label and Help.
+    Aggressively cleans technical type hints from the docstring.
     """
     doc_string = parameter_docs.get(param_name, "").strip()
 
@@ -252,7 +250,7 @@ def get_label_help(param_name, parameter_docs):
         return param_name, ""
 
     clean_doc = (
-        doc_string.replace("`", "") 
+        doc_string.replace("`", "")
         .replace(":py:attr:", "")
         .replace(":py:class:", "")
         .replace(":py:class:`Any`,", "")
@@ -263,14 +261,9 @@ def get_label_help(param_name, parameter_docs):
         .strip()
     )
 
-    tech_indicators = r"(?:int|float|str|bool|pandas|offset|freq|optional|default|union|list|tuple|dict|none|any|saqc|curvefitter)"
+    clean_doc = re.sub(r'\b(pandas|pd|saqc|np|numpy|typing)\.[a-zA-Z0-9_.]+', '', clean_doc, flags=re.IGNORECASE)
 
-    clean_doc = re.sub(
-        fr"[\(\[\{{][^\)\]\}}]*?\b{tech_indicators}\b[^\)\]\}}]*?[\)\]\}}]", 
-        "", 
-        clean_doc, 
-        flags=re.IGNORECASE
-    )
+    clean_doc = re.sub(r'\b(Callable|Union|Optional|List|Tuple|Dict|Sequence|Literal)\[.*?\]', '', clean_doc, flags=re.IGNORECASE)
 
     banned_words = {
         "int", "integer", "integers", "float", "floats", "str", "string", "strings", 
@@ -283,8 +276,16 @@ def get_label_help(param_name, parameter_docs):
         "period", "periods", "interval", "intervals", "timestamp", "datetime", 
         "regex", "column", "columns", "field", "fields", "axis", "min", "max",
         "method", "mode", "func", "function", "curvefitter", "genericfunction",
-        "input", "output", "target", "source"
+        "input", "output", "target", "source", "offsetstr", "freqstr", "offsetlike"
     }
+
+    tech_indicators = r"(?:int|float|str|bool|pandas|offset|freq|optional|default|union|list|tuple|dict|none|any|saqc|curvefitter)"
+    clean_doc = re.sub(
+        fr"[\(\[\{{][^\)\]\}}]*?\b{tech_indicators}\b[^\)\]\}}]*?[\)\]\}}]", 
+        "", 
+        clean_doc, 
+        flags=re.IGNORECASE
+    )
 
     while True:
         clean_doc = clean_doc.strip()
@@ -292,16 +293,13 @@ def get_label_help(param_name, parameter_docs):
             break
 
         match = re.match(r"^([a-zA-Z0-9_\.]+)(.*)", clean_doc, re.DOTALL)
-        
         if not match:
             break
 
         first_word = match.group(1).lower()
         remainder = match.group(2)
 
-        is_lib_call = first_word.startswith("pd.") or first_word.startswith("np.") or first_word.startswith("saqc.")
-
-        if first_word in banned_words or is_lib_call:
+        if first_word in banned_words or '.' in first_word:
             clean_doc = remainder
 
             clean_doc = re.sub(r"^\s*(?:/|\||or|and|,|\.|:|-)\s*", "", clean_doc, flags=re.IGNORECASE)
@@ -533,6 +531,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
     base_type_str = type_str.strip()
 
     creation_args = param_constructor_args.copy()
+    base_help = creation_args.get("help", "")
 
     text_types = ('list', 'sequence', 'arraylike', 'pd.series', 'pd.dataframe', 'pd.datetimeindex',
                   'str', 'string', 'any')
@@ -553,9 +552,8 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         type_1 = inner_types_list[1] if len(inner_types_list) >= 2 else (inner_types_list[0] if len(inner_types_list) == 1 else "str")
 
         title = param_constructor_args.get("label", param_name)
-        help_text = param_constructor_args.get("help", "")
-
-        repeat = Repeat(name=param_name, title=title, help=help_text)
+        
+        repeat = Repeat(name=param_name, title=title, help=base_help)
 
         inner_args_0 = {'label': f"{param_name}_pos0", 'help': f"First element (index 0) of the {param_name} tuple.", 'optional': is_optional}
         param_0 = _create_param_from_type_str(type_0, f"{param_name}_pos0", inner_args_0, is_optional)
@@ -601,18 +599,23 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
 
     elif base_type_str.lower() in ('list', 'sequence', 'arraylike', 'pd.series', 'pd.dataframe', 'pd.datetimeindex'):
         param_object = TextParam(argument=param_name, **creation_args)
-
+    
     elif base_type_str.lower() == 'pd.timedelta':
+        specific_help = " Format: Fixed time duration (no calendar logic). Examples: '1d', '2.5h', '30min'. (No 'M' or 'Y')."
+        creation_args["help"] = (base_help + specific_help).strip()
+        
         param_object = TextParam(argument=param_name, **creation_args)
         param_object.append(timedelta_validator)
 
     elif base_type_str in ['OffsetStr', 'FreqStr', 'OffsetLike'] or base_type_str.lower() == 'offsetlike':
-        creation_args["help"] = creation_args.get("help", "") + " (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')"
+        specific_help = " Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon)."
+        creation_args["help"] = (base_help + specific_help).strip()
+        
         param_object = TextParam(argument=param_name, **creation_args)
         param_object.append(offset_validator)
 
     elif base_type_str.lower() in ('dict', 'dictionary'):
-        repeat = Repeat(name=param_name, title=creation_args.get("label", param_name), help=creation_args.get("help", ""))
+        repeat = Repeat(name=param_name, title=creation_args.get("label", param_name), help=base_help)
         key_param = TextParam(name="key", label="Key", help="Name of the dictionary key.")
         key_param.append(ValidatorParam(type="empty_field"))
         value_param = TextParam(name="value", label="Value", help="Value for the key (e.g., 'min,max').")

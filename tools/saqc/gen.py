@@ -424,7 +424,6 @@ def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> b
     - Contains a parameter expecting a Function/CurveFitter
       (detected by name 'func' OR type 'Callable'/'CurveFitter'/'GenericFunction')
     - AND is not a Literal (Selection)
-    - AND not in generic.flagGeneric or generic.processGeneric
     - AND is NOT optional (Mandatory)
     
     Returns True if the entire method should be skipped.
@@ -466,17 +465,12 @@ def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> b
 
         is_func_name = "func" in param_name.lower()
         is_func_type = any(t in raw_annotation_str for t in ["Callable", "GenericFunction", "CurveFitter"])
-        
+
         if not (is_func_name or is_func_type):
             continue
 
         is_literal_type = "Literal[" in raw_annotation_str or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
         if is_literal_type:
-            continue
-
-        is_generic_module = module.__name__.endswith(".generic")
-        is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
-        if is_generic_module and is_generic_method:
             continue
 
         if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
@@ -793,52 +787,22 @@ def _handle_func_parameter(
     """
     Handles logic for parameters identified as 'func' parameters.
     """
-    is_generic_module = module.__name__.endswith(".generic")
-    is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
-
-    if is_generic_module and is_generic_method:
-        PY_CODE_REGEX = r"^(?!\s*$).+"
-        PY_CODE_MSG = "Must provide a valid function name (e.g., 'mean') or Python expression."
-
-        local_constructor_args = param_constructor_args.copy()
-        local_constructor_args.pop("optional", None)
-        param_object = TextParam(argument=param_name, **local_constructor_args)
-
-        if not is_truly_optional:
-            param_object.append(
-                ValidatorParam(type="regex", message=PY_CODE_MSG, text=PY_CODE_REGEX)
-            )
-        return param_object, False
 
     if is_literal_type:
         return None, False
+
     if is_truly_optional:
         sys.stderr.write(
             f"Info ({module.__name__}): Skipping optional 'func'-parameter "
             f"'{param_name}' in method '{method.__name__}'.\n"
         )
+        return None, False
     else:
         sys.stderr.write(
             f"Warning ({module.__name__}): Skipping non-optional 'func'-parameter "
-            f"'{param_name}' in method '{method.__name__}', "
-            "as it is not in the 'generic' module.\n"
+            f"'{param_name}' in method '{method.__name__}' which is mandatory.\n"
         )
         return None, True
-
-    if is_literal_type:
-        return None, False
-    if is_truly_optional:
-        sys.stderr.write(
-            f"Info ({module.__name__}): Skipping optional 'func'-parameter "
-            f"'{param_name}' in method '{method.__name__}'.\n"
-        )
-    else:
-        sys.stderr.write(
-            f"Warning ({module.__name__}): Skipping non-optional 'func'-parameter "
-            f"'{param_name}' in method '{method.__name__}', "
-            "as it is not in the 'generic' module.\n"
-        )
-    return None, True
 
 
 def _create_parameter_widget(
@@ -859,32 +823,30 @@ def _create_parameter_widget(
     param_object = None
 
     if len(type_parts_cleaned) > 1:
-        is_generic_module = module.__name__.endswith(".generic")
-        is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
+        # Entfernt: if not (is_generic_module and is_generic_method):
+        
+        has_literal = any(
+            "Literal[" in part or part in SAQC_CUSTOM_SELECT_TYPES
+            for part in type_parts_cleaned
+        )
 
-        if not (is_generic_module and is_generic_method):
-            has_literal = any(
-                "Literal[" in part or part in SAQC_CUSTOM_SELECT_TYPES
+        if has_literal:
+            original_count = len(type_parts_cleaned)
+            type_parts_cleaned = [
+                part
                 for part in type_parts_cleaned
-            )
+                if not any(
+                    func_type in part
+                    for func_type in ["Callable", "CurveFitter", "GenericFunction"]
+                )
+            ]
 
-            if has_literal:
-                original_count = len(type_parts_cleaned)
-                type_parts_cleaned = [
-                    part
-                    for part in type_parts_cleaned
-                    if not any(
-                        func_type in part
-                        for func_type in ["Callable", "CurveFitter", "GenericFunction"]
-                    )
-                ]
-
-                if len(type_parts_cleaned) < original_count:
-                    sys.stderr.write(
-                        f"Info ({module.__name__}): Hiding 'Callable/Function' option "
-                        f"for parameter '{param_name}' in method '{method.__name__}', "
-                        "as a Literal option exists in the Union.\n"
-                    )
+            if len(type_parts_cleaned) < original_count:
+                sys.stderr.write(
+                    f"Info ({module.__name__}): Hiding 'Callable/Function' option "
+                    f"for parameter '{param_name}' in method '{method.__name__}', "
+                    "as a Literal option exists in the Union.\n"
+                )
 
     if len(type_parts_cleaned) == 1:
         single_type_str = type_parts_cleaned[0]
@@ -1544,17 +1506,7 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
         is_literal_type = "Literal[" in raw_annotation_str or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
 
         if is_func_param:
-            is_generic_module = module.__name__.endswith(".generic")
-            is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
-
-            if is_generic_module and is_generic_method:
-                if method.__name__ == "flagGeneric":
-                    base_params[param_name] = "lambda x: x > 10"
-                elif method.__name__ == "processGeneric":
-                    base_params[param_name] = "lambda x: x * 2"
-                else:
-                    base_params[param_name] = "lambda x: x"
-                continue
+            # Entfernt: Ausnahme für is_generic_module / is_generic_method
 
             if is_literal_type:
                 pass
@@ -1599,19 +1551,17 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
             type_parts_cleaned = ['SaQCFields']
 
         if len(type_parts_cleaned) > 1:
-            is_generic_module = module.__name__.endswith(".generic")
-            is_generic_method = method.__name__ in ["flagGeneric", "processGeneric"]
+            # Entfernt: if not (is_generic_module and is_generic_method):
+            
+            has_literal = any(
+                "Literal[" in part or part in SAQC_CUSTOM_SELECT_TYPES for part in type_parts_cleaned
+            )
 
-            if not (is_generic_module and is_generic_method):
-                has_literal = any(
-                    "Literal[" in part or part in SAQC_CUSTOM_SELECT_TYPES for part in type_parts_cleaned
-                )
-
-                if has_literal:
-                    type_parts_cleaned = [
-                        part for part in type_parts_cleaned
-                        if not any(func_type in part for func_type in ['Callable', 'CurveFitter', 'GenericFunction'])
-                    ]
+            if has_literal:
+                type_parts_cleaned = [
+                    part for part in type_parts_cleaned
+                    if not any(func_type in part for func_type in ['Callable', 'CurveFitter', 'GenericFunction'])
+                ]
 
         if len(type_parts_cleaned) > 1:
             complex_params[param_name] = type_parts_cleaned

@@ -33,7 +33,6 @@
           <option value="curvefit">curvefit: curvefit</option>
           <option value="drift">drift: drift</option>
           <option value="flagtools">flagtools: flagtools</option>
-          <option value="generic">generic: generic</option>
           <option value="interpolation">interpolation: interpolation</option>
           <option value="noise">noise: noise</option>
           <option value="outliers">outliers: outliers</option>
@@ -353,30 +352,6 @@
               <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written." help="target will be created if it does not exist. Defaults to field." data_ref="data" multiple="false"/>
               <param argument="squeeze" type="boolean" label="If True, compress the history into a single column" help="losing function-specific flag information." checked="false"/>
               <param argument="overwrite" type="boolean" label="If True, existing flags in the target field are overwritten." help="" checked="false"/>
-            </when>
-          </conditional>
-        </when>
-        <when value="generic">
-          <conditional name="method_cond">
-            <param name="method_select" type="select" label="Method">
-              <option value="flagGeneric">flagGeneric: Flag data based on a given function</option>
-              <option value="processGeneric">processGeneric: Generate/process data with user defined functions</option>
-            </param>
-            <when value="flagGeneric">
-              <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="func" type="text" label="to call." help="The function needs to accept the same number of arguments  as variables given in field and return an iterable of array-like objects of data type bool with the same length as target.">
-                <validator type="regex" message="Must provide a valid function name (e.g., 'mean') or Python expression."><![CDATA[^(?!\s*$).+]]></validator>
-              </param>
-              <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written." help="target will be created if it does not exist. Defaults to field." data_ref="data" multiple="false"/>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
-            </when>
-            <when value="processGeneric">
-              <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="func" type="text" label="to call on the variables given in field." help="The return value will be written to target or field if the former is not given. This implies, that the function needs to accept the same number of arguments  as variables given in field and should return an iterable of array-like objects with the same number of elements as given in target (or field if target is not specified).">
-                <validator type="regex" message="Must provide a valid function name (e.g., 'mean') or Python expression."><![CDATA[^(?!\s*$).+]]></validator>
-              </param>
-              <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written." help="target will be created if it does not exist. Defaults to field." data_ref="data" multiple="false"/>
-              <param argument="dfilter" type="float" value="-inf" label="Defines which observations will be masked based on the already existing flags." help="Any data point with a flag equal or worse to this threshold will be passed as NaN to the function. Defaults to the DFILTER_ALL value of the translation scheme."/>
             </when>
           </conditional>
         </when>
@@ -821,6 +796,58 @@
                   <param argument="tolerance" type="text" label="Limiting the distance, values can be shifted or comprised into aggregation." help="">
                     <validator type="regex" message="Please enter a valid Timedelta string (e.g., '30min', '2H', '1D')."><![CDATA[(^$)|(\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*)]]></validator>
                   </param>
+                </when>
+              </conditional>
+              <conditional name="data_aggregation_cond">
+                <param name="data_aggregation_selector" type="select" label="Choose type for 'custom Function, determining how to aggregate new data values from the values at the periods selected according to the index_selection_method.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                  <option value="type_0">Selection</option>
+                  <option value="type_1">Float</option>
+                </param>
+                <when value="type_0">
+                  <param argument="data_aggregation" type="select" optional="true" label="custom Function, determining how to aggregate new data values from the values at the periods selected according to the index_selection_method." help="If a scalar value is passed, the new data series will just evaluate to that scalar at any new index.">
+                    <option value="sum">sum</option>
+                    <option value="mean">mean</option>
+                    <option value="median">median</option>
+                    <option value="min">min</option>
+                    <option value="max">max</option>
+                    <option value="last">last</option>
+                    <option value="first">first</option>
+                    <option value="std">std</option>
+                    <option value="var">var</option>
+                    <option value="count">count</option>
+                    <option value="sem">sem</option>
+                    <option value="linear">linear</option>
+                    <option value="time">time</option>
+                  </param>
+                </when>
+                <when value="type_1">
+                  <param argument="data_aggregation" type="float" optional="true" label="custom Function, determining how to aggregate new data values from the values at the periods selected according to the index_selection_method." help="If a scalar value is passed, the new data series will just evaluate to that scalar at any new index."/>
+                </when>
+              </conditional>
+              <conditional name="flags_aggregation_cond">
+                <param name="flags_aggregation_selector" type="select" label="Choose type for 'custom Function, determining how to aggregate new flags values from the values at the periods selected according to the index_selection_method.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                  <option value="type_0">Selection</option>
+                  <option value="type_1">Float</option>
+                </param>
+                <when value="type_0">
+                  <param argument="flags_aggregation" type="select" optional="true" label="custom Function, determining how to aggregate new flags values from the values at the periods selected according to the index_selection_method." help="If a scalar value is passed, the new flags series will just evaluate to that scalar at any new index.">
+                    <option value="sum">sum</option>
+                    <option value="mean">mean</option>
+                    <option value="median">median</option>
+                    <option value="min">min</option>
+                    <option value="max">max</option>
+                    <option value="last">last</option>
+                    <option value="first">first</option>
+                    <option value="std">std</option>
+                    <option value="var">var</option>
+                    <option value="count">count</option>
+                    <option value="sem">sem</option>
+                    <option value="linear">linear</option>
+                    <option value="time">time</option>
+                  </param>
+                </when>
+                <when value="type_1">
+                  <param argument="flags_aggregation" type="float" optional="true" label="custom Function, determining how to aggregate new flags values from the values at the periods selected according to the index_selection_method." help="If a scalar value is passed, the new flags series will just evaluate to that scalar at any new index."/>
                 </when>
               </conditional>
               <param argument="broadcast" type="boolean" label="Weather to propagate aggregation result to full reindex window when using aggregation reindexer." help="(as opposed to only assign to next/previous/closest)" checked="false"/>

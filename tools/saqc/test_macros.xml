@@ -583,48 +583,6 @@
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
         <conditional name="module_cond">
-          <param name="module_select" value="generic" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagGeneric" />
-            <param name="field" value="1" />
-            <param name="func" value="lambda x: x &gt; 10" />
-            <param name="target" value="1" />
-            <param name="flag" value="1" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="flagGeneric" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="generic" />
-          <conditional name="method_cond">
-            <param name="method_select" value="processGeneric" />
-            <param name="field" value="1" />
-            <param name="func" value="lambda x: x * 2" />
-            <param name="target" value="1" />
-            <param name="dfilter" value="1" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="processGeneric" />
-        </assert_contents>
-      </output>
-    </test>
-    <test>
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
           <param name="module_select" value="interpolation" />
           <conditional name="method_cond">
             <param name="method_select" value="align" />

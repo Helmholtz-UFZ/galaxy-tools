@@ -519,26 +519,19 @@ def is_module_deprecated(module: "ModuleType") -> bool:
 
 
 def _create_param_from_type_str(type_str: str, param_name: str, param_constructor_args: dict, is_optional: bool) -> Optional[object]:
-    # --- Regex Definitionen ---
-    
-    # 1. Offset Regex (Kalendarisch: erlaubt M, Y, Q, W-MON)
-    # Kern-Pattern ohne Leersting-Prüfung
+
     pattern_offset = r"\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*"
     
     regex_offset_full = f"(^$)|({pattern_offset})"
     msg_offset = "Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."
     validator_offset = ValidatorParam(type="regex", message=msg_offset, text=regex_offset_full)
 
-    # 2. Timedelta Regex (Physikalisch: KEIN M/Y, aber explizite 'days', 'hours')
-    # Kern-Pattern ohne Leersting-Prüfung
     pattern_timedelta = r"-?(\d+(\.\d*)?|\.\d+)\s*(W|D|days?|d|H|hours?|hr|h|T|minutes?|min|m|S|seconds?|sec|s|L|milliseconds?|ms|U|microseconds?|us|N|nanoseconds?|ns)\s*"
     
     regex_timedelta_full = f"(^$)|(^{pattern_timedelta}$)"
     msg_timedelta = "Must be a valid Pandas Timedelta string (e.g., '1d', '2.5h', '30min'). Month (M) or Year (Y) are NOT allowed."
     validator_timedelta = ValidatorParam(type="regex", message=msg_timedelta, text=regex_timedelta_full)
 
-    # 3. Combined Regex (für OffsetLike: Erlaubt Offset ODER Timedelta)
-    # Das ist das Superset für OffsetLike
     regex_combined = f"(^$)|({pattern_offset})|(^{pattern_timedelta}$)"
     msg_combined = "Accepts both Pandas Frequencies (e.g. '1M', 'W-SAT') AND Timedeltas (e.g. '3 days', '1.5h')."
     validator_combined = ValidatorParam(type="regex", message=msg_combined, text=regex_combined)
@@ -550,7 +543,6 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
     creation_args = param_constructor_args.copy()
     base_help = creation_args.get("help", "")
 
-    # Allgemeine Text-Typen (OHNE die Zeit-Spezialisten)
     text_types = ('list', 'sequence', 'arraylike', 'pd.series', 'pd.dataframe', 'pd.datetimeindex',
                   'str', 'string', 'any')
 
@@ -617,23 +609,19 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
 
     elif base_type_str.lower() in ('list', 'sequence', 'arraylike', 'pd.series', 'pd.dataframe', 'pd.datetimeindex'):
         param_object = TextParam(argument=param_name, **creation_args)
-    
-    # --- Fall A: Echtes Timedelta ---
+
     elif base_type_str.lower() == 'pd.timedelta':
         specific_help = " Format: Fixed time duration (no calendar logic). Examples: '1d', '2.5h', '30min'. (No 'M' or 'Y')."
         creation_args["help"] = (base_help + specific_help).strip()
         param_object = TextParam(argument=param_name, **creation_args)
         param_object.append(validator_timedelta)
 
-    # --- Fall B: OffsetLike (Union aus Timedelta und Offset) ---
-    # Hier nutzen wir die Combined Regex!
     elif base_type_str.lower() == 'offsetlike' or 'offsetlike' in base_type_str:
         specific_help = " Format: Time object. Accepts Pandas Frequencies (e.g. '1M', 'W-MON') OR Timedeltas (e.g. '3 days', '1.5h')."
         creation_args["help"] = (base_help + specific_help).strip()
         param_object = TextParam(argument=param_name, **creation_args)
         param_object.append(validator_combined)
 
-    # --- Fall C: Reine Offset Strings ---
     elif base_type_str in ['OffsetStr', 'FreqStr']:
         specific_help = " Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon)."
         creation_args["help"] = (base_help + specific_help).strip()
@@ -724,16 +712,13 @@ def _get_user_friendly_type_name(type_str: str) -> str:
     - 'OffsetLike' -> 'Time Object (Offset/Timedelta)'
     """
     s = type_str.strip()
-    # Entferne typing-Prefixe für sauberes Parsen
     clean = s.replace("typing.", "").strip()
     lower = clean.lower()
 
-    # --- 1. SaQC / Pandas Spezifika (Priorität) ---
     
     if 'pd.timedelta' in lower:
         return "pd.Timedelta"
-    
-    # WICHTIG: OffsetLike explizit vor OffsetStr behandeln
+
     if 'offsetlike' in lower or 'OffsetLike' in clean:
         return "Time Object (Offset/Timedelta)"
     
@@ -743,55 +728,40 @@ def _get_user_friendly_type_name(type_str: str) -> str:
     if 'saqcfields' in lower:
         return "Column Selection"
 
-    # --- 2. Komplexe Strukturen (Rekursiv) ---
-
-    # Spezieller Case: List of Tuples (Float, Float) - sehr häufig in SaQC
     if re.search(r"list\[\s*tuple\[\s*float\s*,\s*float\s*\]\s*\]", lower):
         return "List of Tuples (Float, Float)"
 
-    # Spezieller Case: Tuple (Float, Float)
     if re.fullmatch(r"tuple\[\s*float\s*,\s*float\s*\]", lower):
         return "Tuple (Float, Float)"
 
-    # Allgemeine Listen / Sequenzen
-    # Regex sucht nach "list[...]" und extrahiert den Inhalt
     list_match = re.match(r"^(?:list|sequence|array(?:like)?)(?:\[(.*)\])?$", clean, re.IGNORECASE)
     if list_match:
         inner_content = list_match.group(1)
         if inner_content:
-            # Rekursiver Aufruf für den Inhalt
             inner_name = _get_user_friendly_type_name(inner_content)
-            # Pluralisierung für Kosmetik
+
             if not inner_name.endswith('s') and inner_name not in ["Integer", "Float", "String", "Boolean", "pd.Timedelta"]: 
                  return f"List of {inner_name}s"
             return f"List of {inner_name}"
         return "List"
 
-    # Allgemeine Tupel
     tuple_match = re.match(r"^tuple(?:\[(.*)\])?$", clean, re.IGNORECASE)
     if tuple_match:
         inner_content = tuple_match.group(1)
         if inner_content:
-            # Wir versuchen simple Typen zu trennen
             if "..." in inner_content:
-                 # tuple[int, ...]
                  base_type = inner_content.split(',')[0]
                  return f"Tuple of {_get_user_friendly_type_name(base_type)}s"
-            
-            # Versuch: tuple[int, float] -> Tuple (Integer, Float)
-            # Dies ist eine vereinfachte Annahme für flache Tupel
+
             parts = [p.strip() for p in inner_content.split(',')]
-            # Verhindern, dass komplexe innere Kommas (in nested types) das splitten kaputt machen
             if not any('[' in p for p in parts):
                 friendly_parts = [_get_user_friendly_type_name(p) for p in parts]
                 return f"Tuple ({', '.join(friendly_parts)})"
         return "Tuple"
 
-    # Dictionaries
     if lower.startswith("dict"):
         return "Dictionary"
 
-    # --- 3. Primitive Typen ---
     if re.search(r"(^|[^a-z])int(eger)?([^a-z]|$)", lower):
         return "Integer"
 
@@ -807,7 +777,6 @@ def _get_user_friendly_type_name(type_str: str) -> str:
     if 'literal' in lower:
         return "Selection"
 
-    # --- 4. Fallback ---
     return clean
 
 
@@ -916,7 +885,6 @@ def _create_parameter_widget(
     """
     param_object = None
 
-    # Filterung von Callables, falls Literals vorhanden sind
     if len(type_parts_cleaned) > 1:
         has_literal = any(
             "Literal[" in part or part in SAQC_CUSTOM_SELECT_TYPES
@@ -941,7 +909,6 @@ def _create_parameter_widget(
                     "as a Literal option exists in the Union.\n"
                 )
 
-    # Fall: Nur ein Typ -> Direktes Widget
     if len(type_parts_cleaned) == 1:
         single_type_str = type_parts_cleaned[0]
         if single_type_str == "slice":
@@ -960,11 +927,9 @@ def _create_parameter_widget(
                 single_type_str, param_name, param_constructor_args, is_truly_optional
             )
 
-    # Fall: Mehrere Typen -> Conditional (Select + When)
     elif len(type_parts_cleaned) > 1:
         conditional = Conditional(name=f"{param_name}_cond")
-        
-        # Erstelle die Optionen für das Select-Menü mit den "freundlichen" Namen
+
         type_options = [
             (f"type_{i}", _get_user_friendly_type_name(part))
             for i, part in enumerate(type_parts_cleaned)
@@ -980,19 +945,10 @@ def _create_parameter_widget(
         )
         conditional.append(selector)
 
-        # Erstelle die Zweige für jeden Typ
         for i, part_str in enumerate(type_parts_cleaned):
             when = When(value=f"type_{i}")
-            
-            # --- ÄNDERUNG: Typ-Bezeichnung in das Label integrieren ---
-            # Wir holen uns den schönen Namen (z.B. "Integer" oder "pd.Timedelta")
-            friendly_type = _get_user_friendly_type_name(part_str)
-            
-            # Wir bauen ein neues Label: "Original Label (Integer)"
-            specific_label = f"{label} ({friendly_type})"
-            
-            # Erstellen neuer Args für diesen spezifischen Zweig
-            inner_param_args = {"label": specific_label, "help": help_text, **optional_arg}
+
+            inner_param_args = {"label": label, "help": help_text, **optional_arg}
 
             if part_str == "slice":
                 start_param = IntegerParam(

@@ -725,7 +725,7 @@
             <param name="flag" value="1" />
             <conditional name="window_cond">
               <param name="window_selector" value="type_1" />
-              <param name="window" value="1D" />
+              <param name="window" value="1d" />
             </conditional>
             <conditional name="sub_window_cond">
               <param name="sub_window_selector" value="type_0" />
@@ -760,7 +760,7 @@
             </conditional>
             <conditional name="sub_window_cond">
               <param name="sub_window_selector" value="type_1" />
-              <param name="sub_window" value="1D" />
+              <param name="sub_window" value="1d" />
             </conditional>
           </conditional>
         </conditional>
@@ -1357,7 +1357,7 @@
             <param name="override" value="true" />
             <conditional name="freq_cond">
               <param name="freq_selector" value="type_1" />
-              <param name="freq" value="1D" />
+              <param name="freq" value="1d" />
             </conditional>
           </conditional>
         </conditional>
@@ -1529,7 +1529,7 @@
             <param name="squeeze" value="true" />
             <conditional name="freq_cond">
               <param name="freq_selector" value="type_1" />
-              <param name="freq" value="1D" />
+              <param name="freq" value="1d" />
             </conditional>
           </conditional>
         </conditional>

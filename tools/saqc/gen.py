@@ -522,8 +522,12 @@ def is_module_deprecated(module: "ModuleType") -> bool:
 
 def _create_param_from_type_str(type_str: str, param_name: str, param_constructor_args: dict, is_optional: bool) -> Optional[object]:
     offset_regex = r"(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)"
-    offset_message = "Must be a valid Pandas offset/frequency string (e.g., '1D', '2H30M', 'min', 'W-MON')."
+    offset_message = "Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."
     offset_validator = ValidatorParam(type="regex", message=offset_message, text=offset_regex)
+
+    timedelta_regex = r"(^$)|(^-?(\d+(\.\d*)?|\.\d+)\s*(W|D|days?|d|H|hours?|hr|h|T|minutes?|min|m|S|seconds?|sec|s|L|milliseconds?|ms|U|microseconds?|us|N|nanoseconds?|ns)\s*$)"
+    timedelta_message = "Must be a valid Pandas Timedelta string (e.g., '1d', '2.5h', '30min'). Month (M) or Year (Y) are NOT allowed."
+    timedelta_validator = ValidatorParam(type="regex", message=timedelta_message, text=timedelta_regex)
 
     param_object = None
     base_type_str = type_str.strip()
@@ -531,7 +535,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
     creation_args = param_constructor_args.copy()
 
     text_types = ('list', 'sequence', 'arraylike', 'pd.series', 'pd.dataframe', 'pd.datetimeindex',
-                  'pd.timedelta', 'offsetlike', 'offsetstr', 'freqstr', 'str', 'string', 'any')
+                  'str', 'string', 'any')
 
     is_text_type = base_type_str.lower() in text_types
     is_list_str = re.fullmatch(r"(list|Sequence)\[\s*str\s*\]", base_type_str, re.IGNORECASE)
@@ -597,12 +601,15 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
 
     elif base_type_str.lower() in ('list', 'sequence', 'arraylike', 'pd.series', 'pd.dataframe', 'pd.datetimeindex'):
         param_object = TextParam(argument=param_name, **creation_args)
-    
-    elif base_type_str.lower() in ('pd.timedelta', 'offsetlike'):
+
+    elif base_type_str.lower() == 'pd.timedelta':
         param_object = TextParam(argument=param_name, **creation_args)
-        regex = r"(^$)|(\s*-?\d+(\.\d+)?\s*(D|H|T|S|L|U|N|days?|hours?|minutes?|seconds?|weeks?|milliseconds?|microseconds?|nanoseconds?)\s*)"
-        message = "Please enter a valid Timedelta string (e.g., '30min', '2H', '1D')."
-        param_object.append(ValidatorParam(type="regex", message=message, text=regex))
+        param_object.append(timedelta_validator)
+
+    elif base_type_str in ['OffsetStr', 'FreqStr', 'OffsetLike'] or base_type_str.lower() == 'offsetlike':
+        creation_args["help"] = creation_args.get("help", "") + " (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')"
+        param_object = TextParam(argument=param_name, **creation_args)
+        param_object.append(offset_validator)
 
     elif base_type_str.lower() in ('dict', 'dictionary'):
         repeat = Repeat(name=param_name, title=creation_args.get("label", param_name), help=creation_args.get("help", ""))
@@ -648,11 +655,6 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
                 param_object = IntegerParam(argument=param_name, **creation_args)
             else:
                 param_object = FloatParam(argument=param_name, **creation_args)
-
-    elif base_type_str in ['OffsetStr', 'FreqStr']:
-        creation_args["help"] = creation_args.get("help", "") + " (Pandas frequency/offset string, e.g., '1D', '2H30M', 'min', 'W-MON')"
-        param_object = TextParam(argument=param_name, **creation_args)
-        param_object.append(offset_validator)
         
     elif base_type_str in ['str', 'string', 'Any']:
         param_object = TextParam(argument=param_name, **creation_args)
@@ -675,9 +677,8 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
     if param_object:
         if isinstance(param_object, TextParam) and not getattr(param_object, 'multiple', False):
             if hasattr(param_object, 'optional'):
-                delattr(param_object, 'optional') 
-                if 'optional' in param_object.attrib:
-                    del param_object.attrib['optional']
+                if 'optional' in param_object.node.attrib:
+                    del param_object.node.attrib['optional']
 
             if not is_optional:
                 param_object.append(ValidatorParam(type="empty_field"))
@@ -822,9 +823,7 @@ def _create_parameter_widget(
     """
     param_object = None
 
-    if len(type_parts_cleaned) > 1:
-        # Entfernt: if not (is_generic_module and is_generic_method):
-        
+    if len(type_parts_cleaned) > 1:        
         has_literal = any(
             "Literal[" in part or part in SAQC_CUSTOM_SELECT_TYPES
             for part in type_parts_cleaned
@@ -1009,7 +1008,6 @@ def get_method_params(method, module, tracing=False):
             or "kwarg" in param_name.lower()
         ):
             continue
-        #Filtering deprecated parameters
         param_doc_entry = param_docs.get(param_name, "")
         param_doc_lines = param_doc_entry.split('\n')
         first_line = param_doc_lines[0].lower().strip() if param_doc_lines else ""
@@ -1413,8 +1411,12 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
                 return 1.0
             if clean_typ == 'bool':
                 return True
-            if 'OffsetStr' in clean_typ or 'FreqStr' in clean_typ or 'timedelta' in clean_typ:
+
+            if 'pd.timedelta' in clean_typ.lower():
+                return "1d"
+            if 'OffsetStr' in clean_typ or 'FreqStr' in clean_typ or 'OffsetLike' in clean_typ:
                 return "1D"
+            
             if 'SaQCFields' in clean_typ or 'NewSaQCFields' in clean_typ:
                 return 1
             return "test_string"
@@ -1447,7 +1449,10 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
         return 1
     if 'bool' in clean_type.lower():
         return True
-    if any(s in clean_type.lower() for s in ['offset', 'timedelta', 'freq']):
+
+    if 'pd.timedelta' in clean_type.lower():
+        return "1d"
+    if any(s in clean_type.lower() for s in ['offset', 'freq']):
         return "1D"
 
     return "a_string"
@@ -1506,8 +1511,6 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
         is_literal_type = "Literal[" in raw_annotation_str or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
 
         if is_func_param:
-            # Entfernt: Ausnahme für is_generic_module / is_generic_method
-
             if is_literal_type:
                 pass
 
@@ -1551,7 +1554,6 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
             type_parts_cleaned = ['SaQCFields']
 
         if len(type_parts_cleaned) > 1:
-            # Entfernt: if not (is_generic_module and is_generic_method):
             
             has_literal = any(
                 "Literal[" in part or part in SAQC_CUSTOM_SELECT_TYPES for part in type_parts_cleaned

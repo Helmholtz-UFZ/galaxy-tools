@@ -4,7 +4,7 @@ import argparse
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
-import shlex  # Import für sicheres Parsen der Argumente
+import shlex
 
 from galaxyxml.tool import Tool
 from galaxyxml.tool.parameters import (
@@ -421,13 +421,11 @@ def generate_tools():
                     collection = OutputCollection(name="tool_outputs", type="list", label=f"Outputs from {tool_name}")
                     collection.append(DiscoverDatasets(pattern=r"output_.+\..+", format="auto", visible=True))
                     outputs_tag.append(collection)
-            
-            # --- KORRIGIERTE TEST-VERKNÜPFUNG ---
+
             tests_section = Tests()
             macro_name = f"{tool_name.lower()}_test"
             tests_section.append(Expand(macro=macro_name))
             tool.tests = tests_section
-            # --- ENDE KORREKTUR ---
 
             tool.help = (f"This tool runs the **{tool_name}** utility from the OpenGeoSys suite.")
 
@@ -456,12 +454,11 @@ def parse_diff_data(diff_str: str, base_url: str, workdir: str) -> List[Dict[str
         found_files = file_pattern.findall(line)
         if not found_files:
             continue
-        
-        # Heuristik: Einzelne Datei -> Referenz = Generiert
+
         if len(found_files) == 1:
             ref_url = f"{base_url}/{workdir}/{found_files[0]}"
             diff_files.append({"reference": ref_url, "generated": found_files[0], "ftype": found_files[0].split('.')[-1]})
-        # Heuristik: Zwei Dateien -> Erste ist Referenz, Zweite ist Generiert
+
         elif len(found_files) >= 2:
             ref_url = f"{base_url}/{workdir}/{found_files[0]}"
             diff_files.append({"reference": ref_url, "generated": found_files[1], "ftype": found_files[1].split('.')[-1]})
@@ -497,8 +494,7 @@ def generate_tests():
     
     cmake_content = CMAKE_TESTS_FILE.read_text(encoding='utf-8', errors='ignore')
     addtest_pattern = re.compile(r"AddTest\s*\((.*?)\)", re.DOTALL)
-    
-    # WIEDERHERGESTELLT: Die Logik, die nur einen Test pro Tool erlaubt.
+
     processed_tools_lower = set()
     test_case_count = 0
 
@@ -523,8 +519,7 @@ def generate_tests():
                 executable_name_lower = exec_match.group(1).lower()
                 if executable_name_lower in found_matches:
                     matched_tool_name_lower = executable_name_lower
-        
-        # WIEDERHERGESTELLT: Prüfung, ob für dieses Tool schon ein Test verarbeitet wurde.
+
         if not matched_tool_name_lower or matched_tool_name_lower in processed_tools_lower:
             continue
 
@@ -555,7 +550,6 @@ def generate_tests():
             output_flags = {f"--{flag}" for flag in output_map}
             output_flags.update({f"-{info['short_flag']}" for flag, info in output_map.items() if info.get('short_flag')})
 
-            # WIEDERHERGESTELLT: Originale, einfache Benennung der Makros.
             macro_name = f"{matched_tool_name_lower}_test"
             macro_xml = ET.SubElement(macros_root, "xml", {"name": macro_name})
             test_case = ET.SubElement(macro_xml, "test")
@@ -634,7 +628,6 @@ def generate_tests():
                             "ftype": diff_file["ftype"]
                          })
 
-            # WIEDERHERGESTELLT: Das Tool wird zur Liste der verarbeiteten Tools hinzugefügt.
             processed_tools_lower.add(matched_tool_name_lower)
             test_case_count += 1
             

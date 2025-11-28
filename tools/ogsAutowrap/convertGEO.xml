@@ -8,16 +8,17 @@
   <version_command><![CDATA[convertGEO --version]]></version_command>
   <command><![CDATA[convertGEO
     --input-file '$input_file'
-    --output-file '$output_file'
     #if str($gmsh_path):
         --gmsh-path '$gmsh_path'
-    #end if]]></command>
+    #end if
+    --output-file output_1.dat]]></command>
   <inputs>
-    <param name="input_file" type="text" optional="false" label="input file" help="the geometry file to be converted"/>
-    <param name="output_file" type="text" optional="false" label="output file" help="the new geometry file whose file format is guessed from its file extension"/>
-    <param name="gmsh_path" type="text" optional="true" label="gmsh path" help="the path to the gmsh binary"/>
+    <param name="input_file" type="data" optional="false" label="input file" help="Input (.gml|.gli). the geometry file to be converted" format="gml,gli" multiple="false"/>
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the gmsh binary file" format="msh" multiple="false"/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <data name="output_convertGEO" format="dat" label="Output file from convertGEO" from_work_dir="output_1.dat" hidden="false"/>
+  </outputs>
   <tests>
     <expand macro="convertgeo_test"/>
   </tests>

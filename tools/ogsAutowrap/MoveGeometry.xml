@@ -16,16 +16,17 @@
     #if str($x):
         --x '$x'
     #end if
-    --output '$output'
-    --input '$input']]></command>
+    --input '$input'
+    --output output_1.gml]]></command>
   <inputs>
     <param name="z" type="float" value="0.0" optional="true" label="z" help="displacement in z direction"/>
     <param name="y" type="float" value="0.0" optional="true" label="y" help="displacement in y direction"/>
     <param name="x" type="float" value="0.0" optional="true" label="x" help="displacement in x direction"/>
-    <param name="output" type="text" optional="false" label="output" help="output geometry file (*.gml)"/>
-    <param name="input" type="text" optional="false" label="input" help="input geometry file (*.gml)"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.gml) geometry file" format="gml" multiple="false"/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <data name="output_MoveGeometry" format="gml" label="Output file from MoveGeometry" from_work_dir="output_1.gml" hidden="false"/>
+  </outputs>
   <tests>
     <expand macro="movegeometry_test"/>
   </tests>

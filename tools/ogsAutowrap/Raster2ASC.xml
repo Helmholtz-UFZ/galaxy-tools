@@ -7,13 +7,14 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[Raster2ASC --version]]></version_command>
   <command><![CDATA[Raster2ASC
-    --output '$output'
-    --input '$input']]></command>
+    --input '$input'
+    --output output_1.asc]]></command>
   <inputs>
-    <param name="output" type="text" optional="false" label="output" help="filename for output raster"/>
-    <param name="input" type="text" optional="false" label="input" help="filename for input raster"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.grd | .xyz). Filename for input raster" format="grd,xyz" multiple="false"/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <data name="output_Raster2ASC" format="asc" label="Output file from Raster2ASC" from_work_dir="output_1.asc" hidden="false"/>
+  </outputs>
   <tests>
     <expand macro="raster2asc_test"/>
   </tests>

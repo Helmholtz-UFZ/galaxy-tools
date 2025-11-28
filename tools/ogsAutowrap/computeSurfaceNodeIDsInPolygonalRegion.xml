@@ -13,9 +13,9 @@
         --gmsh-path '$gmsh_path'
     #end if]]></command>
   <inputs>
-    <param name="mesh_input_file" type="text" optional="false" label="mesh input file" help="the file containing the input mesh"/>
-    <param name="geo_file" type="text" optional="false" label="geo file" help="the gml file containing the polygons"/>
-    <param name="gmsh_path" type="text" optional="true" label="gmsh path" help="the path to the gmsh binary"/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtu" multiple="false"/>
+    <param name="geo_file" type="data" optional="false" label="geo file" help="Input (.gml). the input file containing the polygons" format="gml" multiple="false"/>
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input binary file" format="msh" multiple="false"/>
   </inputs>
   <outputs/>
   <tests>

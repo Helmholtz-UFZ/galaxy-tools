@@ -7,7 +7,6 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[geometryToGmshGeo --version]]></version_command>
   <command><![CDATA[geometryToGmshGeo
-    --output '$output'
     --input '$input'
     #if str($max_points_in_quadtree_leaf):
         --max_points_in_quadtree_leaf '$max_points_in_quadtree_leaf'
@@ -22,20 +21,21 @@
         --average_point_density '$average_point_density'
     #end if
     $homogeneous
-    #if str($write_merged_geometries):
-        --write_merged_geometries '$write_merged_geometries'
-    #end if]]></command>
+    --output output_1.geo
+    --write_merged_geometries output_2.gml]]></command>
   <inputs>
-    <param name="output" type="text" optional="false" label="output" help="output gmsh geometry file (*.geo)"/>
-    <param name="input" type="text" value="input file name" optional="false" label="input" help="input geometry file (*.gml)"/>
-    <param name="max_points_in_quadtree_leaf" type="text" value="2" optional="true" label="max points in quadtree leaf" help="positive number"/>
-    <param name="mesh_density_scaling_at_points" type="float" value="0.2" optional="true" label="mesh density scaling at points" help="positive floating point number"/>
-    <param name="mesh_density_scaling_at_stations" type="float" value="0.05" optional="true" label="mesh density scaling at stations" help="positive floating point number"/>
-    <param name="average_point_density" type="float" value="1" optional="true" label="average point density" help="average point density / average edge length as a positive floating point number"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.gml) geometry file" format="gml" multiple="false"/>
+    <param name="max_points_in_quadtree_leaf" type="text" value="2" optional="true" label="max points in quadtree leaf" help="positive number/ (min = 0)" min="0"/>
+    <param name="mesh_density_scaling_at_points" type="float" value="0.2" optional="true" label="mesh density scaling at points" help="positive floating point number, (min = 0)" min="0"/>
+    <param name="mesh_density_scaling_at_stations" type="float" value="0.05" optional="true" label="mesh density scaling at stations" help="positive floating point number, (min = 0)" min="0"/>
+    <param name="average_point_density" type="float" value="1" optional="true" label="average point density" help="average point density / average edge length as a positive floating point number, (min = 0)" min="0"/>
     <param name="homogeneous" type="boolean" label="homogeneous" help="Use Gmsh homogeneous meshing method." checked="false" truevalue="--homogeneous" falsevalue=""/>
-    <param name="write_merged_geometries" type="text" optional="true" label="write merged geometries" help="file name for the output of the internal created geometry (*.gml) (useful for debugging the data)"/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from geometryToGmshGeo">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
   <tests>
     <expand macro="geometrytogmshgeo_test"/>
   </tests>

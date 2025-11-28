@@ -9,7 +9,7 @@
   <command><![CDATA[ConvertSHPToGLI
     --shape-file '$shape_file']]></command>
   <inputs>
-    <param name="shape_file" type="text" optional="false" label="shape file" help="the shape file"/>
+    <param name="shape_file" type="data" optional="false" label="shape file" help="Input (.shp). the input shape file" format="shp" multiple="false"/>
   </inputs>
   <outputs/>
   <tests>

@@ -14,20 +14,24 @@
     --end-x '$end_x'
     --start-y '$start_y'
     --start-x '$start_x'
-    --output '$output'
-    --input '$input']]></command>
+    #for $f in $input:
+        #echo str($f) >> "input_list.txt"
+    #end for
+    --input 'input_list.txt'
+    --output output_1.vtu]]></command>
   <inputs>
     <param name="testdata" type="boolean" label="testdata" help="keep test data" checked="false" truevalue="--testdata" falsevalue=""/>
     <param name="bounds" type="boolean" label="bounds" help="save mesh boundaries" checked="false" truevalue="--bounds" falsevalue=""/>
-    <param name="resolution" type="float" value="0" optional="false" label="resolution" help="desired edge length of triangles in the resulting slice."/>
+    <param name="resolution" type="float" value="0" optional="false" label="resolution" help="desired edge length of triangles in the resulting slice, (min = 0)" min="0"/>
     <param name="end_y" type="float" value="0" optional="false" label="end y" help="y-coordinates of the end point defining the slice"/>
     <param name="end_x" type="float" value="0" optional="false" label="end x" help="x-coordinates of the end point defining the slice"/>
     <param name="start_y" type="float" value="0" optional="false" label="start y" help="y-coordinates of the start point defining the slice"/>
     <param name="start_x" type="float" value="0" optional="false" label="start x" help="x-coordinates of the start point defining the slice"/>
-    <param name="output" type="text" optional="false" label="output" help="output mesh (*.vtu)"/>
-    <param name="input" type="text" optional="false" label="input" help="the input file list containing the paths the all input layers in correct order from top to bottom"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu | .msh). the input file list containing the paths the all input layers in correct order from top to bottom" format="vtu,msh" multiple="true"/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <data name="output_VerticalSliceFromLayers" format="vtu" label="Output file from VerticalSliceFromLayers" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
   <tests>
     <expand macro="verticalslicefromlayers_test"/>
   </tests>

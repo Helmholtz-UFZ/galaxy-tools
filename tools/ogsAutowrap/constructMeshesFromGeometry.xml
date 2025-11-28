@@ -14,9 +14,9 @@
     --mesh '$mesh'
     $multiple_nodes_allowed]]></command>
   <inputs>
-    <param name="searchlength" type="float" value="1e-16" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number (default 1e-16)"/>
-    <param name="geometry" type="text" optional="false" label="geometry" help="the file name the geometry"/>
-    <param name="mesh" type="text" optional="false" label="mesh" help="the file the mesh where the geometry is defined"/>
+    <param name="searchlength" type="float" value="1e-16" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number, (min = 0)" min="0"/>
+    <param name="geometry" type="data" optional="false" label="geometry" help="Input (.gml | .gli). The file the input geometry" format="gml,gli" multiple="false"/>
+    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file the input mesh where the geometry is defined" format="vtu" multiple="false"/>
     <param name="multiple_nodes_allowed" type="boolean" label="multiple nodes allowed" help="Allows multiple mesh nodes in eps environment." checked="false" truevalue="--multiple-nodes-allowed" falsevalue=""/>
   </inputs>
   <outputs/>

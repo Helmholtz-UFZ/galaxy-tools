@@ -7,13 +7,18 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[PVTU2VTU --version]]></version_command>
   <command><![CDATA[PVTU2VTU
-    --output '$output'
-    --input '$input']]></command>
+    --input '$input'
+    #if str($original_mesh):
+        --original_mesh '$original_mesh'
+    #end if
+    --output output_1.vtu]]></command>
   <inputs>
-    <param name="output" type="text" optional="false" label="output" help="the output mesh (*.vtu)"/>
-    <param name="input" type="text" optional="false" label="input" help="the partitioned input mesh (*.pvtu)"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.pvtu). The partitioned input mesh file" format="pvtu" multiple="false"/>
+    <param name="original_mesh" type="text" optional="true" label="original mesh" help="optional, the original unpartitioned input mesh (*.vtu)"/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <data name="output_PVTU2VTU" format="vtu" label="Output file from PVTU2VTU" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
   <tests>
     <expand macro="pvtu2vtu_test"/>
   </tests>

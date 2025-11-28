@@ -8,16 +8,15 @@
   <version_command><![CDATA[ExtractBoundary --version]]></version_command>
   <command><![CDATA[ExtractBoundary
     --mesh-input-file '$mesh_input_file'
-    #if str($mesh_output_file):
-        --mesh-output-file '$mesh_output_file'
-    #end if
-    $ascii_output]]></command>
+    $ascii_output
+    --mesh-output-file output_1.vtu]]></command>
   <inputs>
-    <param name="mesh_input_file" type="text" optional="false" label="mesh input file" help="the file containing the input mesh"/>
-    <param name="mesh_output_file" type="text" optional="true" label="mesh output file" help="the file the surface mesh should be written to"/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtu" multiple="false"/>
     <param name="ascii_output" type="boolean" label="ascii output" help="If the switch is set use ascii instead of binary format for data in the vtu output." checked="false" truevalue="--ascii-output" falsevalue=""/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <data name="output_ExtractBoundary" format="vtu" label="Output file from ExtractBoundary" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
   <tests>
     <expand macro="extractboundary_test"/>
   </tests>

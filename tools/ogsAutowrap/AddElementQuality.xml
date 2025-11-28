@@ -7,11 +7,10 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[AddElementQuality --version]]></version_command>
   <command><![CDATA[AddElementQuality
-    --output_mesh_file '$output_mesh_file'
     --quality_criterion '$quality_criterion'
-    --input_mesh_file '$input_mesh_file']]></command>
+    --input_mesh_file '$input_mesh_file'
+    --output_mesh_file output_1.vtu]]></command>
   <inputs>
-    <param name="output_mesh_file" type="text" optional="false" label="output mesh file" help="output mesh file"/>
     <param name="quality_criterion" type="select" label="quality criterion" help="quality criterion">
       <option value="ElementSize">ElementSize</option>
       <option value="EdgeRatio">EdgeRatio</option>
@@ -19,9 +18,11 @@
       <option value="RadiusEdgeRatio">RadiusEdgeRatio</option>
       <option value="SizeDifference">SizeDifference</option>
     </param>
-    <param name="input_mesh_file" type="text" optional="false" label="input mesh file" help="input mesh file"/>
+    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu | .msh) mesh file" format="vtu,msh" multiple="false"/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <data name="output_AddElementQuality" format="vtu" label="Output file from AddElementQuality" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
   <tests>
     <expand macro="addelementquality_test"/>
   </tests>

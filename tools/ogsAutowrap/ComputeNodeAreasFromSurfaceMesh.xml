@@ -8,18 +8,22 @@
   <version_command><![CDATA[ComputeNodeAreasFromSurfaceMesh --version]]></version_command>
   <command><![CDATA[ComputeNodeAreasFromSurfaceMesh
     --mesh-input-file '$mesh_input_file'
-    #if str($id_prop_name):
-        --id-prop-name '$id_prop_name'
-    #end if
-    #if str($output_base_name):
-        --output-base-name '$output_base_name'
-    #end if]]></command>
+    --id-prop-name '$id_prop_name'
+    --output-base-name output_1]]></command>
   <inputs>
-    <param name="mesh_input_file" type="text" optional="false" label="mesh input file" help="the file containing the input mesh"/>
-    <param name="id_prop_name" type="text" value="std::string(MeshLib::getBulkIDString(MeshLib::MeshItemType::Node))" optional="true" label="id prop name" help="the property containing the id information"/>
-    <param name="output_base_name" type="text" optional="true" label="output base name" help="the path and base file name the output will be written to"/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtu" multiple="false"/>
+    <param name="id_prop_name" type="select" label="id prop name" help="the property containing the id information">
+      <option value="bulk_node_ids">bulk_node_ids</option>
+      <option value="bulk_element_ids">bulk_element_ids</option>
+      <option value="bulk_edge_ids">bulk_edge_ids</option>
+      <option value="bulk_face_ids">bulk_face_ids</option>
+    </param>
   </inputs>
-  <outputs/>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from ComputeNodeAreasFromSurfaceMesh">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
   <tests>
     <expand macro="computenodeareasfromsurfacemesh_test"/>
   </tests>

@@ -7,7 +7,6 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[ResetPropertiesInPolygonalRegion --version]]></version_command>
   <command><![CDATA[ResetPropertiesInPolygonalRegion
-    --mesh-output-file '$mesh_output_file'
     --polygon-name '$polygon_name'
     --geometry '$geometry'
     $any_of
@@ -26,20 +25,22 @@
     --mesh-input-file '$mesh_input_file'
     #if str($gmsh_path):
         --gmsh-path '$gmsh_path'
-    #end if]]></command>
+    #end if
+    --mesh-output-file output_1.dat]]></command>
   <inputs>
-    <param name="mesh_output_file" type="text" optional="false" label="mesh output file" help="the file the mesh will be written to, format depends on the given file name extension"/>
     <param name="polygon_name" type="text" optional="false" label="polygon name" help="polygon in the geometry"/>
-    <param name="geometry" type="text" optional="false" label="geometry" help="the file containing the input geometry (gli or gml format)"/>
+    <param name="geometry" type="data" optional="false" label="geometry" help="Input (.gli | .gml). the file containing the input geometry" format="gli,gml" multiple="false"/>
     <param name="any_of" type="boolean" label="any of" help="all nodes of an element has to be inside the polygon (default behaviour without switch) or any node of an element has to be inside (switch is given)" checked="false" truevalue="--any_of" falsevalue=""/>
     <param name="char_property_value" type="text" value="A" optional="true" label="char property value" help="new property value (data type char)"/>
     <param name="int_property_value" type="integer" value="0" optional="true" label="int property value" help="new property value (data type int)"/>
     <param name="property_name" type="text" value="MaterialIDs" optional="true" label="property name" help="property in the mesh"/>
     <param name="restrict_to_MaterialID" type="integer" value="-1" optional="true" label="restrict to MaterialID" help="Restrict resetting the property to the material id"/>
-    <param name="mesh_input_file" type="text" optional="false" label="mesh input file" help="the file containing the input mesh"/>
-    <param name="gmsh_path" type="text" optional="true" label="gmsh path" help="the path to the gmsh binary"/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu | .vtk | .msh). the file containing the input mesh" format="vtu,vtk,msh" multiple="false"/>
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input binary" format="msh" multiple="false"/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <data name="output_ResetPropertiesInPolygonalRegion" format="dat" label="Output file from ResetPropertiesInPolygonalRegion" from_work_dir="output_1.dat" hidden="false"/>
+  </outputs>
   <tests>
     <expand macro="resetpropertiesinpolygonalregion_test"/>
   </tests>

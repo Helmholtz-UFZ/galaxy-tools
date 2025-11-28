@@ -7,15 +7,16 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[PVD2XDMF --version]]></version_command>
   <command><![CDATA[PVD2XDMF
-    #if str($output_directory):
-        --output-directory '$output_directory'
-    #end if
-    '$pvd_file']]></command>
+    '$pvd_file'
+    --output-directory output_1.dat]]></command>
   <inputs>
-    <param name="output_directory" type="text" value="." optional="true" label="output directory" help="the output directory to write to"/>
-    <param name="pvd_file" type="text" optional="false" label="pvd file" help="pvd file"/>
+    <param name="pvd_file" type="data" optional="false" label="pvd file" help="Input (.pvd) file" format="pvd" multiple="false"/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from PVD2XDMF">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
   <tests>
     <expand macro="pvd2xdmf_test"/>
   </tests>

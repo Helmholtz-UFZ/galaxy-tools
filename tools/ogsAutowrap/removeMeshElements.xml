@@ -42,8 +42,8 @@
     #end if
     $outside
     $inside
-    --mesh-output-file '$mesh_output_file'
-    --mesh-input-file '$mesh_input_file']]></command>
+    --mesh-input-file '$mesh_input_file'
+    --mesh-output-file output_1.vtu]]></command>
   <inputs>
     <param name="invert" type="boolean" label="invert" help="inverts the specified bounding box" checked="false" truevalue="--invert" falsevalue=""/>
     <param name="z_max" type="float" value="1.7976931348623157E+308" optional="true" label="z max" help="largest allowed extent in z-dimension"/>
@@ -53,7 +53,7 @@
     <param name="x_max" type="float" value="1.7976931348623157E+308" optional="true" label="x max" help="largest allowed extent in x-dimension"/>
     <param name="x_min" type="float" value="-1.7976931348623157E+308" optional="true" label="x min" help="smallest allowed extent in x-dimension"/>
     <param name="zero_volume" type="boolean" label="zero volume" help="remove zero volume elements" checked="false" truevalue="--zero-volume" falsevalue=""/>
-    <param name="element_type" type="select" label="element type" help="element type to be removed: point | line | tri | quad | hex | prism | tet | pyramid">
+    <param name="element_type" type="select" label="element type" help="element type to be removed">
       <option value="point">point</option>
       <option value="line">line</option>
       <option value="tri">tri</option>
@@ -64,15 +64,16 @@
       <option value="pyramid">pyramid</option>
     </param>
     <param name="property_name" type="text" value="MaterialIDs" optional="true" label="property name" help="property in the mesh"/>
-    <param name="property_value" type="integer" value="number" optional="true" label="property value" help="value of selected property to be removed"/>
+    <param name="property_value" type="integer" value="PROPERTY_VALUE" optional="true" label="property value" help="value of selected property to be removed"/>
     <param name="min_value" type="float" value="0" optional="true" label="min value" help="minimum value of range for selected property"/>
     <param name="max_value" type="float" value="0" optional="true" label="max value" help="maximum value of range for selected property"/>
     <param name="outside" type="boolean" label="outside" help="remove all elements outside the given property range" checked="false" truevalue="--outside" falsevalue=""/>
     <param name="inside" type="boolean" label="inside" help="remove all elements inside the given property range" checked="false" truevalue="--inside" falsevalue=""/>
-    <param name="mesh_output_file" type="text" optional="false" label="mesh output file" help="the file the mesh will be written to"/>
-    <param name="mesh_input_file" type="text" optional="false" label="mesh input file" help="the file containing the input mesh"/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtu" multiple="false"/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <data name="output_removeMeshElements" format="vtu" label="Output file from removeMeshElements" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
   <tests>
     <expand macro="removemeshelements_test"/>
   </tests>

@@ -8,14 +8,15 @@
   <version_command><![CDATA[GocadSGridReader --version]]></version_command>
   <command><![CDATA[GocadSGridReader
     $generate_face_sets
-    --output-mesh '$output_mesh'
-    --sg '$sg']]></command>
+    --sg '$sg'
+    --output-mesh output_1.vtu]]></command>
   <inputs>
     <param name="generate_face_sets" type="boolean" label="generate face sets" help="Generate face sets." checked="false" truevalue="--generate-face-sets" falsevalue=""/>
-    <param name="output_mesh" type="text" optional="false" label="output mesh" help="vtk unstructured grid file name"/>
-    <param name="sg" type="text" optional="false" label="sg" help="Gocad stratigraphic grid file name"/>
+    <param name="sg" type="data" optional="false" label="sg" help="Input (.sg). Gocad stratigraphic grid filename" format="sg" multiple="false"/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <data name="output_GocadSGridReader" format="vtu" label="Output file from GocadSGridReader" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
   <tests>
     <expand macro="gocadsgridreader_test"/>
   </tests>

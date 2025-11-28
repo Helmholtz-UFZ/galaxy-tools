@@ -7,25 +7,24 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[createMeshElemPropertiesFromASCRaster --version]]></version_command>
   <command><![CDATA[createMeshElemPropertiesFromASCRaster
-    #if str($out_mesh):
-        --out-mesh '$out_mesh'
-    #end if
     $output_refined_raster
     #if str($refine):
         --refine '$refine'
     #end if
     --raster-file '$raster_file'
     --property-name '$property_name'
-    --mesh '$mesh']]></command>
+    --mesh '$mesh'
+    --out-mesh output_1.vtu]]></command>
   <inputs>
-    <param name="out_mesh" type="text" optional="true" label="out mesh" help="the mesh is stored to a file of this name"/>
     <param name="output_refined_raster" type="boolean" label="output refined raster" help="Write refined raster to an additional, new ASC file." checked="false" truevalue="--output-refined-raster" falsevalue=""/>
     <param name="refine" type="text" value="1" optional="true" label="refine" help="refinement factor that raises the resolution of the raster data"/>
-    <param name="raster_file" type="text" optional="false" label="raster file" help="the ASC raster file"/>
+    <param name="raster_file" type="data" optional="false" label="raster file" help="Input (.asc). the input ASC raster file" format="asc" multiple="false"/>
     <param name="property_name" type="text" optional="false" label="property name" help="the property the values are stored for"/>
-    <param name="mesh" type="text" optional="false" label="mesh" help="the mesh is read from this file"/>
+    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The input mesh is read from this file" format="vtu" multiple="false"/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <data name="output_createMeshElemPropertiesFromASCRaster" format="vtu" label="Output file from createMeshElemPropertiesFromASCRaster" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
   <tests>
     <expand macro="createmeshelempropertiesfromascraster_test"/>
   </tests>

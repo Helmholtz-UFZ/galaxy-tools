@@ -10,16 +10,19 @@
     $write_binary
     $surfaces_only
     $lines_only
-    --output-dir '$output_dir'
-    --input-file '$input_file']]></command>
+    --input-file '$input_file'
+    --output-dir output_1.dat]]></command>
   <inputs>
     <param name="write_binary" type="boolean" label="write binary" help="if set, OGS-Meshes will be written in binary format" checked="false" truevalue="--write-binary" falsevalue=""/>
     <param name="surfaces_only" type="boolean" label="surfaces only" help="if set, only TSurf datasets will be parsed from the input file" checked="false" truevalue="--surfaces-only" falsevalue=""/>
     <param name="lines_only" type="boolean" label="lines only" help="if set, only PLine datasets will be parsed from the input file" checked="false" truevalue="--lines-only" falsevalue=""/>
-    <param name="output_dir" type="text" optional="false" label="output dir" help="output directory"/>
-    <param name="input_file" type="text" optional="false" label="input file" help="Gocad triangular surfaces file (*.ts). Provide a file with unix file endings under unix. Use dos2unix to convert."/>
+    <param name="input_file" type="data" optional="false" label="input file" help="Input (.ts | .pl | .mx). Gocad triangular surfaces file Provide a file with unix file endings under unix. Use dos2unix to convert." format="ts,pl,mx" multiple="false"/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from GocadTSurfaceReader">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
   <tests>
     <expand macro="gocadtsurfacereader_test"/>
   </tests>

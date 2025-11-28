@@ -10,14 +10,15 @@
     --mesh-file '$mesh_file'
     --input-geometry '$input_geometry'
     $additional_insert_mapping
-    --output-geometry '$output_geometry']]></command>
+    --output-geometry output_1.gml]]></command>
   <inputs>
-    <param name="mesh_file" type="text" optional="false" label="mesh file" help="the file containing the mesh"/>
-    <param name="input_geometry" type="text" optional="false" label="input geometry" help="the file containing the input geometry"/>
+    <param name="mesh_file" type="data" optional="false" label="mesh file" help="Input (.vtu). the input file containing the mesh" format="vtu" multiple="false"/>
+    <param name="input_geometry" type="data" optional="false" label="input geometry" help="Input (.gml). the file containing the input geometry" format="gml" multiple="false"/>
     <param name="additional_insert_mapping" type="boolean" label="additional insert mapping" help="Advanced mapping algorithm will be applied, i.e. a new geometry will be created and possibly new points will be inserted." checked="false" truevalue="--additional-insert-mapping" falsevalue=""/>
-    <param name="output_geometry" type="text" optional="false" label="output geometry" help="the file containing the input geometry"/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <data name="output_MapGeometryToMeshSurface" format="gml" label="Output file from MapGeometryToMeshSurface" from_work_dir="output_1.gml" hidden="false"/>
+  </outputs>
   <tests>
     <expand macro="mapgeometrytomeshsurface_test"/>
   </tests>

@@ -10,16 +10,17 @@
     #if str($material):
         --material '$material'
     #end if
-    --output '$output'
     --fault '$fault'
-    --input '$input']]></command>
+    --input '$input'
+    --output output_1.vtu]]></command>
   <inputs>
-    <param name="material" type="integer" value="mat_not_set" optional="true" label="material" help="material id for cells intersected by fault"/>
-    <param name="output" type="text" optional="false" label="output" help="output mesh (*.vtu)"/>
-    <param name="fault" type="text" optional="false" label="fault" help="mesh representing fault (*.vtu)"/>
-    <param name="input" type="text" optional="false" label="input" help="the input file list containing the paths the all input layers in correct order from top to bottom"/>
+    <param name="material" type="integer" value="mat_not_set" optional="true" label="material" help="material id for cells intersected by fault, (min = 0)" min="0"/>
+    <param name="fault" type="data" optional="false" label="fault" help="Input (.vtu). mesh file representing fault" format="vtu" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). the input file containing the paths the all input in correct order from top to bottom" format="vtu" multiple="false"/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <data name="output_AddFaultToVoxelGrid" format="vtu" label="Output file from AddFaultToVoxelGrid" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
   <tests>
     <expand macro="addfaulttovoxelgrid_test"/>
   </tests>

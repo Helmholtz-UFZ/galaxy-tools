@@ -7,13 +7,14 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[ipDataToPointCloud --version]]></version_command>
   <command><![CDATA[ipDataToPointCloud
-    --output-file '$output_file'
-    --input-file '$input_file']]></command>
+    --input-file '$input_file'
+    --output-file output_1.vtu]]></command>
   <inputs>
-    <param name="output_file" type="text" optional="false" label="output file" help="the output mesh (point cloud, VTU file)"/>
-    <param name="input_file" type="text" optional="false" label="input file" help="the input mesh (VTU file)"/>
+    <param name="input_file" type="data" optional="false" label="input file" help="Input (.vtu). The input mesh" format="vtu" multiple="false"/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <data name="output_ipDataToPointCloud" format="vtu" label="Output file from ipDataToPointCloud" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
   <tests>
     <expand macro="ipdatatopointcloud_test"/>
   </tests>

@@ -8,14 +8,15 @@
   <version_command><![CDATA[OGS2VTK --version]]></version_command>
   <command><![CDATA[OGS2VTK
     --mesh-input-file '$mesh_input_file'
-    --mesh-output-file '$mesh_output_file'
-    $ascii_output]]></command>
+    $ascii_output
+    --mesh-output-file output_1.vtk]]></command>
   <inputs>
-    <param name="mesh_input_file" type="text" optional="false" label="mesh input file" help="the file containing the input mesh"/>
-    <param name="mesh_output_file" type="text" optional="false" label="mesh output file" help="the file the mesh will be written to"/>
-    <param name="ascii_output" type="boolean" label="ascii output" help="Write VTU output in ASCII format. Due to possible rounding the ascii output could result in lower accuracy." checked="false" truevalue="--ascii_output" falsevalue=""/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.msh). the file containing the input mesh" format="msh" multiple="false"/>
+    <param name="ascii_output" type="boolean" label="ascii output" help="Write VTU output in ASCII file. Due to possible rounding the ascii output could result in lower accuracy" checked="false" truevalue="--ascii_output" falsevalue=""/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <data name="output_OGS2VTK" format="vtk" label="Output file from OGS2VTK" from_work_dir="output_1.vtk" hidden="false"/>
+  </outputs>
   <tests>
     <expand macro="ogs2vtk_test"/>
   </tests>

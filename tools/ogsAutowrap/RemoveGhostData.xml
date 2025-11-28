@@ -7,13 +7,14 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[RemoveGhostData --version]]></version_command>
   <command><![CDATA[RemoveGhostData
-    --output '$output'
-    --input '$input']]></command>
+    --input '$input'
+    --output output_1.vtu]]></command>
   <inputs>
-    <param name="output" type="text" optional="false" label="output" help="the output mesh (*.vtu)"/>
-    <param name="input" type="text" optional="false" label="input" help="the partitioned input mesh (*.pvtu)"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.pvtu). The partitioned input mesh file" format="pvtu" multiple="false"/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <data name="output_RemoveGhostData" format="vtu" label="Output file from RemoveGhostData" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
   <tests>
     <expand macro="removeghostdata_test"/>
   </tests>

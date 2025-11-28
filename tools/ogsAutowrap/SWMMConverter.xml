@@ -7,31 +7,26 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[SWMMConverter --version]]></version_command>
   <command><![CDATA[SWMMConverter
-    #if str($mesh):
-        --mesh '$mesh'
-    #end if
-    #if str($geo):
-        --geo '$geo'
-    #end if
-    #if str($csv):
-        --csv '$csv'
-    #end if
     --input '$input'
     $node_vars
     $link_vars
     $subcatchment_vars
-    $system_vars]]></command>
+    $system_vars
+    --mesh output_1.vtu
+    --geo output_2.gml
+    --csv output_3.csv]]></command>
   <inputs>
-    <param name="mesh" type="text" optional="true" label="mesh" help="mesh output file (*.vtu)"/>
-    <param name="geo" type="text" optional="true" label="geo" help="geometry output file (*.gml)"/>
-    <param name="csv" type="text" optional="true" label="csv" help="csv output file (*.csv)"/>
-    <param name="input" type="text" optional="false" label="input" help="SWMM input file (*.inp)"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.inp). SWMM input file" format="inp" multiple="false"/>
     <param name="node_vars" type="boolean" label="node vars" help="Read node variables and add to output mesh" checked="false" truevalue="--node_vars" falsevalue=""/>
     <param name="link_vars" type="boolean" label="link vars" help="Read link variables and add to output mesh" checked="false" truevalue="--link_vars" falsevalue=""/>
     <param name="subcatchment_vars" type="boolean" label="subcatchment vars" help="Read subcatchment variables and write to CSV-file" checked="false" truevalue="--subcatchment_vars" falsevalue=""/>
     <param name="system_vars" type="boolean" label="system vars" help="Read system variables and write to CSV-file" checked="false" truevalue="--system_vars" falsevalue=""/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from SWMMConverter">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
   <tests>
     <expand macro="swmmconverter_test"/>
   </tests>

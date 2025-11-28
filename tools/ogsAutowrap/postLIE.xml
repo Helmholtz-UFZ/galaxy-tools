@@ -7,15 +7,18 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[postLIE --version]]></version_command>
   <command><![CDATA[postLIE
-    --output-file '$output_file'
     --input-file '$input_file'
-    $no_overwrite]]></command>
+    $no_overwrite
+    --output-file output_1.vtu]]></command>
   <inputs>
-    <param name="output_file" type="text" optional="false" label="output file" help="the new PVD or VTU file"/>
-    <param name="input_file" type="text" optional="false" label="input file" help="the original PVD or VTU file name"/>
+    <param name="input_file" type="data" optional="false" label="input file" help="Input (.vtu | .pvd). The original PVD or VTU file name" format="vtu,pvd" multiple="false"/>
     <param name="no_overwrite" type="boolean" label="no overwrite" help="don't overwrite existing post processed VTU files" checked="false" truevalue="--no-overwrite" falsevalue=""/>
   </inputs>
-  <outputs/>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from postLIE">
+      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+    </collection>
+  </outputs>
   <tests>
     <expand macro="postlie_test"/>
   </tests>

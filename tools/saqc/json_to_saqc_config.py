@@ -243,7 +243,8 @@ def format_saqc_value(v_saqc_raw: Any, k_saqc: str) -> Optional[str]:
                         return str(val)
                     return repr(val)
 
-                v_str_repr = f"({format_tuple_val(pos0_val_raw)}, {format_tuple_val(pos1_val_raw)})"
+                v_str_repr = f"[{format_tuple_val(pos0_val_raw)}, {format_tuple_val(pos1_val_raw)}]"
+
             # Galaxy dict repeat
             elif 'key' in inner_dict:
                 dict_items = [f'"{i["key"]}": "{i["value"]}"' for i in v_saqc_raw]

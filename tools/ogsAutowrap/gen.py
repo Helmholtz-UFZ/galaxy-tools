@@ -469,11 +469,11 @@ def parse_diff_data(diff_str: str, base_url: str, workdir: str) -> List[Dict[str
 def generate_tests():
     """
     Generiert individuelle, benannte Test-Makros für jedes Tool.
-    Verarbeitet nur den ERSTEN gefundenen Test pro Werkzeug.
-    Kann jetzt Pfad-Platzhalter auflösen.
+    Versucht echte Tests aus Tests.cmake zu extrahieren.
+    Falls kein valider Test gefunden wird (z.B. keine Outputs), wird ein leerer Test-Rumpf erstellt.
     """
     eprint("--- Generating Test Macros from Tests.cmake with GitLab URLs ---")
-    
+
     CMAKE_TESTS_FILE = Path("/home/stehling/gitProjects/ogs/Applications/Utils/Tests.cmake")
     RAW_GITLAB_TEST_DATA_URL = "https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data"
     RAW_GITLAB_PROJECT_ROOT_URL = "https://gitlab.opengeosys.org/ogs/ogs/-/raw/master"
@@ -486,12 +486,12 @@ def generate_tests():
     if not all_tools_data:
         eprint("Keine Tools gefunden, Tests können nicht generiert werden.")
         return
-        
+
     tools_map_lower = {tool['name'].lower(): tool for tool in all_tools_data}
     wrapper_tool_names_lower = list(tools_map_lower.keys())
 
     macros_root = ET.Element("macros")
-    
+
     cmake_content = CMAKE_TESTS_FILE.read_text(encoding='utf-8', errors='ignore')
     addtest_pattern = re.compile(r"AddTest\s*\((.*?)\)", re.DOTALL)
 
@@ -501,7 +501,7 @@ def generate_tests():
     for match in addtest_pattern.finditer(cmake_content):
         test_block_content = "\n" + match.group(1).strip() + "\n"
         test_block_content_lower = test_block_content.lower()
-        
+
         path_var_match = re.search(r"\s+set\s*\(\s*Path\s+([^\s\)]+)\s*\)", test_block_content)
         path_replacement = path_var_match.group(1) if path_var_match else ""
 
@@ -509,7 +509,7 @@ def generate_tests():
             t for t in wrapper_tool_names_lower
             if re.search(r'(?:[\s/_-]|^)' + re.escape(t) + r'(?:[\s/_-]|$)', test_block_content_lower)
         ]
-        
+
         matched_tool_name_lower = None
         if len(found_matches) == 1:
             matched_tool_name_lower = found_matches[0]
@@ -529,21 +529,22 @@ def generate_tests():
 
         workdir_match = re.search(r"\s+WORKING_DIRECTORY\s+\$\{Data_SOURCE_DIR\}/([^\s\)]+)", test_block_content)
         workdir_subpath = workdir_match.group(1).strip() if workdir_match else ""
-            
+
         tool_name = tools_map_lower[matched_tool_name_lower]['name']
         test_name_match = re.search(r"\s+NAME\s+([^\s\)]+)", test_block_content)
         test_name = test_name_match.group(1) if test_name_match else "UnknownTest"
-        eprint(f"  Generating test for: {tool_name} (from test '{test_name}')")
-        
+
         try:
             args_str = args_match.group(1).strip().replace('\n', ' ')
             tool_data = tools_map_lower[matched_tool_name_lower]
             galaxy_inputs, output_map = process_parameters(tool_data['parameters'])
 
+
             if not output_map:
-                eprint(f"!! INFO: Skipping test '{test_name}' for '{tool_name}' because the tool itself has no output parameters defined.")
                 continue
-            
+
+            eprint(f"  Generating REAL test for: {tool_name} (from test '{test_name}')")
+
             flag_map = {f"--{p.original_long_flag}": p for p in galaxy_inputs if not p.is_unlabeled and p.original_long_flag}
             flag_map.update({f"-{p.original_short_flag}": p for p in galaxy_inputs if not p.is_unlabeled and p.original_short_flag})
             unlabeled_params = [p for p in galaxy_inputs if p.is_unlabeled]
@@ -558,7 +559,7 @@ def generate_tests():
             args_list = shlex.split(args_str)
             i = 0
             unlabeled_idx = 0
-            
+
             while i < len(args_list):
                 arg = args_list[i]
                 if arg == '--': i += 1; continue
@@ -574,31 +575,31 @@ def generate_tests():
                         param = unlabeled_params[unlabeled_idx]
                         params_in_test[param.name] = arg; unlabeled_idx += 1
                     i += 1
-            
+
             all_params_map = {p.name: p for p in galaxy_inputs}
             for name, value in params_in_test.items():
                 param = all_params_map.get(name)
                 if param and (f"--{param.original_long_flag}" in output_flags or (param.original_short_flag and f"-{param.original_short_flag}" in output_flags)):
                     continue
-                
+
                 final_value = value
-                
+
                 if path_replacement:
                     final_value = final_value.replace("<PATH>", path_replacement)
-                
+
                 if "<SOURCE_PATH>/" in final_value:
                     final_value = final_value.replace("<SOURCE_PATH>/", "")
 
                 if '<' in final_value or '>' in final_value:
                     raise ValueError(f"Test contains unresolved XML placeholder: {final_value}")
-                
+
                 if isinstance(param, DataParam):
                     if final_value.startswith("${Data_BINARY_DIR}/"): final_value = f"{RAW_GITLAB_PROJECT_ROOT_URL}/{final_value.replace('${Data_BINARY_DIR}/', '', 1)}"
                     elif final_value.startswith("${Data_SOURCE_DIR}/"): final_value = f"{RAW_GITLAB_PROJECT_ROOT_URL}/{final_value.replace('${Data_SOURCE_DIR}/', '', 1)}"
                     elif final_value != "true" and workdir_subpath: final_value = f"{RAW_GITLAB_TEST_DATA_URL}/{workdir_subpath}/{final_value}"
 
                 ET.SubElement(test_case, "param", {"name": name, "value": final_value})
-            
+
             diff_data_match = re.search(r"\s+DIFF_DATA\s+(.*?)(?=\s+\w+\s+|\s*\))", test_block_content, re.DOTALL)
             diff_files = []
             if diff_data_match and workdir_subpath:
@@ -630,17 +631,30 @@ def generate_tests():
 
             processed_tools_lower.add(matched_tool_name_lower)
             test_case_count += 1
-            
+
         except Exception as e:
             eprint(f"!! FEHLER beim Generieren des Tests für '{tool_name}' (Test '{test_name}'): {e}")
+
+    eprint("\n--- Checking for missing tests and generating empty fallbacks ---")
+    for tool_data in all_tools_data:
+        t_name_lower = tool_data['name'].lower()
+
+        if t_name_lower not in processed_tools_lower:
+            eprint(f"  Generating EMPTY fallback test for: {tool_data['name']}")
+
+            macro_name = f"{t_name_lower}_test"
+            macro_xml = ET.SubElement(macros_root, "xml", {"name": macro_name})
+            test_case = ET.SubElement(macro_xml, "test")
+
+            test_case_count += 1
 
     tree = ET.ElementTree(macros_root)
     ET.indent(tree, space="    ")
     output_filename = "test_macros.xml"
     with open(output_filename, "wb") as f:
-        f.write(b'<?xml version="1.e" encoding="UTF-8"?>\n')
+        f.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
         tree.write(f, encoding="utf-8", xml_declaration=False)
-    eprint(f"\nErfolgreich '{output_filename}' mit {test_case_count} Testfällen erstellt.")
+    eprint(f"\nErfolgreich '{output_filename}' mit {test_case_count} Testfällen erstellt (davon {len(processed_tools_lower)} echte und {test_case_count - len(processed_tools_lower)} leere).")
 
 def main():
     parser = argparse.ArgumentParser(description="Galaxy XML Wrapper Generator for OGS Utilities")
@@ -654,7 +668,7 @@ def main():
         action='store_true',
         help='Generate a single test_macros.xml file for all tools.'
     )
-    
+
     args = parser.parse_args()
 
     if args.generate_tests:

@@ -8,25 +8,22 @@
   <version_command><![CDATA[CreateAnchors --version]]></version_command>
   <command><![CDATA[CreateAnchors
     --input '$input'
+    --output '$output'
     --json-file '$json_file'
     #if str($tolerance):
         --tolerance '$tolerance'
     #end if
     #if str($max_iter):
         --max-iter '$max_iter'
-    #end if
-    --output output_1.vtu]]></command>
+    #end if]]></command>
   <inputs>
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu) bulk mesh file" format="vtu" multiple="false"/>
-    <param name="json_file" type="data" optional="false" label="json file" help="Input (.json) JSON file containing anchor start and end points" format="json" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input bulk mesh" format="data" multiple="false"/>
+    <param name="output" type="text" optional="false" label="output" help="Anchor mesh"/>
+    <param name="json_file" type="text" optional="false" label="json file" help="JSON file containing anchor start and end points"/>
     <param name="tolerance" type="float" value="2.220446049250313e-16" optional="true" label="tolerance" help="Tolerance/Search length"/>
-    <param name="max_iter" type="text" value="5" optional="true" label="max iter" help="maximum number of iterations of the internal root-finding algorithm, (min = 0)" min="0"/>
+    <param name="max_iter" type="text" value="5" optional="true" label="max iter" help="maximum number of iterations of the internal root-finding algorithm"/>
   </inputs>
-  <outputs>
-    <collection name="tool_outputs" type="list" label="Outputs from CreateAnchors">
-      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
-    </collection>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="createanchors_test"/>
   </tests>

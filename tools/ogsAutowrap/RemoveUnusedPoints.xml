@@ -7,14 +7,13 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[RemoveUnusedPoints --version]]></version_command>
   <command><![CDATA[RemoveUnusedPoints
-    --input '$input'
-    --output output_1.gml]]></command>
+    --output '$output'
+    --input '$input']]></command>
   <inputs>
-    <param name="input" type="data" optional="false" label="input" help="Input (.gml) geometry" format="gml" multiple="false"/>
+    <param name="output" type="text" optional="false" label="output" help="output geometry"/>
+    <param name="input" type="text" value="conceptual model" optional="false" label="input" help="input geometry"/>
   </inputs>
-  <outputs>
-    <data name="output_RemoveUnusedPoints" format="gml" label="Output file from RemoveUnusedPoints" from_work_dir="output_1.gml" hidden="false"/>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="removeunusedpoints_test"/>
   </tests>

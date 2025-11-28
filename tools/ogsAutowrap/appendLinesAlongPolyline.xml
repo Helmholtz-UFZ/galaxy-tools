@@ -8,19 +8,18 @@
   <version_command><![CDATA[appendLinesAlongPolyline --version]]></version_command>
   <command><![CDATA[appendLinesAlongPolyline
     --mesh-input-file '$mesh_input_file'
+    --mesh-output-file '$mesh_output_file'
     --geo-file '$geo_file'
     #if str($gmsh_path):
         --gmsh-path '$gmsh_path'
-    #end if
-    --mesh-output-file output_1.vtu]]></command>
+    #end if]]></command>
   <inputs>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtu" multiple="false"/>
-    <param name="geo_file" type="data" optional="false" label="geo file" help="Input (.gml). the input geometry file which contains polylines" format="gml" multiple="false"/>
-    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input gmsh binary file" format="msh" multiple="false"/>
+    <param name="mesh_input_file" type="text" optional="false" label="mesh input file" help="the file containing the input mesh"/>
+    <param name="mesh_output_file" type="text" optional="false" label="mesh output file" help="the file the mesh will be written to"/>
+    <param name="geo_file" type="text" optional="false" label="geo file" help="the geometry file which contains polylines"/>
+    <param name="gmsh_path" type="text" optional="true" label="gmsh path" help="the path to the gmsh binary"/>
   </inputs>
-  <outputs>
-    <data name="output_appendLinesAlongPolyline" format="vtu" label="Output file from appendLinesAlongPolyline" from_work_dir="output_1.vtu" hidden="false"/>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="appendlinesalongpolyline_test"/>
   </tests>

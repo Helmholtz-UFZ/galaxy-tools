@@ -16,17 +16,16 @@
     #if str($max_elevation):
         --max-elevation '$max_elevation'
     #end if
-    --input '$input'
-    --output output_1.vtp]]></command>
+    --output '$output'
+    --input '$input']]></command>
   <inputs>
     <param name="gamma" type="float" value="0.0" optional="true" label="gamma" help="Exponental increase coefficient. A value of '1' indicates a linear increase, smaller or larger values indicate a logarithmic or exponential increase, respectively (default: 1)."/>
-    <param name="max_points" type="integer" value="0" optional="true" label="max points" help="Maximum number of points per pixel (default: 1000), (min = 0)." min="0"/>
+    <param name="max_points" type="integer" value="0" optional="true" label="max points" help="Maximum number of points per pixel (default: 1000)." min="0"/>
     <param name="max_elevation" type="float" value="0.0" optional="true" label="max elevation" help="Maximum elevation of randomly created points (default: 5000)."/>
-    <param name="input" type="data" optional="false" label="input" help="Input (.asc). Path to input raster files. Specifying 'file.asc' will make the programme look for a series of files called 'file0.asc', 'file1.asc', etc." format="asc" multiple="false"/>
+    <param name="output" type="text" optional="false" label="output" help="Path to output polydata files (*.vtp). Specifying 'file.vtp' will make the programme write a series of files called 'file0.vtp', 'file1.vtp', etc."/>
+    <param name="input" type="text" optional="false" label="input" help="Path to input raster files (*.asc). Specifying 'file.asc' will make the programme look for a series of files called 'file0.asc', 'file1.asc', etc."/>
   </inputs>
-  <outputs>
-    <data name="output_Raster2PointCloud" format="vtp" label="Output file from Raster2PointCloud" from_work_dir="output_1.vtp" hidden="false"/>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="raster2pointcloud_test"/>
   </tests>

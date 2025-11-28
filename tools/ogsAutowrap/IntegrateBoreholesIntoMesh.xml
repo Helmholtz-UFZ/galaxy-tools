@@ -20,19 +20,18 @@
         --min-id '$min_id'
     #end if
     --geo '$geo'
-    --input '$input'
-    --output output_1.vtu]]></command>
+    --output '$output'
+    --input '$input']]></command>
   <inputs>
-    <param name="max_elevation" type="float" value="0" optional="true" label="max elevation" help="Maximum elevation for an integrated borehole, (min = 0)" min="0"/>
-    <param name="min_elevation" type="float" value="0" optional="true" label="min elevation" help="Minimum elevation for an integrated borehole, (min = 0)" min="0"/>
+    <param name="max_elevation" type="float" value="0" optional="true" label="max elevation" help="Maximum elevation for an integrated borehole"/>
+    <param name="min_elevation" type="float" value="0" optional="true" label="min elevation" help="Minimum elevation for an integrated borehole"/>
     <param name="max_id" type="integer" value="-1" optional="true" label="max id" help="Maximum MaterialID for an integrated borehole"/>
     <param name="min_id" type="integer" value="-1" optional="true" label="min id" help="Minimum MaterialID for an integrated borehole"/>
-    <param name="geo" type="data" optional="false" label="geo" help="Input (.gml). the geometry file" format="gml" multiple="false"/>
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). the mesh file" format="vtu" multiple="false"/>
+    <param name="geo" type="text" optional="false" label="geo" help="the geometry file (*.gml)"/>
+    <param name="output" type="text" optional="false" label="output" help="the output mesh (*.vtu)"/>
+    <param name="input" type="text" optional="false" label="input" help="the input mesh (*.vtu)"/>
   </inputs>
-  <outputs>
-    <data name="output_IntegrateBoreholesIntoMesh" format="vtu" label="Output file from IntegrateBoreholesIntoMesh" from_work_dir="output_1.vtu" hidden="false"/>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="integrateboreholesintomesh_test"/>
   </tests>

@@ -11,7 +11,7 @@
         --mesh '$mesh'
     #end if]]></command>
   <inputs>
-    <param name="mesh" type="data" optional="true" label="mesh" help="Input (.msh). The mesh to open from a file" format="msh" multiple="false"/>
+    <param name="mesh" type="text" optional="true" label="mesh" help="the mesh to open from a file"/>
   </inputs>
   <outputs/>
   <tests>

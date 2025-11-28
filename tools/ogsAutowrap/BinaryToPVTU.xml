@@ -7,9 +7,11 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[BinaryToPVTU --version]]></version_command>
   <command><![CDATA[BinaryToPVTU
-    --mesh-input-file-base '$mesh_input_file_base']]></command>
+    --mesh-input-file-base '$mesh_input_file_base'
+    --output '$output']]></command>
   <inputs>
-    <param name="mesh_input_file_base" type="data" optional="false" label="mesh input file base" help="Input (.bin). The base the files containing the input mesh, i.e., the file name without the string beginning with '_partitioned' and ending with" format="bin" multiple="false"/>
+    <param name="mesh_input_file_base" type="text" optional="false" label="mesh input file base" help="the base the files containing the input mesh, i.e., the file name without the string beginning with '_partitioned' and ending with '.bin'"/>
+    <param name="output" type="text" optional="false" label="output" help="output directory name and output base file name without extensions"/>
   </inputs>
   <outputs/>
   <tests>

@@ -37,7 +37,7 @@
     #if str($polyline_name):
         --polyline_name '$polyline_name'
     #end if
-    --output output_1.gml]]></command>
+    --output '$output']]></command>
   <inputs>
     <param name="z0" type="float" value="0.0" optional="false" label="z0" help="z coordinate of the first point"/>
     <param name="y0" type="float" value="0.0" optional="false" label="y0" help="y coordinate of the first point"/>
@@ -53,10 +53,9 @@
     <param name="nz1" type="integer" value="-1" optional="true" label="nz1" help="number of subdivisions in z direction"/>
     <param name="geometry_name" type="text" value="conceptual model" optional="true" label="geometry name" help="the generated geometry"/>
     <param name="polyline_name" type="text" value="polyline" optional="true" label="polyline name" help="the generated polyline"/>
+    <param name="output" type="text" optional="false" label="output" help="output geometry file (*.gml)"/>
   </inputs>
-  <outputs>
-    <data name="output_generateGeometry" format="gml" label="Output file from generateGeometry" from_work_dir="output_1.gml" hidden="false"/>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="generategeometry_test"/>
   </tests>

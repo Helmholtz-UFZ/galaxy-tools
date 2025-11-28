@@ -30,12 +30,12 @@
     #if str($var):
         --var '$var'
     #end if
-    --input '$input'
-    --output output_1.vtu]]></command>
+    --output '$output'
+    --input '$input']]></command>
   <inputs>
     <param name="TCLAP_ValueArg_std_size_t_arg_time_start" type="integer" optional="true" label="TCLAP ValueArg std size t arg time start" help="" min="0"/>
-    <param name="nodata" type="integer" value="-9999" optional="true" label="nodata" help="explicitly specifies the no data value used in the dataset (usually it is not necessary to set this)"/>
-    <param name="elem_type" type="select" label="elem type" help="the element type used in the resulting OGS mesh,">
+    <param name="nodata" type="integer" value="no_data_input" optional="true" label="nodata" help="explicitly specifies the no data value used in the dataset (usually it is not necessary to set this)"/>
+    <param name="elem_type" type="select" label="elem type" help="the element type used in the resulting OGS mesh">
       <option value="tri">tri</option>
       <option value="quad">quad</option>
       <option value="prism">prism</option>
@@ -71,11 +71,10 @@
       <option value="3">3</option>
     </param>
     <param name="var" type="text" optional="true" label="var" help="variable included in the the netCDF file"/>
-    <param name="input" type="data" optional="false" label="input" help="Input (.nc). The netCDF input file" format="nc" multiple="false"/>
+    <param name="output" type="text" optional="false" label="output" help="the OGS mesh output file"/>
+    <param name="input" type="text" optional="false" label="input" help="the netCDF input file"/>
   </inputs>
-  <outputs>
-    <data name="output_NetCdfConverter" format="vtu" label="Output file from NetCdfConverter" from_work_dir="output_1.vtu" hidden="false"/>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="netcdfconverter_test"/>
   </tests>

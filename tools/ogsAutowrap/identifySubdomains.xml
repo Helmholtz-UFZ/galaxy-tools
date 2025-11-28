@@ -8,23 +8,22 @@
   <version_command><![CDATA[identifySubdomains --version]]></version_command>
   <command><![CDATA[identifySubdomains
     $force
+    #if str($output_prefix):
+        --output_prefix '$output_prefix'
+    #end if
     #if str($searchlength):
         --searchlength '$searchlength'
     #end if
     --mesh '$mesh'
-    '$subdomain_meshes_filenames'
-    --output_prefix output_1]]></command>
+    '$subdomain_meshes_filenames']]></command>
   <inputs>
     <param name="force" type="boolean" label="force" help="Overwriting existing subdomain meshes." checked="false" truevalue="--force" falsevalue=""/>
-    <param name="searchlength" type="float" value="1e-16" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number (min = 0)" min="0"/>
-    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file the bulk mesh" format="vtu" multiple="false"/>
-    <param name="subdomain_meshes_filenames" type="text" value="SUBDOMAIN_NAME" optional="false" label="subdomain meshes filenames" help="mesh file names."/>
+    <param name="output_prefix" type="text" optional="true" label="output prefix" help="Prefix the subdomain meshes' filenames with the output prefix/path."/>
+    <param name="searchlength" type="float" value="1e-16" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number (default 1e-16)"/>
+    <param name="mesh" type="text" optional="false" label="mesh" help="the file the bulk mesh"/>
+    <param name="subdomain_meshes_filenames" type="text" value="subdomain mesh file" optional="false" label="subdomain meshes filenames" help="mesh file names."/>
   </inputs>
-  <outputs>
-    <collection name="tool_outputs" type="list" label="Outputs from identifySubdomains">
-      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
-    </collection>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="identifysubdomains_test"/>
   </tests>

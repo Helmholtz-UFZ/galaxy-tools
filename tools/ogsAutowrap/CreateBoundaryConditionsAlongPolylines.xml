@@ -8,6 +8,7 @@
   <version_command><![CDATA[CreateBoundaryConditionsAlongPolylines --version]]></version_command>
   <command><![CDATA[CreateBoundaryConditionsAlongPolylines
     $gml
+    --output-base-file-name '$output_base_file_name'
     --type '$type'
     #if str($search_length):
         --search-length '$search_length'
@@ -16,24 +17,17 @@
     --mesh-file '$mesh_file'
     #if str($gmsh_path):
         --gmsh-path '$gmsh_path'
-    #end if
-    --output-base-file-name output_1]]></command>
+    #end if]]></command>
   <inputs>
     <param name="gml" type="boolean" label="gml" help="Write found nodes to gml file." checked="false" truevalue="--gml" falsevalue=""/>
-    <param name="type" type="select" label="type" help="the process type the boundary condition will be written for currently LIQUID_FLOW (primary variable PRESSURE1) and GROUNDWATER_FLOW (primary variable HEAD, default) are supported,">
-      <option value="LIQUID_FLOW">LIQUID_FLOW</option>
-      <option value="GROUNDWATER_FLOW">GROUNDWATER_FLOW</option>
-    </param>
-    <param name="search_length" type="float" value="2.220446049250313e-16" optional="true" label="search length" help="The size of the search length"/>
-    <param name="input_geometry" type="data" optional="false" label="input geometry" help="Input (.gml | .gli). the input file containing the geometry" format="gml,gli" multiple="false"/>
-    <param name="mesh_file" type="data" optional="false" label="mesh file" help="Input (.vtu). the input file containing the mesh" format="vtu" multiple="false"/>
-    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the gmsh binary" format="msh" multiple="false"/>
+    <param name="output_base_file_name" type="text" optional="false" label="output base file name" help="the base the file the output (geometry (gli) and boundary condition (bc)) will be written to"/>
+    <param name="type" type="text" optional="false" label="type" help="the process type the boundary condition will be written for currently LIQUID_FLOW (primary variable PRESSURE1) and GROUNDWATER_FLOW (primary variable HEAD, default) are supported"/>
+    <param name="search_length" type="float" value="2.220446049250313e-16" optional="true" label="search length" help="The size of the search length. The default value is std::numeric_limits&lt;double&gt;::epsilon()"/>
+    <param name="input_geometry" type="text" optional="false" label="input geometry" help="the file containing the input geometry"/>
+    <param name="mesh_file" type="text" optional="false" label="mesh file" help="the file containing the mesh"/>
+    <param name="gmsh_path" type="text" optional="true" label="gmsh path" help="the path to the gmsh binary"/>
   </inputs>
-  <outputs>
-    <collection name="tool_outputs" type="list" label="Outputs from CreateBoundaryConditionsAlongPolylines">
-      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
-    </collection>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="createboundaryconditionsalongpolylines_test"/>
   </tests>

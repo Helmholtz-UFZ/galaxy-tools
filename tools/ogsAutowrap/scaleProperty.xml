@@ -7,22 +7,21 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[scaleProperty --version]]></version_command>
   <command><![CDATA[scaleProperty
+    --out-mesh '$out_mesh'
     --property-name '$property_name'
     --mesh '$mesh'
-    --input-unit '$input_unit'
-    --out-mesh output_1.vtu]]></command>
+    --input-unit '$input_unit']]></command>
   <inputs>
+    <param name="out_mesh" type="text" optional="false" label="out mesh" help="the mesh is stored to a file of this name"/>
     <param name="property_name" type="text" optional="false" label="property name" help="the property the values are stored for"/>
-    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The input mesh is read from this file" format="vtu" multiple="false"/>
+    <param name="mesh" type="text" optional="false" label="mesh" help="the mesh is read from this file"/>
     <param name="input_unit" type="select" label="input unit" help="input unit of the data">
       <option value="mm/a">mm/a</option>
       <option value="mm/month">mm/month</option>
       <option value="m/s">m/s</option>
     </param>
   </inputs>
-  <outputs>
-    <data name="output_scaleProperty" format="vtu" label="Output file from scaleProperty" from_work_dir="output_1.vtu" hidden="false"/>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="scaleproperty_test"/>
   </tests>

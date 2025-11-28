@@ -15,21 +15,17 @@
         --cellsize-y '$cellsize_y'
     #end if
     --cellsize-x '$cellsize_x'
-    #for $f in $input:
-        #echo str($f) >> "input_list.txt"
-    #end for
-    --input 'input_list.txt'
-    --output output_1.vtu]]></command>
+    --output '$output'
+    --input '$input']]></command>
   <inputs>
     <param name="dilate" type="boolean" label="dilate" help="assign mat IDs based on single nodes instead of a majority of nodes, which can result in a slightly increased voxel grid extent" checked="false" truevalue="--dilate" falsevalue=""/>
-    <param name="cellsize_z" type="float" value="1000" optional="true" label="cellsize z" help="edge length of cubes in z-direction (depth), (min = 0)" min="0"/>
-    <param name="cellsize_y" type="float" value="1000" optional="true" label="cellsize y" help="edge length of cubes in y-direction (latitude), (min = 0)" min="0"/>
-    <param name="cellsize_x" type="float" value="1000" optional="false" label="cellsize x" help="edge length of cubes in x-direction (longitude) or all directions, if y and z are not set, (min = 0)" min="0"/>
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). the input file list containing the paths the all input layers in correct order from top to bottom" format="vtu" multiple="true"/>
+    <param name="cellsize_z" type="float" value="1000" optional="true" label="cellsize z" help="edge length of cubes in z-direction (depth)"/>
+    <param name="cellsize_y" type="float" value="1000" optional="true" label="cellsize y" help="edge length of cubes in y-direction (latitude)"/>
+    <param name="cellsize_x" type="float" value="1000" optional="false" label="cellsize x" help="edge length of cubes in x-direction (longitude) or all directions, if y and z are not set"/>
+    <param name="output" type="text" optional="false" label="output" help="output mesh (*.vtu)"/>
+    <param name="input" type="text" optional="false" label="input" help="the input file list containing the paths the all input layers in correct order from top to bottom"/>
   </inputs>
-  <outputs>
-    <data name="output_Layers2Grid" format="vtu" label="Output file from Layers2Grid" from_work_dir="output_1.vtu" hidden="false"/>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="layers2grid_test"/>
   </tests>

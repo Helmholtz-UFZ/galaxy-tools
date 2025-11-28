@@ -10,15 +10,14 @@
     --in-mesh '$in_mesh'
     --property-in-name '$property_in_name'
     --property-out-name '$property_out_name'
-    --result-out output_1.txt]]></command>
+    --result-out '$result_out']]></command>
   <inputs>
-    <param name="in_mesh" type="data" optional="false" label="in mesh" help="Input (.vtu | .msh). The surface mesh input file that has an element property for the Neumann boundary condition" format="vtu,msh" multiple="false"/>
+    <param name="in_mesh" type="text" optional="false" label="in mesh" help="the surface mesh that has an element property for the Neumann boundary condition"/>
     <param name="property_in_name" type="text" optional="false" label="property in name" help="an element property used for the computation of the Neumann boundary condition"/>
     <param name="property_out_name" type="text" optional="false" label="property out name" help="the node based property used for the output of the Neumann boundary condition"/>
+    <param name="result_out" type="text" optional="false" label="result out" help="the file name the result will be written to"/>
   </inputs>
-  <outputs>
-    <data name="output_createNeumannBc" format="txt" label="Output file from createNeumannBc" from_work_dir="output_1.txt" hidden="false"/>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="createneumannbc_test"/>
   </tests>

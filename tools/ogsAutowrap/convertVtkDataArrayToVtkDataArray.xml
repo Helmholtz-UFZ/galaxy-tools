@@ -7,25 +7,23 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[convertVtkDataArrayToVtkDataArray --version]]></version_command>
   <command><![CDATA[convertVtkDataArrayToVtkDataArray
-    --new-property-data-type '$new_property_data_type'
+    #if str($new_property_data_type):
+        --new-property-data-type '$new_property_data_type'
+    #end if
     #if str($new_property_name):
         --new-property-name '$new_property_name'
     #end if
+    --out-mesh '$out_mesh'
     --existing-property-name '$existing_property_name'
-    --in-mesh '$in_mesh'
-    --out-mesh output_1.vtk]]></command>
+    --in-mesh '$in_mesh']]></command>
   <inputs>
-    <param name="new_property_data_type" type="select" label="new property data type" help="the data type as string">
-      <option value="int">int</option>
-      <option value="double">double</option>
-    </param>
+    <param name="new_property_data_type" type="text" value="int" optional="true" label="new property data type" help="the data type as string (int or double)"/>
     <param name="new_property_name" type="text" value="MaterialIDs" optional="true" label="new property name" help="the new cell data array (PropertyVector) the values are stored"/>
+    <param name="out_mesh" type="text" optional="false" label="out mesh" help="output mesh file name"/>
     <param name="existing_property_name" type="text" optional="false" label="existing property name" help="the existing cell data array (PropertyVector)"/>
-    <param name="in_mesh" type="data" optional="false" label="in mesh" help="Input (.vtk) mesh file name" format="vtk" multiple="false"/>
+    <param name="in_mesh" type="text" optional="false" label="in mesh" help="input mesh file name"/>
   </inputs>
-  <outputs>
-    <data name="output_convertVtkDataArrayToVtkDataArray" format="vtk" label="Output file from convertVtkDataArrayToVtkDataArray" from_work_dir="output_1.vtk" hidden="false"/>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="convertvtkdataarraytovtkdataarray_test"/>
   </tests>

@@ -7,14 +7,13 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[FEFLOW2OGS --version]]></version_command>
   <command><![CDATA[FEFLOW2OGS
-    --in '$in'
-    --out output_1.if extension is msh, old OGS file format is written]]></command>
+    --out '$out'
+    --in '$in']]></command>
   <inputs>
-    <param name="in" type="data" optional="false" label="in" help="Input (.fem). FEFLOW input file" format="fem" multiple="false"/>
+    <param name="out" type="text" optional="false" label="out" help="filename for output mesh (if extension is msh, old OGS fileformat is written)"/>
+    <param name="in" type="text" optional="false" label="in" help="FEFLOW input file (*.fem)"/>
   </inputs>
-  <outputs>
-    <data name="output_FEFLOW2OGS" format="if extension is msh, old OGS file format is written" label="Output file from FEFLOW2OGS" from_work_dir="output_1.if extension is msh, old OGS file format is written" hidden="false"/>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="feflow2ogs_test"/>
   </tests>

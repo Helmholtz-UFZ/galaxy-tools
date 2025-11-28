@@ -8,13 +8,12 @@
   <version_command><![CDATA[convertToLinearMesh --version]]></version_command>
   <command><![CDATA[convertToLinearMesh
     --input-mesh-file '$input_mesh_file'
-    --output-mesh-file output_1.vtu]]></command>
+    --output-mesh-file '$output_mesh_file']]></command>
   <inputs>
-    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu | .msh) mesh file" format="vtu,msh" multiple="false"/>
+    <param name="input_mesh_file" type="text" optional="false" label="input mesh file" help="input mesh file"/>
+    <param name="output_mesh_file" type="text" optional="false" label="output mesh file" help="output mesh file"/>
   </inputs>
-  <outputs>
-    <data name="output_convertToLinearMesh" format="vtu" label="Output file from convertToLinearMesh" from_work_dir="output_1.vtu" hidden="false"/>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="converttolinearmesh_test"/>
   </tests>

@@ -8,13 +8,12 @@
   <version_command><![CDATA[VTK2OGS --version]]></version_command>
   <command><![CDATA[VTK2OGS
     --mesh-input-file '$mesh_input_file'
-    --mesh-output-file output_1.msh]]></command>
+    --mesh-output-file '$mesh_output_file']]></command>
   <inputs>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtk). the file containing the input mesh" format="vtk" multiple="false"/>
+    <param name="mesh_input_file" type="text" optional="false" label="mesh input file" help="the file containing the input mesh"/>
+    <param name="mesh_output_file" type="text" optional="false" label="mesh output file" help="the file the mesh will be written to"/>
   </inputs>
-  <outputs>
-    <data name="output_VTK2OGS" format="msh" label="Output file from VTK2OGS" from_work_dir="output_1.msh" hidden="false"/>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="vtk2ogs_test"/>
   </tests>

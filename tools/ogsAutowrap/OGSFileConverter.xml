@@ -11,7 +11,7 @@
         --gmsh-path '$gmsh_path'
     #end if]]></command>
   <inputs>
-    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input gmsh binary file" format="msh" multiple="false"/>
+    <param name="gmsh_path" type="text" optional="true" label="gmsh path" help="the path to the gmsh binary"/>
   </inputs>
   <outputs/>
   <tests>

@@ -10,15 +10,14 @@
     #if str($material_id):
         --material-id '$material_id'
     #end if
-    --input '$input'
-    --output output_1.vtu]]></command>
+    --output '$output'
+    --input '$input']]></command>
   <inputs>
     <param name="material_id" type="integer" value="0" optional="true" label="material id" help="The MaterialID for which elements should be extracted into a new mesh." min="0"/>
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). the input mesh" format="vtu" multiple="false"/>
+    <param name="output" type="text" optional="false" label="output" help="the output mesh (*.vtu)"/>
+    <param name="input" type="text" optional="false" label="input" help="the input mesh (*.vtu)"/>
   </inputs>
-  <outputs>
-    <data name="output_ExtractMaterials" format="vtu" label="Output file from ExtractMaterials" from_work_dir="output_1.vtu" hidden="false"/>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="extractmaterials_test"/>
   </tests>

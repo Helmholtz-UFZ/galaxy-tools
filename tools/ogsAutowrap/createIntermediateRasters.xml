@@ -10,17 +10,16 @@
     #if str($number):
         --number '$number'
     #end if
+    --output-file '$output_file'
     --file2 '$file2'
-    --file1 '$file1'
-    --output-file output_1.asc]]></command>
+    --file1 '$file1']]></command>
   <inputs>
-    <param name="number" type="integer" value="1" optional="true" label="number" help="number of rasters to be calculated, (min = 0)" min="0"/>
-    <param name="file2" type="data" optional="false" label="file2" help="Input (.asc). Second DEM-raster input file" format="asc" multiple="false"/>
-    <param name="file1" type="data" optional="false" label="file1" help="Input (.asc) First DEM-raster input file" format="asc" multiple="false"/>
+    <param name="number" type="integer" value="1" optional="true" label="number" help="number of rasters to be calculated" min="0"/>
+    <param name="output_file" type="text" optional="false" label="output file" help="Raster output file (*.asc)"/>
+    <param name="file2" type="text" optional="false" label="file2" help="Second DEM-raster file"/>
+    <param name="file1" type="text" optional="false" label="file1" help="First DEM-raster file"/>
   </inputs>
-  <outputs>
-    <data name="output_createIntermediateRasters" format="asc" label="Output file from createIntermediateRasters" from_work_dir="output_1.asc" hidden="false"/>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="createintermediaterasters_test"/>
   </tests>

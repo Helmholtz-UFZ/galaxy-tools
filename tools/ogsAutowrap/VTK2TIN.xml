@@ -8,13 +8,12 @@
   <version_command><![CDATA[VTK2TIN --version]]></version_command>
   <command><![CDATA[VTK2TIN
     --mesh-input-file '$mesh_input_file'
-    --TIN-output-file output_1.tin]]></command>
+    --TIN-output-file '$TIN_output_file']]></command>
   <inputs>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtk). the file containing the input mesh" format="vtk" multiple="false"/>
+    <param name="mesh_input_file" type="text" optional="false" label="mesh input file" help="the file containing the input mesh"/>
+    <param name="TIN_output_file" type="text" optional="false" label="TIN output file" help="the file the TIN will be written to"/>
   </inputs>
-  <outputs>
-    <data name="output_VTK2TIN" format="tin" label="Output file from VTK2TIN" from_work_dir="output_1.tin" hidden="false"/>
-  </outputs>
+  <outputs/>
   <tests>
     <expand macro="vtk2tin_test"/>
   </tests>

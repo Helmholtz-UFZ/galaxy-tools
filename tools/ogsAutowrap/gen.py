@@ -21,7 +21,6 @@ from galaxyxml.tool.parameters import (
     DiscoverDatasets,
     Tests,
     Expand,
-    Command,
 )
 
 # --- CONFIGURATION ---
@@ -50,9 +49,11 @@ def eprint(*args, **kwargs):
     """Schreibt in stderr."""
     print(*args, file=sys.stderr, **kwargs)
 
+
 def sanitize_name(name: str) -> str:
     """Bereinigt einen String, um ein gültiger Galaxy-Parametername zu sein."""
     return re.sub(r'[^a-zA-Z0-9_]+', '_', name)
+
 
 def resolve_variable_value(var_name: str, search_space: str) -> Optional[str]:
     """
@@ -61,8 +62,7 @@ def resolve_variable_value(var_name: str, search_space: str) -> Optional[str]:
     korrekt mit einem Zähl-Algorithmus.
     """
     declaration_start_pattern = re.compile(
-        r"((?:const|constexpr|static)\s+)*[\w\:\.\<\> ]+\s+" +
-        re.escape(var_name) + r"\b"
+        r"((?:const|constexpr|static)\s+)*[\w\:\.\<\> ]+\s+" + re.escape(var_name) + r"\b"
     )
 
     for match in declaration_start_pattern.finditer(search_space):
@@ -73,28 +73,34 @@ def resolve_variable_value(var_name: str, search_space: str) -> Optional[str]:
             val_match = re.search(r"=\s*([^;]*);", remaining_code)
             if val_match:
                 value = val_match.group(1).strip()
-                if value.endswith(('f', 'u', 'l', 'L')): value = value[:-1]
+                if value.endswith(('f', 'u', 'l', 'L')):
+                    value = value[:-1]
                 return value.strip('"')
 
         elif remaining_code.startswith('('):
             balance = 1
             start_pos = end_of_declaration + remaining_code.find('(')
-            
+
             for i, char in enumerate(search_space[start_pos + 1:]):
-                if char == '(': balance += 1
-                elif char == ')': balance -= 1
+                if char == '(':
+                    balance += 1
+                elif char == ')':
+                    balance -= 1
 
                 if balance == 0:
                     end_pos = start_pos + 1 + i
-                    value = search_space[start_pos + 1 : end_pos].strip()
-                    if value.endswith(('f', 'u', 'l', 'L')): value = value[:-1]
+                    value = search_space[start_pos + 1 :
+                        end_pos].strip()
+                    if value.endswith(('f', 'u', 'l', 'L')):
+                        value = value[:-1]
                     return value.strip('"')
 
         elif remaining_code.startswith('{'):
             val_match = re.search(r"\{\s*([^}]*)\};", remaining_code)
             if val_match:
                 value = val_match.group(1).strip()
-                if value.endswith(('f', 'u', 'l', 'L')): value = value[:-1]
+                if value.endswith(('f', 'u', 'l', 'L')):
+                    value = value[:-1]
                 return value.strip('"')
 
     return None
@@ -107,8 +113,7 @@ def resolve_values_constraint(var_name: str, search_space: str) -> List[str]:
     die mit emplace_back gefüllt werden, verarbeiten.
     """
     vc_pattern = re.compile(
-        r"TCLAP::ValuesConstraint<\s*[\w\:]+\s*>\s+" + re.escape(var_name) +
-        r"\s*[\({]\s*(\w+)\s*[\)}]", re.DOTALL
+        r"TCLAP::ValuesConstraint<\s*[\w\:]+\s*>\s+" + re.escape(var_name) + r"\s*[\({]\s*(\w+)\s*[\)}]", re.DOTALL
     )
     vc_match = vc_pattern.search(search_space)
     if not vc_match:
@@ -117,11 +122,10 @@ def resolve_values_constraint(var_name: str, search_space: str) -> List[str]:
     vector_var_name = vc_match.group(1)
 
     vec_pattern = re.compile(
-        r"std::vector<\s*[\w\:\.<> ]+\s*>\s+" + re.escape(vector_var_name) +
-        r"\s*\{(.*?)\};", re.DOTALL
+        r"std::vector<\s*[\w\:\.<> ]+\s*>\s+" + re.escape(vector_var_name) + r"\s*\{(.*?)\};", re.DOTALL
     )
     vec_match = vec_pattern.search(search_space)
-    
+
     if vec_match:
         values_str = vec_match.group(1)
         options = []
@@ -136,11 +140,11 @@ def resolve_values_constraint(var_name: str, search_space: str) -> List[str]:
     emplace_back_pattern = re.compile(
         re.escape(vector_var_name) + r"\.emplace_back\s*\(\s*\"(.*?)\"\s*\);"
     )
-    
+
     options = emplace_back_pattern.findall(search_space)
     if options:
         return options
-        
+
     return []
 
 
@@ -157,7 +161,7 @@ def discover_tools() -> List[Dict[str, Any]]:
     for file_path in source_files:
         content = file_path.read_text(encoding='utf-8', errors='ignore')
         all_matches = list(TCLAP_PATTERN_STD.finditer(content)) + \
-                      list(TCLAP_PATTERN_UNLABELED.finditer(content))
+            list(TCLAP_PATTERN_UNLABELED.finditer(content))
 
         if not all_matches:
             continue
@@ -168,16 +172,16 @@ def discover_tools() -> List[Dict[str, Any]]:
 
         if tool_name not in tools_dict:
             tools_dict[tool_name] = {"name": tool_name, "parameters": []}
-        
+
         for match in all_matches:
             param_data = match.groupdict()
 
             param_data['is_unlabeled'] = 'Unlabeled' in param_data.get('arg_type', '')
-            
+
             param_data['full_source_code'] = content
             param_data['match_start_pos'] = match.start()
             tools_dict[tool_name]["parameters"].append(param_data)
-            
+
     all_tools_data = list(tools_dict.values())
     eprint(f"-> Found and processed {len(all_tools_data)} tools with TCLAP definitions.")
     return sorted(all_tools_data, key=lambda x: x['name'])
@@ -207,23 +211,33 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
         "std::size_t(-1)": "18446744073709551615"
     }
     for param_info in tclap_params:
-        if param_info.get('tclap_var_name') == "log_level_arg": continue
+        if param_info.get('tclap_var_name') == "log_level_arg":
+            continue
         all_args_str = param_info.get('all_args', '')
-        if not all_args_str: continue
+        if not all_args_str:
+            continue
         args = re.split(r',(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)', all_args_str)
         args = [arg.strip() for arg in args]
         is_unlabeled = param_info.get('is_unlabeled', False)
         short_flag, long_flag, help_text_raw, remaining_args_list = "", "", "", []
         if not is_unlabeled:
-            if len(args) > 0: short_flag = args[0].strip('"')
-            if len(args) > 1: long_flag = args[1].strip('"')
-            if len(args) > 2: help_text_raw = args[2]
-            if len(args) > 3: remaining_args_list = args[3:]
+            if len(args) > 0:
+                short_flag = args[0].strip('"')
+            if len(args) > 1:
+                long_flag = args[1].strip('"')
+            if len(args) > 2:
+                help_text_raw = args[2]
+            if len(args) > 3:
+                remaining_args_list = args[3:]
         else:
-            if len(args) > 0: long_flag = args[0].strip('"')
-            if len(args) > 1: help_text_raw = args[1]
-            if len(args) > 2: remaining_args_list = args[2:]
-        if not long_flag: continue
+            if len(args) > 0:
+                long_flag = args[0].strip('"')
+            if len(args) > 1:
+                help_text_raw = args[1]
+            if len(args) > 2:
+                remaining_args_list = args[2:]
+        if not long_flag:
+            continue
         help_parts = re.findall(r'"(.*?)"', help_text_raw, re.DOTALL)
         help_text = ' '.join(part.strip() for part in help_parts)
         help_text = re.sub(r'(the\s+)?name\s+of\s+', '', help_text, flags=re.IGNORECASE)
@@ -247,7 +261,7 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
             }
             output_idx += 1
             continue
-        param = None 
+        param = None
         if help_text.startswith("Input"):
             is_base_filename = "BASE_FILENAME_INPUT" in final_tclap_arg
             is_file_list = "INPUT_FILE_LIST" in final_tclap_arg
@@ -269,7 +283,8 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
             full_arg_text = f"{long_flag} {help_text} {' '.join(remaining_args_list)}"
             min_max_search = MIN_MAX_PATTERN.findall(full_arg_text)
             if min_max_search:
-                for key, val in min_max_search: attrs[key] = val.strip()
+                for key, val in min_max_search:
+                    attrs[key] = val.strip()
             arg_type = param_info.get('arg_type', '')
             if 'Switch' in arg_type:
                 attrs.pop('optional', None)
@@ -288,24 +303,31 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
                     default_val_candidate = None
                     if cleaned_rem_args_parts:
                         is_req = cleaned_rem_args_parts[0] in ['true', 'false']
-                        if is_req and len(cleaned_rem_args_parts) > 1: default_val_candidate = cleaned_rem_args_parts[1]
-                        elif not is_req: default_val_candidate = cleaned_rem_args_parts[0]
+                        if is_req and len(cleaned_rem_args_parts) > 1:
+                            default_val_candidate = cleaned_rem_args_parts[1]
+                        elif not is_req:
+                            default_val_candidate = cleaned_rem_args_parts[0]
                     if default_val_candidate is not None:
                         resolved_value = ""
                         if default_val_candidate.strip().startswith('&'):
                             var_to_resolve = default_val_candidate.strip().lstrip('&')
                             code_before = param_info['full_source_code'][:param_info['match_start_pos']]
                             value_from_code = resolve_variable_value(var_to_resolve, code_before)
-                            if value_from_code: resolved_value = value_from_code
+                            if value_from_code:
+                                resolved_value = value_from_code
                         else: resolved_value = default_val_candidate.strip().strip("'\"")
-                        if resolved_value in replacements: resolved_value = replacements[resolved_value]
-                        if resolved_value: attrs['value'] = resolved_value
+                        if resolved_value in replacements:
+                            resolved_value = replacements[resolved_value]
+                        if resolved_value:
+                            attrs['value'] = resolved_value
                     cpp_type = param_info.get('cpp_type', '')
                     param_class = TextParam
                     if "int" in cpp_type or "size_t" in cpp_type:
                         param_class = IntegerParam
-                        if 'unsigned' in cpp_type or 'size_t' in cpp_type and 'min' not in attrs: attrs['min'] = "0"
-                    elif "float" in cpp_type or "double" in cpp_type: param_class = FloatParam
+                        if 'unsigned' in cpp_type or 'size_t' in cpp_type and 'min' not in attrs:
+                            attrs['min'] = "0"
+                    elif "float" in cpp_type or "double" in cpp_type:
+                        param_class = FloatParam
                     param = param_class(**attrs)
         if param:
             param.original_long_flag = long_flag
@@ -335,7 +357,7 @@ def generate_tools():
             eprint(f"-> Found {len(output_command_map)} output definitions for this tool.")
 
             command_lines = [tool_name]
-            
+
             for param in galaxy_inputs:
                 param_var = f'${param.name}'
                 original_long_flag = getattr(param, 'original_long_flag', param.name)
@@ -357,13 +379,13 @@ def generate_tools():
                     list_filename = f"{param.name}_list.txt"
                     command_lines.append(f"    #for $f in {param_var}:")
                     command_lines.append(f'        #echo str($f) >> "{list_filename}"')
-                    command_lines.append(f"    #end for")
+                    command_lines.append("    #end for")
                     command_lines.append(f"    --{original_long_flag} '{list_filename}'")
                     continue
                 if tclap_marker == 'INPUT_PATH':
                     command_lines.append(f"    #for $f in {param_var}:")
                     command_lines.append(f"        --{original_long_flag} '$f'")
-                    command_lines.append(f"    #end for")
+                    command_lines.append("    #end for")
                     continue
                 if tclap_marker == 'BASE_FILENAME_INPUT':
                     command_lines.append(f"    --{original_long_flag} '${{{param_var}.rsplit('.', 1)[0]}}'")
@@ -374,8 +396,8 @@ def generate_tools():
                 if needs_if_wrapper:
                     command_lines.append(f"    #if str({param_var}):")
                     command_lines.append(f"        {command_part}")
-                    command_lines.append(f"    #end if")
-                else: 
+                    command_lines.append("    #end if")
+                else:
                     command_lines.append(f"    {command_part}")
 
             for flag, output_info in output_command_map.items():
@@ -385,11 +407,11 @@ def generate_tools():
                     command_lines.append(f"    --{flag} {filename_without_ext}")
                 else:
                     command_lines.append(f"    --{flag} {filename}")
-            
+
             command_str = "\n".join(command_lines)
 
             tool = Tool(
-                name=f"OGS: {tool_name}", 
+                name=f"OGS: {tool_name}",
                 id=f"ogs_{tool_name.lower()}",
                 version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@",
                 description=f"Galaxy wrapper for the OGS utility '{tool_name}'.",
@@ -399,11 +421,11 @@ def generate_tools():
                 version_command=f"{tool_name} --version",
                 command_override=[command_str]
             )
-            
+
             inputs_tag = tool.inputs = Inputs()
             for param in galaxy_inputs:
                 inputs_tag.append(param)
-            
+
             if output_command_map:
                 outputs_tag = tool.outputs = Outputs()
                 single_file_outputs = [v for v in output_command_map.values() if v.get('type') == 'file']
@@ -430,7 +452,7 @@ def generate_tools():
             tool.help = (f"This tool runs the **{tool_name}** utility from the OpenGeoSys suite.")
 
             xml_string = tool.export()
-            
+
             output_file_path = OUTPUT_DIR / f"{tool_name}.xml"
             with open(output_file_path, 'w', encoding='utf-8') as f:
                 f.write(xml_string)
@@ -440,7 +462,7 @@ def generate_tools():
             eprint(f"!! ERROR while processing '{tool_name}': {e}")
             import traceback
             traceback.print_exc(file=sys.stderr)
-            
+
     eprint(f"\nFinished. {generated_count} of {len(all_tools_data)} tool wrappers were created in the '{OUTPUT_DIR}' directory.")
 
 
@@ -448,7 +470,7 @@ def parse_diff_data(diff_str: str, base_url: str, workdir: str) -> List[Dict[str
     """Extrahiert Referenz- und Output-Dateien aus einem DIFF_DATA Block."""
     diff_files = []
     file_pattern = re.compile(r"[\w\-\./<>\$]+\.(?:vtu|gml|bin|asc|pvtu|msh|smesh|geo|xdmf|grd|xyz|ts|inp|json)")
-    
+
     for line in diff_str.strip().split('\n'):
         line = line.strip()
         found_files = file_pattern.findall(line)
@@ -539,7 +561,6 @@ def generate_tests():
             tool_data = tools_map_lower[matched_tool_name_lower]
             galaxy_inputs, output_map = process_parameters(tool_data['parameters'])
 
-
             if not output_map:
                 continue
 
@@ -562,18 +583,23 @@ def generate_tests():
 
             while i < len(args_list):
                 arg = args_list[i]
-                if arg == '--': i += 1; continue
+                if arg == '--': 
+                    i += 1
+                    continue
                 if arg in flag_map:
                     param = flag_map[arg]
-                    is_value_arg = (i + 1 < len(args_list)) and (not args_list[i+1].startswith('-'))
+                    is_value_arg = (i + 1 < len(args_list)) and (not args_list[i + 1].startswith('-'))
                     if isinstance(param, BooleanParam) or not is_value_arg:
-                        params_in_test[param.name] = "true"; i += 1
+                        params_in_test[param.name] = "true"
+                        i += 1
                     else:
-                        params_in_test[param.name] = args_list[i+1]; i += 2
+                        params_in_test[param.name] = args_list[i+1]
+                        i += 2
                 else:
                     if unlabeled_idx < len(unlabeled_params):
                         param = unlabeled_params[unlabeled_idx]
-                        params_in_test[param.name] = arg; unlabeled_idx += 1
+                        params_in_test[param.name] = arg
+                        unlabeled_idx += 1
                     i += 1
 
             all_params_map = {p.name: p for p in galaxy_inputs}
@@ -594,9 +620,12 @@ def generate_tests():
                     raise ValueError(f"Test contains unresolved XML placeholder: {final_value}")
 
                 if isinstance(param, DataParam):
-                    if final_value.startswith("${Data_BINARY_DIR}/"): final_value = f"{RAW_GITLAB_PROJECT_ROOT_URL}/{final_value.replace('${Data_BINARY_DIR}/', '', 1)}"
-                    elif final_value.startswith("${Data_SOURCE_DIR}/"): final_value = f"{RAW_GITLAB_PROJECT_ROOT_URL}/{final_value.replace('${Data_SOURCE_DIR}/', '', 1)}"
-                    elif final_value != "true" and workdir_subpath: final_value = f"{RAW_GITLAB_TEST_DATA_URL}/{workdir_subpath}/{final_value}"
+                    if final_value.startswith("${Data_BINARY_DIR}/"):
+                        final_value = f"{RAW_GITLAB_PROJECT_ROOT_URL}/{final_value.replace('${Data_BINARY_DIR}/', '', 1)}"
+                    elif final_value.startswith("${Data_SOURCE_DIR}/"):
+                        final_value = f"{RAW_GITLAB_PROJECT_ROOT_URL}/{final_value.replace('${Data_SOURCE_DIR}/', '', 1)}"
+                    elif final_value != "true" and workdir_subpath:
+                        final_value = f"{RAW_GITLAB_TEST_DATA_URL}/{workdir_subpath}/{final_value}"
 
                 ET.SubElement(test_case, "param", {"name": name, "value": final_value})
 
@@ -623,11 +652,11 @@ def generate_tests():
                 else:
                     collection = ET.SubElement(test_case, "output_collection", {"name": "tool_outputs", "type": "list"})
                     for diff_file in diff_files:
-                         ET.SubElement(collection, "element", {
+                        ET.SubElement(collection, "element", {
                             "name": diff_file["generated"],
                             "file": diff_file["reference"],
                             "ftype": diff_file["ftype"]
-                         })
+                        })
 
             processed_tools_lower.add(matched_tool_name_lower)
             test_case_count += 1
@@ -656,6 +685,7 @@ def generate_tests():
         tree.write(f, encoding="utf-8", xml_declaration=False)
     eprint(f"\nErfolgreich '{output_filename}' mit {test_case_count} Testfällen erstellt (davon {len(processed_tools_lower)} echte und {test_case_count - len(processed_tools_lower)} leere).")
 
+
 def main():
     parser = argparse.ArgumentParser(description="Galaxy XML Wrapper Generator for OGS Utilities")
     parser.add_argument(
@@ -675,6 +705,7 @@ def main():
         generate_tests()
     else:
         generate_tools()
+
 
 if __name__ == "__main__":
     main()

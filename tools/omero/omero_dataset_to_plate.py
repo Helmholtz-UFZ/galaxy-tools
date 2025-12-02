@@ -1,15 +1,17 @@
 import argparse
 import csv
 import re
-import sys
 import os
-from collections import defaultdict
+import sys
 
 import omero
 
+
+from pathlib import Path
+
+from collections import defaultdict
 from connect_omero import establish_connection
 from omero.rtypes import rint, rstring
-from pathlib import Path
 from typing import Optional
 
 # Import environmental variables

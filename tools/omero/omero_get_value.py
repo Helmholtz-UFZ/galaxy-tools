@@ -6,8 +6,9 @@ import sys
 import ezomero as ez
 import pandas as pd
 
-from connect_omero import establish_connection
 from typing import Optional
+
+from connect_omero import establish_connection
 
 # Import environmental variables
 usr = os.getenv("OMERO_USER")

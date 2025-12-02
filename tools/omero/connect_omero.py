@@ -1,5 +1,6 @@
-import ezomero as ez
 import sys
+
+import ezomero as ez
 
 from omero.gateway import BlitzGateway
 

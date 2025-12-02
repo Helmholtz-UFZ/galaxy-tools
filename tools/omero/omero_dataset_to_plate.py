@@ -8,6 +8,7 @@ from collections import defaultdict
 import ezomero as ez
 import omero
 
+from connect_omero import establish_connection
 from omero.gateway import BlitzGateway
 from omero.rtypes import rint, rstring
 from pathlib import Path
@@ -56,14 +57,7 @@ def convert_dataset_to_plate(
     str
         Return log file with info on the conversion
     """
-    # Try to connect with UUID or with username and password
-    if uuid_key is not None:
-        conn = BlitzGateway(username="", passwd="", host=host, port=port, secure=True)
-        conn.connect(sUuid=uuid_key)
-    else:
-        conn = ez.connect(usr, psw, "", host, port, secure=True)
-    if not conn.connect():
-        sys.exit("ERROR: Failed to connect to OMERO server")
+    conn = establish_connection(uuid_key, usr, psw, host, port)
 
     def log_message(message, status="INFO"):
         with open(log_file, 'w') as f:

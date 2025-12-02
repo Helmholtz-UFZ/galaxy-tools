@@ -5,6 +5,7 @@ import sys
 
 import ezomero as ez
 
+from connect_omero import establish_connection
 from omero.gateway import BlitzGateway
 from typing import Optional
 
@@ -52,18 +53,11 @@ def get_ids_ezo(
         A CSV writer object configured to write TSV data. Contain a list of IDs.
     """
 
-    # Try to connect with UUID or with username and password
 
-    if uuid_key is not None:
-        conn = BlitzGateway(username="", passwd="", host=host, port=port, secure=True)
-        conn.connect(sUuid=uuid_key)
-    else:
-        conn = ez.connect(usr, psw, "", host, port, secure=True)
-    if not conn.connect():
-        sys.exit("ERROR: Failed to connect to OMERO server")
 
-        # Function to write tabular file from the ezomero output
+    conn = establish_connection(uuid_key, usr, psw, host, port)
 
+    # Function to write tabular file from the ezomero output
     def write_ids_to_tsv(data):
         with open(tsv_file, 'w', newline='') as f:
             writer = csv.writer(f, delimiter='\t')

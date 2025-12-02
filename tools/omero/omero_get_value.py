@@ -6,6 +6,7 @@ import sys
 import ezomero as ez
 import pandas as pd
 
+from connect_omero import establish_connection
 from omero.gateway import BlitzGateway
 from typing import Optional
 
@@ -49,14 +50,8 @@ Returns
 csv.writer
     A CSV writer object configured to write TSV data.
 """
-    # Try to connect with UUID or with username and password
-    if uuid_key is not None:
-        conn = BlitzGateway(username="", passwd="", host=host, port=port, secure=True)
-        conn.connect(sUuid=uuid_key)
-    else:
-        conn = ez.connect(usr, psw, "", host, port, secure=True)
-    if not conn.connect():
-        sys.exit("ERROR: Failed to connect to OMERO server")
+
+    conn = establish_connection(uuid_key, usr, psw, host, port)
 
     # Function to write tabular file from the ezomero output
     def write_values_to_tsv(data, header):

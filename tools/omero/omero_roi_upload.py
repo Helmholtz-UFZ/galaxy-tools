@@ -7,6 +7,7 @@ import ezomero as ez
 import numpy as np
 import pandas as pd
 
+from connect_omero import establish_connection
 from ezomero.rois import Ellipse, Label, Line, Point, Polygon, Polyline, Rectangle
 from omero.gateway import BlitzGateway
 from pathlib import Path
@@ -169,13 +170,7 @@ def import_rois(
     """
 
     # Try to connect with UUID or with username and password
-    if uuid_key is not None:
-        conn = BlitzGateway(username="", passwd="", host=host, port=port, secure=True)
-        conn.connect(sUuid=uuid_key)
-    else:
-        conn = ez.connect(usr, psw, "", host, port, secure=True)
-    if not conn.connect():
-        sys.exit("ERROR: Failed to connect to OMERO server")
+    conn = establish_connection(uuid_key, usr, psw, host, port)
 
     # Open log file
     try:

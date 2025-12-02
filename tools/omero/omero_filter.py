@@ -5,6 +5,7 @@ import sys
 
 import ezomero as ez
 
+from connect_omero import establish_connection
 from omero.gateway import BlitzGateway
 from typing import Optional
 
@@ -64,13 +65,7 @@ def filter_ids_ezo(
                 writer.writerow([item])  # Write each ID
 
     # Try to connect with UUID or with username and password
-    if uuid_key is not None:
-        conn = BlitzGateway(username="", passwd="", host=host, port=port, secure=True)
-        conn.connect(sUuid=uuid_key)
-    else:
-        conn = ez.connect(usr, psw, "", host, port, secure=True)
-    if not conn.connect():
-        sys.exit("ERROR: Failed to connect to OMERO server")
+    conn = establish_connection(uuid_key, usr, psw, host, port)
 
     # Transform the id input in a list of integer
     id = id.split(',')

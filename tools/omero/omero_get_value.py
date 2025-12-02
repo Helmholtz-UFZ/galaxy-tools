@@ -2,12 +2,10 @@ import argparse
 import csv
 import os
 import sys
-
 from typing import Optional
 
 import ezomero as ez
 import pandas as pd
-
 from connect_omero import establish_connection
 
 # Import environmental variables

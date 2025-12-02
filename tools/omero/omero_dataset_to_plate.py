@@ -3,14 +3,12 @@ import csv
 import os
 import re
 import sys
-
 from collections import defaultdict
 from pathlib import Path
+from typing import Optional
 
 import omero
-
 from connect_omero import establish_connection
-from typing import Optional
 from omero.rtypes import rint, rstring
 
 # Import environmental variables

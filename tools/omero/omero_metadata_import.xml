@@ -24,9 +24,9 @@
         --log_file $log
         #if $session_id.session_id_input== "yes"
             --session_close $close_connection
-        #end if
         #else
             --session_close "True"
+        #end if
         #if $object_id_selection == "existing_object"
             --did "$did"
         #end if

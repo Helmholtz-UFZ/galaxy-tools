@@ -7,8 +7,9 @@
     <xrefs>
         <xref type="bio.tools">omero</xref>
     </xrefs>
-    <expand macro="ezomero_requirements"/>
-    <expand macro="omero_credentials"/>
+    <expand macro="ezomero_requirements">
+        <expand macro="omero_credentials"/>
+    </expand>
     <command detect_errors="exit_code"><![CDATA[
         python '$__tool_directory__'/omero_metadata_upload.py
         @HOST_PORT@

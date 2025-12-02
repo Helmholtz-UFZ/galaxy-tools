@@ -8,7 +8,7 @@
   <version_command><![CDATA[PartitionMesh --version]]></version_command>
   <command><![CDATA[PartitionMesh
     --mesh-input-file '$mesh_input_file'
-    --metis-mesh-input-file '${$metis_mesh_input_file.rsplit('.', 1)[0]}'
+    --metis-mesh-input-file '${str($param_var).split(',')[0].strip().rsplit('.', 1)[0]}'
     #if str($np):
         --np '$np'
     #end if
@@ -18,7 +18,7 @@
     --output output_1.dat]]></command>
   <inputs>
     <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtu" multiple="false"/>
-    <param name="metis_mesh_input_file" type="data" optional="true" label="metis mesh input file" help="Input (.mesh). Base name (without .mesh extension) of the file containing the metis input mesh" format="mesh" multiple="false"/>
+    <param name="metis_mesh_input_file" type="data" optional="true" label="metis mesh input file" help="Input (.mesh). Base name (without .mesh extension) of the file containing the metis input mesh" format="mesh" multiple="true"/>
     <param name="np" type="integer" value="2" optional="true" label="np" help="the number of partitions, (min = 0)" min="0"/>
     <param name="ogs2metis" type="boolean" label="ogs2metis" help="Indicator to convert the ogs mesh file to METIS input file" checked="false" truevalue="--ogs2metis" falsevalue=""/>
     <param name="exe_metis" type="boolean" label="exe metis" help="Call mpmetis inside the programme via system()." checked="false" truevalue="--exe_metis" falsevalue=""/>

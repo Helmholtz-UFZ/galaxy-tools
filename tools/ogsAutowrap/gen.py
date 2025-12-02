@@ -1,26 +1,27 @@
-import sys
-import re
 import argparse
+import re
+import sys
+
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
 import shlex
+from typing import Any, Dict, List, Optional, Tuple 
 
 from galaxyxml.tool import Tool
 from galaxyxml.tool.parameters import (
     BooleanParam,
     DataParam,
+    DiscoverDatasets,
+    Expand,
     FloatParam,
     Inputs,
     IntegerParam,
-    Outputs,
-    OutputData,
-    SelectParam,
-    TextParam,
     OutputCollection,
-    DiscoverDatasets,
+    OutputData,
+    Outputs,
+    SelectParam,
     Tests,
-    Expand,
+    TextParam,
 )
 
 # --- CONFIGURATION ---
@@ -89,8 +90,7 @@ def resolve_variable_value(var_name: str, search_space: str) -> Optional[str]:
 
                 if balance == 0:
                     end_pos = start_pos + 1 + i
-                    value = search_space[start_pos + 1 :
-                        end_pos].strip()
+                    value = search_space[start_pos + 1: end_pos].strip()
                     if value.endswith(('f', 'u', 'l', 'L')):
                         value = value[:-1]
                     return value.strip('"')
@@ -265,7 +265,7 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
         if help_text.startswith("Input"):
             is_base_filename = "BASE_FILENAME_INPUT" in final_tclap_arg
             is_file_list = "INPUT_FILE_LIST" in final_tclap_arg
-            is_multiple = "PATH" in final_tclap_arg or is_file_list
+            is_multiple = "PATH" in final_tclap_arg or is_file_list or is_base_filename
             formats = []
             format_match = FILE_EXTENSION_PATTERN.search(help_text)
             if format_match:
@@ -315,7 +315,8 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
                             value_from_code = resolve_variable_value(var_to_resolve, code_before)
                             if value_from_code:
                                 resolved_value = value_from_code
-                        else: resolved_value = default_val_candidate.strip().strip("'\"")
+                        else:
+                            resolved_value = default_val_candidate.strip().strip("'\"")
                         if resolved_value in replacements:
                             resolved_value = replacements[resolved_value]
                         if resolved_value:
@@ -388,7 +389,10 @@ def generate_tools():
                     command_lines.append("    #end for")
                     continue
                 if tclap_marker == 'BASE_FILENAME_INPUT':
-                    command_lines.append(f"    --{original_long_flag} '${{{param_var}.rsplit('.', 1)[0]}}'")
+                    if getattr(param, 'multiple', False):
+                         command_lines.append(f"    --{original_long_flag} '${{str($param_var).split(',')[0].strip().rsplit('.', 1)[0]}}'")
+                    else:
+                         command_lines.append(f"    --{original_long_flag} '${{{param_var}.rsplit('.', 1)[0]}}'")
                     continue
 
                 command_part = f"--{original_long_flag} '{param_var}'"
@@ -583,7 +587,7 @@ def generate_tests():
 
             while i < len(args_list):
                 arg = args_list[i]
-                if arg == '--': 
+                if arg == '--':
                     i += 1
                     continue
                 if arg in flag_map:
@@ -593,7 +597,7 @@ def generate_tests():
                         params_in_test[param.name] = "true"
                         i += 1
                     else:
-                        params_in_test[param.name] = args_list[i+1]
+                        params_in_test[param.name] = args_list[i + 1]
                         i += 2
                 else:
                     if unlabeled_idx < len(unlabeled_params):

@@ -21,6 +21,14 @@
         </requirements>
     </xml>
 
+    <xml name="omero_credentials">
+        <credentials name="OMERO" version="0.1" label="OMERO Credentials" description="Input a set of credentials to access a target OMERO.server">
+            <variable name="username" inject_as_env="OMERO_USER" optional="true" label="OMERO username" description="OMERO username" />
+            <secret name="password" inject_as_env="OMERO_PASSWORD" optional="true" label="OMERO password" description="OMERO password" />
+            <secret name="uuid-key" inject_as_env="UUID_SESSION_KEY" optional="true" label="OMERO UUID Session Key" description="Input your session key here to connect using an existing OMERO session key. More information on how to find a session key: https://omero.readthedocs.io/en/stable/users/cli/sessions.html" />
+        </credentials>
+    </xml>
+
     <xml name="host_port">
         <param name="omero_host" type="text" label="OMERO host URL">
             <validator type="regex" message="Enter a valid host location, for example, your.omero.server">^[a-zA-Z0-9._-]*$</validator>

@@ -1,16 +1,16 @@
 import argparse
-import re
 import os
+import re
+
+from pathlib import Path
+from typing import Optional
 
 import ezomero as ez
 import numpy as np
 import pandas as pd
 
-from pathlib import Path
-from typing import Optional
-
-from ezomero.rois import Ellipse, Label, Line, Point, Polygon, Polyline, Rectangle
 from connect_omero import establish_connection
+from ezomero.rois import Ellipse, Label, Line, Point, Polygon, Polyline, Rectangle
 
 # Import environmental variables
 usr = os.getenv("OMERO_USER")

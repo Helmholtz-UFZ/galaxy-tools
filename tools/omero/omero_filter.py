@@ -3,9 +3,9 @@ import csv
 import os
 import sys
 
-import ezomero as ez
-
 from typing import Optional
+
+import ezomero as ez
 
 from connect_omero import establish_connection
 

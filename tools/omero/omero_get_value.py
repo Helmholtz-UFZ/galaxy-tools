@@ -3,10 +3,10 @@ import csv
 import os
 import sys
 
+from typing import Optional
+
 import ezomero as ez
 import pandas as pd
-
-from typing import Optional
 
 from connect_omero import establish_connection
 

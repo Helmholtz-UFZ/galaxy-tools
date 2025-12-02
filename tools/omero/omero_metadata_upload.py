@@ -1,12 +1,12 @@
 import argparse
-from datetime import datetime
 import os
+
+from datetime import datetime
+from pathlib import Path
+from typing import Optional
 
 import ezomero as ez
 import pandas as pd
-
-from pathlib import Path
-from typing import Optional
 
 from connect_omero import establish_connection
 

@@ -5,11 +5,9 @@ import sys
 import os
 from collections import defaultdict
 
-import ezomero as ez
 import omero
 
 from connect_omero import establish_connection
-from omero.gateway import BlitzGateway
 from omero.rtypes import rint, rstring
 from pathlib import Path
 from typing import Optional

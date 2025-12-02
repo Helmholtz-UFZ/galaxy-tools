@@ -7,7 +7,6 @@ import ezomero as ez
 import pandas as pd
 
 from connect_omero import establish_connection
-from omero.gateway import BlitzGateway
 from typing import Optional
 
 # Import environmental variables

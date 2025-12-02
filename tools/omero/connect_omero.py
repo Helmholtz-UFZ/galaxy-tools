@@ -3,6 +3,7 @@ import sys
 
 from omero.gateway import BlitzGateway
 
+
 def establish_connection(uuid_key, usr, psw, host, port):
     if uuid_key is not None:
         conn = BlitzGateway(username="", passwd="", host=host, port=port, secure=True)

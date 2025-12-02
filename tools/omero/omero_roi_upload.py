@@ -1,7 +1,6 @@
 import argparse
 import re
 import os
-import sys
 
 import ezomero as ez
 import numpy as np
@@ -9,7 +8,6 @@ import pandas as pd
 
 from connect_omero import establish_connection
 from ezomero.rois import Ellipse, Label, Line, Point, Polygon, Polyline, Rectangle
-from omero.gateway import BlitzGateway
 from pathlib import Path
 from typing import Optional
 

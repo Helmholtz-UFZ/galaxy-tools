@@ -6,7 +6,6 @@ import sys
 import ezomero as ez
 
 from connect_omero import establish_connection
-from omero.gateway import BlitzGateway
 from typing import Optional
 
 # Import environmental variables
@@ -52,8 +51,6 @@ def get_ids_ezo(
     csv.writer
         A CSV writer object configured to write TSV data. Contain a list of IDs.
     """
-
-
 
     conn = establish_connection(uuid_key, usr, psw, host, port)
 

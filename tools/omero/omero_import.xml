@@ -20,6 +20,11 @@
             ln -s '${image}' folder/'${image_identifier}.$image.ext' &&
         #end for
 
+        #if $test_username != ""
+            export OMERO_USER = "$test_username"
+            export OMERO_PASSWORD = "$test_password" &&
+        #end if
+
         #if $session_id.session_id_input =="yes"
           omero import folder
            -T Dataset:name:$dataset_name
@@ -51,8 +56,8 @@
             <param name="dataset_name" value="galaxy_test_upload"/>
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>
-            <param name="OMERO_USER" value="root"/>
-            <param name="OMERO_PASSWORD" value="omero"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
             <output name="log" value="omero_output.txt" ftype="txt">
                 <assert_contents>
                     <has_n_lines n="2"/>

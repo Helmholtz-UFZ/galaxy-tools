@@ -11,6 +11,11 @@
         <expand macro="omero_credentials"/>
     </expand>
     <command detect_errors="exit_code"><![CDATA[
+        #if $test_username != ""
+            export OMERO_USER = "$test_username"
+            export OMERO_PASSWORD = "$test_password" &&
+        #end if
+
         python '$__tool_directory__'/omero_get_id.py
         @HOST_PORT@
         --final_obj_type '$cond_obj_type.final_obj_type'
@@ -102,8 +107,8 @@
             <conditional name="cond_obj_type">
                 <param name="final_obj_type" value="Project"/>
             </conditional>
-            <param name="OMERO_USER" value="root"/>
-            <param name="OMERO_PASSWORD" value="omero"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
             <output name="tsv" value="output_ids_project.tsv" ftype="tabular">
                 <assert_contents>
                     <has_text text="1"/>
@@ -118,8 +123,8 @@
                 <param name="parent_obj_type" value="Project"/>
                 <param name="parent_id" value="1"/>
             </conditional>
-            <param name="OMERO_USER" value="root"/>
-            <param name="OMERO_PASSWORD" value="omero"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
             <output name="tsv" value="output_ids_dataset.tsv" ftype="tabular">
                 <assert_contents>
                     <has_text text="1"/>
@@ -134,8 +139,8 @@
                 <param name="parent_obj_type" value="Dataset"/>
                 <param name="parent_id" value="1"/>
             </conditional>
-            <param name="OMERO_USER" value="root"/>
-            <param name="OMERO_PASSWORD" value="omero"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
             <output name="tsv" value="output_ids_image.tsv" ftype="tabular">
                 <assert_contents>
                     <has_text text="1"/>
@@ -150,8 +155,8 @@
                 <param name="parent_obj_type" value="Image"/>
                 <param name="parent_id" value="1"/>
             </conditional>
-            <param name="OMERO_USER" value="root"/>
-            <param name="OMERO_PASSWORD" value="omero"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
             <output name="tsv" ftype="tabular">
                 <assert_contents>
                     <has_text text="1"/>

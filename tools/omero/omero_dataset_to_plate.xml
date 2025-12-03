@@ -11,6 +11,11 @@
         <expand macro="omero_credentials"/>
    </expand>
    <command detect_errors="exit_code"><![CDATA[
+       #if $test_username != ""
+            export OMERO_USER = "$test_username"
+            export OMERO_PASSWORD = "$test_password" &&
+       #end if
+
        python '$__tool_directory__/omero_dataset_to_plate.py'
        @HOST_PORT@
        --dataset_id '$dataset_id'
@@ -37,8 +42,8 @@
            <param name="omero_host" value="host.docker.internal"/>
            <param name="omero_port" value="6064"/>
            <param name="dataset_id" value="2"/>
-           <param name="OMERO_USER" value="root"/>
-           <param name="OMERO_PASSWORD" value="omero"/>
+           <param name="test_username" value="root"/>
+           <param name="test_password" value="omero"/>
            <param name="mapping" value="mapping.tsv"/>
            <param name="delete_dataset" value="True"/>
            <output name="log" value="dataset_conversion_log.txt" ftype="txt">

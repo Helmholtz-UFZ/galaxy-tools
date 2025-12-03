@@ -11,6 +11,11 @@
         <expand macro="omero_credentials"/>
     </expand>
     <command detect_errors="exit_code"><![CDATA[
+        #if $test_username != ""
+            export OMERO_USER = "$test_username"
+            export OMERO_PASSWORD = "$test_password" &&
+        #end if
+
         @HOST_PORT@
         python '$__tool_directory__/omero_roi_upload.py'
         --input_file '$input'
@@ -36,8 +41,8 @@
             <param name="omero_port" value="6064"/>
             <param name="id" value="1"/>
             <param name="input" value="input_roi.tsv"/>
-            <param name="OMERO_USER" value="root"/>
-            <param name="OMERO_PASSWORD" value="omero"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
             <output name="log" value="output_table_roi.txt" ftype="txt">
                 <assert_contents>
                     <has_text text="ROI ID: 7 for row 7"/>
@@ -49,8 +54,8 @@
             <param name="omero_port" value="6064"/>
             <param name="id" value="1"/>
             <param name="input" value="input_roi_minimal.tsv"/>
-            <param name="OMERO_USER" value="root"/>
-            <param name="OMERO_PASSWORD" value="omero"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
             <output name="log" value="output_table_roi_minimal.txt" ftype="txt">
                 <assert_contents>
                     <has_text text="ROI ID: 8 for row 1"/>

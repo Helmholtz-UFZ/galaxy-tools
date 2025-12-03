@@ -11,6 +11,12 @@
         <expand macro="omero_credentials"/>
     </expand>
     <command detect_errors="exit_code"><![CDATA[
+
+        #if $test_username != ""
+            export OMERO_USER = "$test_username"
+            export OMERO_PASSWORD = "$test_password" &&
+        #end if
+
         python '$__tool_directory__'/omero_metadata_upload.py
         @HOST_PORT@
         --obj_type $obj_type
@@ -69,8 +75,8 @@
             </conditional>
             <param name="ann_file" value="metadata.tsv"/>
             <param name="an_name" value="Table_Test"/>
-            <param name="OMERO_USER" value="root"/>
-            <param name="OMERO_PASSWORD" value="omero"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
             <output name="log" value="output_table_import.txt" ftype="txt">
                 <assert_contents>
                     <has_text text="SUCCESS: Successfully uploaded metadata for project"/>
@@ -87,8 +93,8 @@
             </conditional>
             <param name="ann_file" value="metadata.tsv"/>
             <param name="an_name" value="KV_Test"/>
-            <param name="OMERO_USER" value="root"/>
-            <param name="OMERO_PASSWORD" value="omero"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
             <output name="log" value="output_KV_import.txt" ftype="txt">
                 <assert_contents>
                     <has_text text="SUCCESS: Successfully uploaded metadata for dataset"/>
@@ -106,8 +112,8 @@
             </conditional>
             <param name="ann_file" value="metadata.tsv"/>
             <param name="an_name" value="Additional_KV_Values"/>
-            <param name="OMERO_USER" value="root"/>
-            <param name="OMERO_PASSWORD" value="omero"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
             <output name="log" value="output_target_import.txt" ftype="txt">
                 <assert_contents>
                     <has_text text="SUCCESS: Successfully uploaded metadata for dataset"/>

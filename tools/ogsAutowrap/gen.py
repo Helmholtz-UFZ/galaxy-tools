@@ -243,6 +243,9 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
         help_text = re.sub(r'(the\s+)?name\s+of\s+', '', help_text, flags=re.IGNORECASE)
         help_text = re.sub(r'\s{2,}', ' ', help_text).strip()
         var_name = sanitize_name(long_flag)
+        IGNORED_PARAMS = ["write_merged_geometries"]
+        if var_name in IGNORED_PARAMS:
+            continue
         cleaned_rem_args_parts = [p.strip() for p in remaining_args_list if p.strip()]
         final_tclap_arg = cleaned_rem_args_parts[-1].strip("'\"") if cleaned_rem_args_parts else ""
         if help_text.startswith("Output"):
@@ -495,10 +498,10 @@ def parse_diff_data(diff_str: str, base_url: str, workdir: str) -> List[Dict[str
 def generate_tests():
     """
     Generiert individuelle, benannte Test-Makros für jedes Tool.
-    Versucht echte Tests aus Tests.cmake zu extrahieren.
-    Falls kein valider Test gefunden wird (z.B. keine Outputs), wird ein leerer Test-Rumpf erstellt.
+    Verwendet das 'location'-Attribut für Remote-Dateien.
+    Fügt Fallback-Assertions hinzu, wenn keine Diff-Daten vorhanden sind.
     """
-    eprint("--- Generating Test Macros from Tests.cmake with GitLab URLs ---")
+    eprint("--- Generating Test Macros from Tests.cmake with GitLab URLs (Location Attribute + Fallbacks) ---")
 
     CMAKE_TESTS_FILE = Path("/home/stehling/gitProjects/ogs/Applications/Utils/Tests.cmake")
     RAW_GITLAB_TEST_DATA_URL = "https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data"
@@ -607,31 +610,41 @@ def generate_tests():
                     i += 1
 
             all_params_map = {p.name: p for p in galaxy_inputs}
+            
+            # --- INPUT PROCESSING ---
             for name, value in params_in_test.items():
                 param = all_params_map.get(name)
                 if param and (f"--{param.original_long_flag}" in output_flags or (param.original_short_flag and f"-{param.original_short_flag}" in output_flags)):
                     continue
 
                 final_value = value
-
                 if path_replacement:
                     final_value = final_value.replace("<PATH>", path_replacement)
-
                 if "<SOURCE_PATH>/" in final_value:
                     final_value = final_value.replace("<SOURCE_PATH>/", "")
-
                 if '<' in final_value or '>' in final_value:
                     raise ValueError(f"Test contains unresolved XML placeholder: {final_value}")
 
-                if isinstance(param, DataParam):
-                    if final_value.startswith("${Data_BINARY_DIR}/"):
-                        final_value = f"{RAW_GITLAB_PROJECT_ROOT_URL}/{final_value.replace('${Data_BINARY_DIR}/', '', 1)}"
-                    elif final_value.startswith("${Data_SOURCE_DIR}/"):
-                        final_value = f"{RAW_GITLAB_PROJECT_ROOT_URL}/{final_value.replace('${Data_SOURCE_DIR}/', '', 1)}"
-                    elif final_value != "true" and workdir_subpath:
-                        final_value = f"{RAW_GITLAB_TEST_DATA_URL}/{workdir_subpath}/{final_value}"
+                param_attrs = {"name": name}
 
-                ET.SubElement(test_case, "param", {"name": name, "value": final_value})
+                if isinstance(param, DataParam):
+                    url = ""
+                    if final_value.startswith("${Data_BINARY_DIR}/"):
+                        url = f"{RAW_GITLAB_PROJECT_ROOT_URL}/{final_value.replace('${Data_BINARY_DIR}/', '', 1)}"
+                    elif final_value.startswith("${Data_SOURCE_DIR}/"):
+                        url = f"{RAW_GITLAB_PROJECT_ROOT_URL}/{final_value.replace('${Data_SOURCE_DIR}/', '', 1)}"
+                    elif final_value != "true" and workdir_subpath:
+                        url = f"{RAW_GITLAB_TEST_DATA_URL}/{workdir_subpath}/{final_value}"
+                    
+                    if url:
+                        param_attrs["value"] = url.split('/')[-1]
+                        param_attrs["location"] = url
+                    else:
+                        param_attrs["value"] = final_value
+                else:
+                    param_attrs["value"] = final_value
+
+                ET.SubElement(test_case, "param", param_attrs)
 
             diff_data_match = re.search(r"\s+DIFF_DATA\s+(.*?)(?=\s+\w+\s+|\s*\))", test_block_content, re.DOTALL)
             diff_files = []
@@ -641,15 +654,24 @@ def generate_tests():
             single_file_outputs = [v for v in output_map.values() if v.get('type') == 'file']
             is_single_output_file = len(single_file_outputs) == 1 and len(output_map) == 1
 
+            # --- OUTPUT PROCESSING ---
             if is_single_output_file:
                 output_name = sanitize_name(f"output_{tool_name}")
-                attrs = {"name": output_name}
+                output_elem = ET.SubElement(test_case, "output", {"name": output_name})
+
                 if diff_files:
-                    attrs["file"] = diff_files[0]["reference"]
-                    attrs["ftype"] = diff_files[0]["ftype"]
-                ET.SubElement(test_case, "output", attrs)
+                    # Wenn Referenzdatei vorhanden: Vergleich gegen URL
+                    output_elem.set("file", diff_files[0]["generated"])
+                    output_elem.set("location", diff_files[0]["reference"])
+                    output_elem.set("ftype", diff_files[0]["ftype"])
+                else:
+                    # FALLBACK: Wenn keine Referenzdatei, prüfe auf Existenz (Größe > 0)
+                    assert_contents = ET.SubElement(output_elem, "assert_contents")
+                    ET.SubElement(assert_contents, "has_size", {"min": "1"})
+
             else:
                 if not diff_files:
+                    # Bei Collections reicht oft "count", aber sicherer ist es so, wenn planemo meckert
                     ET.SubElement(test_case, "output_collection", {
                         "name": "tool_outputs", "type": "list", "count": str(len(output_map))
                     })
@@ -658,7 +680,8 @@ def generate_tests():
                     for diff_file in diff_files:
                         ET.SubElement(collection, "element", {
                             "name": diff_file["generated"],
-                            "file": diff_file["reference"],
+                            "file": diff_file["generated"],
+                            "location": diff_file["reference"],
                             "ftype": diff_file["ftype"]
                         })
 
@@ -674,11 +697,13 @@ def generate_tests():
 
         if t_name_lower not in processed_tools_lower:
             eprint(f"  Generating EMPTY fallback test for: {tool_data['name']}")
-
             macro_name = f"{t_name_lower}_test"
             macro_xml = ET.SubElement(macros_root, "xml", {"name": macro_name})
-            test_case = ET.SubElement(macro_xml, "test")
-
+            
+            # Auch bei leeren Tests muss theoretisch etwas passieren, aber hier lassen wir es leer
+            # Falls Planemo hier meckert, muss man Dummy-Tests entfernen oder füllen.
+            ET.SubElement(macro_xml, "test")
+            
             test_case_count += 1
 
     tree = ET.ElementTree(macros_root)
@@ -687,7 +712,7 @@ def generate_tests():
     with open(output_filename, "wb") as f:
         f.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
         tree.write(f, encoding="utf-8", xml_declaration=False)
-    eprint(f"\nErfolgreich '{output_filename}' mit {test_case_count} Testfällen erstellt (davon {len(processed_tools_lower)} echte und {test_case_count - len(processed_tools_lower)} leere).")
+    eprint(f"\nErfolgreich '{output_filename}' mit {test_case_count} Testfällen erstellt.")
 
 
 def main():

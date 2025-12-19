@@ -25,7 +25,9 @@
                 #silent $negative_control_names.append($identifier)
             #end for
         #end if
-        
+
+        export LD_LIBRARY_PATH=/usr/local/lib:\$LD_LIBRARY_PATH &&
+
         siproswf
         --input raw
         --fasta '$fasta'
@@ -42,7 +44,7 @@
         ## #end if
         #if $mode.mode_select == "labeled"
             #if $mode.negative_control
-                --negative_control #echo ",".join($mode.negative_control_names) #
+                --negative_control #echo ",".join($negative_control_names) #
             #end if
             #if str($mode.element) != ""
                 --element '$mode.element'
@@ -116,27 +118,27 @@
     </inputs>
     <outputs>
         <data name="peptide" format="tabular" from_work_dir="output/peptide.tsv" label="${tool.name} on ${on_string}: Peptide">
-            <filter>mode.outputs is not None and "peptide" in mode.outputs</filter>
+            <filter>"peptide" in mode["outputs"]</filter>
         </data>
         <data name="protein" format="tabular" from_work_dir="output/protein.tsv" label="${tool.name} on ${on_string}: Protein">
-            <filter>mode.outputs is not None and "protein" in mode.outputs</filter>
+            <filter>"protein" in mode["outputs"]</filter>
         </data>
         <data name="protein_fasta" format="fasta" from_work_dir="output/protein.fas" label="${tool.name} on ${on_string}: Protein sequences">
-            <filter>mode.outputs is not None and "protein_fasta" in mode.outputs</filter>
+            <filter>"protein_fasta" in mode["outputs"]</filter>
         </data>
         <data name="protein_with_PSM" format="tabular" from_work_dir="output/protein_with_PSM.tsv" label="${tool.name} on ${on_string}: Protein with PSM">
-            <filter>mode.outputs is not None and "protein_with_PSM" in mode.outputs</filter>
+            <filter>"protein_with_PSM" in mode["outputs"]</filter>
         </data>
         <data name="psm" format="tabular" from_work_dir="output/psm.tsv" label="${tool.name} on ${on_string}: PSM">
-            <filter>mode.outputs is not None and "protein_with_PSM" in mode.outputs</filter>
+            <filter>"protein_with_PSM" in mode["outputs"]</filter>
         </data>
         <data name="protein_with_SIP_filtered_PSM" format="tabular" from_work_dir="output/protein_with_SIP_filtered_PSM.tsv" label="${tool.name} on ${on_string}: protein_with_SIP_filtered_PSM">
-            <filter>mode.mode_select == "labeled"</filter>
-            <filter>outputs is not None and "protein_with_SIP_filtered_PSM" in outputs</filter>
+            <filter>mode["mode_select"] == "labeled"</filter>
+            <filter>"protein_with_SIP_filtered_PSM" in mode["outputs"]</filter>
         </data>
         <data name="SIP_filtered_psms" format="tabular" from_work_dir="output/SIP_filtered_psms.tsv" label="${tool.name} on ${on_string}: SIP_filtered_psms">
-            <filter>mode.mode_select == "labeled"</filter>
-            <filter>outputs is not None and "SIP_filtered_psms" in outputs</filter>
+            <filter>mode["mode_select"] == "labeled"</filter>
+            <filter>"SIP_filtered_psms" in mode["outputs"]</filter>
         </data>
     </outputs>
     <tests>
@@ -187,7 +189,7 @@
             </output>
             <output name="SIP_filtered_psms">
                 <assert_contents>
-                    <has_n_lines n="207"/>
+                    <has_n_lines n="139"/>
                     <has_n_columns n="28"/>
                 </assert_contents>
             </output>

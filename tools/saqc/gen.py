@@ -1236,17 +1236,8 @@ def get_methods_conditional(methods, module, tracing=False):
         method_when = When(value=method_name)
         try:
             params = get_method_params(method_obj, module, tracing=tracing)
-            if not params:
-                no_params_notice = TextParam(
-                    name=f"{method_name}_no_params_notice",
-                    type="text",
-                    value="This method has no configurable parameters.",
-                    label="Info",
-                )
-                method_when.append(no_params_notice)
-            else:
-                for p in params:
-                    method_when.append(p)
+            for p in params:
+                method_when.append(p)
         except ValueError as e:
             sys.stderr.write(
                 f"Skipping params for method {method_name} in module {module.__name__} due to: {e}\n"

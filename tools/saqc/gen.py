@@ -502,19 +502,6 @@ def is_module_deprecated(module: "ModuleType") -> bool:
         )
         return True
 
-    param_section_match = re.search(
-        r"^\s*Parameters\s*\n\s*--", docstring, re.MULTILINE
-    )
-    summary_text = docstring
-    if param_section_match:
-        summary_text = docstring[: param_section_match.start()]
-
-    if "deprecated" in summary_text.lower():
-        sys.stderr.write(
-            f"Info: Skip deprecated module '{module.__name__}'. (Reason: 'deprecated' found).\n"
-        )
-        return True
-
     return False
 
 

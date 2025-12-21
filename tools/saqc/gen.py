@@ -505,6 +505,17 @@ def is_module_deprecated(module: "ModuleType") -> bool:
     return False
 
 
+def is_parameter_deprecated(param_docs: Dict[str, str], param_name: str) -> bool:
+    param_doc_entry = param_docs.get(param_name, "")
+    param_doc_lines = param_doc_entry.split('\n')
+
+    first_line = param_doc_lines[0].lower().strip() if param_doc_lines else ""
+    is_deprecated = "deprecated" in first_line
+    if not is_deprecated:
+        is_deprecated = ".. deprecated::" in param_doc_entry.lower()
+    return is_deprecated
+
+
 def _create_param_from_type_str(type_str: str, param_name: str, param_constructor_args: dict, is_optional: bool) -> Optional[object]:
 
     pattern_offset = r"\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*"
@@ -1059,15 +1070,8 @@ def get_method_params(method, module, tracing=False):
             or "kwarg" in param_name.lower()
         ):
             continue
-        param_doc_entry = param_docs.get(param_name, "")
-        param_doc_lines = param_doc_entry.split('\n')
-        first_line = param_doc_lines[0].lower().strip() if param_doc_lines else ""
-        is_deprecated = "deprecated" in first_line
 
-        if not is_deprecated:
-            is_deprecated = ".. deprecated::" in param_doc_entry.lower()
-
-        if is_deprecated:
+        if is_parameter_deprecated(param_docs, param_name):
             sys.stderr.write(
                 f"Info ({module.__name__}): Skipping deprecated parameter '{param_name}' "
                 f"in method '{method.__name__}'. (Reason: Found 'deprecated' marker in docstring).\n"
@@ -1527,15 +1531,7 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
         if param_name in ["self", "kwargs", "reduce_func", "metric"] or "kwarg" in param_name.lower():
             continue
 
-        param_doc_entry = param_docs.get(param_name, "")
-        param_doc_lines = param_doc_entry.split('\n')
-        first_line = param_doc_lines[0].lower().strip() if param_doc_lines else ""
-        is_deprecated = "deprecated" in first_line
-
-        if not is_deprecated:
-            is_deprecated = ".. deprecated::" in param_doc_entry.lower()
-
-        if is_deprecated:
+        if is_parameter_deprecated(param_docs, param_name):
             continue
 
         if "field" in param_name.lower() or param_name in ["target", "reference"]:

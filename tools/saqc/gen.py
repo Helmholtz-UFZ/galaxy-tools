@@ -1242,13 +1242,6 @@ def get_methods_conditional(methods, module, tracing=False):
             sys.stderr.write(
                 f"Skipping params for method {method_name} in module {module.__name__} due to: {e}\n"
             )
-            param_error_notice = TextParam(
-                name=f"{method_name}_param_error_notice",
-                type="text",
-                value=f"Error generating parameters for this method: {e}",
-                label="Parameter Generation Error",
-            )
-            method_when.append(param_error_notice)
         method_conditional.append(method_when)
 
     return method_conditional

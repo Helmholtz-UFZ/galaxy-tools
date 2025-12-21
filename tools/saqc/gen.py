@@ -1234,14 +1234,9 @@ def get_methods_conditional(methods, module, tracing=False):
     for method_obj in filtered_methods:
         method_name = method_obj.__name__
         method_when = When(value=method_name)
-        try:
-            params = get_method_params(method_obj, module, tracing=tracing)
-            for p in params:
-                method_when.append(p)
-        except ValueError as e:
-            sys.stderr.write(
-                f"Skipping params for method {method_name} in module {module.__name__} due to: {e}\n"
-            )
+        params = get_method_params(method_obj, module, tracing=tracing)
+        for p in params:
+            method_when.append(p)
         method_conditional.append(method_when)
 
     return method_conditional

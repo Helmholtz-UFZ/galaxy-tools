@@ -419,6 +419,7 @@ def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> b
     Checks if method should be skipped.
 
     Criteria:
+    - Is marked as deprecated
     - Contains a parameter expecting a Function/CurveFitter
       (detected by name 'func' OR type 'Callable'/'CurveFitter'/'GenericFunction')
     - AND is not a Literal (Selection)
@@ -427,26 +428,11 @@ def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> b
     Returns True if the entire method should be skipped.
     """
 
-    docstring = method.__doc__
-
-    if docstring:
-        if ".. deprecated::" in docstring.lower():
-            sys.stderr.write(
-                f"Info ({module.__name__}): Skipping deprecated method '{method.__name__}'. (Reason: Found '.. deprecated::' directive).\n"
-            )
-            return True
-
-        param_section_match = re.search(r"^\s*Parameters\s*\n\s*--", docstring, re.MULTILINE)
-        summary_text = docstring
-
-        if param_section_match:
-            summary_text = docstring[:param_section_match.start()]
-
-        if "deprecated" in summary_text.lower():
-            sys.stderr.write(
-                f"Info ({module.__name__}): Skipping deprecated method '{method.__name__}'. (Reason: Found 'deprecated' in method summary).\n"
-            )
-            return True
+    if is_method_deprecated(method):
+        sys.stderr.write(
+            f"Info ({module.__name__}): Skipping deprecated method '{method.__name__}'"
+        )
+        return True
 
     try:
         parameters = inspect.signature(method).parameters
@@ -500,6 +486,17 @@ def is_module_deprecated(module: "ModuleType") -> bool:
         sys.stderr.write(
             f"Info: Skip deprecated module '{module.__name__}'. (Reason: '.. deprecated::' found).\n"
         )
+        return True
+
+    return False
+
+
+def is_method_deprecated(method: Callable) -> bool:
+
+    doc_sections = parse_docstring(method)
+    header = doc_sections.get("", "")
+
+    if ".. deprecated::" in header:
         return True
 
     return False

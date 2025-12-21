@@ -434,10 +434,7 @@ def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> b
         )
         return True
 
-    try:
-        parameters = inspect.signature(method).parameters
-    except (ValueError, TypeError):
-        return False
+    parameters = inspect.signature(method).parameters
 
     for param_name, param in parameters.items():
         annotation = param.annotation
@@ -1052,14 +1049,8 @@ def get_method_params(method, module, tracing=False):
     sections = parse_docstring(method)
     param_docs = parse_parameter_docs(sections)
     xml_params = []
-    try:
-        parameters = inspect.signature(method).parameters
-    except (ValueError, TypeError) as e:
-        sys.stderr.write(
-            f"Warning: Could not get signature for {method.__name__}: {e}. "
-            "Skipping params for this method.\n"
-        )
-        return xml_params
+
+    parameters = inspect.signature(method).parameters
 
     for param_name, param in parameters.items():
         if (
@@ -1519,10 +1510,7 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
     sections = parse_docstring(method)
     param_docs = parse_parameter_docs(sections)
 
-    try:
-        parameters = inspect.signature(method).parameters
-    except (ValueError, TypeError):
-        return []
+    parameters = inspect.signature(method).parameters
 
     for param_name, param in parameters.items():
         if param_name in ["self", "kwargs", "reduce_func", "metric"] or "kwarg" in param_name.lower():

@@ -275,50 +275,18 @@ def get_label_help(param_name: str, parameter_docs: str) -> Tuple[str, str]:
         .strip()
     )
 
+    # remove type annotations from first line of parameter docs
+    # TODO can be removed in 2.8 https://git.ufz.de/rdm-software/saqc/-/merge_requests/891
+    clean_doc = clean_doc.splitlines()
+    types = ["Any", "bool", "callable", "float", "int", "SaQCFields", "str", "{"]
+    if len(clean_doc) > 0 and any([clean_doc[0].startswith(t) for t in types]):
+        clean_doc = "\n".join(clean_doc[1:])
+    else:
+        clean_doc = "\n".join(clean_doc)
+
     clean_doc = re.sub(r'\b(pandas|pd|saqc|np|numpy|typing)\.[a-zA-Z0-9_.]+', '', clean_doc, flags=re.IGNORECASE)
 
     clean_doc = re.sub(r'\b(Callable|Union|Optional|List|Tuple|Dict|Sequence|Literal)\[.*?\]', '', clean_doc, flags=re.IGNORECASE)
-
-    banned_words = {
-        "int", "integer", "integers", "float", "floats", "str", "string", "strings",
-        "bool", "boolean", "booleans", "list", "lists", "tuple", "tuples",
-        "dict", "dicts", "dictionary", "set", "sets", "callable", "iterable",
-        "sequence", "array", "arrays", "object", "objects", "none", "any",
-        "optional", "default", "union", "literal", "type", "types", "scalar",
-        "pandas", "pd", "numpy", "np", "saqc", "saqcfields", "newsaqcfields",
-        "offset", "offsets", "freq", "frequency", "frequencies", "timedelta",
-        "period", "periods", "interval", "intervals", "timestamp", "datetime",
-        "regex", "column", "columns", "field", "fields", "axis", "min", "max",
-        "method", "mode", "func", "function", "curvefitter", "genericfunction",
-        "input", "output", "target", "source", "offsetstr", "freqstr", "offsetlike"
-    }
-
-    tech_indicators = r"(?:int|float|str|bool|pandas|offset|freq|optional|default|union|list|tuple|dict|none|any|saqc|curvefitter)"
-    clean_doc = re.sub(
-        fr"[\(\[\{{][^\)\]\}}]*?\b{tech_indicators}\b[^\)\]\}}]*?[\)\]\}}]",
-        "",
-        clean_doc,
-        flags=re.IGNORECASE
-    )
-
-    while True:
-        clean_doc = clean_doc.strip()
-        if not clean_doc:
-            break
-
-        match = re.match(r"^([a-zA-Z0-9_\.]+)(.*)", clean_doc, re.DOTALL)
-        if not match:
-            break
-
-        first_word = match.group(1).lower()
-        remainder = match.group(2)
-
-        if first_word in banned_words or '.' in first_word:
-            clean_doc = remainder
-
-            clean_doc = re.sub(r"^\s*(?:/|\||or|and|,|\.|:|-)\s*", "", clean_doc, flags=re.IGNORECASE)
-        else:
-            break
 
     clean_doc = clean_doc.strip()
     clean_doc = re.sub(r'^[,\.:;-]+\s*', '', clean_doc).strip()

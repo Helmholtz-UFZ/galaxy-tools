@@ -32,6 +32,7 @@ from galaxyxml.tool.parameters import (
     IntegerParam,
     OutputCollection,
     OutputData,
+    OutputFilter,
     Outputs,
     Repeat,
     SelectParam,
@@ -45,6 +46,11 @@ if TYPE_CHECKING:
     from types import ModuleType
 
 TRACING_DATA = []
+
+HARDCODED_PARAMETERS = {
+    # https://git.ufz.de/rdm-software/saqc/-/issues/511
+    'saqc.funcs.tools|plot|path': ("OutputPath", ["OutputPath"], False),
+}
 
 
 def discover_literals(*modules_to_scan) -> Dict[str, Any]:
@@ -683,6 +689,11 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
             del param_object.node.attrib['truevalue']
         if 'falsevalue' in param_object.node.attrib:
             del param_object.node.attrib['falsevalue']
+    # hardcoded path parameter of tools.plot
+    # https://git.ufz.de/rdm-software/saqc/-/issues/511
+    elif base_type_str == 'OutputPath':
+        param_object = TextParam(argument=param_name, **creation_args)
+        param_object.append(ValidatorParam(type="regex", text=r"[\w -\.]+"))
 
     if param_object:
         if isinstance(param_object, TextParam) and not getattr(param_object, 'multiple', False):
@@ -773,12 +784,16 @@ def _get_user_friendly_type_name(type_str: str) -> str:
 
 
 def _parse_parameter_annotation(
-    param: inspect.Parameter, module_name: str
+    param: inspect.Parameter, module_name: str, method_name: str
 ) -> Tuple[str, list[str], bool]:
     """
     Parses a parameter's type annotation to extract its raw string,
     a cleaned list of type parts (for Unions), and its optionality.
     """
+
+    if f"{module_name}|{method_name}|{param.name}" in HARDCODED_PARAMETERS:
+        return HARDCODED_PARAMETERS[f"{module_name}|{method_name}|{param.name}"]
+
     annotation = param.annotation
     raw_annotation_str = ""
     if isinstance(annotation, (str, ForwardRef)):
@@ -1042,7 +1057,7 @@ def _create_param_from_default(
     return param_object
 
 
-def get_method_params(method, module, tracing=False):
+def get_method_params(method: Callable, module: "ModuleType", tracing=False):
     """
     Generates a list of Galaxy XML parameter objects for a given method.
     """
@@ -1070,9 +1085,13 @@ def get_method_params(method, module, tracing=False):
             raw_annotation_str,
             type_parts_cleaned,
             is_truly_optional,
-        ) = _parse_parameter_annotation(param, module.__name__)
+        ) = _parse_parameter_annotation(param, module.__name__, method.__name__)
 
         if not type_parts_cleaned and raw_annotation_str:
+            sys.stderr.write(
+                f"Info ({module.__name__}): Skipping parameter '{param_name}' "
+                f"in method '{method.__name__}'. (Reason: No type parts but raw annotation string).\n"
+            )
             continue
 
         label, help_text = get_label_help(param_name, param_docs)
@@ -1378,6 +1397,9 @@ def generate_tool_xml(tracing=False):
     )
     plot_outputs.append(
         DiscoverDatasets(pattern=r"(?P<name>.*)\.png", ext="png", visible=True)
+    )
+    plot_outputs.append(
+        OutputFilter(text="any( r['module_cond']['module_select'] == 'tools' and r['module_cond']['method_cond']['method_select'] == 'plot' for r in methods_repeat)")
     )
     outputs_section.append(plot_outputs)
     outputs_section.append(
@@ -1687,20 +1709,23 @@ def generate_test_macros():
             continue
 
         methods = get_methods(module_obj)
-        for method_obj in methods:
+        for method in methods:
 
-            if check_method_for_skip_condition(method_obj, module_obj):
+            if check_method_for_skip_condition(method, module_obj):
                 continue
 
-            method_name = method_obj.__name__
+            method_name = method.__name__
             try:
-                test_variants = generate_test_variants(method_obj, module_obj)
+                test_variants = generate_test_variants(method, module_obj)
             except Exception as e:
                 print(f"Error generating variants for {method_name}: {e}", file=sys.stderr)
                 continue
 
             for variant in test_variants:
-                test_elem = ET.SubElement(all_tests_macro, "test")
+                expect_num_outputs = "2"
+                if module_name == "tools" and method.__name__ == "plot":
+                    expect_num_outputs = "3"
+                test_elem = ET.SubElement(all_tests_macro, "test", {"expect_num_outputs": expect_num_outputs})
                 ET.SubElement(test_elem, "param", {"name": "data", "value": "test1/data.csv", "ftype": "csv"})
                 ET.SubElement(test_elem, "param", {"name": "run_test_mode", "value": "true"})
 

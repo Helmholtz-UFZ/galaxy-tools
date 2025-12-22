@@ -53,6 +53,14 @@ HARDCODED_PARAMETERS = {
 }
 
 
+SKIP_METHODS = set(
+    [
+        # https://git.ufz.de/rdm-software/saqc/-/issues/512
+        "saqc.funcs.tools|flagByClick",
+    ]
+)
+
+
 def discover_literals(*modules_to_scan) -> Dict[str, Any]:
     """
     Searches the modules for literal definitions.
@@ -372,28 +380,22 @@ def get_methods(module):
         if inspect.ismodule(cls):
             continue
         methods = inspect.getmembers(cls, inspect.isfunction)
-        for method_name, method in methods:
-            try:
-                parameters = inspect.signature(method).parameters
-                if "self" in parameters:
-                    self_param = parameters["self"]
-                    annotation_str = None
-                    if isinstance(self_param.annotation, str):
-                        annotation_str = self_param.annotation.strip("'")
-                    elif isinstance(self_param.annotation, ForwardRef):
-                        annotation_str = self_param.annotation.__forward_arg__.strip(
-                            "'"
-                        )
-                    elif hasattr(self_param.annotation, "__name__"):
-                        annotation_str = self_param.annotation.__name__
+        for method_name, method in methods:           
+            parameters = inspect.signature(method).parameters
+            if "self" in parameters:
+                self_param = parameters["self"]
+                annotation_str = None
+                if isinstance(self_param.annotation, str):
+                    annotation_str = self_param.annotation.strip("'")
+                elif isinstance(self_param.annotation, ForwardRef):
+                    annotation_str = self_param.annotation.__forward_arg__.strip(
+                        "'"
+                    )
+                elif hasattr(self_param.annotation, "__name__"):
+                    annotation_str = self_param.annotation.__name__
 
-                    if annotation_str == "SaQC":
-                        methods_with_saqc.append(method)
-            except (ValueError, TypeError) as e:
-                sys.stderr.write(
-                    f"Warning: Could not inspect signature for {cls.__name__}.{method_name}: {e}\n"
-                )
-                continue
+                if annotation_str == "SaQC":
+                    methods_with_saqc.append(method)
     return methods_with_saqc
 
 
@@ -436,7 +438,13 @@ def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> b
 
     if is_method_deprecated(method):
         sys.stderr.write(
-            f"Info ({module.__name__}): Skipping deprecated method '{method.__name__}'"
+            f"Info skipping ({module.__name__}.{method.__name__}): deprecated method\n"
+        )
+        return True
+
+    if f"{module.__name__}|{method.__name__}" in SKIP_METHODS:
+        sys.stderr.write(
+            f"Info skipping ({module.__name__}.{method.__name__}): hardcoded to be skipped\n"
         )
         return True
 

@@ -1079,7 +1079,6 @@
             <param name="method_select" type="select" label="Method">
               <option value="copyField">copyField: Make a copy of the data and flags to a new field</option>
               <option value="dropField">dropField: Drops field from the data and flags</option>
-              <option value="flagByClick">flagByClick: Pop up GUI for adding or removing flags by selection of points in the data plot</option>
               <option value="plot">plot: Plot data and flags or store plot to file</option>
               <option value="renameField">renameField: Rename field to the given name</option>
               <option value="selectTime">selectTime: Realizes masking within saqc</option>
@@ -1091,17 +1090,6 @@
             </when>
             <when value="dropField">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-            </when>
-            <when value="flagByClick">
-              <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="max_gap" type="text" label="If None, all data points will be connected, resulting in long linear lines, in case of large data gaps." help="NaN values will be removed before plotting. If an offset string is passed, only points that have a distance below max_gap are connected via the plotting line. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
-              </param>
-              <param argument="gui_mode" type="select" value="GUI" label="*  GUI  , spawns TK based pop-up GUI, enabling scrolling and binding for subplots *  overlay , spawns matplotlib based pop-up GUI." help="May be less conflicting, but does not support scrolling or binding.">
-                <option value="GUI">GUI</option>
-                <option value="overlay">overlay</option>
-              </param>
-              <param argument="dfilter" type="float" value="255.0" label="Defines which observations will be masked based on the already existing flags." help="Any data point with a flag equal or worse to this threshold will be passed as NaN to the function. Defaults to the DFILTER_ALL value of the translation scheme."/>
             </when>
             <when value="plot">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="true"/>

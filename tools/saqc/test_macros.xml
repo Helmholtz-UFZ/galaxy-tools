@@ -1909,27 +1909,6 @@
         </assert_contents>
       </output>
     </test>
-    <test expect_num_outputs="2">
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="tools" />
-          <conditional name="method_cond">
-            <param name="method_select" value="flagByClick" />
-            <param name="field" value="1" />
-            <param name="max_gap" value="1D" />
-            <param name="gui_mode" value="GUI" />
-            <param name="dfilter" value="1" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="flagByClick" />
-        </assert_contents>
-      </output>
-    </test>
     <test expect_num_outputs="3">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />

@@ -52,31 +52,31 @@
             </param>
             <when value="flagIsolated">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="gap_window" type="text" label="Minimum gap size required before and after a data group to consider it isolated." help="See conditions (2) and (3) below. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+              <param argument="gap_window" type="text" label="Minimum gap size required before and after a data group to consider it isolated" help="See conditions (2) and (3) below Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                 <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                 <validator type="empty_field"/>
               </param>
-              <param argument="group_window" type="text" label="Maximum size of a data chunk to consider it a candidate for an isolated group." help="Data chunks larger than this are ignored. This does not include the possible gaps surrounding it. See condition (1) below. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+              <param argument="group_window" type="text" label="Maximum size of a data chunk to consider it a candidate for an isolated group" help="Data chunks larger than this are ignored. This does not include the possible gaps surrounding it. See condition (1) below Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                 <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                 <validator type="empty_field"/>
               </param>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
             <when value="flagJumps">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <param argument="thresh" type="float" label="Threshold by which the mean of data must jump to trigger flagging." help="" min="0"/>
-              <param argument="window" type="text" label="Size of the two rolling windows." help="Determines the number of timestamps used for calculating the mean in each window. Windows should be chosen large enough to obtain a reliable mean. But not too large as well, since the window size implies a lower bound for the detection resolution. Jumps exceeding thresh but being apart from each other by less than 3/4 of the window size may not be detected reliably. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+              <param argument="window" type="text" label="Size of the two rolling windows" help="Determines the number of timestamps used for calculating the mean in each window. Windows should be chosen large enough to obtain a reliable mean. But not too large as well, since the window size implies a lower bound for the detection resolution. Jumps exceeding thresh but being apart from each other by less than 3/4 of the window size may not be detected reliably Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                 <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                 <validator type="empty_field"/>
               </param>
-              <param argument="min_periods" type="integer" value="0" label="Minimum number of timestamps in window required to calculate a valid mean." help="If no valid mean for the window can be calculated, flagging wont be triggered for the associated change point." min="0"/>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
-              <param argument="dfilter" type="float" value="-inf" label="Defines which observations will be masked based on the already existing flags." help="Any data point with a flag equal or worse to this threshold will be passed as NaN to the function. Defaults to the DFILTER_ALL value of the translation scheme."/>
+              <param argument="min_periods" type="integer" value="0" label="Minimum number of timestamps in window required to calculate a valid mean" help="If no valid mean for the window can be calculated, flagging wont be triggered for the associated change point" min="0"/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
+              <param argument="dfilter" type="float" value="-inf" label="Defines which observations will be masked based on the already existing flags" help="Any data point with a flag equal or worse to this threshold will be passed as NaN to the function. Defaults to the DFILTER_ALL value of the translation scheme"/>
             </when>
             <when value="flagNAN">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
-              <param argument="dfilter" type="float" value="-inf" label="Defines which observations will be masked based on the already existing flags." help="Any data point with a flag equal or worse to this threshold will be passed as NaN to the function. Defaults to the DFILTER_ALL value of the translation scheme."/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
+              <param argument="dfilter" type="float" value="-inf" label="Defines which observations will be masked based on the already existing flags" help="Any data point with a flag equal or worse to this threshold will be passed as NaN to the function. Defaults to the DFILTER_ALL value of the translation scheme"/>
             </when>
           </conditional>
         </when>
@@ -88,35 +88,35 @@
             </param>
             <when value="flagByVariance">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="window" type="text" label="Size of the moving window." help="This is the number of observations used for calculating the statistic. Each window will be a fixed size. If its an offset then this will be the time period of each window. Each window will be sized, based on the number of observations included in the time-period. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+              <param argument="window" type="text" label="Size of the moving window" help="This is the number of observations used for calculating the statistic. Each window will be a fixed size. If its an offset then this will be the time period of each window. Each window will be sized, based on the number of observations included in the time-period Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                 <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="thresh" type="float" label="Maximum total variance allowed per window." help="" min="0"/>
-              <param argument="maxna" type="integer" optional="true" label="Maximum number of NaNs allowed in window." help="If more NaNs are present, the window is not flagged." min="0"/>
+              <param argument="maxna" type="integer" optional="true" label="Maximum number of NaNs allowed in window" help="If more NaNs are present, the window is not flagged" min="0"/>
               <param argument="maxna_group" type="integer" optional="true" label="Same as maxna but for consecutive NaNs." help="" min="0"/>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
             <when value="flagConstants">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <param argument="thresh" type="float" label="Maximum total change allowed per window." help="" min="0"/>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'Size of the rolling window.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="window_selector" type="select" label="Choose type for 'Size of the rolling window'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">OffsetStr (Pandas Frequency)</option>
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" label="Size of the rolling window." help="If an integer is passed, it represents the number of timestamps per window. If an offset string is passed, it represents the windows total temporal extent. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+                  <param argument="window" type="text" label="Size of the rolling window" help="If an integer is passed, it represents the number of timestamps per window. If an offset string is passed, it represents the windows total temporal extent Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                     <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="window" type="integer" label="Size of the rolling window." help="If an integer is passed, it represents the number of timestamps per window. If an offset string is passed, it represents the windows total temporal extent." min="1"/>
+                  <param argument="window" type="integer" label="Size of the rolling window" help="If an integer is passed, it represents the number of timestamps per window. If an offset string is passed, it represents the windows total temporal extent" min="1"/>
                 </when>
               </conditional>
-              <param argument="min_periods" type="integer" value="2" label="Minimum number of valid timestamps that are necessary to be present in any window, in order to trigger condition testing for this window." help="Windows with fewer timestamps are skipped. Must be  = 2, because a single value is always considered constant." min="0"/>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param argument="min_periods" type="integer" value="2" label="Minimum number of valid timestamps that are necessary to be present in any window, in order to trigger condition testing for this window" help="Windows with fewer timestamps are skipped. Must be  = 2, because a single value is always considered constant" min="0"/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
           </conditional>
         </when>
@@ -135,18 +135,18 @@
                   <option value="type_1">OffsetStr (Pandas Frequency)</option>
                 </param>
                 <when value="type_0">
-                  <param argument="cutoff" type="float" label="The cutoff-frequency, either an offset freq string" help="or expressed in multiples of the sampling rate." min="0"/>
+                  <param argument="cutoff" type="float" label="The cutoff-frequency, either an offset freq string" help="or expressed in multiples of the sampling rate" min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="cutoff" type="text" label="The cutoff-frequency, either an offset freq string" help="or expressed in multiples of the sampling rate. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+                  <param argument="cutoff" type="text" label="The cutoff-frequency, either an offset freq string" help="or expressed in multiples of the sampling rate Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                     <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
               </conditional>
-              <param argument="nyq" type="float" value="0.5" label="The niquist-frequency." help="expressed in multiples if the sampling rate." min="0"/>
+              <param argument="nyq" type="float" value="0.5" label="The niquist-frequency" help="expressed in multiples if the sampling rate" min="0"/>
               <param argument="filter_order" type="integer" value="2" label="filter_order" help="" min="1"/>
-              <param argument="fill_method" type="select" value="linear" label="Fill method to be applied on the data before filtering (butterfilter cant handle '''')." help="See documentation of  method for details on the methods associated with the different keywords.">
+              <param argument="fill_method" type="select" value="linear" label="Fill method to be applied on the data before filtering (butterfilter cant handle '''')" help="See documentation of  method for details on the methods associated with the different keywords">
                 <option value="linear">linear</option>
                 <option value="nearest">nearest</option>
                 <option value="zero">zero</option>
@@ -160,9 +160,9 @@
             </when>
             <when value="fitMomentFM">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="true"/>
-              <param argument="ratio" type="integer" value="4" label="The number of samples generated for any values reconstruction." help="Must be a divisor of context. Effectively controlls the stride-width of the reconstruction window through the data."/>
+              <param argument="ratio" type="integer" value="4" label="The number of samples generated for any values reconstruction" help="Must be a divisor of context. Effectively controlls the stride-width of the reconstruction window through the data"/>
               <param argument="context" type="integer" value="512" label="size of the context window with regard to wich any value is reconstructed." help=""/>
-              <param argument="agg" type="select" value="mean" label="How to aggregate the different reconstructions for the same value." help="* 'center': use the value that was constructed in a window centering around the origin value * 'mean': assign the mean over all reconstructed values * 'median': assign the median over all reconstructed values * 'std': assign the standard deviation over all reconstructed values">
+              <param argument="agg" type="select" value="mean" label="How to aggregate the different reconstructions for the same value" help="* 'center': use the value that was constructed in a window centering around the origin value * 'mean': assign the mean over all reconstructed values * 'median': assign the median over all reconstructed values * 'std': assign the standard deviation over all reconstructed values">
                 <option value="center">center</option>
                 <option value="mean">mean</option>
                 <option value="median">median</option>
@@ -172,22 +172,22 @@
             <when value="fitPolynomial">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'Size of the fitting window.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="window_selector" type="select" label="Choose type for 'Size of the fitting window'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">OffsetStr (Pandas Frequency)</option>
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" label="Size of the fitting window." help="If an integer is passed, it represents the number of timestamps in each window. If an offset string is passed, it represents the window's temporal extent. The window is centered around the timestamp being fitted. For uniformly sampled data, an odd number of timestamps is always used to constitute a window (subtracted by 1, if the total is even). Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+                  <param argument="window" type="text" label="Size of the fitting window" help="If an integer is passed, it represents the number of timestamps in each window. If an offset string is passed, it represents the window's temporal extent. The window is centered around the timestamp being fitted. For uniformly sampled data, an odd number of timestamps is always used to constitute a window (subtracted by 1, if the total is even) Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                     <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="window" type="integer" label="Size of the fitting window." help="If an integer is passed, it represents the number of timestamps in each window. If an offset string is passed, it represents the window's temporal extent. The window is centered around the timestamp being fitted. For uniformly sampled data, an odd number of timestamps is always used to constitute a window (subtracted by 1, if the total is even)." min="0"/>
+                  <param argument="window" type="integer" label="Size of the fitting window" help="If an integer is passed, it represents the number of timestamps in each window. If an offset string is passed, it represents the window's temporal extent. The window is centered around the timestamp being fitted. For uniformly sampled data, an odd number of timestamps is always used to constitute a window (subtracted by 1, if the total is even)" min="0"/>
                 </when>
               </conditional>
               <param argument="order" type="integer" label="Degree of the polynomial used for fitting." help="" min="1"/>
-              <param argument="min_periods" type="integer" value="0" label="Minimum number of timestamps in a window required to perform the fit." help="Windows with fewer timestamps will produce NaNs. Passing 0 disables this check and may result in overfitting for sparse windows." min="0"/>
+              <param argument="min_periods" type="integer" value="0" label="Minimum number of timestamps in a window required to perform the fit" help="Windows with fewer timestamps will produce NaNs. Passing 0 disables this check and may result in overfitting for sparse windows" min="0"/>
             </when>
           </conditional>
         </when>
@@ -203,7 +203,7 @@
             </param>
             <when value="assignRegimeAnomaly">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="cluster_field" type="data_column" label="in data, holding the cluster labels for the samples in field." help="(has to be indexed equal to field)" data_ref="data" multiple="false"/>
+              <param argument="cluster_field" type="data_column" label="in data, holding the cluster labels for the samples in field" help="(has to be indexed equal to field)" data_ref="data" multiple="false"/>
               <param argument="spread" type="float" label="A threshold denoting the value level, up to wich clusters a agglomerated." help="" min="0"/>
               <param argument="method" type="select" value="single" label="The linkage method for hierarchical (agglomerative) clustering of the variables." help="">
                 <option value="single">single</option>
@@ -214,16 +214,16 @@
                 <option value="median">median</option>
                 <option value="ward">ward</option>
               </param>
-              <param argument="frac" type="float" value="0.5" label="The minimum percentage of samples, the  normal  group has to comprise to actually be the normal group." help="Must be in the closed interval [0,1], otherwise a ValueError is raised." min="0" max="1"/>
+              <param argument="frac" type="float" value="0.5" label="The minimum percentage of samples, the  normal  group has to comprise to actually be the normal group" help="Must be in the closed interval [0,1], otherwise a ValueError is raised" min="0" max="1"/>
             </when>
             <when value="correctDrift">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="maintenance_field" type="data_column" label="holding the support-points information." help="The data is expected to have the following form: The index of the series represents the beginning of a maintenance event, wheras the values represent its endings." data_ref="data" multiple="false"/>
-              <param argument="model" type="select" label="A model function describing the drift behavior, that is to be corrected." help="Either use built-in exponential or linear drift model by passing a string, or pass a custom callable. The model function must always contain the keyword parameters 'origin' and 'target'. The starting parameter must always be the parameter, by wich the data is passed to the model. After the data parameter, there can occure an arbitrary number of model calibration arguments in the signature. See the Notes section for an extensive description.">
+              <param argument="maintenance_field" type="data_column" label="holding the support-points information" help="The data is expected to have the following form: The index of the series represents the beginning of a maintenance event, wheras the values represent its endings" data_ref="data" multiple="false"/>
+              <param argument="model" type="select" label="A model function describing the drift behavior, that is to be corrected" help="Either use built-in exponential or linear drift model by passing a string, or pass a custom callable. The model function must always contain the keyword parameters 'origin' and 'target'. The starting parameter must always be the parameter, by wich the data is passed to the model. After the data parameter, there can occure an arbitrary number of model calibration arguments in the signature. See the Notes section for an extensive description">
                 <option value="linear">linear</option>
                 <option value="exponential">exponential</option>
               </param>
-              <param argument="cal_range" type="integer" value="5" label="Number of values to calculate the mean of, for obtaining the value level directly after and directly before a maintenance event." help="Needed for shift calibration." min="0"/>
+              <param argument="cal_range" type="integer" value="5" label="Number of values to calculate the mean of, for obtaining the value level directly after and directly before a maintenance event" help="Needed for shift calibration" min="0"/>
             </when>
             <when value="correctOffset">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
@@ -234,7 +234,7 @@
                 <validator type="empty_field"/>
               </param>
               <param argument="min_periods" type="integer" label="Minimum number of periods a search window has to contain, for the result of the changepoint detection to be considered valid." help="" min="0"/>
-              <param argument="tolerance" type="text" label="If an offset string is passed, a data chunk of length offset right from the start and right before the end of any regime is ignored when calculating a regimes mean for data correcture." help="This is to account for the unrelyability of data near the changepoints of regimes. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+              <param argument="tolerance" type="text" label="If an offset string is passed, a data chunk of length offset right from the start and right before the end of any regime is ignored when calculating a regimes mean for data correcture" help="This is to account for the unrelyability of data near the changepoints of regimes Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                 <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
               </param>
             </when>
@@ -244,9 +244,9 @@
                 <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                 <validator type="empty_field"/>
               </param>
-              <param argument="spread" type="float" label="Maximum spread allowed in the group of *normal* data." help="See Notes section for more details." min="0"/>
-              <param argument="frac" type="float" value="0.5" label="Fraction defining the normal group." help="Use a value from the interval [0,1]. The higher the value, the more stable the algorithm will be. For values below 0.5 the results are undefined." min="0" max="1"/>
-              <param argument="method" type="select" value="single" label="Linkage method used for hierarchical (agglomerative) clustering of the data." help="method is directly passed to scipy.hierarchy.linkage. See its documentation [1] for more details. For a general introduction on hierarchical clustering see [2].">
+              <param argument="spread" type="float" label="Maximum spread allowed in the group of *normal* data" help="See Notes section for more details" min="0"/>
+              <param argument="frac" type="float" value="0.5" label="Fraction defining the normal group" help="Use a value from the interval [0,1]. The higher the value, the more stable the algorithm will be. For values below 0.5 the results are undefined" min="0" max="1"/>
+              <param argument="method" type="select" value="single" label="Linkage method used for hierarchical (agglomerative) clustering of the data" help="method is directly passed to scipy.hierarchy.linkage. See its documentation [1] for more details. For a general introduction on hierarchical clustering see [2]">
                 <option value="single">single</option>
                 <option value="complete">complete</option>
                 <option value="average">average</option>
@@ -255,7 +255,7 @@
                 <option value="median">median</option>
                 <option value="ward">ward</option>
               </param>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
             <when value="flagDriftFromReference">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="true"/>
@@ -265,11 +265,11 @@
                 <validator type="empty_field"/>
               </param>
               <param argument="thresh" type="float" label="Maximum deviation from reference." help="" min="0"/>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
             <when value="flagRegimeAnomaly">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="cluster_field" type="data_column" label="in data, holding the cluster labels for the samples in field." help="(has to be indexed equal to field)" data_ref="data" multiple="false"/>
+              <param argument="cluster_field" type="data_column" label="in data, holding the cluster labels for the samples in field" help="(has to be indexed equal to field)" data_ref="data" multiple="false"/>
               <param argument="spread" type="float" label="A threshold denoting the value level, up to wich clusters a agglomerated." help="" min="0"/>
               <param argument="method" type="select" value="single" label="The linkage method for hierarchical (agglomerative) clustering of the variables." help="">
                 <option value="single">single</option>
@@ -280,8 +280,8 @@
                 <option value="median">median</option>
                 <option value="ward">ward</option>
               </param>
-              <param argument="frac" type="float" value="0.5" label="The minimum percentage of samples, the  normal  group has to comprise to actually be the normal group." help="Must be in the closed interval [0,1], otherwise a ValueError is raised." min="0" max="1"/>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param argument="frac" type="float" value="0.5" label="The minimum percentage of samples, the  normal  group has to comprise to actually be the normal group" help="Must be in the closed interval [0,1], otherwise a ValueError is raised" min="0" max="1"/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
           </conditional>
         </when>
@@ -299,9 +299,9 @@
             </param>
             <when value="andGroup">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param name="group" type="data" optional="true" label="A collection of SaQC objects." help="Flag checks are performed on all SaQC objects based on the variables specified in field. Whenever all monitored variables are flagged, the associated timestamps will receive a flag." format="csv" multiple="true"/>
-              <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written." help="target will be created if it does not exist. Defaults to field." data_ref="data" multiple="false"/>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param name="group" type="data" optional="true" label="A collection of SaQC objects" help="Flag checks are performed on all SaQC objects based on the variables specified in field. Whenever all monitored variables are flagged, the associated timestamps will receive a flag" format="csv" multiple="true"/>
+              <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written" help="target will be created if it does not exist. Defaults to field" data_ref="data" multiple="false"/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
             <when value="clearFlags">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
@@ -311,7 +311,7 @@
             </when>
             <when value="flagUnflagged">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
             <when value="forceFlags">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
@@ -319,38 +319,38 @@
             </when>
             <when value="orGroup">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param name="group" type="data" optional="true" label="A collection of SaQC objects." help="Flag checks are performed on all SaQC objects based on the variables specified in field. Whenever any of monitored variables is flagged, the associated timestamps will receive a flag." format="csv" multiple="true"/>
-              <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written." help="target will be created if it does not exist. Defaults to field." data_ref="data" multiple="false"/>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param name="group" type="data" optional="true" label="A collection of SaQC objects" help="Flag checks are performed on all SaQC objects based on the variables specified in field. Whenever any of monitored variables is flagged, the associated timestamps will receive a flag" format="csv" multiple="true"/>
+              <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written" help="target will be created if it does not exist. Defaults to field" data_ref="data" multiple="false"/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
             <when value="propagateFlags">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'Size of the repetition window.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="window_selector" type="select" label="Choose type for 'Size of the repetition window'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">OffsetStr (Pandas Frequency)</option>
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" label="Size of the repetition window." help="An integer defines the exact number of periods to propagate, while a string is interpreted as a time offset. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+                  <param argument="window" type="text" label="Size of the repetition window" help="An integer defines the exact number of periods to propagate, while a string is interpreted as a time offset Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                     <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="window" type="integer" label="Size of the repetition window." help="An integer defines the exact number of periods to propagate, while a string is interpreted as a time offset." min="0"/>
+                  <param argument="window" type="integer" label="Size of the repetition window" help="An integer defines the exact number of periods to propagate, while a string is interpreted as a time offset" min="0"/>
                 </when>
               </conditional>
               <param argument="method" type="select" value="ffill" label="{ ffill ,  bfill } Direction of propagation: * ffill — propagate flag to subsequent values * bfill — propagate flag to preceding values" help="">
                 <option value="ffill">ffill</option>
                 <option value="bfill">bfill</option>
               </param>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
-              <param argument="dfilter" type="float" value="-inf" label="Defines which observations will be masked based on the already existing flags." help="Any data point with a flag equal or worse to this threshold will be passed as NaN to the function. Defaults to the DFILTER_ALL value of the translation scheme."/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
+              <param argument="dfilter" type="float" value="-inf" label="Defines which observations will be masked based on the already existing flags" help="Any data point with a flag equal or worse to this threshold will be passed as NaN to the function. Defaults to the DFILTER_ALL value of the translation scheme"/>
             </when>
             <when value="transferFlags">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written." help="target will be created if it does not exist. Defaults to field." data_ref="data" multiple="false"/>
-              <param argument="squeeze" type="boolean" label="If True, compress the history into a single column" help="losing function-specific flag information." checked="false"/>
+              <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written" help="target will be created if it does not exist. Defaults to field" data_ref="data" multiple="false"/>
+              <param argument="squeeze" type="boolean" label="If True, compress the history into a single column" help="losing function-specific flag information" checked="false"/>
               <param argument="overwrite" type="boolean" label="If True, existing flags in the target field are overwritten." help="" checked="false"/>
             </when>
           </conditional>
@@ -378,32 +378,32 @@
                   <param argument="freq" type="integer" label="(e.g.,  1H ,  15min , 60)." help=""/>
                 </when>
               </conditional>
-              <param argument="method" type="text" value="time" label="Interpolation technique to use." help="Supported values include:  * 'nshift': Shift grid points to the nearest time stamp within +/- 0.5 * freq. * 'bshift': Shift grid points to the first succeeding time stamp. * 'fshift': Shift grid points to the last preceding time stamp. * 'linear', 'time', 'index', 'values': Use numerical values of the index. (Note: internally mapped to 'mshift'.) * 'pad': Fill NaNs using existing values (same as 'fshift'). * 'spline', 'polynomial': Passed to scipy.interpolate.interp1d. Requires specifying order. * 'nearest', 'zero', 'slinear', 'quadratic', 'cubic', 'barycentric': Passed to scipy.interpolate.interp1d. * 'krogh', 'pchip', 'akima', 'cubicspline': Wrappers around SciPy interpolation methods. * 'from_derivatives': Uses scipy.interpolate.BPoly.from_derivatives.">
+              <param argument="method" type="text" value="time" label="Interpolation technique to use" help="Supported values include:  * 'nshift': Shift grid points to the nearest time stamp within +/- 0.5 * freq. * 'bshift': Shift grid points to the first succeeding time stamp. * 'fshift': Shift grid points to the last preceding time stamp. * 'linear', 'time', 'index', 'values': Use numerical values of the index. (Note: internally mapped to 'mshift'.) * 'pad': Fill NaNs using existing values (same as 'fshift'). * 'spline', 'polynomial': Passed to scipy.interpolate.interp1d. Requires specifying order. * 'nearest', 'zero', 'slinear', 'quadratic', 'cubic', 'barycentric': Passed to scipy.interpolate.interp1d. * 'krogh', 'pchip', 'akima', 'cubicspline': Wrappers around SciPy interpolation methods. * 'from_derivatives': Uses scipy.interpolate.BPoly.from_derivatives">
                 <validator type="empty_field"/>
               </param>
-              <param argument="order" type="integer" value="2" label="der of the interpolation method." help="Used only by methods that support it (e.g., polynomial, spline). Ignored otherwise." min="0"/>
+              <param argument="order" type="integer" value="2" label="der of the interpolation method" help="Used only by methods that support it (e.g., polynomial, spline). Ignored otherwise" min="0"/>
               <param argument="overwrite" type="boolean" label="If True, existing flags will be cleared." help="" checked="false"/>
             </when>
             <when value="interpolateByRolling">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'The size of the window, the aggregation is computed from.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="window_selector" type="select" label="Choose type for 'The size of the window, the aggregation is computed from'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">OffsetStr (Pandas Frequency)</option>
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" label="The size of the window, the aggregation is computed from." help="An integer define the number of periods to be used, a string is interpreted as an offset. ( see  for more information). Integer windows may result in screwed aggregations if called on none-harmonized or irregular data. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+                  <param argument="window" type="text" label="The size of the window, the aggregation is computed from" help="An integer define the number of periods to be used, a string is interpreted as an offset. ( see  for more information). Integer windows may result in screwed aggregations if called on none-harmonized or irregular data Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                     <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="window" type="integer" label="The size of the window, the aggregation is computed from." help="An integer define the number of periods to be used, a string is interpreted as an offset. ( see  for more information). Integer windows may result in screwed aggregations if called on none-harmonized or irregular data." min="0"/>
+                  <param argument="window" type="integer" label="The size of the window, the aggregation is computed from" help="An integer define the number of periods to be used, a string is interpreted as an offset. ( see  for more information). Integer windows may result in screwed aggregations if called on none-harmonized or irregular data" min="0"/>
                 </when>
               </conditional>
-              <param argument="center" type="boolean" label="Center the window around the value." help="Can only be used with integer windows, otherwise it is silently ignored." checked="false"/>
+              <param argument="center" type="boolean" label="Center the window around the value" help="Can only be used with integer windows, otherwise it is silently ignored" checked="false"/>
               <param argument="min_periods" type="integer" value="0" label="Minimum number of valid (not ) values that have to be available in a window for its aggregation to be computed." help="" min="0"/>
-              <param argument="flag" type="float" value="-inf" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param argument="flag" type="float" value="-inf" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
           </conditional>
         </when>
@@ -432,8 +432,8 @@
                   </param>
                 </when>
               </conditional>
-              <param argument="thresh" type="float" label="Threshold, the statistic of the main chunk is checked against." help="func(chunk)   thresh." min="0"/>
-              <param argument="func" type="select" value="std" label="{ std ,  var " help="mad } or , float] Function to compute deviation for each chunk: *  std  — standard deviation *  var  — variance *  mad  — median absolute deviation * Callable — custom function mapping 1D arrays to scalars.">
+              <param argument="thresh" type="float" label="Threshold, the statistic of the main chunk is checked against" help="func(chunk)   thresh" min="0"/>
+              <param argument="func" type="select" value="std" label="{ std ,  var " help="mad } or , float] Function to compute deviation for each chunk: *  std  — standard deviation *  var  — variance *  mad  — median absolute deviation * Callable — custom function mapping 1D arrays to scalars">
                 <option value="std">std</option>
                 <option value="var">var</option>
                 <option value="mad">mad</option>
@@ -454,9 +454,9 @@
                   </param>
                 </when>
               </conditional>
-              <param argument="sub_thresh" type="float" optional="true" label="Threshold, the statistic of the main chunk is checked against." help="func(sub_chunk)   sub_thresh." min="0"/>
-              <param argument="min_periods" type="integer" optional="true" label="Minimum number of values required in a chunk to perform the test." help="Ignored if window is an integer." min="0"/>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param argument="sub_thresh" type="float" optional="true" label="Threshold, the statistic of the main chunk is checked against" help="func(sub_chunk)   sub_thresh" min="0"/>
+              <param argument="min_periods" type="integer" optional="true" label="Minimum number of values required in a chunk to perform the test" help="Ignored if window is an integer" min="0"/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
           </conditional>
         </when>
@@ -487,25 +487,25 @@
                 </when>
               </conditional>
               <param argument="min_periods" type="integer" value="11" label="Minimum number of periods per partition that have to be present for a valid outlier detection to be made in this partition" help="" min="1"/>
-              <param argument="iter_start" type="float" value="0.5" label="in [0, 1] that determines which percentage of data is considered  normal." help="0.5 results in the stray algorithm to search only the upper 50% of the scores for the cut off point. (See reference section for more information)" min="0" max="1"/>
+              <param argument="iter_start" type="float" value="0.5" label="in [0, 1] that determines which percentage of data is considered  normal" help="0.5 results in the stray algorithm to search only the upper 50% of the scores for the cut off point. (See reference section for more information)" min="0" max="1"/>
               <param argument="alpha" type="float" value="0.05" label="Level of significance by which it is tested, if a score might be drawn from another distribution than the majority of the data." help="" min="0" max="1"/>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
             <when value="flagLOF">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="true"/>
-              <param argument="n" type="integer" value="20" label="Number of neighbors to be included into the LOF calculation." help="Defaults to 20, which is a value found to be suitable in the literature.  * n determines the  locality  of an observation (its n nearest neighbors) and sets the upper limit to the number of values in outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than n/2 may not be detected reliably. * The larger n, the lesser the algorithm's sensitivity to local outliers and small or singleton outliers points. Higher values greatly increase numerical costs." min="0"/>
+              <param argument="n" type="integer" value="20" label="Number of neighbors to be included into the LOF calculation" help="Defaults to 20, which is a value found to be suitable in the literature.  * n determines the  locality  of an observation (its n nearest neighbors) and sets the upper limit to the number of values in outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than n/2 may not be detected reliably. * The larger n, the lesser the algorithm's sensitivity to local outliers and small or singleton outliers points. Higher values greatly increase numerical costs" min="0"/>
               <conditional name="thresh_cond">
-                <param name="thresh_selector" type="select" label="Choose type for 'The threshold for flagging the calculated LOF.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="thresh_selector" type="select" label="Choose type for 'The threshold for flagging the calculated LOF'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Selection</option>
                   <option value="type_1">Float</option>
                 </param>
                 <when value="type_0">
-                  <param argument="thresh" type="select" label="The threshold for flagging the calculated LOF." help="A LOF of around 1 is considered normal and most likely corresponds to inlier points.  * The  automatic  threshing introduced with the publication of the algorithm defaults to 1.5. * In this implementation, thresh defaults ('auto') to flagging the scores with a modified 3-sigma rule.">
+                  <param argument="thresh" type="select" label="The threshold for flagging the calculated LOF" help="A LOF of around 1 is considered normal and most likely corresponds to inlier points.  * The  automatic  threshing introduced with the publication of the algorithm defaults to 1.5. * In this implementation, thresh defaults ('auto') to flagging the scores with a modified 3-sigma rule">
                     <option value="auto">auto</option>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="thresh" type="float" label="The threshold for flagging the calculated LOF." help="A LOF of around 1 is considered normal and most likely corresponds to inlier points.  * The  automatic  threshing introduced with the publication of the algorithm defaults to 1.5. * In this implementation, thresh defaults ('auto') to flagging the scores with a modified 3-sigma rule." min="1"/>
+                  <param argument="thresh" type="float" label="The threshold for flagging the calculated LOF" help="A LOF of around 1 is considered normal and most likely corresponds to inlier points.  * The  automatic  threshing introduced with the publication of the algorithm defaults to 1.5. * In this implementation, thresh defaults ('auto') to flagging the scores with a modified 3-sigma rule" min="1"/>
                 </when>
               </conditional>
               <param argument="algorithm" type="select" value="ball_tree" label="Algorithm used for calculating the n-nearest neighbors." help="">
@@ -514,122 +514,122 @@
                 <option value="brute">brute</option>
                 <option value="auto">auto</option>
               </param>
-              <param argument="p" type="integer" value="1" label="Degree of the metric ( Minkowski ), according to which the distance to neighbors is determined." help="Most important values are:  * 1 - Manhattan Metric * 2 - Euclidian Metric" min="0"/>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param argument="p" type="integer" value="1" label="Degree of the metric ( Minkowski ), according to which the distance to neighbors is determined" help="Most important values are:  * 1 - Manhattan Metric * 2 - Euclidian Metric" min="0"/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
             <when value="flagOffset">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="window" type="text" label="Maximum temporal length allowed for an offset sequence to trigger flagging (condition 5)." help="Integer-defined windows are only allowed for regularly sampled timestamps. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+              <param argument="window" type="text" label="Maximum temporal length allowed for an offset sequence to trigger flagging (condition 5)" help="Integer-defined windows are only allowed for regularly sampled timestamps Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                 <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="tolerance" type="float" optional="true" label="Maximum allowed difference between the value preceding and succeeding an offset sequence to trigger flagging (condition 4)." help="" min="0"/>
-              <param argument="thresh" type="float" optional="true" label="Minimum absolute difference between a value and its successors to consider the successors a possible anomalous offset sequence (condition 1)." help="If None, this condition is ignored." min="0"/>
+              <param argument="thresh" type="float" optional="true" label="Minimum absolute difference between a value and its successors to consider the successors a possible anomalous offset sequence (condition 1)" help="If None, this condition is ignored" min="0"/>
               <conditional name="thresh_relative_cond">
-                <param name="thresh_relative_selector" type="select" label="Choose type for 'Minimum relative change between a value and its successors to consider the successors a possible anomalous offset sequence (conditions 2 and 3).'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="thresh_relative_selector" type="select" label="Choose type for 'Minimum relative change between a value and its successors to consider the successors a possible anomalous offset sequence (conditions 2 and 3)'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Tuple</option>
                   <option value="type_1">Float</option>
                 </param>
                 <when value="type_0">
-                  <repeat name="thresh_relative" title="Minimum relative change between a value and its successors to consider the successors a possible anomalous offset sequence (conditions 2 and 3)." help="If None, this condition is ignored. The parameter constrains the detection to either upwards (positive value passed) or downwards (negative values passed) offsets. To assign detection of offsets bigger than a, positive as well as negative, pass the tuple (a,-a). Differing positive and negative threshold values are possible as well. See condition (2). If None, condition (2) is not tested.">
+                  <repeat name="thresh_relative" title="Minimum relative change between a value and its successors to consider the successors a possible anomalous offset sequence (conditions 2 and 3)" help="If None, this condition is ignored. The parameter constrains the detection to either upwards (positive value passed) or downwards (negative values passed) offsets. To assign detection of offsets bigger than a, positive as well as negative, pass the tuple (a,-a). Differing positive and negative threshold values are possible as well. See condition (2). If None, condition (2) is not tested">
                     <param argument="thresh_relative_pos0" type="text" label="thresh_relative_pos0" help="First element (index 0) of the thresh_relative tuple."/>
                     <param argument="thresh_relative_pos1" type="text" label="thresh_relative_pos1" help="Second element (index 1) of the thresh_relative tuple."/>
                   </repeat>
                 </when>
                 <when value="type_1">
-                  <param argument="thresh_relative" type="float" optional="true" label="Minimum relative change between a value and its successors to consider the successors a possible anomalous offset sequence (conditions 2 and 3)." help="If None, this condition is ignored. The parameter constrains the detection to either upwards (positive value passed) or downwards (negative values passed) offsets. To assign detection of offsets bigger than a, positive as well as negative, pass the tuple (a,-a). Differing positive and negative threshold values are possible as well. See condition (2). If None, condition (2) is not tested."/>
+                  <param argument="thresh_relative" type="float" optional="true" label="Minimum relative change between a value and its successors to consider the successors a possible anomalous offset sequence (conditions 2 and 3)" help="If None, this condition is ignored. The parameter constrains the detection to either upwards (positive value passed) or downwards (negative values passed) offsets. To assign detection of offsets bigger than a, positive as well as negative, pass the tuple (a,-a). Differing positive and negative threshold values are possible as well. See condition (2). If None, condition (2) is not tested"/>
                 </when>
               </conditional>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
             <when value="flagRange">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <param argument="min" type="float" value="-inf" label="Lower bound for valid data." help=""/>
               <param argument="max" type="float" value="inf" label="Upper bound for valid data." help=""/>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
             <when value="flagUniLOF">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <param argument="n" type="integer" value="20" label="Number of samples to include in the LOF neighborhood (the n nearest neighbors)." help="" min="0"/>
               <conditional name="thresh_cond">
-                <param name="thresh_selector" type="select" label="Choose type for 'optional Outlier-factor cutoff.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="thresh_selector" type="select" label="Choose type for 'optional Outlier-factor cutoff'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Selection</option>
                   <option value="type_1">Float</option>
                 </param>
                 <when value="type_0">
-                  <param argument="thresh" type="select" optional="true" label="optional Outlier-factor cutoff." help="Values with LOF scores greater than this threshold are flagged.">
+                  <param argument="thresh" type="select" optional="true" label="optional Outlier-factor cutoff" help="Values with LOF scores greater than this threshold are flagged">
                     <option value="auto">auto</option>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="thresh" type="float" optional="true" label="optional Outlier-factor cutoff." help="Values with LOF scores greater than this threshold are flagged." min="0"/>
+                  <param argument="thresh" type="float" optional="true" label="optional Outlier-factor cutoff" help="Values with LOF scores greater than this threshold are flagged" min="0"/>
                 </when>
               </conditional>
-              <param argument="probability" type="float" optional="true" label="Outlier-probability cutoff." help="Values with probabilities greater than this threshold are flagged." min="0" max="1"/>
+              <param argument="probability" type="float" optional="true" label="Outlier-probability cutoff" help="Values with probabilities greater than this threshold are flagged" min="0" max="1"/>
               <conditional name="corruption_cond">
                 <param name="corruption_selector" type="select" label="Choose type for 'Portion of data assumed to be anomalous, either as a fraction in [0'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Float</option>
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="corruption" type="float" optional="true" label="Portion of data assumed to be anomalous, either as a fraction in [0" help="1] or as an integer specifying the number of anomalous samples." min="0" max="1"/>
+                  <param argument="corruption" type="float" optional="true" label="Portion of data assumed to be anomalous, either as a fraction in [0" help="1] or as an integer specifying the number of anomalous samples" min="0" max="1"/>
                 </when>
                 <when value="type_1">
-                  <param argument="corruption" type="integer" optional="true" label="Portion of data assumed to be anomalous, either as a fraction in [0" help="1] or as an integer specifying the number of anomalous samples." min="0"/>
+                  <param argument="corruption" type="integer" optional="true" label="Portion of data assumed to be anomalous, either as a fraction in [0" help="1] or as an integer specifying the number of anomalous samples" min="0"/>
                 </when>
               </conditional>
-              <param argument="algorithm" type="select" value="ball_tree" label="{'ball_tree', 'kd_tree'" help="'brute', 'auto'} Nearest-neighbor algorithm used for LOF.">
+              <param argument="algorithm" type="select" value="ball_tree" label="{'ball_tree', 'kd_tree'" help="'brute', 'auto'} Nearest-neighbor algorithm used for LOF">
                 <option value="ball_tree">ball_tree</option>
                 <option value="kd_tree">kd_tree</option>
                 <option value="brute">brute</option>
                 <option value="auto">auto</option>
               </param>
-              <param argument="p" type="integer" value="1" label="Degree of the Minkowski metric used for neighbor distances (e.g., 1 Manhattan" help="2 Euclidean)." min="0"/>
+              <param argument="p" type="integer" value="1" label="Degree of the Minkowski metric used for neighbor distances (e.g., 1 Manhattan" help="2 Euclidean)" min="0"/>
               <conditional name="density_cond">
-                <param name="density_selector" type="select" label="Choose type for 'How to derive temporal density.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="density_selector" type="select" label="Choose type for 'How to derive temporal density'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Selection</option>
                   <option value="type_1">Float</option>
                 </param>
                 <when value="type_0">
-                  <param argument="density" type="select" label="How to derive temporal density." help="'auto' uses the median absolute step size; a float sets a fixed increment.">
+                  <param argument="density" type="select" label="How to derive temporal density" help="'auto' uses the median absolute step size; a float sets a fixed increment">
                     <option value="auto">auto</option>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="density" type="float" label="How to derive temporal density." help="'auto' uses the median absolute step size; a float sets a fixed increment." min="0"/>
+                  <param argument="density" type="float" label="How to derive temporal density" help="'auto' uses the median absolute step size; a float sets a fixed increment" min="0"/>
                 </when>
               </conditional>
               <param argument="fill_na" type="boolean" label="If True, fill NaNs by linear interpolation before LOF calculation." help="" checked="false"/>
-              <param argument="slope_correct" type="boolean" label="If True, suppress flagging of groups of points" help="that seem to correspond to steep value slopes rather than to actual outliers." checked="false"/>
+              <param argument="slope_correct" type="boolean" label="If True, suppress flagging of groups of points" help="that seem to correspond to steep value slopes rather than to actual outliers" checked="false"/>
               <param argument="min_offset" type="float" optional="true" label="Minimum jump in values before and after an outlier cluster for it to be flagged." help="" min="0"/>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
             <when value="flagZScore">
               <param argument="field" type="data_column" label="of variables names to process." help="" data_ref="data" multiple="false"/>
-              <param argument="method" type="select" value="standard" label="{ standard ,  modified } Which scoring method to use:" help="*  standard  — mean as expectation, standard deviation as scaling factor. *  modified  — median as expectation, median absolute deviation (MAD) as scaling factor.">
+              <param argument="method" type="select" value="standard" label="{ standard ,  modified } Which scoring method to use:" help="*  standard  — mean as expectation, standard deviation as scaling factor. *  modified  — median as expectation, median absolute deviation (MAD) as scaling factor">
                 <option value="standard">standard</option>
                 <option value="modified">modified</option>
               </param>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'Size of the scoring window.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="window_selector" type="select" label="Choose type for 'Size of the scoring window'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">OffsetStr (Pandas Frequency)</option>
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" label="Size of the scoring window." help="Either an integer (number of periods) or an offset string (time span). If None , all data share a single window. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+                  <param argument="window" type="text" label="Size of the scoring window" help="Either an integer (number of periods) or an offset string (time span). If None , all data share a single window Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                     <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="window" type="integer" optional="true" label="Size of the scoring window." help="Either an integer (number of periods) or an offset string (time span). If None , all data share a single window." min="0"/>
+                  <param argument="window" type="integer" optional="true" label="Size of the scoring window" help="Either an integer (number of periods) or an offset string (time span). If None , all data share a single window" min="0"/>
                 </when>
               </conditional>
-              <param argument="thresh" type="float" value="3" label="Cutoff value." help="Points with absolute Z-scores larger than this threshold are flagged." min="0"/>
+              <param argument="thresh" type="float" value="3" label="Cutoff value" help="Points with absolute Z-scores larger than this threshold are flagged" min="0"/>
               <param argument="min_residuals" type="float" optional="true" label="Minimum absolute distance a value must be apart from its context windows expectation, in order for the Z scoring test to be applied." help="" min="0"/>
               <param argument="min_periods" type="integer" optional="true" label="Minimum number of valid observations that is required to be contained in a values context window, in order for the Z scoring test to be applied." help="" min="0"/>
-              <param argument="center" type="boolean" label="If True , the tested value is centered in its context window; otherwise" help="it is the window’s last value." checked="false"/>
-              <param argument="axis" type="integer" value="0" label="{0, 1} Axis along which to compute scores:" help="* 0  — compute along the time axis only (separate windows for all fields). * 1 — compute along time and data axis (windows are 2 dimensional and span over all fields)." min="0" max="1"/>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param argument="center" type="boolean" label="If True , the tested value is centered in its context window; otherwise" help="it is the window’s last value" checked="false"/>
+              <param argument="axis" type="integer" value="0" label="{0, 1} Axis along which to compute scores:" help="* 0  — compute along the time axis only (separate windows for all fields). * 1 — compute along time and data axis (windows are 2 dimensional and span over all fields)" min="0" max="1"/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
           </conditional>
         </when>
@@ -641,11 +641,11 @@
             </param>
             <when value="flagPatternByDTW">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="reference" type="data_column" label="The name in data which holds the pattern." help="The pattern must not have NaNs, have a datetime index and must not be empty." data_ref="data" multiple="false"/>
-              <param argument="max_distance" type="float" value="0.0" label="Maximum dtw-distance between chunk and pattern, if the distance is lower than max_distance the data gets flagged." help="With default, 0.0, only exact matches are flagged." min="0"/>
-              <param argument="normalize" type="boolean" label="If False, return unmodified distances." help="If True, normalize distances by the number of observations of the reference. This helps to make it easier to find a good cutoff threshold for further processing. The distances then refer to the mean distance per datapoint, expressed in the datas units." checked="false"/>
-              <param argument="plot" type="boolean" label="Show a calibration plot, which can be quite helpful to find the right threshold for max_distance." help="It works best with normalize=True. Do not use in automatic setups / pipelines. The plot show three lines:  - data: the data the function was called on - distances: the calculated distances by the algorithm - indicator: have to distinct levels: 0 and the value of max_distance. If max_distance is 0.0 it defaults to 1. Everywhere where the indicator is not 0 the data will be flagged." checked="false"/>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param argument="reference" type="data_column" label="The name in data which holds the pattern" help="The pattern must not have NaNs, have a datetime index and must not be empty" data_ref="data" multiple="false"/>
+              <param argument="max_distance" type="float" value="0.0" label="Maximum dtw-distance between chunk and pattern, if the distance is lower than max_distance the data gets flagged" help="With default, 0.0, only exact matches are flagged" min="0"/>
+              <param argument="normalize" type="boolean" label="If False, return unmodified distances" help="If True, normalize distances by the number of observations of the reference. This helps to make it easier to find a good cutoff threshold for further processing. The distances then refer to the mean distance per datapoint, expressed in the datas units" checked="false"/>
+              <param argument="plot" type="boolean" label="Show a calibration plot, which can be quite helpful to find the right threshold for max_distance" help="It works best with normalize=True. Do not use in automatic setups / pipelines. The plot show three lines:  - data: the data the function was called on - distances: the calculated distances by the algorithm - indicator: have to distinct levels: 0 and the value of max_distance. If max_distance is 0.0 it defaults to 1. Everywhere where the indicator is not 0 the data will be flagged" checked="false"/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
             <when value="flagPlateau">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
@@ -665,35 +665,35 @@
                 </when>
               </conditional>
               <conditional name="max_length_cond">
-                <param name="max_length_selector" type="select" label="Choose type for 'or None Maximum temporal extension of a value course to qualify as a plateau (upper detection limit).'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="max_length_selector" type="select" label="Choose type for 'or None Maximum temporal extension of a value course to qualify as a plateau (upper detection limit)'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Integer</option>
                   <option value="type_1">OffsetStr (Pandas Frequency)</option>
                 </param>
                 <when value="type_0">
-                  <param argument="max_length" type="integer" optional="true" label="or None Maximum temporal extension of a value course to qualify as a plateau (upper detection limit)." help="If None, a detection limit based on the data length is used." min="0"/>
+                  <param argument="max_length" type="integer" optional="true" label="or None Maximum temporal extension of a value course to qualify as a plateau (upper detection limit)" help="If None, a detection limit based on the data length is used" min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="max_length" type="text" label="or None Maximum temporal extension of a value course to qualify as a plateau (upper detection limit)." help="If None, a detection limit based on the data length is used. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+                  <param argument="max_length" type="text" label="or None Maximum temporal extension of a value course to qualify as a plateau (upper detection limit)" help="If None, a detection limit based on the data length is used Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                     <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                   </param>
                 </when>
               </conditional>
-              <param argument="min_jump" type="float" optional="true" label="Minimum difference a plateau must have from directly preceding and succeeding periods." help="If None, the minimum jump threshold is derived automatically from the median of local absolute differences in the vicinity of potential anomalies." min="0"/>
+              <param argument="min_jump" type="float" optional="true" label="Minimum difference a plateau must have from directly preceding and succeeding periods" help="If None, the minimum jump threshold is derived automatically from the median of local absolute differences in the vicinity of potential anomalies" min="0"/>
               <conditional name="granularity_cond">
-                <param name="granularity_selector" type="select" label="Choose type for 'or None Precision of the search.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="granularity_selector" type="select" label="Choose type for 'or None Precision of the search'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Integer</option>
                   <option value="type_1">OffsetStr (Pandas Frequency)</option>
                 </param>
                 <when value="type_0">
-                  <param argument="granularity" type="integer" optional="true" label="or None Precision of the search." help="Smaller values increase precision but also computational cost. If None, defaults to 5." min="0"/>
+                  <param argument="granularity" type="integer" optional="true" label="or None Precision of the search" help="Smaller values increase precision but also computational cost. If None, defaults to 5" min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="granularity" type="text" label="or None Precision of the search." help="Smaller values increase precision but also computational cost. If None, defaults to 5. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+                  <param argument="granularity" type="text" label="or None Precision of the search" help="Smaller values increase precision but also computational cost. If None, defaults to 5 Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                     <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                   </param>
                 </when>
               </conditional>
-              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations." help="Defaults to the BAD value of the translation scheme."/>
+              <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
           </conditional>
         </when>
@@ -706,7 +706,7 @@
             </param>
             <when value="concatFlags">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written." help="target will be created if it does not exist. Defaults to field." data_ref="data" multiple="false"/>
+              <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written" help="target will be created if it does not exist. Defaults to field" data_ref="data" multiple="false"/>
               <param argument="method" type="select" value="auto" label="to project the flags of field to the flags to target:" help="* 'auto': invert the last alignment/resampling operation (that is not already inverted) * 'nagg': project a flag of field to all timestamps of target within the range +/- freq/2. * 'bagg': project a flag of field to all preceeding timestamps of target within the range freq * 'fagg': project a flag of field to all succeeding timestamps of target within the range freq * 'interpolation' - project a flag of field to all timestamps of target within the range +/- freq * 'sshift' - same as interpolation * 'nshift' - project a flag of field to the neaerest timestamps in target within the range +/- freq/2 * 'bshift' - project a flag of field to nearest preceeding timestamps in target * 'nshift' - project a flag of field to nearest succeeding timestamps in target * 'match' - project a flag of field to all identical timestamps target">
                 <option value="fagg">fagg</option>
                 <option value="bagg">bagg</option>
@@ -723,17 +723,17 @@
               </param>
               <param argument="invert" type="boolean" label="If True, not the actual method is applied, but its inversion-method." help="" checked="false"/>
               <conditional name="freq_cond">
-                <param name="freq_selector" type="select" label="Choose type for 'Projection range.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="freq_selector" type="select" label="Choose type for 'Projection range'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">OffsetStr (Pandas Frequency)</option>
                   <option value="type_1">pd.Timedelta</option>
                 </param>
                 <when value="type_0">
-                  <param argument="freq" type="text" label="Projection range." help="If None the sampling frequency of field is used. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+                  <param argument="freq" type="text" label="Projection range" help="If None the sampling frequency of field is used Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                     <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="freq" type="text" label="Projection range." help="If None the sampling frequency of field is used. Format: Fixed time duration (no calendar logic). Examples: '1d', '2.5h', '30min'. (No 'M' or 'Y').">
+                  <param argument="freq" type="text" label="Projection range" help="If None the sampling frequency of field is used Format: Fixed time duration (no calendar logic). Examples: '1d', '2.5h', '30min'. (No 'M' or 'Y').">
                     <validator type="regex" message="Must be a valid Pandas Timedelta string (e.g., '1d', '2.5h', '30min'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(^$)|(^-?(\d+(\.\d*)?|\.\d+)\s*(W|D|days?|d|H|hours?|hr|h|T|minutes?|min|m|S|seconds?|sec|s|L|milliseconds?|ms|U|microseconds?|us|N|nanoseconds?|ns)\s*$)]]></validator>
                   </param>
                 </when>
@@ -751,18 +751,18 @@
                   <option value="type_2">String</option>
                 </param>
                 <when value="type_0">
-                  <param argument="index" type="text" label="Determines the new index." help="* If an offset string: new index will range from start to end of the original index of field, exhibting a uniform sampling rate of idx * If a str that matches a field present in the SaQC object, that fields index will be used as new index of field * If an  object is passed, that will be the new index of field. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+                  <param argument="index" type="text" label="Determines the new index." help="* If an offset string: new index will range from start to end of the original index of field, exhibting a uniform sampling rate of idx * If a str that matches a field present in the SaQC object, that fields index will be used as new index of field * If an  object is passed, that will be the new index of field Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                     <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="index" type="text" label="Determines the new index." help="* If an offset string: new index will range from start to end of the original index of field, exhibting a uniform sampling rate of idx * If a str that matches a field present in the SaQC object, that fields index will be used as new index of field * If an  object is passed, that will be the new index of field.">
+                  <param argument="index" type="text" label="Determines the new index." help="* If an offset string: new index will range from start to end of the original index of field, exhibting a uniform sampling rate of idx * If a str that matches a field present in the SaQC object, that fields index will be used as new index of field * If an  object is passed, that will be the new index of field">
                     <validator type="empty_field"/>
                   </param>
                 </when>
                 <when value="type_2">
-                  <param argument="index" type="text" label="Determines the new index." help="* If an offset string: new index will range from start to end of the original index of field, exhibting a uniform sampling rate of idx * If a str that matches a field present in the SaQC object, that fields index will be used as new index of field * If an  object is passed, that will be the new index of field.">
+                  <param argument="index" type="text" label="Determines the new index." help="* If an offset string: new index will range from start to end of the original index of field, exhibting a uniform sampling rate of idx * If a str that matches a field present in the SaQC object, that fields index will be used as new index of field * If an  object is passed, that will be the new index of field">
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -799,12 +799,12 @@
                 </when>
               </conditional>
               <conditional name="data_aggregation_cond">
-                <param name="data_aggregation_selector" type="select" label="Choose type for 'custom Function, determining how to aggregate new data values from the values at the periods selected according to the index_selection_method.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="data_aggregation_selector" type="select" label="Choose type for 'custom Function, determining how to aggregate new data values from the values at the periods selected according to the index_selection_method'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Selection</option>
                   <option value="type_1">Float</option>
                 </param>
                 <when value="type_0">
-                  <param argument="data_aggregation" type="select" optional="true" label="custom Function, determining how to aggregate new data values from the values at the periods selected according to the index_selection_method." help="If a scalar value is passed, the new data series will just evaluate to that scalar at any new index.">
+                  <param argument="data_aggregation" type="select" optional="true" label="custom Function, determining how to aggregate new data values from the values at the periods selected according to the index_selection_method" help="If a scalar value is passed, the new data series will just evaluate to that scalar at any new index">
                     <option value="sum">sum</option>
                     <option value="mean">mean</option>
                     <option value="median">median</option>
@@ -821,16 +821,16 @@
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="data_aggregation" type="float" optional="true" label="custom Function, determining how to aggregate new data values from the values at the periods selected according to the index_selection_method." help="If a scalar value is passed, the new data series will just evaluate to that scalar at any new index."/>
+                  <param argument="data_aggregation" type="float" optional="true" label="custom Function, determining how to aggregate new data values from the values at the periods selected according to the index_selection_method" help="If a scalar value is passed, the new data series will just evaluate to that scalar at any new index"/>
                 </when>
               </conditional>
               <conditional name="flags_aggregation_cond">
-                <param name="flags_aggregation_selector" type="select" label="Choose type for 'custom Function, determining how to aggregate new flags values from the values at the periods selected according to the index_selection_method.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="flags_aggregation_selector" type="select" label="Choose type for 'custom Function, determining how to aggregate new flags values from the values at the periods selected according to the index_selection_method'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Selection</option>
                   <option value="type_1">Float</option>
                 </param>
                 <when value="type_0">
-                  <param argument="flags_aggregation" type="select" optional="true" label="custom Function, determining how to aggregate new flags values from the values at the periods selected according to the index_selection_method." help="If a scalar value is passed, the new flags series will just evaluate to that scalar at any new index.">
+                  <param argument="flags_aggregation" type="select" optional="true" label="custom Function, determining how to aggregate new flags values from the values at the periods selected according to the index_selection_method" help="If a scalar value is passed, the new flags series will just evaluate to that scalar at any new index">
                     <option value="sum">sum</option>
                     <option value="mean">mean</option>
                     <option value="median">median</option>
@@ -847,10 +847,10 @@
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="flags_aggregation" type="float" optional="true" label="custom Function, determining how to aggregate new flags values from the values at the periods selected according to the index_selection_method." help="If a scalar value is passed, the new flags series will just evaluate to that scalar at any new index."/>
+                  <param argument="flags_aggregation" type="float" optional="true" label="custom Function, determining how to aggregate new flags values from the values at the periods selected according to the index_selection_method" help="If a scalar value is passed, the new flags series will just evaluate to that scalar at any new index"/>
                 </when>
               </conditional>
-              <param argument="broadcast" type="boolean" label="Weather to propagate aggregation result to full reindex window when using aggregation reindexer." help="(as opposed to only assign to next/previous/closest)" checked="false"/>
+              <param argument="broadcast" type="boolean" label="Weather to propagate aggregation result to full reindex window when using aggregation reindexer" help="(as opposed to only assign to next/previous/closest)" checked="false"/>
               <param argument="squeeze" type="boolean" label="squeeze" help="" checked="false"/>
               <param argument="override" type="boolean" label="override" help="" checked="false"/>
             </when>
@@ -874,12 +874,12 @@
                   </param>
                 </when>
               </conditional>
-              <param argument="method" type="select" value="bagg" label="Specifies which intervals to be aggregated for a certain timestamp." help="(preceding, succeeding or  surrounding  interval). See description above for more details.">
+              <param argument="method" type="select" value="bagg" label="Specifies which intervals to be aggregated for a certain timestamp" help="(preceding, succeeding or  surrounding  interval). See description above for more details">
                 <option value="fagg">fagg</option>
                 <option value="bagg">bagg</option>
                 <option value="nagg">nagg</option>
               </param>
-              <param argument="maxna" type="integer" optional="true" label="Maximum number of allowed NaNs in a resampling interval." help="If exceeded, the aggregation of the interval evaluates to NaN." min="0"/>
+              <param argument="maxna" type="integer" optional="true" label="Maximum number of allowed NaNs in a resampling interval" help="If exceeded, the aggregation of the interval evaluates to NaN" min="0"/>
               <param argument="maxna_group" type="integer" optional="true" label="Same as maxna but for consecutive NaNs." help="" min="0"/>
               <param argument="squeeze" type="boolean" label="squeeze" help="" checked="false"/>
             </when>
@@ -894,38 +894,38 @@
             <when value="calculatePolynomialResiduals">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'The size of the window you want to use for fitting.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="window_selector" type="select" label="Choose type for 'The size of the window you want to use for fitting'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">OffsetStr (Pandas Frequency)</option>
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" label="The size of the window you want to use for fitting." help="If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. The window will be centered around the vaule-to-be-fitted. For regularly sampled timeseries the period number will be casted down to an odd number if even. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+                  <param argument="window" type="text" label="The size of the window you want to use for fitting" help="If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. The window will be centered around the vaule-to-be-fitted. For regularly sampled timeseries the period number will be casted down to an odd number if even Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                     <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="window" type="integer" label="The size of the window you want to use for fitting." help="If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. The window will be centered around the vaule-to-be-fitted. For regularly sampled timeseries the period number will be casted down to an odd number if even." min="0"/>
+                  <param argument="window" type="integer" label="The size of the window you want to use for fitting" help="If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. The window will be centered around the vaule-to-be-fitted. For regularly sampled timeseries the period number will be casted down to an odd number if even" min="0"/>
                 </when>
               </conditional>
               <param argument="order" type="integer" label="The degree of the polynomial used for fitting" help=""/>
-              <param argument="min_periods" type="integer" value="0" label="The minimum number of periods, that has to be available in every values fitting surrounding for the polynomial fit to be performed." help="If there are not enough values,  gets assigned. Default (0) results in fitting regardless of the number of values present (results in overfitting for too sparse intervals). To automatically set the minimum number of periods to the number of values in an offset defined window size, pass"/>
+              <param argument="min_periods" type="integer" value="0" label="The minimum number of periods, that has to be available in every values fitting surrounding for the polynomial fit to be performed" help="If there are not enough values,  gets assigned. Default (0) results in fitting regardless of the number of values present (results in overfitting for too sparse intervals). To automatically set the minimum number of periods to the number of values in an offset defined window size, pass"/>
             </when>
             <when value="calculateRollingResiduals">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'The size of the window you want to roll with.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="window_selector" type="select" label="Choose type for 'The size of the window you want to roll with'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">OffsetStr (Pandas Frequency)</option>
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" label="The size of the window you want to roll with." help="If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. For regularly sampled timeseries, the period number will be casted down to an odd number if center=True. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+                  <param argument="window" type="text" label="The size of the window you want to roll with" help="If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. For regularly sampled timeseries, the period number will be casted down to an odd number if center=True Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                     <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="window" type="integer" label="The size of the window you want to roll with." help="If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. For regularly sampled timeseries, the period number will be casted down to an odd number if center=True." min="0"/>
+                  <param argument="window" type="integer" label="The size of the window you want to roll with" help="If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. For regularly sampled timeseries, the period number will be casted down to an odd number if center=True" min="0"/>
                 </when>
               </conditional>
               <param argument="min_periods" type="integer" value="0" label="The minimum number of periods to get a valid value" help="" min="0"/>
@@ -941,22 +941,22 @@
             <when value="rolling">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
-                <param name="window_selector" type="select" label="Choose type for 'Size of the rolling window.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="window_selector" type="select" label="Choose type for 'Size of the rolling window'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">OffsetStr (Pandas Frequency)</option>
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" label="Size of the rolling window." help="If an integer, it determines the window size as the number of periods it has to contain at every shift. If an offset string, it determines the window size as its constant temporal extension. For regularly sampled data, the period number is rounded down to an odd number in case center  is True. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+                  <param argument="window" type="text" label="Size of the rolling window" help="If an integer, it determines the window size as the number of periods it has to contain at every shift. If an offset string, it determines the window size as its constant temporal extension. For regularly sampled data, the period number is rounded down to an odd number in case center  is True Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                     <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="window" type="integer" label="Size of the rolling window." help="If an integer, it determines the window size as the number of periods it has to contain at every shift. If an offset string, it determines the window size as its constant temporal extension. For regularly sampled data, the period number is rounded down to an odd number in case center  is True." min="0"/>
+                  <param argument="window" type="integer" label="Size of the rolling window" help="If an integer, it determines the window size as the number of periods it has to contain at every shift. If an offset string, it determines the window size as its constant temporal extension. For regularly sampled data, the period number is rounded down to an odd number in case center  is True" min="0"/>
                 </when>
               </conditional>
-              <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written." help="target will be created if it does not exist. Defaults to field." data_ref="data" multiple="false"/>
-              <param argument="func" type="select" value="mean" label="to apply to window at each shift." help="Can either be a custom callable, expecting a  object as its input, or a literal from the following list:  -  sum     : Sum of values in the window -  mean    : Average of values -  median  : Median -  min     : Minimum -  max     : Maximum -  std     : Standard deviation -  var     : Variance -  skew    : Skewness -  kurt    : Kurtosis -  count   : Number of non-NA observations in the window">
+              <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written" help="target will be created if it does not exist. Defaults to field" data_ref="data" multiple="false"/>
+              <param argument="func" type="select" value="mean" label="to apply to window at each shift" help="Can either be a custom callable, expecting a  object as its input, or a literal from the following list:  -  sum     : Sum of values in the window -  mean    : Average of values -  median  : Median -  min     : Minimum -  max     : Maximum -  std     : Standard deviation -  var     : Variance -  skew    : Skewness -  kurt    : Kurtosis -  count   : Number of non-NA observations in the window">
                 <option value="sum">sum</option>
                 <option value="mean">mean</option>
                 <option value="median">median</option>
@@ -969,7 +969,7 @@
                 <option value="count">count</option>
               </param>
               <param argument="min_periods" type="integer" value="0" label="Minimum number of valid observations in the window required to calculate a value." help="" min="0"/>
-              <param argument="center" type="boolean" label="If True, function results are assigned to the timestamp at the center of the windows; if False" help="they are assigned to the highest timestamp in the windows." checked="false"/>
+              <param argument="center" type="boolean" label="If True, function results are assigned to the timestamp at the center of the windows; if False" help="they are assigned to the highest timestamp in the windows" checked="false"/>
             </when>
           </conditional>
         </when>
@@ -983,7 +983,7 @@
             </param>
             <when value="assignKNNScore">
               <param argument="field" type="data_column" label="of variables names to process." help="" data_ref="data" multiple="true"/>
-              <param argument="target" type="data_column" label="Variable name to which the results are written." help="target will be created if it does not exist. Defaults to field." data_ref="data" multiple="false"/>
+              <param argument="target" type="data_column" label="Variable name to which the results are written" help="target will be created if it does not exist. Defaults to field" data_ref="data" multiple="false"/>
               <param argument="n" type="integer" value="10" label="The number of nearest neighbors to which the distance is comprised in every datapoints scoring calculation." help="" min="0"/>
               <conditional name="freq_cond">
                 <param name="freq_selector" type="select" label="Choose type for 'Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually.'" help="The parameter supports different input formats, you can choose which one suites your application.">
@@ -1000,19 +1000,19 @@
                   </param>
                 </when>
               </conditional>
-              <param argument="min_periods" type="integer" value="2" label="The minimum number of periods that have to be present in a window for the kNN scoring to be applied." help="If the number of periods present is below min_periods, the score for the datapoints in that window will be" min="0"/>
-              <param argument="algorithm" type="select" value="ball_tree" label="The search algorithm to find each datapoints k nearest neighbors." help="The keyword just gets passed on to the underlying sklearn method. See reference [1] for more information on the algorithm.">
+              <param argument="min_periods" type="integer" value="2" label="The minimum number of periods that have to be present in a window for the kNN scoring to be applied" help="If the number of periods present is below min_periods, the score for the datapoints in that window will be" min="0"/>
+              <param argument="algorithm" type="select" value="ball_tree" label="The search algorithm to find each datapoints k nearest neighbors" help="The keyword just gets passed on to the underlying sklearn method. See reference [1] for more information on the algorithm">
                 <option value="ball_tree">ball_tree</option>
                 <option value="kd_tree">kd_tree</option>
                 <option value="brute">brute</option>
                 <option value="auto">auto</option>
               </param>
-              <param argument="p" type="integer" value="2" label="The grade of the metrice specified by parameter metric." help="The keyword just gets passed on to the underlying sklearn method. See reference [1] for more information on the algorithm." min="0"/>
+              <param argument="p" type="integer" value="2" label="The grade of the metrice specified by parameter metric" help="The keyword just gets passed on to the underlying sklearn method. See reference [1] for more information on the algorithm" min="0"/>
             </when>
             <when value="assignLOF">
               <param argument="field" type="data_column" label="of variables names to process." help="" data_ref="data" multiple="true"/>
-              <param argument="target" type="data_column" label="Variable name to which the results are written." help="target will be created if it does not exist. Defaults to field." data_ref="data" multiple="false"/>
-              <param argument="n" type="integer" value="20" label="Number of periods to be included into the LOF calculation." help="Defaults to 20, which is a value found to be suitable in the literature." min="0"/>
+              <param argument="target" type="data_column" label="Variable name to which the results are written" help="target will be created if it does not exist. Defaults to field" data_ref="data" multiple="false"/>
+              <param argument="n" type="integer" value="20" label="Number of periods to be included into the LOF calculation" help="Defaults to 20, which is a value found to be suitable in the literature" min="0"/>
               <conditional name="freq_cond">
                 <param name="freq_selector" type="select" label="Choose type for 'Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Float</option>
@@ -1035,30 +1035,30 @@
                 <option value="brute">brute</option>
                 <option value="auto">auto</option>
               </param>
-              <param argument="p" type="integer" value="2" label="Degree of the metric ( Minkowski ), according to wich distance to neighbors is determined." help="Most important values are:  * 1 - Manhatten Metric * 2 - Euclidian Metric" min="0"/>
+              <param argument="p" type="integer" value="2" label="Degree of the metric ( Minkowski ), according to wich distance to neighbors is determined" help="Most important values are:  * 1 - Manhatten Metric * 2 - Euclidian Metric" min="0"/>
             </when>
             <when value="assignUniLOF">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="n" type="integer" value="20" label="Number of periods to be included into the LOF calculation." help="Defaults to 20, which is a value found to be suitable in the literature.  * n determines the  locality  of an observation (its n nearest neighbors) and sets the upper limit of values of an outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than n/2 may not be detected reliably. * The larger n, the lesser the algorithm's sensitivity to local outliers and small or singleton outliers points. Higher values greatly increase numerical costs." min="0"/>
+              <param argument="n" type="integer" value="20" label="Number of periods to be included into the LOF calculation" help="Defaults to 20, which is a value found to be suitable in the literature.  * n determines the  locality  of an observation (its n nearest neighbors) and sets the upper limit of values of an outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than n/2 may not be detected reliably. * The larger n, the lesser the algorithm's sensitivity to local outliers and small or singleton outliers points. Higher values greatly increase numerical costs" min="0"/>
               <param argument="algorithm" type="select" value="ball_tree" label="Algorithm used for calculating the n-nearest neighbors needed for LOF calculation." help="">
                 <option value="ball_tree">ball_tree</option>
                 <option value="kd_tree">kd_tree</option>
                 <option value="brute">brute</option>
                 <option value="auto">auto</option>
               </param>
-              <param argument="p" type="integer" value="1" label="Degree of the metric ( Minkowski ), according to wich distance to neighbors is determined." help="Most important values are:  * 1 - Manhatten Metric * 2 - Euclidian Metric" min="0"/>
+              <param argument="p" type="integer" value="1" label="Degree of the metric ( Minkowski ), according to wich distance to neighbors is determined" help="Most important values are:  * 1 - Manhatten Metric * 2 - Euclidian Metric" min="0"/>
               <conditional name="density_cond">
                 <param name="density_selector" type="select" label="Choose type for 'How to calculate the temporal distance/density for the variable-to-be-flagged.'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Selection</option>
                   <option value="type_1">Float</option>
                 </param>
                 <when value="type_0">
-                  <param argument="density" type="select" label="How to calculate the temporal distance/density for the variable-to-be-flagged." help="* float - introduces linear density with an increment equal to density * Callable - calculates the density by applying the function passed onto the variable to be flagged (passed as Series).">
+                  <param argument="density" type="select" label="How to calculate the temporal distance/density for the variable-to-be-flagged." help="* float - introduces linear density with an increment equal to density * Callable - calculates the density by applying the function passed onto the variable to be flagged (passed as Series)">
                     <option value="auto">auto</option>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="density" type="float" label="How to calculate the temporal distance/density for the variable-to-be-flagged." help="* float - introduces linear density with an increment equal to density * Callable - calculates the density by applying the function passed onto the variable to be flagged (passed as Series)." min="0"/>
+                  <param argument="density" type="float" label="How to calculate the temporal distance/density for the variable-to-be-flagged." help="* float - introduces linear density with an increment equal to density * Callable - calculates the density by applying the function passed onto the variable to be flagged (passed as Series)" min="0"/>
                 </when>
               </conditional>
               <param argument="fill_na" type="boolean" label="If True, NaNs in the data are filled with a linear interpolation." help="" checked="false"/>
@@ -1066,10 +1066,10 @@
             </when>
             <when value="assignZScore">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="window" type="text" label="Size of the window." help="can be determined as: * Offset String, denoting the windows temporal extension * Integer, denoting the windows number of periods. * None , All data points share the same scoring window, which than equals the whole data. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+              <param argument="window" type="text" label="Size of the window" help="can be determined as: * Offset String, denoting the windows temporal extension * Integer, denoting the windows number of periods. * None , All data points share the same scoring window, which than equals the whole data Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                 <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
               </param>
-              <param argument="center" type="boolean" label="Weather or not to center the target value in the scoring window." help="If False, the target value is the last value in the window." checked="false"/>
+              <param argument="center" type="boolean" label="Weather or not to center the target value in the scoring window" help="If False, the target value is the last value in the window" checked="false"/>
               <param argument="min_periods" type="integer" optional="true" label="Minimum number of valid meassurements in a scoring window, to consider the resulting score valid." help="" min="0"/>
             </when>
           </conditional>
@@ -1085,7 +1085,7 @@
             </param>
             <when value="copyField">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="target" type="data_column" label="Variable name to which the results are written." help="target will be created if it does not exist. Defaults to field." data_ref="data" multiple="true"/>
+              <param argument="target" type="data_column" label="Variable name to which the results are written" help="target will be created if it does not exist. Defaults to field" data_ref="data" multiple="true"/>
               <param argument="overwrite" type="boolean" label="Overwrite target, if already existing." help="" checked="false"/>
             </when>
             <when value="dropField">
@@ -1093,11 +1093,11 @@
             </when>
             <when value="plot">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="true"/>
-              <param argument="path" type="text" label="If None is passed, interactive mode is entered; plots are shown immediatly and a user need to close them manually before execution continues." help="If a filepath is passed instead, store-mode is entered and the plot is stored unter the passed location.">
+              <param argument="path" type="text" label="If None is passed, interactive mode is entered; plots are shown immediatly and a user need to close them manually before execution continues" help="If a filepath is passed instead, store-mode is entered and the plot is stored unter the passed location">
                 <validator type="regex"><![CDATA[[\w -\.]+]]></validator>
                 <validator type="empty_field"/>
               </param>
-              <param argument="max_gap" type="text" label="If None, all data points will be connected, resulting in long linear lines, in case of large data gaps." help="NaN values will be removed before plotting. If an offset string is passed, only points that have a distance below max_gap are connected via the plotting line. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+              <param argument="max_gap" type="text" label="If None, all data points will be connected, resulting in long linear lines, in case of large data gaps" help="NaN values will be removed before plotting. If an offset string is passed, only points that have a distance below max_gap are connected via the plotting line Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                 <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
               </param>
               <conditional name="mode_cond">
@@ -1106,13 +1106,13 @@
                   <option value="type_1">String</option>
                 </param>
                 <when value="type_0">
-                  <param argument="mode" type="select" label="How to process multiple variables to be plotted:" help="*  oneplot  : plot all variables with their flags in one axis  *  subplots  : generate subplot grid where each axis contains one variable plot with associated flags *  biplot  : plotting first and second variable in field against each other in a scatter plot  (point cloud).">
+                  <param argument="mode" type="select" label="How to process multiple variables to be plotted:" help="*  oneplot  : plot all variables with their flags in one axis  *  subplots  : generate subplot grid where each axis contains one variable plot with associated flags *  biplot  : plotting first and second variable in field against each other in a scatter plot  (point cloud)">
                     <option value="subplots">subplots</option>
                     <option value="oneplot">oneplot</option>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="mode" type="text" label="How to process multiple variables to be plotted:" help="*  oneplot  : plot all variables with their flags in one axis  *  subplots  : generate subplot grid where each axis contains one variable plot with associated flags *  biplot  : plotting first and second variable in field against each other in a scatter plot  (point cloud).">
+                  <param argument="mode" type="text" label="How to process multiple variables to be plotted:" help="*  oneplot  : plot all variables with their flags in one axis  *  subplots  : generate subplot grid where each axis contains one variable plot with associated flags *  biplot  : plotting first and second variable in field against each other in a scatter plot  (point cloud)">
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -1133,22 +1133,22 @@
                 </when>
               </conditional>
               <conditional name="xscope_cond">
-                <param name="xscope_selector" type="select" label="Choose type for 'Determine a chunk of the data to be plotted.'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="xscope_selector" type="select" label="Choose type for 'Determine a chunk of the data to be plotted'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">slice</option>
                   <option value="type_1">OffsetStr (Pandas Frequency)</option>
                   <option value="type_2">String</option>
                 </param>
                 <when value="type_0">
-                  <param name="xscope_start" type="integer" optional="true" label="Determine a chunk of the data to be plotted. (start index)" help="Start index of the slice (e.g., 0)." min="0"/>
-                  <param name="xscope_end" type="integer" optional="true" label="Determine a chunk of the data to be plotted. (end index)" help="End index of the slice (exclusive)." min="0"/>
+                  <param name="xscope_start" type="integer" optional="true" label="Determine a chunk of the data to be plotted (start index)" help="Start index of the slice (e.g., 0)." min="0"/>
+                  <param name="xscope_end" type="integer" optional="true" label="Determine a chunk of the data to be plotted (end index)" help="End index of the slice (exclusive)." min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="xscope" type="text" label="Determine a chunk of the data to be plotted." help="xscope can be anything, that is a valid argument to the  method. Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+                  <param argument="xscope" type="text" label="Determine a chunk of the data to be plotted" help="xscope can be anything, that is a valid argument to the  method Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                     <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                   </param>
                 </when>
                 <when value="type_2">
-                  <param argument="xscope" type="text" label="Determine a chunk of the data to be plotted." help="xscope can be anything, that is a valid argument to the  method."/>
+                  <param argument="xscope" type="text" label="Determine a chunk of the data to be plotted" help="xscope can be anything, that is a valid argument to the  method"/>
                 </when>
               </conditional>
               <conditional name="yscope_cond">
@@ -1157,7 +1157,7 @@
                   <option value="type_1">Tuple (Float, Float)</option>
                 </param>
                 <when value="type_0">
-                  <repeat name="yscope" title="Either a tuple of 2 scalars that determines all plots' y-view limits, or a list of those tuples" help="determining the different variables y-view limits (must match number of variables) or a dictionary with variables as keys and the y-view tuple as values.">
+                  <repeat name="yscope" title="Either a tuple of 2 scalars that determines all plots' y-view limits, or a list of those tuples" help="determining the different variables y-view limits (must match number of variables) or a dictionary with variables as keys and the y-view tuple as values">
                     <param name="yscope_min" type="float" label="yscope_min"/>
                     <param name="yscope_max" type="float" label="yscope_max"/>
                   </repeat>
@@ -1167,7 +1167,7 @@
                   <param name="yscope_max" type="float" optional="true" label="yscope_max"/>
                 </when>
               </conditional>
-              <param argument="dfilter" type="float" value="inf" label="Defines which observations will be masked based on the already existing flags." help="Any data point with a flag equal or worse to this threshold will be passed as NaN to the function. Defaults to the DFILTER_ALL value of the translation scheme."/>
+              <param argument="dfilter" type="float" value="inf" label="Defines which observations will be masked based on the already existing flags" help="Any data point with a flag equal or worse to this threshold will be passed as NaN to the function. Defaults to the DFILTER_ALL value of the translation scheme"/>
             </when>
             <when value="renameField">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
@@ -1177,13 +1177,13 @@
             </when>
             <when value="selectTime">
               <param argument="field" type="data_column" label="Variable to process." help="" data_ref="data" multiple="false"/>
-              <param argument="mode" type="select" label="The masking mode." help="-  periodic : parameters  period_start ,  end  are evaluated to generate a periodical mask -  mask_var : data[mask_var] is expected to be a boolean valued timeseries and is used as mask.">
+              <param argument="mode" type="select" label="The masking mode" help="-  periodic : parameters  period_start ,  end  are evaluated to generate a periodical mask -  mask_var : data[mask_var] is expected to be a boolean valued timeseries and is used as mask">
                 <option value="periodic">periodic</option>
                 <option value="selection_field">selection_field</option>
               </param>
-              <param argument="selection_field" type="data_column" optional="true" label="Only effective if mode ==  mask_var  Fieldname of the column, holding the data that is to be used as mask." help="(must be boolean series) Neither the series length nor its labels have to match data[field]s index and length. An inner join of the indices will be calculated and values get masked where the values of the inner join are True." data_ref="data" multiple="false"/>
-              <param argument="start" type="text" label="Only effective if mode ==  seasonal  String denoting starting point of every period." help="Formally, it has to be a truncated instance of  mm-ddTHH:MM:SS . Has to be of same length as end parameter. See examples section below for some examples."/>
-              <param argument="end" type="text" label="Only effective if mode ==  periodic  String denoting starting point of every period." help="Formally, it has to be a truncated instance of  mm-ddTHH:MM:SS . Has to be of same length as end parameter. See examples section below for some examples."/>
+              <param argument="selection_field" type="data_column" optional="true" label="Only effective if mode ==  mask_var  Fieldname of the column, holding the data that is to be used as mask" help="(must be boolean series) Neither the series length nor its labels have to match data[field]s index and length. An inner join of the indices will be calculated and values get masked where the values of the inner join are True" data_ref="data" multiple="false"/>
+              <param argument="start" type="text" label="Only effective if mode ==  seasonal  String denoting starting point of every period" help="Formally, it has to be a truncated instance of  mm-ddTHH:MM:SS . Has to be of same length as end parameter. See examples section below for some examples"/>
+              <param argument="end" type="text" label="Only effective if mode ==  periodic  String denoting starting point of every period" help="Formally, it has to be a truncated instance of  mm-ddTHH:MM:SS . Has to be of same length as end parameter. See examples section below for some examples"/>
               <param argument="closed" type="boolean" label="Wheather or not to include the mask defining bounds to the mask." help="" checked="false"/>
             </when>
           </conditional>

@@ -253,7 +253,7 @@ def parse_parameter_docs(sections: Dict[str, str]) -> Dict[str, str]:
     return parameter_doc
 
 
-def get_label_help(param_name, parameter_docs):
+def get_label_help(param_name: str, parameter_docs: str) -> Tuple[str, str]:
     """
     Extracts label and help text.
     Aggressively cleans technical type hints from the docstring.
@@ -353,7 +353,6 @@ def get_label_help(param_name, parameter_docs):
 
         rest_of_first_paragraph = ""
         if len(sentence_split) > 1:
-            label += "."
             rest_of_first_paragraph = "".join(sentence_split[1:]).strip()
 
         if rest_of_first_paragraph and rest_of_paragraphs:
@@ -365,6 +364,7 @@ def get_label_help(param_name, parameter_docs):
 
     help_text = help_text.replace("\n", " ").strip()
     help_text = re.sub(r'^[,\.:;-]+\s*', '', help_text).strip()
+    help_text = help_text.rstrip(".")
 
     return label, help_text
 

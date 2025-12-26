@@ -333,6 +333,7 @@ def get_label_help(param_name: str, parameter_docs: str) -> Tuple[str, str]:
     help_text = help_text.replace("\n", " ").strip()
     help_text = re.sub(r'^[,\.:;-]+\s*', '', help_text).strip()
     help_text = help_text.rstrip(".")
+    label = label.strip(" .")
 
     return label, help_text
 

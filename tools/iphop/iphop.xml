@@ -25,6 +25,7 @@
         <param argument="--fa_file" type="data" format="fasta" label="FASTA formatted virus sequences"/>
         <param argument="--db_dir" type="select" label="Reference database">
             <options from_data_table="iphop">
+                <filter type="regexp" column="version" value="^(iPHoP_db_Jun25_rw|test_version)$"/>
                 <validator type="no_options" message="No reference data available. Contact your Galaxy admin."/>
             </options>
         </param>

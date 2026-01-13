@@ -1212,13 +1212,7 @@ def get_methods_conditional(methods, module, tracing=False):
             method_select.value = method_select_options[0][0]
         method_conditional.append(method_select)
     else:
-        no_options_notice = TextParam(
-            name="no_method_options_notice",
-            type="text",
-            value="No methods available for selection.",
-            label="Info",
-        )
-        method_conditional.append(no_options_notice)
+        raise Exception(f"Could not determine select options for {methods} in {module}")
 
     for method_obj in filtered_methods:
         method_name = method_obj.__name__

@@ -60,6 +60,8 @@ SKIP_METHODS = set(
     ]
 )
 
+SAQC_CUSTOM_SELECT_TYPES = {}
+
 
 def discover_literals(*modules_to_scan) -> Dict[str, Any]:
     """
@@ -79,15 +81,6 @@ def discover_literals(*modules_to_scan) -> Dict[str, Any]:
                 except Exception:
                     continue
     return discovered_literals
-
-
-SAQC_CUSTOM_SELECT_TYPES = {}
-try:
-    SAQC_CUSTOM_SELECT_TYPES.update(discover_literals(saqc_types))
-    for _, func_module in inspect.getmembers(saqc.funcs, inspect.ismodule):
-        SAQC_CUSTOM_SELECT_TYPES.update(discover_literals(func_module))
-except (ImportError, TypeError) as e:
-    sys.stderr.write(f"Warning: Could not automatically discover saqc Literals: {e}\n")
 
 
 def clean_annotation_string(s: str) -> str:
@@ -1763,6 +1756,13 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
+    try:
+        SAQC_CUSTOM_SELECT_TYPES.update(discover_literals(saqc_types))
+        for _, func_module in inspect.getmembers(saqc.funcs, inspect.ismodule):
+            SAQC_CUSTOM_SELECT_TYPES.update(discover_literals(func_module))
+    except (ImportError, TypeError) as e:
+        sys.stderr.write(f"Warning: Could not automatically discover saqc Literals: {e}\n")
 
     if args.generate_tool:
         print("--- Generating Galaxy Tool XML ---", file=sys.stderr)

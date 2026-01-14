@@ -1104,7 +1104,12 @@ def get_method_params(method: Callable, module: "ModuleType", tracing=False):
             xml_params.append(data_param)
             continue
 
-        if "field" in param_name.lower() or param_name in ["target", "reference"]:
+        # Can be dropped with 
+        # https://git.ufz.de/rdm-software/saqc/-/merge_requests/887
+        # https://git.ufz.de/rdm-software/saqc/-/merge_requests/894
+        # https://git.ufz.de/rdm-software/saqc/-/merge_requests/895
+        # or replaced by a correct implementation for https://git.ufz.de/rdm-software/saqc/-/issues/516
+        if "field" in param_name.lower() or param_name in ["target", "reference"]:          
             creation_args = param_constructor_args.copy()
             creation_args.pop("value", None)
             creation_args["type"] = "data_column"

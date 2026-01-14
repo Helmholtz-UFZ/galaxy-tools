@@ -1,0 +1,240 @@
+<tool id="sipros" name="sipros" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01" license="MIT">
+    <description>labeled protein identification</description>
+    <macros>
+        <token name="@TOOL_VERSION@">5.0.1</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <xrefs>
+        <xref type="bio.tools">sipros</xref>
+    </xrefs>
+    <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">sipros</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #import re
+        mkdir raw/ &&
+        #for $file in $input
+            #set $identifier= re.sub(r'[^\w\-.]', '_', $file.element_identifier)
+            cp '$file' raw/'$identifier'.raw &&
+        #end for
+        #if $mode.mode_select == "labeled" and $mode.negative_control
+            #set negative_control_names = []
+            #for $file in $mode.negative_control
+                #set $identifier= re.sub(r'[^\w\-.]', '_', $file.element_identifier)
+                cp '$file' raw/'$identifier'.raw &&
+                #silent $negative_control_names.append($identifier)
+            #end for
+        #end if
+
+        export LD_LIBRARY_PATH=/usr/local/lib:\$LD_LIBRARY_PATH &&
+
+        siproswf
+        --input raw
+        --fasta '$fasta'
+        --output output
+
+        --nPrecursor $nPrecursor
+        --toleranceMS1 $toleranceMS1
+        --toleranceMS2 $toleranceMS2
+        ## #if str($sPTM) != ""
+        ##     --sPTM '$sPTM'
+        ## #end if
+        ## #if str($vPTM) != ""
+        ##     --vPTM '$vPTM'
+        ## #end if
+        #if $mode.mode_select == "labeled"
+            #if $mode.negative_control
+                --negative_control #echo ",".join($negative_control_names) #
+            #end if
+            #if str($mode.element) != ""
+                --element '$mode.element'
+            #end if
+            #if str($mode.range) != ""
+                --range '$mode.range'
+            #end if
+            #if str($mode.precision) != ""
+                --precision '$mode.precision'
+            #end if
+            $mode.ignorePCT
+            $mode.label_threshold
+        #end if
+        ##   -s [SPLIT_FT2_FILE], --split_FT2_file [SPLIT_FT2_FILE]
+        ##                         Scans number in splitted FT2 file, no split in default
+        --thread "\${GALAXY_SLOTS:-1}"
+
+    ]]></command>
+    <inputs>
+        <param argument="--input" type="data" format="thermo.raw" multiple="true" label="raw files" />
+        <param argument="--fasta" type="data" format="fasta" label="Fasta protein sequences"/>
+        
+        <!-- protein search option -->
+        <param argument="--nPrecursor" type="integer" value="6" min="0" label="Max precursor number in isolation window" help="when converting raw file, recommend 6 in DDA (default) 15 in DIA"/>
+        <param argument="--toleranceMS1" type="float" min="0" value="0.01" label="MS1 mass tolerance in Da"/>
+        <param argument="--toleranceMS2" type="float" min="0" value="0.01" label="MS2 mass tolerance in Da" help="For ion trap MS2 data, 0.1 is recommended"/>
+        <!-- https://github.com/thepanlab/sipros5/issues/4
+        <param argument="- -sPTM" type="text" label="Static PTM for regular search" help=" Example: 'C|5,8,2,2,0,1' This means a static modification (e.g., alkylation) on residue C, with new element composition: C,H,O,N,P,S = 5,8,2,2,0,1">
+            <validator type="regex">([A-Z]+\|\d+,\d+,\d+,\d+,\d+,\d+)?</validator>
+        </param>
+        <param argument="- -vPTM" type="text" label="Variable PTM for regular search" help="'Example: ~|M|0,0,1,0,0,0;!|NQ|0,-1,1,-1,0,0': means a variable modification on residue M (Oxidation or Hydroxylation, element composition change: 0,0,1,0,0,0 for C,H,O,N,P,S), and on N/Q (Deamidation or Citrullination, element composition change: 0,-1,1,-1,0,0 for C,H,O,N,P,S).">
+            <validator type="regex">([~!]\|[A-Z]+\|-?\d+,-?\d+,-?\d+,-?\d+,-?\d+,-?\d+)?</validator>
+        </param> -->
+
+        <conditional name="mode">
+            <param name="mode_select" type="select" label="Mode">
+                <option value="regular">Regular search</option>
+                <option value="labeled">Labeled search</option>
+            </param>
+            <when value="regular">
+                <param name="outputs" type="select" multiple="true" optional="false" label="Outputs">
+                    <option value="peptide" selected="false">peptide table</option>
+                    <option value="protein" selected="true">protein table</option>
+                    <option value="protein_fasta" selected="false">protein sequences</option>
+                    <option value="protein_with_PSM" selected="true">protein with PSM table</option>
+                    <option value="psm" selected="true">psm</option>
+                </param>
+            </when>
+            <when value="labeled">
+                <param argument="--negative_control" type="data" multiple="true" optional="true" format="thermo.raw" label="Negative control datasets" help="These files will be used to filter out false positive SIP-labeled PSMs" />
+                <param argument="--element" type="text" label="SIP label element" help="e.g. C13, H2, N15, O18, S33, S34">
+                    <validator type="regex">([A-Z][0-9])?</validator>
+                </param>
+                <param argument="--range" type="text" label="SIP label range" help="e.g., 0-100">
+                    <validator type="regex">([0-9]+-[0-9]+)?</validator>
+                </param>
+                <param argument="--precision" type="float" optional="true" value="" min="0" max="100" label="SIP label precision (%)" help=""/>
+                <param argument="--ignorePCT" type="boolean" truevalue="--ignorePCT" falsevalue="" checked="false" label="Ignore isotopic percentage of MS1 and MS2 when filtering few SIP labeled PSMs"  />
+                <param argument="--label_threshold" type="float" optional="true" min="0" max="100" value="" label="SIP label threshold (%)" help="For filtering out false positive SIP-labeled PSMs" />
+                <param name="outputs" type="select" multiple="true" optional="false" label="Outputs">
+                    <option value="peptide" selected="false">peptide table</option>
+                    <option value="protein" selected="true">protein table</option>
+                    <option value="protein_fasta" selected="false">protein sequences</option>
+                    <option value="protein_with_PSM" selected="true">protein with PSM table</option>
+                    <option value="psm" selected="true">psm</option>
+                    <option value="protein_with_SIP_filtered_PSM" selected="true">protein_with_SIP_filtered_PSM table</option>
+                    <option value="SIP_filtered_psms" selected="true">SIP filtered psms</option>
+                </param>
+            </when>
+        </conditional>
+    </inputs>
+    <outputs>
+        <data name="peptide" format="tabular" from_work_dir="output/peptide.tsv" label="${tool.name} on ${on_string}: Peptide">
+            <filter>"peptide" in mode["outputs"]</filter>
+        </data>
+        <data name="protein" format="tabular" from_work_dir="output/protein.tsv" label="${tool.name} on ${on_string}: Protein">
+            <filter>"protein" in mode["outputs"]</filter>
+        </data>
+        <data name="protein_fasta" format="fasta" from_work_dir="output/protein.fas" label="${tool.name} on ${on_string}: Protein sequences">
+            <filter>"protein_fasta" in mode["outputs"]</filter>
+        </data>
+        <data name="protein_with_PSM" format="tabular" from_work_dir="output/protein_with_PSM.tsv" label="${tool.name} on ${on_string}: Protein with PSM">
+            <filter>"protein_with_PSM" in mode["outputs"]</filter>
+        </data>
+        <data name="psm" format="tabular" from_work_dir="output/psm.tsv" label="${tool.name} on ${on_string}: PSM">
+            <filter>"protein_with_PSM" in mode["outputs"]</filter>
+        </data>
+        <data name="protein_with_SIP_filtered_PSM" format="tabular" from_work_dir="output/protein_with_SIP_filtered_PSM.tsv" label="${tool.name} on ${on_string}: protein_with_SIP_filtered_PSM">
+            <filter>mode["mode_select"] == "labeled"</filter>
+            <filter>"protein_with_SIP_filtered_PSM" in mode["outputs"]</filter>
+        </data>
+        <data name="SIP_filtered_psms" format="tabular" from_work_dir="output/SIP_filtered_psms.tsv" label="${tool.name} on ${on_string}: SIP_filtered_psms">
+            <filter>mode["mode_select"] == "labeled"</filter>
+            <filter>"SIP_filtered_psms" in mode["outputs"]</filter>
+        </data>
+    </outputs>
+    <tests>
+        <!-- regular search -->
+        <test expect_num_outputs="4">
+            <param name="input" ftype="thermo.raw" value="test_sample_bacteria_1.raw,test_sample_bacteria_2.raw,test_sample_bacteria_3.raw" location="https://zenodo.org/records/15479269/files/test_sample_bacteria_1.raw?download=1,https://zenodo.org/records/15479269/files/test_sample_bacteria_2.raw?download=1,https://zenodo.org/records/15479269/files/test_sample_bacteria_3.raw?download=1"/>
+            <param name="fasta" ftype="fasta" value="all_strains.fasta" location="https://zenodo.org/records/15479269/files/all_strains.fasta?download=1"/>
+            <conditional name="mode">
+                <param name="mode_select" value="regular"/>
+                <param name="outputs" value="protein,protein_with_PSM,psm,protein_fasta"/>
+            </conditional>
+            <output name="protein_fasta" ftype="fasta" value="protein.fasta"/>
+            <output name="protein">
+                <assert_contents>
+                    <has_n_lines n="655"/>
+                    <has_n_columns n="26"/>
+                </assert_contents>
+            </output>
+            <output name="protein_with_PSM">
+                <assert_contents>
+                    <has_n_lines n="655"/>
+                    <has_n_columns n="38"/>
+                </assert_contents>
+            </output>
+            <output name="psm">
+                <assert_contents>
+                    <has_n_lines n="4516"/>
+                    <has_n_columns n="40"/>
+                </assert_contents>
+            </output>
+        </test>
+        <!-- Label Search using the fasta from the regular search -->
+        <test expect_num_outputs="2">
+            <param name="input" ftype="thermo.raw" value="test_sample_bacteria_1.raw,test_sample_bacteria_2.raw" location="https://zenodo.org/records/15479269/files/test_sample_bacteria_1.raw?download=1,https://zenodo.org/records/15479269/files/test_sample_bacteria_2.raw?download=1"/>
+            <param name="fasta" ftype="fasta" value="protein.fasta"/>
+            <conditional name="mode">
+                <param name="mode_select" value="labeled"/>
+                <param name="negative_control" ftype="thermo.raw" value="test_sample_bacteria_3.raw" location="https://zenodo.org/records/15479269/files/test_sample_bacteria_3.raw?download=1"/>
+                <param name="element" value="C13"/>
+                <param name="range" value="0-50"/>
+                <param name="outputs" value="protein_with_SIP_filtered_PSM,SIP_filtered_psms"/>
+            </conditional>
+            <output name="protein_with_SIP_filtered_PSM">
+                <assert_contents>
+                    <has_n_lines n="646"/>
+                    <has_n_columns n="34"/>
+                </assert_contents>
+            </output>
+            <output name="SIP_filtered_psms">
+                <assert_contents>
+                    <has_n_lines n="307"/>
+                    <has_n_columns n="28"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+
+.. class:: infomark
+
+**What it does**
+
+Labeled protein identification.
+
+Usage
+.....
+
+**Input**
+
+RAW files and fasta data base
+
+**Output**
+    
+In eithe mode the following outputs are available:
+
+- Peptide
+- Protein
+- Protein sequences
+- Protein with PSM
+- PSM
+
+For the labeled search in addition the following outputs ar generated:
+
+- SIP_filtered_psms: PSMs from all samples that pass the unlabeled negative-control filter (1% FDR), with SIP element labeling percentages (MS1IsotopicAbundances, MS2IsotopicAbundances). MS1IsotopicAbundances are more sensitive; MS2IsotopicAbundances are more accurate.
+- protein_with_SIP_filtered_PSM: maps unlabeled negative-control filtered PSMs to the proteins identified in each sample.
+
+**Faster workflow** 
+
+It is possible to run the labeled workflow on the complete sequence database, but it is faster to: 
+
+1. run the regular search on the complete sequence database
+2. run labeled search on the sequence database resulting from the regular search
+
+
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1186/s40168-024-01866-1</citation>
+    </citations>
+</tool>

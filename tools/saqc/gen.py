@@ -554,6 +554,10 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
 
         return repeat
 
+    # create a typing string for the custom literal types
+    if base_type_str in SAQC_CUSTOM_SELECT_TYPES:
+        base_type_str = str(SAQC_CUSTOM_SELECT_TYPES[base_type_str]).replace("typing.", "")
+
     if base_type_str in ('SaQCFields', 'NewSaQCFields'):
         creation_args.pop("value", None)
         creation_args['type'] = "data_column"
@@ -608,14 +612,6 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         if options_list:
             creation_args["default"] = creation_args.pop("value", None)
             options = {o: o for o in options_list}
-            param_object = SelectParam(argument=param_name, options=options, **creation_args)
-
-    elif base_type_str in SAQC_CUSTOM_SELECT_TYPES:
-        type_obj = SAQC_CUSTOM_SELECT_TYPES[base_type_str]
-        args = get_args(type_obj)
-        if get_origin(type_obj) is Literal and args:
-            creation_args["default"] = creation_args.pop("value", None)
-            options = {str(o): str(o) for o in args}
             param_object = SelectParam(argument=param_name, options=options, **creation_args)
 
     elif (range_match := re.fullmatch(r"(Float|Int)\[\s*([0-9.-]+)\s*,\s*([0-9.-]+)\s*\]", base_type_str, re.IGNORECASE)):

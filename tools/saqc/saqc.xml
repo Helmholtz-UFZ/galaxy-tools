@@ -214,7 +214,7 @@
                 <option value="median">median</option>
                 <option value="ward">ward</option>
               </param>
-              <param argument="frac" type="float" value="0.5" label="The minimum percentage of samples, the  normal  group has to comprise to actually be the normal group" help="Must be in the closed interval [0,1], otherwise a ValueError is raised" min="0" max="1"/>
+              <param argument="frac" type="float" value="0.5" label="The minimum percentage of samples, the &quot;normal&quot; group has to comprise to actually be the normal group" help="Must be in the closed interval [0,1], otherwise a ValueError is raised" min="0" max="1"/>
             </when>
             <when value="correctDrift">
               <param argument="field" type="data_column" label="Variable to process" help="" data_ref="data" multiple="false"/>
@@ -228,7 +228,7 @@
             <when value="correctOffset">
               <param argument="field" type="data_column" label="Variable to process" help="" data_ref="data" multiple="false"/>
               <param argument="max_jump" type="float" label="when searching for changepoints in mean - this is the threshold a mean difference in the sliding window search must exceed to trigger changepoint detection" help="" min="0"/>
-              <param argument="spread" type="float" label="threshold denoting the maximum, regimes are allowed to abolutely differ in their means to form the  normal group  of values" help="" min="0"/>
+              <param argument="spread" type="float" label="threshold denoting the maximum, regimes are allowed to abolutely differ in their means to form the &quot;normal group&quot; of values" help="" min="0"/>
               <param argument="window" type="text" label="Size of the adjacent windows that are used to search for the mean changepoints" help="Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                 <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                 <validator type="empty_field"/>
@@ -280,7 +280,7 @@
                 <option value="median">median</option>
                 <option value="ward">ward</option>
               </param>
-              <param argument="frac" type="float" value="0.5" label="The minimum percentage of samples, the  normal  group has to comprise to actually be the normal group" help="Must be in the closed interval [0,1], otherwise a ValueError is raised" min="0" max="1"/>
+              <param argument="frac" type="float" value="0.5" label="The minimum percentage of samples, the &quot;normal&quot; group has to comprise to actually be the normal group" help="Must be in the closed interval [0,1], otherwise a ValueError is raised" min="0" max="1"/>
               <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
           </conditional>
@@ -364,18 +364,18 @@
             <when value="align">
               <param argument="field" type="data_column" label="Variable to process" help="" data_ref="data" multiple="false"/>
               <conditional name="freq_cond">
-                <param name="freq_selector" type="select" label="Choose type for 'Target frequency (e.g.,  1H ,  15min , 60)'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                <param name="freq_selector" type="select" label="Choose type for 'Target frequency (e.g., &quot;1H&quot;, &quot;15min&quot;, 60)'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">OffsetStr (Pandas Frequency)</option>
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="freq" type="text" label="Target frequency (e.g.,  1H ,  15min , 60)" help="Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+                  <param argument="freq" type="text" label="Target frequency (e.g., &quot;1H&quot;, &quot;15min&quot;, 60)" help="Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                     <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="freq" type="integer" label="Target frequency (e.g.,  1H ,  15min , 60)" help=""/>
+                  <param argument="freq" type="integer" label="Target frequency (e.g., &quot;1H&quot;, &quot;15min&quot;, 60)" help=""/>
                 </when>
               </conditional>
               <param argument="method" type="text" value="time" label="Interpolation technique to use" help="Supported values include:  * 'nshift': Shift grid points to the nearest time stamp within +/- 0.5 * freq. * 'bshift': Shift grid points to the first succeeding time stamp. * 'fshift': Shift grid points to the last preceding time stamp. * 'linear', 'time', 'index', 'values': Use numerical values of the index. (Note: internally mapped to 'mshift'.) * 'pad': Fill NaNs using existing values (same as 'fshift'). * 'spline', 'polynomial': Passed to scipy.interpolate.interp1d. Requires specifying order. * 'nearest', 'zero', 'slinear', 'quadratic', 'cubic', 'barycentric': Passed to scipy.interpolate.interp1d. * 'krogh', 'pchip', 'akima', 'cubicspline': Wrappers around SciPy interpolation methods. * 'from_derivatives': Uses scipy.interpolate.BPoly.from_derivatives">
@@ -433,7 +433,7 @@
                 </when>
               </conditional>
               <param argument="thresh" type="float" label="Threshold, the statistic of the main chunk is checked against" help="func(chunk) &gt; thresh" min="0"/>
-              <param argument="func" type="select" value="std" label="Function to compute deviation for each chunk: *  std  — standard deviation *  var  — variance *  mad  — median absolute deviation * Callable — custom function mapping 1D arrays to scalars" help="">
+              <param argument="func" type="select" value="std" label="Function to compute deviation for each chunk: * &quot;std&quot; — standard deviation * &quot;var&quot; — variance * &quot;mad&quot; — median absolute deviation * Callable — custom function mapping 1D arrays to scalars" help="">
                 <option value="std">std</option>
                 <option value="var">var</option>
                 <option value="mad">mad</option>
@@ -487,25 +487,25 @@
                 </when>
               </conditional>
               <param argument="min_periods" type="integer" value="11" label="Minimum number of periods per partition that have to be present for a valid outlier detection to be made in this partition" help="" min="1"/>
-              <param argument="iter_start" type="float" value="0.5" label="Float in [0, 1] that determines which percentage of data is considered  normal" help="0.5 results in the stray algorithm to search only the upper 50% of the scores for the cut off point. (See reference section for more information)" min="0" max="1"/>
+              <param argument="iter_start" type="float" value="0.5" label="Float in [0, 1] that determines which percentage of data is considered &quot;normal&quot;" help="0.5 results in the stray algorithm to search only the upper 50% of the scores for the cut off point. (See reference section for more information)" min="0" max="1"/>
               <param argument="alpha" type="float" value="0.05" label="Level of significance by which it is tested, if a score might be drawn from another distribution than the majority of the data" help="" min="0" max="1"/>
               <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
             <when value="flagLOF">
               <param argument="field" type="data_column" label="Variable to process" help="" data_ref="data" multiple="true"/>
-              <param argument="n" type="integer" value="20" label="Number of neighbors to be included into the LOF calculation" help="Defaults to 20, which is a value found to be suitable in the literature.  * n determines the  locality  of an observation (its n nearest neighbors) and sets the upper limit to the number of values in outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than n/2 may not be detected reliably. * The larger n, the lesser the algorithm's sensitivity to local outliers and small or singleton outliers points. Higher values greatly increase numerical costs" min="0"/>
+              <param argument="n" type="integer" value="20" label="Number of neighbors to be included into the LOF calculation" help="Defaults to 20, which is a value found to be suitable in the literature.  * n determines the &quot;locality&quot; of an observation (its n nearest neighbors) and sets the upper limit to the number of values in outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than n/2 may not be detected reliably. * The larger n, the lesser the algorithm's sensitivity to local outliers and small or singleton outliers points. Higher values greatly increase numerical costs" min="0"/>
               <conditional name="thresh_cond">
                 <param name="thresh_selector" type="select" label="Choose type for 'The threshold for flagging the calculated LOF'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Selection</option>
                   <option value="type_1">Float</option>
                 </param>
                 <when value="type_0">
-                  <param argument="thresh" type="select" label="The threshold for flagging the calculated LOF" help="A LOF of around 1 is considered normal and most likely corresponds to inlier points.  * The  automatic  threshing introduced with the publication of the algorithm defaults to 1.5. * In this implementation, thresh defaults ('auto') to flagging the scores with a modified 3-sigma rule">
+                  <param argument="thresh" type="select" label="The threshold for flagging the calculated LOF" help="A LOF of around 1 is considered normal and most likely corresponds to inlier points.  * The &quot;automatic&quot; threshing introduced with the publication of the algorithm defaults to 1.5. * In this implementation, thresh defaults ('auto') to flagging the scores with a modified 3-sigma rule">
                     <option value="auto">auto</option>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="thresh" type="float" label="The threshold for flagging the calculated LOF" help="A LOF of around 1 is considered normal and most likely corresponds to inlier points.  * The  automatic  threshing introduced with the publication of the algorithm defaults to 1.5. * In this implementation, thresh defaults ('auto') to flagging the scores with a modified 3-sigma rule" min="1"/>
+                  <param argument="thresh" type="float" label="The threshold for flagging the calculated LOF" help="A LOF of around 1 is considered normal and most likely corresponds to inlier points.  * The &quot;automatic&quot; threshing introduced with the publication of the algorithm defaults to 1.5. * In this implementation, thresh defaults ('auto') to flagging the scores with a modified 3-sigma rule" min="1"/>
                 </when>
               </conditional>
               <param argument="algorithm" type="select" value="ball_tree" label="Algorithm used for calculating the n-nearest neighbors" help="">
@@ -514,7 +514,7 @@
                 <option value="brute">brute</option>
                 <option value="auto">auto</option>
               </param>
-              <param argument="p" type="integer" value="1" label="Degree of the metric ( Minkowski ), according to which the distance to neighbors is determined" help="Most important values are:  * 1 - Manhattan Metric * 2 - Euclidian Metric" min="0"/>
+              <param argument="p" type="integer" value="1" label="Degree of the metric (&quot;Minkowski&quot;), according to which the distance to neighbors is determined" help="Most important values are:  * 1 - Manhattan Metric * 2 - Euclidian Metric" min="0"/>
               <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
             <when value="flagOffset">
@@ -606,7 +606,7 @@
             </when>
             <when value="flagZScore">
               <param argument="field" type="data_column" label="List of variables names to process" help="" data_ref="data" multiple="false"/>
-              <param argument="method" type="select" value="standard" label="Which scoring method to use:" help="*  standard  — mean as expectation, standard deviation as scaling factor. *  modified  — median as expectation, median absolute deviation (MAD) as scaling factor">
+              <param argument="method" type="select" value="standard" label="Which scoring method to use:" help="* &quot;standard&quot; — mean as expectation, standard deviation as scaling factor. * &quot;modified&quot; — median as expectation, median absolute deviation (MAD) as scaling factor">
                 <option value="standard">standard</option>
                 <option value="modified">modified</option>
               </param>
@@ -767,7 +767,7 @@
                   </param>
                 </when>
               </conditional>
-              <param argument="method" type="select" value="match" label="Determines which of the origins indexes periods to comprise into the calculation of a new flag and a new data value at any period of the new index" help="* Aggregations Reindexer. Aggregations are data and flags independent, (pure) index selection methods: * 'bagg'/'fagg':  backwards/forwards aggregation . Any new index period gets assigned an aggregation of the values at periods in the original index, that lie between itself and its successor/predecessor. * 'nagg':  nearest aggregation : Any new index period gets assigned an aggregation of the values at periods in the original index between its direcet predecessor and successor, it is the nearest neighbor to. * Rolling reindexer. Rolling reindexers are equal to aggregations, when projecting between regular and irregular sampling grids forth and back. But due to there simple rolling window construction, they are easier to comprehend, predict and parametrize. On the downside, they are much more expensive computationally and Also, periods can get included in the aggregation to multpiple target periods, (when rolling windows overlap). * 'broll'/'froll': Any new index period gets assigned an aggregation of all the values at periods of the original index, that fall into a directly preceeding/succeeding window of size reindex_window. * Shifts. Shifting methods are shortcuts for aggregation reindex methods, combined with selecting 'last' or 'first' as the data_aggregation method. Therefor, both, the flags_aggregation and the data_aggregation are ignored when using a shift reindexer. Also, periods where the data evaluates to NaN are dropped before shift index selection. * 'bshift'/fshift:  backwards/forwards shift . Any new index period gets assigned the first/last valid (not a data NaN) value it succeeds/preceeds * 'nshift':  nearest shift : Any new index period gets assigned the value of its closest neighbor in the original index. * Pillar point Mappings. Index selection method designed to select indices suitable for linearly interpolating index values from surrounding pillar points in the original index, or inverting such a selection. Periods where the data evaluates to NaN, are dropped from consideration. * 'mshift':  Merge  predecessors and successors. Any new index period gets assigned an aggregation/interpolation comprising the last and the next valid period in the original index. * 'sshift':  Split -map values onto predecessors and successors. Same as mshift, but with a correction that prevents missing value flags from being mapped to continuous data chunk bounds. * Inversion of last method: try to select the method, that * 'invert">
+              <param argument="method" type="select" value="match" label="Determines which of the origins indexes periods to comprise into the calculation of a new flag and a new data value at any period of the new index" help="* Aggregations Reindexer. Aggregations are data and flags independent, (pure) index selection methods: * 'bagg'/'fagg': &quot;backwards/forwards aggregation&quot;. Any new index period gets assigned an aggregation of the values at periods in the original index, that lie between itself and its successor/predecessor. * 'nagg': &quot;nearest aggregation&quot;: Any new index period gets assigned an aggregation of the values at periods in the original index between its direcet predecessor and successor, it is the nearest neighbor to. * Rolling reindexer. Rolling reindexers are equal to aggregations, when projecting between regular and irregular sampling grids forth and back. But due to there simple rolling window construction, they are easier to comprehend, predict and parametrize. On the downside, they are much more expensive computationally and Also, periods can get included in the aggregation to multpiple target periods, (when rolling windows overlap). * 'broll'/'froll': Any new index period gets assigned an aggregation of all the values at periods of the original index, that fall into a directly preceeding/succeeding window of size reindex_window. * Shifts. Shifting methods are shortcuts for aggregation reindex methods, combined with selecting 'last' or 'first' as the data_aggregation method. Therefor, both, the flags_aggregation and the data_aggregation are ignored when using a shift reindexer. Also, periods where the data evaluates to NaN are dropped before shift index selection. * 'bshift'/fshift: &quot;backwards/forwards shift&quot;. Any new index period gets assigned the first/last valid (not a data NaN) value it succeeds/preceeds * 'nshift': &quot;nearest shift&quot;: Any new index period gets assigned the value of its closest neighbor in the original index. * Pillar point Mappings. Index selection method designed to select indices suitable for linearly interpolating index values from surrounding pillar points in the original index, or inverting such a selection. Periods where the data evaluates to NaN, are dropped from consideration. * 'mshift': &quot;Merge&quot; predecessors and successors. Any new index period gets assigned an aggregation/interpolation comprising the last and the next valid period in the original index. * 'sshift': &quot;Split&quot;-map values onto predecessors and successors. Same as mshift, but with a correction that prevents missing value flags from being mapped to continuous data chunk bounds. * Inversion of last method: try to select the method, that * 'invert">
                 <option value="fagg">fagg</option>
                 <option value="bagg">bagg</option>
                 <option value="nagg">nagg</option>
@@ -874,7 +874,7 @@
                   </param>
                 </when>
               </conditional>
-              <param argument="method" type="select" value="bagg" label="Specifies which intervals to be aggregated for a certain timestamp" help="(preceding, succeeding or  surrounding  interval). See description above for more details">
+              <param argument="method" type="select" value="bagg" label="Specifies which intervals to be aggregated for a certain timestamp" help="(preceding, succeeding or &quot;surrounding&quot; interval). See description above for more details">
                 <option value="fagg">fagg</option>
                 <option value="bagg">bagg</option>
                 <option value="nagg">nagg</option>
@@ -956,7 +956,7 @@
                 </when>
               </conditional>
               <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written" help="target will be created if it does not exist. Defaults to field" data_ref="data" multiple="false"/>
-              <param argument="func" type="select" value="mean" label="Function to apply to window at each shift" help="Can either be a custom callable, expecting a  object as its input, or a literal from the following list:  -  sum     : Sum of values in the window -  mean    : Average of values -  median  : Median -  min     : Minimum -  max     : Maximum -  std     : Standard deviation -  var     : Variance -  skew    : Skewness -  kurt    : Kurtosis -  count   : Number of non-NA observations in the window">
+              <param argument="func" type="select" value="mean" label="Function to apply to window at each shift" help="Can either be a custom callable, expecting a  object as its input, or a literal from the following list:  - &quot;sum&quot;    : Sum of values in the window - &quot;mean&quot;   : Average of values - &quot;median&quot; : Median - &quot;min&quot;    : Minimum - &quot;max&quot;    : Maximum - &quot;std&quot;    : Standard deviation - &quot;var&quot;    : Variance - &quot;skew&quot;   : Skewness - &quot;kurt&quot;   : Kurtosis - &quot;count&quot;  : Number of non-NA observations in the window">
                 <option value="sum">sum</option>
                 <option value="mean">mean</option>
                 <option value="median">median</option>
@@ -1035,18 +1035,18 @@
                 <option value="brute">brute</option>
                 <option value="auto">auto</option>
               </param>
-              <param argument="p" type="integer" value="2" label="Degree of the metric ( Minkowski ), according to wich distance to neighbors is determined" help="Most important values are:  * 1 - Manhatten Metric * 2 - Euclidian Metric" min="0"/>
+              <param argument="p" type="integer" value="2" label="Degree of the metric (&quot;Minkowski&quot;), according to wich distance to neighbors is determined" help="Most important values are:  * 1 - Manhatten Metric * 2 - Euclidian Metric" min="0"/>
             </when>
             <when value="assignUniLOF">
               <param argument="field" type="data_column" label="Variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="n" type="integer" value="20" label="Number of periods to be included into the LOF calculation" help="Defaults to 20, which is a value found to be suitable in the literature.  * n determines the  locality  of an observation (its n nearest neighbors) and sets the upper limit of values of an outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than n/2 may not be detected reliably. * The larger n, the lesser the algorithm's sensitivity to local outliers and small or singleton outliers points. Higher values greatly increase numerical costs" min="0"/>
+              <param argument="n" type="integer" value="20" label="Number of periods to be included into the LOF calculation" help="Defaults to 20, which is a value found to be suitable in the literature.  * n determines the &quot;locality&quot; of an observation (its n nearest neighbors) and sets the upper limit of values of an outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than n/2 may not be detected reliably. * The larger n, the lesser the algorithm's sensitivity to local outliers and small or singleton outliers points. Higher values greatly increase numerical costs" min="0"/>
               <param argument="algorithm" type="select" value="ball_tree" label="Algorithm used for calculating the n-nearest neighbors needed for LOF calculation" help="">
                 <option value="ball_tree">ball_tree</option>
                 <option value="kd_tree">kd_tree</option>
                 <option value="brute">brute</option>
                 <option value="auto">auto</option>
               </param>
-              <param argument="p" type="integer" value="1" label="Degree of the metric ( Minkowski ), according to wich distance to neighbors is determined" help="Most important values are:  * 1 - Manhatten Metric * 2 - Euclidian Metric" min="0"/>
+              <param argument="p" type="integer" value="1" label="Degree of the metric (&quot;Minkowski&quot;), according to wich distance to neighbors is determined" help="Most important values are:  * 1 - Manhatten Metric * 2 - Euclidian Metric" min="0"/>
               <conditional name="density_cond">
                 <param name="density_selector" type="select" label="Choose type for 'How to calculate the temporal distance/density for the variable-to-be-flagged'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Selection</option>
@@ -1106,13 +1106,13 @@
                   <option value="type_1">String</option>
                 </param>
                 <when value="type_0">
-                  <param argument="mode" type="select" label="How to process multiple variables to be plotted:" help="*  oneplot  : plot all variables with their flags in one axis (default) *  subplots  : generate subplot grid where each axis contains one variable plot with associated flags *  biplot  : plotting first and second variable in field against each other in a scatter plot  (point cloud)">
+                  <param argument="mode" type="select" label="How to process multiple variables to be plotted:" help="* &quot;oneplot&quot; : plot all variables with their flags in one axis (default) * &quot;subplots&quot; : generate subplot grid where each axis contains one variable plot with associated flags * &quot;biplot&quot; : plotting first and second variable in field against each other in a scatter plot  (point cloud)">
                     <option value="subplots">subplots</option>
                     <option value="oneplot">oneplot</option>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="mode" type="text" label="How to process multiple variables to be plotted:" help="*  oneplot  : plot all variables with their flags in one axis (default) *  subplots  : generate subplot grid where each axis contains one variable plot with associated flags *  biplot  : plotting first and second variable in field against each other in a scatter plot  (point cloud)">
+                  <param argument="mode" type="text" label="How to process multiple variables to be plotted:" help="* &quot;oneplot&quot; : plot all variables with their flags in one axis (default) * &quot;subplots&quot; : generate subplot grid where each axis contains one variable plot with associated flags * &quot;biplot&quot; : plotting first and second variable in field against each other in a scatter plot  (point cloud)">
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -1123,13 +1123,13 @@
                   <option value="type_1">List of String</option>
                 </param>
                 <when value="type_0">
-                  <param argument="history" type="select" optional="true" label="Discriminate the plotted flags with respect to the tests they originate from" help="*  valid : Only plot flags, that are not overwritten by subsequent tests. Only list tests in the legend, that actually contributed flags to the overall result. * None: Just plot the resulting flags for one variable, without any historical and/or meta information. * list of strings: List of tests. Plot flags from the given tests, only. * complete (not recommended, deprecated): Plot all the flags set by any test, independently from them being removed or modified by subsequent modifications. (this means: plotted flags do not necessarily match with flags ultimately assigned to the data)">
+                  <param argument="history" type="select" optional="true" label="Discriminate the plotted flags with respect to the tests they originate from" help="* &quot;valid&quot;: Only plot flags, that are not overwritten by subsequent tests. Only list tests in the legend, that actually contributed flags to the overall result. * None: Just plot the resulting flags for one variable, without any historical and/or meta information. * list of strings: List of tests. Plot flags from the given tests, only. * complete (not recommended, deprecated): Plot all the flags set by any test, independently from them being removed or modified by subsequent modifications. (this means: plotted flags do not necessarily match with flags ultimately assigned to the data)">
                     <option value="valid">valid</option>
                     <option value="complete">complete</option>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="history" type="text" label="Discriminate the plotted flags with respect to the tests they originate from" help="*  valid : Only plot flags, that are not overwritten by subsequent tests. Only list tests in the legend, that actually contributed flags to the overall result. * None: Just plot the resulting flags for one variable, without any historical and/or meta information. * list of strings: List of tests. Plot flags from the given tests, only. * complete (not recommended, deprecated): Plot all the flags set by any test, independently from them being removed or modified by subsequent modifications. (this means: plotted flags do not necessarily match with flags ultimately assigned to the data)" multiple="true"/>
+                  <param argument="history" type="text" label="Discriminate the plotted flags with respect to the tests they originate from" help="* &quot;valid&quot;: Only plot flags, that are not overwritten by subsequent tests. Only list tests in the legend, that actually contributed flags to the overall result. * None: Just plot the resulting flags for one variable, without any historical and/or meta information. * list of strings: List of tests. Plot flags from the given tests, only. * complete (not recommended, deprecated): Plot all the flags set by any test, independently from them being removed or modified by subsequent modifications. (this means: plotted flags do not necessarily match with flags ultimately assigned to the data)" multiple="true"/>
                 </when>
               </conditional>
               <conditional name="xscope_cond">
@@ -1177,13 +1177,13 @@
             </when>
             <when value="selectTime">
               <param argument="field" type="data_column" label="Variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="mode" type="select" label="The masking mode" help="-  periodic : parameters  period_start ,  end  are evaluated to generate a periodical mask -  mask_var : data[mask_var] is expected to be a boolean valued timeseries and is used as mask">
+              <param argument="mode" type="select" label="The masking mode" help="- &quot;periodic&quot;: parameters &quot;period_start&quot;, &quot;end&quot; are evaluated to generate a periodical mask - &quot;mask_var&quot;: data[mask_var] is expected to be a boolean valued timeseries and is used as mask">
                 <option value="periodic">periodic</option>
                 <option value="selection_field">selection_field</option>
               </param>
-              <param argument="selection_field" type="data_column" optional="true" label="Only effective if mode ==  mask_var  Fieldname of the column, holding the data that is to be used as mask" help="(must be boolean series) Neither the series length nor its labels have to match data[field]s index and length. An inner join of the indices will be calculated and values get masked where the values of the inner join are True" data_ref="data" multiple="false"/>
-              <param argument="start" type="text" label="Only effective if mode ==  seasonal  String denoting starting point of every period" help="Formally, it has to be a truncated instance of  mm-ddTHH:MM:SS . Has to be of same length as end parameter. See examples section below for some examples"/>
-              <param argument="end" type="text" label="Only effective if mode ==  periodic  String denoting starting point of every period" help="Formally, it has to be a truncated instance of  mm-ddTHH:MM:SS . Has to be of same length as end parameter. See examples section below for some examples"/>
+              <param argument="selection_field" type="data_column" optional="true" label="Only effective if mode == &quot;mask_var&quot; Fieldname of the column, holding the data that is to be used as mask" help="(must be boolean series) Neither the series length nor its labels have to match data[field]s index and length. An inner join of the indices will be calculated and values get masked where the values of the inner join are True" data_ref="data" multiple="false"/>
+              <param argument="start" type="text" label="Only effective if mode == &quot;seasonal&quot; String denoting starting point of every period" help="Formally, it has to be a truncated instance of &quot;mm-ddTHH:MM:SS&quot;. Has to be of same length as end parameter. See examples section below for some examples"/>
+              <param argument="end" type="text" label="Only effective if mode == &quot;periodic&quot; String denoting starting point of every period" help="Formally, it has to be a truncated instance of &quot;mm-ddTHH:MM:SS&quot;. Has to be of same length as end parameter. See examples section below for some examples"/>
               <param argument="closed" type="boolean" label="Wheather or not to include the mask defining bounds to the mask" help="" checked="false"/>
             </when>
           </conditional>

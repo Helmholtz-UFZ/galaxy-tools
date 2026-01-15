@@ -262,7 +262,6 @@ def get_label_help(param_name: str, parameter_docs: str) -> Tuple[str, str]:
         .replace(":py:class:", "")
         .replace(":py:class:`Any`,", "")
         .replace("&#10;", " ")
-        .replace('"', " ")
         .strip()
     )
 

@@ -2,28 +2,35 @@
     <description> with ezomero </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">5</token>
+        <token name="@VERSION_SUFFIX@">6</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
     </xrefs>
     <expand macro="ezomero_requirements"/>
+    <required_files>
+        <include path="connect_omero.py" />
+        <include path="omero_metadata_upload.py" />
+    </required_files>
     <command detect_errors="exit_code"><![CDATA[
-        python $__tool_directory__/omero_metadata_upload.py
-        --credential-file '$credentials'
+
+        #if $test_username != ""
+            export OMERO_USER="$test_username" &&
+            export OMERO_PASSWORD="$test_password" &&
+       #end if
+
+        python '$__tool_directory__'/omero_metadata_upload.py
         @HOST_PORT@
         --obj_type $obj_type
         --ann_type $ann_type
         --ann_file $ann_file
         --an_name $an_name
         --log_file $log
+        @SESSION_ID@
         #if $object_id_selection == "existing_object"
             --did "$did"
         #end if
     ]]></command>
-    <configfiles>
-        <expand macro="credentials"/>
-    </configfiles>
     <inputs>
         <expand macro="host_port"/>
         <param argument="obj_type" type="select" optional="true" label="Target Object Type">

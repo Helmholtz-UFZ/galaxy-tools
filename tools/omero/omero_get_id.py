@@ -1,12 +1,57 @@
 import argparse
 import csv
-import json
+import os
 import sys
+from typing import Optional
 
 import ezomero as ez
+from connect_omero import establish_connection
+
+# Import environmental variables
+usr = os.getenv("OMERO_USER")
+psw = os.getenv("OMERO_PASSWORD")
+uuid_key = os.getenv("UUID_SESSION_KEY")
 
 
-def get_ids_ezo(user, pws, host, port, final_obj_type, parent_obj_type, parent_id=None, tsv_file="id_list.tsv"):
+def get_ids_ezo(
+        host: str,
+        port: int,
+        final_obj_type: str,
+        parent_obj_type: str,
+        parent_id: Optional[int] = None,
+        uuid_key: Optional[str] = None,
+        tsv_file: str = "filter_list.tsv",
+        ses_close: Optional[bool] = True
+) -> int:
+    """
+    Fetch OMERO object IDs (Project, Dataset, Image, Annotation, Tag, ROI, or Table) as TSV from parent object (roject, Dataset, Plate, Well, Image)
+
+    Parameters
+    ----------
+    host : str
+        OMERO server host (i.e. OMERO address or domain name)"
+    port : int
+        OMERO server port (default:4064)
+    final_obj_type : str
+        Type of object to fetch ID: Project, Dataset, Image, Annotation, Tag, ROI, or Table.
+    parent_obj_type : int
+        Type of object from which you fetch IDs: Project, Dataset, Plate, Well, Image (or 'All' if you want to get all objects).
+    parent_id : str, optional
+        ID of the OMERO object in `--parent_obj_type`, not required if you used `--parent_obj_type All`.
+    uuid_key : str, optional
+        OMERO UUID session key to connect without password
+    tsv_file : str, optional
+        Output TSV filename. Default is "filter_list.tsv".
+    ses_close : bool
+        Decide if close or not the section after executing the script. Defaulf value is true, useful when connecting with the UUID session key.
+
+    Returns
+    -------
+    csv.writer
+        A CSV writer object configured to write TSV data. Contain a list of IDs.
+    """
+
+    conn = establish_connection(uuid_key, usr, psw, host, port)
 
     # Function to write tabular file from the ezomero output
     def write_ids_to_tsv(data):
@@ -15,8 +60,8 @@ def get_ids_ezo(user, pws, host, port, final_obj_type, parent_obj_type, parent_i
             for item in data:
                 writer.writerow([item])  # Write each ID
 
-    with ez.connect(user, pws, "", host, port, secure=True) as conn:
-
+    try:
+        # Fetch different object according to the user input
         if final_obj_type == "Project":
             proj_ids = ez.get_project_ids(conn)
             write_ids_to_tsv(proj_ids)
@@ -75,42 +120,40 @@ def get_ids_ezo(user, pws, host, port, final_obj_type, parent_obj_type, parent_i
         else:
             sys.exit(f"Unsupported object type: {filter}")
 
+    finally:
+        if ses_close:
+            conn.close()
 
-# Argument parsing
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Fetch OMERO object IDs as TSV from parent object.")
-    parser.add_argument("--credential-file", dest="credential_file", type=str,
-                        required=True, help="Credential file (JSON file with username and password for OMERO)")
-    parser.add_argument('--host', required=True,
-                        help="Host server address.")
-    parser.add_argument('--port', required=True, type=int,
-                        help='OMERO port')
+    parser.add_argument('--host', required=True, help="OMERO server host (i.e. OMERO address or domain name)")
+    parser.add_argument('--port', required=True, type=int, help="OMERO server port (default:4064)")
     parser.add_argument('--final_obj_type', required=True,
                         help="Type of object to fetch ID: Project, Dataset, Image, Annotation, Tag, Roi, or Table.")
     parser.add_argument('--parent_obj_type', required=True,
                         help="Type of object from which you fetch IDs: Project, Dataset, Plate, Well, Image (or 'All' if you want to get all objects).")
     parser.add_argument('--parent_id', required=False, type=int,
                         help="ID of the OMERO object in `--parent_obj_type`, not required if you used `--parent_obj_type All`.")
-    parser.add_argument('--tsv_file', default='id_list.tsv',
-                        help="Output TSV file path.")
+    parser.add_argument('--session_close', required=False, help='Namespace or title for the annotation')
+    parser.add_argument('--tsv_file', default='id_list.tsv', help="Output TSV file path.")
+
     args = parser.parse_args()
 
     if args.parent_id is None and args.parent_obj_type != "All":
         raise ValueError("ID is only optional is you use `--parent_obj_type All`")
 
     if args.final_obj_type == "Roi" and args.parent_obj_type != "Image":
-        raise ValueError("Roi IDs can only be retrived from images, use `--parent_obj_type Image`")
+        raise ValueError("ROI IDs can only be retrived from images, use `--parent_obj_type Image`")
 
     if args.parent_obj_type == "All" and args.final_obj_type not in ["Image", "Dataset", "Project"]:
         raise ValueError("Only Images, Datasets and Projects is compatible with `--parent_obj_type All`")
 
-    with open(args.credential_file, 'r') as f:
-        crds = json.load(f)
-
     # Call the main function to get the object and save it as a TSV
-    get_ids_ezo(user=crds['username'], pws=crds['password'], host=args.host,
+    get_ids_ezo(host=args.host,
                 port=args.port,
                 final_obj_type=args.final_obj_type,
                 parent_obj_type=args.parent_obj_type,
                 parent_id=args.parent_id,
+                ses_close=args.session_close,
                 tsv_file=args.tsv_file)

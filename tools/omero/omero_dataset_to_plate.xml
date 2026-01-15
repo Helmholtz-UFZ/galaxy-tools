@@ -2,24 +2,30 @@
    <description> with omero-py </description>
    <macros>
        <import>macros.xml</import>
-       <token name="@VERSION_SUFFIX@">3</token>
+       <token name="@VERSION_SUFFIX@">4</token>
    </macros>
    <xrefs>
        <xref type="bio.tools">omero</xref>
    </xrefs>
-   <expand macro="omeropy_requirements"/>
+   <expand macro="ezomero_requirements"/>
+    <required_files>
+        <include path="connect_omero.py" />
+        <include path="omero_dataset_to_plate.py" />
+    </required_files>
    <command detect_errors="exit_code"><![CDATA[
+       #if $test_username != ""
+            export OMERO_USER="$test_username" &&
+            export OMERO_PASSWORD="$test_password" &&
+       #end if
+
        python '$__tool_directory__/omero_dataset_to_plate.py'
-       --credential-file '$credentials'
        @HOST_PORT@
        --dataset_id '$dataset_id'
        --log_file '$log'
        --mapping_file '$mapping'
+       @SESSION_ID@
        '$delete_dataset'
    ]]></command>
-   <configfiles>
-       <expand macro="credentials"/>
-   </configfiles>
    <inputs>
        <expand macro="host_port"/>
        <param name="dataset_id" type="integer" optional="false" min="1" value="" label="Dataset ID to convert to a plate"/>

@@ -1,8 +1,8 @@
-<tool id="omero_import" name="OMERO Image Import" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@" license="MIT">
+<tool id="omero_import_secret" name="OMERO Image Import with secret" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@" license="MIT">
     <description> with omero-py </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">3</token>
+        <token name="@VERSION_SUFFIX@">4</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -18,21 +18,28 @@
             ln -s '${image}' folder/'${image_identifier}.$image.ext' &&
         #end for
 
-        source '$credentials' &&
-        omero import folder -T Dataset:name:$dataset_name
-            -s '$omero_host'
-            -p $omero_port
-            -u "\$OMERO_USER"
-        > $log &&
+        #if $test_username != ""
+            export OMERO_USER="$test_username" &&
+            export OMERO_PASSWORD="$test_password" &&
+       #end if
 
+        #if $session_id.session_id_input =="yes"
+          omero import folder
+           -T Dataset:name:$dataset_name
+           -s '$omero_host'
+           -k \$UUID_SESSION_KEY
+           > $log &&
+        #else
+         omero import folder
+           -T Dataset:name:$dataset_name
+           -s '$omero_host'
+           -p $omero_port
+           -u \$OMERO_USER
+           -w \$OMERO_PASSWORD
+        > $log &&
+        #end if
         omero logout
     ]]></command>
-    <configfiles>
-        <configfile name="credentials"><![CDATA[
-export OMERO_USER="$__user__.extra_preferences.get('omero_account|username', $test_username)"
-export OMERO_PASSWORD="$__user__.extra_preferences.get('omero_account|password', $test_password)"
-        ]]></configfile>
-    </configfiles>
     <inputs>
         <expand macro="host_port"/>
         <param name="folder" type="data" format="avi,bmp,btf,cif,csv,eps,fits,fli,gif,hdr,html,jp2,jpg,mov,mrc,ndpi,nhdr,nrrd,ome.tiff,par,pbm,pcx,pgm,png,ppm,psd,scn,sif,svs,tf2,tf8,tif,tif,tiff,top,txt,vms,wav,xml,zip" multiple="true" optional="false" label="Images to import into OMERO"/>

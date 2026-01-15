@@ -2,24 +2,30 @@
     <description> with ezomero </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@VERSION_SUFFIX@">1</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
     </xrefs>
     <expand macro="ezomero_requirements"/>
+    <required_files>
+        <include path="connect_omero.py" />
+        <include path="omero_get_id.py" />
+    </required_files>
     <command detect_errors="exit_code"><![CDATA[
+        #if $test_username != ""
+            export OMERO_USER="$test_username" &&
+            export OMERO_PASSWORD="$test_password" &&
+       #end if
+
         python '$__tool_directory__'/omero_get_id.py
-        --credential-file '$credentials'
         @HOST_PORT@
         --final_obj_type '$cond_obj_type.final_obj_type'
         --parent_obj_type '$cond_obj_type.parent_obj_type'
         --parent_id $cond_obj_type.parent_id
+        @SESSION_ID@
         --tsv_file '$tsv'
     ]]></command>
-    <configfiles>
-        <expand macro="credentials"/>
-    </configfiles>
     <inputs>
         <expand macro="host_port"/>
         <conditional name="cond_obj_type">

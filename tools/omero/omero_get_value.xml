@@ -2,16 +2,24 @@
     <description> with ezomero </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">2</token>
+        <token name="@VERSION_SUFFIX@">3</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
     </xrefs>
     <expand macro="ezomero_requirements"/>
+    <required_files>
+        <include path="connect_omero.py" />
+        <include path="omero_get_value.py" />
+    </required_files>
     <command detect_errors="exit_code"><![CDATA[
+        #if $test_username != ""
+            export OMERO_USER="$test_username" &&
+            export OMERO_PASSWORD="$test_password" &&
+       #end if
+
         mkdir output;
         python '$__tool_directory__/omero_get_value.py'
-        --credential-file '$credentials'
         @HOST_PORT@
         --obj_type '$obj_type'
         #if $ids_input.ids_format == "values"
@@ -19,11 +27,9 @@
         #else
             --ids_path '$ids_input.ids_path'
         #end if
+        @SESSION_ID@
         --out_dir ./output/
     ]]></command>
-    <configfiles>
-        <expand macro="credentials"/>
-    </configfiles>
     <inputs>
         <expand macro="host_port"/>
         <param argument="obj_type" type="select" optional="false" label="Type of object to fetch:">

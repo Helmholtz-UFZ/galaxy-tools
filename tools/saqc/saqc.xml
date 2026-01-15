@@ -115,7 +115,7 @@
                   <param argument="window" type="integer" label="Size of the rolling window" help="If an integer is passed, it represents the number of timestamps per window. If an offset string is passed, it represents the windows total temporal extent" min="1"/>
                 </when>
               </conditional>
-              <param argument="min_periods" type="integer" value="2" label="Minimum number of valid timestamps that are necessary to be present in any window, in order to trigger condition testing for this window" help="Windows with fewer timestamps are skipped. Must be  = 2, because a single value is always considered constant" min="0"/>
+              <param argument="min_periods" type="integer" value="2" label="Minimum number of valid timestamps that are necessary to be present in any window, in order to trigger condition testing for this window" help="Windows with fewer timestamps are skipped. Must be &gt;= 2, because a single value is always considered constant" min="0"/>
               <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
           </conditional>
@@ -432,7 +432,7 @@
                   </param>
                 </when>
               </conditional>
-              <param argument="thresh" type="float" label="Threshold, the statistic of the main chunk is checked against" help="func(chunk)   thresh" min="0"/>
+              <param argument="thresh" type="float" label="Threshold, the statistic of the main chunk is checked against" help="func(chunk) &gt; thresh" min="0"/>
               <param argument="func" type="select" value="std" label="Function to compute deviation for each chunk: *  std  — standard deviation *  var  — variance *  mad  — median absolute deviation * Callable — custom function mapping 1D arrays to scalars" help="">
                 <option value="std">std</option>
                 <option value="var">var</option>
@@ -454,7 +454,7 @@
                   </param>
                 </when>
               </conditional>
-              <param argument="sub_thresh" type="float" optional="true" label="Threshold, the statistic of the main chunk is checked against" help="func(sub_chunk)   sub_thresh" min="0"/>
+              <param argument="sub_thresh" type="float" optional="true" label="Threshold, the statistic of the main chunk is checked against" help="func(sub_chunk) &gt; sub_thresh" min="0"/>
               <param argument="min_periods" type="integer" optional="true" label="Minimum number of values required in a chunk to perform the test" help="Ignored if window is an integer" min="0"/>
               <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the BAD value of the translation scheme"/>
             </when>
@@ -991,10 +991,10 @@
                   <option value="type_1">OffsetStr (Pandas Frequency)</option>
                 </param>
                 <when value="type_0">
-                  <param argument="freq" type="float" label="Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually" help="* : Apply Scoring on whole data set at once * x   0 : Apply scoring on successive data chunks of periods length x * Offset String : Apply scoring on successive partitions of temporal extension matching the passed offset string" min="0"/>
+                  <param argument="freq" type="float" label="Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually" help="* : Apply Scoring on whole data set at once * x &gt; 0 : Apply scoring on successive data chunks of periods length x * Offset String : Apply scoring on successive partitions of temporal extension matching the passed offset string" min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="freq" type="text" label="Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually" help="* : Apply Scoring on whole data set at once * x   0 : Apply scoring on successive data chunks of periods length x * Offset String : Apply scoring on successive partitions of temporal extension matching the passed offset string Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
+                  <param argument="freq" type="text" label="Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually" help="* : Apply Scoring on whole data set at once * x &gt; 0 : Apply scoring on successive data chunks of periods length x * Offset String : Apply scoring on successive partitions of temporal extension matching the passed offset string Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                     <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
                     <validator type="empty_field"/>
                   </param>

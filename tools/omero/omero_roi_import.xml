@@ -16,8 +16,8 @@
             export OMERO_PASSWORD="$test_password" &&
        #end if
 
-        @HOST_PORT@
         python '$__tool_directory__/omero_roi_upload.py'
+        @HOST_PORT@
         --input_file '$input'
         --image_id $id
         #if $session_id.session_id_input== "yes"

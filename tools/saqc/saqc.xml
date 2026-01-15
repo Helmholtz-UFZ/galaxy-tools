@@ -468,7 +468,7 @@
               <option value="flagOffset">flagOffset: Flag offsetting value courses</option>
               <option value="flagRange">flagRange: Flag values outside the closed interval [`min`, `max`]</option>
               <option value="flagUniLOF">flagUniLOF: Flag anomalous values using the *Univariate Local Outlier Factor (UniLOF)* method</option>
-              <option value="flagZScore">flagZScore: Uses standard score cutoffs to detect outliers. (For example,  *3*-sigma rule .)</option>
+              <option value="flagZScore">flagZScore: Uses standard score cutoffs to detect outliers. (For example, "*3*-sigma rule".)</option>
             </param>
             <when value="flagByStray">
               <param argument="field" type="data_column" label="Variable to process" help="" data_ref="data" multiple="false"/>
@@ -936,7 +936,7 @@
         <when value="rolling">
           <conditional name="method_cond">
             <param name="method_select" type="select" label="Method">
-              <option value="rolling">rolling: Evaluate a function at all shifts of a fixed-size window ( rolling window application )</option>
+              <option value="rolling">rolling: Evaluate a function at all shifts of a fixed-size window ("rolling window application")</option>
             </param>
             <when value="rolling">
               <param argument="field" type="data_column" label="Variable to process" help="" data_ref="data" multiple="false"/>
@@ -978,7 +978,7 @@
             <param name="method_select" type="select" label="Method">
               <option value="assignKNNScore">assignKNNScore: Score datapoints by an aggregation of the distances to their `k` nearest neighbors</option>
               <option value="assignLOF">assignLOF: Assign Local Outlier Factor (LOF)</option>
-              <option value="assignUniLOF">assignUniLOF: Assign  univariate  Local Outlier Factor (LOF) or  inivariate  Local Outlier Probability (LOP)</option>
+              <option value="assignUniLOF">assignUniLOF: Assign "univariate" Local Outlier Factor (LOF) or "inivariate" Local Outlier Probability (LOP)</option>
               <option value="assignZScore">assignZScore: Calculate (rolling) Zscores</option>
             </param>
             <when value="assignKNNScore">

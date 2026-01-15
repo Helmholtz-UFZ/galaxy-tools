@@ -118,10 +118,6 @@ def _get_doc(doc_str: Optional[str]) -> str:
         .replace(":py:attr:", "")
         .replace(":py:class:`Any`,", "")
         .replace(":py:class:", "")
-        .replace("&#10;", " ")
-        .replace("<", " ")
-        .replace(">", " ")
-        .replace('"', " ")
     )
 
     return doc_str
@@ -612,6 +608,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         if options_list:
             creation_args["default"] = creation_args.pop("value", None)
             options = {o: o for o in options_list}
+            sys.stderr.write(f"{options=}")
             param_object = SelectParam(argument=param_name, options=options, **creation_args)
 
     elif (range_match := re.fullmatch(r"(Float|Int)\[\s*([0-9.-]+)\s*,\s*([0-9.-]+)\s*\]", base_type_str, re.IGNORECASE)):

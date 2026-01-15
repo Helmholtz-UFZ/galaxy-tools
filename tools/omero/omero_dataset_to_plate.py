@@ -8,9 +8,8 @@ from pathlib import Path
 from typing import Optional
 
 import omero
-from omero.rtypes import rint, rstring
-
 from connect_omero import establish_connection
+from omero.rtypes import rint, rstring
 
 # Import environmental variables
 usr = os.getenv("OMERO_USER")

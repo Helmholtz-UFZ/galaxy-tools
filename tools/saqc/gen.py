@@ -257,8 +257,7 @@ def get_label_help(param_name: str, parameter_docs: str) -> Tuple[str, str]:
         return param_name, ""
 
     clean_doc = (
-        doc_string.replace("`", "")
-        .replace(":py:attr:", "")
+        doc_string.replace(":py:attr:", "")
         .replace(":py:class:", "")
         .strip()
     )
@@ -266,7 +265,7 @@ def get_label_help(param_name: str, parameter_docs: str) -> Tuple[str, str]:
     # remove type annotations from first line of parameter docs
     # TODO can be removed in 2.8 https://git.ufz.de/rdm-software/saqc/-/merge_requests/891
     clean_doc = clean_doc.splitlines()
-    types = ["Any", "bool", "callable", "float", "int", "SaQCFields", "str", "{"]
+    types = ["`Any`", "bool", "callable", "float", "int", "`SaQCFields`", "str", "{"]
     if len(clean_doc) > 0 and any([clean_doc[0].startswith(t) for t in types]):
         clean_doc = "\n".join(clean_doc[1:])
     else:

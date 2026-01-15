@@ -56,13 +56,20 @@
     </token>
 
     <token name="@SECURITY_DISCLAIMER@">
-    To use the OMERO tools, you **MUST** trust the Galaxy instance and its administrators.
+    **OMERO-suite Security Notice**
 
-	Your OMERO username and password will be stored temporarily in the job directory. This directory exists (1) during the execution of the job and (2) may remain accessible after the job ran (depending on the Galaxy's configuration). In both 		cases, the folder can be accessed by users with administrative privileges.
+    To use the OMERO tools, you must trust the Galaxy instance hosting your job.
+    Your OMERO username and password are stored in a temporary configuration file during job execution.
 
-	Please be aware: your username and password may be visible to users with administrative rights. The creators of the OMERO tools do not take responsibility for any potential password exposure. We strongly recommend using a temporary token or the UUID session option instead of your main credentials.
+    This file is accessible only to the system account running the job,
+    but may in principle be viewed by Galaxy administrators with elevated rights.
 
-	We are actively working on improving the security of the OMERO suite.
+    The file is removed after job completion and is not persistently stored.
+    **We recommend using service-specific or temporary OMERO credentials whenever possible.**
+
+    We are actively working to further improve security,
+    for example by enabling the UUID-key authentication.
+    The European Galaxy Server is operated in compliance with the EU General Data Protection Regulation (GDPR).
     </token>
 
 </macros>

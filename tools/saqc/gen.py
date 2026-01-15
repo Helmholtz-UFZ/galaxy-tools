@@ -271,8 +271,11 @@ def get_label_help(param_name: str, parameter_docs: str) -> Tuple[str, str]:
     else:
         clean_doc = "\n".join(clean_doc)
 
-    clean_doc = re.sub(r'\b(pandas|pd|saqc|np|numpy|typing)\.[a-zA-Z0-9_.]+', '', clean_doc, flags=re.IGNORECASE)
+    # https://git.ufz.de/rdm-software/saqc/-/issues/518
+    clean_doc = re.sub(r'pd\.([a-zA-Z0-9_.]+)', r'pandas.\1', clean_doc, flags=re.IGNORECASE)
+    clean_doc = re.sub(r'np\.([a-zA-Z0-9_.]+)', r'numpy.\1', clean_doc, flags=re.IGNORECASE)
 
+    clean_doc = re.sub(r'\b(saqc|typing)\.[a-zA-Z0-9_.]+', '', clean_doc, flags=re.IGNORECASE)
     clean_doc = re.sub(r'\b(Callable|Union|Optional|List|Tuple|Dict|Sequence|Literal)\[.*?\]', '', clean_doc, flags=re.IGNORECASE)
 
     clean_doc = clean_doc.strip()

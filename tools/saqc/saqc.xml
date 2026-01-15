@@ -146,8 +146,8 @@
               </conditional>
               <param argument="nyq" type="float" value="0.5" label="The niquist-frequency" help="expressed in multiples if the sampling rate" min="0"/>
               <param argument="filter_order" type="integer" value="2" label="filter_order" help="" min="1"/>
-              <param argument="fill_method" type="select" value="linear" label="Fill method to be applied on the data before filtering (butterfilter cant handle ''numpy.nan'')" help="See documentation of pandas.Series.interpolate method for details on the methods associated with the different keywords">
-                <option value="linear">linear</option>
+              <param argument="fill_method" type="select" label="Fill method to be applied on the data before filtering (butterfilter cant handle ''numpy.nan'')" help="See documentation of pandas.Series.interpolate method for details on the methods associated with the different keywords">
+                <option selected="true" value="linear">linear</option>
                 <option value="nearest">nearest</option>
                 <option value="zero">zero</option>
                 <option value="slinear">slinear</option>
@@ -162,9 +162,9 @@
               <param argument="field" type="data_column" label="Variable to process" help="" data_ref="data" multiple="true"/>
               <param argument="ratio" type="integer" value="4" label="The number of samples generated for any values reconstruction" help="Must be a divisor of `context`. Effectively controlls the stride-width of the reconstruction window through the data"/>
               <param argument="context" type="integer" value="512" label="size of the context window with regard to wich any value is reconstructed" help=""/>
-              <param argument="agg" type="select" value="mean" label="How to aggregate the different reconstructions for the same value" help="* 'center': use the value that was constructed in a window centering around the origin value * 'mean': assign the mean over all reconstructed values * 'median': assign the median over all reconstructed values * 'std': assign the standard deviation over all reconstructed values">
+              <param argument="agg" type="select" label="How to aggregate the different reconstructions for the same value" help="* 'center': use the value that was constructed in a window centering around the origin value * 'mean': assign the mean over all reconstructed values * 'median': assign the median over all reconstructed values * 'std': assign the standard deviation over all reconstructed values">
                 <option value="center">center</option>
-                <option value="mean">mean</option>
+                <option selected="true" value="mean">mean</option>
                 <option value="median">median</option>
                 <option value="std">std</option>
               </param>
@@ -205,8 +205,8 @@
               <param argument="field" type="data_column" label="Variable to process" help="" data_ref="data" multiple="false"/>
               <param argument="cluster_field" type="data_column" label="Column in data, holding the cluster labels for the samples in field" help="(has to be indexed equal to field)" data_ref="data" multiple="false"/>
               <param argument="spread" type="float" label="A threshold denoting the value level, up to wich clusters a agglomerated" help="" min="0"/>
-              <param argument="method" type="select" value="single" label="The linkage method for hierarchical (agglomerative) clustering of the variables" help="">
-                <option value="single">single</option>
+              <param argument="method" type="select" label="The linkage method for hierarchical (agglomerative) clustering of the variables" help="">
+                <option selected="true" value="single">single</option>
                 <option value="complete">complete</option>
                 <option value="average">average</option>
                 <option value="weighted">weighted</option>
@@ -246,8 +246,8 @@
               </param>
               <param argument="spread" type="float" label="Maximum spread allowed in the group of *normal* data" help="See Notes section for more details" min="0"/>
               <param argument="frac" type="float" value="0.5" label="Fraction defining the normal group" help="Use a value from the interval [0,1]. The higher the value, the more stable the algorithm will be. For values below 0.5 the results are undefined" min="0" max="1"/>
-              <param argument="method" type="select" value="single" label="Linkage method used for hierarchical (agglomerative) clustering of the data" help="`method` is directly passed to ``scipy.hierarchy.linkage``. See its documentation [1] for more details. For a general introduction on hierarchical clustering see [2]">
-                <option value="single">single</option>
+              <param argument="method" type="select" label="Linkage method used for hierarchical (agglomerative) clustering of the data" help="`method` is directly passed to ``scipy.hierarchy.linkage``. See its documentation [1] for more details. For a general introduction on hierarchical clustering see [2]">
+                <option selected="true" value="single">single</option>
                 <option value="complete">complete</option>
                 <option value="average">average</option>
                 <option value="weighted">weighted</option>
@@ -271,8 +271,8 @@
               <param argument="field" type="data_column" label="Variable to process" help="" data_ref="data" multiple="false"/>
               <param argument="cluster_field" type="data_column" label="Column in data, holding the cluster labels for the samples in field" help="(has to be indexed equal to field)" data_ref="data" multiple="false"/>
               <param argument="spread" type="float" label="A threshold denoting the value level, up to wich clusters a agglomerated" help="" min="0"/>
-              <param argument="method" type="select" value="single" label="The linkage method for hierarchical (agglomerative) clustering of the variables" help="">
-                <option value="single">single</option>
+              <param argument="method" type="select" label="The linkage method for hierarchical (agglomerative) clustering of the variables" help="">
+                <option selected="true" value="single">single</option>
                 <option value="complete">complete</option>
                 <option value="average">average</option>
                 <option value="weighted">weighted</option>
@@ -340,8 +340,8 @@
                   <param argument="window" type="integer" label="Size of the repetition window" help="An integer defines the exact number of periods to propagate, while a string is interpreted as a time offset" min="0"/>
                 </when>
               </conditional>
-              <param argument="method" type="select" value="ffill" label="Direction of propagation: * ``ffill`` — propagate flag to subsequent values * ``bfill`` — propagate flag to preceding values" help="">
-                <option value="ffill">ffill</option>
+              <param argument="method" type="select" label="Direction of propagation: * ``ffill`` — propagate flag to subsequent values * ``bfill`` — propagate flag to preceding values" help="">
+                <option selected="true" value="ffill">ffill</option>
                 <option value="bfill">bfill</option>
               </param>
               <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
@@ -433,8 +433,8 @@
                 </when>
               </conditional>
               <param argument="thresh" type="float" label="Threshold, the statistic of the main chunk is checked against" help="``func(chunk) &gt; thresh``" min="0"/>
-              <param argument="func" type="select" value="std" label="Function to compute deviation for each chunk: * ``&quot;std&quot;`` — standard deviation * ``&quot;var&quot;`` — variance * ``&quot;mad&quot;`` — median absolute deviation * Callable — custom function mapping 1D arrays to scalars" help="">
-                <option value="std">std</option>
+              <param argument="func" type="select" label="Function to compute deviation for each chunk: * ``&quot;std&quot;`` — standard deviation * ``&quot;var&quot;`` — variance * ``&quot;mad&quot;`` — median absolute deviation * Callable — custom function mapping 1D arrays to scalars" help="">
+                <option selected="true" value="std">std</option>
                 <option value="var">var</option>
                 <option value="mad">mad</option>
               </param>
@@ -508,8 +508,8 @@
                   <param argument="thresh" type="float" label="The threshold for flagging the calculated LOF" help="A LOF of around ``1`` is considered normal and most likely corresponds to inlier points.  * The &quot;automatic&quot; threshing introduced with the publication of the algorithm defaults to ``1.5``. * In this implementation, `thresh` defaults (``'auto'``) to flagging the scores with a modified 3-sigma rule" min="1"/>
                 </when>
               </conditional>
-              <param argument="algorithm" type="select" value="ball_tree" label="Algorithm used for calculating the `n`-nearest neighbors" help="">
-                <option value="ball_tree">ball_tree</option>
+              <param argument="algorithm" type="select" label="Algorithm used for calculating the `n`-nearest neighbors" help="">
+                <option selected="true" value="ball_tree">ball_tree</option>
                 <option value="kd_tree">kd_tree</option>
                 <option value="brute">brute</option>
                 <option value="auto">auto</option>
@@ -578,8 +578,8 @@
                   <param argument="corruption" type="integer" optional="true" label="Portion of data assumed to be anomalous, either as a fraction in ``[0" help="1]`` or as an integer specifying the number of anomalous samples" min="0"/>
                 </when>
               </conditional>
-              <param argument="algorithm" type="select" value="ball_tree" label="Nearest-neighbor algorithm used for LOF" help="">
-                <option value="ball_tree">ball_tree</option>
+              <param argument="algorithm" type="select" label="Nearest-neighbor algorithm used for LOF" help="">
+                <option selected="true" value="ball_tree">ball_tree</option>
                 <option value="kd_tree">kd_tree</option>
                 <option value="brute">brute</option>
                 <option value="auto">auto</option>
@@ -606,8 +606,8 @@
             </when>
             <when value="flagZScore">
               <param argument="field" type="data_column" label="List of variables names to process" help="" data_ref="data" multiple="false"/>
-              <param argument="method" type="select" value="standard" label="Which scoring method to use:" help="* ``&quot;standard&quot;`` — mean as expectation, standard deviation as scaling factor. * ``&quot;modified&quot;`` — median as expectation, median absolute deviation (MAD) as scaling factor">
-                <option value="standard">standard</option>
+              <param argument="method" type="select" label="Which scoring method to use:" help="* ``&quot;standard&quot;`` — mean as expectation, standard deviation as scaling factor. * ``&quot;modified&quot;`` — median as expectation, median absolute deviation (MAD) as scaling factor">
+                <option selected="true" value="standard">standard</option>
                 <option value="modified">modified</option>
               </param>
               <conditional name="window_cond">
@@ -707,7 +707,7 @@
             <when value="concatFlags">
               <param argument="field" type="data_column" label="Variable to process" help="" data_ref="data" multiple="false"/>
               <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written" help="`target` will be created if it does not exist. Defaults to `field`" data_ref="data" multiple="false"/>
-              <param argument="method" type="select" value="auto" label="Method to project the flags of `field` to the flags to `target`:" help="* ``'auto'``: invert the last alignment/resampling operation (that is not already inverted) * ``'nagg'``: project a flag of `field` to all timestamps of `target` within the range +/- `freq`/2. * ``'bagg'``: project a flag of `field` to all preceeding timestamps of `target` within the range `freq` * ``'fagg'``: project a flag of `field` to all succeeding timestamps of `target` within the range `freq` * ``'interpolation'`` - project a flag of `field` to all timestamps of `target` within the range +/- `freq` * ``'sshift'`` - same as interpolation * ``'nshift'`` - project a flag of `field` to the neaerest timestamps in `target` within the range +/- `freq`/2 * ``'bshift'`` - project a flag of `field` to nearest preceeding timestamps in `target` * ``'nshift'`` - project a flag of `field` to nearest succeeding timestamps in `target` * ``'match'`` - project a flag of `field` to all identical timestamps `target`">
+              <param argument="method" type="select" label="Method to project the flags of `field` to the flags to `target`:" help="* ``'auto'``: invert the last alignment/resampling operation (that is not already inverted) * ``'nagg'``: project a flag of `field` to all timestamps of `target` within the range +/- `freq`/2. * ``'bagg'``: project a flag of `field` to all preceeding timestamps of `target` within the range `freq` * ``'fagg'``: project a flag of `field` to all succeeding timestamps of `target` within the range `freq` * ``'interpolation'`` - project a flag of `field` to all timestamps of `target` within the range +/- `freq` * ``'sshift'`` - same as interpolation * ``'nshift'`` - project a flag of `field` to the neaerest timestamps in `target` within the range +/- `freq`/2 * ``'bshift'`` - project a flag of `field` to nearest preceeding timestamps in `target` * ``'nshift'`` - project a flag of `field` to nearest succeeding timestamps in `target` * ``'match'`` - project a flag of `field` to all identical timestamps `target`">
                 <option value="fagg">fagg</option>
                 <option value="bagg">bagg</option>
                 <option value="nagg">nagg</option>
@@ -717,7 +717,7 @@
                 <option value="sshift">sshift</option>
                 <option value="mshift">mshift</option>
                 <option value="match">match</option>
-                <option value="auto">auto</option>
+                <option selected="true" value="auto">auto</option>
                 <option value="linear">linear</option>
                 <option value="pad">pad</option>
               </param>
@@ -767,7 +767,7 @@
                   </param>
                 </when>
               </conditional>
-              <param argument="method" type="select" value="match" label="Determines which of the origins indexes periods to comprise into the calculation of a new flag and a new data value at any period of the new index" help="* Aggregations Reindexer. Aggregations are data and flags independent, (pure) index selection methods: * `'bagg'`/`'fagg'`: &quot;backwards/forwards aggregation&quot;. Any new index period gets assigned an aggregation of the values at periods in the original index, that lie between itself and its successor/predecessor. * `'nagg'`: &quot;nearest aggregation&quot;: Any new index period gets assigned an aggregation of the values at periods in the original index between its direcet predecessor and successor, it is the nearest neighbor to. * Rolling reindexer. Rolling reindexers are equal to aggregations, when projecting between regular and irregular sampling grids forth and back. But due to there simple rolling window construction, they are easier to comprehend, predict and parametrize. On the downside, they are much more expensive computationally and Also, periods can get included in the aggregation to multpiple target periods, (when rolling windows overlap). * `'broll'`/`'froll'`: Any new index period gets assigned an aggregation of all the values at periods of the original index, that fall into a directly preceeding/succeeding window of size `reindex_window`. * Shifts. Shifting methods are shortcuts for aggregation reindex methods, combined with selecting 'last' or 'first' as the `data_aggregation` method. Therefor, both, the `flags_aggregation` and the `data_aggregation` are ignored when using a `shift` reindexer. Also, periods where the data evaluates to `NaN` are dropped before shift index selection. * `'bshift'`/`fshift`: &quot;backwards/forwards shift&quot;. Any new index period gets assigned the first/last valid (not a data NaN) value it succeeds/preceeds * `'nshift'`: &quot;nearest shift&quot;: Any new index period gets assigned the value of its closest neighbor in the original index. * Pillar point Mappings. Index selection method designed to select indices suitable for linearly interpolating index values from surrounding pillar points in the original index, or inverting such a selection. Periods where the data evaluates to `NaN`, are dropped from consideration. * `'mshift'`: &quot;Merge&quot; predecessors and successors. Any new index period gets assigned an aggregation/interpolation comprising the last and the next valid period in the original index. * `'sshift'`: &quot;Split&quot;-map values onto predecessors and successors. Same as `mshift`, but with a correction that prevents missing value flags from being mapped to continuous data chunk bounds. * Inversion of last method: try to select the method, that * `'invert``">
+              <param argument="method" type="select" label="Determines which of the origins indexes periods to comprise into the calculation of a new flag and a new data value at any period of the new index" help="* Aggregations Reindexer. Aggregations are data and flags independent, (pure) index selection methods: * `'bagg'`/`'fagg'`: &quot;backwards/forwards aggregation&quot;. Any new index period gets assigned an aggregation of the values at periods in the original index, that lie between itself and its successor/predecessor. * `'nagg'`: &quot;nearest aggregation&quot;: Any new index period gets assigned an aggregation of the values at periods in the original index between its direcet predecessor and successor, it is the nearest neighbor to. * Rolling reindexer. Rolling reindexers are equal to aggregations, when projecting between regular and irregular sampling grids forth and back. But due to there simple rolling window construction, they are easier to comprehend, predict and parametrize. On the downside, they are much more expensive computationally and Also, periods can get included in the aggregation to multpiple target periods, (when rolling windows overlap). * `'broll'`/`'froll'`: Any new index period gets assigned an aggregation of all the values at periods of the original index, that fall into a directly preceeding/succeeding window of size `reindex_window`. * Shifts. Shifting methods are shortcuts for aggregation reindex methods, combined with selecting 'last' or 'first' as the `data_aggregation` method. Therefor, both, the `flags_aggregation` and the `data_aggregation` are ignored when using a `shift` reindexer. Also, periods where the data evaluates to `NaN` are dropped before shift index selection. * `'bshift'`/`fshift`: &quot;backwards/forwards shift&quot;. Any new index period gets assigned the first/last valid (not a data NaN) value it succeeds/preceeds * `'nshift'`: &quot;nearest shift&quot;: Any new index period gets assigned the value of its closest neighbor in the original index. * Pillar point Mappings. Index selection method designed to select indices suitable for linearly interpolating index values from surrounding pillar points in the original index, or inverting such a selection. Periods where the data evaluates to `NaN`, are dropped from consideration. * `'mshift'`: &quot;Merge&quot; predecessors and successors. Any new index period gets assigned an aggregation/interpolation comprising the last and the next valid period in the original index. * `'sshift'`: &quot;Split&quot;-map values onto predecessors and successors. Same as `mshift`, but with a correction that prevents missing value flags from being mapped to continuous data chunk bounds. * Inversion of last method: try to select the method, that * `'invert``">
                 <option value="fagg">fagg</option>
                 <option value="bagg">bagg</option>
                 <option value="nagg">nagg</option>
@@ -777,7 +777,7 @@
                 <option value="fshift">fshift</option>
                 <option value="bshift">bshift</option>
                 <option value="nshift">nshift</option>
-                <option value="match">match</option>
+                <option selected="true" value="match">match</option>
                 <option value="sshift">sshift</option>
                 <option value="mshift">mshift</option>
                 <option value="invert">invert</option>
@@ -874,9 +874,9 @@
                   </param>
                 </when>
               </conditional>
-              <param argument="method" type="select" value="bagg" label="Specifies which intervals to be aggregated for a certain timestamp" help="(preceding, succeeding or &quot;surrounding&quot; interval). See description above for more details">
+              <param argument="method" type="select" label="Specifies which intervals to be aggregated for a certain timestamp" help="(preceding, succeeding or &quot;surrounding&quot; interval). See description above for more details">
                 <option value="fagg">fagg</option>
-                <option value="bagg">bagg</option>
+                <option selected="true" value="bagg">bagg</option>
                 <option value="nagg">nagg</option>
               </param>
               <param argument="maxna" type="integer" optional="true" label="Maximum number of allowed ``NaN``s in a resampling interval" help="If exceeded, the aggregation of the interval evaluates to ``NaN``" min="0"/>
@@ -956,9 +956,9 @@
                 </when>
               </conditional>
               <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written" help="`target` will be created if it does not exist. Defaults to `field`" data_ref="data" multiple="false"/>
-              <param argument="func" type="select" value="mean" label="Function to apply to window at each shift" help="Can either be a custom callable, expecting a ``pandas.Series`` object as its input, or a literal from the following list:  - &quot;sum&quot;    : Sum of values in the window - &quot;mean&quot;   : Average of values - &quot;median&quot; : Median - &quot;min&quot;    : Minimum - &quot;max&quot;    : Maximum - &quot;std&quot;    : Standard deviation - &quot;var&quot;    : Variance - &quot;skew&quot;   : Skewness - &quot;kurt&quot;   : Kurtosis - &quot;count&quot;  : Number of non-NA observations in the window">
+              <param argument="func" type="select" label="Function to apply to window at each shift" help="Can either be a custom callable, expecting a ``pandas.Series`` object as its input, or a literal from the following list:  - &quot;sum&quot;    : Sum of values in the window - &quot;mean&quot;   : Average of values - &quot;median&quot; : Median - &quot;min&quot;    : Minimum - &quot;max&quot;    : Maximum - &quot;std&quot;    : Standard deviation - &quot;var&quot;    : Variance - &quot;skew&quot;   : Skewness - &quot;kurt&quot;   : Kurtosis - &quot;count&quot;  : Number of non-NA observations in the window">
                 <option value="sum">sum</option>
-                <option value="mean">mean</option>
+                <option selected="true" value="mean">mean</option>
                 <option value="median">median</option>
                 <option value="min">min</option>
                 <option value="max">max</option>
@@ -1001,8 +1001,8 @@
                 </when>
               </conditional>
               <param argument="min_periods" type="integer" value="2" label="The minimum number of periods that have to be present in a window for the kNN scoring to be applied" help="If the number of periods present is below `min_periods`, the score for the datapoints in that window will be numpy.nan" min="0"/>
-              <param argument="algorithm" type="select" value="ball_tree" label="The search algorithm to find each datapoints k nearest neighbors" help="The keyword just gets passed on to the underlying sklearn method. See reference [1] for more information on the algorithm">
-                <option value="ball_tree">ball_tree</option>
+              <param argument="algorithm" type="select" label="The search algorithm to find each datapoints k nearest neighbors" help="The keyword just gets passed on to the underlying sklearn method. See reference [1] for more information on the algorithm">
+                <option selected="true" value="ball_tree">ball_tree</option>
                 <option value="kd_tree">kd_tree</option>
                 <option value="brute">brute</option>
                 <option value="auto">auto</option>
@@ -1029,8 +1029,8 @@
                 </when>
               </conditional>
               <param argument="min_periods" type="integer" value="2" label="min_periods" help="" min="0"/>
-              <param argument="algorithm" type="select" value="ball_tree" label="Algorithm used for calculating the `n`-nearest neighbors needed for LOF calculation" help="">
-                <option value="ball_tree">ball_tree</option>
+              <param argument="algorithm" type="select" label="Algorithm used for calculating the `n`-nearest neighbors needed for LOF calculation" help="">
+                <option selected="true" value="ball_tree">ball_tree</option>
                 <option value="kd_tree">kd_tree</option>
                 <option value="brute">brute</option>
                 <option value="auto">auto</option>
@@ -1040,8 +1040,8 @@
             <when value="assignUniLOF">
               <param argument="field" type="data_column" label="Variable to process" help="" data_ref="data" multiple="false"/>
               <param argument="n" type="integer" value="20" label="Number of periods to be included into the LOF calculation" help="Defaults to `20`, which is a value found to be suitable in the literature.  * `n` determines the &quot;locality&quot; of an observation (its `n` nearest neighbors) and sets the upper limit of values of an outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than `n/2` may not be detected reliably. * The larger `n`, the lesser the algorithm's sensitivity to local outliers and small or singleton outliers points. Higher values greatly increase numerical costs" min="0"/>
-              <param argument="algorithm" type="select" value="ball_tree" label="Algorithm used for calculating the `n`-nearest neighbors needed for LOF calculation" help="">
-                <option value="ball_tree">ball_tree</option>
+              <param argument="algorithm" type="select" label="Algorithm used for calculating the `n`-nearest neighbors needed for LOF calculation" help="">
+                <option selected="true" value="ball_tree">ball_tree</option>
                 <option value="kd_tree">kd_tree</option>
                 <option value="brute">brute</option>
                 <option value="auto">auto</option>

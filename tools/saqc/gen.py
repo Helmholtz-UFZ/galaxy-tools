@@ -606,6 +606,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         options_str = literal_match.group(1)
         options_list = [opt.strip().strip("'\"") for opt in _split_type_string_safely(options_str)]
         if options_list:
+            creation_args["default"] = creation_args.pop("value", None)
             options = {o: o for o in options_list}
             param_object = SelectParam(argument=param_name, options=options, **creation_args)
 
@@ -613,6 +614,7 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         type_obj = SAQC_CUSTOM_SELECT_TYPES[base_type_str]
         args = get_args(type_obj)
         if get_origin(type_obj) is Literal and args:
+            creation_args["default"] = creation_args.pop("value", None)
             options = {str(o): str(o) for o in args}
             param_object = SelectParam(argument=param_name, options=options, **creation_args)
 

@@ -12,9 +12,9 @@
     </expand>
     <command detect_errors="exit_code"><![CDATA[
         #if $test_username != ""
-            export OMERO_USER = "$test_username"
-            export OMERO_PASSWORD = "$test_password" &&
-        #end if
+            export OMERO_USER="$test_username" &&
+            export OMERO_PASSWORD="$test_password" &&
+       #end if
 
         python '$__tool_directory__'/omero_get_id.py
         @HOST_PORT@

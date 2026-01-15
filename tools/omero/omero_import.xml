@@ -21,9 +21,9 @@
         #end for
 
         #if $test_username != ""
-            export OMERO_USER = "$test_username"
-            export OMERO_PASSWORD = "$test_password" &&
-        #end if
+            export OMERO_USER="$test_username" &&
+            export OMERO_PASSWORD="$test_password" &&
+       #end if
 
         #if $session_id.session_id_input =="yes"
           omero import folder

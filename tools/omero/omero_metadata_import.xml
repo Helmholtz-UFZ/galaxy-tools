@@ -13,9 +13,9 @@
     <command detect_errors="exit_code"><![CDATA[
 
         #if $test_username != ""
-            export OMERO_USER = "$test_username"
-            export OMERO_PASSWORD = "$test_password" &&
-        #end if
+            export OMERO_USER="$test_username" &&
+            export OMERO_PASSWORD="$test_password" &&
+       #end if
 
         python '$__tool_directory__'/omero_metadata_upload.py
         @HOST_PORT@

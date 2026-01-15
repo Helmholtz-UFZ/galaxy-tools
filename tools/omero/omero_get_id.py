@@ -150,7 +150,8 @@ if __name__ == "__main__":
         raise ValueError("Only Images, Datasets and Projects is compatible with `--parent_obj_type All`")
 
     # Call the main function to get the object and save it as a TSV
-    get_ids_ezo(port=args.port,
+    get_ids_ezo(host=args.host,
+                port=args.port,
                 final_obj_type=args.final_obj_type,
                 parent_obj_type=args.parent_obj_type,
                 parent_id=args.parent_id,

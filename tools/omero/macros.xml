@@ -9,6 +9,7 @@
             <requirement type="package" version="@EZOMERO_VERSION@">ezomero</requirement>
             <requirement type="package" version="2.2.2">pandas</requirement>
             <yield/>
+            <expand macro="omero_credentials"/>
         </requirements>
     </xml>
 
@@ -18,6 +19,7 @@
             <!-- openjdk is needed: https://github.com/conda-forge/omero-py-feedstock/pull/16 -->
             <requirement type="package" version="21.0.2">openjdk</requirement>
             <yield/>
+            <expand macro="omero_credentials"/>
         </requirements>
     </xml>
 
@@ -50,10 +52,20 @@
             </when>
         </conditional>
     </xml>
+
     <token name="@HOST_PORT@">
         --host '$omero_host'
         --port $omero_port
     </token>
+
+    <token name="@SESSION_ID@">
+        #if $session_id.session_id_input== "yes"
+            --session_close $close_connection
+        #else
+            --session_close "True"
+        #end if
+    </token>
+
 
     <token name="@SECURITY_DISCLAIMER@">
     **OMERO-suite Security Notice**

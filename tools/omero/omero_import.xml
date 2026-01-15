@@ -7,9 +7,7 @@
     <xrefs>
         <xref type="bio.tools">omero</xref>
     </xrefs>
-    <expand macro="omeropy_requirements">
-        <expand macro="omero_credentials"/>
-    </expand>
+    <expand macro="omeropy_requirements"/>
     <command detect_errors="exit_code"><![CDATA[
         #import re
 

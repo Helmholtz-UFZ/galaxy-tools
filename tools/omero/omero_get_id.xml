@@ -7,9 +7,11 @@
     <xrefs>
         <xref type="bio.tools">omero</xref>
     </xrefs>
-    <expand macro="ezomero_requirements">
-        <expand macro="omero_credentials"/>
-    </expand>
+    <expand macro="ezomero_requirements"/>
+    <required_files>
+        <include path="connect_omero.py" />
+        <include path="omero_get_id.py" />
+    </required_files>
     <command detect_errors="exit_code"><![CDATA[
         #if $test_username != ""
             export OMERO_USER="$test_username" &&
@@ -21,11 +23,7 @@
         --final_obj_type '$cond_obj_type.final_obj_type'
         --parent_obj_type '$cond_obj_type.parent_obj_type'
         --parent_id $cond_obj_type.parent_id
-        #if $session_id.session_id_input== "yes"
-            --session_close $close_connection
-        #else
-            --session_close "True"
-        #end if
+        @SESSION_ID@
         --tsv_file '$tsv'
     ]]></command>
     <inputs>

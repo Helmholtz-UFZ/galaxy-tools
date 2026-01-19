@@ -22,23 +22,23 @@
             export OMERO_USER="$test_username" &&
             export OMERO_PASSWORD="$test_password" &&
        #end if
-        DID=$(omero obj new Dataset name="$dataset_name") &&
+        export DID=$(omero obj new Dataset name="$dataset_name") &&
         #if $session_id.session_id_input =="yes"
           omero import folder
-           -d $DID
+           -d \$DID
            -s '$omero_host'
            -k \$UUID_SESSION_KEY
            > $log &&
         #else
          omero import folder
-           -d $DID
+           -d \$DID
            -s '$omero_host'
            -p $omero_port
            -u \$OMERO_USER
            -w \$OMERO_PASSWORD
         > $log &&
         #end if
-        echo $DID
+        echo \$DID
         >> $log &&
         omero logout
     ]]></command>

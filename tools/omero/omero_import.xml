@@ -22,7 +22,7 @@
             export OMERO_USER="$test_username" &&
             export OMERO_PASSWORD="$test_password" &&
        #end if
-        DID=$(omero obj new Dataset name='$dataset_name') &&
+        DID=$(omero obj new Dataset name="$dataset_name") &&
         #if $session_id.session_id_input =="yes"
           omero import folder
            -d $DID

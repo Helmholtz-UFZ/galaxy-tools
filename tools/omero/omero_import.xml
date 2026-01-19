@@ -38,6 +38,8 @@
            -w \$OMERO_PASSWORD
         > $log &&
         #end if
+        omero obj get Dataset:name:"$dataset_name"
+        >> $log &&
         omero logout
     ]]></command>
     <inputs>

@@ -38,8 +38,7 @@
            -w \$OMERO_PASSWORD
         > $log &&
         #end if
-        omero search Dataset "$dataset_name" --style json &&
-        > $log2 &&
+        omero search Dataset "$dataset_name" --style json > $log2 &&
         omero logout
     ]]></command>
     <inputs>

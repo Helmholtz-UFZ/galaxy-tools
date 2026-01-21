@@ -93,9 +93,10 @@
             <param name="an_name" value="KV_Test"/>
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>
-            <output name="log" value="output_KV_import.txt" ftype="txt">
+            <output name="log" ftype="txt">
                 <assert_contents>
                     <has_text text="SUCCESS: Successfully uploaded metadata for dataset"/>
+                    <has_text text="'Key1': 'Value1', 'Key2': 'Value2'"/>
                 </assert_contents>
             </output>
         </test>

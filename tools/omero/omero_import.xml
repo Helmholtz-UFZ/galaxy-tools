@@ -38,7 +38,7 @@
            -w \$OMERO_PASSWORD
         > $log &&
         #end if
-        omero search Dataset "$dataset_name" --style json > $log2 &&
+        omero search Dataset '$dataset_name' --style json > $log2 &&
         omero logout
     ]]></command>
     <inputs>
@@ -48,7 +48,7 @@
     </inputs>
     <outputs>
         <data name="log" format="txt" label="${tool.name} on ${on_string}: Imported Image List"/>
-        <data name="log2" format="txt" label="${tool.name} on ${on_string}: Import Information"/>
+        <data name="log2" format="json" label="${tool.name} on ${on_string}: Import Information"/>
     </outputs>
     <tests>
         <test>

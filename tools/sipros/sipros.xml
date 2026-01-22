@@ -178,7 +178,8 @@
                 <param name="mode_select" value="labeled"/>
                 <param name="negative_control" ftype="thermo.raw" value="test_sample_bacteria_3.raw" location="https://zenodo.org/records/15479269/files/test_sample_bacteria_3.raw?download=1"/>
                 <param name="element" value="C13"/>
-                <param name="range" value="0-50"/>
+                <!-- https://github.com/thepanlab/sipros5/issues/9
+                <param name="range" value="0-50"/> -->
                 <param name="outputs" value="protein_with_SIP_filtered_PSM,SIP_filtered_psms"/>
             </conditional>
             <output name="protein_with_SIP_filtered_PSM">
@@ -189,7 +190,9 @@
             </output>
             <output name="SIP_filtered_psms">
                 <assert_contents>
-                    <has_n_lines n="307"/>
+                    <has_text text="bacteria_1"/>
+                    <has_text text="bacteria_2"/>
+                    <has_n_lines n="106"/>
                     <has_n_columns n="28"/>
                 </assert_contents>
             </output>

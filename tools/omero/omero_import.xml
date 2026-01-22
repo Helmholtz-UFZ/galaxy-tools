@@ -47,8 +47,8 @@
         <param name="dataset_name" type="text" optional="false" label="Target Dataset Name"/>
     </inputs>
     <outputs>
-        <data name="log" format="txt" label="Imported Image List"/>
-        <data name="log2" format="txt" label="Dataset Import Information"/>
+        <data name="log" format="txt" label="${tool.name} on ${on_string}: Imported Image List"/>
+        <data name="log2" format="txt" label="${tool.name} on ${on_string}: Import Information"/>
     </outputs>
     <tests>
         <test>

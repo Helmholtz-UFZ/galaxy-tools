@@ -63,7 +63,7 @@
                     <has_n_lines n="2"/>
                 </assert_contents>
             </output>
-            <output name="log2" value="omero_output_2.txt" ftype="txt"/>
+            <output name="log2" value="omero_output_2.json" ftype="json"/>
             <assert_stderr>
                 <has_text_matching expression="IMPORT_DONE.*input1.tif"/>
                 <has_text_matching expression="IMPORT_DONE.*input2.tif"/>

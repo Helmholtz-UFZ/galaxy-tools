@@ -2,7 +2,7 @@
     <description> with omero-py </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">4</token>
+        <token name="@VERSION_SUFFIX@">5</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -38,6 +38,7 @@
            -w \$OMERO_PASSWORD
         > $log &&
         #end if
+        omero search Dataset '$dataset_name' --style json > $log2 &&
         omero logout
     ]]></command>
     <inputs>
@@ -46,7 +47,8 @@
         <param name="dataset_name" type="text" optional="false" label="Target Dataset Name"/>
     </inputs>
     <outputs>
-        <data name="log" format="txt"/>
+        <data name="log" format="txt" label="${tool.name} on ${on_string}: Imported Image List"/>
+        <data name="log2" format="json" label="${tool.name} on ${on_string}: Import Information"/>
     </outputs>
     <tests>
         <test>
@@ -61,6 +63,7 @@
                     <has_n_lines n="2"/>
                 </assert_contents>
             </output>
+            <output name="log2" value="omero_output_2.json" ftype="json"/>
             <assert_stderr>
                 <has_text_matching expression="IMPORT_DONE.*input1.tif"/>
                 <has_text_matching expression="IMPORT_DONE.*input2.tif"/>

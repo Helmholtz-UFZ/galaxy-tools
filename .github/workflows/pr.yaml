@@ -362,9 +362,7 @@ jobs:
       run: |
         echo "Waiting for OMERO to be ready..."
         sleep 60
-        pip install https://github.com/glencoesoftware/zeroc-ice-py-linux-x86_64/releases/download/20240202/zeroc_ice-3.6.5-cp311-cp311-manylinux_2_28_x86_64.whl
-        pip install omero-py==5.19.4
-        pip install omero-metadata
+        pip install https://github.com/glencoesoftware/zeroc-ice-py-linux-x86_64/releases/download/20240202/zeroc_ice-3.6.5-cp311-cp311-manylinux_2_28_x86_64.whl omero-py==5.19.4 omero-metadata==0.13.0 "pandas<3.0"
         omero login -s localhost -u root -w omero -p 6064
         PID=$(omero obj new Project name='test_prj')
         DID=$(omero obj new Dataset name='test_dts')

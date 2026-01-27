@@ -242,6 +242,36 @@ def parse_parameter_docs(sections: Dict[str, str]) -> Dict[str, str]:
     return parameter_doc
 
 
+def _get_options_text_from_param_docs(
+    param_name: str,
+    options_list: list[str],
+    param_docs: dict[str, str]
+    ) -> dict[str, str]:
+    """
+    parse desriptions of literals. needs to be 
+    - an item (start with -/*)
+    - quoted
+    - then a `:`
+    We take the first sentence only.
+    """
+
+    doc = param_docs.get(param_name, "")
+    doc = (
+        doc.replace(":py:attr:", "")
+        .replace(":py:class:`Any`,", "")
+        .replace(":py:class:", "")
+    )
+    doc = doc.splitlines()
+
+    option_text = {}
+    for option in options_list:
+        for line in doc:
+            m = re.search(r"[-*] [\"'`]+" + option + r"[\"'`]+\s*:\s*([^.(]*)", line)
+            if m:
+                option_text[option] = f"{option}: {m.group(1)}"
+                break
+    return option_text
+
 def get_label_help(param_name: str, parameter_docs: str) -> Tuple[str, str]:
     """
     Extracts label and help text.
@@ -476,7 +506,7 @@ def is_parameter_deprecated(param_docs: Dict[str, str], param_name: str) -> bool
     return is_deprecated
 
 
-def _create_param_from_type_str(type_str: str, param_name: str, param_constructor_args: dict, is_optional: bool) -> Optional[object]:
+def _create_param_from_type_str(type_str: str, param_name: str, param_constructor_args: dict, is_optional: bool, param_docs: dict[str, str]) -> Optional[object]:
 
     pattern_offset = r"\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*"
 
@@ -523,10 +553,10 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         repeat = Repeat(name=param_name, title=title, help=base_help)
 
         inner_args_0 = {'label': f"{param_name}_pos0", 'help': f"First element (index 0) of the {param_name} tuple.", 'optional': is_optional}
-        param_0 = _create_param_from_type_str(type_0, f"{param_name}_pos0", inner_args_0, is_optional)
+        param_0 = _create_param_from_type_str(type_0, f"{param_name}_pos0", inner_args_0, is_optional, param_docs)
 
         inner_args_1 = {'label': f"{param_name}_pos1", 'help': f"Second element (index 1) of the {param_name} tuple.", 'optional': is_optional}
-        param_1 = _create_param_from_type_str(type_1, f"{param_name}_pos1", inner_args_1, is_optional)
+        param_1 = _create_param_from_type_str(type_1, f"{param_name}_pos1", inner_args_1, is_optional, param_docs)
 
         if param_0:
             repeat.append(param_0)
@@ -605,10 +635,10 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         literal_match = re.match(r"Literal\[(.*)\]", base_type_str)
         options_str = literal_match.group(1)
         options_list = [opt.strip().strip("'\"") for opt in _split_type_string_safely(options_str)]
+        options_text = _get_options_text_from_param_docs(param_name, options_list, param_docs)
         if options_list:
             creation_args["default"] = creation_args.pop("value", None)
-            options = {o: o for o in options_list}
-            sys.stderr.write(f"{options=}")
+            options = {o: options_text.get(o, o) for o in options_list}
             param_object = SelectParam(argument=param_name, options=options, **creation_args)
 
     elif (range_match := re.fullmatch(r"(Float|Int)\[\s*([0-9.-]+)\s*,\s*([0-9.-]+)\s*\]", base_type_str, re.IGNORECASE)):
@@ -844,6 +874,7 @@ def _create_parameter_widget(
     module: "ModuleType",
     method: Callable,
     optional_arg: dict,
+    param_docs: dict[str, str],
 ) -> Optional[object]:
     """
     Creates the main parameter widget (e.g., Text, Select, Conditional)
@@ -890,7 +921,7 @@ def _create_parameter_widget(
                 param_object.append(ValidatorParam(type="empty_field"))
         else:
             param_object = _create_param_from_type_str(
-                single_type_str, param_name, param_constructor_args, is_truly_optional
+                single_type_str, param_name, param_constructor_args, is_truly_optional, param_docs
             )
 
     elif len(type_parts_cleaned) > 1:
@@ -955,7 +986,7 @@ def _create_parameter_widget(
                 when.append(inner_param)
             else:
                 inner_param = _create_param_from_type_str(
-                    part_str, param_name, inner_param_args, is_truly_optional
+                    part_str, param_name, inner_param_args, is_truly_optional, param_docs
                 )
                 if inner_param:
                     when.append(inner_param)
@@ -1129,6 +1160,7 @@ def get_method_params(method: Callable, module: "ModuleType", tracing=False):
             module,
             method,
             optional_arg,
+            param_docs,
         )
 
         if param_object is None and "slice" in type_parts_cleaned:

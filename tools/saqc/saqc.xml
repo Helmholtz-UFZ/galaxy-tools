@@ -163,10 +163,10 @@
               <param argument="ratio" type="integer" value="4" label="The number of samples generated for any values reconstruction" help="Must be a divisor of `context`. Effectively controlls the stride-width of the reconstruction window through the data"/>
               <param argument="context" type="integer" value="512" label="size of the context window with regard to wich any value is reconstructed" help=""/>
               <param argument="agg" type="select" label="How to aggregate the different reconstructions for the same value" help="* 'center': use the value that was constructed in a window centering around the origin value * 'mean': assign the mean over all reconstructed values * 'median': assign the median over all reconstructed values * 'std': assign the standard deviation over all reconstructed values">
-                <option value="center">center</option>
-                <option selected="true" value="mean">mean</option>
-                <option value="median">median</option>
-                <option value="std">std</option>
+                <option value="center">center: use the value that was constructed in a window centering around the origin value</option>
+                <option selected="true" value="mean">mean: assign the mean over all reconstructed values</option>
+                <option value="median">median: assign the median over all reconstructed values</option>
+                <option value="std">std: assign the standard deviation over all reconstructed values</option>
               </param>
             </when>
             <when value="fitPolynomial">
@@ -708,16 +708,16 @@
               <param argument="field" type="data_column" label="Variable to process" help="" data_ref="data" multiple="false"/>
               <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written" help="`target` will be created if it does not exist. Defaults to `field`" data_ref="data" multiple="false"/>
               <param argument="method" type="select" label="Method to project the flags of `field` to the flags to `target`:" help="* ``'auto'``: invert the last alignment/resampling operation (that is not already inverted) * ``'nagg'``: project a flag of `field` to all timestamps of `target` within the range +/- `freq`/2. * ``'bagg'``: project a flag of `field` to all preceeding timestamps of `target` within the range `freq` * ``'fagg'``: project a flag of `field` to all succeeding timestamps of `target` within the range `freq` * ``'interpolation'`` - project a flag of `field` to all timestamps of `target` within the range +/- `freq` * ``'sshift'`` - same as interpolation * ``'nshift'`` - project a flag of `field` to the neaerest timestamps in `target` within the range +/- `freq`/2 * ``'bshift'`` - project a flag of `field` to nearest preceeding timestamps in `target` * ``'nshift'`` - project a flag of `field` to nearest succeeding timestamps in `target` * ``'match'`` - project a flag of `field` to all identical timestamps `target`">
-                <option value="fagg">fagg</option>
-                <option value="bagg">bagg</option>
-                <option value="nagg">nagg</option>
+                <option value="fagg">fagg: project a flag of `field` to all succeeding timestamps</option>
+                <option value="bagg">bagg: project a flag of `field` to all preceeding timestamps</option>
+                <option value="nagg">nagg: project a flag of `field` to all timestamps of</option>
                 <option value="fshift">fshift</option>
                 <option value="bshift">bshift</option>
                 <option value="nshift">nshift</option>
                 <option value="sshift">sshift</option>
                 <option value="mshift">mshift</option>
                 <option value="match">match</option>
-                <option selected="true" value="auto">auto</option>
+                <option selected="true" value="auto">auto: invert the last alignment/resampling operation </option>
                 <option value="linear">linear</option>
                 <option value="pad">pad</option>
               </param>
@@ -770,16 +770,16 @@
               <param argument="method" type="select" label="Determines which of the origins indexes periods to comprise into the calculation of a new flag and a new data value at any period of the new index" help="* Aggregations Reindexer. Aggregations are data and flags independent, (pure) index selection methods: * `'bagg'`/`'fagg'`: &quot;backwards/forwards aggregation&quot;. Any new index period gets assigned an aggregation of the values at periods in the original index, that lie between itself and its successor/predecessor. * `'nagg'`: &quot;nearest aggregation&quot;: Any new index period gets assigned an aggregation of the values at periods in the original index between its direcet predecessor and successor, it is the nearest neighbor to. * Rolling reindexer. Rolling reindexers are equal to aggregations, when projecting between regular and irregular sampling grids forth and back. But due to there simple rolling window construction, they are easier to comprehend, predict and parametrize. On the downside, they are much more expensive computationally and Also, periods can get included in the aggregation to multpiple target periods, (when rolling windows overlap). * `'broll'`/`'froll'`: Any new index period gets assigned an aggregation of all the values at periods of the original index, that fall into a directly preceeding/succeeding window of size `reindex_window`. * Shifts. Shifting methods are shortcuts for aggregation reindex methods, combined with selecting 'last' or 'first' as the `data_aggregation` method. Therefor, both, the `flags_aggregation` and the `data_aggregation` are ignored when using a `shift` reindexer. Also, periods where the data evaluates to `NaN` are dropped before shift index selection. * `'bshift'`/`fshift`: &quot;backwards/forwards shift&quot;. Any new index period gets assigned the first/last valid (not a data NaN) value it succeeds/preceeds * `'nshift'`: &quot;nearest shift&quot;: Any new index period gets assigned the value of its closest neighbor in the original index. * Pillar point Mappings. Index selection method designed to select indices suitable for linearly interpolating index values from surrounding pillar points in the original index, or inverting such a selection. Periods where the data evaluates to `NaN`, are dropped from consideration. * `'mshift'`: &quot;Merge&quot; predecessors and successors. Any new index period gets assigned an aggregation/interpolation comprising the last and the next valid period in the original index. * `'sshift'`: &quot;Split&quot;-map values onto predecessors and successors. Same as `mshift`, but with a correction that prevents missing value flags from being mapped to continuous data chunk bounds. * Inversion of last method: try to select the method, that * `'invert``">
                 <option value="fagg">fagg</option>
                 <option value="bagg">bagg</option>
-                <option value="nagg">nagg</option>
+                <option value="nagg">nagg: "nearest aggregation": Any new index period gets assigned an aggregation of the values at periods</option>
                 <option value="froll">froll</option>
                 <option value="broll">broll</option>
                 <option value="nroll">nroll</option>
                 <option value="fshift">fshift</option>
                 <option value="bshift">bshift</option>
-                <option value="nshift">nshift</option>
+                <option value="nshift">nshift: "nearest shift": Any new index period gets assigned the value of its closest neighbor in the</option>
                 <option selected="true" value="match">match</option>
-                <option value="sshift">sshift</option>
-                <option value="mshift">mshift</option>
+                <option value="sshift">sshift: "Split"-map values onto predecessors and successors</option>
+                <option value="mshift">mshift: "Merge" predecessors and successors</option>
                 <option value="invert">invert</option>
               </param>
               <conditional name="tolerance_cond">
@@ -957,16 +957,16 @@
               </conditional>
               <param argument="target" type="data_column" optional="true" label="Variable name to which the results are written" help="`target` will be created if it does not exist. Defaults to `field`" data_ref="data" multiple="false"/>
               <param argument="func" type="select" label="Function to apply to window at each shift" help="Can either be a custom callable, expecting a ``pandas.Series`` object as its input, or a literal from the following list:  - &quot;sum&quot;    : Sum of values in the window - &quot;mean&quot;   : Average of values - &quot;median&quot; : Median - &quot;min&quot;    : Minimum - &quot;max&quot;    : Maximum - &quot;std&quot;    : Standard deviation - &quot;var&quot;    : Variance - &quot;skew&quot;   : Skewness - &quot;kurt&quot;   : Kurtosis - &quot;count&quot;  : Number of non-NA observations in the window">
-                <option value="sum">sum</option>
-                <option selected="true" value="mean">mean</option>
-                <option value="median">median</option>
-                <option value="min">min</option>
-                <option value="max">max</option>
-                <option value="std">std</option>
-                <option value="var">var</option>
-                <option value="skew">skew</option>
-                <option value="kurt">kurt</option>
-                <option value="count">count</option>
+                <option value="sum">sum: Sum of values in the window</option>
+                <option selected="true" value="mean">mean: Average of values</option>
+                <option value="median">median: Median</option>
+                <option value="min">min: Minimum</option>
+                <option value="max">max: Maximum</option>
+                <option value="std">std: Standard deviation</option>
+                <option value="var">var: Variance</option>
+                <option value="skew">skew: Skewness</option>
+                <option value="kurt">kurt: Kurtosis</option>
+                <option value="count">count: Number of non-NA observations in the window</option>
               </param>
               <param argument="min_periods" type="integer" value="0" label="Minimum number of valid observations in the window required to calculate a value" help="" min="0"/>
               <param argument="center" type="boolean" label="If ``True``, function results are assigned to the timestamp at the center of the windows; if ``False``" help="they are assigned to the highest timestamp in the windows" checked="false"/>
@@ -1107,8 +1107,8 @@
                 </param>
                 <when value="type_0">
                   <param argument="mode" type="select" label="How to process multiple variables to be plotted:" help="* `&quot;oneplot&quot;` : plot all variables with their flags in one axis (default) * `&quot;subplots&quot;` : generate subplot grid where each axis contains one variable plot with associated flags * `&quot;biplot&quot;` : plotting first and second variable in field against each other in a scatter plot  (point cloud)">
-                    <option value="subplots">subplots</option>
-                    <option value="oneplot">oneplot</option>
+                    <option value="subplots">subplots: generate subplot grid where each axis contains one variable plot with associated flags</option>
+                    <option value="oneplot">oneplot: plot all variables with their flags in one axis </option>
                   </param>
                 </when>
                 <when value="type_1">
@@ -1124,7 +1124,7 @@
                 </param>
                 <when value="type_0">
                   <param argument="history" type="select" optional="true" label="Discriminate the plotted flags with respect to the tests they originate from" help="* ``&quot;valid&quot;``: Only plot flags, that are not overwritten by subsequent tests. Only list tests in the legend, that actually contributed flags to the overall result. * ``None``: Just plot the resulting flags for one variable, without any historical and/or meta information. * list of strings: List of tests. Plot flags from the given tests, only. * ``complete`` (not recommended, deprecated): Plot all the flags set by any test, independently from them being removed or modified by subsequent modifications. (this means: plotted flags do not necessarily match with flags ultimately assigned to the data)">
-                    <option value="valid">valid</option>
+                    <option value="valid">valid: Only plot flags, that are not overwritten by subsequent tests</option>
                     <option value="complete">complete</option>
                   </param>
                 </when>
@@ -1178,7 +1178,7 @@
             <when value="selectTime">
               <param argument="field" type="data_column" label="Variable to process" help="" data_ref="data" multiple="false"/>
               <param argument="mode" type="select" label="The masking mode" help="- &quot;periodic&quot;: parameters &quot;period_start&quot;, &quot;end&quot; are evaluated to generate a periodical mask - &quot;mask_var&quot;: data[mask_var] is expected to be a boolean valued timeseries and is used as mask">
-                <option value="periodic">periodic</option>
+                <option value="periodic">periodic: parameters "period_start", "end" are evaluated to generate a periodical mask</option>
                 <option value="selection_field">selection_field</option>
               </param>
               <param argument="selection_field" type="data_column" optional="true" label="Only effective if mode == &quot;mask_var&quot; Fieldname of the column, holding the data that is to be used as mask" help="(must be boolean series) Neither the series` length nor its labels have to match data[field]`s index and length. An inner join of the indices will be calculated and values get masked where the values of the inner join are ``True``" data_ref="data" multiple="false"/>

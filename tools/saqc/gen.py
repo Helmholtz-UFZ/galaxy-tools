@@ -1359,13 +1359,7 @@ def generate_tool_xml(tracing=False):
         if methods_conditional_obj:
             module_when.append(methods_conditional_obj)
         else:
-            module_when.append(
-                TextParam(
-                    name=f"{module_name}_no_methods_conditional",
-                    type="text",
-                    value=f"Could not generate method selection for module '{module_name}'.",
-                )
-            )
+            raise Exception(f"Could not generate method selection for module '{module_name}'.")
         module_conditional.append(module_when)
 
     if module_select_options:

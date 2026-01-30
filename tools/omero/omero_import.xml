@@ -1,4 +1,4 @@
-<tool id="omero_import_secret" name="OMERO Image Import with secret" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@" license="MIT">
+<tool id="omero_import" name="OMERO Image Import with secret" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@" license="MIT">
     <description> with omero-py </description>
     <macros>
         <import>macros.xml</import>

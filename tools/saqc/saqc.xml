@@ -28,7 +28,7 @@
     <repeat name="methods_repeat" title="Methods (add multiple QC steps)">
       <conditional name="module_cond">
         <param name="module_select" type="select" label="Select SaQC module">
-          <option value="breaks">breaks: Detecting breaks in data</option>
+          <option value="breaks">breaks: breaks</option>
           <option value="constants">constants: constants</option>
           <option value="curvefit">curvefit: curvefit</option>
           <option value="drift">drift: drift</option>
@@ -196,7 +196,7 @@
             <param name="method_select" type="select" label="Method">
               <option value="assignRegimeAnomaly">assignRegimeAnomaly: A function to detect values belonging to an anomalous regime regarding modelling</option>
               <option value="correctDrift">correctDrift: The function corrects drifting behavior</option>
-              <option value="correctOffset">correctOffset: Parameters</option>
+              <option value="correctOffset">correctOffset: correctOffset</option>
               <option value="flagDriftFromNorm">flagDriftFromNorm: Flags data that deviates from an avarage data course</option>
               <option value="flagDriftFromReference">flagDriftFromReference: Flags data that deviates from a reference course. Deviation is measured by a</option>
               <option value="flagRegimeAnomaly">flagRegimeAnomaly: Flags anomalous regimes regarding to modelling regimes of ``field``</option>
@@ -1200,7 +1200,3027 @@
     <data name="config_out" format="txt" label="${tool.name} on ${on_string}: Generated SaQC Configuration" from_work_dir="config.csv" hidden="false"/>
   </outputs>
   <expand macro="saqc_tests"/>
-  <help><![CDATA[This tool provides access to SaQC functions for quality control of time series data. Select a module and method, then configure its parameters.]]></help>
+  <help><![CDATA[This tool provides access to SaQC functions for quality control of time series data. Select a module and method, then configure its parameters.
+
+breaks
+=============
+
+
+Detecting breaks in data.
+
+This module provides functions to detect and flag breaks in data, for example temporal
+gaps (`flagMissing`), jumps and drops (`flagJumps`) or temporal
+isolated values (`flagIsolated`).
+
+
+
+
+breaks.flagIsolated
+-----------------------------
+
+Find and flag temporally isolated groups of data.
+
+The function flags groups of values that are surrounded by sufficiently large
+data gaps. A data gap is a timespan containing no valid data. (Data is valid if it is not `NaN` and if it is not assigned a flag with a level higher than the functions `flag` value).
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+gap_window : str
+    Minimum gap size required before and after a data group to consider it
+    isolated. See conditions (2) and (3) below.
+group_window : str
+    Maximum size of a data chunk to consider it a candidate for an isolated group.
+    Data chunks larger than this are ignored. This does not include the possible
+    gaps surrounding it. See condition (1) below.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+A series of values :math:`x_k, x_{k+1}, ..., x_{k+n}` with timestamps
+:math:`t_k, t_{k+1}, ..., t_{k+n}` is considered isolated if:
+
+1. :math:`t_{k+1} - t_n <` `group_window`
+2. No valid values in a succeeding period of `gap_window` extension.
+3. No valid values exist in the succeeding gap of size `gap_window`.
+
+
+breaks.flagJumps
+-----------------------------
+
+Flag jumps and drops in data.
+
+Flags values where the mean changes significantly between two adjacent rolling
+windows, indicating a "jump" from one level to another. Whenever the difference
+between the means of the two windows exceeds `thresh`, the values between the
+windows are flagged.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+thresh : float
+    Threshold by which the mean of data must jump to trigger flagging.
+window : str
+    Size of the two rolling windows. Determines the number of timestamps used
+    for calculating the mean in each window. Windows should be chosen large enough to
+    obtain a reliable mean. But not too large as well, since the window size implies a lower bound for the detection resolution.
+    Jumps exceeding `thresh` but being apart from each other by less than 3/4 of the window size may not be detected reliably.
+min_periods : int
+    Minimum number of timestamps in `window` required to calculate a valid mean. If no valid mean for the window can be calculated, flagging wont be triggered for the associated change point.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+Jumps closer together than three fourths (3/4) of the window size may not be
+detected reliably.
+
+Examples
+`````````````
+Below diagram illustrates the interaction of parameters for a positive value jump
+initializing a new mean level.
+
+.. figure:: /resources/images/flagJumpsPic.png
+
+   The two adjacent windows of size `window` roll through the data series. Whenever
+   the mean values differ by more than `thresh`, flagging is triggered.
+
+
+breaks.flagNAN
+-----------------------------
+
+Flag NaNs in data.
+
+By default, only NaNs are flagged, that not already have a flag.
+`dfilter` can be used to pass a flag that is used as threshold.
+Each flag worse than the threshold is replaced by the function.
+This is, because the data gets masked (with NaNs) before the
+function evaluates the NaNs.
+
+Parameters
+`````````````
+field
+    Variable to process.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+constants
+=============
+
+
+
+
+
+constants.flagByVariance
+-----------------------------
+
+Flag low-variance data.
+
+Flags plateaus of constant data if the variance in a rolling window does not
+exceed a certain threshold.
+
+Any interval of values y(t),..y(t+n) is flagged, if:
+
+(1) n > `window`
+(2) variance(y(t),...,y(t+n) < `thresh`
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+window
+    Size of the moving window. This is the number of observations used
+    for calculating the statistic. Each window will be a fixed size.
+    If its an offset then this will be the time period of each window.
+    Each window will be sized, based on the number of observations included
+    in the time-period.
+thresh
+    Maximum total variance allowed per window.
+maxna
+    Maximum number of NaNs allowed in window.
+    If more NaNs are present, the window is not flagged.
+maxna_group
+    Same as `maxna` but for consecutive NaNs.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+constants.flagConstants
+-----------------------------
+
+Flag constant data values.
+
+Flags plateaus of constant data if their maximum total change in a rolling
+window does not exceed a certain threshold.
+
+Any interval of values y(t), ..., y(t+n) is flagged if:
+ - n > window
+ - abs(y(t + i) - y(t + j)) < thresh for all i, j in [0, 1, ..., n]
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+thresh : float
+    Maximum total change allowed per window.
+window : int or str
+    Size of the rolling window. If an integer is passed, it represents the number
+    of timestamps per window. If an offset string is passed, it represents the windows
+    total temporal extent.
+min_periods : int
+    Minimum number of valid timestamps that are necessary to be present in any window, in order to trigger condition testing for this window.
+    Windows with fewer timestamps are skipped. Must be >= 2, because a single
+    value is always considered constant.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+curvefit
+=============
+
+
+
+
+
+curvefit.fitLowpassFilter
+-----------------------------
+
+Fits the data using the butterworth filter.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+cutoff
+    The cutoff-frequency, either an offset freq string, or expressed in multiples of the sampling rate.
+nyq
+    The niquist-frequency. expressed in multiples if the sampling rate.
+fill_method
+    Fill method to be applied on the data before filtering (butterfilter cant
+    handle ''np.nan''). See documentation of pandas.Series.interpolate method for
+    details on the methods associated with the different keywords.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+The data is expected to be regularly sampled.
+
+
+curvefit.fitMomentFM
+-----------------------------
+
+Fits the data by reconstructing it with the Moment Foundational Timeseries Model (MomentFM).
+
+The function applies MomentFM [1] in its reconstruction mode on a window of size `context`, striding through the data
+with step size `context`/`ratio`
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+ratio
+    The number of samples generated for any values reconstruction. Must be a divisor of `context`.
+    Effectively controlls the stride-width of the reconstruction window through the data.
+context
+    size of the context window with regard to wich any value is reconstructed.
+agg
+    How to aggregate the different reconstructions for the same value.
+    * 'center': use the value that was constructed in a window centering around the origin value
+    * 'mean': assign the mean over all reconstructed values
+    * 'median': assign the median over all reconstructed values
+    * 'std': assign the standard deviation over all reconstructed values
+model_spec
+    Dictionary with the fields:
+    * `pretrained_model_name_or_path`
+    * `revision`
+    
+    Defaults to global Parameter `DEFAULT_MOMENT=dict(pretrained_model_name_or_path="AutonLab/MOMENT-1-large", revision="main"`
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Examples
+`````````````
+.. figure:: /resources/images/fitFMpic.png
+
+Notes
+`````````````
+[1] https://arxiv.org/abs/2402.03885
+[2] https://github.com/moment-timeseries-foundation-model/moment
+
+
+curvefit.fitPolynomial
+-----------------------------
+
+Fit a polynomial model to the data.
+
+The fit is calculated by fitting a polynomial of degree `order` to a data slice
+of size `window`, centered on each timestamp. The result overwrites the field
+unless a target is specified.
+
+For regularly sampled data:
+
+* If missing values are rare or residuals for windows with missing values are
+  not needed, performance can be increased by setting min_periods=window.
+* The initial and final ``window``//2 timestamps do not get fitted.
+* Each residual is assigned the worst flag present in the corresponding interval
+  of the original data.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+window : int or str
+    Size of the fitting window. If an integer is passed, it represents the number
+    of timestamps in each window. If an offset string is passed, it represents the
+    window's temporal extent. The window is centered around the timestamp being fitted.
+    For uniformly sampled data, an odd number of timestamps is always used to constitute a window (subtracted by 1,
+    if the total is even).
+order : int
+    Degree of the polynomial used for fitting.
+min_periods : int
+    Minimum number of timestamps in a window required to perform the fit.
+    Windows with fewer timestamps will produce NaNs. Passing 0 disables this
+    check and may result in overfitting for sparse windows.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+drift
+=============
+
+
+
+
+
+drift.assignRegimeAnomaly
+-----------------------------
+
+A function to detect values belonging to an anomalous regime regarding modelling
+regimes of field.
+
+The function changes the value of the regime cluster labels to be negative.
+"Normality" is determined in terms of a maximum spreading distance, regimes must
+not exceed in respect to a certain metric and linkage method. In addition,
+only a range of regimes is considered "normal", if it models more then `frac`
+percentage of the valid samples in "field". Note, that you must detect the regime
+changepoints prior to calling this function. (They are expected to be stored
+parameter `cluster_field`.)
+
+Note, that it is possible to perform hypothesis tests for regime equality by
+passing the metric a function for p-value calculation and selecting linkage
+method "complete".
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+cluster_field
+    Column in data, holding the cluster labels for the samples in field.
+    (has to be indexed equal to field)
+spread
+    A threshold denoting the value level, up to wich clusters a agglomerated.
+method
+    The linkage method for hierarchical (agglomerative) clustering of the variables.
+metric
+    A metric function for calculating the dissimilarity between 2 regimes.
+    Defaults to the absolute difference in mean.
+frac
+    The minimum percentage of samples, the "normal" group has to comprise to
+    actually be the normal group. Must be in the closed interval `[0,1]`,
+    otherwise a ValueError is raised.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+drift.correctDrift
+-----------------------------
+
+The function corrects drifting behavior.
+
+See the Notes section for an overview over the correction algorithm.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+maintenance_field
+    Column holding the support-points information.
+    The data is expected to have the following form:
+    The index of the series represents the beginning of a maintenance
+    event, wheras the values represent its endings.
+model
+    A model function describing the drift behavior, that is to be corrected.
+    Either use built-in exponential or linear drift model by passing a string,
+    or pass a custom callable. The model function must always contain the keyword
+    parameters 'origin' and 'target'. The starting parameter must always be the
+    parameter, by wich the data is passed to the model. After the data parameter,
+    there can occure an arbitrary number of model calibration arguments in the
+    signature. See the Notes section for an extensive description.
+cal_range
+    Number of values to calculate the mean of, for obtaining the value level directly
+    after and directly before a maintenance event. Needed for shift calibration.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+It is assumed, that between support points, there is a drift effect shifting the
+meassurements in a way, that can be described, by a model function M(t, p, origin, target).
+(With 0<=t<=1, p being a parameter set, and origin, target being floats).
+
+Note, that its possible for the model to have no free parameters p at all
+(linear drift mainly).
+
+The drift model, directly after the last support point (t=0),
+should evaluate to the origin - calibration level (origin), and directly before the next
+support point (t=1), it should evaluate to the target calibration level (target).
+
+
+    M(0, p, origin, target) = origin
+    M(1, p, origin, target) = target
+
+
+The model is than fitted to any data chunk in between support points, by optimizing
+the parameters p, and thus, obtaining optimal parameterset P.
+
+The new values at t are computed via:::
+
+    new_vals(t) = old_vals(t) + M(t, P, origin, target) - M_drift(t, P, origin, new_target)
+
+Wheras ``new_target`` represents the value level immediately after the next support point.
+
+Examples
+`````````````
+Some examples of meaningful driftmodels.
+
+Linear drift modell (no free parameters).
+
+.. doctest::
+
+    >>> Model = lambda t, origin, target: origin + t*target
+
+exponential drift model (exponential raise!)
+
+.. doctest::
+
+    >>> expFunc = lambda t, a, b, c: a + b * (np.exp(c * x) - 1)
+    >>> Model = lambda t, p, origin, target: expFunc(t, (target - origin) / (np.exp(abs(c)) - 1), abs(c))
+
+Exponential and linear driftmodels are part of the ``ts_operators`` library, under the names
+``expDriftModel`` and ``linearDriftModel``.
+
+
+drift.correctOffset
+-----------------------------
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+max_jump
+    when searching for changepoints in mean - this is the threshold a mean difference in the
+    sliding window search must exceed to trigger changepoint detection.
+spread
+    threshold denoting the maximum, regimes are allowed to abolutely differ in their means
+    to form the "normal group" of values.
+window
+    Size of the adjacent windows that are used to search for the mean changepoints.
+min_periods
+    Minimum number of periods a search window has to contain, for the result of the changepoint
+    detection to be considered valid.
+tolerance
+    If an offset string is passed, a data chunk of length `offset` right from the
+    start and right before the end of any regime is ignored when calculating a regimes mean for data correcture.
+    This is to account for the unrelyability of data near the changepoints of regimes.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+drift.flagDriftFromNorm
+-----------------------------
+
+Flags data that deviates from an avarage data course.
+
+"Normality" is determined in terms of a maximum spreading distance,
+that members of a normal group must not exceed. In addition, only a group is considered
+"normal" if it contains more then `frac` percent of the variables in "field".
+
+See the Notes section for a more detailed presentation of the algorithm
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+window
+    Frequency, that split the data in chunks.
+spread
+    Maximum spread allowed in the group of *normal* data. See Notes section for more details.
+frac
+    Fraction defining the normal group. Use a value from the interval [0,1].
+    The higher the value, the more stable the algorithm will be. For values below
+    0.5 the results are undefined.
+metric : default cityblock
+    Distance function that takes two arrays as input and returns a scalar float.
+    This value is interpreted as the distance of the two input arrays.
+    Defaults to the `averaged manhattan metric` (see Notes).
+method
+    Linkage method used for hierarchical (agglomerative) clustering of the data.
+    `method` is directly passed to ``scipy.hierarchy.linkage``. See its documentation [1] for
+    more details. For a general introduction on hierarchical clustering see [2].
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+following steps are performed for every data "segment" of length `freq` in order to find the
+"abnormal" data:
+
+1. Calculate distances :math:`d(x_i,x_j)` for all :math:`x_i` in parameter `field`.
+   (with :math:`d` denoting the distance function, specified by `metric`.
+2. Calculate a dendogram with a hierarchical linkage algorithm, specified by `method`.
+3. Flatten the dendogram at the level, the agglomeration costs exceed `spread`
+4. check if a cluster containing more than `frac` variables.
+
+    1. if yes: flag all the variables that are not in that cluster (inside the segment)
+    2. if no: flag nothing
+
+The main parameter giving control over the algorithms behavior is the `spread` parameter,
+that determines the maximum spread of a normal group by limiting the costs, a cluster
+agglomeration must not exceed in every linkage step.
+For singleton clusters, that costs just equal half the distance, the data in the
+clusters, have to each other. So, no data can be clustered together, that are more then
+2*`spread` distances away from each other. When data get clustered together, this new
+clusters distance to all the other data/clusters is calculated according to the linkage
+method specified by `method`. By default, it is the minimum distance, the members of the
+clusters have to each other. Having that in mind, it is advisable to choose a distance
+function, that can be well interpreted in the units dimension of the measurement and where
+the interpretation is invariant over the length of the data. That is, why,
+the "averaged manhattan metric" is set as the metric default, since it corresponds to the
+averaged value distance, two data sets have (as opposed by euclidean, for example).
+
+References
+`````````````
+Documentation of the underlying hierarchical clustering algorithm:
+    [1] https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html
+Introduction to Hierarchical clustering:
+    [2] https://en.wikipedia.org/wiki/Hierarchical_clustering
+
+
+drift.flagDriftFromReference
+-----------------------------
+
+Flags data that deviates from a reference course. Deviation is measured by a
+custom distance function.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+freq
+    Frequency, that split the data in chunks.
+reference
+    Reference variable, the deviation is calculated from.
+thresh
+    Maximum deviation from reference.
+metric : default cityblock
+    Distance function. Takes two arrays as input and returns a scalar float.
+    This value is interpreted as the mutual distance of the two input arrays.
+    Defaults to the `averaged manhattan metric` (see Notes).
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+It is advisable to choose a distance function, that can be well interpreted in
+the units dimension of the measurement and where the interpretation is invariant over the
+length of the data. That is, why, the "averaged manhatten metric" is set as the metric
+default, since it corresponds to the averaged value distance, two data sets have (as opposed
+by euclidean, for example).
+
+
+drift.flagRegimeAnomaly
+-----------------------------
+
+Flags anomalous regimes regarding to modelling regimes of ``field``.
+
+"Normality" is determined in terms of a maximum spreading distance,
+regimes must not exceed in respect to a certain metric and linkage method.
+
+In addition, only a range of regimes is considered "normal", if it models
+more then `frac` percentage of the valid samples in "field".
+
+Note, that you must detect the regime changepoints prior to calling this function.
+
+Note, that it is possible to perform hypothesis tests for regime equality
+by passing the metric a function for p-value calculation and selecting linkage
+method "complete".
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+cluster_field
+    Column in data, holding the cluster labels for the samples in field.
+    (has to be indexed equal to field)
+spread
+    A threshold denoting the value level, up to wich clusters a agglomerated.
+method
+    The linkage method for hierarchical (agglomerative) clustering of the variables.
+metric
+    A metric function for calculating the dissimilarity between 2 regimes.
+    Defaults to the absolute difference in mean.
+frac
+    The minimum percentage of samples, the "normal" group has to comprise to
+    actually be the normal group. Must be in the closed interval `[0,1]`,
+    otherwise a ValueError is raised.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+flagtools
+=============
+
+
+
+
+
+flagtools.andGroup
+-----------------------------
+
+Logical AND operation for Flags.
+
+Flag the variable(s) `field` at every period, at wich `field` in all of the saqc objects in
+`group` is flagged.
+
+See Examples section for examples.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+group
+    A collection of ``SaQC`` objects. Flag checks are performed on all ``SaQC`` objects
+    based on the variables specified in ``field``. Whenever all monitored variables
+    are flagged, the associated timestamps will receive a flag.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Examples
+`````````````
+Flag data, if the values are above a certain threshold (determined by `~saqc.SaQC.flagRange`) AND if the values are
+constant for 3 periods (determined by `~saqc.SaQC.flagConstants`)
+
+andGroupExample::
+
+   >>> dat = pd.Series([1,0,0,0,1,2,3,4,5,5,5,4], name='data', index=pd.date_range('2000', freq='10min', periods=12))
+   >>> qc = saqc.SaQC(dat)
+   >>> qc = qc.andGroup('data', group=[qc.flagRange('data', max=4), qc.flagConstants('data', thresh=0, window=3)])
+   >>> qc.flags['data']
+   2000-01-01 00:00:00     -inf
+   2000-01-01 00:10:00     -inf
+   2000-01-01 00:20:00     -inf
+   2000-01-01 00:30:00     -inf
+   2000-01-01 00:40:00     -inf
+   2000-01-01 00:50:00     -inf
+   2000-01-01 01:00:00     -inf
+   2000-01-01 01:10:00     -inf
+   2000-01-01 01:20:00    255.0
+   2000-01-01 01:30:00    255.0
+   2000-01-01 01:40:00    255.0
+   2000-01-01 01:50:00     -inf
+   Freq: 10min, dtype: float64
+
+Masking data, so that a test result only gets assigned during daytime (between 6 and 18 o clock for example).
+The daytime condition is generated via `~saqc.SaQC.flagGeneric`:
+
+andGroupExample::
+
+   >>> from saqc.lib.tools import periodicMask
+       >>> mask_func = lambda x: ~periodicMask(x.index, '06:00:00', '18:00:00', True)
+   >>> dat = pd.Series(range(100), name='data', index=pd.date_range('2000', freq='4h', periods=100))
+   >>> qc = saqc.SaQC(dat)
+   >>> qc = qc.andGroup('data', group=[qc.flagRange('data', max=5), qc.flagGeneric('data', func=mask_func)])
+   >>> qc.flags['data'].head(20)
+   2000-01-01 00:00:00     -inf
+   2000-01-01 04:00:00     -inf
+   2000-01-01 08:00:00     -inf
+   2000-01-01 12:00:00     -inf
+   2000-01-01 16:00:00     -inf
+   2000-01-01 20:00:00     -inf
+   2000-01-02 00:00:00     -inf
+   2000-01-02 04:00:00     -inf
+   2000-01-02 08:00:00    255.0
+   2000-01-02 12:00:00    255.0
+   2000-01-02 16:00:00    255.0
+   2000-01-02 20:00:00     -inf
+   2000-01-03 00:00:00     -inf
+   2000-01-03 04:00:00     -inf
+   2000-01-03 08:00:00    255.0
+   2000-01-03 12:00:00    255.0
+   2000-01-03 16:00:00    255.0
+   2000-01-03 20:00:00     -inf
+   2000-01-04 00:00:00     -inf
+   2000-01-04 04:00:00     -inf
+   Freq: 4h, dtype: float64
+
+
+flagtools.clearFlags
+-----------------------------
+
+Assign the flag UNFLAGGED to all timestamps.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+This function ignores the ``dfilter`` keyword, because the data
+is not relevant for processing.
+A warning is triggered if the ``flag`` keyword is given, because
+the flags are always set to ``UNFLAGGED``.
+
+Seealso
+`````````````
+forceFlags : Assign a specific flag value to all timestamps.
+flagUnflagged : Assign a specific flag value to all timestamps that have no flag value assigned.
+
+
+flagtools.flagDummy
+-----------------------------
+
+Function does nothing but returning data and flags.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+flagtools.flagUnflagged
+-----------------------------
+
+Assign a `flag` to all timestamps.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+This function ignores the ``dfilter`` keyword, because the
+data is not relevant for processing.
+
+See also
+`````````````
+clearFlags : assign UNFLAGGED to all timestamps
+forceFlags : Assign a specific flag value to all timestamps.
+
+
+flagtools.forceFlags
+-----------------------------
+
+Set whole column to a flag value.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+See also
+`````````````
+clearFlags : set whole column to UNFLAGGED
+flagUnflagged : set flag value at all unflagged positions
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+flagtools.orGroup
+-----------------------------
+
+Logical OR operation for Flags.
+
+Flag the variable(s) `field` at every period, at wich `field` is flagged in at least one of the saqc objects
+in `group`.
+
+See Examples section for examples.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+group
+    A collection of ``SaQC`` objects. Flag checks are performed on all ``SaQC`` objects
+    based on the variables specified in `field`. Whenever any of monitored variables
+    is flagged, the associated timestamps will receive a flag.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Examples
+`````````````
+Flag data, if the values are above a certain threshold (determined by `~saqc.SaQC.flagRange`) OR if the values are
+constant for 3 periods (determined by `~saqc.SaQC.flagConstants`)
+
+orGroupExample::
+
+   >>> dat = pd.Series([1,0,0,0,0,2,3,4,5,5,7,8], name='data', index=pd.date_range('2000', freq='10min', periods=12))
+   >>> qc = saqc.SaQC(dat)
+   >>> qc = qc.orGroup('data', group=[qc.flagRange('data', max=5), qc.flagConstants('data', thresh=0, window=3)])
+   >>> qc.flags['data']
+   2000-01-01 00:00:00     -inf
+   2000-01-01 00:10:00    255.0
+   2000-01-01 00:20:00    255.0
+   2000-01-01 00:30:00    255.0
+   2000-01-01 00:40:00    255.0
+   2000-01-01 00:50:00     -inf
+   2000-01-01 01:00:00     -inf
+   2000-01-01 01:10:00     -inf
+   2000-01-01 01:20:00     -inf
+   2000-01-01 01:30:00     -inf
+   2000-01-01 01:40:00    255.0
+   2000-01-01 01:50:00    255.0
+   Freq: 10min, dtype: float64
+
+
+flagtools.propagateFlags
+-----------------------------
+
+Propagate already assigned flags along the date axis.
+
+Extent and direction of propagation can be controlled through parameters ``window`` and ``method``.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+window : int or str
+    Size of the repetition window. An integer defines the exact number
+    of periods to propagate, while a string is interpreted as a time
+    offset.
+method : {"ffill", "bfill"}
+    Direction of propagation:
+    * ``ffill`` — propagate flag to subsequent values
+    * ``bfill`` — propagate flag to preceding values
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Examples
+`````````````
+First, generate some data and some flags:
+
+propagateFlags::
+
+   >>> import saqc
+   >>> data = pd.DataFrame({"a": [-3, -2, -1, 0, 1, 2, 3]})
+   >>> flags = pd.DataFrame({"a": [-np.inf, -np.inf, -np.inf, 255.0, -np.inf, -np.inf, -np.inf]})
+   >>> qc = saqc.SaQC(data=data, flags=flags)
+   >>> qc.flags["a"]
+   0     -inf
+   1     -inf
+   2     -inf
+   3    255.0
+   4     -inf
+   5     -inf
+   6     -inf
+   dtype: float64
+
+Now, to repeat the flag '255.0' two times in the direction of ascending
+indices, execute:
+
+propagateFlags::
+
+   >>> qc.propagateFlags('a', window=2, method="ffill").flags["a"]
+   0     -inf
+   1     -inf
+   2     -inf
+   3    255.0
+   4    255.0
+   5    255.0
+   6     -inf
+   dtype: float64
+
+Choosing "bfill" will result in:
+
+propagateFlags::
+
+   >>> qc.propagateFlags('a', window=2, method="bfill").flags["a"]
+   0     -inf
+   1    255.0
+   2    255.0
+   3    255.0
+   4     -inf
+   5     -inf
+   6     -inf
+   dtype: float64
+
+If an explicit flag is passed, it will be used to fill the
+repetition window:
+
+propagateFlags::
+
+   >>> qc.propagateFlags('a', window=2, method="bfill", flag=111).flags["a"]
+   0     -inf
+   1    111.0
+   2    111.0
+   3    255.0
+   4     -inf
+   5     -inf
+   6     -inf
+   dtype: float64
+
+
+flagtools.transferFlags
+-----------------------------
+
+Transfer flags from one field to another.
+
+Flags present at timestamps in the source field(s) are also assigned to that same timestamps in the target field(s).
+
+Optionally, flags already assigned to target, are being overridden or squashed together with the new assignment, into a single flags column.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+squeeze : bool
+    If True, compress the history into a single column, losing function-specific flag information.
+overwrite : bool
+    If True, existing flags in the target field are overwritten.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Examples
+`````````````
+First, generate some data with flags:
+
+exampleTransfer::
+
+   >>> import saqc
+   >>> data = pd.DataFrame({'a': [1, 2], 'b': [1, 2], 'c': [1, 2]})
+   >>> qc = saqc.SaQC(data)
+   >>> qc = qc.flagRange('a', max=1.5)
+   >>> qc.flags.to_pandas()
+          a    b    c
+   0   -inf -inf -inf
+   1  255.0 -inf -inf
+
+Project the flag from `a` to `b`:
+
+exampleTransfer::
+
+   >>> qc = qc.transferFlags('a', target='b')
+   >>> qc.flags.to_pandas()
+          a      b    c
+   0   -inf   -inf -inf
+   1  255.0  255.0 -inf
+
+Project flags of `a` to both `b` and `c`:
+
+exampleTransfer::
+
+   >>> qc = qc.transferFlags(['a','a'], ['b', 'c'], overwrite=True)
+   >>> qc.flags.to_pandas()
+          a      b      c
+   0   -inf   -inf   -inf
+   1  255.0  255.0  255.0
+
+See also
+`````````````
+* `saqc.SaQC.flagGeneric`
+* `saqc.SaQC.concatFlags`
+
+
+interpolation
+=============
+
+
+
+
+
+interpolation.align
+-----------------------------
+
+Convert a time series to a specified frequency, interpolating values
+according to the chosen method.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+freq : str or int
+    Target frequency (e.g., "1H", "15min", 60).
+method : str
+    Interpolation technique to use. Supported values include:
+    
+    * ``'nshift'``: Shift grid points to the nearest time stamp
+      within +/- 0.5 * ``freq``.
+    * ``'bshift'``: Shift grid points to the first succeeding time stamp.
+    * ``'fshift'``: Shift grid points to the last preceding time stamp.
+    * ``'linear'``, ``'time'``, ``'index'``, ``'values'``: Use numerical values
+      of the index. (Note: internally mapped to ``'mshift'``.)
+    * ``'pad'``: Fill NaNs using existing values (same as ``'fshift'``).
+    * ``'spline'``, ``'polynomial'``: Passed to
+      ``scipy.interpolate.interp1d``. Requires specifying ``order``.
+    * ``'nearest'``, ``'zero'``, ``'slinear'``, ``'quadratic'``,
+      ``'cubic'``, ``'barycentric'``: Passed to
+      ``scipy.interpolate.interp1d``.
+    * ``'krogh'``, ``'pchip'``, ``'akima'``, ``'cubicspline'``:
+      Wrappers around SciPy interpolation methods.
+    * ``'from_derivatives'``: Uses
+      ``scipy.interpolate.BPoly.from_derivatives``.
+order : int
+    Order of the interpolation method. Used only by methods that support it
+    (e.g., polynomial, spline). Ignored otherwise.
+overwrite : bool
+    If ``True``, existing flags will be cleared.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+interpolation.interpolateByRolling
+-----------------------------
+
+Replace NaN by the aggregation result of the surrounding window.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+window
+    The size of the window, the aggregation is computed from.
+    An integer define the number of periods to be used, a string
+    is interpreted as an offset. ( see `pandas.rolling` for more
+    information). Integer windows may result in screwed aggregations
+    if called on none-harmonized or irregular data.
+func : default median
+    The function used for aggregation.
+center
+    Center the window around the value. Can only be used with
+    integer windows, otherwise it is silently ignored.
+min_periods
+    Minimum number of valid (not np.nan) values that have to be
+    available in a window for its aggregation to be
+    computed.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+noise
+=============
+
+
+
+
+
+noise.flagByScatterLowpass
+-----------------------------
+
+Flag anomalous data chunks based on scatter statistics.
+
+Chunks of length ``window`` are flagged if:
+
+1. They exceed ``thresh`` according to the function ``func``.
+2. All (possibly overlapping) sub-chunks of length ``sub_window`` exceed ``sub_thresh``
+   according to the same function.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+func : {"std", "var", "mad"} or Callable[[np.ndarray, pd.Series], float]
+    Function to compute deviation for each chunk:
+    * ``"std"`` — standard deviation
+    * ``"var"`` — variance
+    * ``"mad"`` — median absolute deviation
+    * Callable — custom function mapping 1D arrays to scalars.
+window : str or pandas.Timedelta
+    Size of the main chunk (time-based).
+thresh : float
+    Threshold, the statistic of the main chunk is checked against. ``func(chunk) > thresh``.
+sub_window : str or pandas.Timedelta, optional
+    Size of sub-chunks for secondary testing.
+sub_thresh : float, optional
+    Threshold, the statistic of the main chunk is checked against. ``func(sub_chunk) > sub_thresh``.
+min_periods : int, optional
+    Minimum number of values required in a chunk to perform the test.
+    Ignored if ``window`` is an integer.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+outliers
+=============
+
+
+
+
+
+outliers.flagByStray
+-----------------------------
+
+Flag outliers in 1-dimensional (score) data using the STRAY Algorithm.
+
+For more details about the algorithm please refer to [1].
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+window
+    Determines the segmentation of the data into partitions, the
+    kNN algorithm is applied onto individually.
+    
+    * ``None``: Apply Scoring on whole data set at once
+    * ``int``: Apply scoring on successive data chunks of periods
+      with the given length. Must be greater than 0.
+    * offset String : Apply scoring on successive partitions of
+      temporal extension matching the passed offset string
+min_periods
+    Minimum number of periods per partition that have to be present
+    for a valid outlier detection to be made in this partition
+iter_start
+    Float in ``[0, 1]`` that determines which percentage of data
+    is considered "normal". ``0.5`` results in the stray algorithm
+    to search only the upper 50% of the scores for the cut off
+    point. (See reference section for more information)
+alpha
+    Level of significance by which it is tested, if a score might
+    be drawn from another distribution than the majority of the data.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+References
+`````````````
+[1]  Priyanga Dilini Talagala, Rob J. Hyndman & Kate Smith-Miles (2021):
+     Anomaly Detection in High-Dimensional Data,
+     Journal of Computational and Graphical Statistics, 30:2, 360-374,
+     DOI: 10.1080/10618600.2020.1807997
+
+
+outliers.flagLOF
+-----------------------------
+
+Flag values where the Local Outlier Factor (LOF) exceeds cutoff.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+n
+    Number of neighbors to be included into the LOF calculation.
+    Defaults to ``20``, which is a
+    value found to be suitable in the literature.
+    
+    * `n` determines the "locality" of an observation
+      (its `n` nearest neighbors) and sets the upper
+      limit to the number of values in outlier clusters (i.e.
+      consecutive outliers). Outlier clusters of size greater
+      than `n`/2 may not be detected reliably.
+    * The larger `n`, the lesser the algorithm's sensitivity
+      to local outliers and small or singleton outliers points.
+      Higher values greatly increase numerical costs.
+thresh
+    The threshold for flagging the calculated LOF. A LOF of around
+    ``1`` is considered normal and most likely corresponds to
+    inlier points.
+    
+    * The "automatic" threshing introduced with the publication
+      of the algorithm defaults to ``1.5``.
+    * In this implementation, `thresh` defaults (``'auto'``)
+      to flagging the scores with a modified 3-sigma rule.
+algorithm
+    Algorithm used for calculating the `n`-nearest neighbors.
+p
+    Degree of the metric ("Minkowski"), according to which the
+    distance to neighbors is determined. Most important values are:
+    
+    * ``1`` - Manhattan Metric
+    * ``2`` - Euclidian Metric
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+* The `~saqc.SaQC.flagLOF` function calculates the Local
+  Outlier Factor (LOF) for every point in the input timeseries.
+  The *LOF* is a scalar value, that roughly correlates to the
+  *reachability*, or "outlierishnes" of the evaluated datapoint.
+  If a point is as reachable, as all its `n`-nearest
+  neighbors, the *LOF* score evaluates to around ``1``. If it
+  is only as half as reachable as all its ``n``-nearest neighbors
+  are (so to say, as double as "outlierish"), the score is about
+  ``2``. So, the Local Outlier *Factor* relates a point's *reachability*
+  to the *reachability* of its `n`-nearest neighbors
+  in a multiplicative fashion (as a "factor").
+* The *reachability* of a point thereby is determined as an aggregation
+  of the points distances to its `n`-nearest neighbors,
+  measured with regard to the minkowski metric of degree `p`
+  (usually euclidean).
+* To derive a binary label for every point (outlier: *yes*, or *no*),
+  the scores are cut off at a level, determined by `thresh`.
+
+
+outliers.flagOffset
+-----------------------------
+
+Flag offsetting value courses.
+
+This test classifies values or value sequences as outliers by detecting
+abrupt rises and subsequent returns to the original value level within a given amount of time. Both single-value
+spikes and plateau-like sequences are detected.
+
+Values :math:`x_n, x_{n+1}, ..., x_{n+k}` with timestamps
+:math:`t_n, t_{n+1}, ..., t_{n+k}` are considered offsets if:
+
+1. :math:`|x_{n-1} - x_{n+s}| >` `thresh` for all :math:`s \in [0, ..., k]`
+2. If `thresh_relative` > 0, :math:`x_{n+s} > x_{n-1}*(1 + thresh_relative)`
+3. If `thresh_relative` < 0, :math:`x_{n+s} < x_{n-1}*(1 + thresh_relative)`
+4. :math:`|x_{n-1} - x_{n+k+1}| <` `tolerance`
+5. :math:`|t_{n-1} - t_{n+k+1}| <` `window`
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+tolerance : float
+    Maximum allowed difference between the value preceding and succeeding
+    an offset sequence to trigger flagging (condition 4).
+window : str
+    Maximum temporal length allowed for an offset sequence to trigger flagging
+    (condition 5). Integer-defined windows are only allowed for regularly
+    sampled timestamps.
+thresh : float or None
+    Minimum absolute difference between a value and its successors to consider
+    the successors a possible anomalous offset sequence (condition 1). If None, this
+    condition is ignored.
+thresh_relative : float or None
+    Minimum relative change between a value and its successors to consider the
+    successors a possible anomalous offset sequence (conditions 2 and 3). If None,
+    this condition is ignored.
+    The parameter constrains the detection to either upwards (positive value passed) or
+    downwards (negative values passed) offsets. To assign detection of offsets bigger than `a`,
+    positive as well as negative, pass the tuple `(a,-a)`. Differing positive and negative threshold values are
+    possible as well.
+    See condition (2).
+    If ``None``, condition (2) is not tested.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Examples
+`````````````
+Below picture gives an abstract interpretation of the parameter interplay in case of a positive
+value jump, initializing an offset course.
+
+.. figure:: /resources/images/flagOffsetPic.png
+
+   The four values marked red are flagged because (1) the initial value jump
+   exceeds `thresh`, (2) the temporal extension of the group does not exceed `window`,
+   and (3) the returning value after the group lies within `tolerance` distance from the initial one.
+
+.. plot::
+   :context:
+   :include-source: False
+
+   import matplotlib
+   import saqc
+   import pandas as pd
+   data = pd.DataFrame({'data':np.array([5,5,8,16,17,7,4,4,4,1,1,4])}, index=pd.date_range('2000',freq='1h', periods=12))
+
+Lets generate a simple, regularly sampled timeseries with an hourly sampling rate and generate an
+`saqc.SaQC` instance from it.
+
+flagOffsetExample::
+
+   >>> import saqc
+   >>> data = pd.DataFrame({'data':np.array([5,5,8,16,17,7,4,4,4,1,1,4])}, index=pd.date_range('2000',freq='1h', periods=12))
+   >>> data
+                        data
+   2000-01-01 00:00:00     5
+   2000-01-01 01:00:00     5
+   2000-01-01 02:00:00     8
+   2000-01-01 03:00:00    16
+   2000-01-01 04:00:00    17
+   2000-01-01 05:00:00     7
+   2000-01-01 06:00:00     4
+   2000-01-01 07:00:00     4
+   2000-01-01 08:00:00     4
+   2000-01-01 09:00:00     1
+   2000-01-01 10:00:00     1
+   2000-01-01 11:00:00     4
+   >>> qc = saqc.SaQC(data)
+
+Now we are applying `~saqc.SaQC.flagOffset` and try to flag offset courses that don't extend
+longer than 6 hours in time (`window`) and that have an initial value jump higher than 2 (`thresh`),
+and that return to the initial value level within a tolerance of 1.5 (`tolerance`).
+
+flagOffsetExample::
+
+   >>> qc = qc.flagOffset(field="data", thresh=2, tolerance=1.5, window="6h")
+   >>> qc.plot(field="data")  # doctest: +SKIP
+
+Note that both negative and positive jumps are considered starting points of offsets. To restrict
+detection to positive jumps only, use `thresh_relative` > 0:
+
+flagOffsetExample::
+
+   >>> qc = qc.flagOffset(field="data", thresh=2, thresh_relative=.9, tolerance=1.5, window='6h')
+   >>> qc.plot(field="data")  # doctest:+SKIP
+
+To detect only negative offsets, use a negative relative threshold:
+
+flagOffsetExample::
+
+   >>> qc = qc.flagOffset(field="data", thresh=2, thresh_relative=-.5, tolerance=1.5, window="6h")
+   >>> qc.plot(field="data")  # doctest:+SKIP
+
+
+outliers.flagRange
+-----------------------------
+
+Flag values outside the closed interval [`min`, `max`].
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+min : float
+    Lower bound for valid data.
+max : float
+    Upper bound for valid data.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+outliers.flagUniLOF
+-----------------------------
+
+Flag anomalous values using the *Univariate Local Outlier Factor (UniLOF)* method.
+
+This function wraps a standard LOF implementation and provides a simplified,
+parameter-minimal interface for univariate outlier detection.
+LOF is applied on a combination of the variable values and a temporal
+density/penalty measure that reflects spacing between data points.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+n : int
+    Number of samples to include in the LOF neighborhood (the ``n`` nearest neighbors).
+thresh : {'auto', float}, optional
+    Outlier-factor cutoff. Values with LOF scores greater than this threshold are flagged.
+probability : float, optional
+    Outlier-probability cutoff. Values with probabilities greater than this threshold are flagged.
+corruption : float or int, optional
+    Portion of data assumed to be anomalous, either as a fraction in ``[0, 1]`` or
+    as an integer specifying the number of anomalous samples.
+algorithm : {'ball_tree', 'kd_tree', 'brute', 'auto'}
+    Nearest-neighbor algorithm used for LOF.
+p : int
+    Degree of the Minkowski metric used for neighbor distances (e.g., ``1`` Manhattan, ``2`` Euclidean).
+density : {'auto', float}
+    How to derive temporal density. ``'auto'`` uses the median absolute step size; a ``float`` sets a fixed increment.
+fill_na : bool
+    If ``True``, fill NaNs by linear interpolation before LOF calculation.
+slope_correct : bool
+    If ``True``, suppress flagging of groups of points, that seem to correspond to steep value slopes rather than to actual outliers.
+min_offset : float, optional
+    Minimum jump in values before and after an outlier cluster for it to be flagged.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+* The UniLOF score quantifies how outlier-like a point is in the
+  2D space defined by values and their timestamps.
+* Scores near ``1`` indicate inliers; larger scores suggest increasing anomaly likelihood.
+* A binary label (outlier vs. inlier) is obtained by applying the cutoff defined by ``thresh``.
+
+Examples
+`````````````
+See the :ref:`outlier detection cookbook
+<cookbooks/OutlierDetection:Outlier Detection>` for a detailed
+introduction and tuning guidance.
+
+.. plot::
+   :context: reset
+   :include-source: False
+
+   import matplotlib
+   import saqc
+   import pandas as pd
+   data = pd.read_csv('../resources/data/hydro_data.csv')
+   data = data.set_index('Timestamp')
+   data.index = pd.DatetimeIndex(data.index)
+   qc = saqc.SaQC(data)
+
+Example usage with default parameter configuration:
+
+Loading data via the pandas CSV parser, casting the index to a DatetimeIndex,
+generating a `~saqc.SaQC` instance from the data, and plotting the variable
+representing light scattering at 254 nanometers wavelength.
+
+flagUniLOFExample::
+
+   >>> import saqc
+   >>> data = pd.read_csv('./resources/data/hydro_data.csv')
+   >>> data = data.set_index('Timestamp')
+   >>> data.index = pd.DatetimeIndex(data.index)
+   >>> qc = saqc.SaQC(data)
+   >>> qc.plot('sac254_raw') # doctest: +SKIP
+
+.. plot::
+   :context:
+   :include-source: False
+   :class: center
+
+   qc.plot('sac254_raw')
+
+We apply `~saqc.SaQC.flagUniLOF` with default parameter values.
+This means that the main calibration parameters `n` and `thresh`
+evaluate to ``20`` and ``1.5``, respectively.
+
+flagUniLOFExample::
+
+   >>> import saqc
+   >>> qc = qc.flagUniLOF('sac254_raw')
+   >>> qc.plot('sac254_raw') # doctest: +SKIP
+
+.. plot::
+   :context: close-figs
+   :include-source: False
+   :class: center
+
+   qc = qc.flagUniLOF('sac254_raw')
+   qc.plot('sac254_raw')
+
+See also
+`````````````
+:ref:`introduction to outlier detection with saqc <cookbooks/OutlierDetection:Outlier Detection>`
+
+
+outliers.flagZScore
+-----------------------------
+
+Uses standard score cutoffs to detect outliers. (For example, "*3*-sigma rule".)
+
+The function supports both *standard* and *modified* Z-score definitions. To handle
+non-stationary data, the calculation can be applied within a rolling window. A minimum
+residual value may be required to avoid over-flagging in low-variance segments.
+
+
+Parameters
+`````````````
+field
+    List of variables names to process.
+method : {"standard", "modified"}
+    Which scoring method to use:
+    
+    * ``"standard"`` — mean as expectation, standard deviation as scaling factor.
+    * ``"modified"`` — median as expectation, median absolute deviation (MAD) as scaling factor.
+window : int or str, optional
+    Size of the scoring window. Either an integer (number of periods) or an offset
+    string (time span). If ``None`` (default), all data share a single window.
+thresh : float
+    Cutoff value. Points with absolute Z-scores larger than this threshold are flagged.
+min_residuals : float, optional
+    Minimum absolute distance a value must be apart from its context windows expectation, in order for the Z scoring test to be applied.
+min_periods : int, optional
+    Minimum number of valid observations that is required to be contained in a values context window, in order for the Z scoring test to be applied.
+center : bool
+    If ``True`` (default), the tested value is centered in its context window; otherwise, it is the window’s last value.
+axis : {0, 1}
+    Axis along which to compute scores:
+    
+    * ``0`` (default) — compute along the time axis only (separate windows for all fields).
+    * ``1`` — compute along time and data axis (windows are 2 dimensional and span over all fields).
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+For any data value :math:`x` at timestamp :math:`t` the following steps are performed in order to determine the flagging:
+
+1. Collect a context population :math:`X` based on ``axis`` and ``window``.
+   * If ``axis=0``, :math:`X` contains values of the same field :math:`x` is obtained from, sampled within ``window`` distance around :math:`t`.
+   * If ``axis=1``, :math:`X` contains values of all fields, sampled within ``window`` distance from :math:`t`.
+   * If ``axis=1`` and ``window=1``, :math:`X` contains values of all fields sampled at :math:`t`.
+
+.. figure:: /resources/images/ZscorePopulation.png
+   :class: with-border
+
+2. Compute the score :math:`Z = \frac{|E(X) - x|}{S(X)}`
+
+   * If ``method="standard"``: :math:`E(X)=mean(X)`, :math:`S(X)=std(X)`
+   * If ``method="modified"``: :math:`E(X)=median(X)`, :math:`S(X)=MAD(X)`
+
+3. Flag :math:`x`, if :math:`Z >` ``thresh`` and :math:`|E(X) - x|`> ``min_residuals``.
+
+
+pattern
+=============
+
+
+
+
+
+pattern.flagPatternByDTW
+-----------------------------
+
+Pattern Recognition via Dynamic Time Warping.
+
+The steps are:
+1. work on a moving window
+
+2. for each data chunk extracted from each window, a distance
+   to the given pattern is calculated, by the dynamic time warping
+   algorithm [1]
+
+3. if the distance is below the threshold, all the data in the
+   window gets flagged
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+reference
+    The name in `data` which holds the pattern. The pattern must
+    not have NaNs, have a datetime index and must not be empty.
+max_distance
+    Maximum dtw-distance between chunk and pattern, if the distance
+    is lower than ``max_distance`` the data gets flagged. With
+    default, ``0.0``, only exact matches are flagged.
+normalize
+    If `False`, return unmodified distances.
+    If `True`, normalize distances by the number of observations
+    of the reference. This helps to make it easier to find a
+    good cutoff threshold for further processing. The distances
+    then refer to the mean distance per datapoint, expressed
+    in the datas units.
+plot
+    Show a calibration plot, which can be quite helpful to find
+    the right threshold for `max_distance`. It works best with
+    `normalize=True`. Do not use in automatic setups / pipelines.
+    The plot show three lines:
+    
+    - data: the data the function was called on
+    - distances: the calculated distances by the algorithm
+    - indicator: have to distinct levels: `0` and the value of
+      `max_distance`. If `max_distance` is `0.0` it defaults to
+      `1`. Everywhere where the indicator is not `0` the data
+      will be flagged.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+The window size of the moving window is set to equal the temporal
+extension of the reference datas datetime index.
+
+References
+`````````````
+Find a nice description of underlying the Dynamic Time Warping
+Algorithm here:
+
+[1] https://cran.r-project.org/web/packages/dtw/dtw.pdf
+
+
+pattern.flagPlateau
+-----------------------------
+
+Flag anomalous value plateaus.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+min_length : int or str
+    Minimum temporal extension of a value course to qualify as a plateau.
+max_length : int, str, or None
+    Maximum temporal extension of a value course to qualify as a plateau
+    (upper detection limit). If None, a detection limit based on the data
+    length is used.
+min_jump : float or None
+    Minimum difference a plateau must have from directly preceding and
+    succeeding periods. If None, the minimum jump threshold is derived
+    automatically from the median of local absolute differences in the
+    vicinity of potential anomalies.
+granularity : int, str, or None
+    Precision of the search. Smaller values increase precision but also
+    computational cost. If None, defaults to 5.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+Minimum plateau length should be set higher than about twice the sampling rate.
+For detecting shorter anomalies, use `~saqc.SaQC.flagUniLOF` or
+`~saqc.SaQC.flagZScore`.
+
+Examples
+`````````````
+.. plot::
+   :context: reset
+   :include-source: False
+
+   import matplotlib
+   import saqc
+   import pandas as pd
+   data = pd.read_csv('../resources/data/turbidity_plateaus.csv', parse_dates=['data'], index_col=0, nrows=1000)
+   qc = saqc.SaQC(data)
+
+Detect plateaus longer than 100 minutes:
+
+flagPlateauExample::
+
+   >>> import saqc
+   >>> data = pd.read_csv('./resources/data/turbidity_plateaus.csv', parse_dates=['data'], index_col=0, nrows=10000)
+   >>> qc = saqc.SaQC(data)
+   >>> qc = qc.flagPlateau(field='base3', min_length='100min')
+   >>> qc.plot('base3')  # doctest: +SKIP
+
+.. plot::
+   :context:
+   :include-source: False
+   :class: center
+
+   qc = qc.flagPlateau(field='base3', min_length='100min')
+   qc.plot('base3')
+
+
+resampling
+=============
+
+
+
+
+
+resampling.concatFlags
+-----------------------------
+
+Project flags/history of `field` to `target` and adjust to the frequeny grid
+of `target` by 'undoing' former interpolation, shifting or resampling operations
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+method
+    Method to project the flags of `field` to the flags to `target`:
+    
+    * ``'auto'``: invert the last alignment/resampling operation (that is not already inverted)
+    * ``'nagg'``: project a flag of `field` to all timestamps of
+      `target` within the range +/- `freq`/2.
+    * ``'bagg'``: project a flag of `field` to all preceeding timestamps
+      of `target` within the range `freq`
+    * ``'fagg'``: project a flag of `field` to all succeeding timestamps
+      of `target` within the range `freq`
+    * ``'interpolation'`` - project a flag of `field` to all timestamps
+      of `target` within the range +/- `freq`
+    * ``'sshift'`` - same as interpolation
+    * ``'nshift'`` - project a flag of `field` to the neaerest timestamps
+      in `target` within the range +/- `freq`/2
+    * ``'bshift'`` - project a flag of `field` to nearest preceeding
+      timestamps in `target`
+    * ``'nshift'`` - project a flag of `field` to nearest succeeding
+      timestamps in `target`
+    * ``'match'`` - project a flag of `field` to all identical timestamps
+      `target`
+invert
+    If True, not the actual method is applied, but its inversion-method.
+freq
+    Projection range. If ``None`` the sampling frequency of `field` is used.
+drop
+    Remove `field` if ``True``
+squeeze
+    Squeeze the history into a single column if ``True``, function specific flag information is lost.
+override
+    Overwrite existing flags if ``True``
+target : `SaQCFields` | `newSaQCFields` 
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+To just use the appropriate inversion with regard to a certain method, set the
+`invert` parameter to True and pass the method you want to invert.
+
+To backtrack a preveous resampling, shifting or interpolation operation automatically, set `method='auto'`
+
+
+resampling.reindex
+-----------------------------
+
+Change a variables index.
+
+Simultaneously changes the indices of the data, flags and the history assigned to `field`.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+index
+    Determines the new index.
+    
+    * If an `offset` string: new index will range from start to end of the original index of
+      `field`, exhibting a uniform sampling rate of `idx`
+    * If a `str` that matches a field present in the `SaQC` object, that fields index will be
+      used as new index of `field`
+    * If an `pd.index` object is passed, that will be the new index of `field`.
+method
+    Determines which of the origins indexes periods to comprise into the calculation of a new flag and a new data value at
+    any period of the new index.
+    
+    * Aggregations Reindexer. Aggregations are data and flags independent, (pure) index selection methods:
+    * `'bagg'`/`'fagg'`: "backwards/forwards aggregation". Any new index period gets assigned an
+      aggregation of the values at periods in the original index, that lie between itself and its successor/predecessor.
+    * `'nagg'`: "nearest aggregation": Any new index period gets assigned an aggregation of the values at periods
+      in the original index between its direcet predecessor and successor, it is the nearest neighbor to.
+    * Rolling reindexer. Rolling reindexers are equal to aggregations, when projecting between
+      regular and irregular sampling grids forth and back. But due to there simple rolling window construction, they are
+      easier to comprehend, predict and parametrize. On the downside, they are much more expensive computationally and
+      Also, periods can get included in the aggregation to multpiple target periods, (when rolling windows overlap).
+    * `'broll'`/`'froll'`: Any new index period gets assigned an aggregation of all the values at periods
+      of the original index, that fall into a directly preceeding/succeeding window of size `reindex_window`.
+    * Shifts. Shifting methods are shortcuts for aggregation reindex methods, combined with selecting
+      'last' or 'first' as the `data_aggregation` method. Therefor, both, the `flags_aggregation`
+      and the `data_aggregation` are ignored when using a `shift` reindexer. Also, periods
+      where the data evaluates to `NaN` are dropped before shift index selection.
+    * `'bshift'`/`fshift`: "backwards/forwards shift". Any new index period gets assigned the
+      first/last valid (not a data NaN) value it succeeds/preceeds
+    * `'nshift'`: "nearest shift": Any new index period gets assigned the value of its closest neighbor in the
+      original index.
+    * Pillar point Mappings. Index selection method designed to select indices suitable for
+      linearly interpolating index values from surrounding pillar points in the original index, or inverting such
+      a selection. Periods where the data evaluates to `NaN`, are dropped from consideration.
+    * `'mshift'`: "Merge" predecessors and successors. Any new index period gets assigned an aggregation/interpolation comprising
+      the last and the next valid period in the original index.
+    * `'sshift'`: "Split"-map values onto predecessors and successors. Same as `mshift`, but with a correction that prevents missing value
+      flags from being mapped to continuous data chunk bounds.
+    * Inversion of last method: try to select the method, that
+    * `'invert``
+tolerance
+    Limiting the distance, values can be shifted or comprised into aggregation.
+data_aggregation
+    Function string or custom Function, determining how to aggregate new data values
+    from the values at the periods selected according to the `index_selection_method`.
+    If a scalar value is passed, the new data series will just evaluate to that scalar at any new index.
+flags_aggregation
+    Function string or custom Function, determining how to aggregate new flags values
+    from the values at the periods selected according to the `index_selection_method`.
+    If a scalar value is passed, the new flags series will just evaluate to that scalar at any new index.
+broadcast
+    Weather to propagate aggregation result to full reindex window when using aggregation reindexer.
+    (as opposed to only assign to next/previous/closest)
+target : `SaQCFields` | `newSaQCFields` 
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+.. figure:: /resources/images/reindexMethods.png
+
+Examples
+`````````````
+Generate some example data with messed up 1 day-ish sampling rate
+
+reindexExample::
+
+   >>> import pandas as pd
+   >>> import saqc
+   >>> import numpy as np
+   >>> from saqc.constants import FILTER_NONE
+   >>> np.random.seed(23)
+   >>> index = pd.DatetimeIndex(pd.date_range('2000', freq='1d', periods=23))
+   >>> index += pd.Index([pd.Timedelta(f'{k}min') for k in np.random.randint(-360,360,23)])
+   >>> drops = np.random.randint(0,20,3)
+   >>> drops.sort()
+   >>> index=index[np.r_[0:drops[0],drops[0]+1:drops[1],drops[1]+1:drops[2],drops[2]+1:23]]
+   >>> data = pd.Series(np.abs(np.arange(-10,10)), index=index, name='data')
+   >>> data # doctest: +SKIP
+   2000-01-01 03:55:00    10
+   2000-01-03 02:08:00     9
+   2000-01-03 18:31:00     8
+   2000-01-04 21:57:00     7
+   2000-01-06 01:40:00     6
+   2000-01-06 23:47:00     5
+   2000-01-09 04:02:00     4
+   2000-01-10 05:05:00     3
+   2000-01-10 18:06:00     2
+   2000-01-12 01:09:00     1
+   2000-01-13 02:44:00     0
+   2000-01-13 18:49:00     1
+   2000-01-15 05:46:00     2
+   2000-01-16 01:39:00     3
+   2000-01-17 05:49:00     4
+   2000-01-17 21:12:00     5
+   2000-01-18 18:12:00     6
+   2000-01-21 03:20:00     7
+   2000-01-21 22:57:00     8
+   2000-01-23 03:51:00     9
+   Name: data, dtype: int64
+
+Performing linear alignment to 2 days grid, with and without limiting the reindexing range:
+
+reindexExample::
+
+   >>> qc = saqc.SaQC(data)
+   >>> qc = qc.reindex('data', target='linear', index='2D', method='mshift', data_aggregation='linear')
+   >>> qc = qc.reindex('data', target='limited_linear', index='2D', method='mshift', data_aggregation='linear', tolerance='1D')
+   >>> qc.data # doctest: +SKIP
+                      data |               linear |       limited_linear |
+   ======================= | ==================== | ==================== |
+   2000-01-01 03:55:00  10 | 1999-12-31       NaN | 1999-12-31       NaN |
+   2000-01-03 02:08:00   9 | 2000-01-02  9.565453 | 2000-01-02       NaN |
+   2000-01-03 18:31:00   8 | 2000-01-04  7.800122 | 2000-01-04  7.800122 |
+   2000-01-04 21:57:00   7 | 2000-01-06  6.060132 | 2000-01-06       NaN |
+   2000-01-06 01:40:00   6 | 2000-01-08  4.536523 | 2000-01-08       NaN |
+   2000-01-06 23:47:00   5 | 2000-01-10  3.202927 | 2000-01-10  3.202927 |
+   2000-01-09 04:02:00   4 | 2000-01-12  1.037037 | 2000-01-12       NaN |
+   2000-01-10 05:05:00   3 | 2000-01-14  1.148307 | 2000-01-14       NaN |
+   2000-01-10 18:06:00   2 | 2000-01-16  2.917016 | 2000-01-16  2.917016 |
+   2000-01-12 01:09:00   1 | 2000-01-18  5.133333 | 2000-01-18  5.133333 |
+   2000-01-13 02:44:00   0 | 2000-01-20  6.521587 | 2000-01-20       NaN |
+   2000-01-13 18:49:00   1 | 2000-01-22  8.036332 | 2000-01-22       NaN |
+   2000-01-15 05:46:00   2 | 2000-01-24       NaN | 2000-01-24       NaN |
+   2000-01-16 01:39:00   3 |                      |                      |
+   2000-01-17 05:49:00   4 |                      |                      |
+   2000-01-17 21:12:00   5 |                      |                      |
+   2000-01-18 18:12:00   6 |                      |                      |
+   2000-01-21 03:20:00   7 |                      |                      |
+   2000-01-21 22:57:00   8 |                      |                      |
+   2000-01-23 03:51:00   9 |                      |                      |
+   <BLANKLINE>
+
+Setting a flag, reindexing the linearly aligned field with the originl index (deharmonisation")
+
+reindexExample::
+
+   >>> qc = qc.setFlags('linear', data=['2000-01-16'])
+   >>> qc = qc.reindex('linear', index='data', tolerance='2D', method='sshift', dfilter=FILTER_NONE)
+   >>> qc.flags[['data', 'linear']] # doctest: +SKIP
+                       data |                     linear |
+   ======================== | ========================== |
+   2000-01-01 03:55:00 -inf | 2000-01-01 03:55:00   -inf |
+   2000-01-03 02:08:00 -inf | 2000-01-03 02:08:00   -inf |
+   2000-01-03 18:31:00 -inf | 2000-01-03 18:31:00   -inf |
+   2000-01-04 21:57:00 -inf | 2000-01-04 21:57:00   -inf |
+   2000-01-06 01:40:00 -inf | 2000-01-06 01:40:00   -inf |
+   2000-01-06 23:47:00 -inf | 2000-01-06 23:47:00   -inf |
+   2000-01-09 04:02:00 -inf | 2000-01-09 04:02:00   -inf |
+   2000-01-10 05:05:00 -inf | 2000-01-10 05:05:00   -inf |
+   2000-01-10 18:06:00 -inf | 2000-01-10 18:06:00   -inf |
+   2000-01-12 01:09:00 -inf | 2000-01-12 01:09:00   -inf |
+   2000-01-13 02:44:00 -inf | 2000-01-13 02:44:00   -inf |
+   2000-01-13 18:49:00 -inf | 2000-01-13 18:49:00   -inf |
+   2000-01-15 05:46:00 -inf | 2000-01-15 05:46:00  255.0 |
+   2000-01-16 01:39:00 -inf | 2000-01-16 01:39:00  255.0 |
+   2000-01-17 05:49:00 -inf | 2000-01-17 05:49:00   -inf |
+   2000-01-17 21:12:00 -inf | 2000-01-17 21:12:00   -inf |
+   2000-01-18 18:12:00 -inf | 2000-01-18 18:12:00   -inf |
+   2000-01-21 03:20:00 -inf | 2000-01-21 03:20:00   -inf |
+   2000-01-21 22:57:00 -inf | 2000-01-21 22:57:00   -inf |
+   2000-01-23 03:51:00 -inf | 2000-01-23 03:51:00   -inf |
+   <BLANKLINE>
+
+Now, `linear` flags can easily be appended to data, to complete "deharm" step.
+
+Another example: Shifting to nearest regular frequeny and back. Note, how 'nearest' - style reindexers "invert" themselfs.
+
+reindexExample::
+
+   >>> qc = saqc.SaQC(data)
+   >>> qc = qc.reindex('data', index='1D', target='n_shifted', method='nshift')
+   >>> qc = qc.reindex('n_shifted', index='data', target='n_shifted_undone', method='nshift')
+   >>> qc.data # doctest: +SKIP
+                      data |        n_shifted |          n_shifted_undone |
+   ======================= | ================ | ========================= |
+   2000-01-01 03:55:00  10 | 2000-01-01  10.0 | 2000-01-01 03:55:00  10.0 |
+   2000-01-03 02:08:00   9 | 2000-01-02   NaN | 2000-01-03 02:08:00   9.0 |
+   2000-01-03 18:31:00   8 | 2000-01-03   9.0 | 2000-01-03 18:31:00   8.0 |
+   2000-01-04 21:57:00   7 | 2000-01-04   8.0 | 2000-01-04 21:57:00   7.0 |
+   2000-01-06 01:40:00   6 | 2000-01-05   7.0 | 2000-01-06 01:40:00   6.0 |
+   2000-01-06 23:47:00   5 | 2000-01-06   6.0 | 2000-01-06 23:47:00   5.0 |
+   2000-01-09 04:02:00   4 | 2000-01-07   5.0 | 2000-01-09 04:02:00   4.0 |
+   2000-01-10 05:05:00   3 | 2000-01-08   NaN | 2000-01-10 05:05:00   3.0 |
+   2000-01-10 18:06:00   2 | 2000-01-09   4.0 | 2000-01-10 18:06:00   2.0 |
+   2000-01-12 01:09:00   1 | 2000-01-10   3.0 | 2000-01-12 01:09:00   1.0 |
+   2000-01-13 02:44:00   0 | 2000-01-11   2.0 | 2000-01-13 02:44:00   0.0 |
+   2000-01-13 18:49:00   1 | 2000-01-12   1.0 | 2000-01-13 18:49:00   1.0 |
+   2000-01-15 05:46:00   2 | 2000-01-13   0.0 | 2000-01-15 05:46:00   2.0 |
+   2000-01-16 01:39:00   3 | 2000-01-14   1.0 | 2000-01-16 01:39:00   3.0 |
+   2000-01-17 05:49:00   4 | 2000-01-15   2.0 | 2000-01-17 05:49:00   4.0 |
+   2000-01-17 21:12:00   5 | 2000-01-16   3.0 | 2000-01-17 21:12:00   5.0 |
+   2000-01-18 18:12:00   6 | 2000-01-17   4.0 | 2000-01-18 18:12:00   6.0 |
+   2000-01-21 03:20:00   7 | 2000-01-18   5.0 | 2000-01-21 03:20:00   7.0 |
+   2000-01-21 22:57:00   8 | 2000-01-19   6.0 | 2000-01-21 22:57:00   8.0 |
+   2000-01-23 03:51:00   9 | 2000-01-20   NaN | 2000-01-23 03:51:00   9.0 |
+                           | 2000-01-21   7.0 |                           |
+                           | 2000-01-22   8.0 |                           |
+                           | 2000-01-23   9.0 |                           |
+                           | 2000-01-24   NaN |                           |
+   <BLANKLINE>
+
+Furthermoer, forward/backward style reindexers can be inverted by backward/forward style reindexers:
+
+reindexExample::
+
+   >>> qc = saqc.SaQC(data)
+   >>> qc = qc.reindex('data', target='sum_aggregate', index='3D', method='fagg', data_aggregation='sum')
+   >>> qc = qc.setFlags('sum_aggregate', data=['2000-01-18', '2000-01-24'])
+   >>> qc = qc.reindex('sum_aggregate', target='bagg', index='data', method='bagg', dfilter=FILTER_NONE)
+   >>> qc = qc.reindex('sum_aggregate', target='bagg_limited', index='data', method='bagg', tolerance='2D', dfilter=FILTER_NONE)
+   >>> qc.flags # doctest: +SKIP
+                       data |     sum_aggregate |                       bagg |               bagg_limited |
+   ======================== | ================= | ========================== | ========================== |
+   2000-01-01 03:55:00 -inf | 1999-12-31   -inf | 2000-01-01 03:55:00   -inf | 2000-01-01 03:55:00   -inf |
+   2000-01-03 02:08:00 -inf | 2000-01-03   -inf | 2000-01-03 02:08:00   -inf | 2000-01-03 02:08:00   -inf |
+   2000-01-03 18:31:00 -inf | 2000-01-06   -inf | 2000-01-03 18:31:00   -inf | 2000-01-03 18:31:00   -inf |
+   2000-01-04 21:57:00 -inf | 2000-01-09   -inf | 2000-01-04 21:57:00   -inf | 2000-01-04 21:57:00   -inf |
+   2000-01-06 01:40:00 -inf | 2000-01-12   -inf | 2000-01-06 01:40:00   -inf | 2000-01-06 01:40:00   -inf |
+   2000-01-06 23:47:00 -inf | 2000-01-15   -inf | 2000-01-06 23:47:00   -inf | 2000-01-06 23:47:00   -inf |
+   2000-01-09 04:02:00 -inf | 2000-01-18  255.0 | 2000-01-09 04:02:00   -inf | 2000-01-09 04:02:00   -inf |
+   2000-01-10 05:05:00 -inf | 2000-01-21   -inf | 2000-01-10 05:05:00   -inf | 2000-01-10 05:05:00   -inf |
+   2000-01-10 18:06:00 -inf | 2000-01-24  255.0 | 2000-01-10 18:06:00   -inf | 2000-01-10 18:06:00   -inf |
+   2000-01-12 01:09:00 -inf |                   | 2000-01-12 01:09:00   -inf | 2000-01-12 01:09:00   -inf |
+   2000-01-13 02:44:00 -inf |                   | 2000-01-13 02:44:00   -inf | 2000-01-13 02:44:00   -inf |
+   2000-01-13 18:49:00 -inf |                   | 2000-01-13 18:49:00   -inf | 2000-01-13 18:49:00   -inf |
+   2000-01-15 05:46:00 -inf |                   | 2000-01-15 05:46:00  255.0 | 2000-01-15 05:46:00   -inf |
+   2000-01-16 01:39:00 -inf |                   | 2000-01-16 01:39:00  255.0 | 2000-01-16 01:39:00  255.0 |
+   2000-01-17 05:49:00 -inf |                   | 2000-01-17 05:49:00  255.0 | 2000-01-17 05:49:00  255.0 |
+   2000-01-17 21:12:00 -inf |                   | 2000-01-17 21:12:00  255.0 | 2000-01-17 21:12:00  255.0 |
+   2000-01-18 18:12:00 -inf |                   | 2000-01-18 18:12:00   -inf | 2000-01-18 18:12:00   -inf |
+   2000-01-21 03:20:00 -inf |                   | 2000-01-21 03:20:00  255.0 | 2000-01-21 03:20:00   -inf |
+   2000-01-21 22:57:00 -inf |                   | 2000-01-21 22:57:00  255.0 | 2000-01-21 22:57:00   -inf |
+   2000-01-23 03:51:00 -inf |                   | 2000-01-23 03:51:00  255.0 | 2000-01-23 03:51:00  255.0 |
+   <BLANKLINE>
+
+
+resampling.resample
+-----------------------------
+
+Resample data points and flags to a regular frequency.
+
+The data will be sampled to regular (equidistant) timestamps.
+Sampling intervals therefore get aggregated with a function, specified by
+``func``, the result is projected to the new timestamps using
+``method``. The following methods are available:
+
+* ``'nagg'``: all values in the range (+/- `freq`/2) of a grid point get
+  aggregated with func and assigned to it.
+* ``'bagg'``: all values in a sampling interval get aggregated with func and
+  the result gets assigned to the last grid point.
+* ``'fagg'``: all values in a sampling interval get aggregated with func and
+  the result gets assigned to the next grid point.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+freq
+    Offset string. Sampling rate of the target frequency grid.
+func
+    Aggregation function. See notes for performance considerations.
+method
+    Specifies which intervals to be aggregated for a certain timestamp. (preceding,
+    succeeding or "surrounding" interval). See description above for more details.
+maxna
+    Maximum number of allowed ``NaN``s in a resampling interval. If exceeded, the
+    aggregation of the interval evaluates to ``NaN``.
+maxna_group
+    Same as `maxna` but for consecutive NaNs.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+For perfomance reasons, ``func`` will be mapped to pandas.resample methods,
+if possible. However, for this to work, functions need an initialized
+``__name__`` attribute, holding the function's name. Furthermore, you should
+not pass numpys nan-functions (``nansum``, ``nanmean``,...) because they
+cannot be optimised and the handling of ``NaN`` is already taken care of.
+
+
+residuals
+=============
+
+
+
+
+
+residuals.calculatePolynomialResiduals
+-----------------------------
+
+Fits a polynomial model to the data and calculate the residuals.
+
+The residual  is calculated by fitting a polynomial of degree `order` to a data
+slice of size `window`, that has x at its center.
+
+Note, that calculating the residuals tends to be quite costly, because a function
+fitting is performed for every sample. To improve performance, consider the
+following possibilities:
+
+In case your data is sampled at an equidistant frequency grid:
+
+(1) If you know your data to have no significant number of missing values,
+or if you do not want to calculate residuals for windows containing missing values
+any way, performance can be increased by setting min_periods=window.
+
+Note, that the initial and final window/2 values do not get fitted.
+
+Each residual gets assigned the worst flag present in the interval of
+the original data.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+window
+    The size of the window you want to use for fitting. If an integer is passed,
+    the size refers to the number of periods for every fitting window. If an
+    offset string is passed, the size refers to the total temporal extension. The
+    window will be centered around the vaule-to-be-fitted. For regularly sampled
+    timeseries the period number will be casted down to an odd number if even.
+order
+    The degree of the polynomial used for fitting
+min_periods
+    The minimum number of periods, that has to be available in every values
+    fitting surrounding for the polynomial fit to be performed. If there are not
+    enough values, np.nan gets assigned. Default (0) results in fitting
+    regardless of the number of values present (results in overfitting for too
+    sparse intervals). To automatically set the minimum number of periods to the
+    number of values in an offset defined window size, pass np.nan.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+residuals.calculateRollingResiduals
+-----------------------------
+
+Calculate the diff of a rolling-window function and the data.
+
+Note, that the data gets assigned the worst flag present in the original data.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+window
+    The size of the window you want to roll with. If an integer is passed, the size
+    refers to the number of periods for every fitting window. If an offset string
+    is passed, the size refers to the total temporal extension. For regularly
+    sampled timeseries, the period number will be casted down to an odd number if
+    ``center=True``.
+func : default mean
+    Function to roll with.
+min_periods
+    The minimum number of periods to get a valid value
+center
+    If True, center the rolling window.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+rolling
+=============
+
+
+
+
+
+rolling.rolling
+-----------------------------
+
+Evaluate a function at all shifts of a fixed-size window ("rolling window application").
+
+The resulting values are assigned the worst flag present in the window from which
+they were aggregated. Multiple fields can be selected in order to apply a rolling function
+on arrays obtained from the concatenation of the different field specific windows.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+window : int or str
+    Size of the rolling window. If an integer, it determines the window size as the number of periods it has to contain at every shift.
+    If an offset string, it determines the window size as its constant temporal extension.
+    For regularly sampled data, the period number is rounded down to an odd number in case
+    ``center``  is True.
+func : callable or str
+    Function to apply to window at each shift.
+    Can either be a custom callable, expecting a ``pandas.Series`` object as its input,
+    or a literal from the following list:
+    
+    - "sum"    : Sum of values in the window
+    - "mean"   : Average of values
+    - "median" : Median
+    - "min"    : Minimum
+    - "max"    : Maximum
+    - "std"    : Standard deviation
+    - "var"    : Variance
+    - "skew"   : Skewness
+    - "kurt"   : Kurtosis
+    - "count"  : Number of non-NA observations in the window
+min_periods : int
+    Minimum number of valid observations in the window required to calculate a value.
+center : bool
+    If ``True``, function results are assigned to the timestamp at the center of the windows; if ``False``, they are assigned to the highest timestamp in the windows.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+.. figure:: /resources/images/horizontalAxisRollingExample.png
+   :class: with-border
+
+   Example of rolling over multiple variables.
+
+
+scores
+=============
+
+
+
+
+
+scores.assignKNNScore
+-----------------------------
+
+Score datapoints by an aggregation of the distances to their `k` nearest neighbors.
+
+The function is a wrapper around the NearestNeighbors method from pythons sklearn library (See reference [1]).
+
+The steps taken to calculate the scores are as follows:
+
+1. All the timeseries, given through ``field``, are combined to one feature space by an *inner* join on their
+   date time indexes. thus, only samples, that share timestamps across all ``field`` will be included in the
+   feature space.
+2. Any datapoint/sample, where one ore more of the features is invalid (=np.nan) will get excluded.
+3. For every data point, the distance to its `n` nearest neighbors is calculated by applying the
+   metric `metric` at grade `p` onto the feature space. The defaults lead to the euclidian to be applied.
+   If `radius` is not None, it sets the upper bound of distance for a neighbor to be considered one of the
+   `n` nearest neighbors. Furthermore, the `freq` argument determines wich samples can be
+   included into a datapoints nearest neighbors list, by segmenting the data into chunks of specified temporal
+   extension and feeding that chunks to the kNN algorithm seperatly.
+4. For every datapoint, the calculated nearest neighbors distances get aggregated to a score, by the function
+   passed to `func`. The default, ``sum`` obviously just sums up the distances.
+5. The resulting timeseries of scores gets assigned to the field target.
+
+
+Parameters
+`````````````
+field
+    List of variables names to process.
+n : :
+    The number of nearest neighbors to which the distance is comprised in every datapoints scoring calculation.
+func : default sum
+    A function that assigns a score to every one dimensional array, containing the distances
+    to every datapoints `n` nearest neighbors.
+freq
+    Determines the segmentation of the data into partitions, the kNN algorithm is
+    applied onto individually.
+    
+    * ``np.inf``: Apply Scoring on whole data set at once
+    * ``x`` > 0 : Apply scoring on successive data chunks of periods length ``x``
+    * Offset String : Apply scoring on successive partitions of temporal extension matching the passed offset
+      string
+min_periods
+    The minimum number of periods that have to be present in a window for the kNN scoring
+    to be applied. If the number of periods present is below `min_periods`, the score for the
+    datapoints in that window will be np.nan.
+algorithm
+    The search algorithm to find each datapoints k nearest neighbors.
+    The keyword just gets passed on to the underlying sklearn method.
+    See reference [1] for more information on the algorithm.
+metric
+    The metric the distances to any datapoints neighbors is computed with. The default of `metric`
+    together with the default of `p` result in the euclidian to be applied.
+    The keyword just gets passed on to the underlying sklearn method.
+    See reference [1] for more information on the algorithm.
+p : :
+    The grade of the metrice specified by parameter `metric`.
+    The keyword just gets passed on to the underlying sklearn method.
+    See reference [1] for more information on the algorithm.
+target : `SaQCFields` | `newSaQCFields` 
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+References
+`````````````
+[1] https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.NearestNeighbors.html
+
+
+scores.assignLOF
+-----------------------------
+
+Assign Local Outlier Factor (LOF).
+
+
+Parameters
+`````````````
+field
+    List of variables names to process.
+n
+    Number of periods to be included into the LOF calculation. Defaults to `20`, which is a value found to be
+    suitable in the literature.
+freq
+    Determines the segmentation of the data into partitions, the kNN algorithm is
+    applied onto individually.
+algorithm
+    Algorithm used for calculating the `n`-nearest neighbors needed for LOF calculation.
+p
+    Degree of the metric ("Minkowski"), according to wich distance to neighbors is determined.
+    Most important values are:
+    
+    * `1` - Manhatten Metric
+    * `2` - Euclidian Metric
+target : `SaQCFields` | `newSaQCFields` 
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+* `n` determines the "locality" of an observation (its `n` nearest neighbors) and sets the upper limit of
+  values of an outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than `n/2`
+  may not be detected reliably.
+* The larger `n`, the lesser the algorithm's sensitivity to local outliers and small or singleton outliers
+  points. Higher values greatly increase numerical costs.
+
+
+scores.assignUniLOF
+-----------------------------
+
+Assign "univariate" Local Outlier Factor (LOF) or "inivariate" Local Outlier Probability (LOP)
+
+The Function is a wrapper around a usual LOF implementation, aiming for an easy to use, parameter minimal
+outlier scoring function for singleton variables, that does not necessitate prior modelling of the variable.
+LOF is applied onto a concatenation of the `field` variable and a "temporal density", or "penalty" variable,
+that measures temporal distance between data points.
+
+See the Notes section for more details on the algorithm.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+n
+    Number of periods to be included into the LOF calculation. Defaults to `20`, which is a value found to be
+    suitable in the literature.
+    
+    * `n` determines the "locality" of an observation (its `n` nearest neighbors) and sets the upper limit of
+      values of an outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than `n/2`
+      may not be detected reliably.
+    * The larger `n`, the lesser the algorithm's sensitivity to local outliers and small or singleton outliers
+      points. Higher values greatly increase numerical costs.
+algorithm
+    Algorithm used for calculating the `n`-nearest neighbors needed for LOF calculation.
+p
+    Degree of the metric ("Minkowski"), according to wich distance to neighbors is determined.
+    Most important values are:
+    
+    * `1` - Manhatten Metric
+    * `2` - Euclidian Metric
+density
+    How to calculate the temporal distance/density for the variable-to-be-flagged.
+    
+    * float - introduces linear density with an increment equal to `density`
+    * Callable - calculates the density by applying the function passed onto the variable to be flagged
+      (passed as Series).
+fill_na
+    If True, NaNs in the data are filled with a linear interpolation.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+LOP: Kriegel, H.-P.; Kröger, P.; Schubert, E.; Zimek, A. LoOP: local outlier probabilities. Proceedings
+  of the 18th ACM conference on Information and knowledge management 2009, 1649–1652.
+
+Algorithm steps for uniLOF flagging of variable `x`:
+
+1. The temporal density `dt(x)` is calculated according to the `density` parameter.
+2. LOF (or LOP) scores `L(x)` are calculated for the concatenation [`x`, `dt(x)`]
+3. `x` is flagged where `L(x)` exceeds the threshold determined by the parameter `thresh`.
+
+
+scores.assignZScore
+-----------------------------
+
+Calculate (rolling) Zscores.
+
+See the Notes section for a detailed overview of the calculation
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+window
+    Size of the window. can be determined as:
+    * Offset String, denoting the windows temporal extension
+    * Integer, denoting the windows number of periods.
+    * `None` (default), All data points share the same scoring window, which than equals the whole
+    data.
+model_func : default std
+    Function to calculate the center moment in every window.
+norm_func : default mean
+    Function to calculate the scaling for every window
+center
+    Weather or not to center the target value in the scoring window. If `False`, the
+    target value is the last value in the window.
+min_periods
+    Minimum number of valid meassurements in a scoring window, to consider the resulting score valid.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+Steps of calculation:
+
+1. Consider a window :math:`W` of successive points :math:`W = x_{1},...x_{w}`
+containing the value :math:`y_{K}` wich is to be checked.
+(The index of :math:`K` depends on the selection of the parameter `center`.)
+
+2. The "moment" :math:`M` for the window gets calculated via :math:`M=` model_func(:math:`W`)
+
+3. The "scaling" :math:`N` for the window gets calculated via :math:`N=` norm_func(:math:`W`)
+
+4. The "score" :math:`S` for the point :math:`x_{k}`gets calculated via :math:`S=(x_{k} - M) / N`
+
+
+tools
+=============
+
+
+
+
+
+tools.copyField
+-----------------------------
+
+Make a copy of the data and flags to a new field.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+overwrite : bool
+    Overwrite ``target``, if already existing.
+target : `SaQCFields` | `newSaQCFields` 
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+tools.dropField
+-----------------------------
+
+Drops field from the data and flags.
+
+Parameters
+`````````````
+field
+    Variable to process.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+tools.plot
+-----------------------------
+
+Plot data and flags or store plot to file.
+
+There are two modes, 'interactive' and 'store', which are determined through the
+``save_path`` keyword. In interactive mode (default) the plot is shown at runtime
+and the program execution stops until the plot window is closed manually. In
+store mode the generated plot is stored to disk and no manually interaction is
+needed.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+path
+    If ``None`` is passed, interactive mode is entered; plots are shown immediatly
+    and a user need to close them manually before execution continues.
+    If a filepath is passed instead, store-mode is entered and
+    the plot is stored unter the passed location.
+max_gap
+    If ``None``, all data points will be connected, resulting in long linear
+    lines, in case of large data gaps. ``NaN`` values will be removed before
+    plotting. If an offset string is passed, only points that have a distance
+    below ``max_gap`` are connected via the plotting line.
+mode
+    How to process multiple variables to be plotted:
+    
+    * `"oneplot"` : plot all variables with their flags in one axis (default)
+    * `"subplots"` : generate subplot grid where each axis contains one variable plot with associated flags
+    * `"biplot"` : plotting first and second variable in field against each other in a scatter plot  (point cloud).
+history
+    Discriminate the plotted flags with respect to the tests they originate from.
+    
+    * ``"valid"``: Only plot flags, that are not overwritten by subsequent tests.
+      Only list tests in the legend, that actually contributed flags to the overall
+      result.
+    * ``None``: Just plot the resulting flags for one variable, without any historical
+      and/or meta information.
+    * list of strings: List of tests. Plot flags from the given tests, only.
+    * ``complete`` (not recommended, deprecated): Plot all the flags set by any test, independently from them being removed or modified by
+      subsequent modifications. (this means: plotted flags do not necessarily match with flags ultimately
+      assigned to the data)
+xscope
+    Determine a chunk of the data to be plotted. ``xscope`` can be anything,
+    that is a valid argument to the ``pandas.Series.__getitem__`` method.
+yscope
+    Either a tuple of 2 scalars that determines all plots' y-view limits, or a list of those
+    tuples, determining the different variables y-view limits (must match number of variables)
+    or a dictionary with variables as keys and the y-view tuple as values.
+ax
+    If not ``None``, plot into the given ``matplotlib.Axes`` instance, instead of a
+    newly created ``matplotlib.Figure``. This option offers a possibility to integrate
+    ``SaQC`` plots into custom figure layouts.
+store_kwargs
+    Keywords to be passed on to the ``matplotlib.pyplot.savefig`` method, handling
+    the figure storing. To store an pickle object of the figure, use the option
+    ``{"pickle": True}``, but note that all other ``store_kwargs`` are ignored then.
+    To reopen a pickled figure execute: ``pickle.load(open(savepath, "w")).show()``
+ax_kwargs
+    Axis keywords. Change axis specifics. Those are passed on to the
+    `matplotlib.axes.Axes.set <https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set.html>`_
+    method and can have the options listed there.
+    The following options are `saqc` specific:
+    
+    * ``"xlabel"``: Either single string, that is to be attached to all x-axis´, or
+      a List of labels, matching the number of variables to plot in length, or a dictionary, directly
+      assigning labels to certain fields - defaults to ``None`` (no labels)
+    * ``"ylabel"``: Either single string, that is to be attached to all y-axis´, or
+      a List of labels, matching the number of variables to plot in length, or a dictionary, directly
+      assigning labels to certain fields - defaults to ``None`` (no labels)
+    * ``"title"``: Either a List of labels, matching the number of variables to plot in length, or a dictionary, directly
+      assigning labels to certain variables - defaults to ``None`` (every plot gets titled the plotted variables name)
+    * ``"fontsize"``: (float) Adjust labeling and titeling fontsize
+    * ``"nrows"``, ``"ncols"``: shape of the subplot matrix the plots go into: If both are assigned, a subplot
+      matrix of shape `nrows` x `ncols` is generated. If only one is assigned, the unassigned dimension is 1.
+      defaults to plotting into subplot matrix with 2 columns and the necessary number of rows to fit the
+      number of variables to plot.
+marker_kwargs
+    Keywords to modify flags marker appearance. The markers are set via the
+    `matplotlib.pyplot.scatter <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html>`_
+    method and can have the options listed there.
+    The following options are `saqc` specific:
+    
+    * ``"cycleskip"``: (int) start the cycle of shapes that are assigned any flag-type with a certain lag - defaults to ``0`` (no skip)
+plot_kwargs
+    Keywords to modify the plot appearance. The plotting is delegated to
+    `matplotlib.pyplot.plot <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html>`_, all options listed there are available. Additionally the following saqc specific configurations are possible:
+    
+    * ``"alpha"``: Either a scalar float in *[0,1]*, that determines all plots' transparencies, or
+      a list of floats, matching the number of variables to plot.
+    
+    * ``"linewidth"``: Either single float in *[0,1]*, that determines the thickness of all plotted,
+      or a list of floats, matching the number of variables to plot.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Notes
+`````````````
+* Check/modify the module parameter `saqc.lib.plotting.SCATTER_KWARGS` to see/modify global marker defaults
+* Check/modify the module parameter `saqc.lib.plotting.PLOT_KWARGS` to see/modify global plot line defaults
+
+
+tools.renameField
+-----------------------------
+
+Rename field to the given name.
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+new_name : str
+    New name for the field.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+
+tools.selectTime
+-----------------------------
+
+Realizes masking within saqc.
+
+Due to some inner saqc mechanics, it is not straight forwardly possible to exclude
+values or datachunks from flagging routines. This function replaces flags with UNFLAGGED
+value, wherever values are to get masked. Furthermore, the masked values get replaced by
+np.nan, so that they dont effect calculations.
+
+Here comes a recipe on how to apply a flagging function only on a masked chunk of the variable field:
+
+1. dublicate "field" in the input data (`copyField`)
+2. mask the dublicated data (this, `selectTime`)
+3. apply the tests you only want to be applied onto the masked data chunks (a saqc function)
+4. project the flags, calculated on the dublicated and masked data onto the original field data (`concateFlags` or `flagGeneric`)
+5. drop the dublicated data (`dropField`)
+
+To see an implemented example, checkout flagSeasonalRange in the saqc.functions module
+
+
+Parameters
+`````````````
+field
+    Variable to process.
+mode
+    The masking mode.
+    - "periodic": parameters "period_start", "end" are evaluated to generate a periodical mask
+    - "mask_var": data[mask_var] is expected to be a boolean valued timeseries and is used as mask.
+selection_field
+    Only effective if mode == "mask_var"
+    Fieldname of the column, holding the data that is to be used as mask. (must be boolean series)
+    Neither the series` length nor its labels have to match data[field]`s index and length. An inner join of the
+    indices will be calculated and values get masked where the values of the inner join are ``True``.
+start
+    Only effective if mode == "seasonal"
+    String denoting starting point of every period. Formally, it has to be a truncated instance of "mm-ddTHH:MM:SS".
+    Has to be of same length as `end` parameter.
+    See examples section below for some examples.
+end
+    Only effective if mode == "periodic"
+    String denoting starting point of every period. Formally, it has to be a truncated instance of "mm-ddTHH:MM:SS".
+    Has to be of same length as `end` parameter.
+    See examples section below for some examples.
+closed
+    Wheather or not to include the mask defining bounds to the mask.
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
+    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+flag :  optional
+    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+
+Returns
+`````````````
+SaQC : saqc.SaQC
+    the updated SaQC object
+
+Examples
+`````````````
+The `period_start` and `end` parameters provide a conveniant way to generate seasonal / date-periodic masks.
+They have to be strings of the forms:
+
+* "mm-ddTHH:MM:SS"
+* "ddTHH:MM:SS"
+* "HH:MM:SS"
+* "MM:SS" or "SS"
+
+(mm=month, dd=day, HH=hour, MM=minute, SS=second)
+Single digit specifications have to be given with leading zeros.
+`period_start` and `seas   on_end` strings have to be of same length (refer to the same periodicity)
+The highest date unit gives the period.
+For example:
+
+.. doctest::
+
+   >>> start = "01T15:00:00"
+   >>> end = "13T17:30:00"
+
+Will result in all values sampled between 15:00 at the first and  17:30 at the 13th of every month get masked
+
+.. doctest::
+
+   >>> start = "01:00"
+   >>> end = "04:00"
+
+All the values between the first and 4th minute of every hour get masked.
+
+.. doctest::
+
+   >>> start = "01-01T00:00:00"
+   >>> end = "01-03T00:00:00"
+
+Mask january and february of evcomprosed in theery year. masking is inclusive always, so in this case the mask will
+include 00:00:00 at the first of march. To exclude this one, pass:
+
+.. doctest::
+
+   >>> start = "01-01T00:00:00"
+   >>> end = "02-28T23:59:59"
+
+To mask intervals that lap over a seasons frame, like nights, or winter, exchange sequence of season start and
+season end. For example, to mask night hours between 22:00:00 in the evening and 06:00:00 in the morning, pass:
+
+>> start = "22:00:00"
+>> end = "06:00:00"
+
+]]></help>
   <expand macro="citations"/>
 </tool>
 

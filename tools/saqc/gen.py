@@ -106,21 +106,27 @@ def clean_annotation_string(s: str) -> str:
 
 
 def _get_doc(doc_str: Optional[str]) -> str:
+    """
+    get the the short (1st line) and long doc from a method doc string
+    """
     if not doc_str:
-        return ""
-    doc_str = str(doc_str)
-    doc_str_lines = [x for x in doc_str.split("\n") if x.strip() != ""]
-    if not doc_str_lines:
-        return ""
-    doc_str = doc_str_lines[0]
+        return "", ""
     doc_str = (
-        doc_str.strip(" .,")
-        .replace(":py:attr:", "")
+        doc_str.replace(":py:attr:", "")
         .replace(":py:class:`Any`,", "")
         .replace(":py:class:", "")
+        .replace(":py:func:", "")
+        .replace(":py:meth:", "")
     )
+    doc_str = re.sub(r".. doctest:: (\w+).*", r"\1::", doc_str)
 
-    return doc_str
+    doc_str_lines = doc_str.splitlines()
+    if len(doc_str_lines) > 0:
+        short_doc = doc_str_lines[0].strip(" .,")
+    else:
+        short_doc = ""
+
+    return short_doc, doc_str
 
 
 def parse_docstring(method: Callable) -> Dict[str, str]:
@@ -243,12 +249,12 @@ def parse_parameter_docs(sections: Dict[str, str]) -> Dict[str, str]:
 
 
 def _get_options_text_from_param_docs(
-    param_name: str,
-    options_list: list[str],
-    param_docs: dict[str, str]
-    ) -> dict[str, str]:
+        param_name: str,
+        options_list: list[str],
+        param_docs: dict[str, str]
+) -> dict[str, str]:
     """
-    parse desriptions of literals. needs to be 
+    parse desriptions of literals. needs to be
     - an item (start with -/*)
     - quoted
     - then a `:`
@@ -271,6 +277,7 @@ def _get_options_text_from_param_docs(
                 option_text[option] = f"{option}: {m.group(1)}"
                 break
     return option_text
+
 
 def get_label_help(param_name: str, parameter_docs: str) -> Tuple[str, str]:
     """
@@ -362,7 +369,7 @@ def get_methods(module):
         if inspect.ismodule(cls):
             continue
         methods = inspect.getmembers(cls, inspect.isfunction)
-        for method_name, method in methods:           
+        for method_name, method in methods:
             parameters = inspect.signature(method).parameters
             if "self" in parameters:
                 self_param = parameters["self"]
@@ -1124,12 +1131,12 @@ def get_method_params(method: Callable, module: "ModuleType", tracing=False):
             xml_params.append(data_param)
             continue
 
-        # Can be dropped with 
+        # Can be dropped with
         # https://git.ufz.de/rdm-software/saqc/-/merge_requests/887
         # https://git.ufz.de/rdm-software/saqc/-/merge_requests/894
         # https://git.ufz.de/rdm-software/saqc/-/merge_requests/895
         # or replaced by a correct implementation for https://git.ufz.de/rdm-software/saqc/-/issues/516
-        if "field" in param_name.lower() or param_name in ["target", "reference"]:          
+        if "field" in param_name.lower() or param_name in ["target", "reference"]:
             creation_args = param_constructor_args.copy()
             creation_args.pop("value", None)
             creation_args["type"] = "data_column"
@@ -1210,8 +1217,12 @@ def get_method_params(method: Callable, module: "ModuleType", tracing=False):
     return xml_params
 
 
-def get_methods_conditional(methods, module, tracing=False):
+def get_methods_conditional(methods, module_name, module, tracing=False):
+    """
+    get the conditional and help (text) for a set of methods
+    """
 
+    methods_help = ""
     filtered_methods = []
     for method_obj in methods:
         if check_method_for_skip_condition(method_obj, module):
@@ -1225,10 +1236,19 @@ def get_methods_conditional(methods, module, tracing=False):
 
     for method_obj in filtered_methods:
         method_name = method_obj.__name__
-        method_doc = _get_doc(method_obj.__doc__)
-        if not method_doc:
-            method_doc = method_name
-        method_select_options.append((method_name, f"{method_name}: {method_doc}"))
+        short_doc, doc = _get_doc(method_obj.__doc__)
+        if not short_doc:
+            short_doc = method_name
+        doc = re.sub("----*", "`````````````", doc)
+        methods_help += f"""
+
+{module_name}.{method_name}
+-----------------------------
+
+{doc}
+"""
+
+        method_select_options.append((method_name, f"{method_name}: {short_doc}"))
 
     if method_select_options:
         method_select = SelectParam(
@@ -1248,7 +1268,7 @@ def get_methods_conditional(methods, module, tracing=False):
             method_when.append(p)
         method_conditional.append(method_when)
 
-    return method_conditional
+    return methods_help, method_conditional
 
 
 def generate_tool_xml(tracing=False):
@@ -1282,7 +1302,7 @@ def generate_tool_xml(tracing=False):
         profile="22.01",
         version_command="python -c 'import saqc; print(saqc.__version__)'",
     )
-    tool.help = "This tool provides access to SaQC functions for quality control of time series data. Select a module and method, then configure its parameters."
+    tool.help = "This tool provides access to SaQC functions for quality control of time series data. Select a module and method, then configure its parameters.\n"
 
     tool.configfiles = Configfiles()
     tool.configfiles.append(ConfigfileDefaultInputs(name="param_conf"))
@@ -1324,10 +1344,10 @@ def generate_tool_xml(tracing=False):
 
         if has_valid_methods:
             valid_modules_data.append((module_name, module_obj, valid_methods_list))
-            module_doc = _get_doc(module_obj.__doc__)
-            if not module_doc:
-                module_doc = module_name
-            module_select_options.append((module_name, f"{module_name}: {module_doc}"))
+            short_module_doc, module_doc = _get_doc(module_obj.__doc__)
+            if not short_module_doc:
+                short_module_doc = module_name
+            module_select_options.append((module_name, f"{module_name}: {short_module_doc}"))
         else:
             pass
 
@@ -1352,8 +1372,8 @@ def generate_tool_xml(tracing=False):
     for module_name, module_obj, valid_methods in valid_modules_data:
         module_when = When(value=module_name)
 
-        methods_conditional_obj = get_methods_conditional(
-            valid_methods, module_obj, tracing=tracing
+        methods_help, methods_conditional_obj = get_methods_conditional(
+            valid_methods, module_name, module_obj, tracing=tracing
         )
 
         if methods_conditional_obj:
@@ -1361,6 +1381,16 @@ def generate_tool_xml(tracing=False):
         else:
             raise Exception(f"Could not generate method selection for module '{module_name}'.")
         module_conditional.append(module_when)
+
+        short_module_doc, module_doc = _get_doc(module_obj.__doc__)
+        tool.help += f"""
+{module_name}
+=============
+
+{module_doc}
+
+{methods_help}
+"""
 
     if module_select_options:
         module_repeat.append(module_conditional)

@@ -1,7 +1,7 @@
 <tool id="iphop_predict" name="iPHoP predict" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0" license="MIT">
     <description>host of input bacteriophage/archaeal virus genomes</description>
     <macros>
-        <token name="@TOOL_VERSION@">1.3.3</token>
+        <token name="@TOOL_VERSION@">1.4.1</token>
         <token name="@VERSION_SUFFIX@">0</token>
     </macros>
     <xrefs>
@@ -25,6 +25,7 @@
         <param argument="--fa_file" type="data" format="fasta" label="FASTA formatted virus sequences"/>
         <param argument="--db_dir" type="select" label="Reference database">
             <options from_data_table="iphop">
+                <filter type="regexp" column="version" value="^(iPHoP_db_Jun25_rw|test_version)$"/>
                 <validator type="no_options" message="No reference data available. Contact your Galaxy admin."/>
             </options>
         </param>
@@ -42,14 +43,14 @@
             <param name="db_dir" value="db2"/>
             <output name="detailed_per_tool">
                 <assert_contents>
-                    <has_n_lines n="190"/>
+                    <has_n_lines n="171"/>
                     <has_n_columns n="10" sep="," comment="#"/>
                 </assert_contents>
             </output>
             <output name="host_genome">
                 <assert_contents>
                     <has_line line="Virus,Host genome,Host taxonomy,Main method,Confidence score,Additional methods"/>
-                    <has_n_lines n="119"/>
+                    <has_n_lines n="27"/>
                     <has_n_columns n="6" sep=","/>
                 </assert_contents>
             </output>

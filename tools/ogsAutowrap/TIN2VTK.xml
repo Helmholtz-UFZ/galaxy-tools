@@ -6,14 +6,15 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[TIN2VTK --version]]></version_command>
-  <command><![CDATA[TIN2VTK
-    --input-tin-file '$input_tin_file'
+  <command><![CDATA[for i in $input_tin_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+TIN2VTK
+    --input-tin-file '$input_tin_file.element_identifier'
     --output-vtu-file output_1.vtu]]></command>
   <inputs>
-    <param name="input_tin_file" type="data" optional="false" label="input tin file" help="Input (.tin). the input file containing the input TIN" format="tin" multiple="false"/>
+    <param name="input_tin_file" type="data" optional="false" label="input tin file" help="Input (.tin). the input file containing the input TIN" format="data" multiple="false"/>
   </inputs>
   <outputs>
-    <data name="output_TIN2VTK" format="vtu" label="Output file from TIN2VTK" from_work_dir="output_1.vtu" hidden="false"/>
+    <data name="output_TIN2VTK" format="vtkxml" label="Output file from TIN2VTK" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="tin2vtk_test"/>

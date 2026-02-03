@@ -6,43 +6,44 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[removeMeshElements --version]]></version_command>
-  <command><![CDATA[removeMeshElements
+  <command><![CDATA[for i in $mesh_input_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+removeMeshElements
     $invert
-    #if str($z_max):
-        --z-max '$z_max'
-    #end if
-    #if str($z_min):
-        --z-min '$z_min'
-    #end if
-    #if str($y_max):
-        --y-max '$y_max'
-    #end if
-    #if str($y_min):
-        --y-min '$y_min'
-    #end if
-    #if str($x_max):
-        --x-max '$x_max'
-    #end if
-    #if str($x_min):
-        --x-min '$x_min'
-    #end if
+#if str($z_max).strip() != 'None' and str($z_max).strip() != '':
+    --z-max '$z_max'
+#end if
+#if str($z_min).strip() != 'None' and str($z_min).strip() != '':
+    --z-min '$z_min'
+#end if
+#if str($y_max).strip() != 'None' and str($y_max).strip() != '':
+    --y-max '$y_max'
+#end if
+#if str($y_min).strip() != 'None' and str($y_min).strip() != '':
+    --y-min '$y_min'
+#end if
+#if str($x_max).strip() != 'None' and str($x_max).strip() != '':
+    --x-max '$x_max'
+#end if
+#if str($x_min).strip() != 'None' and str($x_min).strip() != '':
+    --x-min '$x_min'
+#end if
     $zero_volume
     --element-type '$element_type'
-    #if str($property_name):
-        --property-name '$property_name'
-    #end if
-    #if str($property_value):
-        --property-value '$property_value'
-    #end if
-    #if str($min_value):
-        --min-value '$min_value'
-    #end if
-    #if str($max_value):
-        --max-value '$max_value'
-    #end if
+#if str($property_name).strip() != 'None' and str($property_name).strip() != '':
+    --property-name '$property_name'
+#end if
+#if str($property_value).strip() != 'None' and str($property_value).strip() != '':
+    --property-value '$property_value'
+#end if
+#if str($min_value).strip() != 'None' and str($min_value).strip() != '':
+    --min-value '$min_value'
+#end if
+#if str($max_value).strip() != 'None' and str($max_value).strip() != '':
+    --max-value '$max_value'
+#end if
     $outside
     $inside
-    --mesh-input-file '$mesh_input_file'
+    --mesh-input-file '$mesh_input_file.element_identifier'
     --mesh-output-file output_1.vtu]]></command>
   <inputs>
     <param name="invert" type="boolean" label="invert" help="inverts the specified bounding box" checked="false" truevalue="--invert" falsevalue=""/>
@@ -69,10 +70,10 @@
     <param name="max_value" type="float" value="0" optional="true" label="max value" help="maximum value of range for selected property"/>
     <param name="outside" type="boolean" label="outside" help="remove all elements outside the given property range" checked="false" truevalue="--outside" falsevalue=""/>
     <param name="inside" type="boolean" label="inside" help="remove all elements inside the given property range" checked="false" truevalue="--inside" falsevalue=""/>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtu" multiple="false"/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtkxml" multiple="false"/>
   </inputs>
   <outputs>
-    <data name="output_removeMeshElements" format="vtu" label="Output file from removeMeshElements" from_work_dir="output_1.vtu" hidden="false"/>
+    <data name="output_removeMeshElements" format="vtkxml" label="Output file from removeMeshElements" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="removemeshelements_test"/>

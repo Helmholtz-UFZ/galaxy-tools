@@ -6,32 +6,34 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[IntegrateBoreholesIntoMesh --version]]></version_command>
-  <command><![CDATA[IntegrateBoreholesIntoMesh
-    #if str($max_elevation):
-        --max-elevation '$max_elevation'
-    #end if
-    #if str($min_elevation):
-        --min-elevation '$min_elevation'
-    #end if
-    #if str($max_id):
-        --max-id '$max_id'
-    #end if
-    #if str($min_id):
-        --min-id '$min_id'
-    #end if
-    --geo '$geo'
-    --input '$input'
+  <command><![CDATA[for i in $geo; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+IntegrateBoreholesIntoMesh
+#if str($max_elevation).strip() != 'None' and str($max_elevation).strip() != '':
+    --max-elevation '$max_elevation'
+#end if
+#if str($min_elevation).strip() != 'None' and str($min_elevation).strip() != '':
+    --min-elevation '$min_elevation'
+#end if
+#if str($max_id).strip() != 'None' and str($max_id).strip() != '':
+    --max-id '$max_id'
+#end if
+#if str($min_id).strip() != 'None' and str($min_id).strip() != '':
+    --min-id '$min_id'
+#end if
+    --geo '$geo.element_identifier'
+    --input '$input.element_identifier'
     --output output_1.vtu]]></command>
   <inputs>
     <param name="max_elevation" type="float" value="0" optional="true" label="max elevation" help="Maximum elevation for an integrated borehole, (min = 0)" min="0"/>
     <param name="min_elevation" type="float" value="0" optional="true" label="min elevation" help="Minimum elevation for an integrated borehole, (min = 0)" min="0"/>
     <param name="max_id" type="integer" value="-1" optional="true" label="max id" help="Maximum MaterialID for an integrated borehole"/>
     <param name="min_id" type="integer" value="-1" optional="true" label="min id" help="Minimum MaterialID for an integrated borehole"/>
-    <param name="geo" type="data" optional="false" label="geo" help="Input (.gml). the geometry file" format="gml" multiple="false"/>
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). the mesh file" format="vtu" multiple="false"/>
+    <param name="geo" type="data" optional="false" label="geo" help="Input (.gml). the geometry file" format="xml" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). the mesh file" format="vtkxml" multiple="false"/>
   </inputs>
   <outputs>
-    <data name="output_IntegrateBoreholesIntoMesh" format="vtu" label="Output file from IntegrateBoreholesIntoMesh" from_work_dir="output_1.vtu" hidden="false"/>
+    <data name="output_IntegrateBoreholesIntoMesh" format="vtkxml" label="Output file from IntegrateBoreholesIntoMesh" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="integrateboreholesintomesh_test"/>

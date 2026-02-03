@@ -6,17 +6,19 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[constructMeshesFromGeometry --version]]></version_command>
-  <command><![CDATA[constructMeshesFromGeometry
-    #if str($searchlength):
-        --searchlength '$searchlength'
-    #end if
-    --geometry '$geometry'
-    --mesh '$mesh'
+  <command><![CDATA[for i in $geometry; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+for i in $mesh; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+constructMeshesFromGeometry
+#if str($searchlength).strip() != 'None' and str($searchlength).strip() != '':
+    --searchlength '$searchlength'
+#end if
+    --geometry '$geometry.element_identifier'
+    --mesh '$mesh.element_identifier'
     $multiple_nodes_allowed]]></command>
   <inputs>
     <param name="searchlength" type="float" value="1e-16" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number, (min = 0)" min="0"/>
-    <param name="geometry" type="data" optional="false" label="geometry" help="Input (.gml | .gli). The file the input geometry" format="gml,gli" multiple="false"/>
-    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file the input mesh where the geometry is defined" format="vtu" multiple="false"/>
+    <param name="geometry" type="data" optional="false" label="geometry" help="Input (.gml | .gli). The file the input geometry" format="xml" multiple="false"/>
+    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file the input mesh where the geometry is defined" format="vtkxml" multiple="false"/>
     <param name="multiple_nodes_allowed" type="boolean" label="multiple nodes allowed" help="Allows multiple mesh nodes in eps environment." checked="false" truevalue="--multiple-nodes-allowed" falsevalue=""/>
   </inputs>
   <outputs/>

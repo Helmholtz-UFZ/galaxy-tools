@@ -247,14 +247,20 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
             if len(args) > 1: help_text_raw = args[1]
             if len(args) > 2: remaining_args_list = args[2:]
 
+        # --- NEU: UNLABELED DETECTION FIX ---
+        # Falls TCLAP uns sagt, es ist unlabeled, ODER falls wir schlicht 
+        # kein long_flag gefunden haben, behandeln wir es als Positionsargument.
         if not long_flag or is_unlabeled:
             is_unlabeled = True
-
+            # Falls kein long_flag da ist (UnlabeledValueArg), nutzen wir den Variablennamen 
+            # aus dem C++ Code als Identifikator für Galaxy
             if not long_flag:
                 long_flag = param_info.get('tclap_var_name', f"arg_{output_idx}")
-
+        
+        # Abort nur, wenn wir wirklich gar nichts zum Identifizieren haben
         if not long_flag:
             continue
+        # ------------------------------------
 
         help_parts = re.findall(r'"(.*?)"', help_text_raw, re.DOTALL)
         help_text = ' '.join(part.strip() for part in help_parts)
@@ -269,26 +275,32 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
         cleaned_rem_args_parts = [p.strip() for p in remaining_args_list if p.strip()]
         final_tclap_arg = cleaned_rem_args_parts[-1].strip("'\"") if cleaned_rem_args_parts else ""
 
+        # --- KORRIGIERTES OUTPUT processing ---
         if help_text.startswith("Output"):
             is_base_filename_output = "BASE_FILENAME_OUTPUT" in final_tclap_arg
             output_type = 'file' if final_tclap_arg == 'OUTPUT_FILE' else 'collection_member'
 
+            # 1. Extrahiere alle Endungen aus dem Hilfetext (z.B. .vtu, .asc)
             detected_exts = []
             format_match = FILE_EXTENSION_PATTERN.search(help_text)
             if format_match:
                 detected_exts = [ext.strip().lstrip('.') for ext in format_match.group(1).split('|')]
 
+            # 2. Galaxy-interner Datentyp
             file_format = get_ogs_ftype(detected_exts)
 
+            # 3. PHYSIKALISCHE ENDUNG für die Festplatte (WICHTIG für OGS!)
+            # Wir nehmen die erste erkannte Endung aus dem Code, sonst Fallback
             if detected_exts:
                 disk_ext = detected_exts[0].lower()
             else:
-                disk_ext = 'vtu' if file_format == 'data' else file_format
-
-            if disk_ext in ['vtkxml', 'data']: disk_ext = 'vtu'
+                disk_ext = file_format.split('.')[-1]
+            
+            # Korrektur: vtkxml muss auf der Platte immer vtu sein
+            if disk_ext == 'vtkxml': disk_ext = 'vtu'
 
             output_command_map[long_flag] = {
-                'filename': f"output_{output_idx}.{disk_ext}",
+                'filename': f"output_{output_idx}.{disk_ext}", # Exakter Name für OGS
                 'format': file_format,
                 'is_base_filename': is_base_filename_output,
                 'type': output_type,
@@ -409,25 +421,37 @@ def generate_tools():
             galaxy_inputs, output_command_map = process_parameters(tool_data['parameters'])
             eprint(f"-> Found {len(output_command_map)} output definitions for this tool.")
 
+            # --- ROBUSTER COMMAND BLOCK ---
             command_parts = []
             
-            # Symlinks
+            # 1. Symlinks (Jeder Link ein eigener Bash-Befehl in einer Zeile)
             for param in galaxy_inputs:
                 if isinstance(param, DataParam):
                     p_var = f'${param.name}'
-                    link_cmd = f"for i in {p_var}; do if [ \"$i\" != \"None\" ] && [ ! -e \"$(basename $i)\" ]; then ln -s \"$i\" \"$(basename $i)\"; fi; done;"
+                    target = f"${{{p_var}.element_identifier}}"
+                    # Wir nutzen hier keine Cheetah-IFs, sondern Bash-Logik (Semicolon am Ende!)
+                    link_cmd = f"if [ \"{p_var}\" != \"None\" ] && [ ! -e '{target}' ]; then ln -s '{p_var}' '{target}'; fi;"
                     command_parts.append(link_cmd)
+
+            executable_name = tool_name
+            if tool_name.upper() == "PVTU2VTU":
+                executable_name = "pvtu2vtu"
+            elif tool_name[0].isupper() and tool_name[1:].islower():
+                # Macht aus 'ReviseMesh' -> 'reviseMesh' (typisch OGS)
+                executable_name = tool_name[0].lower() + tool_name[1:]
             
-            #mapping list, wrong tool names
+            # Falls du merkst, dass noch mehr Tools falsch geschrieben sind, 
+            # kannst du hier eine Mapping-Liste einfügen:
             manual_fixes = {
                 "PVTU2VTU": "pvtu2vtu",
-                "Mesh2Raster": "Mesh2Raster",
+                "Mesh2Raster": "Mesh2Raster", # Manche bleiben MixedCase
                 "GMSH2OGS": "GMSH2OGS"
             }
             executable_name = manual_fixes.get(tool_name, executable_name)
 
             command_parts.append(executable_name)
 
+            # 3. Argumente (Cheetah-Direktiven in EIGENEN Zeilen)
             for param in galaxy_inputs:
                 p_var = f'${param.name}'
                 flag = getattr(param, 'original_long_flag', param.name)
@@ -435,24 +459,24 @@ def generate_tools():
                 is_opt = str(getattr(param, 'optional', False)).lower() == 'true'
                 
                 if isinstance(param, DataParam):
-                    arg_val = f"--{flag} '${param.name}.element_identifier'" if not is_unlabeled else f"${param.name}.element_identifier"
+                    # WICHTIG: Kein extra $ vor der Variablen hier
+                    arg_val = f"--{flag} '${param.name}.element_identifier'" if not is_unlabeled else f"'${param.name}.element_identifier'"
                 elif isinstance(param, BooleanParam):
                     arg_val = f"{p_var}"
                 else:
-                    arg_val = f"--{flag} '{p_var}'" if not is_unlabeled else f"{p_var}"
+                    arg_val = f"--{flag} '{p_var}'" if not is_unlabeled else f"'{p_var}'"
                 
                 if is_opt:
+                    # Umbruch VOR und NACH dem Argument für Cheetah-Sicherheit
                     command_parts.append(f"#if str({p_var}).strip() != 'None' and str({p_var}).strip() != '':")
                     command_parts.append(f"    {arg_val}")
                     command_parts.append("#end if")
                 else:
                     command_parts.append(f"    {arg_val}")
 
+            # 4. Outputs
             for flag, info in output_command_map.items():
-                if info.get('is_base_filename'):
-                    command_parts.append(f"    --{flag} output_")
-                else:
-                    command_parts.append(f"    --{flag} {info['filename']}")
+                command_parts.append(f"    --{flag} {info['filename']}")
 
             command_str = "\n".join(command_parts)
 
@@ -483,6 +507,7 @@ def generate_tools():
                     output_label = f"Output file from {tool_name}"
                     output_name = sanitize_name(f"output_{tool_name}")
                     
+                    # FIX: Wir nutzen hier wieder den expliziten Typ (file_info['format'])
                     output_param = OutputData(
                         name=output_name,
                         format=file_info['format'], 
@@ -492,6 +517,8 @@ def generate_tools():
                     outputs_tag.append(output_param)
                 else:
                     collection = OutputCollection(name="tool_outputs", type="list", label=f"Outputs from {tool_name}")
+                    # Bei Collections nutzen wir format="data" als Basis, 
+                    # Galaxy wird die Typen innerhalb der Collection selbst sniffen
                     collection.append(DiscoverDatasets(pattern=r"output_.*\.(vtu|msh|asc|gml|xml|txt|png)", format="data", visible=True))
                     outputs_tag.append(collection)
 
@@ -574,6 +601,7 @@ def generate_tests():
         test_block_content = "\n" + match.group(1).strip() + "\n"
         test_block_content_lower = test_block_content.lower()
 
+        # 1. Pfad-Variablen SOFORT extrahieren
         path_var_match = re.search(r"\s+PATH\s+([^\s\)]+)", test_block_content)
         path_replacement = path_var_match.group(1).strip() if path_var_match else ""
 
@@ -650,49 +678,30 @@ def generate_tests():
             macro_xml = ET.SubElement(macros_root, "xml", {"name": f"{matched_tool_name_lower}_test"})
             test_case = ET.SubElement(macro_xml, "test")
 
-            clean_output_flags = set()
-            for flag, info in output_map.items():
-                clean_output_flags.add(f"--{flag}")
-                s_out = info.get('short_flag', "").strip()
-                if s_out:
-                    clean_output_flags.add(f"-{s_out}")
-
             params_in_test = {}
             args_list = shlex.split(args_str)
             i, unlabeled_idx = 0, 0
             while i < len(args_list):
-                arg = args_list[i].strip()
-                if arg == '--':
-                    i += 1
-                    continue
-
+                arg = args_list[i]
                 if arg in flag_map:
                     param = flag_map[arg]
                     has_next_val = (i + 1 < len(args_list)) and not args_list[i + 1].startswith('-')
+                    
                     if has_next_val and not isinstance(param, BooleanParam):
                         params_in_test[param.name] = args_list[i + 1]
                         i += 2
                     else:
                         params_in_test[param.name] = "true"
                         i += 1
-
-                elif arg in clean_output_flags:
-                    i += 2 
-                
-                elif unlabeled_idx < len(unlabeled_params):
-                    p = unlabeled_params[unlabeled_idx]
-                    current_val = params_in_test.get(p.name, "")
-                    if current_val:
-                        params_in_test[p.name] = f"{current_val} {arg}"
-                    else:
-                        params_in_test[p.name] = arg
-                    i += 1
                 else:
+                    if unlabeled_idx < len(unlabeled_params):
+                        params_in_test[unlabeled_params[unlabeled_idx].name] = arg
+                        unlabeled_idx += 1
                     i += 1
 
             all_params_map = {p.name: p for p in galaxy_inputs}
             
-            # input processing
+            # --- INPUT PROCESSING ---
             for name, value in params_in_test.items():
                 param = all_params_map.get(name)
                 if not param: continue
@@ -720,17 +729,18 @@ def generate_tests():
                     param_attrs["value"] = fv
                 ET.SubElement(test_case, "param", param_attrs)
 
+            # --- KORRIGIERTE OUTPUT PRÜFUNG MIT TOLERANZ ---
             diff_data_match = re.search(r"\s+DIFF_DATA\s+(.*?)(?=\s+\w+\s+|\s*\))", test_block_content, re.DOTALL)
             diff_files = parse_diff_data(diff_data_match.group(1), RAW_GITLAB_TEST_DATA_URL, workdir_subpath) if diff_data_match and workdir_subpath else []
 
             if len(output_map) == 1:
-                # single output
+                # Fall 1: Einzelner Output
                 out_elem = ET.SubElement(test_case, "output", {"name": sanitize_name(f"output_{tool_name}")})
                 if diff_files:
                     ref = diff_files[0]["reference"].replace("<PATH>", path_replacement).replace("<", "").replace(">", "")
                     gen = diff_files[0]["generated"].replace("<PATH>", path_replacement).replace("<", "").replace(">", "").lstrip("/")
                     
-                    # real type
+                    # ECHTER TYP statt auto
                     ftype = get_ogs_ftype(diff_files[0]["ftype"])
                     out_elem.set("file", gen)
                     out_elem.set("location", ref)
@@ -742,7 +752,7 @@ def generate_tests():
                 else:
                     ET.SubElement(ET.SubElement(out_elem, "assert_contents"), "has_size", {"min": "100"})
             else:
-                # (Collection)
+                # Fall 2: Mehrere Dateien (Collection)
                 coll = ET.SubElement(test_case, "output_collection", {"name": "tool_outputs", "type": "list"})
                 if diff_files:
                     for df in diff_files:
@@ -768,8 +778,9 @@ def generate_tests():
 
         except Exception as e:
             eprint(f"!! FEHLER bei '{tool_name}': {e}")
+            # Optional: Zeige hier den Fehler an, falls ein Test-Parsing fehlschlägt
 
-    # fallback for missing tests
+    # --- FALLBACKS FÜR FEHLENDE TESTS ---
     for tool_data in all_tools_data:
         t_name_lower = tool_data['name'].lower()
         if t_name_lower not in processed_tools_lower:

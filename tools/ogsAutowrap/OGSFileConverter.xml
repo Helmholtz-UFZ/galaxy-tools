@@ -6,12 +6,13 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[OGSFileConverter --version]]></version_command>
-  <command><![CDATA[OGSFileConverter
-    #if str($gmsh_path):
-        --gmsh-path '$gmsh_path'
-    #end if]]></command>
+  <command><![CDATA[for i in $gmsh_path; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+OGSFileConverter
+#if str($gmsh_path).strip() != 'None' and str($gmsh_path).strip() != '':
+    --gmsh-path '$gmsh_path.element_identifier'
+#end if]]></command>
   <inputs>
-    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input gmsh binary file" format="msh" multiple="false"/>
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input gmsh binary file" format="xml" multiple="false"/>
   </inputs>
   <outputs/>
   <tests>

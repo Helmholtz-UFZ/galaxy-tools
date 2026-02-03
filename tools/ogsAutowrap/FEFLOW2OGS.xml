@@ -6,14 +6,15 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[FEFLOW2OGS --version]]></version_command>
-  <command><![CDATA[FEFLOW2OGS
-    --in '$in'
-    --out output_1.if extension is msh, old OGS file format is written]]></command>
+  <command><![CDATA[for i in $in; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+FEFLOW2OGS
+    --in '$in.element_identifier'
+    --out output_1.if extension is msh, old ogs file format is written]]></command>
   <inputs>
-    <param name="in" type="data" optional="false" label="in" help="Input (.fem). FEFLOW input file" format="fem" multiple="false"/>
+    <param name="in" type="data" optional="false" label="in" help="Input (.fem). FEFLOW input file" format="xml" multiple="false"/>
   </inputs>
   <outputs>
-    <data name="output_FEFLOW2OGS" format="if extension is msh, old OGS file format is written" label="Output file from FEFLOW2OGS" from_work_dir="output_1.if extension is msh, old OGS file format is written" hidden="false"/>
+    <data name="output_FEFLOW2OGS" format="data" label="Output file from FEFLOW2OGS" from_work_dir="output_1.if extension is msh, old ogs file format is written" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="feflow2ogs_test"/>

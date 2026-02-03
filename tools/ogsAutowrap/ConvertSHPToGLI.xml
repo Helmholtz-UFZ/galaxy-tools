@@ -6,10 +6,11 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[ConvertSHPToGLI --version]]></version_command>
-  <command><![CDATA[ConvertSHPToGLI
-    --shape-file '$shape_file']]></command>
+  <command><![CDATA[for i in $shape_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+ConvertSHPToGLI
+    --shape-file '$shape_file.element_identifier']]></command>
   <inputs>
-    <param name="shape_file" type="data" optional="false" label="shape file" help="Input (.shp). the input shape file" format="shp" multiple="false"/>
+    <param name="shape_file" type="data" optional="false" label="shape file" help="Input (.shp). the input shape file" format="data" multiple="false"/>
   </inputs>
   <outputs/>
   <tests>

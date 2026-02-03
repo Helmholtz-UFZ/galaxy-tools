@@ -6,13 +6,14 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[Raster2Mesh --version]]></version_command>
-  <command><![CDATA[Raster2Mesh
-    #if str($arrayname):
-        --arrayname '$arrayname'
-    #end if
+  <command><![CDATA[for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+Raster2Mesh
+#if str($arrayname).strip() != 'None' and str($arrayname).strip() != '':
+    --arrayname '$arrayname'
+#end if
     --pixel-type '$pixel_type'
     --elem-type '$elem_type'
-    --input '$input'
+    --input '$input.element_identifier'
     --output output_1.vtu]]></command>
   <inputs>
     <param name="arrayname" type="text" optional="true" label="arrayname" help="the scalar array. Only required if assigning pixel values to cell data has been selected (default name is 'Values')."/>
@@ -25,10 +26,10 @@
       <option value="tri">tri</option>
       <option value="quad">quad</option>
     </param>
-    <param name="input" type="data" optional="false" label="input" help="Input (.asc). the input raster file" format="asc" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.asc). the input raster file" format="xml" multiple="false"/>
   </inputs>
   <outputs>
-    <data name="output_Raster2Mesh" format="vtu" label="Output file from Raster2Mesh" from_work_dir="output_1.vtu" hidden="false"/>
+    <data name="output_Raster2Mesh" format="vtkxml" label="Output file from Raster2Mesh" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="raster2mesh_test"/>

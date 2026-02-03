@@ -6,20 +6,21 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[queryMesh --version]]></version_command>
-  <command><![CDATA[queryMesh
-    #if str($element_id):
-        --element-id '$element_id'
-    #end if
-    #if str($node_id):
-        --node-id '$node_id'
-    #end if
+  <command><![CDATA[for i in $mesh_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+queryMesh
+#if str($element_id).strip() != 'None' and str($element_id).strip() != '':
+    --element-id '$element_id'
+#end if
+#if str($node_id).strip() != 'None' and str($node_id).strip() != '':
+    --node-id '$node_id'
+#end if
     $show_node_with_max_elements
-    '$mesh_file']]></command>
+    $mesh_file.element_identifier]]></command>
   <inputs>
     <param name="element_id" type="integer" value="ELEMENT_ID" optional="true" label="element id" help="element ID" min="0"/>
     <param name="node_id" type="integer" value="NODE_ID" optional="true" label="node id" help="node ID" min="0"/>
     <param name="show_node_with_max_elements" type="boolean" label="show node with max elements" help="show a node having the max number of connected elements" checked="false" truevalue="--show-node-with-max-elements" falsevalue=""/>
-    <param name="mesh_file" type="data" optional="false" label="mesh file" help="Input (.vtu) mesh file" format="vtu" multiple="false"/>
+    <param name="mesh_file" type="data" optional="false" label="mesh file" help="Input (.vtu) mesh file" format="vtkxml" multiple="false"/>
   </inputs>
   <outputs/>
   <tests>

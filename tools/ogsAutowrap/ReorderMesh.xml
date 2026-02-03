@@ -6,14 +6,15 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[ReorderMesh --version]]></version_command>
-  <command><![CDATA[ReorderMesh
-    --input '$input'
+  <command><![CDATA[for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+ReorderMesh
+    --input '$input.element_identifier'
     --output output_1.vtu]]></command>
   <inputs>
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). the input mesh file" format="vtu" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). the input mesh file" format="vtkxml" multiple="false"/>
   </inputs>
   <outputs>
-    <data name="output_ReorderMesh" format="vtu" label="Output file from ReorderMesh" from_work_dir="output_1.vtu" hidden="false"/>
+    <data name="output_ReorderMesh" format="vtkxml" label="Output file from ReorderMesh" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="reordermesh_test"/>

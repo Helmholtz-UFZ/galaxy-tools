@@ -6,34 +6,39 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[NetCdfConverter --version]]></version_command>
-  <command><![CDATA[NetCdfConverter
-    #if str($TCLAP_ValueArg_std_size_t_arg_time_start):
-        --TCLAP::ValueArg<std::size_t>& arg_time_start '$TCLAP_ValueArg_std_size_t_arg_time_start'
-    #end if
-    #if str($nodata):
-        --nodata '$nodata'
-    #end if
+  <command><![CDATA[for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+NetCdfConverter
+#if str($TCLAP_ValueArg_std_size_t_arg_time_start).strip() != 'None' and str($TCLAP_ValueArg_std_size_t_arg_time_start).strip() != '':
+    --TCLAP::ValueArg<std::size_t>& arg_time_start '$TCLAP_ValueArg_std_size_t_arg_time_start'
+#end if
+#if str($getProperties).strip() != 'None' and str($getProperties).strip() != '':
+    $getProperties
+#end if
+#if str($nodata).strip() != 'None' and str($nodata).strip() != '':
+    --nodata '$nodata'
+#end if
     --elem-type '$elem_type'
     $images
     $multi_file
     $single_file
-    #if str($timestep_last):
-        --timestep-last '$timestep_last'
-    #end if
-    #if str($timestep_first):
-        --timestep-first '$timestep_first'
-    #end if
+#if str($timestep_last).strip() != 'None' and str($timestep_last).strip() != '':
+    --timestep-last '$timestep_last'
+#end if
+#if str($timestep_first).strip() != 'None' and str($timestep_first).strip() != '':
+    --timestep-first '$timestep_first'
+#end if
     --dim3 '$dim3'
     --dim2 '$dim2'
     --dim1 '$dim1'
     --time '$time'
-    #if str($var):
-        --var '$var'
-    #end if
-    --input '$input'
+#if str($var).strip() != 'None' and str($var).strip() != '':
+    --var '$var'
+#end if
+    --input '$input.element_identifier'
     --output output_1.vtu]]></command>
   <inputs>
     <param name="TCLAP_ValueArg_std_size_t_arg_time_start" type="integer" optional="true" label="TCLAP ValueArg std size t arg time start" help="" min="0"/>
+    <param name="getProperties" type="integer" optional="true" label="getProperties" help="" min="0"/>
     <param name="nodata" type="integer" value="no_data_input" optional="true" label="nodata" help="explicitly specifies the no data value used in the dataset (usually it is not necessary to set this)"/>
     <param name="elem_type" type="select" label="elem type" help="the element type used in the resulting OGS mesh,">
       <option value="tri">tri</option>
@@ -71,10 +76,10 @@
       <option value="3">3</option>
     </param>
     <param name="var" type="text" optional="true" label="var" help="variable included in the the netCDF file"/>
-    <param name="input" type="data" optional="false" label="input" help="Input (.nc). The netCDF input file" format="nc" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.nc). The netCDF input file" format="data" multiple="false"/>
   </inputs>
   <outputs>
-    <data name="output_NetCdfConverter" format="vtu" label="Output file from NetCdfConverter" from_work_dir="output_1.vtu" hidden="false"/>
+    <data name="output_NetCdfConverter" format="vtkxml" label="Output file from NetCdfConverter" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="netcdfconverter_test"/>

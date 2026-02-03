@@ -6,32 +6,35 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[MeshMapping --version]]></version_command>
-  <command><![CDATA[MeshMapping
+  <command><![CDATA[for i in $mesh; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+for i in $raster; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+MeshMapping
     $lowpass
-    #if str($static):
-        --static '$static'
-    #end if
-    #if str($distance):
-        --distance '$distance'
-    #end if
-    #if str($mesh):
-        --mesh '$mesh'
-    #end if
-    #if str($raster):
-        --raster '$raster'
-    #end if
-    --input '$input'
+#if str($static).strip() != 'None' and str($static).strip() != '':
+    --static '$static'
+#end if
+#if str($distance).strip() != 'None' and str($distance).strip() != '':
+    --distance '$distance'
+#end if
+#if str($mesh).strip() != 'None' and str($mesh).strip() != '':
+    --mesh '$mesh.element_identifier'
+#end if
+#if str($raster).strip() != 'None' and str($raster).strip() != '':
+    --raster '$raster.element_identifier'
+#end if
+    --input '$input.element_identifier'
     --output output_1.vtu]]></command>
   <inputs>
     <param name="lowpass" type="boolean" label="lowpass" help="Applies a lowpass filter to elevation over connected nodes." checked="false" truevalue="--lowpass" falsevalue=""/>
     <param name="static" type="float" value="0" optional="true" label="static" help="Static elevation to map the input file to. This can be combined with mapping based on rasters or other meshes to deal with locations where no corresponding data exists."/>
     <param name="distance" type="float" value="1" optional="true" label="distance" help="Maximum distance to search for mesh nodes if there is no corresponding data for input mesh nodes on the mesh it should be mapped on. (min = 0)" min="0"/>
-    <param name="mesh" type="data" optional="true" label="mesh" help="Input (.vtu). 2D mesh file to map the input file on" format="vtu" multiple="false"/>
-    <param name="raster" type="data" optional="true" label="raster" help="Input (.asc | .grd | .xyz) Raster file to map the input file on" format="asc,grd,xyz" multiple="false"/>
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu | .msh) mesh file" format="vtu,msh" multiple="false"/>
+    <param name="mesh" type="data" optional="true" label="mesh" help="Input (.vtu). 2D mesh file to map the input file on" format="vtkxml" multiple="false"/>
+    <param name="raster" type="data" optional="true" label="raster" help="Input (.asc | .grd | .xyz) Raster file to map the input file on" format="xml" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu | .msh) mesh file" format="vtkxml" multiple="false"/>
   </inputs>
   <outputs>
-    <data name="output_MeshMapping" format="vtu" label="Output file from MeshMapping" from_work_dir="output_1.vtu" hidden="false"/>
+    <data name="output_MeshMapping" format="vtkxml" label="Output file from MeshMapping" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="meshmapping_test"/>

@@ -6,24 +6,25 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[Vtu2Grid --version]]></version_command>
-  <command><![CDATA[Vtu2Grid
-    #if str($cellsize_z):
-        --cellsize-z '$cellsize_z'
-    #end if
-    #if str($cellsize_y):
-        --cellsize-y '$cellsize_y'
-    #end if
+  <command><![CDATA[for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+Vtu2Grid
+#if str($cellsize_z).strip() != 'None' and str($cellsize_z).strip() != '':
+    --cellsize-z '$cellsize_z'
+#end if
+#if str($cellsize_y).strip() != 'None' and str($cellsize_y).strip() != '':
+    --cellsize-y '$cellsize_y'
+#end if
     --cellsize-x '$cellsize_x'
-    --input '$input'
+    --input '$input.element_identifier'
     --output output_1.vtu]]></command>
   <inputs>
     <param name="cellsize_z" type="float" value="1000" optional="true" label="cellsize z" help="edge length of cubes in z-direction (depth), (min = 0)" min="0"/>
     <param name="cellsize_y" type="float" value="1000" optional="true" label="cellsize y" help="edge length of cubes in y-direction (latitude), (min = 0)" min="0"/>
     <param name="cellsize_x" type="float" value="1000" optional="false" label="cellsize x" help="edge length of cubes in x-direction (longitude) or all directions, if y and z are not set, (min = 0)" min="0"/>
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu | .msh). The 3D input mesh file" format="vtu,msh" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu | .msh). The 3D input mesh file" format="vtkxml" multiple="false"/>
   </inputs>
   <outputs>
-    <data name="output_Vtu2Grid" format="vtu" label="Output file from Vtu2Grid" from_work_dir="output_1.vtu" hidden="false"/>
+    <data name="output_Vtu2Grid" format="vtkxml" label="Output file from Vtu2Grid" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="vtu2grid_test"/>

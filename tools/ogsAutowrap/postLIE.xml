@@ -6,17 +6,18 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[postLIE --version]]></version_command>
-  <command><![CDATA[postLIE
-    --input-file '$input_file'
+  <command><![CDATA[for i in $input_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+postLIE
+    --input-file '$input_file.element_identifier'
     $no_overwrite
     --output-file output_1.vtu]]></command>
   <inputs>
-    <param name="input_file" type="data" optional="false" label="input file" help="Input (.vtu | .pvd). The original PVD or VTU file name" format="vtu,pvd" multiple="false"/>
+    <param name="input_file" type="data" optional="false" label="input file" help="Input (.vtu | .pvd). The original PVD or VTU file name" format="vtkxml" multiple="false"/>
     <param name="no_overwrite" type="boolean" label="no overwrite" help="don't overwrite existing post processed VTU files" checked="false" truevalue="--no-overwrite" falsevalue=""/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from postLIE">
-      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+      <discover_datasets pattern="output_.*\.(vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
     </collection>
   </outputs>
   <tests>

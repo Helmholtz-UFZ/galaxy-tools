@@ -6,26 +6,27 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[MoveMesh --version]]></version_command>
-  <command><![CDATA[MoveMesh
-    --mesh '$mesh'
-    #if str($x):
-        --x '$x'
-    #end if
-    #if str($y):
-        --y '$y'
-    #end if
-    #if str($z):
-        --z '$z'
-    #end if
+  <command><![CDATA[for i in $mesh; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+MoveMesh
+    --mesh '$mesh.element_identifier'
+#if str($x).strip() != 'None' and str($x).strip() != '':
+    --x '$x'
+#end if
+#if str($y).strip() != 'None' and str($y).strip() != '':
+    --y '$y'
+#end if
+#if str($z).strip() != 'None' and str($z).strip() != '':
+    --z '$z'
+#end if
     --output-mesh output_1.vtu]]></command>
   <inputs>
-    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu) mesh file" format="vtu" multiple="false"/>
+    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu) mesh file" format="vtkxml" multiple="false"/>
     <param name="x" type="float" value="0.0" optional="true" label="x" help="displacement in x direction"/>
     <param name="y" type="float" value="0.0" optional="true" label="y" help="displacement in y direction"/>
     <param name="z" type="float" value="0.0" optional="true" label="z" help="displacement in z direction"/>
   </inputs>
   <outputs>
-    <data name="output_MoveMesh" format="vtu" label="Output file from MoveMesh" from_work_dir="output_1.vtu" hidden="false"/>
+    <data name="output_MoveMesh" format="vtkxml" label="Output file from MoveMesh" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="movemesh_test"/>

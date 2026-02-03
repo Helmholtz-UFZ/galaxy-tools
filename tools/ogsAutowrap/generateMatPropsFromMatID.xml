@@ -6,12 +6,13 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[generateMatPropsFromMatID --version]]></version_command>
-  <command><![CDATA[generateMatPropsFromMatID
-    #if str($mesh):
-        --mesh '$mesh'
-    #end if]]></command>
+  <command><![CDATA[for i in $mesh; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+generateMatPropsFromMatID
+#if str($mesh).strip() != 'None' and str($mesh).strip() != '':
+    --mesh '$mesh.element_identifier'
+#end if]]></command>
   <inputs>
-    <param name="mesh" type="data" optional="true" label="mesh" help="Input (.msh). The mesh to open from a file" format="msh" multiple="false"/>
+    <param name="mesh" type="data" optional="true" label="mesh" help="Input (.msh). The mesh to open from a file" format="xml" multiple="false"/>
   </inputs>
   <outputs/>
   <tests>

@@ -6,26 +6,27 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[Raster2PointCloud --version]]></version_command>
-  <command><![CDATA[Raster2PointCloud
-    #if str($gamma):
-        --gamma '$gamma'
-    #end if
-    #if str($max_points):
-        --max-points '$max_points'
-    #end if
-    #if str($max_elevation):
-        --max-elevation '$max_elevation'
-    #end if
-    --input '$input'
+  <command><![CDATA[for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+Raster2PointCloud
+#if str($gamma).strip() != 'None' and str($gamma).strip() != '':
+    --gamma '$gamma'
+#end if
+#if str($max_points).strip() != 'None' and str($max_points).strip() != '':
+    --max-points '$max_points'
+#end if
+#if str($max_elevation).strip() != 'None' and str($max_elevation).strip() != '':
+    --max-elevation '$max_elevation'
+#end if
+    --input '$input.element_identifier'
     --output output_1.vtp]]></command>
   <inputs>
     <param name="gamma" type="float" value="0.0" optional="true" label="gamma" help="Exponental increase coefficient. A value of '1' indicates a linear increase, smaller or larger values indicate a logarithmic or exponential increase, respectively (default: 1)."/>
     <param name="max_points" type="integer" value="0" optional="true" label="max points" help="Maximum number of points per pixel (default: 1000), (min = 0)." min="0"/>
     <param name="max_elevation" type="float" value="0.0" optional="true" label="max elevation" help="Maximum elevation of randomly created points (default: 5000)."/>
-    <param name="input" type="data" optional="false" label="input" help="Input (.asc). Path to input raster files. Specifying 'file.asc' will make the programme look for a series of files called 'file0.asc', 'file1.asc', etc." format="asc" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.asc). Path to input raster files. Specifying 'file.asc' will make the programme look for a series of files called 'file0.asc', 'file1.asc', etc." format="xml" multiple="false"/>
   </inputs>
   <outputs>
-    <data name="output_Raster2PointCloud" format="vtp" label="Output file from Raster2PointCloud" from_work_dir="output_1.vtp" hidden="false"/>
+    <data name="output_Raster2PointCloud" format="data" label="Output file from Raster2PointCloud" from_work_dir="output_1.vtp" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="raster2pointcloud_test"/>

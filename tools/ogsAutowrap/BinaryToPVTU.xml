@@ -6,11 +6,12 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[BinaryToPVTU --version]]></version_command>
-  <command><![CDATA[BinaryToPVTU
-    --mesh-input-file-base '$mesh_input_file_base'
+  <command><![CDATA[for i in $mesh_input_file_base; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+BinaryToPVTU
+    --mesh-input-file-base '$mesh_input_file_base.element_identifier'
     --output '$output']]></command>
   <inputs>
-    <param name="mesh_input_file_base" type="data" optional="false" label="mesh input file base" help="Input (.bin). The base the files containing the input mesh, i.e., the file name without the string beginning with '_partitioned' and ending with" format="bin" multiple="true"/>
+    <param name="mesh_input_file_base" type="data" optional="false" label="mesh input file base" help="Input (.bin). The base the files containing the input mesh, i.e., the file name without the string beginning with '_partitioned' and ending with" format="data" multiple="true"/>
     <param name="output" type="text" optional="false" label="output" help="output directory name and output base file name without extensions"/>
   </inputs>
   <outputs/>

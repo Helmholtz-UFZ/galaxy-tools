@@ -6,16 +6,19 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[computeSurfaceNodeIDsInPolygonalRegion --version]]></version_command>
-  <command><![CDATA[computeSurfaceNodeIDsInPolygonalRegion
-    --mesh-input-file '$mesh_input_file'
-    --geo-file '$geo_file'
-    #if str($gmsh_path):
-        --gmsh-path '$gmsh_path'
-    #end if]]></command>
+  <command><![CDATA[for i in $mesh_input_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+for i in $geo_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+for i in $gmsh_path; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+computeSurfaceNodeIDsInPolygonalRegion
+    --mesh-input-file '$mesh_input_file.element_identifier'
+    --geo-file '$geo_file.element_identifier'
+#if str($gmsh_path).strip() != 'None' and str($gmsh_path).strip() != '':
+    --gmsh-path '$gmsh_path.element_identifier'
+#end if]]></command>
   <inputs>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtu" multiple="false"/>
-    <param name="geo_file" type="data" optional="false" label="geo file" help="Input (.gml). the input file containing the polygons" format="gml" multiple="false"/>
-    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input binary file" format="msh" multiple="false"/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtkxml" multiple="false"/>
+    <param name="geo_file" type="data" optional="false" label="geo file" help="Input (.gml). the input file containing the polygons" format="xml" multiple="false"/>
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input binary file" format="xml" multiple="false"/>
   </inputs>
   <outputs/>
   <tests>

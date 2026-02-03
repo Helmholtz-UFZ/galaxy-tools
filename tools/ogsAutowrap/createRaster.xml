@@ -7,21 +7,21 @@
   <expand macro="requirements"/>
   <version_command><![CDATA[createRaster --version]]></version_command>
   <command><![CDATA[createRaster
-    #if str($n_rows):
-        --n_rows '$n_rows'
-    #end if
-    #if str($n_cols):
-        --n_cols '$n_cols'
-    #end if
-    #if str($cell_size):
-        --cell_size '$cell_size'
-    #end if
-    #if str($ll_y):
-        --ll_y '$ll_y'
-    #end if
-    #if str($ll_x):
-        --ll_x '$ll_x'
-    #end if
+#if str($n_rows).strip() != 'None' and str($n_rows).strip() != '':
+    --n_rows '$n_rows'
+#end if
+#if str($n_cols).strip() != 'None' and str($n_cols).strip() != '':
+    --n_cols '$n_cols'
+#end if
+#if str($cell_size).strip() != 'None' and str($cell_size).strip() != '':
+    --cell_size '$cell_size'
+#end if
+#if str($ll_y).strip() != 'None' and str($ll_y).strip() != '':
+    --ll_y '$ll_y'
+#end if
+#if str($ll_x).strip() != 'None' and str($ll_x).strip() != '':
+    --ll_x '$ll_x'
+#end if
     --output output_1.asc]]></command>
   <inputs>
     <param name="n_rows" type="integer" value="1000" optional="true" label="n rows" help="number of rows" min="0"/>
@@ -31,7 +31,7 @@
     <param name="ll_x" type="float" value="0" optional="true" label="ll x" help="x coordinate of lower left point of axis aligned rectangular region"/>
   </inputs>
   <outputs>
-    <data name="output_createRaster" format="asc" label="Output file from createRaster" from_work_dir="output_1.asc" hidden="false"/>
+    <data name="output_createRaster" format="xml" label="Output file from createRaster" from_work_dir="output_1.asc" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="createraster_test"/>

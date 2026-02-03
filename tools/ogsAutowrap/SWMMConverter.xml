@@ -6,8 +6,9 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[SWMMConverter --version]]></version_command>
-  <command><![CDATA[SWMMConverter
-    --input '$input'
+  <command><![CDATA[for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+SWMMConverter
+    --input '$input.element_identifier'
     $node_vars
     $link_vars
     $subcatchment_vars
@@ -16,7 +17,7 @@
     --geo output_2.gml
     --csv output_3.csv]]></command>
   <inputs>
-    <param name="input" type="data" optional="false" label="input" help="Input (.inp). SWMM input file" format="inp" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.inp). SWMM input file" format="data" multiple="false"/>
     <param name="node_vars" type="boolean" label="node vars" help="Read node variables and add to output mesh" checked="false" truevalue="--node_vars" falsevalue=""/>
     <param name="link_vars" type="boolean" label="link vars" help="Read link variables and add to output mesh" checked="false" truevalue="--link_vars" falsevalue=""/>
     <param name="subcatchment_vars" type="boolean" label="subcatchment vars" help="Read subcatchment variables and write to CSV-file" checked="false" truevalue="--subcatchment_vars" falsevalue=""/>
@@ -24,7 +25,7 @@
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from SWMMConverter">
-      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
+      <discover_datasets pattern="output_.*\.(vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
     </collection>
   </outputs>
   <tests>

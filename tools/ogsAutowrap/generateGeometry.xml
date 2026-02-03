@@ -13,30 +13,30 @@
     --z1 '$z1'
     --y1 '$y1'
     --x1 '$x1'
-    #if str($nx):
-        --nx '$nx'
-    #end if
-    #if str($nx1):
-        --nx1 '$nx1'
-    #end if
-    #if str($ny):
-        --ny '$ny'
-    #end if
-    #if str($ny1):
-        --ny1 '$ny1'
-    #end if
-    #if str($nz):
-        --nz '$nz'
-    #end if
-    #if str($nz1):
-        --nz1 '$nz1'
-    #end if
-    #if str($geometry_name):
-        --geometry_name '$geometry_name'
-    #end if
-    #if str($polyline_name):
-        --polyline_name '$polyline_name'
-    #end if
+#if str($nx).strip() != 'None' and str($nx).strip() != '':
+    --nx '$nx'
+#end if
+#if str($nx1).strip() != 'None' and str($nx1).strip() != '':
+    --nx1 '$nx1'
+#end if
+#if str($ny).strip() != 'None' and str($ny).strip() != '':
+    --ny '$ny'
+#end if
+#if str($ny1).strip() != 'None' and str($ny1).strip() != '':
+    --ny1 '$ny1'
+#end if
+#if str($nz).strip() != 'None' and str($nz).strip() != '':
+    --nz '$nz'
+#end if
+#if str($nz1).strip() != 'None' and str($nz1).strip() != '':
+    --nz1 '$nz1'
+#end if
+#if str($geometry_name).strip() != 'None' and str($geometry_name).strip() != '':
+    --geometry_name '$geometry_name'
+#end if
+#if str($polyline_name).strip() != 'None' and str($polyline_name).strip() != '':
+    --polyline_name '$polyline_name'
+#end if
     --output output_1.gml]]></command>
   <inputs>
     <param name="z0" type="float" value="0.0" optional="false" label="z0" help="z coordinate of the first point"/>
@@ -55,7 +55,7 @@
     <param name="polyline_name" type="text" value="polyline" optional="true" label="polyline name" help="the generated polyline"/>
   </inputs>
   <outputs>
-    <data name="output_generateGeometry" format="gml" label="Output file from generateGeometry" from_work_dir="output_1.gml" hidden="false"/>
+    <data name="output_generateGeometry" format="xml" label="Output file from generateGeometry" from_work_dir="output_1.gml" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="generategeometry_test"/>

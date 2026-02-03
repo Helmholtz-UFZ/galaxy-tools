@@ -8,60 +8,60 @@
   <version_command><![CDATA[generateStructuredMesh --version]]></version_command>
   <command><![CDATA[generateStructuredMesh
     --element-type '$element_type'
-    #if str($lx):
-        --lx '$lx'
-    #end if
-    #if str($ly):
-        --ly '$ly'
-    #end if
-    #if str($lz):
-        --lz '$lz'
-    #end if
-    #if str($nx):
-        --nx '$nx'
-    #end if
-    #if str($ny):
-        --ny '$ny'
-    #end if
-    #if str($nz):
-        --nz '$nz'
-    #end if
-    #if str($dx0):
-        --dx0 '$dx0'
-    #end if
-    #if str($dy0):
-        --dy0 '$dy0'
-    #end if
-    #if str($dz0):
-        --dz0 '$dz0'
-    #end if
-    #if str($dx_max):
-        --dx-max '$dx_max'
-    #end if
-    #if str($dy_max):
-        --dy-max '$dy_max'
-    #end if
-    #if str($dz_max):
-        --dz-max '$dz_max'
-    #end if
-    #if str($mx):
-        --mx '$mx'
-    #end if
-    #if str($my):
-        --my '$my'
-    #end if
-    #if str($mz):
-        --mz '$mz'
-    #end if
-    #if str($ox):
-        --ox '$ox'
-    #end if
-    #if str($oy):
-        --oy '$oy'
-    #end if
-    #if str($oz):
-        --oz '$oz'
-    #end if
+#if str($lx).strip() != 'None' and str($lx).strip() != '':
+    --lx '$lx'
+#end if
+#if str($ly).strip() != 'None' and str($ly).strip() != '':
+    --ly '$ly'
+#end if
+#if str($lz).strip() != 'None' and str($lz).strip() != '':
+    --lz '$lz'
+#end if
+#if str($nx).strip() != 'None' and str($nx).strip() != '':
+    --nx '$nx'
+#end if
+#if str($ny).strip() != 'None' and str($ny).strip() != '':
+    --ny '$ny'
+#end if
+#if str($nz).strip() != 'None' and str($nz).strip() != '':
+    --nz '$nz'
+#end if
+#if str($dx0).strip() != 'None' and str($dx0).strip() != '':
+    --dx0 '$dx0'
+#end if
+#if str($dy0).strip() != 'None' and str($dy0).strip() != '':
+    --dy0 '$dy0'
+#end if
+#if str($dz0).strip() != 'None' and str($dz0).strip() != '':
+    --dz0 '$dz0'
+#end if
+#if str($dx_max).strip() != 'None' and str($dx_max).strip() != '':
+    --dx-max '$dx_max'
+#end if
+#if str($dy_max).strip() != 'None' and str($dy_max).strip() != '':
+    --dy-max '$dy_max'
+#end if
+#if str($dz_max).strip() != 'None' and str($dz_max).strip() != '':
+    --dz-max '$dz_max'
+#end if
+#if str($mx).strip() != 'None' and str($mx).strip() != '':
+    --mx '$mx'
+#end if
+#if str($my).strip() != 'None' and str($my).strip() != '':
+    --my '$my'
+#end if
+#if str($mz).strip() != 'None' and str($mz).strip() != '':
+    --mz '$mz'
+#end if
+#if str($ox).strip() != 'None' and str($ox).strip() != '':
+    --ox '$ox'
+#end if
+#if str($oy).strip() != 'None' and str($oy).strip() != '':
+    --oy '$oy'
+#end if
+#if str($oz).strip() != 'None' and str($oz).strip() != '':
+    --oz '$oz'
+#end if
     --mesh-output-file output_1.vtu]]></command>
   <inputs>
     <param name="element_type" type="select" label="element type" help="element type to be created">
@@ -93,7 +93,7 @@
     <param name="oz" type="float" value="0" optional="true" label="oz" help="mesh origin (lower left corner) in z direction"/>
   </inputs>
   <outputs>
-    <data name="output_generateStructuredMesh" format="vtu" label="Output file from generateStructuredMesh" from_work_dir="output_1.vtu" hidden="false"/>
+    <data name="output_generateStructuredMesh" format="vtkxml" label="Output file from generateStructuredMesh" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="generatestructuredmesh_test"/>

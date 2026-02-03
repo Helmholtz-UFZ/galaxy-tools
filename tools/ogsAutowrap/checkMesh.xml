@@ -6,14 +6,15 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[checkMesh --version]]></version_command>
-  <command><![CDATA[checkMesh
+  <command><![CDATA[for i in $mesh_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+checkMesh
     $validation
     $print_properties
-    '$mesh_file']]></command>
+    $mesh_file.element_identifier]]></command>
   <inputs>
     <param name="validation" type="boolean" label="validation" help="validate the mesh" checked="false" truevalue="--validation" falsevalue=""/>
     <param name="print_properties" type="boolean" label="print properties" help="print properties stored in the mesh" checked="false" truevalue="--print_properties" falsevalue=""/>
-    <param name="mesh_file" type="data" optional="false" label="mesh file" help="Input (.vtu | .msh). Mesh file" format="vtu,msh" multiple="false"/>
+    <param name="mesh_file" type="data" optional="false" label="mesh file" help="Input (.vtu | .msh). Mesh file" format="vtkxml" multiple="false"/>
   </inputs>
   <outputs/>
   <tests>

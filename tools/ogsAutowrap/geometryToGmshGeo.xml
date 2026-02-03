@@ -6,25 +6,25 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[geometryToGmshGeo --version]]></version_command>
-  <command><![CDATA[geometryToGmshGeo
-    --input '$input'
-    #if str($max_points_in_quadtree_leaf):
-        --max_points_in_quadtree_leaf '$max_points_in_quadtree_leaf'
-    #end if
-    #if str($mesh_density_scaling_at_points):
-        --mesh_density_scaling_at_points '$mesh_density_scaling_at_points'
-    #end if
-    #if str($mesh_density_scaling_at_stations):
-        --mesh_density_scaling_at_stations '$mesh_density_scaling_at_stations'
-    #end if
-    #if str($average_point_density):
-        --average_point_density '$average_point_density'
-    #end if
+  <command><![CDATA[for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+geometryToGmshGeo
+    --input '$input.element_identifier'
+#if str($max_points_in_quadtree_leaf).strip() != 'None' and str($max_points_in_quadtree_leaf).strip() != '':
+    --max_points_in_quadtree_leaf '$max_points_in_quadtree_leaf'
+#end if
+#if str($mesh_density_scaling_at_points).strip() != 'None' and str($mesh_density_scaling_at_points).strip() != '':
+    --mesh_density_scaling_at_points '$mesh_density_scaling_at_points'
+#end if
+#if str($mesh_density_scaling_at_stations).strip() != 'None' and str($mesh_density_scaling_at_stations).strip() != '':
+    --mesh_density_scaling_at_stations '$mesh_density_scaling_at_stations'
+#end if
+#if str($average_point_density).strip() != 'None' and str($average_point_density).strip() != '':
+    --average_point_density '$average_point_density'
+#end if
     $homogeneous
-    --output output_1.geo
-    --write_merged_geometries output_2.gml]]></command>
+    --output output_1.geo]]></command>
   <inputs>
-    <param name="input" type="data" optional="false" label="input" help="Input (.gml) geometry file" format="gml" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.gml) geometry file" format="xml" multiple="false"/>
     <param name="max_points_in_quadtree_leaf" type="text" value="2" optional="true" label="max points in quadtree leaf" help="positive number/ (min = 0)" min="0"/>
     <param name="mesh_density_scaling_at_points" type="float" value="0.2" optional="true" label="mesh density scaling at points" help="positive floating point number, (min = 0)" min="0"/>
     <param name="mesh_density_scaling_at_stations" type="float" value="0.05" optional="true" label="mesh density scaling at stations" help="positive floating point number, (min = 0)" min="0"/>
@@ -32,9 +32,7 @@
     <param name="homogeneous" type="boolean" label="homogeneous" help="Use Gmsh homogeneous meshing method." checked="false" truevalue="--homogeneous" falsevalue=""/>
   </inputs>
   <outputs>
-    <collection name="tool_outputs" type="list" label="Outputs from geometryToGmshGeo">
-      <discover_datasets pattern="output_.+\..+" format="auto" visible="true"/>
-    </collection>
+    <data name="output_geometryToGmshGeo" format="data" label="Output file from geometryToGmshGeo" from_work_dir="output_1.geo" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="geometrytogmshgeo_test"/>

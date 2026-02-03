@@ -6,20 +6,22 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[createIntermediateRasters --version]]></version_command>
-  <command><![CDATA[createIntermediateRasters
-    #if str($number):
-        --number '$number'
-    #end if
-    --file2 '$file2'
-    --file1 '$file1'
+  <command><![CDATA[for i in $file2; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+for i in $file1; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+createIntermediateRasters
+#if str($number).strip() != 'None' and str($number).strip() != '':
+    --number '$number'
+#end if
+    --file2 '$file2.element_identifier'
+    --file1 '$file1.element_identifier'
     --output-file output_1.asc]]></command>
   <inputs>
     <param name="number" type="integer" value="1" optional="true" label="number" help="number of rasters to be calculated, (min = 0)" min="0"/>
-    <param name="file2" type="data" optional="false" label="file2" help="Input (.asc). Second DEM-raster input file" format="asc" multiple="false"/>
-    <param name="file1" type="data" optional="false" label="file1" help="Input (.asc) First DEM-raster input file" format="asc" multiple="false"/>
+    <param name="file2" type="data" optional="false" label="file2" help="Input (.asc). Second DEM-raster input file" format="xml" multiple="false"/>
+    <param name="file1" type="data" optional="false" label="file1" help="Input (.asc) First DEM-raster input file" format="xml" multiple="false"/>
   </inputs>
   <outputs>
-    <data name="output_createIntermediateRasters" format="asc" label="Output file from createIntermediateRasters" from_work_dir="output_1.asc" hidden="false"/>
+    <data name="output_createIntermediateRasters" format="xml" label="Output file from createIntermediateRasters" from_work_dir="output_1.asc" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="createintermediaterasters_test"/>

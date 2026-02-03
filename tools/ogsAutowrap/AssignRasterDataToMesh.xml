@@ -6,26 +6,28 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[AssignRasterDataToMesh --version]]></version_command>
-  <command><![CDATA[AssignRasterDataToMesh
-    #if str($nodata):
-        --nodata '$nodata'
-    #end if
+  <command><![CDATA[for i in $raster; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+AssignRasterDataToMesh
+#if str($nodata).strip() != 'None' and str($nodata).strip() != '':
+    --nodata '$nodata'
+#end if
     $cell_array
     $node_array
     --scalar-name '$scalar_name'
-    --raster '$raster'
-    --input '$input'
+    --raster '$raster.element_identifier'
+    --input '$input.element_identifier'
     --output output_1.vtu]]></command>
   <inputs>
     <param name="nodata" type="float" value="0" optional="true" label="nodata" help="The no data value used for missing values (min = 0)" min="0"/>
     <param name="cell_array" type="boolean" label="cell array" help="Assigns raster data to cell array" checked="false" truevalue="--cell-array" falsevalue=""/>
     <param name="node_array" type="boolean" label="node array" help="Assigns raster data to node array (default)" checked="false" truevalue="--node-array" falsevalue=""/>
     <param name="scalar_name" type="text" optional="false" label="scalar name" help="the newly created scalar array."/>
-    <param name="raster" type="data" optional="false" label="raster" help="Input (.asc). the input raster file" format="asc" multiple="false"/>
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). the input mesh file" format="vtu" multiple="false"/>
+    <param name="raster" type="data" optional="false" label="raster" help="Input (.asc). the input raster file" format="xml" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). the input mesh file" format="vtkxml" multiple="false"/>
   </inputs>
   <outputs>
-    <data name="output_AssignRasterDataToMesh" format="vtu" label="Output file from AssignRasterDataToMesh" from_work_dir="output_1.vtu" hidden="false"/>
+    <data name="output_AssignRasterDataToMesh" format="vtkxml" label="Output file from AssignRasterDataToMesh" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="assignrasterdatatomesh_test"/>

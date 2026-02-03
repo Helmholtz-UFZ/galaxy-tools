@@ -6,40 +6,43 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[ResetPropertiesInPolygonalRegion --version]]></version_command>
-  <command><![CDATA[ResetPropertiesInPolygonalRegion
+  <command><![CDATA[for i in $geometry; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+for i in $mesh_input_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+for i in $gmsh_path; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+ResetPropertiesInPolygonalRegion
     --polygon-name '$polygon_name'
-    --geometry '$geometry'
+    --geometry '$geometry.element_identifier'
     $any_of
-    #if str($char_property_value):
-        --char-property-value '$char_property_value'
-    #end if
-    #if str($int_property_value):
-        --int-property-value '$int_property_value'
-    #end if
-    #if str($property_name):
-        --property-name '$property_name'
-    #end if
-    #if str($restrict_to_MaterialID):
-        --restrict-to-MaterialID '$restrict_to_MaterialID'
-    #end if
-    --mesh-input-file '$mesh_input_file'
-    #if str($gmsh_path):
-        --gmsh-path '$gmsh_path'
-    #end if
-    --mesh-output-file output_1.dat]]></command>
+#if str($char_property_value).strip() != 'None' and str($char_property_value).strip() != '':
+    --char-property-value '$char_property_value'
+#end if
+#if str($int_property_value).strip() != 'None' and str($int_property_value).strip() != '':
+    --int-property-value '$int_property_value'
+#end if
+#if str($property_name).strip() != 'None' and str($property_name).strip() != '':
+    --property-name '$property_name'
+#end if
+#if str($restrict_to_MaterialID).strip() != 'None' and str($restrict_to_MaterialID).strip() != '':
+    --restrict-to-MaterialID '$restrict_to_MaterialID'
+#end if
+    --mesh-input-file '$mesh_input_file.element_identifier'
+#if str($gmsh_path).strip() != 'None' and str($gmsh_path).strip() != '':
+    --gmsh-path '$gmsh_path.element_identifier'
+#end if
+    --mesh-output-file output_1.vtu]]></command>
   <inputs>
     <param name="polygon_name" type="text" optional="false" label="polygon name" help="polygon in the geometry"/>
-    <param name="geometry" type="data" optional="false" label="geometry" help="Input (.gli | .gml). the file containing the input geometry" format="gli,gml" multiple="false"/>
+    <param name="geometry" type="data" optional="false" label="geometry" help="Input (.gli | .gml). the file containing the input geometry" format="xml" multiple="false"/>
     <param name="any_of" type="boolean" label="any of" help="all nodes of an element has to be inside the polygon (default behaviour without switch) or any node of an element has to be inside (switch is given)" checked="false" truevalue="--any_of" falsevalue=""/>
     <param name="char_property_value" type="text" value="A" optional="true" label="char property value" help="new property value (data type char)"/>
     <param name="int_property_value" type="integer" value="0" optional="true" label="int property value" help="new property value (data type int)"/>
     <param name="property_name" type="text" value="MaterialIDs" optional="true" label="property name" help="property in the mesh"/>
     <param name="restrict_to_MaterialID" type="integer" value="-1" optional="true" label="restrict to MaterialID" help="Restrict resetting the property to the material id"/>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu | .vtk | .msh). the file containing the input mesh" format="vtu,vtk,msh" multiple="false"/>
-    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input binary" format="msh" multiple="false"/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu | .vtk | .msh). the file containing the input mesh" format="vtkxml" multiple="false"/>
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input binary" format="xml" multiple="false"/>
   </inputs>
   <outputs>
-    <data name="output_ResetPropertiesInPolygonalRegion" format="dat" label="Output file from ResetPropertiesInPolygonalRegion" from_work_dir="output_1.dat" hidden="false"/>
+    <data name="output_ResetPropertiesInPolygonalRegion" format="data" label="Output file from ResetPropertiesInPolygonalRegion" from_work_dir="output_1.vtu" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="resetpropertiesinpolygonalregion_test"/>

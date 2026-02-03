@@ -6,14 +6,15 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[Raster2ASC --version]]></version_command>
-  <command><![CDATA[Raster2ASC
-    --input '$input'
+  <command><![CDATA[for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+Raster2ASC
+    --input '$input.element_identifier'
     --output output_1.asc]]></command>
   <inputs>
-    <param name="input" type="data" optional="false" label="input" help="Input (.grd | .xyz). Filename for input raster" format="grd,xyz" multiple="false"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.grd | .xyz). Filename for input raster" format="data" multiple="false"/>
   </inputs>
   <outputs>
-    <data name="output_Raster2ASC" format="asc" label="Output file from Raster2ASC" from_work_dir="output_1.asc" hidden="false"/>
+    <data name="output_Raster2ASC" format="xml" label="Output file from Raster2ASC" from_work_dir="output_1.asc" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="raster2asc_test"/>

@@ -6,25 +6,24 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[createTetgenSmeshFromRasters --version]]></version_command>
-  <command><![CDATA[createTetgenSmeshFromRasters
+  <command><![CDATA[for i in $raster_list; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+for i in $input_mesh_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+createTetgenSmeshFromRasters
     $ascii_output
-    #if str($thickness):
-        --thickness '$thickness'
-    #end if
-    #for $f in $raster_list:
-        #echo str($f) >> "raster_list_list.txt"
-    #end for
-    --raster-list 'raster_list_list.txt'
-    --input-mesh-file '$input_mesh_file'
+#if str($thickness).strip() != 'None' and str($thickness).strip() != '':
+    --thickness '$thickness'
+#end if
+    --raster-list '$raster_list.element_identifier'
+    --input-mesh-file '$input_mesh_file.element_identifier'
     --output-mesh-file output_1.smesh]]></command>
   <inputs>
     <param name="ascii_output" type="boolean" label="ascii output" help="Write VTU output in ASCII format." checked="false" truevalue="--ascii_output" falsevalue=""/>
     <param name="thickness" type="float" value="min_thickness" optional="true" label="thickness" help="The minimum thickness of a layer to be integrated at any given location (min = 0)" min="0"/>
-    <param name="raster_list" type="data" optional="false" label="raster list" help="Input (.vtu). An ascii-file containing a list of raster files, starting from top (DEM) to bottom." format="vtu" multiple="true"/>
-    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu | .msh). The file the 2D input mesh" format="vtu,msh" multiple="false"/>
+    <param name="raster_list" type="data" optional="false" label="raster list" help="Input (.vtu). An ascii-file containing a list of raster files, starting from top (DEM) to bottom." format="vtkxml" multiple="true"/>
+    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu | .msh). The file the 2D input mesh" format="vtkxml" multiple="false"/>
   </inputs>
   <outputs>
-    <data name="output_createTetgenSmeshFromRasters" format="smesh" label="Output file from createTetgenSmeshFromRasters" from_work_dir="output_1.smesh" hidden="false"/>
+    <data name="output_createTetgenSmeshFromRasters" format="data" label="Output file from createTetgenSmeshFromRasters" from_work_dir="output_1.smesh" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="createtetgensmeshfromrasters_test"/>

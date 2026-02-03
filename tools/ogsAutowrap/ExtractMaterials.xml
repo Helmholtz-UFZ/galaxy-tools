@@ -1,0 +1,28 @@
+<tool name="OGS: ExtractMaterials" id="ogs_extractmaterials" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'ExtractMaterials'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[ExtractMaterials --version]]></version_command>
+  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
+ExtractMaterials
+#if str($material_id).strip() != 'None' and str($material_id).strip() != '':
+    --material-id '$material_id'
+#end if
+    --input '$input.element_identifier'
+    --output output_1.vtu]]></command>
+  <inputs>
+    <param name="material_id" type="integer" value="0" optional="true" label="material id" help="The MaterialID for which elements should be extracted into a new mesh." min="0"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). the input mesh" format="vtkxml" multiple="false"/>
+  </inputs>
+  <outputs>
+    <data name="output_ExtractMaterials" format="vtkxml" label="Output file from ExtractMaterials" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="extractmaterials_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **ExtractMaterials** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

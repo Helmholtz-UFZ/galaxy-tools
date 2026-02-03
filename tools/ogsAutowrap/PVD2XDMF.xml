@@ -1,0 +1,26 @@
+<tool name="OGS: PVD2XDMF" id="ogs_pvd2xdmf" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'PVD2XDMF'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[PVD2XDMF --version]]></version_command>
+  <command><![CDATA[if [ "$pvd_file" != "None" ] && [ ! -e '${$pvd_file.element_identifier}' ]; then ln -s '$pvd_file' '${$pvd_file.element_identifier}'; fi;
+PVD2XDMF
+    '$pvd_file.element_identifier'
+    --output-directory output_1.data]]></command>
+  <inputs>
+    <param name="pvd_file" type="data" optional="false" label="pvd file" help="Input (.pvd) file" format="vtkxml" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from PVD2XDMF">
+      <discover_datasets pattern="output_.*\.(vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="pvd2xdmf_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **PVD2XDMF** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

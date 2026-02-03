@@ -1,0 +1,45 @@
+<tool name="OGS: CreateBoundaryConditionsAlongPolylines" id="ogs_createboundaryconditionsalongpolylines" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'CreateBoundaryConditionsAlongPolylines'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[CreateBoundaryConditionsAlongPolylines --version]]></version_command>
+  <command><![CDATA[if [ "$input_geometry" != "None" ] && [ ! -e '${$input_geometry.element_identifier}' ]; then ln -s '$input_geometry' '${$input_geometry.element_identifier}'; fi;
+if [ "$mesh_file" != "None" ] && [ ! -e '${$mesh_file.element_identifier}' ]; then ln -s '$mesh_file' '${$mesh_file.element_identifier}'; fi;
+if [ "$gmsh_path" != "None" ] && [ ! -e '${$gmsh_path.element_identifier}' ]; then ln -s '$gmsh_path' '${$gmsh_path.element_identifier}'; fi;
+CreateBoundaryConditionsAlongPolylines
+    $gml
+    --type '$type'
+#if str($search_length).strip() != 'None' and str($search_length).strip() != '':
+    --search-length '$search_length'
+#end if
+    --input-geometry '$input_geometry.element_identifier'
+    --mesh-file '$mesh_file.element_identifier'
+#if str($gmsh_path).strip() != 'None' and str($gmsh_path).strip() != '':
+    --gmsh-path '$gmsh_path.element_identifier'
+#end if
+    --output-base-file-name output_1.geometry (gli]]></command>
+  <inputs>
+    <param name="gml" type="boolean" label="gml" help="Write found nodes to gml file." checked="false" truevalue="--gml" falsevalue=""/>
+    <param name="type" type="select" label="type" help="the process type the boundary condition will be written for currently LIQUID_FLOW (primary variable PRESSURE1) and GROUNDWATER_FLOW (primary variable HEAD, default) are supported,">
+      <option value="LIQUID_FLOW">LIQUID_FLOW</option>
+      <option value="GROUNDWATER_FLOW">GROUNDWATER_FLOW</option>
+    </param>
+    <param name="search_length" type="float" value="2.220446049250313e-16" optional="true" label="search length" help="The size of the search length"/>
+    <param name="input_geometry" type="data" optional="false" label="input geometry" help="Input (.gml | .gli). the input file containing the geometry" format="xml" multiple="false"/>
+    <param name="mesh_file" type="data" optional="false" label="mesh file" help="Input (.vtu). the input file containing the mesh" format="vtkxml" multiple="false"/>
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the gmsh binary" format="xml" multiple="false"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from CreateBoundaryConditionsAlongPolylines">
+      <discover_datasets pattern="output_.*\.(vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="createboundaryconditionsalongpolylines_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **CreateBoundaryConditionsAlongPolylines** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

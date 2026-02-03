@@ -1,0 +1,31 @@
+<tool name="OGS: queryMesh" id="ogs_querymesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'queryMesh'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[queryMesh --version]]></version_command>
+  <command><![CDATA[if [ "$mesh_file" != "None" ] && [ ! -e '${$mesh_file.element_identifier}' ]; then ln -s '$mesh_file' '${$mesh_file.element_identifier}'; fi;
+queryMesh
+#if str($element_id).strip() != 'None' and str($element_id).strip() != '':
+    --element-id '$element_id'
+#end if
+#if str($node_id).strip() != 'None' and str($node_id).strip() != '':
+    --node-id '$node_id'
+#end if
+    $show_node_with_max_elements
+    '$mesh_file.element_identifier']]></command>
+  <inputs>
+    <param name="element_id" type="integer" value="ELEMENT_ID" optional="true" label="element id" help="element ID" min="0"/>
+    <param name="node_id" type="integer" value="NODE_ID" optional="true" label="node id" help="node ID" min="0"/>
+    <param name="show_node_with_max_elements" type="boolean" label="show node with max elements" help="show a node having the max number of connected elements" checked="false" truevalue="--show-node-with-max-elements" falsevalue=""/>
+    <param name="mesh_file" type="data" optional="false" label="mesh file" help="Input (.vtu) mesh file" format="vtkxml" multiple="false"/>
+  </inputs>
+  <outputs/>
+  <tests>
+    <expand macro="querymesh_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **queryMesh** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

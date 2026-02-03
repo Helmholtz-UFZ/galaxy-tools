@@ -1,0 +1,49 @@
+<tool name="OGS: editMaterialID" id="ogs_editmaterialid" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'editMaterialID'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[editMaterialID --version]]></version_command>
+  <command><![CDATA[if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
+editMaterialID
+    $replace
+    $condense
+    $specify
+    --mesh-input-file '$mesh_input_file.element_identifier'
+#if str($current_material_id).strip() != 'None' and str($current_material_id).strip() != '':
+    --current-material-id '$current_material_id'
+#end if
+#if str($new_material_id).strip() != 'None' and str($new_material_id).strip() != '':
+    --new-material-id '$new_material_id'
+#end if
+    --element-type '$element_type'
+    --mesh-output-file output_1.vtu]]></command>
+  <inputs>
+    <param name="replace" type="boolean" label="replace" help="replace material IDs" checked="false" truevalue="--replace" falsevalue=""/>
+    <param name="condense" type="boolean" label="condense" help="condense material IDs" checked="false" truevalue="--condense" falsevalue=""/>
+    <param name="specify" type="boolean" label="specify" help="specify material IDs by element types (-e)" checked="false" truevalue="--specify" falsevalue=""/>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu | .msh). the file containing the input mesh" format="vtkxml" multiple="false"/>
+    <param name="current_material_id" type="text" value="CURRENT_MATERIAL_ID" optional="true" label="current material id" help="current material id to be replaced"/>
+    <param name="new_material_id" type="text" value="0" optional="true" label="new material id" help="new material id"/>
+    <param name="element_type" type="select" label="element type" help="element type">
+      <option value="point">point</option>
+      <option value="line">line</option>
+      <option value="quad">quad</option>
+      <option value="hex">hex</option>
+      <option value="tri">tri</option>
+      <option value="tet">tet</option>
+      <option value="pris">pris</option>
+      <option value="pyra">pyra</option>
+    </param>
+  </inputs>
+  <outputs>
+    <data name="output_editMaterialID" format="vtkxml" label="Output file from editMaterialID" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="editmaterialid_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **editMaterialID** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

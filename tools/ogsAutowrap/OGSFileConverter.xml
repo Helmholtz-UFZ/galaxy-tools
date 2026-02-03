@@ -1,0 +1,23 @@
+<tool name="OGS: OGSFileConverter" id="ogs_ogsfileconverter" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'OGSFileConverter'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[OGSFileConverter --version]]></version_command>
+  <command><![CDATA[if [ "$gmsh_path" != "None" ] && [ ! -e '${$gmsh_path.element_identifier}' ]; then ln -s '$gmsh_path' '${$gmsh_path.element_identifier}'; fi;
+OGSFileConverter
+#if str($gmsh_path).strip() != 'None' and str($gmsh_path).strip() != '':
+    --gmsh-path '$gmsh_path.element_identifier'
+#end if]]></command>
+  <inputs>
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input gmsh binary file" format="xml" multiple="false"/>
+  </inputs>
+  <outputs/>
+  <tests>
+    <expand macro="ogsfileconverter_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **OGSFileConverter** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

@@ -1,0 +1,26 @@
+<tool name="OGS: createQuadraticMesh" id="ogs_createquadraticmesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'createQuadraticMesh'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[createQuadraticMesh --version]]></version_command>
+  <command><![CDATA[if [ "$input_mesh_file" != "None" ] && [ ! -e '${$input_mesh_file.element_identifier}' ]; then ln -s '$input_mesh_file' '${$input_mesh_file.element_identifier}'; fi;
+createQuadraticMesh
+    --input-mesh-file '$input_mesh_file.element_identifier'
+    $add_centre_node
+    --output-mesh-file output_1.vtu]]></command>
+  <inputs>
+    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu | .msh) mesh file" format="vtkxml" multiple="false"/>
+    <param name="add_centre_node" type="boolean" label="add centre node" help="add centre node" checked="false" truevalue="--add-centre-node" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data name="output_createQuadraticMesh" format="vtkxml" label="Output file from createQuadraticMesh" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="createquadraticmesh_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **createQuadraticMesh** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

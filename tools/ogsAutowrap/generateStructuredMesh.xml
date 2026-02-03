@@ -1,0 +1,103 @@
+<tool name="OGS: generateStructuredMesh" id="ogs_generatestructuredmesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'generateStructuredMesh'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[generateStructuredMesh --version]]></version_command>
+  <command><![CDATA[generateStructuredMesh
+    --element-type '$element_type'
+#if str($lx).strip() != 'None' and str($lx).strip() != '':
+    --lx '$lx'
+#end if
+#if str($ly).strip() != 'None' and str($ly).strip() != '':
+    --ly '$ly'
+#end if
+#if str($lz).strip() != 'None' and str($lz).strip() != '':
+    --lz '$lz'
+#end if
+#if str($nx).strip() != 'None' and str($nx).strip() != '':
+    --nx '$nx'
+#end if
+#if str($ny).strip() != 'None' and str($ny).strip() != '':
+    --ny '$ny'
+#end if
+#if str($nz).strip() != 'None' and str($nz).strip() != '':
+    --nz '$nz'
+#end if
+#if str($dx0).strip() != 'None' and str($dx0).strip() != '':
+    --dx0 '$dx0'
+#end if
+#if str($dy0).strip() != 'None' and str($dy0).strip() != '':
+    --dy0 '$dy0'
+#end if
+#if str($dz0).strip() != 'None' and str($dz0).strip() != '':
+    --dz0 '$dz0'
+#end if
+#if str($dx_max).strip() != 'None' and str($dx_max).strip() != '':
+    --dx-max '$dx_max'
+#end if
+#if str($dy_max).strip() != 'None' and str($dy_max).strip() != '':
+    --dy-max '$dy_max'
+#end if
+#if str($dz_max).strip() != 'None' and str($dz_max).strip() != '':
+    --dz-max '$dz_max'
+#end if
+#if str($mx).strip() != 'None' and str($mx).strip() != '':
+    --mx '$mx'
+#end if
+#if str($my).strip() != 'None' and str($my).strip() != '':
+    --my '$my'
+#end if
+#if str($mz).strip() != 'None' and str($mz).strip() != '':
+    --mz '$mz'
+#end if
+#if str($ox).strip() != 'None' and str($ox).strip() != '':
+    --ox '$ox'
+#end if
+#if str($oy).strip() != 'None' and str($oy).strip() != '':
+    --oy '$oy'
+#end if
+#if str($oz).strip() != 'None' and str($oz).strip() != '':
+    --oz '$oz'
+#end if
+    --mesh-output-file output_1.vtu]]></command>
+  <inputs>
+    <param name="element_type" type="select" label="element type" help="element type to be created">
+      <option value="line">line</option>
+      <option value="tri">tri</option>
+      <option value="quad">quad</option>
+      <option value="hex">hex</option>
+      <option value="prism">prism</option>
+      <option value="tet">tet</option>
+      <option value="pyramid">pyramid</option>
+    </param>
+    <param name="lx" type="float" value="10.0" optional="true" label="lx" help="length of a domain in x direction, (min = 0)" min="0"/>
+    <param name="ly" type="float" value="10.0" optional="true" label="ly" help="length of a domain in y direction, (min = 0)" min="0"/>
+    <param name="lz" type="float" value="10.0" optional="true" label="lz" help="length of a domain in z direction, (min = 0)" min="0"/>
+    <param name="nx" type="text" value="10" optional="true" label="nx" help="the number of subdivision in x direction, (min = 0)" min="0"/>
+    <param name="ny" type="text" value="10" optional="true" label="ny" help="the number of subdivision in y direction, (min = 0)" min="0"/>
+    <param name="nz" type="text" value="10" optional="true" label="nz" help="the number of subdivision in z direction, (min = 0)" min="0"/>
+    <param name="dx0" type="float" value="1" optional="true" label="dx0" help="initial cell length in x direction, (min = 0)" min="0"/>
+    <param name="dy0" type="float" value="1" optional="true" label="dy0" help="initial cell length in y direction, (min = 0)" min="0"/>
+    <param name="dz0" type="float" value="1" optional="true" label="dz0" help="initial cell length in z direction, (min = 0)" min="0"/>
+    <param name="dx_max" type="float" value="1.7976931348623157E+308" optional="true" label="dx max" help="maximum cell length in x direction, (min = 0)" min="0"/>
+    <param name="dy_max" type="float" value="1.7976931348623157E+308" optional="true" label="dy max" help="maximum cell length in y direction, (min = 0)" min="0"/>
+    <param name="dz_max" type="float" value="1.7976931348623157E+308" optional="true" label="dz max" help="maximum cell length in z direction, (min = 0)" min="0"/>
+    <param name="mx" type="float" value="1" optional="true" label="mx" help="multiplier in x direction"/>
+    <param name="my" type="float" value="1" optional="true" label="my" help="multiplier in y direction"/>
+    <param name="mz" type="float" value="1" optional="true" label="mz" help="multiplier in z direction"/>
+    <param name="ox" type="float" value="0" optional="true" label="ox" help="mesh origin (lower left corner) in x direction"/>
+    <param name="oy" type="float" value="0" optional="true" label="oy" help="mesh origin (lower left corner) in y direction"/>
+    <param name="oz" type="float" value="0" optional="true" label="oz" help="mesh origin (lower left corner) in z direction"/>
+  </inputs>
+  <outputs>
+    <data name="output_generateStructuredMesh" format="vtkxml" label="Output file from generateStructuredMesh" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="generatestructuredmesh_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **generateStructuredMesh** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

@@ -1,0 +1,36 @@
+<tool name="OGS: Layers2Grid" id="ogs_layers2grid" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'Layers2Grid'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[Layers2Grid --version]]></version_command>
+  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
+Layers2Grid
+    $dilate
+#if str($cellsize_z).strip() != 'None' and str($cellsize_z).strip() != '':
+    --cellsize-z '$cellsize_z'
+#end if
+#if str($cellsize_y).strip() != 'None' and str($cellsize_y).strip() != '':
+    --cellsize-y '$cellsize_y'
+#end if
+    --cellsize-x '$cellsize_x'
+    --input '$input.element_identifier'
+    --output output_1.vtu]]></command>
+  <inputs>
+    <param name="dilate" type="boolean" label="dilate" help="assign mat IDs based on single nodes instead of a majority of nodes, which can result in a slightly increased voxel grid extent" checked="false" truevalue="--dilate" falsevalue=""/>
+    <param name="cellsize_z" type="float" value="1000" optional="true" label="cellsize z" help="edge length of cubes in z-direction (depth), (min = 0)" min="0"/>
+    <param name="cellsize_y" type="float" value="1000" optional="true" label="cellsize y" help="edge length of cubes in y-direction (latitude), (min = 0)" min="0"/>
+    <param name="cellsize_x" type="float" value="1000" optional="false" label="cellsize x" help="edge length of cubes in x-direction (longitude) or all directions, if y and z are not set, (min = 0)" min="0"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). the input file list containing the paths the all input layers in correct order from top to bottom" format="vtkxml" multiple="true"/>
+  </inputs>
+  <outputs>
+    <data name="output_Layers2Grid" format="vtkxml" label="Output file from Layers2Grid" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="layers2grid_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **Layers2Grid** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

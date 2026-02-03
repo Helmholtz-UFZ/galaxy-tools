@@ -1,0 +1,26 @@
+<tool name="OGS: OGS2VTK" id="ogs_ogs2vtk" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'OGS2VTK'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[OGS2VTK --version]]></version_command>
+  <command><![CDATA[if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
+OGS2VTK
+    --mesh-input-file '$mesh_input_file.element_identifier'
+    $ascii_output
+    --mesh-output-file output_1.vtk]]></command>
+  <inputs>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.msh). the file containing the input mesh" format="xml" multiple="false"/>
+    <param name="ascii_output" type="boolean" label="ascii output" help="Write VTU output in ASCII file. Due to possible rounding the ascii output could result in lower accuracy" checked="false" truevalue="--ascii_output" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <data name="output_OGS2VTK" format="vtkxml" label="Output file from OGS2VTK" from_work_dir="output_1.vtk" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="ogs2vtk_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **OGS2VTK** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

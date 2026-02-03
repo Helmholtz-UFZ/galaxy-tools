@@ -1,0 +1,23 @@
+<tool name="OGS: generateMatPropsFromMatID" id="ogs_generatematpropsfrommatid" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'generateMatPropsFromMatID'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[generateMatPropsFromMatID --version]]></version_command>
+  <command><![CDATA[if [ "$mesh" != "None" ] && [ ! -e '${$mesh.element_identifier}' ]; then ln -s '$mesh' '${$mesh.element_identifier}'; fi;
+generateMatPropsFromMatID
+#if str($mesh).strip() != 'None' and str($mesh).strip() != '':
+    --mesh '$mesh.element_identifier'
+#end if]]></command>
+  <inputs>
+    <param name="mesh" type="data" optional="true" label="mesh" help="Input (.msh). The mesh to open from a file" format="xml" multiple="false"/>
+  </inputs>
+  <outputs/>
+  <tests>
+    <expand macro="generatematpropsfrommatid_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **generateMatPropsFromMatID** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

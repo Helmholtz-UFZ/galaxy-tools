@@ -1,0 +1,29 @@
+<tool name="OGS: convertGEO" id="ogs_convertgeo" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'convertGEO'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[convertGEO --version]]></version_command>
+  <command><![CDATA[if [ "$input_file" != "None" ] && [ ! -e '${$input_file.element_identifier}' ]; then ln -s '$input_file' '${$input_file.element_identifier}'; fi;
+if [ "$gmsh_path" != "None" ] && [ ! -e '${$gmsh_path.element_identifier}' ]; then ln -s '$gmsh_path' '${$gmsh_path.element_identifier}'; fi;
+convertGEO
+    --input-file '$input_file.element_identifier'
+#if str($gmsh_path).strip() != 'None' and str($gmsh_path).strip() != '':
+    --gmsh-path '$gmsh_path.element_identifier'
+#end if
+    --output-file output_1.data]]></command>
+  <inputs>
+    <param name="input_file" type="data" optional="false" label="input file" help="Input (.gml|.gli). the geometry file to be converted" format="xml" multiple="false"/>
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the gmsh binary file" format="xml" multiple="false"/>
+  </inputs>
+  <outputs>
+    <data name="output_convertGEO" format="data" label="Output file from convertGEO" from_work_dir="output_1.data" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="convertgeo_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **convertGEO** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

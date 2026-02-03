@@ -1,0 +1,65 @@
+<tool name="OGS: generateGeometry" id="ogs_generategeometry" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'generateGeometry'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[generateGeometry --version]]></version_command>
+  <command><![CDATA[generateGeometry
+    --z0 '$z0'
+    --y0 '$y0'
+    --x0 '$x0'
+    --z1 '$z1'
+    --y1 '$y1'
+    --x1 '$x1'
+#if str($nx).strip() != 'None' and str($nx).strip() != '':
+    --nx '$nx'
+#end if
+#if str($nx1).strip() != 'None' and str($nx1).strip() != '':
+    --nx1 '$nx1'
+#end if
+#if str($ny).strip() != 'None' and str($ny).strip() != '':
+    --ny '$ny'
+#end if
+#if str($ny1).strip() != 'None' and str($ny1).strip() != '':
+    --ny1 '$ny1'
+#end if
+#if str($nz).strip() != 'None' and str($nz).strip() != '':
+    --nz '$nz'
+#end if
+#if str($nz1).strip() != 'None' and str($nz1).strip() != '':
+    --nz1 '$nz1'
+#end if
+#if str($geometry_name).strip() != 'None' and str($geometry_name).strip() != '':
+    --geometry_name '$geometry_name'
+#end if
+#if str($polyline_name).strip() != 'None' and str($polyline_name).strip() != '':
+    --polyline_name '$polyline_name'
+#end if
+    --output output_1.gml]]></command>
+  <inputs>
+    <param name="z0" type="float" value="0.0" optional="false" label="z0" help="z coordinate of the first point"/>
+    <param name="y0" type="float" value="0.0" optional="false" label="y0" help="y coordinate of the first point"/>
+    <param name="x0" type="float" value="0.0" optional="false" label="x0" help="x coordinate of the first point"/>
+    <param name="z1" type="float" value="1.0" optional="false" label="z1" help="z coordinate of the first point"/>
+    <param name="y1" type="float" value="1.0" optional="false" label="y1" help="y coordinate of the first point"/>
+    <param name="x1" type="float" value="1.0" optional="false" label="x1" help="x coordinate of the first point"/>
+    <param name="nx" type="integer" value="0" optional="true" label="nx" help="number of subdivisions in x direction"/>
+    <param name="nx1" type="integer" value="-1" optional="true" label="nx1" help="number of subdivisions in x direction"/>
+    <param name="ny" type="integer" value="0" optional="true" label="ny" help="number of subdivisions in y direction"/>
+    <param name="ny1" type="integer" value="-1" optional="true" label="ny1" help="number of subdivisions in y direction"/>
+    <param name="nz" type="integer" value="0" optional="true" label="nz" help="number of subdivisions in z direction"/>
+    <param name="nz1" type="integer" value="-1" optional="true" label="nz1" help="number of subdivisions in z direction"/>
+    <param name="geometry_name" type="text" value="conceptual model" optional="true" label="geometry name" help="the generated geometry"/>
+    <param name="polyline_name" type="text" value="polyline" optional="true" label="polyline name" help="the generated polyline"/>
+  </inputs>
+  <outputs>
+    <data name="output_generateGeometry" format="xml" label="Output file from generateGeometry" from_work_dir="output_1.gml" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="generategeometry_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **generateGeometry** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

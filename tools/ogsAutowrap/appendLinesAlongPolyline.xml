@@ -1,0 +1,32 @@
+<tool name="OGS: appendLinesAlongPolyline" id="ogs_appendlinesalongpolyline" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'appendLinesAlongPolyline'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[appendLinesAlongPolyline --version]]></version_command>
+  <command><![CDATA[if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
+if [ "$geo_file" != "None" ] && [ ! -e '${$geo_file.element_identifier}' ]; then ln -s '$geo_file' '${$geo_file.element_identifier}'; fi;
+if [ "$gmsh_path" != "None" ] && [ ! -e '${$gmsh_path.element_identifier}' ]; then ln -s '$gmsh_path' '${$gmsh_path.element_identifier}'; fi;
+appendLinesAlongPolyline
+    --mesh-input-file '$mesh_input_file.element_identifier'
+    --geo-file '$geo_file.element_identifier'
+#if str($gmsh_path).strip() != 'None' and str($gmsh_path).strip() != '':
+    --gmsh-path '$gmsh_path.element_identifier'
+#end if
+    --mesh-output-file output_1.vtu]]></command>
+  <inputs>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtkxml" multiple="false"/>
+    <param name="geo_file" type="data" optional="false" label="geo file" help="Input (.gml). the input geometry file which contains polylines" format="xml" multiple="false"/>
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input gmsh binary file" format="xml" multiple="false"/>
+  </inputs>
+  <outputs>
+    <data name="output_appendLinesAlongPolyline" format="vtkxml" label="Output file from appendLinesAlongPolyline" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="appendlinesalongpolyline_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **appendLinesAlongPolyline** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

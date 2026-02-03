@@ -1,0 +1,26 @@
+<macros>
+    <xml name="requirements">
+        <requirements>
+            <requirement type="package" version="@TOOL_VERSION@">ogs</requirement>
+        </requirements>
+    </xml>
+        <token name="@TOOL_VERSION@">6.5.5</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    <xml name="citations">
+        <citations>
+            <citation type="bibtex">
+                @misc{ogs,
+                  author = {The OpenGeoSys Community},
+                  title = {OpenGeoSys},
+                  doi          = {10.5281/zenodo.15496721},
+                  url = {http://www.opengeosys.org},
+                  note = {https://doi.org/10.5281/zenodo.15496721}
+                }
+            </citation>
+        </citations>
+    </xml>
+    <xml name="ogsutilssuite_tests">
+        <test>
+        </test>
+    </xml>
+</macros>

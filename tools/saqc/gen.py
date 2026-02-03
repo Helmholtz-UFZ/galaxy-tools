@@ -552,7 +552,6 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         inner_types_str = tuple_match.group(1) or ""
         inner_types_str = inner_types_str.replace("...", "").strip()
         inner_types_list = _split_type_string_safely(inner_types_str)
-
         type_0 = inner_types_list[0] if len(inner_types_list) >= 1 else "str"
         type_1 = inner_types_list[1] if len(inner_types_list) >= 2 else (inner_types_list[0] if len(inner_types_list) == 1 else "str")
 
@@ -648,6 +647,8 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
             creation_args["default"] = creation_args.pop("value", None)
             options = {o: options_text.get(o, o) for o in options_list}
             param_object = SelectParam(argument=param_name, options=options, **creation_args)
+        else:
+            raise Exception(f"Could not process {base_type_str}")
 
     elif (range_match := re.fullmatch(r"(Float|Int)\[\s*([0-9.-]+)\s*,\s*([0-9.-]+)\s*\]", base_type_str, re.IGNORECASE)):
         type_name, min_val, max_val = range_match.groups()
@@ -814,15 +815,18 @@ def _parse_parameter_annotation(
 
     is_truly_optional = is_default_none or is_optional_by_none
 
-    type_parts_without_none = [p for p in type_parts if p != "None"]
-
+    # remove
+    # - dict
+    # - None (this is covered by making the corresponding input optional)
+    # - types that are included again as list[type]
     type_parts_cleaned = [
         p
-        for p in type_parts_without_none
-        if p.lower() not in ("dict", "dictionary")
+        for p in type_parts
+        if p.lower() not in ("dict") and p != "None" and f"list[{p}]" not in type_parts
+
     ]
 
-    if not type_parts_cleaned and type_parts_without_none:
+    if not type_parts_cleaned:
         sys.stderr.write(
             f"Info ({module_name}): Skipping param '{param.name}' "
             "because its type is 'dict' (or Union of dicts), "
@@ -932,6 +936,9 @@ def _create_parameter_widget(
                 single_type_str, param_name, param_constructor_args, is_truly_optional, param_docs
             )
 
+    # if there are multiple annotated types we create a conditional that allows the user 
+    # to choose how she wants to input the data. has the advantage that we do not need
+    # to consider all parameter type combinations
     elif len(type_parts_cleaned) > 1:
         conditional = Conditional(name=f"{param_name}_cond")
 
@@ -971,27 +978,6 @@ def _create_parameter_widget(
                     **optional_arg,
                 )
                 when.extend([start_param, end_param])
-            elif re.fullmatch(
-                r"tuple\[\s*float\s*,\s*float\s*\]", part_str, re.IGNORECASE
-            ):
-
-                min_param = FloatParam(
-                    name=f"{param_name}_min", label=f"{param_name}_min", **optional_arg
-                )
-                max_param = FloatParam(
-                    name=f"{param_name}_max", label=f"{param_name}_max", **optional_arg
-                )
-                when.extend([min_param, max_param])
-            elif any(
-                func_type in part_str
-                for func_type in ["Callable", "CurveFitter", "GenericFunction"]
-            ):
-
-                inner_param_args.pop("optional", None)
-                inner_param = TextParam(argument=param_name, **inner_param_args)
-                if not is_truly_optional:
-                    inner_param.append(ValidatorParam(type="empty_field"))
-                when.append(inner_param)
             else:
                 inner_param = _create_param_from_type_str(
                     part_str, param_name, inner_param_args, is_truly_optional, param_docs

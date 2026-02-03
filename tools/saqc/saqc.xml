@@ -1151,22 +1151,10 @@
                   <param argument="xscope" type="text" label="Determine a chunk of the data to be plotted" help="``xscope`` can be anything, that is a valid argument to the ``pandas.Series.__getitem__`` method"/>
                 </when>
               </conditional>
-              <conditional name="yscope_cond">
-                <param name="yscope_selector" type="select" label="Choose type for 'Either a tuple of 2 scalars that determines all plots' y-view limits, or a list of those tuples'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">List of Tuples (Float, Float)</option>
-                  <option value="type_1">Tuple (Float, Float)</option>
-                </param>
-                <when value="type_0">
-                  <repeat name="yscope" title="Either a tuple of 2 scalars that determines all plots' y-view limits, or a list of those tuples" help="determining the different variables y-view limits (must match number of variables) or a dictionary with variables as keys and the y-view tuple as values">
-                    <param name="yscope_min" type="float" label="yscope_min"/>
-                    <param name="yscope_max" type="float" label="yscope_max"/>
-                  </repeat>
-                </when>
-                <when value="type_1">
-                  <param name="yscope_min" type="float" optional="true" label="yscope_min"/>
-                  <param name="yscope_max" type="float" optional="true" label="yscope_max"/>
-                </when>
-              </conditional>
+              <repeat name="yscope" title="Either a tuple of 2 scalars that determines all plots' y-view limits, or a list of those tuples" help="determining the different variables y-view limits (must match number of variables) or a dictionary with variables as keys and the y-view tuple as values">
+                <param name="yscope_min" type="float" label="yscope_min"/>
+                <param name="yscope_max" type="float" label="yscope_max"/>
+              </repeat>
               <param argument="dfilter" type="float" value="inf" label="Defines which observations will be masked based on the already existing flags" help="Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme"/>
             </when>
             <when value="renameField">

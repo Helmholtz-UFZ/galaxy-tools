@@ -1264,9 +1264,7 @@ def get_methods_conditional(methods, module_name, module, tracing=False):
     for method_obj in filtered_methods:
         method_name = method_obj.__name__
         method_when = When(value=method_name)
-        params = get_method_params(method_obj, module, tracing=tracing)
-        for p in params:
-            method_when.append(p)
+        method_when.extend(get_method_params(method_obj, module, tracing=tracing))
         method_conditional.append(method_when)
 
     return methods_help, method_conditional

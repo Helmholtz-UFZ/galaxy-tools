@@ -119,6 +119,7 @@ def _get_doc(doc_str: Optional[str]) -> str:
         .replace(":py:meth:", "")
     )
     doc_str = re.sub(r".. doctest:: (\w+).*", r"\1::", doc_str)
+    doc_str = re.sub(r".. doctest::$", "Example::", doc_str, flags= re.MULTILINE)
 
     doc_str_lines = doc_str.splitlines()
     if len(doc_str_lines) > 0:

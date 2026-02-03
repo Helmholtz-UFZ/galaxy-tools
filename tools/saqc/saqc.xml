@@ -1699,13 +1699,13 @@ Some examples of meaningful driftmodels.
 
 Linear drift modell (no free parameters).
 
-.. doctest::
+Example::
 
     >>> Model = lambda t, origin, target: origin + t*target
 
 exponential drift model (exponential raise!)
 
-.. doctest::
+Example::
 
     >>> expFunc = lambda t, a, b, c: a + b * (np.exp(c * x) - 1)
     >>> Model = lambda t, p, origin, target: expFunc(t, (target - origin) / (np.exp(abs(c)) - 1), abs(c))
@@ -4187,21 +4187,21 @@ Single digit specifications have to be given with leading zeros.
 The highest date unit gives the period.
 For example:
 
-.. doctest::
+Example::
 
    >>> start = "01T15:00:00"
    >>> end = "13T17:30:00"
 
 Will result in all values sampled between 15:00 at the first and  17:30 at the 13th of every month get masked
 
-.. doctest::
+Example::
 
    >>> start = "01:00"
    >>> end = "04:00"
 
 All the values between the first and 4th minute of every hour get masked.
 
-.. doctest::
+Example::
 
    >>> start = "01-01T00:00:00"
    >>> end = "01-03T00:00:00"
@@ -4209,7 +4209,7 @@ All the values between the first and 4th minute of every hour get masked.
 Mask january and february of evcomprosed in theery year. masking is inclusive always, so in this case the mask will
 include 00:00:00 at the first of march. To exclude this one, pass:
 
-.. doctest::
+Example::
 
    >>> start = "01-01T00:00:00"
    >>> end = "02-28T23:59:59"

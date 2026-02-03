@@ -6,9 +6,9 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[MeshMapping --version]]></version_command>
-  <command><![CDATA[for i in $mesh; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $raster; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$mesh" != "None" ] && [ ! -e '${$mesh.element_identifier}' ]; then ln -s '$mesh' '${$mesh.element_identifier}'; fi;
+if [ "$raster" != "None" ] && [ ! -e '${$raster.element_identifier}' ]; then ln -s '$raster' '${$raster.element_identifier}'; fi;
+if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
 MeshMapping
     $lowpass
 #if str($static).strip() != 'None' and str($static).strip() != '':

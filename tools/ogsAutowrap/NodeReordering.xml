@@ -6,7 +6,7 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[NodeReordering --version]]></version_command>
-  <command><![CDATA[for i in $input_mesh; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$input_mesh" != "None" ] && [ ! -e '${$input_mesh.element_identifier}' ]; then ln -s '$input_mesh' '${$input_mesh.element_identifier}'; fi;
 NodeReordering
     --method '$method'
     --input_mesh '$input_mesh.element_identifier'

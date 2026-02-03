@@ -6,7 +6,7 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[BinaryToPVTU --version]]></version_command>
-  <command><![CDATA[for i in $mesh_input_file_base; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$mesh_input_file_base" != "None" ] && [ ! -e '${$mesh_input_file_base.element_identifier}' ]; then ln -s '$mesh_input_file_base' '${$mesh_input_file_base.element_identifier}'; fi;
 BinaryToPVTU
     --mesh-input-file-base '$mesh_input_file_base.element_identifier'
     --output '$output']]></command>

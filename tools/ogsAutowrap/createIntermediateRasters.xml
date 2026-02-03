@@ -6,8 +6,8 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[createIntermediateRasters --version]]></version_command>
-  <command><![CDATA[for i in $file2; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $file1; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$file2" != "None" ] && [ ! -e '${$file2.element_identifier}' ]; then ln -s '$file2' '${$file2.element_identifier}'; fi;
+if [ "$file1" != "None" ] && [ ! -e '${$file1.element_identifier}' ]; then ln -s '$file1' '${$file1.element_identifier}'; fi;
 createIntermediateRasters
 #if str($number).strip() != 'None' and str($number).strip() != '':
     --number '$number'

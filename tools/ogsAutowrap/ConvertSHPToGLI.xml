@@ -6,7 +6,7 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[ConvertSHPToGLI --version]]></version_command>
-  <command><![CDATA[for i in $shape_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$shape_file" != "None" ] && [ ! -e '${$shape_file.element_identifier}' ]; then ln -s '$shape_file' '${$shape_file.element_identifier}'; fi;
 ConvertSHPToGLI
     --shape-file '$shape_file.element_identifier']]></command>
   <inputs>

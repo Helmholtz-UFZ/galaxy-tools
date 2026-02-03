@@ -6,8 +6,8 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[IntegrateBoreholesIntoMesh --version]]></version_command>
-  <command><![CDATA[for i in $geo; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$geo" != "None" ] && [ ! -e '${$geo.element_identifier}' ]; then ln -s '$geo' '${$geo.element_identifier}'; fi;
+if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
 IntegrateBoreholesIntoMesh
 #if str($max_elevation).strip() != 'None' and str($max_elevation).strip() != '':
     --max-elevation '$max_elevation'

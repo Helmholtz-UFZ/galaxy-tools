@@ -6,8 +6,8 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[constructMeshesFromGeometry --version]]></version_command>
-  <command><![CDATA[for i in $geometry; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $mesh; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$geometry" != "None" ] && [ ! -e '${$geometry.element_identifier}' ]; then ln -s '$geometry' '${$geometry.element_identifier}'; fi;
+if [ "$mesh" != "None" ] && [ ! -e '${$mesh.element_identifier}' ]; then ln -s '$mesh' '${$mesh.element_identifier}'; fi;
 constructMeshesFromGeometry
 #if str($searchlength).strip() != 'None' and str($searchlength).strip() != '':
     --searchlength '$searchlength'

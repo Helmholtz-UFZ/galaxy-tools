@@ -6,7 +6,7 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[RemoveGhostData --version]]></version_command>
-  <command><![CDATA[for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
 RemoveGhostData
     --input '$input.element_identifier'
     --output output_1.vtu]]></command>

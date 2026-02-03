@@ -6,10 +6,10 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[PVD2XDMF --version]]></version_command>
-  <command><![CDATA[for i in $pvd_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$pvd_file" != "None" ] && [ ! -e '${$pvd_file.element_identifier}' ]; then ln -s '$pvd_file' '${$pvd_file.element_identifier}'; fi;
 PVD2XDMF
-    $pvd_file.element_identifier
-    --output-directory output_1.vtu]]></command>
+    '$pvd_file.element_identifier'
+    --output-directory output_1.data]]></command>
   <inputs>
     <param name="pvd_file" type="data" optional="false" label="pvd file" help="Input (.pvd) file" format="vtkxml" multiple="false"/>
   </inputs>

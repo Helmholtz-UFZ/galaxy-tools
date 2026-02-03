@@ -6,7 +6,7 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[OGS2VTK --version]]></version_command>
-  <command><![CDATA[for i in $mesh_input_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
 OGS2VTK
     --mesh-input-file '$mesh_input_file.element_identifier'
     $ascii_output

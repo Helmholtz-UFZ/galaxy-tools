@@ -6,9 +6,9 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[appendLinesAlongPolyline --version]]></version_command>
-  <command><![CDATA[for i in $mesh_input_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $geo_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $gmsh_path; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
+if [ "$geo_file" != "None" ] && [ ! -e '${$geo_file.element_identifier}' ]; then ln -s '$geo_file' '${$geo_file.element_identifier}'; fi;
+if [ "$gmsh_path" != "None" ] && [ ! -e '${$gmsh_path.element_identifier}' ]; then ln -s '$gmsh_path' '${$gmsh_path.element_identifier}'; fi;
 appendLinesAlongPolyline
     --mesh-input-file '$mesh_input_file.element_identifier'
     --geo-file '$geo_file.element_identifier'

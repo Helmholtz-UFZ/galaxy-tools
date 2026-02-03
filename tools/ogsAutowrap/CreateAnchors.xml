@@ -6,8 +6,8 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[CreateAnchors --version]]></version_command>
-  <command><![CDATA[for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $json_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
+if [ "$json_file" != "None" ] && [ ! -e '${$json_file.element_identifier}' ]; then ln -s '$json_file' '${$json_file.element_identifier}'; fi;
 CreateAnchors
     --input '$input.element_identifier'
     --json-file '$json_file.element_identifier'

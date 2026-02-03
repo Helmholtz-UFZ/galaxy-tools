@@ -6,7 +6,7 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[Raster2PointCloud --version]]></version_command>
-  <command><![CDATA[for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
 Raster2PointCloud
 #if str($gamma).strip() != 'None' and str($gamma).strip() != '':
     --gamma '$gamma'

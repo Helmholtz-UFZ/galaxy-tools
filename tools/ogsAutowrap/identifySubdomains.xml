@@ -6,15 +6,15 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[identifySubdomains --version]]></version_command>
-  <command><![CDATA[for i in $mesh; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$mesh" != "None" ] && [ ! -e '${$mesh.element_identifier}' ]; then ln -s '$mesh' '${$mesh.element_identifier}'; fi;
 identifySubdomains
     $force
 #if str($searchlength).strip() != 'None' and str($searchlength).strip() != '':
     --searchlength '$searchlength'
 #end if
     --mesh '$mesh.element_identifier'
-    $subdomain_meshes_filenames
-    --output_prefix output_]]></command>
+    '$subdomain_meshes_filenames'
+    --output_prefix output_1.data]]></command>
   <inputs>
     <param name="force" type="boolean" label="force" help="Overwriting existing subdomain meshes." checked="false" truevalue="--force" falsevalue=""/>
     <param name="searchlength" type="float" value="1e-16" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number (min = 0)" min="0"/>

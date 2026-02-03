@@ -6,7 +6,7 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[geometryToGmshGeo --version]]></version_command>
-  <command><![CDATA[for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
 geometryToGmshGeo
     --input '$input.element_identifier'
 #if str($max_points_in_quadtree_leaf).strip() != 'None' and str($max_points_in_quadtree_leaf).strip() != '':

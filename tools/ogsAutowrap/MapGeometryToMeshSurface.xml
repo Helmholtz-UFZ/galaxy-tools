@@ -6,8 +6,8 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[MapGeometryToMeshSurface --version]]></version_command>
-  <command><![CDATA[for i in $mesh_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $input_geometry; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$mesh_file" != "None" ] && [ ! -e '${$mesh_file.element_identifier}' ]; then ln -s '$mesh_file' '${$mesh_file.element_identifier}'; fi;
+if [ "$input_geometry" != "None" ] && [ ! -e '${$input_geometry.element_identifier}' ]; then ln -s '$input_geometry' '${$input_geometry.element_identifier}'; fi;
 MapGeometryToMeshSurface
     --mesh-file '$mesh_file.element_identifier'
     --input-geometry '$input_geometry.element_identifier'

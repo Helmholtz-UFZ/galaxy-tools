@@ -6,7 +6,7 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[queryMesh --version]]></version_command>
-  <command><![CDATA[for i in $mesh_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$mesh_file" != "None" ] && [ ! -e '${$mesh_file.element_identifier}' ]; then ln -s '$mesh_file' '${$mesh_file.element_identifier}'; fi;
 queryMesh
 #if str($element_id).strip() != 'None' and str($element_id).strip() != '':
     --element-id '$element_id'
@@ -15,7 +15,7 @@ queryMesh
     --node-id '$node_id'
 #end if
     $show_node_with_max_elements
-    $mesh_file.element_identifier]]></command>
+    '$mesh_file.element_identifier']]></command>
   <inputs>
     <param name="element_id" type="integer" value="ELEMENT_ID" optional="true" label="element id" help="element ID" min="0"/>
     <param name="node_id" type="integer" value="NODE_ID" optional="true" label="node id" help="node ID" min="0"/>

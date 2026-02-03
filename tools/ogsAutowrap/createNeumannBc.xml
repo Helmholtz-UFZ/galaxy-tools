@@ -6,7 +6,7 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[createNeumannBc --version]]></version_command>
-  <command><![CDATA[for i in $in_mesh; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$in_mesh" != "None" ] && [ ! -e '${$in_mesh.element_identifier}' ]; then ln -s '$in_mesh' '${$in_mesh.element_identifier}'; fi;
 createNeumannBc
     --in-mesh '$in_mesh.element_identifier'
     --property-in-name '$property_in_name'

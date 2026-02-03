@@ -6,7 +6,7 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[OGSFileConverter --version]]></version_command>
-  <command><![CDATA[for i in $gmsh_path; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$gmsh_path" != "None" ] && [ ! -e '${$gmsh_path.element_identifier}' ]; then ln -s '$gmsh_path' '${$gmsh_path.element_identifier}'; fi;
 OGSFileConverter
 #if str($gmsh_path).strip() != 'None' and str($gmsh_path).strip() != '':
     --gmsh-path '$gmsh_path.element_identifier'

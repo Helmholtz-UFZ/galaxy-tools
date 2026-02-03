@@ -6,8 +6,8 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[createMeshElemPropertiesFromASCRaster --version]]></version_command>
-  <command><![CDATA[for i in $raster_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $mesh; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$raster_file" != "None" ] && [ ! -e '${$raster_file.element_identifier}' ]; then ln -s '$raster_file' '${$raster_file.element_identifier}'; fi;
+if [ "$mesh" != "None" ] && [ ! -e '${$mesh.element_identifier}' ]; then ln -s '$mesh' '${$mesh.element_identifier}'; fi;
 createMeshElemPropertiesFromASCRaster
     $output_refined_raster
 #if str($refine).strip() != 'None' and str($refine).strip() != '':

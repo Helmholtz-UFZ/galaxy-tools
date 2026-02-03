@@ -6,8 +6,8 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[AssignRasterDataToMesh --version]]></version_command>
-  <command><![CDATA[for i in $raster; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$raster" != "None" ] && [ ! -e '${$raster.element_identifier}' ]; then ln -s '$raster' '${$raster.element_identifier}'; fi;
+if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
 AssignRasterDataToMesh
 #if str($nodata).strip() != 'None' and str($nodata).strip() != '':
     --nodata '$nodata'

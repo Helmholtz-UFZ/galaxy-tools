@@ -6,8 +6,8 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[AddFaultToVoxelGrid --version]]></version_command>
-  <command><![CDATA[for i in $fault; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$fault" != "None" ] && [ ! -e '${$fault.element_identifier}' ]; then ln -s '$fault' '${$fault.element_identifier}'; fi;
+if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
 AddFaultToVoxelGrid
 #if str($material).strip() != 'None' and str($material).strip() != '':
     --material '$material'

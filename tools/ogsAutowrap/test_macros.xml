@@ -21,7 +21,7 @@
     <xml name="identifysubdomains_test">
         <test>
             <param name="mesh" value="2D_mesh.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/MeshGeoToolsLib/IdentifySubdomains/2D_mesh.vtu" ftype="vtkxml" />
-            <param name="subdomain_meshes_filenames" value="2D_mesh_top_boundary.vtu 2D_mesh_bottom_boundary.vtu" />
+            <param name="subdomain_meshes_filenames" value="-o" />
             <output name="output_identifySubdomains" file="new_2D_mesh_top_boundary.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/MeshGeoToolsLib/IdentifySubdomains/2D_mesh_top.vtu" ftype="vtkxml" compare="sim_size" delta="500" />
         </test>
     </xml>
@@ -79,6 +79,7 @@
     <xml name="netcdfconverter_test">
         <test>
             <param name="input" value="sresa1b_ncar_ccsm3-example.nc" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/FileConverter/sresa1b_ncar_ccsm3-example.nc" ftype="data" />
+            <param name="getProperties" value="-o" />
             <param name="var" value="pr" />
             <param name="time" value="0" />
             <param name="dim1" value="2" />

@@ -6,11 +6,11 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[checkMesh --version]]></version_command>
-  <command><![CDATA[for i in $mesh_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$mesh_file" != "None" ] && [ ! -e '${$mesh_file.element_identifier}' ]; then ln -s '$mesh_file' '${$mesh_file.element_identifier}'; fi;
 checkMesh
     $validation
     $print_properties
-    $mesh_file.element_identifier]]></command>
+    '$mesh_file.element_identifier']]></command>
   <inputs>
     <param name="validation" type="boolean" label="validation" help="validate the mesh" checked="false" truevalue="--validation" falsevalue=""/>
     <param name="print_properties" type="boolean" label="print properties" help="print properties stored in the mesh" checked="false" truevalue="--print_properties" falsevalue=""/>

@@ -6,8 +6,8 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[PartitionMesh --version]]></version_command>
-  <command><![CDATA[for i in $mesh_input_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $metis_mesh_input_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
+if [ "$metis_mesh_input_file" != "None" ] && [ ! -e '${$metis_mesh_input_file.element_identifier}' ]; then ln -s '$metis_mesh_input_file' '${$metis_mesh_input_file.element_identifier}'; fi;
 PartitionMesh
     --mesh-input-file '$mesh_input_file.element_identifier'
 #if str($metis_mesh_input_file).strip() != 'None' and str($metis_mesh_input_file).strip() != '':
@@ -19,9 +19,9 @@ PartitionMesh
     $ogs2metis
     $exe_metis
 #if str($other_meshes_filenames).strip() != 'None' and str($other_meshes_filenames).strip() != '':
-    $other_meshes_filenames
+    '$other_meshes_filenames'
 #end if
-    --output output_1.vtu]]></command>
+    --output output_1.data]]></command>
   <inputs>
     <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtkxml" multiple="false"/>
     <param name="metis_mesh_input_file" type="data" optional="true" label="metis mesh input file" help="Input (.mesh). Base name (without .mesh extension) of the file containing the metis input mesh" format="data" multiple="true"/>

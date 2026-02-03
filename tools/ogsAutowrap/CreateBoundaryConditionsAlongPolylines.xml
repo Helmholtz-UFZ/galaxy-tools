@@ -6,9 +6,9 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[CreateBoundaryConditionsAlongPolylines --version]]></version_command>
-  <command><![CDATA[for i in $input_geometry; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $mesh_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $gmsh_path; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$input_geometry" != "None" ] && [ ! -e '${$input_geometry.element_identifier}' ]; then ln -s '$input_geometry' '${$input_geometry.element_identifier}'; fi;
+if [ "$mesh_file" != "None" ] && [ ! -e '${$mesh_file.element_identifier}' ]; then ln -s '$mesh_file' '${$mesh_file.element_identifier}'; fi;
+if [ "$gmsh_path" != "None" ] && [ ! -e '${$gmsh_path.element_identifier}' ]; then ln -s '$gmsh_path' '${$gmsh_path.element_identifier}'; fi;
 CreateBoundaryConditionsAlongPolylines
     $gml
     --type '$type'
@@ -20,7 +20,7 @@ CreateBoundaryConditionsAlongPolylines
 #if str($gmsh_path).strip() != 'None' and str($gmsh_path).strip() != '':
     --gmsh-path '$gmsh_path.element_identifier'
 #end if
-    --output-base-file-name output_]]></command>
+    --output-base-file-name output_1.geometry (gli]]></command>
   <inputs>
     <param name="gml" type="boolean" label="gml" help="Write found nodes to gml file." checked="false" truevalue="--gml" falsevalue=""/>
     <param name="type" type="select" label="type" help="the process type the boundary condition will be written for currently LIQUID_FLOW (primary variable PRESSURE1) and GROUNDWATER_FLOW (primary variable HEAD, default) are supported,">

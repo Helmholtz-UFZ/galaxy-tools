@@ -6,9 +6,9 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[ResetPropertiesInPolygonalRegion --version]]></version_command>
-  <command><![CDATA[for i in $geometry; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $mesh_input_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $gmsh_path; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$geometry" != "None" ] && [ ! -e '${$geometry.element_identifier}' ]; then ln -s '$geometry' '${$geometry.element_identifier}'; fi;
+if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
+if [ "$gmsh_path" != "None" ] && [ ! -e '${$gmsh_path.element_identifier}' ]; then ln -s '$gmsh_path' '${$gmsh_path.element_identifier}'; fi;
 ResetPropertiesInPolygonalRegion
     --polygon-name '$polygon_name'
     --geometry '$geometry.element_identifier'
@@ -29,7 +29,7 @@ ResetPropertiesInPolygonalRegion
 #if str($gmsh_path).strip() != 'None' and str($gmsh_path).strip() != '':
     --gmsh-path '$gmsh_path.element_identifier'
 #end if
-    --mesh-output-file output_1.vtu]]></command>
+    --mesh-output-file output_1.data]]></command>
   <inputs>
     <param name="polygon_name" type="text" optional="false" label="polygon name" help="polygon in the geometry"/>
     <param name="geometry" type="data" optional="false" label="geometry" help="Input (.gli | .gml). the file containing the input geometry" format="xml" multiple="false"/>
@@ -42,7 +42,7 @@ ResetPropertiesInPolygonalRegion
     <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input binary" format="xml" multiple="false"/>
   </inputs>
   <outputs>
-    <data name="output_ResetPropertiesInPolygonalRegion" format="data" label="Output file from ResetPropertiesInPolygonalRegion" from_work_dir="output_1.vtu" hidden="false"/>
+    <data name="output_ResetPropertiesInPolygonalRegion" format="data" label="Output file from ResetPropertiesInPolygonalRegion" from_work_dir="output_1.data" hidden="false"/>
   </outputs>
   <tests>
     <expand macro="resetpropertiesinpolygonalregion_test"/>

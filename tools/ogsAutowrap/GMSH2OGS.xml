@@ -6,7 +6,7 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[GMSH2OGS --version]]></version_command>
-  <command><![CDATA[for i in $in; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$in" != "None" ] && [ ! -e '${$in.element_identifier}' ]; then ln -s '$in' '${$in.element_identifier}'; fi;
 GMSH2OGS
     --in '$in.element_identifier'
     $validation

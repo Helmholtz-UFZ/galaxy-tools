@@ -6,7 +6,7 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[convertVtkDataArrayToVtkDataArray --version]]></version_command>
-  <command><![CDATA[for i in $in_mesh; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$in_mesh" != "None" ] && [ ! -e '${$in_mesh.element_identifier}' ]; then ln -s '$in_mesh' '${$in_mesh.element_identifier}'; fi;
 convertVtkDataArrayToVtkDataArray
     --new-property-data-type '$new_property_data_type'
 #if str($new_property_name).strip() != 'None' and str($new_property_name).strip() != '':

@@ -6,8 +6,8 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[MergeMeshToBulkMesh --version]]></version_command>
-  <command><![CDATA[for i in $bulk_mesh_input_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
-for i in $mesh_input_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$bulk_mesh_input_file" != "None" ] && [ ! -e '${$bulk_mesh_input_file.element_identifier}' ]; then ln -s '$bulk_mesh_input_file' '${$bulk_mesh_input_file.element_identifier}'; fi;
+if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
 MergeMeshToBulkMesh
     --bulk-mesh-input-file '$bulk_mesh_input_file.element_identifier'
     --mesh-input-file '$mesh_input_file.element_identifier'

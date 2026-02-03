@@ -6,7 +6,7 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[FEFLOW2OGS --version]]></version_command>
-  <command><![CDATA[for i in $in; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$in" != "None" ] && [ ! -e '${$in.element_identifier}' ]; then ln -s '$in' '${$in.element_identifier}'; fi;
 FEFLOW2OGS
     --in '$in.element_identifier'
     --out output_1.if extension is msh, old ogs file format is written]]></command>

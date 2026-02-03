@@ -6,7 +6,7 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[generateMatPropsFromMatID --version]]></version_command>
-  <command><![CDATA[for i in $mesh; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$mesh" != "None" ] && [ ! -e '${$mesh.element_identifier}' ]; then ln -s '$mesh' '${$mesh.element_identifier}'; fi;
 generateMatPropsFromMatID
 #if str($mesh).strip() != 'None' and str($mesh).strip() != '':
     --mesh '$mesh.element_identifier'

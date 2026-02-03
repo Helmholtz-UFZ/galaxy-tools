@@ -6,7 +6,7 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[reviseMesh --version]]></version_command>
-  <command><![CDATA[for i in $input_mesh_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$input_mesh_file" != "None" ] && [ ! -e '${$input_mesh_file.element_identifier}' ]; then ln -s '$input_mesh_file' '${$input_mesh_file.element_identifier}'; fi;
 reviseMesh
 #if str($min_ele_dim).strip() != 'None' and str($min_ele_dim).strip() != '':
     --min-ele-dim '$min_ele_dim'

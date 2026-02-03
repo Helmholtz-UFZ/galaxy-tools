@@ -6,11 +6,11 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[ComputeNodeAreasFromSurfaceMesh --version]]></version_command>
-  <command><![CDATA[for i in $mesh_input_file; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
 ComputeNodeAreasFromSurfaceMesh
     --mesh-input-file '$mesh_input_file.element_identifier'
     --id-prop-name '$id_prop_name'
-    --output-base-name output_]]></command>
+    --output-base-name output_1.csv]]></command>
   <inputs>
     <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtkxml" multiple="false"/>
     <param name="id_prop_name" type="select" label="id prop name" help="the property containing the id information">

@@ -6,13 +6,13 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[NetCdfConverter --version]]></version_command>
-  <command><![CDATA[for i in $input; do if [ "$i" != "None" ] && [ ! -e "$(basename $i)" ]; then ln -s "$i" "$(basename $i)"; fi; done;
+  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
 NetCdfConverter
 #if str($TCLAP_ValueArg_std_size_t_arg_time_start).strip() != 'None' and str($TCLAP_ValueArg_std_size_t_arg_time_start).strip() != '':
     --TCLAP::ValueArg<std::size_t>& arg_time_start '$TCLAP_ValueArg_std_size_t_arg_time_start'
 #end if
 #if str($getProperties).strip() != 'None' and str($getProperties).strip() != '':
-    $getProperties
+    '$getProperties'
 #end if
 #if str($nodata).strip() != 'None' and str($nodata).strip() != '':
     --nodata '$nodata'

@@ -1,5 +1,9 @@
-<tool id="xlsx2tsv" name="Excel to Tabular" version="0.1.0+galaxy0" license="MIT" profile = "23.0">
+<tool id="xlsx2tsv" name="Excel to Tabular" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" license="MIT" profile = "25.1">
     <description>with pandas</description>
+    <macros>
+        <token name="@TOOL_VERSION@">1.1.0</token>
+        <token name="@VERSION_SUFFIX@">1</token>
+    </macros>
     <requirements>
         <requirement type="package" version="2.2.1">pandas</requirement>
         <requirement type="package" version="3.1.5">openpyxl</requirement>

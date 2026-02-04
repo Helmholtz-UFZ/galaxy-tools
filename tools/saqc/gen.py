@@ -784,6 +784,28 @@ def _get_user_friendly_type_name(type_str: str) -> str:
     return clean
 
 
+def _clean_types(type_parts: list[str], module_name: str, method_name: str, param_name: str) -> list[str]:
+    # remove
+    # - dict
+    # - slice https://git.ufz.de/rdm-software/saqc/-/issues/522 (which is currently the only occurence)
+    # - None (this is covered by making the corresponding input optional)
+    # - types that are included again as list[type]
+    type_parts_cleaned = []
+    for p in type_parts:
+        if p.lower() == "dict":
+            continue
+        elif p.lower() == "slice":
+            sys.stderr.write(f"Info: Ignoring type {p} in {module_name}|{method_name}|{param_name}")
+            continue
+        elif p == "None":
+            continue
+        elif f"list[{p}]" in type_parts:
+            sys.stderr.write(f"Info: Ignoring type {p} in {module_name}|{method_name}|{param_name} because list[{p}] is also there\n")
+            continue
+        type_parts_cleaned.append(p)
+    return type_parts_cleaned
+
+
 def _parse_parameter_annotation(
     param: inspect.Parameter, module_name: str, method_name: str
 ) -> Tuple[str, list[str], bool]:
@@ -818,24 +840,7 @@ def _parse_parameter_annotation(
 
     is_truly_optional = is_default_none or is_optional_by_none
 
-    # remove
-    # - dict
-    # - slice https://git.ufz.de/rdm-software/saqc/-/issues/522 (which is currently the only occurence)
-    # - None (this is covered by making the corresponding input optional)
-    # - types that are included again as list[type]
-    type_parts_cleaned = []
-    for p in type_parts:
-        if p.lower() == "dict":
-            continue
-        elif p.lower() == "slice":
-            sys.stderr.write(f"Info: Ignoring type {p} in {module_name}|{method_name}|{param.name}")
-            continue
-        elif p == "None":
-            continue
-        elif f"list[{p}]" in type_parts:
-            sys.stderr.write(f"Info: Ignoring type {p} in {module_name}|{method_name}|{param.name} because list[{p}] is also there\n")
-            continue
-        type_parts_cleaned.append(p)
+    type_parts_cleaned = _clean_types(type_parts, module_name, method_name, param.name)
 
     if not type_parts_cleaned:
         sys.stderr.write(
@@ -1449,7 +1454,7 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
     return "a_string"
 
 
-def generate_test_variants(method: Callable, module: "ModuleType") -> list:
+def generate_test_variants(method: Callable, method_name: str, module: "ModuleType", module_name: str) -> list:
     variants = []
     base_params = {}
     complex_params = {}
@@ -1515,13 +1520,8 @@ def generate_test_variants(method: Callable, module: "ModuleType") -> list:
         else:
             type_parts = _split_type_string_safely(raw_annotation_str)
 
-        type_parts_without_none = [p for p in type_parts if p.strip() != 'None']
-
-        type_parts_cleaned = [
-            p for p in type_parts_without_none
-            if p.lower() not in ('dict', 'dictionary')
-        ]
-        if not type_parts_cleaned and type_parts_without_none:
+        type_parts_cleaned = _clean_types(type_parts, module_name, method_name, param.name)
+        if not type_parts_cleaned:
             continue
 
         is_all_saqc_fields = False
@@ -1661,11 +1661,7 @@ def generate_test_macros():
                 continue
 
             method_name = method.__name__
-            try:
-                test_variants = generate_test_variants(method, module_obj)
-            except Exception as e:
-                print(f"Error generating variants for {method_name}: {e}", file=sys.stderr)
-                continue
+            test_variants = generate_test_variants(method, method_name, module_obj, module_name)
 
             for variant in test_variants:
                 expect_num_outputs = "2"

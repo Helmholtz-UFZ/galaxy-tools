@@ -1809,7 +1809,6 @@
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
             <param name="fill_na" value="true" />
-            <param name="statistical_extent" value="1" />
             <conditional name="density_cond">
               <param name="density_selector" value="type_0" />
               <param name="density" value="auto" />
@@ -1836,7 +1835,6 @@
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
             <param name="fill_na" value="true" />
-            <param name="statistical_extent" value="1" />
             <conditional name="density_cond">
               <param name="density_selector" value="type_1" />
               <param name="density" value="1" />
@@ -1920,6 +1918,10 @@
             <param name="field" value="1" />
             <param name="path" value="a_string" />
             <param name="max_gap" value="1D" />
+            <repeat name="yscope">
+              <param name="yscope_min" value="0.0" />
+              <param name="yscope_max" value="1.0" />
+            </repeat>
             <param name="dfilter" value="1" />
             <conditional name="mode_cond">
               <param name="mode_selector" value="type_0" />
@@ -1931,15 +1933,7 @@
             </conditional>
             <conditional name="xscope_cond">
               <param name="xscope_selector" value="type_0" />
-              <param name="xscope_start" value="0" />
-              <param name="xscope_end" value="10" />
-            </conditional>
-            <conditional name="yscope_cond">
-              <param name="yscope_selector" value="type_0" />
-              <repeat name="yscope">
-                <param name="yscope_min" value="0.0" />
-                <param name="yscope_max" value="1.0" />
-              </repeat>
+              <param name="xscope" value="1D" />
             </conditional>
           </conditional>
         </conditional>
@@ -1961,6 +1955,10 @@
             <param name="field" value="1" />
             <param name="path" value="a_string" />
             <param name="max_gap" value="1D" />
+            <repeat name="yscope">
+              <param name="yscope_min" value="0.0" />
+              <param name="yscope_max" value="1.0" />
+            </repeat>
             <param name="dfilter" value="1" />
             <conditional name="mode_cond">
               <param name="mode_selector" value="type_1" />
@@ -1972,15 +1970,7 @@
             </conditional>
             <conditional name="xscope_cond">
               <param name="xscope_selector" value="type_0" />
-              <param name="xscope_start" value="0" />
-              <param name="xscope_end" value="10" />
-            </conditional>
-            <conditional name="yscope_cond">
-              <param name="yscope_selector" value="type_0" />
-              <repeat name="yscope">
-                <param name="yscope_min" value="0.0" />
-                <param name="yscope_max" value="1.0" />
-              </repeat>
+              <param name="xscope" value="1D" />
             </conditional>
           </conditional>
         </conditional>
@@ -2002,6 +1992,10 @@
             <param name="field" value="1" />
             <param name="path" value="a_string" />
             <param name="max_gap" value="1D" />
+            <repeat name="yscope">
+              <param name="yscope_min" value="0.0" />
+              <param name="yscope_max" value="1.0" />
+            </repeat>
             <param name="dfilter" value="1" />
             <conditional name="mode_cond">
               <param name="mode_selector" value="type_0" />
@@ -2013,15 +2007,7 @@
             </conditional>
             <conditional name="xscope_cond">
               <param name="xscope_selector" value="type_0" />
-              <param name="xscope_start" value="0" />
-              <param name="xscope_end" value="10" />
-            </conditional>
-            <conditional name="yscope_cond">
-              <param name="yscope_selector" value="type_0" />
-              <repeat name="yscope">
-                <param name="yscope_min" value="0.0" />
-                <param name="yscope_max" value="1.0" />
-              </repeat>
+              <param name="xscope" value="1D" />
             </conditional>
           </conditional>
         </conditional>
@@ -2043,6 +2029,10 @@
             <param name="field" value="1" />
             <param name="path" value="a_string" />
             <param name="max_gap" value="1D" />
+            <repeat name="yscope">
+              <param name="yscope_min" value="0.0" />
+              <param name="yscope_max" value="1.0" />
+            </repeat>
             <param name="dfilter" value="1" />
             <conditional name="mode_cond">
               <param name="mode_selector" value="type_0" />
@@ -2054,93 +2044,7 @@
             </conditional>
             <conditional name="xscope_cond">
               <param name="xscope_selector" value="type_1" />
-              <param name="xscope" value="1D" />
-            </conditional>
-            <conditional name="yscope_cond">
-              <param name="yscope_selector" value="type_0" />
-              <repeat name="yscope">
-                <param name="yscope_min" value="0.0" />
-                <param name="yscope_max" value="1.0" />
-              </repeat>
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="plot" />
-        </assert_contents>
-      </output>
-    </test>
-    <test expect_num_outputs="3">
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="tools" />
-          <conditional name="method_cond">
-            <param name="method_select" value="plot" />
-            <param name="field" value="1" />
-            <param name="path" value="a_string" />
-            <param name="max_gap" value="1D" />
-            <param name="dfilter" value="1" />
-            <conditional name="mode_cond">
-              <param name="mode_selector" value="type_0" />
-              <param name="mode" value="subplots" />
-            </conditional>
-            <conditional name="history_cond">
-              <param name="history_selector" value="type_0" />
-              <param name="history" value="valid" />
-            </conditional>
-            <conditional name="xscope_cond">
-              <param name="xscope_selector" value="type_2" />
               <param name="xscope" value="a_string" />
-            </conditional>
-            <conditional name="yscope_cond">
-              <param name="yscope_selector" value="type_0" />
-              <repeat name="yscope">
-                <param name="yscope_min" value="0.0" />
-                <param name="yscope_max" value="1.0" />
-              </repeat>
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="plot" />
-        </assert_contents>
-      </output>
-    </test>
-    <test expect_num_outputs="3">
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="tools" />
-          <conditional name="method_cond">
-            <param name="method_select" value="plot" />
-            <param name="field" value="1" />
-            <param name="path" value="a_string" />
-            <param name="max_gap" value="1D" />
-            <param name="dfilter" value="1" />
-            <conditional name="mode_cond">
-              <param name="mode_selector" value="type_0" />
-              <param name="mode" value="subplots" />
-            </conditional>
-            <conditional name="history_cond">
-              <param name="history_selector" value="type_0" />
-              <param name="history" value="valid" />
-            </conditional>
-            <conditional name="xscope_cond">
-              <param name="xscope_selector" value="type_0" />
-              <param name="xscope_start" value="0" />
-              <param name="xscope_end" value="10" />
-            </conditional>
-            <conditional name="yscope_cond">
-              <param name="yscope_selector" value="type_1" />
-              <param name="yscope_min" value="0.0" />
-              <param name="yscope_max" value="1.0" />
             </conditional>
           </conditional>
         </conditional>

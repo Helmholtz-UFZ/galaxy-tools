@@ -44,6 +44,7 @@ from saqc.lib import types as saqc_types
 
 if TYPE_CHECKING:
     from types import ModuleType
+    from galaxyxml.tool.parameters import InputParameter
 
 TRACING_DATA = []
 
@@ -514,7 +515,7 @@ def is_parameter_deprecated(param_docs: Dict[str, str], param_name: str) -> bool
     return is_deprecated
 
 
-def _create_param_from_type_str(type_str: str, param_name: str, param_constructor_args: dict, is_optional: bool, param_docs: dict[str, str]) -> Optional[object]:
+def _create_param_from_type_str(type_str: str, param_name: str, param_constructor_args: dict, is_optional: bool, param_docs: dict[str, str]) -> "InputParameter":
 
     pattern_offset = r"\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*"
 
@@ -702,6 +703,8 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
             if not is_optional:
                 param_object.append(ValidatorParam(type="empty_field"))
 
+    assert param_object, f"Could not create parameter {param_name} of {base_type_str=}"
+
     return param_object
 
 
@@ -817,14 +820,22 @@ def _parse_parameter_annotation(
 
     # remove
     # - dict
+    # - slice https://git.ufz.de/rdm-software/saqc/-/issues/522 (which is currently the only occurence)
     # - None (this is covered by making the corresponding input optional)
     # - types that are included again as list[type]
-    type_parts_cleaned = [
-        p
-        for p in type_parts
-        if p.lower() not in ("dict") and p != "None" and f"list[{p}]" not in type_parts
-
-    ]
+    type_parts_cleaned = []
+    for p in type_parts:
+        if p.lower() == "dict":
+            continue
+        elif p.lower() == "slice":
+            sys.stderr.write(f"Info: Ignoring type {p} in {module_name}|{method_name}|{param.name}")
+            continue
+        elif p == "None":
+            continue
+        elif f"list[{p}]" in type_parts:
+            sys.stderr.write(f"Info: Ignoring type {p} in {module_name}|{method_name}|{param.name} because list[{p}] is also there\n")
+            continue
+        type_parts_cleaned.append(p)
 
     if not type_parts_cleaned:
         sys.stderr.write(
@@ -950,46 +961,11 @@ def _create_parameter_widget(
 
         for i, part_str in enumerate(type_parts_cleaned):
             when = When(value=f"type_{i}")
-
             inner_param_args = {"label": label, "help": help_text, **optional_arg}
-
-            if part_str == "slice":
-                start_param = IntegerParam(
-                    name=f"{param_name}_start",
-                    label=f"{label} (start index)",
-                    min=0,
-                    help="Start index of the slice (e.g., 0).",
-                    **optional_arg,
-                )
-                end_param = IntegerParam(
-                    name=f"{param_name}_end",
-                    label=f"{label} (end index)",
-                    min=0,
-                    help="End index of the slice (exclusive).",
-                    **optional_arg,
-                )
-                when.extend([start_param, end_param])
-            else:
-                inner_param = _create_param_from_type_str(
-                    part_str, param_name, inner_param_args, is_truly_optional, param_docs
-                )
-                if inner_param:
-                    when.append(inner_param)
-                else:
-                    sys.stderr.write(
-                        f"Info ({module.__name__}): Could not create UI element "
-                        f"for type '{part_str}' in Conditional '{param_name}'. "
-                        "Falling back to info text.\n"
-                    )
-                    info_text = TextParam(
-                        name=f"{param_name}_info",
-                        type="text",
-                        value="This type is not usable in Galaxy.",
-                        label="Info",
-                        help="This option is for programmatic use and cannot be set from the UI.",
-                    )
-                    when.append(info_text)
-
+            inner_param = _create_param_from_type_str(
+                part_str, param_name, inner_param_args, is_truly_optional, param_docs
+            )
+            when.append(inner_param)
             conditional.append(when)
         param_object = conditional
 
@@ -1148,26 +1124,6 @@ def get_method_params(method: Callable, module: "ModuleType", tracing=False):
             param_docs,
         )
 
-        if param_object is None and "slice" in type_parts_cleaned:
-            start_param_args = {
-                "name": f"{param_name}_start",
-                "label": f"{param_name}_start",
-                "min": 0,
-                "help": "Start index of the slice (e.g., 0).",
-                **optional_arg,
-            }
-            end_param_args = {
-                "name": f"{param_name}_end",
-                "label": f"{param_name}_end",
-                "min": 0,
-                "help": "End index of the slice (exclusive).",
-                **optional_arg,
-            }
-            start_param = IntegerParam(**start_param_args)
-            end_param = IntegerParam(**end_param_args)
-            xml_params.extend([start_param, end_param])
-            continue
-
         if (
             not param_object
             and not raw_annotation_str.strip()
@@ -1177,7 +1133,7 @@ def get_method_params(method: Callable, module: "ModuleType", tracing=False):
 
         if param_object:
             xml_params.append(param_object)
-        elif raw_annotation_str.strip() and raw_annotation_str.strip() not in ["slice"]:
+        elif raw_annotation_str.strip() and raw_annotation_str.strip():
             sys.stderr.write(
                 f"Info ({module.__name__}): Unhandled annotation for param "
                 f"'{param_name}': '{raw_annotation_str}'. "

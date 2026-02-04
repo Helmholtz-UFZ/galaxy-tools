@@ -1,48 +1,67 @@
-<tool id="xlsx2tsv" name="Excel to Tabular" version="0.1.0+galaxy0" license="MIT" profile = "23.0">
+<tool id="xlsx2tsv" name="Excel to Tabular" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" license="MIT" profile = "25.1">
     <description>with pandas</description>
+    <macros>
+        <token name="@TOOL_VERSION@">0.2.0</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
     <requirements>
         <requirement type="package" version="2.2.1">pandas</requirement>
         <requirement type="package" version="3.1.5">openpyxl</requirement>
     </requirements>
     <command detect_errors="aggressive"><![CDATA[
+    mkdir output;
     python '$__tool_directory__/xlsx2tsv.py'
     --input-file '$input_file'
-    --sheet-names '$sheet_names'
-    --output '$output'
+    #if $sheet_names != ''
+    --sheet_selection '$sheet_names'
+    #end if
+    --out_dir ./output/
     ]]></command>
     <inputs>
         <param name="input_file" type="data" format="excel.xls,xlsx" optional="false" label="Input excel file" help="Input XLS/XLSX file"/>
-        <param name="sheet_names" type="text" optional="false" label="Name of the excel sheet" help="Excel sheet to convert to tsv"/>
+        <param argument="sheet_names" type="text" label="Sheet name" help="Name of the sheet to extract. If left empty all sheets will be extracted into a collection"/>
     </inputs>
     <outputs>
-        <data name="output" format="tabular"/>
+        <collection name="split_output" type="list">
+            <discover_datasets pattern="(?P&lt;designation&gt;.*)\.tsv" directory="output" format="tabular"/>
+        </collection>
     </outputs>
     <tests>
         <test>
             <param name="input_file" value="excel_test.xlsx"/>
             <param name="sheet_names" value="Sheet1"/>
-            <output name="output" value="output_sheet_1.tsv" ftype="tabular">
-                <assert_contents>
+            <output_collection name="split_output" type="list" count="1">
+            <element name="Sheet1">
+                    <assert_contents>
                         <has_text text="column0"/>
                         <has_n_columns n="2"/>
                     </assert_contents>
-                </output>
+            </element>
+            </output_collection>
         </test>
         <test>
             <param name="input_file" value="excel_test.xlsx"/>
-            <param name="sheet_names" value="Sheet2"/>
-            <output name="output" value="output_sheet_2.tsv" ftype="tabular">
-                <assert_contents>
-                    <has_text text="column2"/>
-                    <has_n_columns n="2"/>
-                </assert_contents>
-            </output>
+            <output_collection name="split_output" type="list" count="2">
+            <element name="Sheet1">
+                    <assert_contents>
+                        <has_text text="column0"/>
+                        <has_n_columns n="2"/>
+                    </assert_contents>
+            </element>
+                <element name="Sheet2">
+                    <assert_contents>
+                        <has_text text="column2"/>
+                        <has_n_columns n="2"/>
+                    </assert_contents>
+            </element>
+            </output_collection>
         </test>
     </tests>
     <help>
 Description
 -----------
-Extract a sheet from XLS/XLSX file to a tabular file
+Extract a specific sheet (by name) or all sheets from XLS/XLSX file to a tabular file.
+
     </help>
     <citations>
         <citation type="doi">10.5281/zenodo.13819579</citation>

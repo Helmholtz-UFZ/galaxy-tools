@@ -786,8 +786,9 @@ def _get_user_friendly_type_name(type_str: str) -> str:
 
 def _clean_types(type_parts: list[str], module_name: str, method_name: str, param_name: str) -> list[str]:
     # remove
-    # - dict
-    # - slice https://git.ufz.de/rdm-software/saqc/-/issues/522 (which is currently the only occurence)
+    # - dict 
+    # - slice https://git.ufz.de/rdm-software/saqc/-/issues/522 (which has currently only one occurence)
+    # - mpl.axes.Axes
     # - None (this is covered by making the corresponding input optional)
     # - types that are included again as list[type]
     type_parts_cleaned = []
@@ -795,9 +796,11 @@ def _clean_types(type_parts: list[str], module_name: str, method_name: str, para
         if p.lower() == "dict":
             continue
         elif p.lower() == "slice":
-            sys.stderr.write(f"Info: Ignoring type {p} in {module_name}|{method_name}|{param_name}")
+            sys.stderr.write(f"Info: Ignoring type {p} in {module_name}|{method_name}|{param_name}\n")
             continue
         elif p == "None":
+            continue
+        elif p == "mpl.axes.Axes":
             continue
         elif f"list[{p}]" in type_parts:
             sys.stderr.write(f"Info: Ignoring type {p} in {module_name}|{method_name}|{param_name} because list[{p}] is also there\n")
@@ -1079,9 +1082,6 @@ def get_method_params(method: Callable, module: "ModuleType", tracing=False):
             if func_param_obj:
                 xml_params.append(func_param_obj)
                 continue
-
-        if "mpl.axes.Axes" in raw_annotation_str:
-            continue
 
         if "Sequence[SaQC]" in raw_annotation_str:
             data_param = DataParam(
@@ -1484,9 +1484,6 @@ def generate_test_variants(method: Callable, method_name: str, module: "ModuleTy
 
         if 'Sequence[SaQC]' in raw_annotation_str:
             base_params[param_name] = "test1/data.csv"
-            continue
-
-        if 'mpl.axes.Axes' in raw_annotation_str:
             continue
 
         is_func_name = "func" in param_name.lower()

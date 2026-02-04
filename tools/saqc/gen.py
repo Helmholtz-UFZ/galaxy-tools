@@ -918,28 +918,19 @@ def _create_parameter_widget(
                     "as a Literal option exists in the Union.\n"
                 )
 
-    if len(type_parts_cleaned) == 1:
+    if len(type_parts_cleaned) == 0:
+        sys.stderr.write(
+            f"Info ({module.__name__}.{method.__name__}): parameter '{param_name}' misses type annotation\n"
+        )
+    elif len(type_parts_cleaned) == 1:
         single_type_str = type_parts_cleaned[0]
-        if single_type_str == "slice":
-            return None
-        elif any(
-            func_type in single_type_str
-            for func_type in ["Callable", "CurveFitter", "GenericFunction"]
-        ):
-            local_constructor_args = param_constructor_args.copy()
-            local_constructor_args.pop("optional", None)
-            param_object = TextParam(argument=param_name, **local_constructor_args)
-            if not is_truly_optional:
-                param_object.append(ValidatorParam(type="empty_field"))
-        else:
-            param_object = _create_param_from_type_str(
-                single_type_str, param_name, param_constructor_args, is_truly_optional, param_docs
-            )
-
+        param_object = _create_param_from_type_str(
+            single_type_str, param_name, param_constructor_args, is_truly_optional, param_docs
+        )
     # if there are multiple annotated types we create a conditional that allows the user 
     # to choose how she wants to input the data. has the advantage that we do not need
     # to consider all parameter type combinations
-    elif len(type_parts_cleaned) > 1:
+    else:
         conditional = Conditional(name=f"{param_name}_cond")
 
         type_options = [

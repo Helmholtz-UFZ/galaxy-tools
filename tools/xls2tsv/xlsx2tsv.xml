@@ -2,7 +2,7 @@
     <description>with pandas</description>
     <macros>
         <token name="@TOOL_VERSION@">1.1.0</token>
-        <token name="@VERSION_SUFFIX@">1</token>
+        <token name="@VERSION_SUFFIX@">0</token>
     </macros>
     <requirements>
         <requirement type="package" version="2.2.1">pandas</requirement>
@@ -12,23 +12,12 @@
     mkdir output;
     python '$__tool_directory__/xlsx2tsv.py'
     --input-file '$input_file'
-    #if $sheet_selection.input_sheet == "Yes"
-    --sheet_selection '$sheet_selection.sheet_id'
-    #end if
+    --sheet_selection '$sheet_names'
     --out_dir ./output/
     ]]></command>
     <inputs>
         <param name="input_file" type="data" format="excel.xls,xlsx" optional="false" label="Input excel file" help="Input XLS/XLSX file"/>
-        <conditional name ="sheet_selection">
-            <param name="input_sheet" type="select" label="Do you want to extract a specific sheet?">
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-            </param>
-            <when value="Yes">
-                <param argument="sheet_id" type="text" value="" label="Please, input the name of the sheet to extract"/>
-            </when>
-            <when value="No"/>
-        </conditional>
+        <param argument="sheet_names" type="text" value="" label="Sheet name" help="Name of the sheet to extract. If left empty all sheets will be extracted into a collection"/>
     </inputs>
     <outputs>
         <collection name="split_output" type="list">
@@ -75,7 +64,7 @@
     <help>
 Description
 -----------
-Extract a sheet from XLS/XLSX file to a tabular file.
+Extract a specific sheet (by name) or all sheets from XLS/XLSX file to a tabular file.
 
     </help>
     <citations>

@@ -1456,7 +1456,10 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
 
 def generate_test_variants(method: Callable, method_name: str, module: "ModuleType", module_name: str) -> list:
     variants = []
+    
+    # common parameters (SaQC object and references to the data)
     base_params = {}
+    # all other parameters
     complex_params = {}
 
     sections = parse_docstring(method)
@@ -1471,16 +1474,16 @@ def generate_test_variants(method: Callable, method_name: str, module: "ModuleTy
         if is_parameter_deprecated(param_docs, param_name):
             continue
 
-        if "field" in param_name.lower() or param_name in ["target", "reference"]:
-            base_params[param_name] = 1
-            continue
-
         annotation = param.annotation
         raw_annotation_str = ""
         if isinstance(annotation, (str, ForwardRef)):
             raw_annotation_str = annotation.__forward_arg__ if isinstance(annotation, ForwardRef) else str(annotation)
         elif annotation is not inspect.Parameter.empty:
             raw_annotation_str = str(annotation).replace("typing.", "")
+
+        if "field" in param_name.lower() or param_name in ["target", "reference"]:
+            base_params[param_name] = 1
+            continue
 
         if 'Sequence[SaQC]' in raw_annotation_str:
             base_params[param_name] = "test1/data.csv"
@@ -1492,24 +1495,8 @@ def generate_test_variants(method: Callable, method_name: str, module: "ModuleTy
 
         is_literal_type = "Literal[" in raw_annotation_str or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
 
-        if is_func_param:
-            if is_literal_type:
-                pass
-
-            else:
-                is_python_optional_by_default = (param.default is not inspect.Parameter.empty)
-                if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
-                    inner_content = raw_annotation_str[6:-1]
-                    type_parts = _split_type_string_safely(inner_content)
-                else:
-                    type_parts = _split_type_string_safely(raw_annotation_str)
-                is_optional_by_none = 'None' in type_parts
-                is_truly_optional = is_python_optional_by_default or is_optional_by_none
-
-                if is_truly_optional:
-                    continue
-                else:
-                    continue
+        if is_func_param and not is_literal_type:
+            continue
 
         if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
             inner_content = raw_annotation_str[6:-1]

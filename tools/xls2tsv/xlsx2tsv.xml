@@ -23,7 +23,7 @@
     </inputs>
     <outputs>
         <collection name="split_output" type="list">
-            <discover_datasets pattern="(?P&lt;designation&gt;.*)\.tsv" directory="output" format="tsv"/>
+            <discover_datasets pattern="(?P&lt;designation&gt;.*)\.tsv" directory="output" format="tabular"/>
         </collection>
     </outputs>
     <tests>

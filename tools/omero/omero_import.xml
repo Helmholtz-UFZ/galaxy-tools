@@ -25,13 +25,13 @@
 
         #if $session_id.session_id_input =="yes"
           omero import folder
-           -T Dataset:name:$dataset_name
+           -T 'Dataset:name:$dataset_name'
            -s '$omero_host'
            -k \$UUID_SESSION_KEY
            > $log &&
         #else
          omero import folder
-           -T Dataset:name:$dataset_name
+           -T 'Dataset:name:$dataset_name'
            -s '$omero_host'
            -p $omero_port
            -u \$OMERO_USER

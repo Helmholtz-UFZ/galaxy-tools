@@ -19,6 +19,9 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagIsolated" />
+          <has_text text="gap_window=" />
+          <has_text text="group_window=" />
+          <has_text text="flag=" />
         </assert_contents>
       </output>
     </test>
@@ -42,6 +45,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagJumps" />
+          <has_text text="thresh=" />
+          <has_text text="window=" />
+          <has_text text="min_periods=" />
+          <has_text text="flag=" />
+          <has_text text="dfilter=" />
         </assert_contents>
       </output>
     </test>
@@ -62,6 +70,8 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagNAN" />
+          <has_text text="flag=" />
+          <has_text text="dfilter=" />
         </assert_contents>
       </output>
     </test>
@@ -85,6 +95,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagByVariance" />
+          <has_text text="window=" />
+          <has_text text="thresh=" />
+          <has_text text="maxna=" />
+          <has_text text="maxna_group=" />
+          <has_text text="flag=" />
         </assert_contents>
       </output>
     </test>
@@ -110,6 +125,10 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagConstants" />
+          <has_text text="thresh=" />
+          <has_text text="min_periods=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -135,6 +154,10 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagConstants" />
+          <has_text text="thresh=" />
+          <has_text text="min_periods=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -160,6 +183,10 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="fitLowpassFilter" />
+          <has_text text="nyq=" />
+          <has_text text="filter_order=" />
+          <has_text text="fill_method=" />
+          <has_text text="cutoff=" />
         </assert_contents>
       </output>
     </test>
@@ -185,6 +212,10 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="fitLowpassFilter" />
+          <has_text text="nyq=" />
+          <has_text text="filter_order=" />
+          <has_text text="fill_method=" />
+          <has_text text="cutoff=" />
         </assert_contents>
       </output>
     </test>
@@ -206,6 +237,9 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="fitMomentFM" />
+          <has_text text="ratio=" />
+          <has_text text="context=" />
+          <has_text text="agg=" />
         </assert_contents>
       </output>
     </test>
@@ -230,6 +264,9 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="fitPolynomial" />
+          <has_text text="order=" />
+          <has_text text="min_periods=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -254,6 +291,9 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="fitPolynomial" />
+          <has_text text="order=" />
+          <has_text text="min_periods=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -276,6 +316,10 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="assignRegimeAnomaly" />
+          <has_text text="cluster_field=" />
+          <has_text text="spread=" />
+          <has_text text="method=" />
+          <has_text text="frac=" />
         </assert_contents>
       </output>
     </test>
@@ -297,6 +341,9 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="correctDrift" />
+          <has_text text="maintenance_field=" />
+          <has_text text="model=" />
+          <has_text text="cal_range=" />
         </assert_contents>
       </output>
     </test>
@@ -320,6 +367,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="correctOffset" />
+          <has_text text="max_jump=" />
+          <has_text text="spread=" />
+          <has_text text="window=" />
+          <has_text text="min_periods=" />
+          <has_text text="tolerance=" />
         </assert_contents>
       </output>
     </test>
@@ -343,6 +395,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagDriftFromNorm" />
+          <has_text text="window=" />
+          <has_text text="spread=" />
+          <has_text text="frac=" />
+          <has_text text="method=" />
+          <has_text text="flag=" />
         </assert_contents>
       </output>
     </test>
@@ -365,6 +422,10 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagDriftFromReference" />
+          <has_text text="reference=" />
+          <has_text text="freq=" />
+          <has_text text="thresh=" />
+          <has_text text="flag=" />
         </assert_contents>
       </output>
     </test>
@@ -388,6 +449,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagRegimeAnomaly" />
+          <has_text text="cluster_field=" />
+          <has_text text="spread=" />
+          <has_text text="method=" />
+          <has_text text="frac=" />
+          <has_text text="flag=" />
         </assert_contents>
       </output>
     </test>
@@ -409,6 +475,8 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="andGroup" />
+          <has_text text="group=" />
+          <has_text text="flag=" />
         </assert_contents>
       </output>
     </test>
@@ -464,6 +532,7 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagUnflagged" />
+          <has_text text="flag=" />
         </assert_contents>
       </output>
     </test>
@@ -483,6 +552,7 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="forceFlags" />
+          <has_text text="flag=" />
         </assert_contents>
       </output>
     </test>
@@ -504,6 +574,8 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="orGroup" />
+          <has_text text="group=" />
+          <has_text text="flag=" />
         </assert_contents>
       </output>
     </test>
@@ -529,6 +601,10 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="propagateFlags" />
+          <has_text text="method=" />
+          <has_text text="flag=" />
+          <has_text text="dfilter=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -554,6 +630,10 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="propagateFlags" />
+          <has_text text="method=" />
+          <has_text text="flag=" />
+          <has_text text="dfilter=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -575,6 +655,8 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="transferFlags" />
+          <has_text text="squeeze=" />
+          <has_text text="overwrite=" />
         </assert_contents>
       </output>
     </test>
@@ -600,6 +682,10 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="align" />
+          <has_text text="method=" />
+          <has_text text="order=" />
+          <has_text text="overwrite=" />
+          <has_text text="freq=" />
         </assert_contents>
       </output>
     </test>
@@ -625,6 +711,10 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="align" />
+          <has_text text="method=" />
+          <has_text text="order=" />
+          <has_text text="overwrite=" />
+          <has_text text="freq=" />
         </assert_contents>
       </output>
     </test>
@@ -650,6 +740,10 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="interpolateByRolling" />
+          <has_text text="center=" />
+          <has_text text="min_periods=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -675,6 +769,10 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="interpolateByRolling" />
+          <has_text text="center=" />
+          <has_text text="min_periods=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -706,6 +804,13 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagByScatterLowpass" />
+          <has_text text="thresh=" />
+          <has_text text="func=" />
+          <has_text text="sub_thresh=" />
+          <has_text text="min_periods=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
+          <has_text text="sub_window=" />
         </assert_contents>
       </output>
     </test>
@@ -737,6 +842,13 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagByScatterLowpass" />
+          <has_text text="thresh=" />
+          <has_text text="func=" />
+          <has_text text="sub_thresh=" />
+          <has_text text="min_periods=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
+          <has_text text="sub_window=" />
         </assert_contents>
       </output>
     </test>
@@ -768,6 +880,13 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagByScatterLowpass" />
+          <has_text text="thresh=" />
+          <has_text text="func=" />
+          <has_text text="sub_thresh=" />
+          <has_text text="min_periods=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
+          <has_text text="sub_window=" />
         </assert_contents>
       </output>
     </test>
@@ -794,6 +913,10 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagByStray" />
+          <has_text text="min_periods=" />
+          <has_text text="alpha=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -820,6 +943,10 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagByStray" />
+          <has_text text="min_periods=" />
+          <has_text text="alpha=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -846,6 +973,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagLOF" />
+          <has_text text="n=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="flag=" />
+          <has_text text="thresh=" />
         </assert_contents>
       </output>
     </test>
@@ -872,6 +1004,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagLOF" />
+          <has_text text="n=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="flag=" />
+          <has_text text="thresh=" />
         </assert_contents>
       </output>
     </test>
@@ -901,6 +1038,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagOffset" />
+          <has_text text="window=" />
+          <has_text text="tolerance=" />
+          <has_text text="thresh=" />
+          <has_text text="flag=" />
+          <has_text text="thresh_relative=" />
         </assert_contents>
       </output>
     </test>
@@ -927,6 +1069,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagOffset" />
+          <has_text text="window=" />
+          <has_text text="tolerance=" />
+          <has_text text="thresh=" />
+          <has_text text="flag=" />
+          <has_text text="thresh_relative=" />
         </assert_contents>
       </output>
     </test>
@@ -948,6 +1095,9 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagRange" />
+          <has_text text="min=" />
+          <has_text text="max=" />
+          <has_text text="flag=" />
         </assert_contents>
       </output>
     </test>
@@ -986,6 +1136,17 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagUniLOF" />
+          <has_text text="n=" />
+          <has_text text="probability=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="fill_na=" />
+          <has_text text="slope_correct=" />
+          <has_text text="min_offset=" />
+          <has_text text="flag=" />
+          <has_text text="thresh=" />
+          <has_text text="corruption=" />
+          <has_text text="density=" />
         </assert_contents>
       </output>
     </test>
@@ -1024,6 +1185,17 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagUniLOF" />
+          <has_text text="n=" />
+          <has_text text="probability=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="fill_na=" />
+          <has_text text="slope_correct=" />
+          <has_text text="min_offset=" />
+          <has_text text="flag=" />
+          <has_text text="thresh=" />
+          <has_text text="corruption=" />
+          <has_text text="density=" />
         </assert_contents>
       </output>
     </test>
@@ -1062,6 +1234,17 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagUniLOF" />
+          <has_text text="n=" />
+          <has_text text="probability=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="fill_na=" />
+          <has_text text="slope_correct=" />
+          <has_text text="min_offset=" />
+          <has_text text="flag=" />
+          <has_text text="thresh=" />
+          <has_text text="corruption=" />
+          <has_text text="density=" />
         </assert_contents>
       </output>
     </test>
@@ -1100,6 +1283,17 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagUniLOF" />
+          <has_text text="n=" />
+          <has_text text="probability=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="fill_na=" />
+          <has_text text="slope_correct=" />
+          <has_text text="min_offset=" />
+          <has_text text="flag=" />
+          <has_text text="thresh=" />
+          <has_text text="corruption=" />
+          <has_text text="density=" />
         </assert_contents>
       </output>
     </test>
@@ -1129,6 +1323,14 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagZScore" />
+          <has_text text="method=" />
+          <has_text text="thresh=" />
+          <has_text text="min_residuals=" />
+          <has_text text="min_periods=" />
+          <has_text text="center=" />
+          <has_text text="axis=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -1158,6 +1360,14 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagZScore" />
+          <has_text text="method=" />
+          <has_text text="thresh=" />
+          <has_text text="min_residuals=" />
+          <has_text text="min_periods=" />
+          <has_text text="center=" />
+          <has_text text="axis=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -1181,6 +1391,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagPatternByDTW" />
+          <has_text text="reference=" />
+          <has_text text="max_distance=" />
+          <has_text text="normalize=" />
+          <has_text text="plot=" />
+          <has_text text="flag=" />
         </assert_contents>
       </output>
     </test>
@@ -1213,6 +1428,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagPlateau" />
+          <has_text text="min_jump=" />
+          <has_text text="flag=" />
+          <has_text text="min_length=" />
+          <has_text text="max_length=" />
+          <has_text text="granularity=" />
         </assert_contents>
       </output>
     </test>
@@ -1245,6 +1465,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagPlateau" />
+          <has_text text="min_jump=" />
+          <has_text text="flag=" />
+          <has_text text="min_length=" />
+          <has_text text="max_length=" />
+          <has_text text="granularity=" />
         </assert_contents>
       </output>
     </test>
@@ -1277,6 +1502,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagPlateau" />
+          <has_text text="min_jump=" />
+          <has_text text="flag=" />
+          <has_text text="min_length=" />
+          <has_text text="max_length=" />
+          <has_text text="granularity=" />
         </assert_contents>
       </output>
     </test>
@@ -1309,6 +1539,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagPlateau" />
+          <has_text text="min_jump=" />
+          <has_text text="flag=" />
+          <has_text text="min_length=" />
+          <has_text text="max_length=" />
+          <has_text text="granularity=" />
         </assert_contents>
       </output>
     </test>
@@ -1337,6 +1572,12 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="concatFlags" />
+          <has_text text="method=" />
+          <has_text text="invert=" />
+          <has_text text="drop=" />
+          <has_text text="squeeze=" />
+          <has_text text="override=" />
+          <has_text text="freq=" />
         </assert_contents>
       </output>
     </test>
@@ -1365,6 +1606,12 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="concatFlags" />
+          <has_text text="method=" />
+          <has_text text="invert=" />
+          <has_text text="drop=" />
+          <has_text text="squeeze=" />
+          <has_text text="override=" />
+          <has_text text="freq=" />
         </assert_contents>
       </output>
     </test>
@@ -1395,6 +1642,12 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="reindex" />
+          <has_text text="method=" />
+          <has_text text="broadcast=" />
+          <has_text text="squeeze=" />
+          <has_text text="override=" />
+          <has_text text="index=" />
+          <has_text text="tolerance=" />
         </assert_contents>
       </output>
     </test>
@@ -1425,6 +1678,12 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="reindex" />
+          <has_text text="method=" />
+          <has_text text="broadcast=" />
+          <has_text text="squeeze=" />
+          <has_text text="override=" />
+          <has_text text="index=" />
+          <has_text text="tolerance=" />
         </assert_contents>
       </output>
     </test>
@@ -1455,6 +1714,12 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="reindex" />
+          <has_text text="method=" />
+          <has_text text="broadcast=" />
+          <has_text text="squeeze=" />
+          <has_text text="override=" />
+          <has_text text="index=" />
+          <has_text text="tolerance=" />
         </assert_contents>
       </output>
     </test>
@@ -1485,6 +1750,12 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="reindex" />
+          <has_text text="method=" />
+          <has_text text="broadcast=" />
+          <has_text text="squeeze=" />
+          <has_text text="override=" />
+          <has_text text="index=" />
+          <has_text text="tolerance=" />
         </assert_contents>
       </output>
     </test>
@@ -1511,6 +1782,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="resample" />
+          <has_text text="method=" />
+          <has_text text="maxna=" />
+          <has_text text="maxna_group=" />
+          <has_text text="squeeze=" />
+          <has_text text="freq=" />
         </assert_contents>
       </output>
     </test>
@@ -1537,6 +1813,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="resample" />
+          <has_text text="method=" />
+          <has_text text="maxna=" />
+          <has_text text="maxna_group=" />
+          <has_text text="squeeze=" />
+          <has_text text="freq=" />
         </assert_contents>
       </output>
     </test>
@@ -1561,6 +1842,9 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="calculatePolynomialResiduals" />
+          <has_text text="order=" />
+          <has_text text="min_periods=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -1585,6 +1869,9 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="calculatePolynomialResiduals" />
+          <has_text text="order=" />
+          <has_text text="min_periods=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -1609,6 +1896,9 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="calculateRollingResiduals" />
+          <has_text text="min_periods=" />
+          <has_text text="center=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -1633,6 +1923,9 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="calculateRollingResiduals" />
+          <has_text text="min_periods=" />
+          <has_text text="center=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -1659,6 +1952,10 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="rolling" />
+          <has_text text="func=" />
+          <has_text text="min_periods=" />
+          <has_text text="center=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -1685,6 +1982,10 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="rolling" />
+          <has_text text="func=" />
+          <has_text text="min_periods=" />
+          <has_text text="center=" />
+          <has_text text="window=" />
         </assert_contents>
       </output>
     </test>
@@ -1712,6 +2013,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="assignKNNScore" />
+          <has_text text="n=" />
+          <has_text text="min_periods=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="freq=" />
         </assert_contents>
       </output>
     </test>
@@ -1739,6 +2045,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="assignKNNScore" />
+          <has_text text="n=" />
+          <has_text text="min_periods=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="freq=" />
         </assert_contents>
       </output>
     </test>
@@ -1766,6 +2077,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="assignLOF" />
+          <has_text text="n=" />
+          <has_text text="min_periods=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="freq=" />
         </assert_contents>
       </output>
     </test>
@@ -1793,6 +2109,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="assignLOF" />
+          <has_text text="n=" />
+          <has_text text="min_periods=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="freq=" />
         </assert_contents>
       </output>
     </test>
@@ -1820,6 +2141,12 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="assignUniLOF" />
+          <has_text text="n=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="fill_na=" />
+          <has_text text="statistical_extent=" />
+          <has_text text="density=" />
         </assert_contents>
       </output>
     </test>
@@ -1847,6 +2174,12 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="assignUniLOF" />
+          <has_text text="n=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="fill_na=" />
+          <has_text text="statistical_extent=" />
+          <has_text text="density=" />
         </assert_contents>
       </output>
     </test>
@@ -1868,6 +2201,9 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="assignZScore" />
+          <has_text text="window=" />
+          <has_text text="center=" />
+          <has_text text="min_periods=" />
         </assert_contents>
       </output>
     </test>
@@ -1888,6 +2224,7 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="copyField" />
+          <has_text text="overwrite=" />
         </assert_contents>
       </output>
     </test>
@@ -1927,6 +2264,9 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="flagByClick" />
+          <has_text text="max_gap=" />
+          <has_text text="gui_mode=" />
+          <has_text text="dfilter=" />
         </assert_contents>
       </output>
     </test>
@@ -1968,6 +2308,13 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="plot" />
+          <has_text text="path=" />
+          <has_text text="max_gap=" />
+          <has_text text="dfilter=" />
+          <has_text text="mode=" />
+          <has_text text="history=" />
+          <has_text text="xscope=" />
+          <has_text text="yscope=" />
         </assert_contents>
       </output>
     </test>
@@ -2009,6 +2356,13 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="plot" />
+          <has_text text="path=" />
+          <has_text text="max_gap=" />
+          <has_text text="dfilter=" />
+          <has_text text="mode=" />
+          <has_text text="history=" />
+          <has_text text="xscope=" />
+          <has_text text="yscope=" />
         </assert_contents>
       </output>
     </test>
@@ -2050,6 +2404,13 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="plot" />
+          <has_text text="path=" />
+          <has_text text="max_gap=" />
+          <has_text text="dfilter=" />
+          <has_text text="mode=" />
+          <has_text text="history=" />
+          <has_text text="xscope=" />
+          <has_text text="yscope=" />
         </assert_contents>
       </output>
     </test>
@@ -2090,6 +2451,13 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="plot" />
+          <has_text text="path=" />
+          <has_text text="max_gap=" />
+          <has_text text="dfilter=" />
+          <has_text text="mode=" />
+          <has_text text="history=" />
+          <has_text text="xscope=" />
+          <has_text text="yscope=" />
         </assert_contents>
       </output>
     </test>
@@ -2130,6 +2498,13 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="plot" />
+          <has_text text="path=" />
+          <has_text text="max_gap=" />
+          <has_text text="dfilter=" />
+          <has_text text="mode=" />
+          <has_text text="history=" />
+          <has_text text="xscope=" />
+          <has_text text="yscope=" />
         </assert_contents>
       </output>
     </test>
@@ -2169,6 +2544,13 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="plot" />
+          <has_text text="path=" />
+          <has_text text="max_gap=" />
+          <has_text text="dfilter=" />
+          <has_text text="mode=" />
+          <has_text text="history=" />
+          <has_text text="xscope=" />
+          <has_text text="yscope=" />
         </assert_contents>
       </output>
     </test>
@@ -2188,6 +2570,7 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="renameField" />
+          <has_text text="new_name=" />
         </assert_contents>
       </output>
     </test>
@@ -2211,6 +2594,11 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="selectTime" />
+          <has_text text="mode=" />
+          <has_text text="selection_field=" />
+          <has_text text="start=" />
+          <has_text text="end=" />
+          <has_text text="closed=" />
         </assert_contents>
       </output>
     </test>

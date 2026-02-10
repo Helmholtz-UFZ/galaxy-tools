@@ -1769,20 +1769,42 @@ def generate_test_macros():
                 output_elem = ET.SubElement(test_elem, "output", {"name": "config_out", "ftype": "txt"})
                 assert_contents = ET.SubElement(output_elem, "assert_contents")
 
-                final_params_to_check = {}
-                for p_name, p_value in variant["galaxy_params"].items():
-                    if p_name.endswith('_cond') and isinstance(p_value, dict):
-                        key = p_name[:-5]
-                        if key in p_value:
-                            final_params_to_check[key] = p_value[key]
-                    else:
-                        final_params_to_check[p_name] = p_value
-
-                subject = final_params_to_check.pop("field", None)
-                if not subject:
-                    subject = final_params_to_check.pop("target", None)
-
                 ET.SubElement(assert_contents, "has_text", {"text": method_name})
+
+                final_params_to_check = {}
+
+                def extract_recursive(d):
+                    for p_name, p_value in d.items():
+
+                        if p_name.endswith('_selector'):
+                            continue
+
+                        if isinstance(p_value, dict):
+
+                            if p_name.endswith('_cond'):
+                                actual_name = p_name[:-5]
+                                final_params_to_check[actual_name] = True
+                            extract_recursive(p_value)
+                        elif isinstance(p_value, list):
+
+                            final_params_to_check[p_name] = True
+                            for item in p_value:
+                                if isinstance(item, dict):
+                                    extract_recursive(item)
+                        else:
+                            final_params_to_check[p_name] = True
+
+                extract_recursive(variant["galaxy_params"])
+
+                for p_name in final_params_to_check.keys():
+
+                    if p_name in ["field", "target", "group", "method_select"]:
+                        continue
+
+                    if any(suffix in p_name for suffix in ["_pos0", "_pos1", "_min", "_max", "_start", "_end"]):
+                        continue
+
+                    ET.SubElement(assert_contents, "has_text", {"text": f"{p_name}="})
 
     try:
         ET.indent(macros_root, space="  ")

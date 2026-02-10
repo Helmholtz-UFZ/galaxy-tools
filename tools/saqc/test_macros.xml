@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <macros>
   <xml name="config_tests">
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -25,7 +25,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -53,7 +53,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -75,7 +75,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -103,7 +103,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -132,7 +132,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -161,7 +161,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -190,7 +190,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -219,7 +219,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -243,7 +243,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -270,7 +270,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -297,7 +297,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -323,7 +323,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -347,7 +347,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -375,7 +375,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -403,7 +403,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -429,7 +429,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -457,7 +457,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -480,7 +480,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -498,7 +498,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -516,7 +516,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -536,7 +536,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -556,7 +556,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -579,7 +579,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -608,7 +608,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -637,7 +637,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -660,7 +660,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -689,7 +689,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -718,7 +718,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -747,7 +747,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -776,7 +776,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -814,7 +814,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -852,7 +852,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -890,7 +890,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -920,7 +920,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -950,7 +950,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -981,7 +981,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1012,7 +1012,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1046,7 +1046,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1077,7 +1077,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1101,7 +1101,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1150,7 +1150,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1199,7 +1199,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1248,7 +1248,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1297,7 +1297,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1334,7 +1334,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1371,7 +1371,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1399,7 +1399,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1436,7 +1436,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1473,7 +1473,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1510,7 +1510,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1547,7 +1547,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1581,7 +1581,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1615,7 +1615,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1651,7 +1651,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1687,7 +1687,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1723,7 +1723,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1759,7 +1759,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1790,7 +1790,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1821,7 +1821,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1848,7 +1848,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1875,7 +1875,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1902,7 +1902,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1929,7 +1929,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1959,7 +1959,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1989,7 +1989,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2021,7 +2021,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2053,7 +2053,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2085,7 +2085,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2117,7 +2117,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2150,7 +2150,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2183,7 +2183,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2207,7 +2207,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2228,7 +2228,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2246,6 +2246,7 @@
         </assert_contents>
       </output>
     </test>
+<<<<<<< HEAD
     <test>
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
@@ -2271,6 +2272,9 @@
       </output>
     </test>
     <test>
+=======
+    <test expect_num_outputs="3">
+>>>>>>> 01252e89f98a970f589969e9b190f725a0d1c222
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2318,7 +2322,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="3">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2366,7 +2370,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="3">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2414,7 +2418,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="3">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2461,7 +2465,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="3">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2508,7 +2512,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="3">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2554,7 +2558,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -2574,7 +2578,7 @@
         </assert_contents>
       </output>
     </test>
-    <test>
+    <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">

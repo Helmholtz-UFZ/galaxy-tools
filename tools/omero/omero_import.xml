@@ -2,7 +2,7 @@
     <description> with omero-py </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">5</token>
+        <token name="@VERSION_SUFFIX@">6</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -25,20 +25,20 @@
 
         #if $session_id.session_id_input =="yes"
           omero import folder
-           -T Dataset:name:$dataset_name
+           -T 'Dataset:name:$dataset_name'
            -s '$omero_host'
            -k \$UUID_SESSION_KEY
            > $log &&
         #else
          omero import folder
-           -T Dataset:name:$dataset_name
+           -T 'Dataset:name:$dataset_name'
            -s '$omero_host'
            -p $omero_port
            -u \$OMERO_USER
            -w \$OMERO_PASSWORD
-        > $log &&
+        > '$log' &&
         #end if
-        omero search Dataset '$dataset_name' --style json > $log2 &&
+        omero search Dataset '$dataset_name' --style json > '$log2' &&
         omero logout
     ]]></command>
     <inputs>

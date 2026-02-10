@@ -2,7 +2,7 @@
     <description> with ezomero </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">2</token>
+        <token name="@VERSION_SUFFIX@">3</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -20,12 +20,12 @@
 
         python '$__tool_directory__'/omero_filter.py
         @HOST_PORT@
-        --filter $filter
-        --value1 '$value1'
-        --id $did
+        --filter $filter_type.filter
+        --value1 '$filter_type.value1'
+        --id '$filter_type.did'
         --tsv_file '$tsv'
         #if $filter == "KP"
-        --value2 '$value2'
+        --value2 '$filter_type.value2'
         #end if
         @SESSION_ID@
     ]]></command>

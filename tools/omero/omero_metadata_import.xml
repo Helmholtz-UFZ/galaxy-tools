@@ -2,7 +2,7 @@
     <description> with ezomero </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">6</token>
+        <token name="@VERSION_SUFFIX@">7</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -23,9 +23,9 @@
         @HOST_PORT@
         --obj_type $obj_type
         --ann_type $ann_type
-        --ann_file $ann_file
-        --an_name $an_name
-        --log_file $log
+        --ann_file '$ann_file'
+        --an_name '$an_name'
+        --log_file '$log'
         @SESSION_ID@
         #if $object_id_selection == "existing_object"
             --did "$did"

@@ -2,7 +2,7 @@
     <description> with ezomero </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">2</token>
+        <token name="@VERSION_SUFFIX@">3</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -22,7 +22,7 @@
         @HOST_PORT@
         --filter $filter
         --value1 '$value1'
-        --id $did
+        --id '$did'
         --tsv_file '$tsv'
         #if $filter == "KP"
         --value2 '$value2'

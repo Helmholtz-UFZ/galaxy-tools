@@ -6,14 +6,17 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[convertVtkDataArrayToVtkDataArray --version]]></version_command>
-  <command><![CDATA[if [ "$in_mesh" != "None" ] && [ ! -e '${$in_mesh.element_identifier}' ]; then ln -s '$in_mesh' '${$in_mesh.element_identifier}'; fi;
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $in_mesh:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
 convertVtkDataArrayToVtkDataArray
     --new-property-data-type '$new_property_data_type'
-#if str($new_property_name).strip() != 'None' and str($new_property_name).strip() != '':
     --new-property-name '$new_property_name'
-#end if
     --existing-property-name '$existing_property_name'
-    --in-mesh '$in_mesh.element_identifier'
+#for $m in $in_mesh:
+    --in-mesh "inputs/${m.element_identifier}"
+#end for
     --out-mesh output_1.vtk]]></command>
   <inputs>
     <param name="new_property_data_type" type="select" label="new property data type" help="the data type as string">

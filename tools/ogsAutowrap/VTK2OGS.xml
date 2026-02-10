@@ -6,9 +6,14 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[VTK2OGS --version]]></version_command>
-  <command><![CDATA[if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
-VTK2OGS
-    --mesh-input-file '$mesh_input_file.element_identifier'
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $mesh_input_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+vtk2ogs
+#for $m in $mesh_input_file:
+    --mesh-input-file "inputs/${m.element_identifier}"
+#end for
     --mesh-output-file output_1.msh]]></command>
   <inputs>
     <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtk). the file containing the input mesh" format="vtkxml" multiple="false"/>

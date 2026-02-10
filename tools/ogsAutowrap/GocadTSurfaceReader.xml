@@ -6,12 +6,17 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[GocadTSurfaceReader --version]]></version_command>
-  <command><![CDATA[if [ "$input_file" != "None" ] && [ ! -e '${$input_file.element_identifier}' ]; then ln -s '$input_file' '${$input_file.element_identifier}'; fi;
-GocadTSurfaceReader
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $input_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+gocadtsurfacereader
     $write_binary
     $surfaces_only
     $lines_only
-    --input-file '$input_file.element_identifier'
+#for $m in $input_file:
+    --input-file "inputs/${m.element_identifier}"
+#end for
     --output-dir output_1.data]]></command>
   <inputs>
     <param name="write_binary" type="boolean" label="write binary" help="if set, OGS-Meshes will be written in binary format" checked="false" truevalue="--write-binary" falsevalue=""/>
@@ -21,7 +26,7 @@ GocadTSurfaceReader
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from GocadTSurfaceReader">
-      <discover_datasets pattern="output_.*\.(vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
+      <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
     </collection>
   </outputs>
   <tests>

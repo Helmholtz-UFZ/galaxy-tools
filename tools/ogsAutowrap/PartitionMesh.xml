@@ -6,21 +6,29 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[PartitionMesh --version]]></version_command>
-  <command><![CDATA[if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
-if [ "$metis_mesh_input_file" != "None" ] && [ ! -e '${$metis_mesh_input_file.element_identifier}' ]; then ln -s '$metis_mesh_input_file' '${$metis_mesh_input_file.element_identifier}'; fi;
-PartitionMesh
-    --mesh-input-file '$mesh_input_file.element_identifier'
-#if str($metis_mesh_input_file).strip() != 'None' and str($metis_mesh_input_file).strip() != '':
-    --metis-mesh-input-file '$metis_mesh_input_file.element_identifier'
-#end if
-#if str($np).strip() != 'None' and str($np).strip() != '':
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $mesh_input_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+#for $m in $metis_mesh_input_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+#for $m in $other_meshes_filenames:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+partitionmesh
+#for $m in $mesh_input_file:
+    --mesh-input-file "inputs/${m.element_identifier}"
+#end for
+#for $m in $metis_mesh_input_file:
+    --metis-mesh-input-file "inputs/${m.element_identifier}"
+#end for
     --np '$np'
-#end if
     $ogs2metis
     $exe_metis
-#if str($other_meshes_filenames).strip() != 'None' and str($other_meshes_filenames).strip() != '':
-    '$other_meshes_filenames'
-#end if
+#for $m in $other_meshes_filenames:
+    "inputs/${m.element_identifier}"
+#end for
     --output output_1.data]]></command>
   <inputs>
     <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtkxml" multiple="false"/>
@@ -28,11 +36,11 @@ PartitionMesh
     <param name="np" type="integer" value="2" optional="true" label="np" help="the number of partitions, (min = 0)" min="0"/>
     <param name="ogs2metis" type="boolean" label="ogs2metis" help="Indicator to convert the ogs mesh file to METIS input file" checked="false" truevalue="--ogs2metis" falsevalue=""/>
     <param name="exe_metis" type="boolean" label="exe metis" help="Call mpmetis inside the programme via system()." checked="false" truevalue="--exe_metis" falsevalue=""/>
-    <param name="other_meshes_filenames" type="text" value="file" optional="true" label="other meshes filenames" help="mesh file names."/>
+    <param name="other_meshes_filenames" type="data" optional="false" label="other meshes filenames" help="mesh file names." format="data" multiple="true"/>
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from PartitionMesh">
-      <discover_datasets pattern="output_.*\.(vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
+      <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
     </collection>
   </outputs>
   <tests>

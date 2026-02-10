@@ -6,24 +6,29 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[MeshMapping --version]]></version_command>
-  <command><![CDATA[if [ "$mesh" != "None" ] && [ ! -e '${$mesh.element_identifier}' ]; then ln -s '$mesh' '${$mesh.element_identifier}'; fi;
-if [ "$raster" != "None" ] && [ ! -e '${$raster.element_identifier}' ]; then ln -s '$raster' '${$raster.element_identifier}'; fi;
-if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
-MeshMapping
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $mesh:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+#for $m in $raster:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+#for $m in $input:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+meshmapping
     $lowpass
-#if str($static).strip() != 'None' and str($static).strip() != '':
     --static '$static'
-#end if
-#if str($distance).strip() != 'None' and str($distance).strip() != '':
     --distance '$distance'
-#end if
-#if str($mesh).strip() != 'None' and str($mesh).strip() != '':
-    --mesh '$mesh.element_identifier'
-#end if
-#if str($raster).strip() != 'None' and str($raster).strip() != '':
-    --raster '$raster.element_identifier'
-#end if
-    --input '$input.element_identifier'
+#for $m in $mesh:
+    --mesh "inputs/${m.element_identifier}"
+#end for
+#for $m in $raster:
+    --raster "inputs/${m.element_identifier}"
+#end for
+#for $m in $input:
+    --input "inputs/${m.element_identifier}"
+#end for
     --output output_1.vtu]]></command>
   <inputs>
     <param name="lowpass" type="boolean" label="lowpass" help="Applies a lowpass filter to elevation over connected nodes." checked="false" truevalue="--lowpass" falsevalue=""/>

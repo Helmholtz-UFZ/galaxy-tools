@@ -6,14 +6,21 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[createIntermediateRasters --version]]></version_command>
-  <command><![CDATA[if [ "$file2" != "None" ] && [ ! -e '${$file2.element_identifier}' ]; then ln -s '$file2' '${$file2.element_identifier}'; fi;
-if [ "$file1" != "None" ] && [ ! -e '${$file1.element_identifier}' ]; then ln -s '$file1' '${$file1.element_identifier}'; fi;
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $file2:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+#for $m in $file1:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
 createIntermediateRasters
-#if str($number).strip() != 'None' and str($number).strip() != '':
     --number '$number'
-#end if
-    --file2 '$file2.element_identifier'
-    --file1 '$file1.element_identifier'
+#for $m in $file2:
+    --file2 "inputs/${m.element_identifier}"
+#end for
+#for $m in $file1:
+    --file1 "inputs/${m.element_identifier}"
+#end for
     --output-file output_1.asc]]></command>
   <inputs>
     <param name="number" type="integer" value="1" optional="true" label="number" help="number of rasters to be calculated, (min = 0)" min="0"/>

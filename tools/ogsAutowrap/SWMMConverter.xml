@@ -6,9 +6,14 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[SWMMConverter --version]]></version_command>
-  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
-SWMMConverter
-    --input '$input.element_identifier'
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $input:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+swmmconverter
+#for $m in $input:
+    --input "inputs/${m.element_identifier}"
+#end for
     $node_vars
     $link_vars
     $subcatchment_vars
@@ -25,7 +30,7 @@ SWMMConverter
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from SWMMConverter">
-      <discover_datasets pattern="output_.*\.(vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
+      <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
     </collection>
   </outputs>
   <tests>

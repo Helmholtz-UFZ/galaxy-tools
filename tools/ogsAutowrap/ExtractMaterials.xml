@@ -6,12 +6,15 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[ExtractMaterials --version]]></version_command>
-  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
-ExtractMaterials
-#if str($material_id).strip() != 'None' and str($material_id).strip() != '':
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $input:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+extractmaterials
     --material-id '$material_id'
-#end if
-    --input '$input.element_identifier'
+#for $m in $input:
+    --input "inputs/${m.element_identifier}"
+#end for
     --output output_1.vtu]]></command>
   <inputs>
     <param name="material_id" type="integer" value="0" optional="true" label="material id" help="The MaterialID for which elements should be extracted into a new mesh." min="0"/>

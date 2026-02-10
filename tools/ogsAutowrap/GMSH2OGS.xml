@@ -6,9 +6,14 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[GMSH2OGS --version]]></version_command>
-  <command><![CDATA[if [ "$in" != "None" ] && [ ! -e '${$in.element_identifier}' ]; then ln -s '$in' '${$in.element_identifier}'; fi;
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $in:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
 GMSH2OGS
-    --in '$in.element_identifier'
+#for $m in $in:
+    --in "inputs/${m.element_identifier}"
+#end for
     $validation
     $boundaries
     $exclude_lines

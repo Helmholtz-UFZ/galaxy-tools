@@ -6,16 +6,23 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[createMeshElemPropertiesFromASCRaster --version]]></version_command>
-  <command><![CDATA[if [ "$raster_file" != "None" ] && [ ! -e '${$raster_file.element_identifier}' ]; then ln -s '$raster_file' '${$raster_file.element_identifier}'; fi;
-if [ "$mesh" != "None" ] && [ ! -e '${$mesh.element_identifier}' ]; then ln -s '$mesh' '${$mesh.element_identifier}'; fi;
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $raster_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+#for $m in $mesh:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
 createMeshElemPropertiesFromASCRaster
     $output_refined_raster
-#if str($refine).strip() != 'None' and str($refine).strip() != '':
     --refine '$refine'
-#end if
-    --raster-file '$raster_file.element_identifier'
+#for $m in $raster_file:
+    --raster-file "inputs/${m.element_identifier}"
+#end for
     --property-name '$property_name'
-    --mesh '$mesh.element_identifier'
+#for $m in $mesh:
+    --mesh "inputs/${m.element_identifier}"
+#end for
     --out-mesh output_1.vtu]]></command>
   <inputs>
     <param name="output_refined_raster" type="boolean" label="output refined raster" help="Write refined raster to an additional, new ASC file." checked="false" truevalue="--output-refined-raster" falsevalue=""/>

@@ -6,9 +6,14 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[ReorderMesh --version]]></version_command>
-  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
-ReorderMesh
-    --input '$input.element_identifier'
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $input:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+reordermesh
+#for $m in $input:
+    --input "inputs/${m.element_identifier}"
+#end for
     --output output_1.vtu]]></command>
   <inputs>
     <param name="input" type="data" optional="false" label="input" help="Input (.vtu). the input mesh file" format="vtkxml" multiple="false"/>

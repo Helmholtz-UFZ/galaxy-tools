@@ -6,16 +6,17 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[Vtu2Grid --version]]></version_command>
-  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
-Vtu2Grid
-#if str($cellsize_z).strip() != 'None' and str($cellsize_z).strip() != '':
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $input:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+vtu2grid
     --cellsize-z '$cellsize_z'
-#end if
-#if str($cellsize_y).strip() != 'None' and str($cellsize_y).strip() != '':
     --cellsize-y '$cellsize_y'
-#end if
     --cellsize-x '$cellsize_x'
-    --input '$input.element_identifier'
+#for $m in $input:
+    --input "inputs/${m.element_identifier}"
+#end for
     --output output_1.vtu]]></command>
   <inputs>
     <param name="cellsize_z" type="float" value="1000" optional="true" label="cellsize z" help="edge length of cubes in z-direction (depth), (min = 0)" min="0"/>

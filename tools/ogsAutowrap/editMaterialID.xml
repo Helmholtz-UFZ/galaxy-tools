@@ -6,18 +6,19 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[editMaterialID --version]]></version_command>
-  <command><![CDATA[if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $mesh_input_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
 editMaterialID
     $replace
     $condense
     $specify
-    --mesh-input-file '$mesh_input_file.element_identifier'
-#if str($current_material_id).strip() != 'None' and str($current_material_id).strip() != '':
+#for $m in $mesh_input_file:
+    --mesh-input-file "inputs/${m.element_identifier}"
+#end for
     --current-material-id '$current_material_id'
-#end if
-#if str($new_material_id).strip() != 'None' and str($new_material_id).strip() != '':
     --new-material-id '$new_material_id'
-#end if
     --element-type '$element_type'
     --mesh-output-file output_1.vtu]]></command>
   <inputs>

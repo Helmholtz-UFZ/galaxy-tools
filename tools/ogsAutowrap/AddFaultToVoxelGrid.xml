@@ -6,14 +6,21 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[AddFaultToVoxelGrid --version]]></version_command>
-  <command><![CDATA[if [ "$fault" != "None" ] && [ ! -e '${$fault.element_identifier}' ]; then ln -s '$fault' '${$fault.element_identifier}'; fi;
-if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
-AddFaultToVoxelGrid
-#if str($material).strip() != 'None' and str($material).strip() != '':
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $fault:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+#for $m in $input:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+addfaulttovoxelgrid
     --material '$material'
-#end if
-    --fault '$fault.element_identifier'
-    --input '$input.element_identifier'
+#for $m in $fault:
+    --fault "inputs/${m.element_identifier}"
+#end for
+#for $m in $input:
+    --input "inputs/${m.element_identifier}"
+#end for
     --output output_1.vtu]]></command>
   <inputs>
     <param name="material" type="integer" value="mat_not_set" optional="true" label="material" help="material id for cells intersected by fault, (min = 0)" min="0"/>

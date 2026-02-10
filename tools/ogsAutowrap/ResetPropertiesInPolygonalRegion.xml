@@ -6,29 +6,32 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[ResetPropertiesInPolygonalRegion --version]]></version_command>
-  <command><![CDATA[if [ "$geometry" != "None" ] && [ ! -e '${$geometry.element_identifier}' ]; then ln -s '$geometry' '${$geometry.element_identifier}'; fi;
-if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
-if [ "$gmsh_path" != "None" ] && [ ! -e '${$gmsh_path.element_identifier}' ]; then ln -s '$gmsh_path' '${$gmsh_path.element_identifier}'; fi;
-ResetPropertiesInPolygonalRegion
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $geometry:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+#for $m in $mesh_input_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+#for $m in $gmsh_path:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+resetpropertiesinpolygonalregion
     --polygon-name '$polygon_name'
-    --geometry '$geometry.element_identifier'
+#for $m in $geometry:
+    --geometry "inputs/${m.element_identifier}"
+#end for
     $any_of
-#if str($char_property_value).strip() != 'None' and str($char_property_value).strip() != '':
     --char-property-value '$char_property_value'
-#end if
-#if str($int_property_value).strip() != 'None' and str($int_property_value).strip() != '':
     --int-property-value '$int_property_value'
-#end if
-#if str($property_name).strip() != 'None' and str($property_name).strip() != '':
     --property-name '$property_name'
-#end if
-#if str($restrict_to_MaterialID).strip() != 'None' and str($restrict_to_MaterialID).strip() != '':
     --restrict-to-MaterialID '$restrict_to_MaterialID'
-#end if
-    --mesh-input-file '$mesh_input_file.element_identifier'
-#if str($gmsh_path).strip() != 'None' and str($gmsh_path).strip() != '':
-    --gmsh-path '$gmsh_path.element_identifier'
-#end if
+#for $m in $mesh_input_file:
+    --mesh-input-file "inputs/${m.element_identifier}"
+#end for
+#for $m in $gmsh_path:
+    --gmsh-path "inputs/${m.element_identifier}"
+#end for
     --mesh-output-file output_1.data]]></command>
   <inputs>
     <param name="polygon_name" type="text" optional="false" label="polygon name" help="polygon in the geometry"/>

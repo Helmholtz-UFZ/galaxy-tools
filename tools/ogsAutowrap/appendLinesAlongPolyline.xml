@@ -6,15 +6,26 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[appendLinesAlongPolyline --version]]></version_command>
-  <command><![CDATA[if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
-if [ "$geo_file" != "None" ] && [ ! -e '${$geo_file.element_identifier}' ]; then ln -s '$geo_file' '${$geo_file.element_identifier}'; fi;
-if [ "$gmsh_path" != "None" ] && [ ! -e '${$gmsh_path.element_identifier}' ]; then ln -s '$gmsh_path' '${$gmsh_path.element_identifier}'; fi;
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $mesh_input_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+#for $m in $geo_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+#for $m in $gmsh_path:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
 appendLinesAlongPolyline
-    --mesh-input-file '$mesh_input_file.element_identifier'
-    --geo-file '$geo_file.element_identifier'
-#if str($gmsh_path).strip() != 'None' and str($gmsh_path).strip() != '':
-    --gmsh-path '$gmsh_path.element_identifier'
-#end if
+#for $m in $mesh_input_file:
+    --mesh-input-file "inputs/${m.element_identifier}"
+#end for
+#for $m in $geo_file:
+    --geo-file "inputs/${m.element_identifier}"
+#end for
+#for $m in $gmsh_path:
+    --gmsh-path "inputs/${m.element_identifier}"
+#end for
     --mesh-output-file output_1.vtu]]></command>
   <inputs>
     <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtkxml" multiple="false"/>

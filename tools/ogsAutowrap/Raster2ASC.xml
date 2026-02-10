@@ -6,9 +6,14 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[Raster2ASC --version]]></version_command>
-  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
-Raster2ASC
-    --input '$input.element_identifier'
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $input:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+raster2asc
+#for $m in $input:
+    --input "inputs/${m.element_identifier}"
+#end for
     --output output_1.asc]]></command>
   <inputs>
     <param name="input" type="data" optional="false" label="input" help="Input (.grd | .xyz). Filename for input raster" format="data" multiple="false"/>

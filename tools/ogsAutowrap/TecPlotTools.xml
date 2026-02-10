@@ -6,11 +6,16 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[TecPlotTools --version]]></version_command>
-  <command><![CDATA[if [ "$input_file" != "None" ] && [ ! -e '${$input_file.element_identifier}' ]; then ln -s '$input_file' '${$input_file.element_identifier}'; fi;
-TecPlotTools
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $input_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+tecplottools
     $split
     $convert
-    --input-file '$input_file.element_identifier'
+#for $m in $input_file:
+    --input-file "inputs/${m.element_identifier}"
+#end for
     --output-file output_1.vtu]]></command>
   <inputs>
     <param name="split" type="boolean" label="split" help="split time steps into separate files" checked="false" truevalue="--split" falsevalue=""/>

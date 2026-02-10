@@ -6,15 +6,16 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[reviseMesh --version]]></version_command>
-  <command><![CDATA[if [ "$input_mesh_file" != "None" ] && [ ! -e '${$input_mesh_file.element_identifier}' ]; then ln -s '$input_mesh_file' '${$input_mesh_file.element_identifier}'; fi;
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $input_mesh_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
 reviseMesh
-#if str($min_ele_dim).strip() != 'None' and str($min_ele_dim).strip() != '':
     --min-ele-dim '$min_ele_dim'
-#end if
-#if str($eps).strip() != 'None' and str($eps).strip() != '':
     --eps '$eps'
-#end if
-    --input-mesh-file '$input_mesh_file.element_identifier'
+#for $m in $input_mesh_file:
+    --input-mesh-file "inputs/${m.element_identifier}"
+#end for
     --output-mesh-file output_1.vtu]]></command>
   <inputs>
     <param name="min_ele_dim" type="text" value="1" optional="true" label="min ele dim" help="Minimum dimension of elements to be inserted into new mesh"/>

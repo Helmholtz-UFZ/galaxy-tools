@@ -6,9 +6,14 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[ComputeNodeAreasFromSurfaceMesh --version]]></version_command>
-  <command><![CDATA[if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
-ComputeNodeAreasFromSurfaceMesh
-    --mesh-input-file '$mesh_input_file.element_identifier'
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $mesh_input_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+computenodeareasfromsurfacemesh
+#for $m in $mesh_input_file:
+    --mesh-input-file "inputs/${m.element_identifier}"
+#end for
     --id-prop-name '$id_prop_name'
     --output-base-name output_1.csv]]></command>
   <inputs>
@@ -22,7 +27,7 @@ ComputeNodeAreasFromSurfaceMesh
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from ComputeNodeAreasFromSurfaceMesh">
-      <discover_datasets pattern="output_.*\.(vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
+      <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
     </collection>
   </outputs>
   <tests>

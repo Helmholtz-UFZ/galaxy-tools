@@ -6,9 +6,14 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[convertToLinearMesh --version]]></version_command>
-  <command><![CDATA[if [ "$input_mesh_file" != "None" ] && [ ! -e '${$input_mesh_file.element_identifier}' ]; then ln -s '$input_mesh_file' '${$input_mesh_file.element_identifier}'; fi;
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $input_mesh_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
 convertToLinearMesh
-    --input-mesh-file '$input_mesh_file.element_identifier'
+#for $m in $input_mesh_file:
+    --input-mesh-file "inputs/${m.element_identifier}"
+#end for
     --output-mesh-file output_1.vtu]]></command>
   <inputs>
     <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu | .msh) mesh file" format="vtkxml" multiple="false"/>

@@ -6,9 +6,14 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[createNeumannBc --version]]></version_command>
-  <command><![CDATA[if [ "$in_mesh" != "None" ] && [ ! -e '${$in_mesh.element_identifier}' ]; then ln -s '$in_mesh' '${$in_mesh.element_identifier}'; fi;
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $in_mesh:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
 createNeumannBc
-    --in-mesh '$in_mesh.element_identifier'
+#for $m in $in_mesh:
+    --in-mesh "inputs/${m.element_identifier}"
+#end for
     --property-in-name '$property_in_name'
     --property-out-name '$property_out_name'
     --result-out output_1.txt]]></command>

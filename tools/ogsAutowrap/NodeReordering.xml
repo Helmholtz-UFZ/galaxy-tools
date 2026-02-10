@@ -6,10 +6,15 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[NodeReordering --version]]></version_command>
-  <command><![CDATA[if [ "$input_mesh" != "None" ] && [ ! -e '${$input_mesh.element_identifier}' ]; then ln -s '$input_mesh' '${$input_mesh.element_identifier}'; fi;
-NodeReordering
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $input_mesh:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+nodereordering
     --method '$method'
-    --input_mesh '$input_mesh.element_identifier'
+#for $m in $input_mesh:
+    --input_mesh "inputs/${m.element_identifier}"
+#end for
     --output_mesh output_1.vtu]]></command>
   <inputs>
     <param name="method" type="select" label="method" help="reordering method selection">

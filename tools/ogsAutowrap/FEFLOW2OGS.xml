@@ -6,9 +6,14 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[FEFLOW2OGS --version]]></version_command>
-  <command><![CDATA[if [ "$in" != "None" ] && [ ! -e '${$in.element_identifier}' ]; then ln -s '$in' '${$in.element_identifier}'; fi;
-FEFLOW2OGS
-    --in '$in.element_identifier'
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $in:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+feflow2ogs
+#for $m in $in:
+    --in "inputs/${m.element_identifier}"
+#end for
     --out output_1.if extension is msh, old ogs file format is written]]></command>
   <inputs>
     <param name="in" type="data" optional="false" label="in" help="Input (.fem). FEFLOW input file" format="xml" multiple="false"/>

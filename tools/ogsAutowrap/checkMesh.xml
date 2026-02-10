@@ -6,11 +6,16 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[checkMesh --version]]></version_command>
-  <command><![CDATA[if [ "$mesh_file" != "None" ] && [ ! -e '${$mesh_file.element_identifier}' ]; then ln -s '$mesh_file' '${$mesh_file.element_identifier}'; fi;
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $mesh_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
 checkMesh
     $validation
     $print_properties
-    '$mesh_file.element_identifier']]></command>
+#for $m in $mesh_file:
+    "inputs/${m.element_identifier}"
+#end for]]></command>
   <inputs>
     <param name="validation" type="boolean" label="validation" help="validate the mesh" checked="false" truevalue="--validation" falsevalue=""/>
     <param name="print_properties" type="boolean" label="print properties" help="print properties stored in the mesh" checked="false" truevalue="--print_properties" falsevalue=""/>

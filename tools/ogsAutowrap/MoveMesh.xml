@@ -6,18 +6,17 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[MoveMesh --version]]></version_command>
-  <command><![CDATA[if [ "$mesh" != "None" ] && [ ! -e '${$mesh.element_identifier}' ]; then ln -s '$mesh' '${$mesh.element_identifier}'; fi;
-MoveMesh
-    --mesh '$mesh.element_identifier'
-#if str($x).strip() != 'None' and str($x).strip() != '':
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $mesh:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+movemesh
+#for $m in $mesh:
+    --mesh "inputs/${m.element_identifier}"
+#end for
     --x '$x'
-#end if
-#if str($y).strip() != 'None' and str($y).strip() != '':
     --y '$y'
-#end if
-#if str($z).strip() != 'None' and str($z).strip() != '':
     --z '$z'
-#end if
     --output-mesh output_1.vtu]]></command>
   <inputs>
     <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu) mesh file" format="vtkxml" multiple="false"/>

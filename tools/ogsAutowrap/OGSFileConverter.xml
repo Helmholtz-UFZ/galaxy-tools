@@ -6,11 +6,14 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[OGSFileConverter --version]]></version_command>
-  <command><![CDATA[if [ "$gmsh_path" != "None" ] && [ ! -e '${$gmsh_path.element_identifier}' ]; then ln -s '$gmsh_path' '${$gmsh_path.element_identifier}'; fi;
-OGSFileConverter
-#if str($gmsh_path).strip() != 'None' and str($gmsh_path).strip() != '':
-    --gmsh-path '$gmsh_path.element_identifier'
-#end if]]></command>
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $gmsh_path:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+ogsfileconverter
+#for $m in $gmsh_path:
+    --gmsh-path "inputs/${m.element_identifier}"
+#end for]]></command>
   <inputs>
     <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input gmsh binary file" format="xml" multiple="false"/>
   </inputs>

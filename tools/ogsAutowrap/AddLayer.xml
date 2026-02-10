@@ -6,17 +6,18 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[AddLayer --version]]></version_command>
-  <command><![CDATA[if [ "$input_mesh_file" != "None" ] && [ ! -e '${$input_mesh_file.element_identifier}' ]; then ln -s '$input_mesh_file' '${$input_mesh_file.element_identifier}'; fi;
-AddLayer
-    --input-mesh-file '$input_mesh_file.element_identifier'
-#if str($layer_tickness).strip() != 'None' and str($layer_tickness).strip() != '':
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $input_mesh_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+addlayer
+#for $m in $input_mesh_file:
+    --input-mesh-file "inputs/${m.element_identifier}"
+#end for
     --layer-tickness '$layer_tickness'
-#end if
     $add_layer_on_bottom
     $copy_material_ids
-#if str($set_material_id).strip() != 'None' and str($set_material_id).strip() != '':
     --set-material-id '$set_material_id'
-#end if
     --output-mesh-file output_1.vtu]]></command>
   <inputs>
     <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu). the file containing the mesh" format="vtkxml" multiple="false"/>

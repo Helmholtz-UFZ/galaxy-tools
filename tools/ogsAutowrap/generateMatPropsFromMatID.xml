@@ -6,11 +6,14 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[generateMatPropsFromMatID --version]]></version_command>
-  <command><![CDATA[if [ "$mesh" != "None" ] && [ ! -e '${$mesh.element_identifier}' ]; then ln -s '$mesh' '${$mesh.element_identifier}'; fi;
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $mesh:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
 generateMatPropsFromMatID
-#if str($mesh).strip() != 'None' and str($mesh).strip() != '':
-    --mesh '$mesh.element_identifier'
-#end if]]></command>
+#for $m in $mesh:
+    --mesh "inputs/${m.element_identifier}"
+#end for]]></command>
   <inputs>
     <param name="mesh" type="data" optional="true" label="mesh" help="Input (.msh). The mesh to open from a file" format="xml" multiple="false"/>
   </inputs>

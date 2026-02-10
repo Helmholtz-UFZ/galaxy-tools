@@ -6,17 +6,24 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[AssignRasterDataToMesh --version]]></version_command>
-  <command><![CDATA[if [ "$raster" != "None" ] && [ ! -e '${$raster.element_identifier}' ]; then ln -s '$raster' '${$raster.element_identifier}'; fi;
-if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
-AssignRasterDataToMesh
-#if str($nodata).strip() != 'None' and str($nodata).strip() != '':
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $raster:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+#for $m in $input:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+assignrasterdatatomesh
     --nodata '$nodata'
-#end if
     $cell_array
     $node_array
     --scalar-name '$scalar_name'
-    --raster '$raster.element_identifier'
-    --input '$input.element_identifier'
+#for $m in $raster:
+    --raster "inputs/${m.element_identifier}"
+#end for
+#for $m in $input:
+    --input "inputs/${m.element_identifier}"
+#end for
     --output output_1.vtu]]></command>
   <inputs>
     <param name="nodata" type="float" value="0" optional="true" label="nodata" help="The no data value used for missing values (min = 0)" min="0"/>

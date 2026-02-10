@@ -6,35 +6,28 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[NetCdfConverter --version]]></version_command>
-  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
-NetCdfConverter
-#if str($TCLAP_ValueArg_std_size_t_arg_time_start).strip() != 'None' and str($TCLAP_ValueArg_std_size_t_arg_time_start).strip() != '':
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $input:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+netcdfconverter
     --TCLAP::ValueArg<std::size_t>& arg_time_start '$TCLAP_ValueArg_std_size_t_arg_time_start'
-#end if
-#if str($getProperties).strip() != 'None' and str($getProperties).strip() != '':
     '$getProperties'
-#end if
-#if str($nodata).strip() != 'None' and str($nodata).strip() != '':
     --nodata '$nodata'
-#end if
     --elem-type '$elem_type'
     $images
     $multi_file
     $single_file
-#if str($timestep_last).strip() != 'None' and str($timestep_last).strip() != '':
     --timestep-last '$timestep_last'
-#end if
-#if str($timestep_first).strip() != 'None' and str($timestep_first).strip() != '':
     --timestep-first '$timestep_first'
-#end if
     --dim3 '$dim3'
     --dim2 '$dim2'
     --dim1 '$dim1'
     --time '$time'
-#if str($var).strip() != 'None' and str($var).strip() != '':
     --var '$var'
-#end if
-    --input '$input.element_identifier'
+#for $m in $input:
+    --input "inputs/${m.element_identifier}"
+#end for
     --output output_1.vtu]]></command>
   <inputs>
     <param name="TCLAP_ValueArg_std_size_t_arg_time_start" type="integer" optional="true" label="TCLAP ValueArg std size t arg time start" help="" min="0"/>

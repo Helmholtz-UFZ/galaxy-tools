@@ -6,9 +6,14 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[RemoveUnusedPoints --version]]></version_command>
-  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
-RemoveUnusedPoints
-    --input '$input.element_identifier'
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $input:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+removeunusedpoints
+#for $m in $input:
+    --input "inputs/${m.element_identifier}"
+#end for
     --output output_1.gml]]></command>
   <inputs>
     <param name="input" type="data" optional="false" label="input" help="Input (.gml) geometry" format="xml" multiple="false"/>

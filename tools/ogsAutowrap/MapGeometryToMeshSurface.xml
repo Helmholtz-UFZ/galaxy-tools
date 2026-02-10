@@ -6,11 +6,20 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[MapGeometryToMeshSurface --version]]></version_command>
-  <command><![CDATA[if [ "$mesh_file" != "None" ] && [ ! -e '${$mesh_file.element_identifier}' ]; then ln -s '$mesh_file' '${$mesh_file.element_identifier}'; fi;
-if [ "$input_geometry" != "None" ] && [ ! -e '${$input_geometry.element_identifier}' ]; then ln -s '$input_geometry' '${$input_geometry.element_identifier}'; fi;
-MapGeometryToMeshSurface
-    --mesh-file '$mesh_file.element_identifier'
-    --input-geometry '$input_geometry.element_identifier'
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $mesh_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+#for $m in $input_geometry:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+mapgeometrytomeshsurface
+#for $m in $mesh_file:
+    --mesh-file "inputs/${m.element_identifier}"
+#end for
+#for $m in $input_geometry:
+    --input-geometry "inputs/${m.element_identifier}"
+#end for
     $additional_insert_mapping
     --output-geometry output_1.gml]]></command>
   <inputs>

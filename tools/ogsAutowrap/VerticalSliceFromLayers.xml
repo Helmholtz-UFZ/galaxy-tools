@@ -6,8 +6,11 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[VerticalSliceFromLayers --version]]></version_command>
-  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
-VerticalSliceFromLayers
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $input:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+verticalslicefromlayers
     $testdata
     $bounds
     --resolution '$resolution'
@@ -15,7 +18,9 @@ VerticalSliceFromLayers
     --end-x '$end_x'
     --start-y '$start_y'
     --start-x '$start_x'
-    --input '$input.element_identifier'
+#for $m in $input:
+    --input "inputs/${m.element_identifier}"
+#end for
     --output output_1.vtu]]></command>
   <inputs>
     <param name="testdata" type="boolean" label="testdata" help="keep test data" checked="false" truevalue="--testdata" falsevalue=""/>

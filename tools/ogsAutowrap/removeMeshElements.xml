@@ -6,44 +6,29 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[removeMeshElements --version]]></version_command>
-  <command><![CDATA[if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $mesh_input_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
 removeMeshElements
     $invert
-#if str($z_max).strip() != 'None' and str($z_max).strip() != '':
     --z-max '$z_max'
-#end if
-#if str($z_min).strip() != 'None' and str($z_min).strip() != '':
     --z-min '$z_min'
-#end if
-#if str($y_max).strip() != 'None' and str($y_max).strip() != '':
     --y-max '$y_max'
-#end if
-#if str($y_min).strip() != 'None' and str($y_min).strip() != '':
     --y-min '$y_min'
-#end if
-#if str($x_max).strip() != 'None' and str($x_max).strip() != '':
     --x-max '$x_max'
-#end if
-#if str($x_min).strip() != 'None' and str($x_min).strip() != '':
     --x-min '$x_min'
-#end if
     $zero_volume
     --element-type '$element_type'
-#if str($property_name).strip() != 'None' and str($property_name).strip() != '':
     --property-name '$property_name'
-#end if
-#if str($property_value).strip() != 'None' and str($property_value).strip() != '':
     --property-value '$property_value'
-#end if
-#if str($min_value).strip() != 'None' and str($min_value).strip() != '':
     --min-value '$min_value'
-#end if
-#if str($max_value).strip() != 'None' and str($max_value).strip() != '':
     --max-value '$max_value'
-#end if
     $outside
     $inside
-    --mesh-input-file '$mesh_input_file.element_identifier'
+#for $m in $mesh_input_file:
+    --mesh-input-file "inputs/${m.element_identifier}"
+#end for
     --mesh-output-file output_1.vtu]]></command>
   <inputs>
     <param name="invert" type="boolean" label="invert" help="inverts the specified bounding box" checked="false" truevalue="--invert" falsevalue=""/>

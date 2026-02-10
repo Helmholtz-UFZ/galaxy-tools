@@ -6,22 +6,19 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[ExtractSurface --version]]></version_command>
-  <command><![CDATA[if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
-ExtractSurface
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $mesh_input_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+extractsurface
     $ascii_output
-#if str($angle).strip() != 'None' and str($angle).strip() != '':
     --angle '$angle'
-#end if
-#if str($z_component).strip() != 'None' and str($z_component).strip() != '':
     --z-component '$z_component'
-#end if
-#if str($y_component).strip() != 'None' and str($y_component).strip() != '':
     --y-component '$y_component'
-#end if
-#if str($x_component).strip() != 'None' and str($x_component).strip() != '':
     --x-component '$x_component'
-#end if
-    --mesh-input-file '$mesh_input_file.element_identifier'
+#for $m in $mesh_input_file:
+    --mesh-input-file "inputs/${m.element_identifier}"
+#end for
     --mesh-output-file output_1.vtu]]></command>
   <inputs>
     <param name="ascii_output" type="boolean" label="ascii output" help="If the switch is set use ascii instead of binary format for data in the vtu output." checked="false" truevalue="--ascii-output" falsevalue=""/>

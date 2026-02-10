@@ -6,22 +6,13 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[createRaster --version]]></version_command>
-  <command><![CDATA[createRaster
-#if str($n_rows).strip() != 'None' and str($n_rows).strip() != '':
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+createRaster
     --n_rows '$n_rows'
-#end if
-#if str($n_cols).strip() != 'None' and str($n_cols).strip() != '':
     --n_cols '$n_cols'
-#end if
-#if str($cell_size).strip() != 'None' and str($cell_size).strip() != '':
     --cell_size '$cell_size'
-#end if
-#if str($ll_y).strip() != 'None' and str($ll_y).strip() != '':
     --ll_y '$ll_y'
-#end if
-#if str($ll_x).strip() != 'None' and str($ll_x).strip() != '':
     --ll_x '$ll_x'
-#end if
     --output output_1.asc]]></command>
   <inputs>
     <param name="n_rows" type="integer" value="1000" optional="true" label="n rows" help="number of rows" min="0"/>

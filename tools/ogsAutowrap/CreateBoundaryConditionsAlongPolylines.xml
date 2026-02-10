@@ -6,20 +6,29 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[CreateBoundaryConditionsAlongPolylines --version]]></version_command>
-  <command><![CDATA[if [ "$input_geometry" != "None" ] && [ ! -e '${$input_geometry.element_identifier}' ]; then ln -s '$input_geometry' '${$input_geometry.element_identifier}'; fi;
-if [ "$mesh_file" != "None" ] && [ ! -e '${$mesh_file.element_identifier}' ]; then ln -s '$mesh_file' '${$mesh_file.element_identifier}'; fi;
-if [ "$gmsh_path" != "None" ] && [ ! -e '${$gmsh_path.element_identifier}' ]; then ln -s '$gmsh_path' '${$gmsh_path.element_identifier}'; fi;
-CreateBoundaryConditionsAlongPolylines
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $input_geometry:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+#for $m in $mesh_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+#for $m in $gmsh_path:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
+createboundaryconditionsalongpolylines
     $gml
     --type '$type'
-#if str($search_length).strip() != 'None' and str($search_length).strip() != '':
     --search-length '$search_length'
-#end if
-    --input-geometry '$input_geometry.element_identifier'
-    --mesh-file '$mesh_file.element_identifier'
-#if str($gmsh_path).strip() != 'None' and str($gmsh_path).strip() != '':
-    --gmsh-path '$gmsh_path.element_identifier'
-#end if
+#for $m in $input_geometry:
+    --input-geometry "inputs/${m.element_identifier}"
+#end for
+#for $m in $mesh_file:
+    --mesh-file "inputs/${m.element_identifier}"
+#end for
+#for $m in $gmsh_path:
+    --gmsh-path "inputs/${m.element_identifier}"
+#end for
     --output-base-file-name output_1.geometry (gli]]></command>
   <inputs>
     <param name="gml" type="boolean" label="gml" help="Write found nodes to gml file." checked="false" truevalue="--gml" falsevalue=""/>
@@ -34,7 +43,7 @@ CreateBoundaryConditionsAlongPolylines
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from CreateBoundaryConditionsAlongPolylines">
-      <discover_datasets pattern="output_.*\.(vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
+      <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
     </collection>
   </outputs>
   <tests>

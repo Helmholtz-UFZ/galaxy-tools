@@ -6,16 +6,17 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[queryMesh --version]]></version_command>
-  <command><![CDATA[if [ "$mesh_file" != "None" ] && [ ! -e '${$mesh_file.element_identifier}' ]; then ln -s '$mesh_file' '${$mesh_file.element_identifier}'; fi;
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $mesh_file:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
 queryMesh
-#if str($element_id).strip() != 'None' and str($element_id).strip() != '':
     --element-id '$element_id'
-#end if
-#if str($node_id).strip() != 'None' and str($node_id).strip() != '':
     --node-id '$node_id'
-#end if
     $show_node_with_max_elements
-    '$mesh_file.element_identifier']]></command>
+#for $m in $mesh_file:
+    "inputs/${m.element_identifier}"
+#end for]]></command>
   <inputs>
     <param name="element_id" type="integer" value="ELEMENT_ID" optional="true" label="element id" help="element ID" min="0"/>
     <param name="node_id" type="integer" value="NODE_ID" optional="true" label="node id" help="node ID" min="0"/>

@@ -6,10 +6,15 @@
   </macros>
   <expand macro="requirements"/>
   <version_command><![CDATA[scaleProperty --version]]></version_command>
-  <command><![CDATA[if [ "$mesh" != "None" ] && [ ! -e '${$mesh.element_identifier}' ]; then ln -s '$mesh' '${$mesh.element_identifier}'; fi;
+  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
+#for $m in $mesh:
+    ln -s "$m" "inputs/${m.element_identifier}";
+#end for
 scaleProperty
     --property-name '$property_name'
-    --mesh '$mesh.element_identifier'
+#for $m in $mesh:
+    --mesh "inputs/${m.element_identifier}"
+#end for
     --input-unit '$input_unit'
     --out-mesh output_1.vtu]]></command>
   <inputs>

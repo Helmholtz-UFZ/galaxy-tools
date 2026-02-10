@@ -270,46 +270,39 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
         final_tclap_arg = cleaned_rem_args_parts[-1].strip("'\"") if cleaned_rem_args_parts else ""
 
         #  OUTPUT processing
-        # --- KORREKTUR: OUTPUT / PREFIX HANDLING ---
-        is_prefix = "prefix" in long_flag.lower()
-        if help_text.startswith("Output") or is_prefix:
-            if is_prefix:
-                # Wir erstellen einen TextParam, aber markieren ihn für die Test-Logik
-                attrs = {"name": var_name, "label": var_name.replace('_', ' '), "help": help_text, "optional": False, "value": "results_"}
-                param = TextParam(**attrs)
-                param.is_output_prefix = True # Markierung für später
-                # WICHTIG: Wir fügen ihn trotzdem der output_command_map hinzu, damit generate_tests() 
-                # nicht denkt, das Tool hätte keine Outputs!
-                output_command_map[long_flag] = {'filename': 'results_', 'format': 'vtkxml', 'type': 'prefix', 'short_flag': short_flag}
+        if help_text.startswith("Output"):
+            is_base_filename_output = "BASE_FILENAME_OUTPUT" in final_tclap_arg
+            output_type = 'file' if final_tclap_arg == 'OUTPUT_FILE' else 'collection_member'
+
+            detected_exts = []
+            format_match = FILE_EXTENSION_PATTERN.search(help_text)
+            if format_match:
+                detected_exts = [ext.strip().lstrip('.') for ext in format_match.group(1).split('|')]
+
+            file_format = get_ogs_ftype(detected_exts)
+
+            if detected_exts:
+                disk_ext = detected_exts[0].lower()
             else:
-                is_base_filename_output = "BASE_FILENAME_OUTPUT" in final_tclap_arg
-                output_type = 'file' if final_tclap_arg == 'OUTPUT_FILE' else 'collection_member'
-                detected_exts = []
-                format_match = FILE_EXTENSION_PATTERN.search(help_text)
-                if format_match:
-                    detected_exts = [ext.strip().lstrip('.') for ext in format_match.group(1).split('|')]
+                disk_ext = file_format.split('.')[-1]
 
-                file_format = get_ogs_ftype(detected_exts)
-                disk_ext = detected_exts[0].lower() if detected_exts else file_format.split('.')[-1]
-                if disk_ext == 'vtkxml': disk_ext = 'vtu'
+            if disk_ext == 'vtkxml': disk_ext = 'vtu'
 
-                output_command_map[long_flag] = {
-                    'filename': f"output_{output_idx}.{disk_ext}",
-                    'format': file_format,
-                    'is_base_filename': is_base_filename_output,
-                    'type': output_type,
-                    'short_flag': short_flag
-                }
-                output_idx += 1
-                continue
+            output_command_map[long_flag] = {
+                'filename': f"output_{output_idx}.{disk_ext}",
+                'format': file_format,
+                'is_base_filename': is_base_filename_output,
+                'type': output_type,
+                'short_flag': short_flag
+            }
+            output_idx += 1
+            continue
 
         param = None
-        # --- KORREKTUR: INPUT HANDLING ---
-        if help_text.startswith("Input") or (is_unlabeled and ("mesh" in help_text.lower() or "file" in help_text.lower())):
+        if help_text.startswith("Input"):
             is_base_filename = "BASE_FILENAME_INPUT" in final_tclap_arg
             is_file_list = "INPUT_FILE_LIST" in final_tclap_arg
-            # Wenn es ein UnlabeledMultiArg ist, MUSS multiple true sein
-            is_multiple = "PATH" in final_tclap_arg or is_file_list or is_base_filename or "Multi" in param_info.get('arg_type', '')
+            is_multiple = "PATH" in final_tclap_arg or is_file_list or is_base_filename
 
             detected_exts = []
             format_match = FILE_EXTENSION_PATTERN.search(help_text)
@@ -322,7 +315,7 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
                 "name": var_name,
                 "label": var_name.replace('_', ' '),
                 "help": help_text,
-                "optional": 'true' not in cleaned_rem_args_parts and not is_unlabeled,
+                "optional": 'true' not in cleaned_rem_args_parts,
                 "format": galaxy_format,
                 "multiple": is_multiple
             }
@@ -417,50 +410,51 @@ def generate_tools():
             galaxy_inputs, output_command_map = process_parameters(tool_data['parameters'])
             eprint(f"-> Found {len(output_command_map)} output definitions for this tool.")
 
-            # --- Schlankere Command-Logik ---
             command_parts = []
 
-            # 1. Symlinks (Wir nutzen ein Unterverzeichnis 'inputs', um Output-Kollisionen zu vermeiden)
-            command_parts.append("mkdir inputs; # Verzeichnis für saubere Trennung")
-            
             for param in galaxy_inputs:
                 if isinstance(param, DataParam):
-                    if getattr(param, 'multiple', False):
-                        command_parts.append(f'#for $m in ${param.name}:')
-                        command_parts.append(f'    ln -s "$m" "inputs/${{m.element_identifier}}";')
-                        command_parts.append('#end for')
-                    else:
-                        command_parts.append(f'ln -s "${param.name}" "inputs/${{{param.name}.element_identifier}}";')
+                    p_var = f'${param.name}'
+                    target = f"${{{p_var}.element_identifier}}"
+                    link_cmd = f"if [ \"{p_var}\" != \"None\" ] && [ ! -e '{target}' ]; then ln -s '{p_var}' '{target}'; fi;"
+                    command_parts.append(link_cmd)
 
-            # 2. Executable Name
-            manual_fixes = {"PVTU2VTU": "pvtu2vtu", "Mesh2Raster": "Mesh2Raster", "GMSH2OGS": "GMSH2OGS"}
-            exe = manual_fixes.get(tool_name, tool_name.lower() if tool_name[0].isupper() else tool_name)
-            command_parts.append(exe)
+            executable_name = tool_name
+            if tool_name.upper() == "PVTU2VTU":
+                executable_name = "pvtu2vtu"
+            elif tool_name[0].isupper() and tool_name[1:].islower():
+                executable_name = tool_name[0].lower() + tool_name[1:]
+            
+            manual_fixes = {
+                "PVTU2VTU": "pvtu2vtu",
+                "Mesh2Raster": "Mesh2Raster",
+                "GMSH2OGS": "GMSH2OGS"
+            }
+            executable_name = manual_fixes.get(tool_name, executable_name)
 
-            # 3. Parameter (Ohne strip-Logik)
+            command_parts.append(executable_name)
+
             for param in galaxy_inputs:
                 p_var = f'${param.name}'
                 flag = getattr(param, 'original_long_flag', param.name)
-                is_mult = getattr(param, 'multiple', False)
                 is_unlabeled = getattr(param, 'is_unlabeled', False)
-
+                is_opt = str(getattr(param, 'optional', False)).lower() == 'true'
+                
                 if isinstance(param, DataParam):
-                    if is_mult:
-                        command_parts.append(f'#for $m in {p_var}:')
-                        command_parts.append(f'    ' + (f'--{flag} ' if not is_unlabeled else '') + f'"inputs/${{m.element_identifier}}"')
-                        command_parts.append('#end for')
-                    else:
-                        arg = f"--{flag} 'inputs/${{{param.name}.element_identifier}}'" if not is_unlabeled else f"'inputs/${{{param.name}.element_identifier}}'"
-                        command_parts.append(f"    {arg}")
+                    arg_val = f"--{flag} '${param.name}.element_identifier'" if not is_unlabeled else f"'${param.name}.element_identifier'"
                 elif isinstance(param, BooleanParam):
-                    command_parts.append(f"    {p_var}")
+                    arg_val = f"{p_var}"
                 else:
-                    # Direkte Übergabe ohne strip (Galaxy fängt leere Felder meist selbst ab)
-                    arg = f"--{flag} '{p_var}'" if not is_unlabeled else f"'{p_var}'"
-                    command_parts.append(f"    {arg}")
+                    arg_val = f"--{flag} '{p_var}'" if not is_unlabeled else f"'{p_var}'"
+                
+                if is_opt:
+                    command_parts.append(f"#if str({p_var}).strip() != 'None' and str({p_var}).strip() != '':")
+                    command_parts.append(f"    {arg_val}")
+                    command_parts.append("#end if")
+                else:
+                    command_parts.append(f"    {arg_val}")
 
             for flag, info in output_command_map.items():
-                if info.get('type') == 'prefix': continue
                 command_parts.append(f"    --{flag} {info['filename']}")
 
             command_str = "\n".join(command_parts)
@@ -501,7 +495,7 @@ def generate_tools():
                     outputs_tag.append(output_param)
                 else:
                     collection = OutputCollection(name="tool_outputs", type="list", label=f"Outputs from {tool_name}")
-                    collection.append(DiscoverDatasets(pattern=r"(?P<designation>.*)\.(?P<ext>vtu|msh|asc|gml|xml|txt|png)", format="data", visible=True))
+                    collection.append(DiscoverDatasets(pattern=r"output_.*\.(vtu|msh|asc|gml|xml|txt|png)", format="data", visible=True))
                     outputs_tag.append(collection)
 
             tests_section = Tests()
@@ -660,12 +654,7 @@ def generate_tests():
             test_case = ET.SubElement(macro_xml, "test")
 
             params_in_test = {}
-            if " -- " in args_str:
-                head, tail = args_str.split(" -- ", 1)
-                args_list = shlex.split(head) + shlex.split(tail)
-            else:
-                args_list = shlex.split(args_str)
-
+            args_list = shlex.split(args_str)
             i, unlabeled_idx = 0, 0
             while i < len(args_list):
                 arg = args_list[i]
@@ -693,8 +682,6 @@ def generate_tests():
                 if not param: continue
                 
                 fv = str(value)
-                if "${Data_BINARY_DIR}" in fv:
-                    fv = fv.split("/")[-1]
                 if path_replacement: fv = fv.replace("<PATH>", path_replacement)
                 fv = fv.replace("<SOURCE_PATH>", "").replace("<BUILD_PATH>", "").replace("<", "").replace(">", "").lstrip("/")
 

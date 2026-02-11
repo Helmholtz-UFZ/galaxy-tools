@@ -1,7 +1,7 @@
 <tool id="iphop_predict" name="iPHoP predict" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0" license="MIT">
     <description>host of input bacteriophage/archaeal virus genomes</description>
     <macros>
-        <token name="@TOOL_VERSION@">1.4.1</token>
+        <token name="@TOOL_VERSION@">1.4.2</token>
         <token name="@VERSION_SUFFIX@">0</token>
     </macros>
     <xrefs>
@@ -43,7 +43,7 @@
             <param name="db_dir" value="db2"/>
             <output name="detailed_per_tool">
                 <assert_contents>
-                    <has_n_lines n="171"/>
+                    <has_n_lines n="192"/>
                     <has_n_columns n="10" sep="," comment="#"/>
                 </assert_contents>
             </output>
@@ -57,7 +57,7 @@
             <output name="host_genus">
                 <assert_contents>
                     <has_line line="Virus,AAI to closest RaFAH reference,Host genus,Confidence score,List of methods"/>
-                    <has_n_lines n="6"/>
+                    <has_n_lines n="8"/>
                     <has_n_columns n="5" sep=","/>
                 </assert_contents>
             </output>

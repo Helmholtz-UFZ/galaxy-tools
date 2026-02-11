@@ -88,7 +88,7 @@ Host prediction to genus
   - the confidence score calculated from all tools, and
   - the list of scores for individual classifiers obtained for this virus-host pair.
 
-- for the detailed score by classifier, "RaFAH" represents the score derived from RaFAH (https://pubmed.ncbi.nlm.nih.gov/34286299/), iPHoP-RF is the score derived from all host-based tools, CRISPR the score derived only from CRISPR hits, and blast the score derived only from blastn hits
+- for the detailed score by classifier, "RaFAH" represents the score derived from RaFAH (https://doi.org/10.1016/j.patter.2021.100274), iPHoP-RF is the score derived from all host-based tools, CRISPR the score derived only from CRISPR hits, and blast the score derived only from blastn hits
 - all virus-host pairs for which the confidence score is higher than the selected score cutoff (default = 90) are included, so each virus may be associated with multiple predictions
 - when multiple predictions are available for a query virus, typical standard practices is to use the one with the highest score
 

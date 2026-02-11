@@ -16,13 +16,13 @@
             --db_version $db_version
             --no_prompt &&
 
-        iphop download --db_dir tmp_download --full_verify &&
-
         ## download was done in a temp folder (containing tgz, md5 and extracted folder)
         ## mv the folder contents to where Galaxy expects it, since the folder name depends on the download
         ## it is determined with find
         mkdir -p '$out_file.extra_files_path'/db &&
         mv "\$(find tmp_download/ -mindepth 1 -maxdepth 1 -type d)"/* '$out_file.extra_files_path'/db/ &&
+        iphop download --db_dir '$out_file.extra_files_path'/db/ --full_verify &&
+
         cp '$dmjson' '$out_file'
     ]]></command>
     <configfiles>

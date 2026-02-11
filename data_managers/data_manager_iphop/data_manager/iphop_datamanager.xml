@@ -1,13 +1,13 @@
 <tool id="iphop_build_database" name="iPHoP" tool_type="manage_data" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
     <description>database builder</description>
     <macros>
-        <token name="@TOOL_VERSION@">1.4.1</token>
+        <token name="@TOOL_VERSION@">1.4.2</token>
         <token name="@VERSION_SUFFIX@">0</token>
         <token name="@PROFILE@">24.0</token>
     </macros>
     <requirements>
         <requirement type="package" version="@TOOL_VERSION@">iphop</requirement>
-        <requirement type="package" version="1.4.10">findutils</requirement>
+        <requirement type="package" version="4.10.0">findutils</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mkdir tmp_download/ &&

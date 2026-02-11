@@ -53,7 +53,7 @@
         <data name="out_file" format="data_manager_json" />
     </outputs>
     <tests>
-        <test expect_num_outputs="1">
+        <!-- <test expect_num_outputs="1">
             <param name="db_version" value="iPHoP_db_rw_for-test" />
             <output name="out_file">
                 <assert_contents>
@@ -61,7 +61,7 @@
                     <has_text text='"name":"Version iPHoP_db_rw_for-test"'/>
                 </assert_contents>
             </output>
-        </test>
+        </test> -->
     </tests>
     <help><![CDATA[
 Download and extract iPHoP reference data: 

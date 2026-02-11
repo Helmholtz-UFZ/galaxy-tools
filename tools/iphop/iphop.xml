@@ -1,7 +1,7 @@
 <tool id="iphop_predict" name="iPHoP predict" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0" license="MIT">
     <description>host of input bacteriophage/archaeal virus genomes</description>
     <macros>
-        <token name="@TOOL_VERSION@">1.3.3</token>
+        <token name="@TOOL_VERSION@">1.4.2</token>
         <token name="@VERSION_SUFFIX@">0</token>
     </macros>
     <xrefs>
@@ -25,6 +25,7 @@
         <param argument="--fa_file" type="data" format="fasta" label="FASTA formatted virus sequences"/>
         <param argument="--db_dir" type="select" label="Reference database">
             <options from_data_table="iphop">
+                <filter type="regexp" column="version" value="^(iPHoP_db_Jun25_rw|test_version)$"/>
                 <validator type="no_options" message="No reference data available. Contact your Galaxy admin."/>
             </options>
         </param>
@@ -42,21 +43,21 @@
             <param name="db_dir" value="db2"/>
             <output name="detailed_per_tool">
                 <assert_contents>
-                    <has_n_lines n="190"/>
+                    <has_n_lines n="192"/>
                     <has_n_columns n="10" sep="," comment="#"/>
                 </assert_contents>
             </output>
             <output name="host_genome">
                 <assert_contents>
                     <has_line line="Virus,Host genome,Host taxonomy,Main method,Confidence score,Additional methods"/>
-                    <has_n_lines n="119"/>
+                    <has_n_lines n="27"/>
                     <has_n_columns n="6" sep=","/>
                 </assert_contents>
             </output>
             <output name="host_genus">
                 <assert_contents>
                     <has_line line="Virus,AAI to closest RaFAH reference,Host genus,Confidence score,List of methods"/>
-                    <has_n_lines n="6"/>
+                    <has_n_lines n="8"/>
                     <has_n_columns n="5" sep=","/>
                 </assert_contents>
             </output>
@@ -87,7 +88,7 @@ Host prediction to genus
   - the confidence score calculated from all tools, and
   - the list of scores for individual classifiers obtained for this virus-host pair.
 
-- for the detailed score by classifier, "RaFAH" represents the score derived from RaFAH (https://pubmed.ncbi.nlm.nih.gov/34286299/), iPHoP-RF is the score derived from all host-based tools, CRISPR the score derived only from CRISPR hits, and blast the score derived only from blastn hits
+- for the detailed score by classifier, "RaFAH" represents the score derived from RaFAH (https://doi.org/10.1016/j.patter.2021.100274), iPHoP-RF is the score derived from all host-based tools, CRISPR the score derived only from CRISPR hits, and blast the score derived only from blastn hits
 - all virus-host pairs for which the confidence score is higher than the selected score cutoff (default = 90) are included, so each virus may be associated with multiple predictions
 - when multiple predictions are available for a query virus, typical standard practices is to use the one with the highest score
 

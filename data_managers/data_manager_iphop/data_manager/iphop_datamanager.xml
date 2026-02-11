@@ -14,8 +14,9 @@
         iphop download
             --db_dir tmp_download
             --db_version $db_version
-            ## --full_verify  https://bitbucket.org/srouxjgi/iphop/issues/114/db-download-verification-error
             --no_prompt &&
+
+        iphop download --db_dir tmp_download --full_verify &&
 
         ## download was done in a temp folder (containing tgz, md5 and extracted folder)
         ## mv the folder contents to where Galaxy expects it, since the folder name depends on the download

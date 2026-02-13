@@ -1,0 +1,163 @@
+<tool id="proteomicsr_msigdb_workflow" name="proteomicsr: enrichment using MSigDB gene sets" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="21.05">
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements"/>
+    <command detect_errors="exit_code"><![CDATA[
+        Rscript '$rscript'
+    ]]></command>
+    <configfiles>
+        <configfile name="rscript"><![CDATA[
+library(proteomicsr)
+
+#if $dat_calculated.ext == 'csv'
+    dat_calculated <- read.csv("$dat_calculated", row.names = 1)
+#else
+    dat_calculated <- read.delim("$dat_calculated", header = TRUE, row.names = 1, sep = "\t")
+#end if
+run_msigdb_workflow(
+    dat_calculated,
+    msigdb_category = $msigdb_category,
+    msigdb_subcategory = $msigdb_subcategory,
+    knowledgebase = $knowledgebase,
+    sampleGenes = NULL,
+    sampleMapping = NULL,
+    pvalue_decision = $pvalue_decision,
+    significance_cutoff_candidates = $significance_cutoff_candidates,
+    get_ID_to_map = NULL,
+    ID_provided = $ID_provided,
+    organism = $organism,
+    padjust_method = $padjust_method,
+    significance_cutoff_terms = $significance_cutoff_terms,
+    direction_calculation = $direction_calculation,
+    topx = $topx,
+    topx_per_comparison = $topx_per_comparison,
+    plot_term_candidates = $plot_term_candidates,
+    color_up = "${color_up}FF",
+    color_down = "${color_down}FF"
+)
+        ]]></configfile>
+    </configfiles>
+    <inputs>
+        <param argument="sampleTable" type="data" format="csv,tabular" label="Sample table" help="Rows: unique identifiers (e.g. uniprot accessions), Columns: samples. Replicates should be indicated using _1, _2, .... Content should be numeric."/>
+<!--
+    TODO Missing pipeline description
+    TODO Structure parameters with sections?
+    TODO Missing: description of outputs
+
+@param sampleGenes A dataframe containing mapping of Accessions, which should be the rownames, and corresponding gene names, which should be stored in a column named Gene. Default: NULL. Thus, no accession-gene mapping is performed.
+@param sampleMapping A dataframe, which can be used to relate different conditions to ggplot facets. The treatments, which should also appear in the sampleTable, have to be the rownames. The following columns should be present:
+"Xname" (the sample name, which will be shown on the X-axis),
+"Order" (numbers indicating the preferred order of the treatments/comparisons on the X-axis - from left to right),
+Condition1 (character, which will be used for the first level ggplot facet),
+Condition2 (character, which will be used for the second level ggplot facet).
+If no sampleMapping dataframe is available, use sampleMapping = NULL, which is also the default.
+-->
+        <param argument="msigdb_category" type="select" label="Gene set knowledgebase" help="Visit https://www.gsea-msigdb.org/gsea/msigdb/human/collections.jsp to get more information on MSigDB categories and if the chosen category needs the definition of a subcategory. MEDICUS and LEGACY gene sets seem to be not supported yet.">
+            <option value="H">Hallmark gene sets</option>
+            <option value="C1">Positional gene sets</option>
+            <option value="C2">Curated gene sets</option>
+            <option value="C3">Regulatory target gene sets</option>
+            <option value="C4">Computational gene sets</option>
+            <option value="C5">Ontology gene sets</option>
+            <option value="C6">Oncogenic signature gene sets</option>
+            <option value="C7">Immunologic signature gene sets</option>
+            <option value="C8">Cell type signature gene sets</option>
+        </param>
+        <param argument="msigdb_subcategory" type="select" label="Gene set knowledgebase subcategory" help="Visit https://www.gsea-msigdb.org/gsea/msigdb/human/collections.jsp to get more information on MSigDB categories and if the chosen category needs the definition of a subcategory. MEDICUS and LEGACY gene sets seem to be not supported yet.">
+            <option value=NULL>None</option>
+            <option value="CGP">C2 subcategory: chemical and genetic perturbations</option>
+            <option value="CP">C2 subcategory: canonical pathways</option>
+            <option value="CP:BIOCARTA">C2 subcategory: BioCarta canonical pathways</option>
+            <option value="CP:KEGG">C2 subcategory: KEGG canonical pathways (KEGG_MEDICUS and KEGG_LEGACY seem to be not supported yet)</option>
+            <option value="CP:PID">C2 subcategory: PID canonical pathways</option>
+            <option value="CP:REACTOME">C2 subcategory: Reactome canonical pathways</option>
+            <option value="MIR:MIRDB">C3 subcategory: gene sets containing high-confidence gene-level predictions of human miRNA targets as catalogued by miRDB v6.0 algorithm (MIR_LEGACY seems to be not supported yet)</option>
+            <option value="TFT:GTRD">C3 subcategory: genes that share GTRD predicted transcription factor binding sites in the region -1000,+100 bp around the TSS for the indicated transcription factor.</option>
+            <option value="CGN">C4 subcategory: cancer gene neighborhoods</option>
+            <option value="CM">C4 subcategory: cancer modules</option>
+            <option value="GO:BP">C5 subcategory: gene sets derived from the GO Biological Process ontology</option>
+            <option value="GO:CC">C5 subcategory: gene sets derived from the GO Cellular Component ontology</option>
+            <option value="GO:MF">C5 subcategory: gene sets derived from the GO Molecular Function ontology</option>
+            <option value="HPO">C5 subcategory: Human Phenotype Ontology</option>
+            <option value="IMMUNESIGDB">C7 subcategory: gene sets representing chemical and genetic perturbations of the immune system generated by manual curation of published studies in human and mouse immunology</option>
+            <option value="VAX">C7 subcategory: gene sets curated by the Human Immunology Project Consortium (HIPC) describing human transcriptomic immune responses to vaccinations</option>
+        </param>
+        <param argument="knowledgebase" type="text" value=NULL label="Pattern to add to ouput, i.e. the database used for enrichment" help="Default is NULL, thus nothing is added to the output./>
+        <param argument="ID_provided" type="text" value="uniprotswissprot" label="Define provided identifier" help="Define the ID type used in your dataframe of average Log2(FCs) and (adjusted) p-values. The ID should relate to attributes available using attributes = biomaRt::listAttributes(biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL", dataset = "hsapiens_gene_ensembl")) or the attributes specific for the defined organism (e.g. "mmusculus_gene_ensembl" or "rnorvegicus_gene_ensembl")./>
+        <param argument="organism" type="text" value="Homo Sapiens" label="Organism used" help="Specify the organism. Can be "Homo sapiens" or any other organism supported by the MSigDB if the ID mapping is provided. Get list of organisms supported by msigdbr using msigdbr::msigdbr_show_species(). If no ID mapping is provided, the following organisms are supported: "Homo sapiens", "Mus musculus", "Rattus norvegicus", "Canis lupus familiaris", "Bos taurus", "Caenorhabditis elegans", "Danio rerio", "Drosophila melanogaster", "Gallus gallus", "Saccharomyces cerevisiae", "Sus scrofa"/>
+        <param argument="pvalue_decision" type="text" value="pvalueadj" label="Pattern to select columns containing p-values to use" help="Examples: When pvalue, all columns ending on _pvalue are used to filter for significantly altered candidates, whereas the pattern pvalueadj will use all columns ending with this pattern/>
+        <param argument="significance_cutoff_candidates" type="float" value="0.05" min="0" max="1" label="Significance cutoff to filter for candidates used for enrichment" help="All candidates with (adjusted) p-value below this threshold will be subjected to enrichment analysis"/>
+        <param argument="significance_cutoff_terms" type="float" value="0.05" min="0" max="1" label="Significance cutoff to identify significantly enriched terms" help="All terms with (adjusted) p-value below this threshold will be considered significantly enriched"/>
+        <param argument="padjust_method" type="select" label="Method for p-value adjustment during enrichment analysis" help="">
+            <option value="holm">Holm</option>
+            <option value="hochberg">Hochberg</option>
+            <option value="hommel">Hommel</option>
+            <option value="bonferroni">Bonferroni</option>
+            <option value="BY">Benjamini &amp; Yekutieli (BY)</option>
+            <option value="fdr" selected="true">Benjamini &amp; Hochberg (BH/fdr)</option>
+            <option value="none">None</option>
+        </param>
+        <param argument="direction_calculation" type="select" label="Decide how to calculate the direction of the term regulation" help="Decide whether to use median or mean values of the Log2(fold changes) of the candidates used for enrichment and assigned to the term.">
+            <option value="median">Hallmark gene sets</option>
+            <option value="mean">Positional gene sets</option>
+        </param>
+        <param argument="topx" type="integer" min="1" value="10" label="Number of top enriched pathways to return and visualize" help="In addition to exporting and visualizing all enriched terms and the significantly enriched terms, the top enriched terms will be exported and visualized based on the value defined here."/>
+        <param argument="topx_per_comparison" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="true" label="Extract the top enriched terms condition-wise" help="Decide whether to extract the top enriched terms condition-wise or based on their summed enrichment over all conditions"/>
+        <param argument="plot_term_candidates" type="select" label="Decide whether to visualize candidates assigned to enriched terms" help="">
+            <option value="none">No candidates</option>
+            <option value="significant">Candidates of significantly enriched terms</option>
+            <option value="significant">Candidates of all enriched terms</option>
+        </param>
+        <!-- </section> -->
+        <param argument="color_up" type="color" value="#DC0000" label="Color for up-regulated candidates"/>
+        <param argument="color_down" type="color" value="#3C5488" label="Color for down-regulated candidates"/>
+        <param name="out_select" type="select" multiple="true">
+            <option value="dat_calcuated">dat calculated TODO</option>
+            <option value="plots" selected="true">Plots</option>
+        </param>
+    </inputs>
+    <outputs>
+        <!-- TODO make dat_calculated primary output -->
+        <!-- <data name="log"/> -->
+        <data name="dat_calculated" format="csv" from_work_dir="Rdata/dat_calculated.csv">
+            <filter>"dat_calculated" in out_select</filter>
+        </data>
+        <collection name="output" type="list">
+            <discover_datasets pattern="__name_and_ext__" directory="Rdata"/>
+        </collection>
+        <collection name="plots" type="list" label="${tool.name} on ${on_string}: plots">
+            <discover_datasets pattern="__name_and_ext__" directory="Plots"/>
+            <filter>"plots" in out_selected</filter>
+        </collection>
+    </outputs>
+    <tests>
+        <test>
+            <param name="sampleTable" value="sampleTable.csv" ftype="csv"/>
+            <output_collection name="output" count="3" type="list">
+                <!-- TODO there should be more outputs -->
+                <element name="dat_log2" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="5058"/>
+                        <has_n_columns sep="," n="25"/>
+                    </assert_contents>
+                </element>
+                <element name="dat_reliable" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="4269"/>
+                        <has_n_columns sep="," n="16"/>
+                    </assert_contents>
+                </element>
+                <element name="Mahalanobis_Outliers.csv" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="25"/>
+                        <has_n_columns sep="," n="3"/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+        </test>
+    </tests>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>

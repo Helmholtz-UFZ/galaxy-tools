@@ -1,0 +1,39 @@
+<tool id="setfact" name="setfacl: Grant permissions" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01" license="MIT">
+    <description></description>
+    <macros>
+        <token name="@TOOL_VERSION@">0.1.0</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <code file="tool_form_utils.py" />
+    <command detect_errors="exit_code"><![CDATA[
+        #for dir in $directories
+            echo '$dir' >> '$log' &&
+        #end for
+        true
+    ]]></command>
+    <inputs>
+        <param name="top_level" type="select" refresh_on_change="true">
+            <options from_data_table="setfacl_directories"/>
+        </param>
+        <param name="directories" type="drill_down" multiple="true" label="TODO" dynamic_options="get_trans(__trans__, top_level)"/>
+    </inputs>
+    <outputs>
+        <data name="log" format="txt"/>
+    </outputs>
+    <tests>
+    </tests>
+    <help><![CDATA[
+TODO: Fill in help in reStructuredText format (https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html)
+
+Usage
+.....
+
+**Input**
+
+**Output**
+
+    ]]></help>
+    <citations>
+        <!-- <citation type="doi"> </citation> -->
+    </citations>
+</tool>

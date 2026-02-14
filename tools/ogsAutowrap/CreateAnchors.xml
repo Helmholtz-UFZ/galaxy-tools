@@ -1,0 +1,37 @@
+<tool name="OGS: CreateAnchors" id="ogs_createanchors" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'CreateAnchors'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[CreateAnchors --version]]></version_command>
+  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
+if [ "$json_file" != "None" ] && [ ! -e '${$json_file.element_identifier}' ]; then ln -s '$json_file' '${$json_file.element_identifier}'; fi;
+CreateAnchors
+    --input '$input.element_identifier'
+    --json-file '$json_file.element_identifier'
+#if str($tolerance).strip() != 'None' and str($tolerance).strip() != '':
+    --tolerance '$tolerance'
+#end if
+#if str($max_iter).strip() != 'None' and str($max_iter).strip() != '':
+    --max-iter '$max_iter'
+#end if
+    --output output_1.vtu]]></command>
+  <inputs>
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu) bulk mesh file" format="vtkxml" multiple="false"/>
+    <param name="json_file" type="data" optional="false" label="json file" help="Input (.json) JSON file containing anchor start and end points" format="data" multiple="false"/>
+    <param name="tolerance" type="float" value="2.220446049250313e-16" optional="true" label="tolerance" help="Tolerance/Search length"/>
+    <param name="max_iter" type="text" value="5" optional="true" label="max iter" help="maximum number of iterations of the internal root-finding algorithm, (min = 0)" min="0"/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from CreateAnchors">
+      <discover_datasets pattern="output_.*\.(vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="createanchors_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **CreateAnchors** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

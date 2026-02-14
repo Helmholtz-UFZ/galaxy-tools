@@ -1,0 +1,35 @@
+<tool name="OGS: convertVtkDataArrayToVtkDataArray" id="ogs_convertvtkdataarraytovtkdataarray" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'convertVtkDataArrayToVtkDataArray'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[convertVtkDataArrayToVtkDataArray --version]]></version_command>
+  <command><![CDATA[if [ "$in_mesh" != "None" ] && [ ! -e '${$in_mesh.element_identifier}' ]; then ln -s '$in_mesh' '${$in_mesh.element_identifier}'; fi;
+convertVtkDataArrayToVtkDataArray
+    --new-property-data-type '$new_property_data_type'
+#if str($new_property_name).strip() != 'None' and str($new_property_name).strip() != '':
+    --new-property-name '$new_property_name'
+#end if
+    --existing-property-name '$existing_property_name'
+    --in-mesh '$in_mesh.element_identifier'
+    --out-mesh output_1.vtk]]></command>
+  <inputs>
+    <param name="new_property_data_type" type="select" label="new property data type" help="the data type as string">
+      <option value="int">int</option>
+      <option value="double">double</option>
+    </param>
+    <param name="new_property_name" type="text" value="MaterialIDs" optional="true" label="new property name" help="the new cell data array (PropertyVector) the values are stored"/>
+    <param name="existing_property_name" type="text" optional="false" label="existing property name" help="the existing cell data array (PropertyVector)"/>
+    <param name="in_mesh" type="data" optional="false" label="in mesh" help="Input (.vtk) mesh file name" format="vtkxml" multiple="false"/>
+  </inputs>
+  <outputs>
+    <data name="output_convertVtkDataArrayToVtkDataArray" format="vtkxml" label="Output file from convertVtkDataArrayToVtkDataArray" from_work_dir="output_1.vtk" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="convertvtkdataarraytovtkdataarray_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **convertVtkDataArrayToVtkDataArray** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

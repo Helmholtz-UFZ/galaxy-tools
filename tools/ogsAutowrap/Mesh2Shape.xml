@@ -1,0 +1,24 @@
+<tool name="OGS: Mesh2Shape" id="ogs_mesh2shape" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'Mesh2Shape'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[Mesh2Shape --version]]></version_command>
+  <command><![CDATA[if [ "$input_file" != "None" ] && [ ! -e '${$input_file.element_identifier}' ]; then ln -s '$input_file' '${$input_file.element_identifier}'; fi;
+Mesh2Shape
+    --input-file '$input_file.element_identifier'
+    --output-file output_1.shp]]></command>
+  <inputs>
+    <param name="input_file" type="data" optional="false" label="input file" help="Input (.vtu | .msh). OGS mesh file" format="vtkxml" multiple="false"/>
+  </inputs>
+  <outputs>
+    <data name="output_Mesh2Shape" format="data" label="Output file from Mesh2Shape" from_work_dir="output_1.shp" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="mesh2shape_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **Mesh2Shape** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

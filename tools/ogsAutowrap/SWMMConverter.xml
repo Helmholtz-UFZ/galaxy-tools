@@ -1,0 +1,36 @@
+<tool name="OGS: SWMMConverter" id="ogs_swmmconverter" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'SWMMConverter'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[SWMMConverter --version]]></version_command>
+  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
+SWMMConverter
+    --input '$input.element_identifier'
+    $node_vars
+    $link_vars
+    $subcatchment_vars
+    $system_vars
+    --mesh output_1.vtu
+    --geo output_2.gml
+    --csv output_3.csv]]></command>
+  <inputs>
+    <param name="input" type="data" optional="false" label="input" help="Input (.inp). SWMM input file" format="data" multiple="false"/>
+    <param name="node_vars" type="boolean" label="node vars" help="Read node variables and add to output mesh" checked="false" truevalue="--node_vars" falsevalue=""/>
+    <param name="link_vars" type="boolean" label="link vars" help="Read link variables and add to output mesh" checked="false" truevalue="--link_vars" falsevalue=""/>
+    <param name="subcatchment_vars" type="boolean" label="subcatchment vars" help="Read subcatchment variables and write to CSV-file" checked="false" truevalue="--subcatchment_vars" falsevalue=""/>
+    <param name="system_vars" type="boolean" label="system vars" help="Read system variables and write to CSV-file" checked="false" truevalue="--system_vars" falsevalue=""/>
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from SWMMConverter">
+      <discover_datasets pattern="output_.*\.(vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="swmmconverter_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **SWMMConverter** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

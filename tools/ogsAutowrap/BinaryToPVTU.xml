@@ -1,0 +1,23 @@
+<tool name="OGS: BinaryToPVTU" id="ogs_binarytopvtu" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'BinaryToPVTU'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[BinaryToPVTU --version]]></version_command>
+  <command><![CDATA[if [ "$mesh_input_file_base" != "None" ] && [ ! -e '${$mesh_input_file_base.element_identifier}' ]; then ln -s '$mesh_input_file_base' '${$mesh_input_file_base.element_identifier}'; fi;
+BinaryToPVTU
+    --mesh-input-file-base '$mesh_input_file_base.element_identifier'
+    --output '$output']]></command>
+  <inputs>
+    <param name="mesh_input_file_base" type="data" optional="false" label="mesh input file base" help="Input (.bin). The base the files containing the input mesh, i.e., the file name without the string beginning with '_partitioned' and ending with" format="data" multiple="true"/>
+    <param name="output" type="text" optional="false" label="output" help="output directory name and output base file name without extensions"/>
+  </inputs>
+  <outputs/>
+  <tests>
+    <expand macro="binarytopvtu_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **BinaryToPVTU** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

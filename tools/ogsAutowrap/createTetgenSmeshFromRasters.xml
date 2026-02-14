@@ -1,0 +1,33 @@
+<tool name="OGS: createTetgenSmeshFromRasters" id="ogs_createtetgensmeshfromrasters" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'createTetgenSmeshFromRasters'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[createTetgenSmeshFromRasters --version]]></version_command>
+  <command><![CDATA[if [ "$raster_list" != "None" ] && [ ! -e '${$raster_list.element_identifier}' ]; then ln -s '$raster_list' '${$raster_list.element_identifier}'; fi;
+if [ "$input_mesh_file" != "None" ] && [ ! -e '${$input_mesh_file.element_identifier}' ]; then ln -s '$input_mesh_file' '${$input_mesh_file.element_identifier}'; fi;
+createTetgenSmeshFromRasters
+    $ascii_output
+#if str($thickness).strip() != 'None' and str($thickness).strip() != '':
+    --thickness '$thickness'
+#end if
+    --raster-list '$raster_list.element_identifier'
+    --input-mesh-file '$input_mesh_file.element_identifier'
+    --output-mesh-file output_1.smesh]]></command>
+  <inputs>
+    <param name="ascii_output" type="boolean" label="ascii output" help="Write VTU output in ASCII format." checked="false" truevalue="--ascii_output" falsevalue=""/>
+    <param name="thickness" type="float" value="min_thickness" optional="true" label="thickness" help="The minimum thickness of a layer to be integrated at any given location (min = 0)" min="0"/>
+    <param name="raster_list" type="data" optional="false" label="raster list" help="Input (.vtu). An ascii-file containing a list of raster files, starting from top (DEM) to bottom." format="vtkxml" multiple="true"/>
+    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu | .msh). The file the 2D input mesh" format="vtkxml" multiple="false"/>
+  </inputs>
+  <outputs>
+    <data name="output_createTetgenSmeshFromRasters" format="data" label="Output file from createTetgenSmeshFromRasters" from_work_dir="output_1.smesh" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="createtetgensmeshfromrasters_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **createTetgenSmeshFromRasters** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

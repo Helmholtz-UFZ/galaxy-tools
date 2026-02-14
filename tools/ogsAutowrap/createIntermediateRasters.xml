@@ -1,0 +1,31 @@
+<tool name="OGS: createIntermediateRasters" id="ogs_createintermediaterasters" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'createIntermediateRasters'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[createIntermediateRasters --version]]></version_command>
+  <command><![CDATA[if [ "$file2" != "None" ] && [ ! -e '${$file2.element_identifier}' ]; then ln -s '$file2' '${$file2.element_identifier}'; fi;
+if [ "$file1" != "None" ] && [ ! -e '${$file1.element_identifier}' ]; then ln -s '$file1' '${$file1.element_identifier}'; fi;
+createIntermediateRasters
+#if str($number).strip() != 'None' and str($number).strip() != '':
+    --number '$number'
+#end if
+    --file2 '$file2.element_identifier'
+    --file1 '$file1.element_identifier'
+    --output-file output_1.asc]]></command>
+  <inputs>
+    <param name="number" type="integer" value="1" optional="true" label="number" help="number of rasters to be calculated, (min = 0)" min="0"/>
+    <param name="file2" type="data" optional="false" label="file2" help="Input (.asc). Second DEM-raster input file" format="xml" multiple="false"/>
+    <param name="file1" type="data" optional="false" label="file1" help="Input (.asc) First DEM-raster input file" format="xml" multiple="false"/>
+  </inputs>
+  <outputs>
+    <data name="output_createIntermediateRasters" format="xml" label="Output file from createIntermediateRasters" from_work_dir="output_1.asc" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="createintermediaterasters_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **createIntermediateRasters** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

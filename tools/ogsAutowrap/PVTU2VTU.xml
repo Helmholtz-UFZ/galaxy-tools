@@ -1,0 +1,28 @@
+<tool name="OGS: PVTU2VTU" id="ogs_pvtu2vtu" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'PVTU2VTU'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[PVTU2VTU --version]]></version_command>
+  <command><![CDATA[if [ "$input" != "None" ] && [ ! -e '${$input.element_identifier}' ]; then ln -s '$input' '${$input.element_identifier}'; fi;
+pvtu2vtu
+    --input '$input.element_identifier'
+#if str($original_mesh).strip() != 'None' and str($original_mesh).strip() != '':
+    --original_mesh '$original_mesh'
+#end if
+    --output output_1.vtu]]></command>
+  <inputs>
+    <param name="input" type="data" optional="false" label="input" help="Input (.pvtu). The partitioned input mesh file" format="vtkxml" multiple="false"/>
+    <param name="original_mesh" type="text" optional="true" label="original mesh" help="optional, the original unpartitioned input mesh (*.vtu)"/>
+  </inputs>
+  <outputs>
+    <data name="output_PVTU2VTU" format="vtkxml" label="Output file from PVTU2VTU" from_work_dir="output_1.vtu" hidden="false"/>
+  </outputs>
+  <tests>
+    <expand macro="pvtu2vtu_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **PVTU2VTU** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

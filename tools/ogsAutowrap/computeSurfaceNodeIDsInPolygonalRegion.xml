@@ -1,0 +1,29 @@
+<tool name="OGS: computeSurfaceNodeIDsInPolygonalRegion" id="ogs_computesurfacenodeidsinpolygonalregion" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'computeSurfaceNodeIDsInPolygonalRegion'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements"/>
+  <version_command><![CDATA[computeSurfaceNodeIDsInPolygonalRegion --version]]></version_command>
+  <command><![CDATA[if [ "$mesh_input_file" != "None" ] && [ ! -e '${$mesh_input_file.element_identifier}' ]; then ln -s '$mesh_input_file' '${$mesh_input_file.element_identifier}'; fi;
+if [ "$geo_file" != "None" ] && [ ! -e '${$geo_file.element_identifier}' ]; then ln -s '$geo_file' '${$geo_file.element_identifier}'; fi;
+if [ "$gmsh_path" != "None" ] && [ ! -e '${$gmsh_path.element_identifier}' ]; then ln -s '$gmsh_path' '${$gmsh_path.element_identifier}'; fi;
+computeSurfaceNodeIDsInPolygonalRegion
+    --mesh-input-file '$mesh_input_file.element_identifier'
+    --geo-file '$geo_file.element_identifier'
+#if str($gmsh_path).strip() != 'None' and str($gmsh_path).strip() != '':
+    --gmsh-path '$gmsh_path.element_identifier'
+#end if]]></command>
+  <inputs>
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). the file containing the input mesh" format="vtkxml" multiple="false"/>
+    <param name="geo_file" type="data" optional="false" label="geo file" help="Input (.gml). the input file containing the polygons" format="xml" multiple="false"/>
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input binary file" format="xml" multiple="false"/>
+  </inputs>
+  <outputs/>
+  <tests>
+    <expand macro="computesurfacenodeidsinpolygonalregion_test"/>
+  </tests>
+  <help><![CDATA[This tool runs the **computeSurfaceNodeIDsInPolygonalRegion** utility from the OpenGeoSys suite.]]></help>
+  <expand macro="citations"/>
+</tool>

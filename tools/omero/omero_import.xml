@@ -28,6 +28,9 @@
            -T 'Dataset:name:$dataset_name'
            -s '$omero_host'
            -k \$UUID_SESSION_KEY
+           #if $skip_step != "no_skip"
+           --skip $skip_step
+           #end if
            > $log &&
         #else
          omero import folder
@@ -36,6 +39,9 @@
            -p $omero_port
            -u \$OMERO_USER
            -w \$OMERO_PASSWORD
+           #if $skip_step != "no_skip"
+           --skip $skip_step
+           #end if
         > '$log' &&
         #end if
         omero search Dataset '$dataset_name' --style json > '$log2' &&
@@ -45,6 +51,23 @@
         <expand macro="host_port"/>
         <param name="folder" type="data" format="avi,bmp,btf,cif,csv,eps,fits,fli,gif,hdr,html,jp2,jpg,mov,mrc,ndpi,nhdr,nrrd,ome.tiff,par,pbm,pcx,pgm,png,ppm,psd,scn,sif,svs,tf2,tf8,tif,tif,tiff,top,txt,vms,wav,xml,zip" multiple="true" optional="false" label="Images to import into OMERO"/>
         <param name="dataset_name" type="text" optional="false" label="Target Dataset Name"/>
+        <param name="skip_step" type="select" label="Specify optional step to skip during import.">
+            <option value="all">
+                Skip all optional steps described below
+            </option>
+            <option value="checksum">
+                Skip checksum calculation on image files before and after transfer
+            </option>
+            <option value="minmax">
+                Skip calculation of the minima and maxima pixel values
+            </option>
+            <option value="thumbnails">
+                Skip generation of thumbnails
+            </option>
+            <option value="no_skip" selected="True">
+                Do not skip optional step during import.
+            </option>
+        </param>
     </inputs>
     <outputs>
         <data name="log" format="txt" label="${tool.name} on ${on_string}: Imported Image List"/>
@@ -54,10 +77,11 @@
         <test>
             <param name="folder" value="input1.tif,input2.tif"/>
             <param name="dataset_name" value="galaxy_test_upload"/>
-            <param name="omero_host" value="host.docker.internal"/>
-            <param name="omero_port" value="6064"/>
-            <param name="test_username" value="root"/>
-            <param name="test_password" value="omero"/>
+            <param name="omero_host" value="omero-nfdi.uni-muenster.de"/>
+            <param name="omero_port" value="4064"/>
+            <param name="test_username" value="RiccardoMassei"/>
+            <param name="test_password" value="hy6OZp4NAuHS"/>
+            <param name="skip_step" value="all"/>
             <output name="log" value="omero_output.txt" ftype="txt">
                 <assert_contents>
                     <has_n_lines n="2"/>

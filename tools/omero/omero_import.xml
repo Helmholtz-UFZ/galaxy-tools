@@ -29,6 +29,7 @@
         omero import folder
             -T 'Dataset:name:$dataset_name'
             -s '$omero_host'
+            --debug DEBUG
             #if $skip_step
                 --skip $skip_step
             #end if

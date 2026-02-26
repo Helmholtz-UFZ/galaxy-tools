@@ -1,29 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: FEFLOW2OGS" id="ogs_feflow2ogs" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
   <description>Galaxy wrapper for the OGS utility 'FEFLOW2OGS'.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
   </macros>
-  <expand macro="requirements"/>
+  <expand macro="requirements" />
   <version_command><![CDATA[FEFLOW2OGS --version]]></version_command>
-  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
-#for $m in $in:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
-feflow2ogs
-#for $m in $in:
-    --in "inputs/${m.element_identifier}"
-#end for
-    --out output_1.if extension is msh, old ogs file format is written]]></command>
+  <command><![CDATA[
+ln -s '$in' '$in.element_identifier';
+FEFLOW2OGS
+    --in '$in.element_identifier'
+    --out output_1.if extension is msh, old OGS file format is written
+]]></command>
   <inputs>
-    <param name="in" type="data" optional="false" label="in" help="Input (.fem). FEFLOW input file" format="xml" multiple="false"/>
+    <param name="in" type="data" optional="false" label="in" help="Input (.fem). FEFLOW input file" format="fem" multiple="false" />
   </inputs>
   <outputs>
-    <data name="output_FEFLOW2OGS" format="data" label="Output file from FEFLOW2OGS" from_work_dir="output_1.if extension is msh, old ogs file format is written" hidden="false"/>
+    <data name="output_FEFLOW2OGS" format="if extension is msh, old ogs file format is written" label="Output from FEFLOW2OGS" from_work_dir="output_1.if extension is msh, old OGS file format is written" hidden="false" />
   </outputs>
   <tests>
-    <expand macro="feflow2ogs_test"/>
+    <expand macro="feflow2ogs_test" />
   </tests>
-  <help><![CDATA[This tool runs the **FEFLOW2OGS** utility from the OpenGeoSys suite.]]></help>
-  <expand macro="citations"/>
+  <help>This tool runs the **FEFLOW2OGS** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
 </tool>

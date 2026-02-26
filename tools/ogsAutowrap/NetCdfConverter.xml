@@ -1,82 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: NetCdfConverter" id="ogs_netcdfconverter" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
   <description>Galaxy wrapper for the OGS utility 'NetCdfConverter'.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
   </macros>
-  <expand macro="requirements"/>
+  <expand macro="requirements" />
   <version_command><![CDATA[NetCdfConverter --version]]></version_command>
-  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
-#for $m in $input:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
-netcdfconverter
-    --TCLAP::ValueArg<std::size_t>& arg_time_start '$TCLAP_ValueArg_std_size_t_arg_time_start'
-    '$getProperties'
-    --nodata '$nodata'
-    --elem-type '$elem_type'
+  <command><![CDATA[
+ln -s '$input' '$input.element_identifier';
+NetCdfConverter
+    $TCLAP_ValueArg_std_size_t_arg_time_start: --TCLAP::ValueArg<std::size_t>& arg_time_start '$TCLAP_ValueArg_std_size_t_arg_time_start'
+    $nodata: --nodata '$nodata'
+    $elem_type: --elem-type '$elem_type'
     $images
     $multi_file
     $single_file
-    --timestep-last '$timestep_last'
-    --timestep-first '$timestep_first'
-    --dim3 '$dim3'
-    --dim2 '$dim2'
-    --dim1 '$dim1'
-    --time '$time'
-    --var '$var'
-#for $m in $input:
-    --input "inputs/${m.element_identifier}"
-#end for
-    --output output_1.vtu]]></command>
+    $timestep_last: --timestep-last '$timestep_last'
+    $timestep_first: --timestep-first '$timestep_first'
+    $dim3: --dim3 '$dim3'
+    $dim2: --dim2 '$dim2'
+    $dim1: --dim1 '$dim1'
+    $time: --time '$time'
+    $var: --var '$var'
+    --input '$input.element_identifier'
+    --output output_1.vtu
+]]></command>
   <inputs>
-    <param name="TCLAP_ValueArg_std_size_t_arg_time_start" type="integer" optional="true" label="TCLAP ValueArg std size t arg time start" help="" min="0"/>
-    <param name="getProperties" type="integer" optional="true" label="getProperties" help="" min="0"/>
-    <param name="nodata" type="integer" value="no_data_input" optional="true" label="nodata" help="explicitly specifies the no data value used in the dataset (usually it is not necessary to set this)"/>
-    <param name="elem_type" type="select" label="elem type" help="the element type used in the resulting OGS mesh,">
+    <param name="TCLAP_ValueArg_std_size_t_arg_time_start" type="integer" optional="true" label="TCLAP ValueArg std size t arg time start" help="" />
+    <param name="nodata" type="integer" optional="true" label="nodata" help="explicitly specifies the no data value used in the dataset (usually it is not necessary to set this)" />
+    <param name="elem_type" type="select" optional="false" label="elem type" help="the element type used in the resulting OGS mesh,">
       <option value="tri">tri</option>
       <option value="quad">quad</option>
       <option value="prism">prism</option>
       <option value="hex">hex</option>
     </param>
-    <param name="images" type="boolean" label="images" help="if set, all time steps will be written as ESRI image files (*.asc)" checked="false" truevalue="--images" falsevalue=""/>
-    <param name="multi_file" type="boolean" label="multi file" help="if set, each time step will be written to a separate mesh file" checked="false" truevalue="--multi-file" falsevalue=""/>
-    <param name="single_file" type="boolean" label="single file" help="if set, all time steps will be written to a single mesh file (with one scalar array per time step)" checked="false" truevalue="--single-file" falsevalue=""/>
-    <param name="timestep_last" type="integer" value="0" optional="true" label="timestep last" help="last time step to be extracted (only for time-dependent variables!)" min="0"/>
-    <param name="timestep_first" type="integer" value="0" optional="true" label="timestep first" help="first time step to be extracted (only for time-dependent variables!)" min="0"/>
-    <param name="dim3" type="select" label="dim3" help="index of third dimension (z/height/depth) for the selected variable">
+    <param name="images" type="boolean" label="images" help="if set, all time steps will be written as ESRI image files (*.asc)" checked="false" truevalue="--images" falsevalue="" />
+    <param name="multi_file" type="boolean" label="multi file" help="if set, each time step will be written to a separate mesh file" checked="false" truevalue="--multi-file" falsevalue="" />
+    <param name="single_file" type="boolean" label="single file" help="if set, all time steps will be written to a single mesh file (with one scalar array per time step)" checked="false" truevalue="--single-file" falsevalue="" />
+    <param name="timestep_last" type="integer" optional="true" label="timestep last" help="last time step to be extracted (only for time-dependent variables!)" />
+    <param name="timestep_first" type="integer" optional="true" label="timestep first" help="first time step to be extracted (only for time-dependent variables!)" />
+    <param name="dim3" type="select" optional="false" label="dim3" help="index of third dimension (z/height/depth) for the selected variable">
       <option value="0">0</option>
       <option value="1">1</option>
       <option value="2">2</option>
       <option value="3">3</option>
     </param>
-    <param name="dim2" type="select" label="dim2" help="index of second dimension (y/latitude) for the selected variable">
+    <param name="dim2" type="select" optional="false" label="dim2" help="index of second dimension (y/latitude) for the selected variable">
       <option value="0">0</option>
       <option value="1">1</option>
       <option value="2">2</option>
       <option value="3">3</option>
     </param>
-    <param name="dim1" type="select" label="dim1" help="index of first dimension (x/longitude) for the selected variable">
+    <param name="dim1" type="select" optional="false" label="dim1" help="index of first dimension (x/longitude) for the selected variable">
       <option value="0">0</option>
       <option value="1">1</option>
       <option value="2">2</option>
       <option value="3">3</option>
     </param>
-    <param name="time" type="select" label="time" help="index of the time-dependent dimension for the selected variable">
+    <param name="time" type="select" optional="false" label="time" help="index of the time-dependent dimension for the selected variable">
       <option value="0">0</option>
       <option value="1">1</option>
       <option value="2">2</option>
       <option value="3">3</option>
     </param>
-    <param name="var" type="text" optional="true" label="var" help="variable included in the the netCDF file"/>
-    <param name="input" type="data" optional="false" label="input" help="Input (.nc). The netCDF input file" format="data" multiple="false"/>
+    <param name="var" type="text" optional="true" label="var" help="variable included in the the netCDF file" />
+    <param name="input" type="data" optional="false" label="input" help="Input (.nc). The netCDF input file" format="nc" multiple="false" />
   </inputs>
   <outputs>
-    <data name="output_NetCdfConverter" format="vtkxml" label="Output file from NetCdfConverter" from_work_dir="output_1.vtu" hidden="false"/>
+    <data name="output_NetCdfConverter" format="vtkxml" label="Output from NetCdfConverter" from_work_dir="output_1.vtu" hidden="false" />
   </outputs>
   <tests>
-    <expand macro="netcdfconverter_test"/>
+    <expand macro="netcdfconverter_test" />
   </tests>
-  <help><![CDATA[This tool runs the **NetCdfConverter** utility from the OpenGeoSys suite.]]></help>
-  <expand macro="citations"/>
+  <help>This tool runs the **NetCdfConverter** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
 </tool>

@@ -1,44 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: IntegrateBoreholesIntoMesh" id="ogs_integrateboreholesintomesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
   <description>Galaxy wrapper for the OGS utility 'IntegrateBoreholesIntoMesh'.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
   </macros>
-  <expand macro="requirements"/>
+  <expand macro="requirements" />
   <version_command><![CDATA[IntegrateBoreholesIntoMesh --version]]></version_command>
-  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
-#for $m in $geo:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
-#for $m in $input:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
-integrateboreholesintomesh
-    --max-elevation '$max_elevation'
-    --min-elevation '$min_elevation'
-    --max-id '$max_id'
-    --min-id '$min_id'
-#for $m in $geo:
-    --geo "inputs/${m.element_identifier}"
-#end for
-#for $m in $input:
-    --input "inputs/${m.element_identifier}"
-#end for
-    --output output_1.vtu]]></command>
+  <command><![CDATA[
+ln -s '$geo' '$geo.element_identifier';
+ln -s '$input' '$input.element_identifier';
+IntegrateBoreholesIntoMesh
+    $max_elevation: --max-elevation '$max_elevation'
+    $min_elevation: --min-elevation '$min_elevation'
+    $max_id: --max-id '$max_id'
+    $min_id: --min-id '$min_id'
+    --geo '$geo.element_identifier'
+    --input '$input.element_identifier'
+    --output output_1.vtu
+]]></command>
   <inputs>
-    <param name="max_elevation" type="float" value="0" optional="true" label="max elevation" help="Maximum elevation for an integrated borehole, (min = 0)" min="0"/>
-    <param name="min_elevation" type="float" value="0" optional="true" label="min elevation" help="Minimum elevation for an integrated borehole, (min = 0)" min="0"/>
-    <param name="max_id" type="integer" value="-1" optional="true" label="max id" help="Maximum MaterialID for an integrated borehole"/>
-    <param name="min_id" type="integer" value="-1" optional="true" label="min id" help="Minimum MaterialID for an integrated borehole"/>
-    <param name="geo" type="data" optional="false" label="geo" help="Input (.gml). the geometry file" format="xml" multiple="false"/>
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). the mesh file" format="vtkxml" multiple="false"/>
+    <param name="max_elevation" type="float" optional="true" label="max elevation" help="Maximum elevation for an integrated borehole, (min = 0)" />
+    <param name="min_elevation" type="float" optional="true" label="min elevation" help="Minimum elevation for an integrated borehole, (min = 0)" />
+    <param name="max_id" type="integer" optional="true" label="max id" help="Maximum MaterialID for an integrated borehole" />
+    <param name="min_id" type="integer" optional="true" label="min id" help="Minimum MaterialID for an integrated borehole" />
+    <param name="geo" type="data" optional="false" label="geo" help="Input (.gml). Name of the geometry file" format="xml" multiple="false" />
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). Name of the mesh file" format="vtkxml" multiple="false" />
   </inputs>
   <outputs>
-    <data name="output_IntegrateBoreholesIntoMesh" format="vtkxml" label="Output file from IntegrateBoreholesIntoMesh" from_work_dir="output_1.vtu" hidden="false"/>
+    <data name="output_IntegrateBoreholesIntoMesh" format="vtkxml" label="Output from IntegrateBoreholesIntoMesh" from_work_dir="output_1.vtu" hidden="false" />
   </outputs>
   <tests>
-    <expand macro="integrateboreholesintomesh_test"/>
+    <expand macro="integrateboreholesintomesh_test" />
   </tests>
-  <help><![CDATA[This tool runs the **IntegrateBoreholesIntoMesh** utility from the OpenGeoSys suite.]]></help>
-  <expand macro="citations"/>
+  <help>This tool runs the **IntegrateBoreholesIntoMesh** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
 </tool>

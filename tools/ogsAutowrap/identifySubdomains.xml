@@ -1,43 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: identifySubdomains" id="ogs_identifysubdomains" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
   <description>Galaxy wrapper for the OGS utility 'identifySubdomains'.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
   </macros>
-  <expand macro="requirements"/>
+  <expand macro="requirements" />
   <version_command><![CDATA[identifySubdomains --version]]></version_command>
-  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
-#for $m in $mesh:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
-#for $m in $subdomain_meshes_filenames:
-    ln -s "$m" "inputs/${m.element_identifier}";
+  <command><![CDATA[
+ln -s '$mesh' '$mesh.element_identifier';
+## Symlinks für Repeat subdomain_meshes_filenames
+#for $item in $subdomain_meshes_filenames_repeat
+ln -s '$item.element' '$item.element.element_identifier';
 #end for
 identifySubdomains
     $force
-    --output_prefix '$output_prefix'
-    --searchlength '$searchlength'
-#for $m in $mesh:
-    --mesh "inputs/${m.element_identifier}"
+    $searchlength: --searchlength '$searchlength'
+    --mesh '$mesh.element_identifier'
+    --
+#for $item in $subdomain_meshes_filenames_repeat
+    '$item.element.element_identifier'
 #end for
-#for $m in $subdomain_meshes_filenames:
-    "inputs/${m.element_identifier}"
-#end for]]></command>
+    --output_prefix 'new_'
+]]></command>
   <inputs>
-    <param name="force" type="boolean" label="force" help="Overwriting existing subdomain meshes." checked="false" truevalue="--force" falsevalue=""/>
-    <param name="output_prefix" type="text" optional="true" label="output prefix" help="Output. Prefix the subdomain meshes' filenames with the output prefix/path."/>
-    <param name="searchlength" type="float" value="1e-16" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number (min = 0)" min="0"/>
-    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file the bulk mesh" format="vtkxml" multiple="false"/>
-    <param name="subdomain_meshes_filenames" type="data" optional="false" label="subdomain meshes filenames" help="mesh file names." format="data" multiple="true"/>
-  </inputs>
+    <param name="force" type="boolean" label="force" help="Overwriting existing subdomain meshes." checked="false" truevalue="--force" falsevalue="" />
+    <param name="searchlength" type="float" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number (min = 0)" />
+    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file name of the bulk mesh" format="vtkxml" multiple="false" />
+    <repeat name="subdomain_meshes_filenames_repeat" title="subdomain meshes filenames" min="1">
+      <param name="element" type="data" optional="false" label="subdomain meshes filenames" help="mesh file names." format="vtkxml" multiple="false" />
+    </repeat></inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from identifySubdomains">
-      <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
+      <discover_datasets pattern="(?P&lt;designation&gt;new_.*)" format="vtkxml" visible="true" />
     </collection>
   </outputs>
   <tests>
-    <expand macro="identifysubdomains_test"/>
+    <expand macro="identifysubdomains_test" />
   </tests>
-  <help><![CDATA[This tool runs the **identifySubdomains** utility from the OpenGeoSys suite.]]></help>
-  <expand macro="citations"/>
+  <help>This tool runs the **identifySubdomains** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
 </tool>

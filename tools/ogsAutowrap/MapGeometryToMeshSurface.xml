@@ -1,38 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: MapGeometryToMeshSurface" id="ogs_mapgeometrytomeshsurface" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
   <description>Galaxy wrapper for the OGS utility 'MapGeometryToMeshSurface'.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
   </macros>
-  <expand macro="requirements"/>
+  <expand macro="requirements" />
   <version_command><![CDATA[MapGeometryToMeshSurface --version]]></version_command>
-  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
-#for $m in $mesh_file:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
-#for $m in $input_geometry:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
-mapgeometrytomeshsurface
-#for $m in $mesh_file:
-    --mesh-file "inputs/${m.element_identifier}"
-#end for
-#for $m in $input_geometry:
-    --input-geometry "inputs/${m.element_identifier}"
-#end for
+  <command><![CDATA[
+ln -s '$mesh_file' '$mesh_file.element_identifier';
+ln -s '$input_geometry' '$input_geometry.element_identifier';
+MapGeometryToMeshSurface
+    --mesh-file '$mesh_file.element_identifier'
+    --input-geometry '$input_geometry.element_identifier'
     $additional_insert_mapping
-    --output-geometry output_1.gml]]></command>
+    --output-geometry output_1.gml
+]]></command>
   <inputs>
-    <param name="mesh_file" type="data" optional="false" label="mesh file" help="Input (.vtu). the input file containing the mesh" format="vtkxml" multiple="false"/>
-    <param name="input_geometry" type="data" optional="false" label="input geometry" help="Input (.gml). the file containing the input geometry" format="xml" multiple="false"/>
-    <param name="additional_insert_mapping" type="boolean" label="additional insert mapping" help="Advanced mapping algorithm will be applied, i.e. a new geometry will be created and possibly new points will be inserted." checked="false" truevalue="--additional-insert-mapping" falsevalue=""/>
+    <param name="mesh_file" type="data" optional="false" label="mesh file" help="Input (.vtu). The name of the input file containing the mesh" format="vtkxml" multiple="false" />
+    <param name="input_geometry" type="data" optional="false" label="input geometry" help="Input (.gml). The name of the file containing the input geometry" format="xml" multiple="false" />
+    <param name="additional_insert_mapping" type="boolean" label="additional insert mapping" help="Advanced mapping algorithm will be applied, i.e. a new geometry will be created and possibly new points will be inserted." checked="false" truevalue="--additional-insert-mapping" falsevalue="" />
   </inputs>
   <outputs>
-    <data name="output_MapGeometryToMeshSurface" format="xml" label="Output file from MapGeometryToMeshSurface" from_work_dir="output_1.gml" hidden="false"/>
+    <data name="output_MapGeometryToMeshSurface" format="xml" label="Output from MapGeometryToMeshSurface" from_work_dir="output_1.gml" hidden="false" />
   </outputs>
   <tests>
-    <expand macro="mapgeometrytomeshsurface_test"/>
+    <expand macro="mapgeometrytomeshsurface_test" />
   </tests>
-  <help><![CDATA[This tool runs the **MapGeometryToMeshSurface** utility from the OpenGeoSys suite.]]></help>
-  <expand macro="citations"/>
+  <help>This tool runs the **MapGeometryToMeshSurface** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
 </tool>

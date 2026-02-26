@@ -1,36 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: NodeReordering" id="ogs_nodereordering" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
   <description>Galaxy wrapper for the OGS utility 'NodeReordering'.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
   </macros>
-  <expand macro="requirements"/>
+  <expand macro="requirements" />
   <version_command><![CDATA[NodeReordering --version]]></version_command>
-  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
-#for $m in $input_mesh:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
-nodereordering
-    --method '$method'
-#for $m in $input_mesh:
-    --input_mesh "inputs/${m.element_identifier}"
-#end for
-    --output_mesh output_1.vtu]]></command>
+  <command><![CDATA[
+ln -s '$input_mesh' '$input_mesh.element_identifier';
+NodeReordering
+    $method: --method '$method'
+    --input_mesh '$input_mesh.element_identifier'
+    --output_mesh output_1.vtu
+]]></command>
   <inputs>
-    <param name="method" type="select" label="method" help="reordering method selection">
+    <param name="method" type="select" optional="false" label="method" help="reordering method selection">
       <option value="0">0</option>
       <option value="1">1</option>
       <option value="2">2</option>
       <option value="3">3</option>
     </param>
-    <param name="input_mesh" type="data" optional="false" label="input mesh" help="Input (.vtu | .vtk | .msh). the input mesh file" format="vtkxml" multiple="false"/>
+    <param name="input_mesh" type="data" optional="false" label="input mesh" help="Input (.vtu | .vtk | .msh). The name of the input mesh file" format="vtkxml" multiple="false" />
   </inputs>
   <outputs>
-    <data name="output_NodeReordering" format="vtkxml" label="Output file from NodeReordering" from_work_dir="output_1.vtu" hidden="false"/>
+    <data name="output_NodeReordering" format="vtkxml" label="Output from NodeReordering" from_work_dir="output_1.vtu" hidden="false" />
   </outputs>
   <tests>
-    <expand macro="nodereordering_test"/>
+    <expand macro="nodereordering_test" />
   </tests>
-  <help><![CDATA[This tool runs the **NodeReordering** utility from the OpenGeoSys suite.]]></help>
-  <expand macro="citations"/>
+  <help>This tool runs the **NodeReordering** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
 </tool>

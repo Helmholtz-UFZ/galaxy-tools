@@ -1,26 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: ConvertSHPToGLI" id="ogs_convertshptogli" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
   <description>Galaxy wrapper for the OGS utility 'ConvertSHPToGLI'.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
   </macros>
-  <expand macro="requirements"/>
+  <expand macro="requirements" />
   <version_command><![CDATA[ConvertSHPToGLI --version]]></version_command>
-  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
-#for $m in $shape_file:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
-convertshptogli
-#for $m in $shape_file:
-    --shape-file "inputs/${m.element_identifier}"
-#end for]]></command>
+  <command><![CDATA[
+ln -s '$shape_file' '$shape_file.element_identifier';
+ConvertSHPToGLI
+    --shape-file '$shape_file.element_identifier'
+]]></command>
   <inputs>
-    <param name="shape_file" type="data" optional="false" label="shape file" help="Input (.shp). the input shape file" format="data" multiple="false"/>
+    <param name="shape_file" type="data" optional="false" label="shape file" help="Input (.shp). The name of the input shape file" format="shp" multiple="false" />
   </inputs>
-  <outputs/>
+  <outputs />
   <tests>
-    <expand macro="convertshptogli_test"/>
+    <expand macro="convertshptogli_test" />
   </tests>
-  <help><![CDATA[This tool runs the **ConvertSHPToGLI** utility from the OpenGeoSys suite.]]></help>
-  <expand macro="citations"/>
+  <help>This tool runs the **ConvertSHPToGLI** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
 </tool>

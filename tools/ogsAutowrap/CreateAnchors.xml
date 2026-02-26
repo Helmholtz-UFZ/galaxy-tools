@@ -1,42 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: CreateAnchors" id="ogs_createanchors" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
   <description>Galaxy wrapper for the OGS utility 'CreateAnchors'.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
   </macros>
-  <expand macro="requirements"/>
+  <expand macro="requirements" />
   <version_command><![CDATA[CreateAnchors --version]]></version_command>
-  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
-#for $m in $input:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
-#for $m in $json_file:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
-createanchors
-#for $m in $input:
-    --input "inputs/${m.element_identifier}"
-#end for
-#for $m in $json_file:
-    --json-file "inputs/${m.element_identifier}"
-#end for
-    --tolerance '$tolerance'
-    --max-iter '$max_iter'
-    --output output_1.vtu]]></command>
+  <command><![CDATA[
+ln -s '$input' '$input.element_identifier';
+ln -s '$json_file' '$json_file.element_identifier';
+CreateAnchors
+    --input '$input.element_identifier'
+    --json-file '$json_file.element_identifier'
+    $tolerance: --tolerance '$tolerance'
+    $max_iter: --max-iter '$max_iter'
+    --output output_1.vtu
+]]></command>
   <inputs>
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu) bulk mesh file" format="vtkxml" multiple="false"/>
-    <param name="json_file" type="data" optional="false" label="json file" help="Input (.json) JSON file containing anchor start and end points" format="data" multiple="false"/>
-    <param name="tolerance" type="float" value="2.220446049250313e-16" optional="true" label="tolerance" help="Tolerance/Search length"/>
-    <param name="max_iter" type="text" value="5" optional="true" label="max iter" help="maximum number of iterations of the internal root-finding algorithm, (min = 0)" min="0"/>
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu) bulk mesh file" format="vtkxml" multiple="false" />
+    <param name="json_file" type="data" optional="false" label="json file" help="Input (.json) JSON file containing anchor start and end points" format="json" multiple="false" />
+    <param name="tolerance" type="float" optional="true" label="tolerance" help="Tolerance/Search length" />
+    <param name="max_iter" type="text" optional="true" label="max iter" help="maximum number of iterations of the internal root-finding algorithm, (min = 0)" />
   </inputs>
   <outputs>
-    <collection name="tool_outputs" type="list" label="Outputs from CreateAnchors">
-      <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
-    </collection>
+    <data name="output_CreateAnchors" format="vtkxml" label="Output from CreateAnchors" from_work_dir="output_1.vtu" hidden="false" />
   </outputs>
   <tests>
-    <expand macro="createanchors_test"/>
+    <expand macro="createanchors_test" />
   </tests>
-  <help><![CDATA[This tool runs the **CreateAnchors** utility from the OpenGeoSys suite.]]></help>
-  <expand macro="citations"/>
+  <help>This tool runs the **CreateAnchors** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
 </tool>

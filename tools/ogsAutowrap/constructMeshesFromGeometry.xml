@@ -1,37 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: constructMeshesFromGeometry" id="ogs_constructmeshesfromgeometry" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
   <description>Galaxy wrapper for the OGS utility 'constructMeshesFromGeometry'.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
   </macros>
-  <expand macro="requirements"/>
+  <expand macro="requirements" />
   <version_command><![CDATA[constructMeshesFromGeometry --version]]></version_command>
-  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
-#for $m in $geometry:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
-#for $m in $mesh:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
+  <command><![CDATA[
+ln -s '$geometry' '$geometry.element_identifier';
+ln -s '$mesh' '$mesh.element_identifier';
 constructMeshesFromGeometry
-    --searchlength '$searchlength'
-#for $m in $geometry:
-    --geometry "inputs/${m.element_identifier}"
-#end for
-#for $m in $mesh:
-    --mesh "inputs/${m.element_identifier}"
-#end for
-    $multiple_nodes_allowed]]></command>
+    $searchlength: --searchlength '$searchlength'
+    --geometry '$geometry.element_identifier'
+    --mesh '$mesh.element_identifier'
+    $multiple_nodes_allowed
+]]></command>
   <inputs>
-    <param name="searchlength" type="float" value="1e-16" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number, (min = 0)" min="0"/>
-    <param name="geometry" type="data" optional="false" label="geometry" help="Input (.gml | .gli). The file the input geometry" format="xml" multiple="false"/>
-    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file the input mesh where the geometry is defined" format="vtkxml" multiple="false"/>
-    <param name="multiple_nodes_allowed" type="boolean" label="multiple nodes allowed" help="Allows multiple mesh nodes in eps environment." checked="false" truevalue="--multiple-nodes-allowed" falsevalue=""/>
+    <param name="searchlength" type="float" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number, (min = 0)" />
+    <param name="geometry" type="data" optional="false" label="geometry" help="Input (.gml | .gli). The file name of the input geometry" format="xml" multiple="false" />
+    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file name of the input mesh where the geometry is defined" format="vtkxml" multiple="false" />
+    <param name="multiple_nodes_allowed" type="boolean" label="multiple nodes allowed" help="Allows multiple mesh nodes in eps environment." checked="false" truevalue="--multiple-nodes-allowed" falsevalue="" />
   </inputs>
-  <outputs/>
+  <outputs />
   <tests>
-    <expand macro="constructmeshesfromgeometry_test"/>
+    <expand macro="constructmeshesfromgeometry_test" />
   </tests>
-  <help><![CDATA[This tool runs the **constructMeshesFromGeometry** utility from the OpenGeoSys suite.]]></help>
-  <expand macro="citations"/>
+  <help>This tool runs the **constructMeshesFromGeometry** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
 </tool>

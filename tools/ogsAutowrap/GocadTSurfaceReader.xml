@@ -1,37 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: GocadTSurfaceReader" id="ogs_gocadtsurfacereader" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
   <description>Galaxy wrapper for the OGS utility 'GocadTSurfaceReader'.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
   </macros>
-  <expand macro="requirements"/>
+  <expand macro="requirements" />
   <version_command><![CDATA[GocadTSurfaceReader --version]]></version_command>
-  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
-#for $m in $input_file:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
-gocadtsurfacereader
+  <command><![CDATA[
+ln -s '$input_file' '$input_file.element_identifier';
+GocadTSurfaceReader
     $write_binary
     $surfaces_only
     $lines_only
-#for $m in $input_file:
-    --input-file "inputs/${m.element_identifier}"
-#end for
-    --output-dir output_1.data]]></command>
+    --input-file '$input_file.element_identifier'
+    --output-dir output_1.vtu
+]]></command>
   <inputs>
-    <param name="write_binary" type="boolean" label="write binary" help="if set, OGS-Meshes will be written in binary format" checked="false" truevalue="--write-binary" falsevalue=""/>
-    <param name="surfaces_only" type="boolean" label="surfaces only" help="if set, only TSurf datasets will be parsed from the input file" checked="false" truevalue="--surfaces-only" falsevalue=""/>
-    <param name="lines_only" type="boolean" label="lines only" help="if set, only PLine datasets will be parsed from the input file" checked="false" truevalue="--lines-only" falsevalue=""/>
-    <param name="input_file" type="data" optional="false" label="input file" help="Input (.ts | .pl | .mx). Gocad triangular surfaces file Provide a file with unix file endings under unix. Use dos2unix to convert." format="xml" multiple="false"/>
+    <param name="write_binary" type="boolean" label="write binary" help="if set, OGS-Meshes will be written in binary format" checked="false" truevalue="--write-binary" falsevalue="" />
+    <param name="surfaces_only" type="boolean" label="surfaces only" help="if set, only TSurf datasets will be parsed from the input file" checked="false" truevalue="--surfaces-only" falsevalue="" />
+    <param name="lines_only" type="boolean" label="lines only" help="if set, only PLine datasets will be parsed from the input file" checked="false" truevalue="--lines-only" falsevalue="" />
+    <param name="input_file" type="data" optional="false" label="input file" help="Input (.ts | .pl | .mx). Gocad triangular surfaces file Provide a file with unix file endings under unix. Use dos2unix to convert." format="xml" multiple="false" />
   </inputs>
   <outputs>
-    <collection name="tool_outputs" type="list" label="Outputs from GocadTSurfaceReader">
-      <discover_datasets pattern="(?P&lt;designation&gt;.*)\.(?P&lt;ext&gt;vtu|msh|asc|gml|xml|txt|png)" format="data" visible="true"/>
-    </collection>
+    <data name="output_GocadTSurfaceReader" format="vtkxml" label="Output from GocadTSurfaceReader" from_work_dir="output_1.vtu" hidden="false" />
   </outputs>
   <tests>
-    <expand macro="gocadtsurfacereader_test"/>
+    <expand macro="gocadtsurfacereader_test" />
   </tests>
-  <help><![CDATA[This tool runs the **GocadTSurfaceReader** utility from the OpenGeoSys suite.]]></help>
-  <expand macro="citations"/>
+  <help>This tool runs the **GocadTSurfaceReader** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
 </tool>

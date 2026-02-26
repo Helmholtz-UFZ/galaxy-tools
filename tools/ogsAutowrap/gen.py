@@ -2,6 +2,7 @@ import argparse
 import re
 import sys
 
+import urllib.request
 import xml.etree.ElementTree as ET
 from pathlib import Path
 import shlex
@@ -47,116 +48,61 @@ MIN_MAX_PATTERN = re.compile(r"\((min|max)\s*=\s*([^)]+)\)")
 
 
 def get_ogs_ftype(extensions: List[str]) -> str:
-    """Mapping für Galaxy. Für Tests nutzen wir bekannte Basistypen."""
-    if not extensions: return 'data'
-    if isinstance(extensions, str): extensions = [extensions.split('.')[-1]]
-    exts = [e.lower().lstrip('.') for e in extensions]
-
-    if any(e in ['vtu', 'vtk', 'pvtu', 'pvd'] for e in exts): return 'vtkxml'
-    if any(e in ['prj', 'xml', 'gml', 'ts', 'sg', 'fem', 'msh', 'asc'] for e in exts): return 'xml'
+    """Mapping for Galaxy file types"""
+    if not extensions: 
+        return 'vtkxml'
     
-    return 'data'
+    ext = extensions[0].lower().lstrip('.')
+
+    # VTK-Family
+    if ext in ['vtu', 'vtk', 'pvtu', 'pvd']: 
+        return 'vtkxml'
+    
+    # XML-family
+    if ext in ['prj', 'xml', 'gml', 'ts']: 
+        return 'xml'
+
+    return ext
 
 
 def eprint(*args, **kwargs):
-    """Schreibt in stderr."""
     print(*args, file=sys.stderr, **kwargs)
 
 
 def sanitize_name(name: str) -> str:
-    """Bereinigt einen String, um ein gültiger Galaxy-Parametername zu sein."""
     return re.sub(r'[^a-zA-Z0-9_]+', '_', name)
 
 
-def resolve_variable_value(var_name: str, search_space: str) -> Optional[str]:
-    """
-    FINALE, KORRIGIERTE VERSION: Sucht ausschließlich nach Deklarationen
-    (Typ + Name) und ignoriert spätere Zuweisungen. Löst das Klammer-Problem
-    korrekt mit einem Zähl-Algorithmus.
-    """
-    declaration_start_pattern = re.compile(
-        r"((?:const|constexpr|static)\s+)*[\w\:\.\<\> ]+\s+" + re.escape(var_name) + r"\b"
-    )
-
-    for match in declaration_start_pattern.finditer(search_space):
-        end_of_declaration = match.end()
-        remaining_code = search_space[end_of_declaration:].lstrip()
-
-        if remaining_code.startswith('='):
-            val_match = re.search(r"=\s*([^;]*);", remaining_code)
-            if val_match:
-                value = val_match.group(1).strip()
-                if value.endswith(('f', 'u', 'l', 'L')):
-                    value = value[:-1]
-                return value.strip('"')
-
-        elif remaining_code.startswith('('):
-            balance = 1
-            start_pos = end_of_declaration + remaining_code.find('(')
-
-            for i, char in enumerate(search_space[start_pos + 1:]):
-                if char == '(':
-                    balance += 1
-                elif char == ')':
-                    balance -= 1
-
-                if balance == 0:
-                    end_pos = start_pos + 1 + i
-                    value = search_space[start_pos + 1: end_pos].strip()
-                    if value.endswith(('f', 'u', 'l', 'L')):
-                        value = value[:-1]
-                    return value.strip('"')
-
-        elif remaining_code.startswith('{'):
-            val_match = re.search(r"\{\s*([^}]*)\};", remaining_code)
-            if val_match:
-                value = val_match.group(1).strip()
-                if value.endswith(('f', 'u', 'l', 'L')):
-                    value = value[:-1]
-                return value.strip('"')
-
-    return None
+def url_exists(url: str) -> bool:
+    try:
+        req = urllib.request.Request(url, method='HEAD')
+        with urllib.request.urlopen(req, timeout=5) as response:
+            return response.status == 200
+    except:
+        return False
 
 
-def resolve_values_constraint(var_name: str, search_space: str) -> List[str]:
-    """
-    Löst einen TCLAP::ValuesConstraint in eine Liste von Optionswerten auf.
-    Kann jetzt sowohl Vektoren mit Initialisierungslisten als auch solche,
-    die mit emplace_back gefüllt werden, verarbeiten.
-    """
+def resolve_values_constraint(constraint_ptr: str, search_space: str) -> List[str]:
+    var_name = constraint_ptr.lstrip('&')
     vc_pattern = re.compile(
-        r"TCLAP::ValuesConstraint<\s*[\w\:]+\s*>\s+" + re.escape(var_name) + r"\s*[\({]\s*(\w+)\s*[\)}]", re.DOTALL
+        r"TCLAP::ValuesConstraint<.*?>\s+" + re.escape(var_name) + r"\s*[\({]\s*(\w+)\s*[\)}]", 
+        re.DOTALL
     )
     vc_match = vc_pattern.search(search_space)
-    if not vc_match:
-        return []
+    if not vc_match: return []
 
     vector_var_name = vc_match.group(1)
-
     vec_pattern = re.compile(
-        r"std::vector<\s*[\w\:\.<> ]+\s*>\s+" + re.escape(vector_var_name) + r"\s*\{(.*?)\};", re.DOTALL
+        r"std::vector<.*?>\s+" + re.escape(vector_var_name) + r"\s*\{(.*?)\};", 
+        re.DOTALL
     )
     vec_match = vec_pattern.search(search_space)
 
     if vec_match:
-        values_str = vec_match.group(1)
-        options = []
-        if '"' in values_str:
-            options = re.findall(r'"(.*?)"', values_str)
-        else:
-            cleaned_str = re.split(r'//', values_str)[0].replace('\n', '')
-            options = [item.strip() for item in cleaned_str.split(',') if item.strip()]
-        if options:
-            return options
-
-    emplace_back_pattern = re.compile(
-        re.escape(vector_var_name) + r"\.emplace_back\s*\(\s*\"(.*?)\"\s*\);"
-    )
-
-    options = emplace_back_pattern.findall(search_space)
-    if options:
-        return options
-
+        content = vec_match.group(1)
+        options = re.findall(r'"(.*?)"', content)
+        if options: return options
+        return [item.strip() for item in content.split(',') if item.strip()]
     return []
 
 
@@ -204,190 +150,101 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
     output_command_map = {}
     output_idx = 1
 
-    replacements = {
-        "-1*std::numeric_limits<double>::max()": "-1.7976931348623157E+308",
-        "-1 * std::numeric_limits<double>::max()": "-1.7976931348623157E+308",
-        "-std::numeric_limits<double>::max()": "-1.7976931348623157E+308",
-        "std::numeric_limits<double>::max()": "1.7976931348623157E+308",
-        "std::numeric_limits<double>::lowest()": "-1.7976931348623157E+308",
-        "std::numeric_limits<double>::min()": "2.2250738585072014e-308",
-        "std::numeric_limits<double>::epsilon()": "2.220446049250313e-16",
-        "std::numeric_limits<float>::max()": "3.4028235E+38",
-        "std::numeric_limits<float>::lowest()": "-3.4028235E+38",
-        "std::numeric_limits<float>::min()": "1.17549435E-38",
-        "std::numeric_limits<int>::max()": "2147483647",
-        "std::numeric_limits<int>::min()": "-2147483648",
-        "std::numeric_limits<int>::lowest()": "-2147483648",
-        "std::numeric_limits<unsigned int>::max()": "4294967295",
-        "std::numeric_limits<std::size_t>::max()": "18446744073709551615",
-        "std::numeric_limits<size_t>::max()": "18446744073709551615",
-        "std::size_t(-1)": "18446744073709551615"
-    }
-
-
     for param_info in tclap_params:
-        if param_info.get('tclap_var_name') == "log_level_arg":
-            continue
+        if param_info.get('tclap_var_name') == "log_level_arg": continue
         all_args_str = param_info.get('all_args', '')
-        if not all_args_str:
-            continue
+        if not all_args_str: continue
 
         args = re.split(r',(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)', all_args_str)
         args = [arg.strip() for arg in args]
         is_unlabeled = param_info.get('is_unlabeled', False)
 
-        short_flag, long_flag, help_text_raw, remaining_args_list = "", "", "", []
+        short_flag, long_flag, help_text_raw = "", "", ""
         if not is_unlabeled:
             if len(args) > 0: short_flag = args[0].strip('"')
             if len(args) > 1: long_flag = args[1].strip('"')
             if len(args) > 2: help_text_raw = args[2]
-            if len(args) > 3: remaining_args_list = args[3:]
         else:
             if len(args) > 0: long_flag = args[0].strip('"')
             if len(args) > 1: help_text_raw = args[1]
-            if len(args) > 2: remaining_args_list = args[2:]
+            if not long_flag: long_flag = param_info.get('tclap_var_name', f"arg_{output_idx}")
 
-        if not long_flag or is_unlabeled:
-            is_unlabeled = True
-
-            if not long_flag:
-                long_flag = param_info.get('tclap_var_name', f"arg_{output_idx}")
-
-        if not long_flag:
-            continue
-
+        if not long_flag: continue
         help_parts = re.findall(r'"(.*?)"', help_text_raw, re.DOTALL)
-        help_text = ' '.join(part.strip() for part in help_parts)
-        help_text = re.sub(r'(the\s+)?name\s+of\s+', '', help_text, flags=re.IGNORECASE)
-        help_text = re.sub(r'\s{2,}', ' ', help_text).strip()
+        help_text = ' '.join(part.strip() for part in help_parts).strip()
         var_name = sanitize_name(long_flag)
 
-        IGNORED_PARAMS = ["write_merged_geometries"]
-        if var_name in IGNORED_PARAMS:
+        # OUTPUT LOGIK
+        if help_text.startswith("Output") or "BASE_FILENAME_OUTPUT" in all_args_str:
+            format_match = FILE_EXTENSION_PATTERN.search(help_text)
+            primary_ext = "vtu"
+            if format_match:
+                primary_ext = format_match.group(1).split('|')[0].strip().lstrip('.')
+            
+            file_format = get_ogs_ftype([primary_ext])
+            disk_ext = "vtu" if file_format == "vtkxml" else primary_ext
+            
+            is_base_filename_output = "BASE_FILENAME_OUTPUT" in all_args_str
+
+            output_command_map[long_flag] = {
+                'filename': f"output_{output_idx}.{disk_ext}",
+                'format': file_format,
+                'short_flag': short_flag,
+                'type': 'BASE_FILENAME' if is_base_filename_output else 'FIXED_FILE'
+            }
+            output_idx += 1
             continue
 
-        cleaned_rem_args_parts = [p.strip() for p in remaining_args_list if p.strip()]
-        final_tclap_arg = cleaned_rem_args_parts[-1].strip("'\"") if cleaned_rem_args_parts else ""
-
-        #  OUTPUT processing
-        # --- KORREKTUR: OUTPUT / PREFIX HANDLING ---
-        is_prefix = "prefix" in long_flag.lower()
-        if help_text.startswith("Output") or is_prefix:
-            if is_prefix:
-                # Wir erstellen einen TextParam, aber markieren ihn für die Test-Logik
-                attrs = {"name": var_name, "label": var_name.replace('_', ' '), "help": help_text, "optional": False, "value": "results_"}
-                param = TextParam(**attrs)
-                param.is_output_prefix = True # Markierung für später
-                # WICHTIG: Wir fügen ihn trotzdem der output_command_map hinzu, damit generate_tests() 
-                # nicht denkt, das Tool hätte keine Outputs!
-                output_command_map[long_flag] = {'filename': 'results_', 'format': 'vtkxml', 'type': 'prefix', 'short_flag': short_flag}
-            else:
-                is_base_filename_output = "BASE_FILENAME_OUTPUT" in final_tclap_arg
-                output_type = 'file' if final_tclap_arg == 'OUTPUT_FILE' else 'collection_member'
-                detected_exts = []
-                format_match = FILE_EXTENSION_PATTERN.search(help_text)
-                if format_match:
-                    detected_exts = [ext.strip().lstrip('.') for ext in format_match.group(1).split('|')]
-
-                file_format = get_ogs_ftype(detected_exts)
-                disk_ext = detected_exts[0].lower() if detected_exts else file_format.split('.')[-1]
-                if disk_ext == 'vtkxml': disk_ext = 'vtu'
-
-                output_command_map[long_flag] = {
-                    'filename': f"output_{output_idx}.{disk_ext}",
-                    'format': file_format,
-                    'is_base_filename': is_base_filename_output,
-                    'type': output_type,
-                    'short_flag': short_flag
-                }
-                output_idx += 1
-                continue
-
+        # INPUT & PARAMETER LOGIC
         param = None
-        # --- KORREKTUR: INPUT HANDLING ---
-        if help_text.startswith("Input") or (is_unlabeled and ("mesh" in help_text.lower() or "file" in help_text.lower())):
-            is_base_filename = "BASE_FILENAME_INPUT" in final_tclap_arg
-            is_file_list = "INPUT_FILE_LIST" in final_tclap_arg
-            # Wenn es ein UnlabeledMultiArg ist, MUSS multiple true sein
-            is_multiple = "PATH" in final_tclap_arg or is_file_list or is_base_filename or "Multi" in param_info.get('arg_type', '')
 
-            detected_exts = []
+        if len(args) >= 6 and args[5].strip().startswith('&'):
+            constraint_ptr = args[5].strip()
+            options_list = resolve_values_constraint(constraint_ptr, param_info.get('full_source_code', ''))
+            if options_list:
+                opts_dict = {opt: opt for opt in options_list}
+                param = SelectParam(
+                    name=var_name, 
+                    label=var_name.replace('_', ' '), 
+                    help=help_text, 
+                    options=opts_dict,
+                    optional=False
+                )
+                param.options_dict = opts_dict
+
+        elif help_text.startswith("Input") or "filenames" in var_name:
             format_match = FILE_EXTENSION_PATTERN.search(help_text)
-            if format_match:
-                detected_exts = [ext.strip().lstrip('.') for ext in format_match.group(1).split('|')]
+            all_exts = [e.strip().lstrip('.') for e in format_match.group(1).split('|')] if format_match else []
+            is_pvd = "pvd" in help_text.lower() or "pvd" in all_exts
+            primary_ext = "pvd" if is_pvd else (all_exts[0] if all_exts else "vtu")
+            
+            galaxy_type = get_ogs_ftype([primary_ext])
+            is_repeat_input = ("MultiArg" in param_info.get('arg_type', '') or "filenames" in var_name)
+            
+            param = DataParam(name=var_name, label=var_name.replace('_', ' '), help=help_text, 
+                             format=galaxy_type, multiple=False, optional=False)
+            param.is_repeat = is_repeat_input
+            param.ogs_ext = primary_ext
+            param.is_pvd = is_pvd
 
-            galaxy_format = get_ogs_ftype(detected_exts)
+            if is_pvd:
+                pvd_data = DataParam(name=f"{var_name}_pvd_data", label=f"{var_name} PVD Data Elements", 
+                                    help="VTU Member", format="vtkxml", optional=True)
+                pvd_data.is_pvd_element = True
+                pvd_data.is_repeat = True
+                pvd_data.is_unlabeled = False
+                galaxy_inputs.append(pvd_data)
 
-            attrs = {
-                "name": var_name,
-                "label": var_name.replace('_', ' '),
-                "help": help_text,
-                "optional": 'true' not in cleaned_rem_args_parts and not is_unlabeled,
-                "format": galaxy_format,
-                "multiple": is_multiple
-            }
-            param = DataParam(**attrs)
-            param.tclap_marker = final_tclap_arg
+        elif 'Switch' in param_info.get('arg_type', ''):
+            param = BooleanParam(name=var_name, label=var_name.replace('_', ' '), help=help_text, 
+                                 truevalue=f"--{long_flag}", falsevalue="", checked=False)
 
         else:
-            is_required_in_tclap = cleaned_rem_args_parts and cleaned_rem_args_parts[0] == 'true'
-            attrs = {"name": var_name, "label": var_name.replace('_', ' '), "help": help_text, "optional": not is_required_in_tclap}
-            full_arg_text = f"{long_flag} {help_text} {' '.join(remaining_args_list)}"
-
-            min_max_search = MIN_MAX_PATTERN.findall(full_arg_text)
-            if min_max_search:
-                for key, val in min_max_search:
-                    attrs[key] = val.strip()
-
-            arg_type = param_info.get('arg_type', '')
-            if 'Switch' in arg_type:
-                attrs.pop('optional', None)
-                attrs.update(truevalue=f"--{long_flag}", falsevalue="", checked=False)
-                param = BooleanParam(**attrs)
-            else:
-                last_arg = cleaned_rem_args_parts[-1].strip() if cleaned_rem_args_parts else ""
-                if last_arg.startswith('&'):
-                    code_before = param_info['full_source_code'][:param_info['match_start_pos']]
-                    constraint_var_name = last_arg.lstrip('&')
-                    options = resolve_values_constraint(constraint_var_name, code_before)
-                    if options:
-                        attrs.pop('optional', None)
-                        param = SelectParam(options=dict([(o, o) for o in options]), **attrs)
-
-                if param is None:
-                    default_val_candidate = None
-                    if cleaned_rem_args_parts:
-                        is_req = cleaned_rem_args_parts[0] in ['true', 'false']
-                        if is_req and len(cleaned_rem_args_parts) > 1:
-                            default_val_candidate = cleaned_rem_args_parts[1]
-                        elif not is_req:
-                            default_val_candidate = cleaned_rem_args_parts[0]
-
-                    if default_val_candidate is not None:
-                        resolved_value = ""
-                        if default_val_candidate.strip().startswith('&'):
-                            var_to_resolve = default_val_candidate.strip().lstrip('&')
-                            code_before = param_info['full_source_code'][:param_info['match_start_pos']]
-                            value_from_code = resolve_variable_value(var_to_resolve, code_before)
-                            if value_from_code:
-                                resolved_value = value_from_code
-                        else:
-                            resolved_value = default_val_candidate.strip().strip("'\"")
-
-                        if resolved_value in replacements:
-                            resolved_value = replacements[resolved_value]
-                        if resolved_value:
-                            attrs['value'] = resolved_value
-
-                    cpp_type = param_info.get('cpp_type', '')
-                    param_class = TextParam
-                    if "int" in cpp_type or "size_t" in cpp_type:
-                        param_class = IntegerParam
-                        if ('unsigned' in cpp_type or 'size_t' in cpp_type) and 'min' not in attrs:
-                            attrs['min'] = "0"
-                    elif "float" in cpp_type or "double" in cpp_type:
-                        param_class = FloatParam
-                    param = param_class(**attrs)
+            cpp_type = param_info.get('cpp_type', '').lower()
+            if "int" in cpp_type or "size_t" in cpp_type: p_class = IntegerParam
+            elif "float" in cpp_type or "double" in cpp_type: p_class = FloatParam
+            else: p_class = TextParam
+            param = p_class(name=var_name, label=var_name.replace('_', ' '), help=help_text, optional=True)
 
         if param:
             param.original_long_flag = long_flag
@@ -396,7 +253,6 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
             galaxy_inputs.append(param)
 
     return galaxy_inputs, output_command_map
-
 
 def generate_tools():
     if not OGS_REPO_PATH.is_dir():
@@ -415,66 +271,100 @@ def generate_tools():
         eprint(f"Generating wrapper for: {tool_name}...")
         try:
             galaxy_inputs, output_command_map = process_parameters(tool_data['parameters'])
-            eprint(f"-> Found {len(output_command_map)} output definitions for this tool.")
 
-            # --- Schlankere Command-Logik ---
+            # 1. EXECUTABLE NAMING
+            current_exe = tool_name
+            if tool_name.upper() == "PVTU2VTU": current_exe = "pvtu2vtu"
+            elif tool_name[0].isupper() and tool_name[1:].islower(): current_exe = tool_name[0].lower() + tool_name[1:]
+            m_fixes = {"PVTU2VTU": "pvtu2vtu", "Mesh2Raster": "Mesh2Raster", "GMSH2OGS": "GMSH2OGS"}
+            executable_name = m_fixes.get(tool_name, current_exe)
+
             command_parts = []
+            flag_parts = []
+            unlabeled_parts = []
 
-            # 1. Symlinks (Wir nutzen ein Unterverzeichnis 'inputs', um Output-Kollisionen zu vermeiden)
-            command_parts.append("mkdir inputs; # Verzeichnis für saubere Trennung")
-            
+            # 2. SYMLINKS & ARGUMENT MAPPING
             for param in galaxy_inputs:
-                if isinstance(param, DataParam):
-                    if getattr(param, 'multiple', False):
-                        command_parts.append(f'#for $m in ${param.name}:')
-                        command_parts.append(f'    ln -s "$m" "inputs/${{m.element_identifier}}";')
-                        command_parts.append('#end for')
-                    else:
-                        command_parts.append(f'ln -s "${param.name}" "inputs/${{{param.name}.element_identifier}}";')
-
-            # 2. Executable Name
-            manual_fixes = {"PVTU2VTU": "pvtu2vtu", "Mesh2Raster": "Mesh2Raster", "GMSH2OGS": "GMSH2OGS"}
-            exe = manual_fixes.get(tool_name, tool_name.lower() if tool_name[0].isupper() else tool_name)
-            command_parts.append(exe)
-
-            # 3. Parameter (Ohne strip-Logik)
-            for param in galaxy_inputs:
-                p_var = f'${param.name}'
-                flag = getattr(param, 'original_long_flag', param.name)
-                is_mult = getattr(param, 'multiple', False)
+                is_repeat = getattr(param, 'is_repeat', False)
                 is_unlabeled = getattr(param, 'is_unlabeled', False)
+                
+                flag = getattr(param, 'original_long_flag', param.name)
+
+                is_pvd_element = getattr(param, 'is_pvd_element', False)
 
                 if isinstance(param, DataParam):
-                    if is_mult:
-                        command_parts.append(f'#for $m in {p_var}:')
-                        command_parts.append(f'    ' + (f'--{flag} ' if not is_unlabeled else '') + f'"inputs/${{m.element_identifier}}"')
-                        command_parts.append('#end for')
+                    if is_pvd_element:
+                        command_parts.append(
+                            f"## PVD-Member Symlinks\n"
+                            f"#if ${param.name}_repeat\n"
+                            f"  #for $item in ${param.name}_repeat\n"
+                            f"    ln -s '$item.element' '$item.element.element_identifier';\n"
+                            f"  #end for\n"
+                            f"#endif"
+                        )
+                        continue
+                    if is_repeat:
+                        # SYMLINK
+                        command_parts.append(
+                            f"## Symlinks für Repeat {param.name}\n"
+                            f"#for $item in ${param.name}_repeat\n"
+                            f"ln -s '$item.element' '$item.element.element_identifier';\n"
+                            f"#end for"
+                        )
+                        # ARGUMENT logic
+                        if is_unlabeled:
+                            loop_str = (
+                                f"    --\n"
+                                f"    #for $item in ${param.name}_repeat\n"
+                                f"    '$item.element.element_identifier'\n"
+                                f"    #end for"
+                            )
+                        else:
+                            loop_str = (
+                                f"    #for $item in ${param.name}_repeat\n"
+                                f"    --{flag} '$item.element.element_identifier'\n"
+                                f"    #end for"
+                            )
+                        flag_parts.append(loop_str)
                     else:
-                        arg = f"--{flag} 'inputs/${{{param.name}.element_identifier}}'" if not is_unlabeled else f"'inputs/${{{param.name}.element_identifier}}'"
-                        command_parts.append(f"    {arg}")
+                        command_parts.append(f"ln -s '${param.name}' '${param.name}.element_identifier';")
+                        arg_val = f"'${param.name}.element_identifier'"
+                        if is_unlabeled:
+                            unlabeled_parts.append(f"    -- {arg_val}")
+                        else:
+                            flag_parts.append(f"    --{flag} {arg_val}")
+                
                 elif isinstance(param, BooleanParam):
-                    command_parts.append(f"    {p_var}")
+                    flag_parts.append(f"    ${param.name}")
                 else:
-                    # Direkte Übergabe ohne strip (Galaxy fängt leere Felder meist selbst ab)
-                    arg = f"--{flag} '{p_var}'" if not is_unlabeled else f"'{p_var}'"
-                    command_parts.append(f"    {arg}")
+                    if is_unlabeled:
+                        unlabeled_parts.append(f"    ${param.name}: -- '${param.name}'")
+                    else:
+                        flag_parts.append(f"    ${param.name}: --{flag} '${param.name}'")
 
+            # 3. OUTPUT FLAGS
             for flag, info in output_command_map.items():
-                if info.get('type') == 'prefix': continue
-                command_parts.append(f"    --{flag} {info['filename']}")
+                if info.get('type') == 'BASE_FILENAME':
+                    flag_parts.append(f"    --{flag} 'new_'")
+                else:
+                    flag_parts.append(f"    --{flag} {info['filename']}")
 
+            final_exec_line = [executable_name]
+            final_exec_line.extend(flag_parts)
+            final_exec_line.extend(unlabeled_parts)
+            command_parts.extend(final_exec_line)
             command_str = "\n".join(command_parts)
 
-
+            # 4. Tool object
             tool = Tool(
                 name=f"OGS: {tool_name}",
                 id=f"ogs_{tool_name.lower()}",
                 version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@",
                 description=f"Galaxy wrapper for the OGS utility '{tool_name}'.",
-                executable=tool_name,
+                executable=executable_name,
                 macros=["macros.xml", "test_macros.xml"],
                 profile="22.01",
-                version_command=f"{tool_name} --version",
+                version_command=f"{executable_name} --version",
                 command_override=[command_str]
             )
 
@@ -484,303 +374,388 @@ def generate_tools():
 
             if output_command_map:
                 outputs_tag = tool.outputs = Outputs()
-                sorted_outputs = sorted(output_command_map.items(), key=lambda item: item[0])
-                single_file_outputs = [v for v in output_command_map.values() if v.get('type') == 'file']
-
-                if len(single_file_outputs) == 1 and len(output_command_map) == 1:
-                    flag, file_info = sorted_outputs[0]
-                    output_label = f"Output file from {tool_name}"
-                    output_name = sanitize_name(f"output_{tool_name}")
-
-                    output_param = OutputData(
-                        name=output_name,
-                        format=file_info['format'], 
-                        from_work_dir=file_info['filename'],
-                        label=output_label
-                    )
-                    outputs_tag.append(output_param)
-                else:
+                uses_base_filename = any(info.get('type') == 'BASE_FILENAME' for info in output_command_map.values())
+                if uses_base_filename:
+                    first_out_info = next(info for info in output_command_map.values() if info.get('type') == 'BASE_FILENAME')
+                    target_fmt = first_out_info.get('format', 'vtkxml')
                     collection = OutputCollection(name="tool_outputs", type="list", label=f"Outputs from {tool_name}")
-                    collection.append(DiscoverDatasets(pattern=r"(?P<designation>.*)\.(?P<ext>vtu|msh|asc|gml|xml|txt|png)", format="data", visible=True))
+                    collection.append(DiscoverDatasets(pattern="(?P<designation>new_.*)", format=target_fmt, visible=True))
                     outputs_tag.append(collection)
+                else:
+                    single_file_outputs = [v for v in output_command_map.values() if v.get('type') == 'FIXED_FILE']
+                    if len(single_file_outputs) == 1 and len(output_command_map) == 1:
+                        flag, info = list(output_command_map.items())[0]
+                        outputs_tag.append(OutputData(name=sanitize_name(f"output_{tool_name}"), format=info['format'], from_work_dir=info['filename'], label=f"Output from {tool_name}"))
+                    else:
+                        collection = OutputCollection(name="tool_outputs", type="list", label=f"Outputs from {tool_name}")
+                        collection.append(DiscoverDatasets(pattern=r"output_.*\.(vtu|msh|asc|gml|xml)", format="data", visible=True))
+                        outputs_tag.append(collection)
 
             tests_section = Tests()
-            macro_name = f"{tool_name.lower()}_test"
-            tests_section.append(Expand(macro=macro_name))
+            tests_section.append(Expand(macro=f"{tool_name.lower()}_test"))
             tool.tests = tests_section
-
             tool.help = (f"This tool runs the **{tool_name}** utility from the OpenGeoSys suite.")
 
-            xml_string = tool.export()
+            # --- 5. XML finalisation
+            raw_xml_string = tool.export()
+            tool_xml_root = ET.fromstring(raw_xml_string)
+            inputs_node = tool_xml_root.find("inputs")
 
+            if inputs_node is not None:
+                for param in galaxy_inputs:
+                    if getattr(param, 'is_repeat', False):
+                        wrong_param = inputs_node.find(f"param[@name='{param.name}']")
+                        if wrong_param is not None:
+                            rep = ET.Element("repeat", {
+                                "name": f"{param.name}_repeat",
+                                "title": param.label,
+                                "min": "1"
+                            })
+
+                            rep.text = "\n      "
+                            
+                            inner_attrs = {k: v for k, v in wrong_param.items()}
+                            inner_attrs["name"] = "element"
+                            inner_attrs["multiple"] = "false"
+                            inner_param = ET.Element("param", inner_attrs)
+
+                            inner_param.tail = "\n    "
+                            
+                            rep.append(inner_param)
+                            inputs_node.remove(wrong_param)
+                            inputs_node.append(rep)
+
+            # Save with CDATA fix
             output_file_path = OUTPUT_DIR / f"{tool_name}.xml"
+            
+            # 1. XML to string
+            xml_str = ET.tostring(tool_xml_root, encoding='unicode')
+
+            def version_cdata_rewrite(match):
+                content = match.group(1).strip()
+                return f"<version_command><![CDATA[{content}]]></version_command>"
+            
+            xml_str = re.sub(r"<version_command>(.*?)</version_command>", version_cdata_rewrite, xml_str)
+
+            def command_cdata_rewrite(match):
+                content = match.group(1).strip()
+
+                content = content.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
+
+                lines = []
+                for line in content.split('\n'):
+                    stripped = line.lstrip()
+                    if stripped.startswith('#'):
+                        lines.append(stripped)
+                    else:
+                        lines.append(line)
+                
+                return f"<command><![CDATA[\n" + "\n".join(lines) + "\n]]></command>"
+
+            xml_str = re.sub(r"<command.*?>(.*?)</command>", command_cdata_rewrite, xml_str, flags=re.DOTALL)
+
             with open(output_file_path, 'w', encoding='utf-8') as f:
-                f.write(xml_string)
+                f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+                f.write(xml_str)
+                
             eprint(f"-> Successfully saved: {output_file_path}")
-            generated_count += 1
+            generated_count += 1 
+
         except Exception as e:
             eprint(f"!! ERROR while processing '{tool_name}': {e}")
             import traceback
             traceback.print_exc(file=sys.stderr)
 
-    eprint(f"\nFinished. {generated_count} of {len(all_tools_data)} tool wrappers were created in the '{OUTPUT_DIR}' directory.")
+    eprint(f"\nFinished. {generated_count} tool wrappers created.")
 
 
-def parse_diff_data(diff_str: str, base_url: str, workdir: str) -> List[Dict[str, str]]:
-    """Extrahiert Referenz- und Output-Dateien aus einem DIFF_DATA Block."""
+def parse_diff_data(diff_str: str, base_url: str, workdir: str, input_files: List[str]) -> List[Dict[str, str]]:
     diff_files = []
-    file_pattern = re.compile(r"[\w\-\./<>\$]+\.(?:vtu|gml|bin|asc|pvtu|msh|smesh|geo|xdmf|grd|xyz|ts|inp|json)")
+    seen_generated = set()
+    valid_exts = ('.vtu', '.gml', '.bin', '.asc', '.pvtu', '.msh', '.smesh', '.xdmf', '.prj', '.xml', '.png', '.geo')
 
-    for line in diff_str.strip().split('\n'):
-        line = line.strip()
-        found_files = file_pattern.findall(line)
-        if not found_files:
-            continue
+    clean_lines = [line.split('#')[0].strip() for line in diff_str.strip().split('\n')]
+    tokens = (" ".join(clean_lines)).split()
+    
+    i = 0
+    while i < len(tokens):
+        t1 = tokens[i]
+        if any(t1.lower().endswith(ext) for ext in valid_exts):
+            if i + 1 < len(tokens) and any(tokens[i+1].lower().endswith(ext) for ext in valid_exts):
+                t2 = tokens[i+1]
 
-        if len(found_files) == 1:
-            ref_url = f"{base_url}/{workdir}/{found_files[0]}"
-            diff_files.append({"reference": ref_url, "generated": found_files[0], "ftype": found_files[0].split('.')[-1]})
-
-        elif len(found_files) >= 2:
-            ref_url = f"{base_url}/{workdir}/{found_files[0]}"
-            diff_files.append({"reference": ref_url, "generated": found_files[1], "ftype": found_files[1].split('.')[-1]})
-
+                if t2 not in input_files and t2 not in seen_generated:
+                    ref_url = f"{base_url}/{workdir}/{t1}".replace('<PATH>', workdir) if workdir else f"{base_url}/{t1}"
+                    diff_files.append({
+                        "reference": ref_url,
+                        "generated": t2,
+                        "ftype": t2.split('.')[-1]
+                    })
+                    seen_generated.add(t2)
+                i += 2
+                continue
+        i += 1
     return diff_files
 
 
-def generate_tests():
-    """
-    Generiert individuelle, benannte Test-Makros für jedes Tool.
-    Verwendet das 'location'-Attribut für Remote-Dateien.
-    """
-    eprint("--- Generating Test Macros from Tests.cmake with GitLab URLs ---")
+def get_dummy_value(param, tool_name):
+    """Generiert einen sinnvollen Dummy-Wert für den Fallback-Test."""
+    if isinstance(param, DataParam):
+        ext = getattr(param, 'ogs_ext', 'vtu')
+        if ext in ['vtu', 'vtk']:
+            return "test.vtu"
+        return f"test.{ext}"
 
+    if isinstance(param, SelectParam):
+        opts = getattr(param, 'options_dict', getattr(param, 'options', {}))
+        if opts:
+            return list(opts.keys())[0]
+        return "value"
+        
+    if isinstance(param, IntegerParam):
+        return "1"
+    if isinstance(param, FloatParam):
+        return "1.0"
+    if isinstance(param, BooleanParam):
+        return "true"
+    return "test_value"
+
+
+def generate_tests():
+    eprint("--- Generating Final Unified Test Macros ---")
     CMAKE_TESTS_FILE = Path("/home/stehling/gitProjects/ogs/Applications/Utils/Tests.cmake")
     RAW_GITLAB_TEST_DATA_URL = "https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data"
     RAW_GITLAB_PROJECT_ROOT_URL = "https://gitlab.opengeosys.org/ogs/ogs/-/raw/master"
 
-    if not CMAKE_TESTS_FILE.is_file():
-        eprint(f"FEHLER: Die Testdefinitionsdatei '{CMAKE_TESTS_FILE}' wurde nicht gefunden.")
-        return
-
     all_tools_data = discover_tools()
-    if not all_tools_data:
-        eprint("Keine Tools gefunden, Tests können nicht generiert werden.")
-        return
-
     tools_map_lower = {tool['name'].lower(): tool for tool in all_tools_data}
-    wrapper_tool_names_lower = list(tools_map_lower.keys())
-
-    macros_root = ET.Element("macros")
-
+    tool_tests_accumulator = {tool['name'].lower(): [] for tool in all_tools_data}
+    
     cmake_content = CMAKE_TESTS_FILE.read_text(encoding='utf-8', errors='ignore')
-    addtest_pattern = re.compile(r"AddTest\s*\((.*?)\)", re.DOTALL)
+    addtest_pattern = re.compile(r"AddTest\s*\((.*?)\s*\)(?!\s*PROPERTIES)", re.DOTALL)
 
-    processed_tools_lower = set()
-    test_case_count = 0
+    STOP_KEYWORDS = ["TESTER", "RUNTIME", "PROPERTIES", "DEPENDS", "REQUIREMENTS", "DIFF_DATA", "WRAPPER", "WRAPPER_ARGS"]
 
     for match in addtest_pattern.finditer(cmake_content):
-        test_block_content = "\n" + match.group(1).strip() + "\n"
-        test_block_content_lower = test_block_content.lower()
-
-        path_var_match = re.search(r"\s+PATH\s+([^\s\)]+)", test_block_content)
-        path_replacement = path_var_match.group(1).strip() if path_var_match else ""
-
-        workdir_match = re.search(r"\s+WORKING_DIRECTORY\s+\$\{Data_SOURCE_DIR\}/([^\s\)]+)", test_block_content)
-        workdir_subpath = workdir_match.group(1).strip() if workdir_match else ""
+        test_block = match.group(1)
         
-        if path_replacement:
-            workdir_subpath = workdir_subpath.replace("<PATH>", path_replacement)
-        workdir_subpath = workdir_subpath.replace("<SOURCE_PATH>", "").replace("<BUILD_PATH>", "").replace("<", "").replace(">", "")
+        exec_match = re.search(r"EXECUTABLE\s+([^\s\)]+)", test_block)
+        matched_tool = None
+        if exec_match and exec_match.group(1).lower() in tools_map_lower:
+            matched_tool = exec_match.group(1).lower()
+        else:
+            for t in tools_map_lower.keys():
+                if re.search(r'(?:[\s/_-]|^)' + re.escape(t) + r'(?:[\s/_-]|$)', test_block.lower()):
+                    matched_tool = t
+                    break
+        
+        if not matched_tool: continue
 
-        found_matches = [
-            t for t in wrapper_tool_names_lower
-            if re.search(r'(?:[\s/_-]|^)' + re.escape(t) + r'(?:[\s/_-]|$)', test_block_content_lower)
-        ]
+        if tool_tests_accumulator[matched_tool]:
+            continue 
 
-        matched_tool_name_lower = None
-        if len(found_matches) == 1:
-            matched_tool_name_lower = found_matches[0]
-        elif len(found_matches) > 1:
-            exec_match = re.search(r"\s+EXECUTABLE\s+([^\s\)]+)", test_block_content)
-            if exec_match:
-                executable_name_lower = exec_match.group(1).lower()
-                if executable_name_lower in found_matches:
-                    matched_tool_name_lower = executable_name_lower
+        tool_data = tools_map_lower[matched_tool]
+        galaxy_inputs, output_map = process_parameters(tool_data['parameters'])
+        all_inputs_map = {p.name: p for p in galaxy_inputs}
 
-        if not matched_tool_name_lower or matched_tool_name_lower in processed_tools_lower:
-            continue
+        flag_map = {}
+        unlabeled_p = next((p for p in galaxy_inputs if getattr(p, 'is_unlabeled', False)), None)
+        for p in galaxy_inputs:
+            if hasattr(p, 'original_long_flag') and p.original_long_flag:
+                flag_map[f"--{p.original_long_flag}"] = p
+            if hasattr(p, 'original_short_flag') and p.original_short_flag:
+                flag_map[f"-{p.original_short_flag}"] = p
 
-        if any(key in matched_tool_name_lower for key in ["gocad", "tetgen", "netgen"]):
-            eprint(f"  Creating dummy test for complex tool: {matched_tool_name_lower}")
-            macro_xml = ET.SubElement(macros_root, "xml", {"name": f"{matched_tool_name_lower}_test"})
-            ET.SubElement(macro_xml, "test")
-            processed_tools_lower.add(matched_tool_name_lower)
-            test_case_count += 1
-            continue
+        path_match = re.search(r"PATH\s+([^\s\)]+)", test_block)
+        p_rep = path_match.group(1).strip() if path_match else ""
+        wd_match = re.search(r"WORKING_DIRECTORY\s+\$\{Data_SOURCE_DIR\}/([^\s\)]+)", test_block)
+        wd_sub = wd_match.group(1).replace("<PATH>", p_rep).strip() if wd_match else ""
 
-        args_match = re.search(r"EXECUTABLE_ARGS\s+(.*)", test_block_content)
+        # ARGUMENT PARSING
+        params_in_test = {}
+        input_files_in_this_test = []
+        args_match = re.search(r"EXECUTABLE_ARGS\s+(.*)", test_block, re.DOTALL)
         if args_match:
-            args_str_check = args_match.group(1).lower()
-            if ".pvd" in args_str_check:
-                eprint(f"  Creating dummy test for PVD tool: {matched_tool_name_lower}")
-                macro_xml = ET.SubElement(macros_root, "xml", {"name": f"{matched_tool_name_lower}_test"})
-                ET.SubElement(macro_xml, "test")
-                processed_tools_lower.add(matched_tool_name_lower)
-                test_case_count += 1
-                continue
-        if not args_match:
-            continue
+            raw_args = args_match.group(1).split(')')[0].strip().replace('\n', ' ')
+            norm_args = raw_args.replace(" -- ", " --SEP-- ")
+            try: args_list = shlex.split(norm_args)
+            except: args_list = norm_args.split()
 
-        tool_name = tools_map_lower[matched_tool_name_lower]['name']
-        
-        try:
-            args_str = args_match.group(1).strip().replace('\n', ' ')
-            tool_data = tools_map_lower[matched_tool_name_lower]
-            galaxy_inputs, output_map = process_parameters(tool_data['parameters'])
-            if not output_map: continue
-
-            eprint(f"  Generating REAL test for: {tool_name}")
-
-            flag_map = {}
-            unlabeled_params = []
-            for p in galaxy_inputs:
-                if p.is_unlabeled:
-                    unlabeled_params.append(p)
-                    continue
-                if hasattr(p, 'original_long_flag') and p.original_long_flag:
-                    flag_map[f"--{p.original_long_flag}"] = p
-                if hasattr(p, 'original_short_flag') and p.original_short_flag:
-                    flag_map[f"-{p.original_short_flag}"] = p
-
-            output_flags = {f"--{flag}" for flag in output_map}
-            output_flags.update({f"-{info['short_flag']}" for flag, info in output_map.items() if info.get('short_flag')})
-            
-            macro_xml = ET.SubElement(macros_root, "xml", {"name": f"{matched_tool_name_lower}_test"})
-            test_case = ET.SubElement(macro_xml, "test")
-
-            params_in_test = {}
-            if " -- " in args_str:
-                head, tail = args_str.split(" -- ", 1)
-                args_list = shlex.split(head) + shlex.split(tail)
-            else:
-                args_list = shlex.split(args_str)
-
-            i, unlabeled_idx = 0, 0
+            i = 0
             while i < len(args_list):
                 arg = args_list[i]
+                if arg.upper() in STOP_KEYWORDS:
+                    break
+
                 if arg in flag_map:
-                    param = flag_map[arg]
-                    has_next_val = (i + 1 < len(args_list)) and not args_list[i + 1].startswith('-')
-                    
-                    if has_next_val and not isinstance(param, BooleanParam):
-                        params_in_test[param.name] = args_list[i + 1]
-                        i += 2
-                    else:
-                        params_in_test[param.name] = "true"
-                        i += 1
-                else:
-                    if unlabeled_idx < len(unlabeled_params):
-                        params_in_test[unlabeled_params[unlabeled_idx].name] = arg
-                        unlabeled_idx += 1
+                    p = flag_map[arg]
                     i += 1
-
-            all_params_map = {p.name: p for p in galaxy_inputs}
-            
-            # --- INPUT PROCESSING ---
-            for name, value in params_in_test.items():
-                param = all_params_map.get(name)
-                if not param: continue
-                
-                fv = str(value)
-                if "${Data_BINARY_DIR}" in fv:
-                    fv = fv.split("/")[-1]
-                if path_replacement: fv = fv.replace("<PATH>", path_replacement)
-                fv = fv.replace("<SOURCE_PATH>", "").replace("<BUILD_PATH>", "").replace("<", "").replace(">", "").lstrip("/")
-
-                param_attrs = {"name": name}
-                if isinstance(param, DataParam):
-                    url = ""
-                    if fv.startswith("${Data_BINARY_DIR}/"):
-                        url = f"{RAW_GITLAB_PROJECT_ROOT_URL}/{fv.replace('${Data_BINARY_DIR}/', '', 1).replace('<PATH>', path_replacement)}"
-                    elif fv.startswith("${Data_SOURCE_DIR}/"):
-                        url = f"{RAW_GITLAB_PROJECT_ROOT_URL}/{fv.replace('${Data_SOURCE_DIR}/', '', 1).replace('<PATH>', path_replacement)}"
-                    elif fv != "true" and workdir_subpath:
-                        url = f"{RAW_GITLAB_TEST_DATA_URL}/{workdir_subpath}/{fv}"
-                    
-                    if url:
-                        url = url.replace("<PATH>", path_replacement).replace("<", "").replace(">", "")
-                        param_attrs.update({"value": url.split('/')[-1], "location": url, "ftype": get_ogs_ftype(url.split('/')[-1])})
+                    if isinstance(p, BooleanParam):
+                        params_in_test[p.name] = "true"
                     else:
-                        param_attrs["value"] = fv
-                else:
-                    param_attrs["value"] = fv
-                ET.SubElement(test_case, "param", param_attrs)
+                        collected_vals = []
+                        while i < len(args_list) and not args_list[i].startswith('-') and args_list[i].upper() not in STOP_KEYWORDS:
+                            val = args_list[i].replace("<PATH>", p_rep).replace("${Data_BINARY_DIR}/", "").split('/')[-1]
+                            if val: collected_vals.append(val)
+                            i += 1
+                        if collected_vals:
+                            params_in_test[p.name] = ",".join(collected_vals)
+                        continue
 
-            diff_data_match = re.search(r"\s+DIFF_DATA\s+(.*?)(?=\s+\w+\s+|\s*\))", test_block_content, re.DOTALL)
-            diff_files = parse_diff_data(diff_data_match.group(1), RAW_GITLAB_TEST_DATA_URL, workdir_subpath) if diff_data_match and workdir_subpath else []
+                elif unlabeled_p and not arg.startswith('-'):
+                    current_unlabeled = []
+                    if unlabeled_p.name in params_in_test:
+                        current_unlabeled = params_in_test[unlabeled_p.name].split(',')
 
-            if len(output_map) == 1:
+                    while i < len(args_list) and not args_list[i].startswith('-') and args_list[i].upper() not in STOP_KEYWORDS:
+                        val = args_list[i].replace("<PATH>", p_rep).split('/')[-1]
+                        if any(val.lower().endswith(ext) for ext in ['.pvd', '.vtu', '.msh', '.gml', '.asc', '.nc', '.xyz']):
+                            current_unlabeled.append(val)
+                        i += 1
+                    if current_unlabeled:
+                        params_in_test[unlabeled_p.name] = ",".join(current_unlabeled)
+                    continue
+                
+                i += 1
 
-                out_elem = ET.SubElement(test_case, "output", {"name": sanitize_name(f"output_{tool_name}")})
-                if diff_files:
-                    ref = diff_files[0]["reference"].replace("<PATH>", path_replacement).replace("<", "").replace(">", "")
-                    gen = diff_files[0]["generated"].replace("<PATH>", path_replacement).replace("<", "").replace(">", "").lstrip("/")
+        # XML generation
+        test_case = ET.Element("test")
+        test_is_valid = True
+        test_params_xml = []
 
-                    ftype = get_ogs_ftype(diff_files[0]["ftype"])
-                    out_elem.set("file", gen)
-                    out_elem.set("location", ref)
-                    out_elem.set("ftype", ftype)
-                    
-                    if any(ext in gen.lower() for ext in [".vtu", ".vtk", ".gml", ".xml", ".prj"]):
-                        out_elem.set("compare", "sim_size")
-                        out_elem.set("delta", "500")
-                else:
-                    ET.SubElement(ET.SubElement(out_elem, "assert_contents"), "has_size", {"min": "100"})
+        for p_name, p_val in params_in_test.items():
+            p_obj = all_inputs_map.get(p_name)
+            if not p_obj: continue
+            
+            val_clean = str(p_val).replace("<PATH>", p_rep).replace("${Data_BINARY_DIR}/", "").replace("${Data_SOURCE_DIR}/", "").lstrip("/")
+            
+            # PVD Test-Member
+            if getattr(p_obj, 'is_pvd', False):
+                pvd_members = re.findall(r"([^\s/]+\.vt[ui])", test_block)
+                pvd_data_param_name = f"{p_name}_pvd_data"
+                for vfile in set(pvd_members):
+                    if vfile.endswith(".pvd"): continue
+                    vurl = f"{RAW_GITLAB_TEST_DATA_URL}/{wd_sub}/{vfile}" if wd_sub else f"{RAW_GITLAB_PROJECT_ROOT_URL}/{vfile}"
+                    if url_exists(vurl):
+                        rep_inst = ET.Element("repeat", {"name": f"{pvd_data_param_name}_repeat"})
+                        ET.SubElement(rep_inst, "param", {"name": "element", "value": vfile, "location": vurl, "ftype": "vtkxml"})
+                        test_params_xml.append(rep_inst)
+
+            is_repeat = getattr(p_obj, 'is_repeat', False)
+            if is_repeat:
+                files_to_process = val_clean.split(',')
+                for f_path in files_to_process:
+                    f_name = f_path.split('/')[-1]
+                    url = f"{RAW_GITLAB_TEST_DATA_URL}/{wd_sub}/{f_name}" if wd_sub else f"{RAW_GITLAB_PROJECT_ROOT_URL}/{f_name}"
+                    if not url_exists(url):
+                        eprint(f"!! ABORT: File missing: {f_name}")
+                        test_is_valid = False; break
+
+                    rep_instance = ET.Element("repeat", {"name": f"{p_name}_repeat"})
+                    ET.SubElement(rep_instance, "param", {"name": "element", "value": f_name, "location": url, "ftype": p_obj.format.split(',')[0]})
+                    test_params_xml.append(rep_instance)
             else:
-                coll = ET.SubElement(test_case, "output_collection", {"name": "tool_outputs", "type": "list"})
-                if diff_files:
-                    for df in diff_files:
-                        ref = df["reference"].replace("<PATH>", path_replacement).replace("<", "").replace(">", "")
-                        gen = df["generated"].replace("<PATH>", path_replacement).replace("<", "").replace(">", "").lstrip("/")
-                        ftype = get_ogs_ftype(df["ftype"])
-                        
-                        elem = ET.SubElement(coll, "element", {
-                            "name": gen, 
-                            "file": gen, 
-                            "location": ref, 
-                            "ftype": ftype
-                        })
-                        
-                        if any(ext in gen.lower() for ext in [".vtu", ".vtk", ".gml", ".xml", ".prj"]):
-                            elem.set("compare", "sim_size")
-                            elem.set("delta", "500")
+                attrs = {"name": p_name}
+                if isinstance(p_obj, DataParam):
+                    f_name = val_clean.split('/')[-1]
+                    url = f"{RAW_GITLAB_TEST_DATA_URL}/{wd_sub}/{f_name}" if wd_sub else f"{RAW_GITLAB_PROJECT_ROOT_URL}/{f_name}"
+                    if not url_exists(url):
+                        eprint(f"!! ABORT: File missing: {f_name}")
+                        test_is_valid = False; break
+                    attrs.update({"value": f_name, "location": url, "ftype": p_obj.format.split(',')[0]})
                 else:
-                    coll.set("count", str(len(output_map)))
+                    is_base_filename_param = any(sanitize_name(flag) == p_name and info.get('type') == 'BASE_FILENAME' for flag, info in output_map.items())
+                    attrs["value"] = "new_" if is_base_filename_param else val_clean.split('/')[-1]
+                
+                test_params_xml.append(ET.Element("param", attrs))
+            
+            if not test_is_valid: break
 
-            processed_tools_lower.add(matched_tool_name_lower)
-            test_case_count += 1
+        if not test_is_valid:
+            continue
 
-        except Exception as e:
-            eprint(f"!! FEHLER bei '{tool_name}': {e}")
+        for xml_elem in test_params_xml:
+            test_case.append(xml_elem)
 
+        # OUTPUT
+        dm = re.search(r"DIFF_DATA\s+(.*?)(?=\s*\)|$)", test_block, re.DOTALL)
+        diff_processed = False
 
-    # fallbacks for missing tests 
-    for tool_data in all_tools_data:
-        t_name_lower = tool_data['name'].lower()
-        if t_name_lower not in processed_tools_lower:
-            macro_xml = ET.SubElement(macros_root, "xml", {"name": f"{t_name_lower}_test"})
-            ET.SubElement(macro_xml, "test")
-            test_case_count += 1
+        if dm:
+            diff_files = parse_diff_data(dm.group(1).strip(), RAW_GITLAB_TEST_DATA_URL, wd_sub, input_files_in_this_test)
+
+            if len(output_map) > 1 or any(info.get('type') == 'BASE_FILENAME' for info in output_map.values()):
+                if diff_files:
+                    diff_processed = True
+
+                    diff_files.sort(key=lambda x: x["generated"])
+                    coll = ET.SubElement(test_case, "output_collection", {"name": "tool_outputs", "type": "list"})
+                    for df in diff_files:
+                        e = ET.SubElement(coll, "element", {"name": df["generated"]})
+                        ac = ET.SubElement(e, "assert_contents")
+                        ET.SubElement(ac, "has_size", {"min": "500"})
+            elif len(diff_files) == 1:
+                diff_processed = True
+                df = diff_files[0]
+                out_name = sanitize_name(f"output_{matched_tool}")
+                out_elem = ET.SubElement(test_case, "output", {"name": out_name})
+                ac = ET.SubElement(out_elem, "assert_contents")
+                ET.SubElement(ac, "has_size", {"min": "500"})
+
+        if not diff_processed and output_map:
+            if len(output_map) > 1 or any(info.get('type') == 'BASE_FILENAME' for info in output_map.values()):
+                ET.SubElement(test_case, "output_collection", {"name": "tool_outputs", "type": "list"})
+            else:
+                out_name = sanitize_name(f"output_{matched_tool}")
+                out_elem = ET.SubElement(test_case, "output", {"name": out_name})
+                ET.SubElement(ET.SubElement(out_elem, "assert_contents"), "has_size", {"min": "500"})
+
+        tool_tests_accumulator[matched_tool].append(test_case)
+
+    # Build
+    macros_root = ET.Element("macros")
+    for t_name, cases in tool_tests_accumulator.items():
+        macro_xml = ET.SubElement(macros_root, "xml", {"name": f"{t_name}_test"})
+        
+        if not cases:
+            fallback_test = ET.SubElement(macro_xml, "test")
+            tool_data = tools_map_lower[t_name]
+            g_inputs, g_outputs = process_parameters(tool_data['parameters'])
+            
+            for p in g_inputs:
+                if getattr(p, 'is_pvd_element', False): continue
+
+                is_mandatory = (getattr(p, 'optional', True) is False)
+                is_input_file = isinstance(p, DataParam)
+
+                if is_mandatory or is_input_file:
+                    val = get_dummy_value(p, t_name)
+                    
+                    if getattr(p, 'is_repeat', False):
+                        rep = ET.SubElement(fallback_test, "repeat", {"name": f"{p.name}_repeat"})
+                        ET.SubElement(rep, "param", {"name": "element", "value": str(val), "ftype": p.format.split(',')[0] if isinstance(p, DataParam) else None})
+                    else:
+                        attrs = {"name": p.name, "value": str(val)}
+                        if isinstance(p, DataParam):
+                            attrs["ftype"] = p.format.split(',')[0]
+                        ET.SubElement(fallback_test, "param", attrs)
+            
+            if g_outputs:
+                if len(g_outputs) > 1 or any(info.get('type') == 'BASE_FILENAME' for info in g_outputs.values()):
+                    ET.SubElement(fallback_test, "output_collection", {"name": "tool_outputs", "type": "list"})
+                else:
+                    out_name = sanitize_name(f"output_{t_name}")
+                    out_elem = ET.SubElement(fallback_test, "output", {"name": out_name})
+                    ET.SubElement(ET.SubElement(out_elem, "assert_contents"), "has_size", {"min": "100"})
+        else:
+            for case in cases:
+                macro_xml.append(case)
 
     tree = ET.ElementTree(macros_root)
     ET.indent(tree, space="    ")
-    output_filename = "test_macros.xml"
-    with open(output_filename, "wb") as f:
+    with open("test_macros.xml", "wb") as f:
         f.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
         tree.write(f, encoding="utf-8", xml_declaration=False)
-    eprint(f"\nErfolgreich '{output_filename}' mit {test_case_count} Testfällen erstellt.")
-
 
 def main():
     parser = argparse.ArgumentParser(description="Galaxy XML Wrapper Generator for OGS Utilities")

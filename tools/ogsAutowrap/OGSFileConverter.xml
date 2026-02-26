@@ -1,26 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: OGSFileConverter" id="ogs_ogsfileconverter" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
   <description>Galaxy wrapper for the OGS utility 'OGSFileConverter'.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
   </macros>
-  <expand macro="requirements"/>
+  <expand macro="requirements" />
   <version_command><![CDATA[OGSFileConverter --version]]></version_command>
-  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
-#for $m in $gmsh_path:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
-ogsfileconverter
-#for $m in $gmsh_path:
-    --gmsh-path "inputs/${m.element_identifier}"
-#end for]]></command>
+  <command><![CDATA[
+ln -s '$gmsh_path' '$gmsh_path.element_identifier';
+OGSFileConverter
+    --gmsh-path '$gmsh_path.element_identifier'
+]]></command>
   <inputs>
-    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input gmsh binary file" format="xml" multiple="false"/>
+    <param name="gmsh_path" type="data" optional="false" label="gmsh path" help="Input (.msh). The path to the input gmsh binary file" format="msh" multiple="false" />
   </inputs>
-  <outputs/>
+  <outputs />
   <tests>
-    <expand macro="ogsfileconverter_test"/>
+    <expand macro="ogsfileconverter_test" />
   </tests>
-  <help><![CDATA[This tool runs the **OGSFileConverter** utility from the OpenGeoSys suite.]]></help>
-  <expand macro="citations"/>
+  <help>This tool runs the **OGSFileConverter** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
 </tool>

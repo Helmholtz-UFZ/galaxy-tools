@@ -1,26 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: generateMatPropsFromMatID" id="ogs_generatematpropsfrommatid" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
   <description>Galaxy wrapper for the OGS utility 'generateMatPropsFromMatID'.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
   </macros>
-  <expand macro="requirements"/>
+  <expand macro="requirements" />
   <version_command><![CDATA[generateMatPropsFromMatID --version]]></version_command>
-  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
-#for $m in $mesh:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
+  <command><![CDATA[
+ln -s '$mesh' '$mesh.element_identifier';
 generateMatPropsFromMatID
-#for $m in $mesh:
-    --mesh "inputs/${m.element_identifier}"
-#end for]]></command>
+    --mesh '$mesh.element_identifier'
+]]></command>
   <inputs>
-    <param name="mesh" type="data" optional="true" label="mesh" help="Input (.msh). The mesh to open from a file" format="xml" multiple="false"/>
+    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.msh). The mesh to open from a file" format="msh" multiple="false" />
   </inputs>
-  <outputs/>
+  <outputs />
   <tests>
-    <expand macro="generatematpropsfrommatid_test"/>
+    <expand macro="generatematpropsfrommatid_test" />
   </tests>
-  <help><![CDATA[This tool runs the **generateMatPropsFromMatID** utility from the OpenGeoSys suite.]]></help>
-  <expand macro="citations"/>
+  <help>This tool runs the **generateMatPropsFromMatID** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
 </tool>

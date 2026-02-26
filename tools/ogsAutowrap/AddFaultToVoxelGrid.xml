@@ -1,38 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: AddFaultToVoxelGrid" id="ogs_addfaulttovoxelgrid" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
   <description>Galaxy wrapper for the OGS utility 'AddFaultToVoxelGrid'.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
   </macros>
-  <expand macro="requirements"/>
+  <expand macro="requirements" />
   <version_command><![CDATA[AddFaultToVoxelGrid --version]]></version_command>
-  <command><![CDATA[mkdir inputs; # Verzeichnis für saubere Trennung
-#for $m in $fault:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
-#for $m in $input:
-    ln -s "$m" "inputs/${m.element_identifier}";
-#end for
-addfaulttovoxelgrid
-    --material '$material'
-#for $m in $fault:
-    --fault "inputs/${m.element_identifier}"
-#end for
-#for $m in $input:
-    --input "inputs/${m.element_identifier}"
-#end for
-    --output output_1.vtu]]></command>
+  <command><![CDATA[
+ln -s '$fault' '$fault.element_identifier';
+ln -s '$input' '$input.element_identifier';
+AddFaultToVoxelGrid
+    $material: --material '$material'
+    --fault '$fault.element_identifier'
+    --input '$input.element_identifier'
+    --output output_1.vtu
+]]></command>
   <inputs>
-    <param name="material" type="integer" value="mat_not_set" optional="true" label="material" help="material id for cells intersected by fault, (min = 0)" min="0"/>
-    <param name="fault" type="data" optional="false" label="fault" help="Input (.vtu). mesh file representing fault" format="vtkxml" multiple="false"/>
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). the input file containing the paths the all input in correct order from top to bottom" format="vtkxml" multiple="false"/>
+    <param name="material" type="integer" optional="true" label="material" help="material id for cells intersected by fault, (min = 0)" />
+    <param name="fault" type="data" optional="false" label="fault" help="Input (.vtu). Name of mesh file representing fault" format="vtkxml" multiple="false" />
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). Name of the input file containing the paths the all input in correct order from top to bottom" format="vtkxml" multiple="false" />
   </inputs>
   <outputs>
-    <data name="output_AddFaultToVoxelGrid" format="vtkxml" label="Output file from AddFaultToVoxelGrid" from_work_dir="output_1.vtu" hidden="false"/>
+    <data name="output_AddFaultToVoxelGrid" format="vtkxml" label="Output from AddFaultToVoxelGrid" from_work_dir="output_1.vtu" hidden="false" />
   </outputs>
   <tests>
-    <expand macro="addfaulttovoxelgrid_test"/>
+    <expand macro="addfaulttovoxelgrid_test" />
   </tests>
-  <help><![CDATA[This tool runs the **AddFaultToVoxelGrid** utility from the OpenGeoSys suite.]]></help>
-  <expand macro="citations"/>
+  <help>This tool runs the **AddFaultToVoxelGrid** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
 </tool>

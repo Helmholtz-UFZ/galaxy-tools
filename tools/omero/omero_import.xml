@@ -96,7 +96,7 @@
             </assert_stderr>
         </test>
         <test>
-            <param name="folder" value="input3.zip"/>
+            <param name="folder" value="input3.zip" ftype="zip"/>
             <param name="dataset_name" value="galaxy_test_upload"/>
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>

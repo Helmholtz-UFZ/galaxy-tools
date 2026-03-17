@@ -8,15 +8,15 @@
   <expand macro="requirements" />
   <version_command><![CDATA[editMaterialID --version]]></version_command>
   <command><![CDATA[
-ln -s '$mesh_input_file' '$mesh_input_file.element_identifier';
+ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
 editMaterialID
     $replace
     $condense
     $specify
     --mesh-input-file '$mesh_input_file.element_identifier'
-    $current_material_id: --current-material-id '$current_material_id'
-    $new_material_id: --new-material-id '$new_material_id'
-    $element_type: --element-type '$element_type'
+     --current-material-id '$current_material_id'
+     --new-material-id '$new_material_id'
+     --element-type '$element_type'
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>

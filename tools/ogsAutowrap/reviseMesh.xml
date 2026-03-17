@@ -8,10 +8,10 @@
   <expand macro="requirements" />
   <version_command><![CDATA[reviseMesh --version]]></version_command>
   <command><![CDATA[
-ln -s '$input_mesh_file' '$input_mesh_file.element_identifier';
+ln -sf '$input_mesh_file' '$input_mesh_file.element_identifier';
 reviseMesh
-    $min_ele_dim: --min-ele-dim '$min_ele_dim'
-    $eps: --eps '$eps'
+     --min-ele-dim '$min_ele_dim'
+     --eps '$eps'
     --input-mesh-file '$input_mesh_file.element_identifier'
     --output-mesh-file output_1.vtu
 ]]></command>

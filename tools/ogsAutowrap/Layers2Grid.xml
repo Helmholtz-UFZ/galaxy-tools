@@ -8,12 +8,12 @@
   <expand macro="requirements" />
   <version_command><![CDATA[Layers2Grid --version]]></version_command>
   <command><![CDATA[
-ln -s '$input' '$input.element_identifier';
+ln -sf '$input' '$input.element_identifier';
 Layers2Grid
     $dilate
-    $cellsize_z: --cellsize-z '$cellsize_z'
-    $cellsize_y: --cellsize-y '$cellsize_y'
-    $cellsize_x: --cellsize-x '$cellsize_x'
+     --cellsize-z '$cellsize_z'
+     --cellsize-y '$cellsize_y'
+     --cellsize-x '$cellsize_x'
     --input '$input.element_identifier'
     --output output_1.vtu
 ]]></command>

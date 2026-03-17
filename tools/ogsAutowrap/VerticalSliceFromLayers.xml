@@ -8,15 +8,15 @@
   <expand macro="requirements" />
   <version_command><![CDATA[VerticalSliceFromLayers --version]]></version_command>
   <command><![CDATA[
-ln -s '$input' '$input.element_identifier';
+ln -sf '$input' '$input.element_identifier';
 VerticalSliceFromLayers
     $testdata
     $bounds
-    $resolution: --resolution '$resolution'
-    $end_y: --end-y '$end_y'
-    $end_x: --end-x '$end_x'
-    $start_y: --start-y '$start_y'
-    $start_x: --start-x '$start_x'
+     --resolution '$resolution'
+     --end-y '$end_y'
+     --end-x '$end_x'
+     --start-y '$start_y'
+     --start-x '$start_x'
     --input '$input.element_identifier'
     --output output_1.vtu
 ]]></command>

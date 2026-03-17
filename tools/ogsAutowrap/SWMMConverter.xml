@@ -8,7 +8,7 @@
   <expand macro="requirements" />
   <version_command><![CDATA[SWMMConverter --version]]></version_command>
   <command><![CDATA[
-ln -s '$input' '$input.element_identifier';
+ln -sf '$input' '$input.element_identifier';
 SWMMConverter
     --input '$input.element_identifier'
     $node_vars

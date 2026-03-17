@@ -8,27 +8,26 @@
   <expand macro="requirements" />
   <version_command><![CDATA[PartitionMesh --version]]></version_command>
   <command><![CDATA[
-ln -s '$mesh_input_file' '$mesh_input_file.element_identifier';
-ln -s '$metis_mesh_input_file' '$metis_mesh_input_file.element_identifier';
-## Symlinks für Repeat other_meshes_filenames
+ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
+ln -sf '$metis_mesh_input_file' '$metis_mesh_input_file.element_identifier';
 #for $item in $other_meshes_filenames_repeat
-ln -s '$item.element' '$item.element.element_identifier';
+ln -sf '$item.element' '$item.element.element_identifier';
 #end for
 PartitionMesh
     --mesh-input-file '$mesh_input_file.element_identifier'
     --metis-mesh-input-file '$metis_mesh_input_file.element_identifier'
-    $np: --np '$np'
+     --np '$np'
     $ogs2metis
     $exe_metis
+    --output output_1.vtu
     --
 #for $item in $other_meshes_filenames_repeat
-    '$item.element.element_identifier'
+'$item.element.element_identifier'
 #end for
-    --output output_1.vtu
 ]]></command>
   <inputs>
     <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" multiple="false" />
-    <param name="metis_mesh_input_file" type="data" optional="false" label="metis mesh input file" help="Input (.mesh). Base name (without .mesh extension) of the file containing the metis input mesh" format="mesh" multiple="false" />
+    <param name="metis_mesh_input_file" type="data" optional="false" label="metis mesh input file" help="Input (.mesh). Base name (without .mesh extension) of the file containing the metis input mesh" format="txt" multiple="false" />
     <param name="np" type="integer" optional="true" label="np" help="the number of partitions, (min = 0)" />
     <param name="ogs2metis" type="boolean" label="ogs2metis" help="Indicator to convert the ogs mesh file to METIS input file" checked="false" truevalue="--ogs2metis" falsevalue="" />
     <param name="exe_metis" type="boolean" label="exe metis" help="Call mpmetis inside the programme via system()." checked="false" truevalue="--exe_metis" falsevalue="" />

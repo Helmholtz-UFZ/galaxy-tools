@@ -8,13 +8,15 @@
   <expand macro="requirements" />
   <version_command><![CDATA[NodeReordering --version]]></version_command>
   <command><![CDATA[
-ln -s '$input_mesh' '$input_mesh.element_identifier';
+ln -sf '$input_mesh' '$input_mesh.element_identifier';
 NodeReordering
-    $method: --method '$method'
+    $no_volume_check
+     --method '$method'
     --input_mesh '$input_mesh.element_identifier'
     --output_mesh output_1.vtu
 ]]></command>
   <inputs>
+    <param name="no_volume_check" type="boolean" label="no volume check" help="By default the volumes of original and reordered elements are compared if they are numerically equal, i.e., relative volume difference is smaller than a threshold. This switch disables the volume comparison." checked="false" truevalue="--no_volume_check" falsevalue="" />
     <param name="method" type="select" optional="false" label="method" help="reordering method selection">
       <option value="0">0</option>
       <option value="1">1</option>

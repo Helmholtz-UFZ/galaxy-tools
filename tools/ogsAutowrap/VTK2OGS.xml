@@ -8,7 +8,7 @@
   <expand macro="requirements" />
   <version_command><![CDATA[VTK2OGS --version]]></version_command>
   <command><![CDATA[
-ln -s '$mesh_input_file' '$mesh_input_file.element_identifier';
+ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
 VTK2OGS
     --mesh-input-file '$mesh_input_file.element_identifier'
     --mesh-output-file output_1.msh

@@ -8,12 +8,12 @@
   <expand macro="requirements" />
   <version_command><![CDATA[MoveMesh --version]]></version_command>
   <command><![CDATA[
-ln -s '$mesh' '$mesh.element_identifier';
+ln -sf '$mesh' '$mesh.element_identifier';
 MoveMesh
     --mesh '$mesh.element_identifier'
-    $x: --x '$x'
-    $y: --y '$y'
-    $z: --z '$z'
+     --x '$x'
+     --y '$y'
+     --z '$z'
     --output-mesh output_1.vtu
 ]]></command>
   <inputs>

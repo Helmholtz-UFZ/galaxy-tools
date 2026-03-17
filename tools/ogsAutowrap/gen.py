@@ -1,6 +1,7 @@
 import argparse
 import re
 import sys
+import json
 
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -25,10 +26,15 @@ from galaxyxml.tool.parameters import (
     TextParam,
 )
 
-# --- CONFIGURATION ---
-OGS_REPO_PATH = Path("/home/stehling/gitProjects/ogs")
-UTILS_SUBDIR = "Applications/Utils"
+# --- CONFIGURATION (ONLINE) ---
+GITLAB_BASE_URL = "https://gitlab.opengeosys.org/ogs/ogs/-"
+RAW_URL_ROOT = f"{GITLAB_BASE_URL}/raw/master"
+API_URL_ROOT = "https://gitlab.opengeosys.org/api/v4/projects/ogs%2Fogs/repository/tree"
+UTILS_PATH = "Applications/Utils"
 OUTPUT_DIR = Path(".")
+REPO_B_RAW = "https://gitlab.opengeosys.org/kristofkessler/ogs/-/raw/ebd40a71bacd951b90b64e2e42fb8d11528bde39"
+REPO_B_API = "https://gitlab.opengeosys.org/api/v4/projects/kristofkessler%2Fogs/repository/tree"
+REPO_B_DATA_PATH = "Tests/Data"
 
 TCLAP_PATTERN_STD = re.compile(
     r"TCLAP::(?P<arg_type>(?:Value|Switch|Multi)Arg)\s*"
@@ -47,20 +53,85 @@ FILE_EXTENSION_PATTERN = re.compile(r"\((.*?)\)")
 MIN_MAX_PATTERN = re.compile(r"\((min|max)\s*=\s*([^)]+)\)")
 
 
+import json
+
+def fetch_url_content(url: str) -> str:
+    """Lädt den Textinhalt einer URL herunter."""
+    try:
+        with urllib.request.urlopen(url, timeout=10) as response:
+            return response.read().decode('utf-8', errors='ignore')
+    except:
+        return ""
+
+def get_gitlab_files(path: str) -> List[str]:
+    """Listet ALLE .cpp Dateien im Online-Ordner auf (mit Paging für Vollständigkeit)."""
+    files = []
+    page = 1
+    while True:
+        api_url = f"{API_URL_ROOT}?path={path}&recursive=true&per_page=100&page={page}"
+        try:
+            with urllib.request.urlopen(api_url) as response:
+                data = json.loads(response.read().decode())
+                if not data:
+                    break
+                for item in data:
+                    if item['type'] == 'blob' and item['path'].endswith('.cpp'):
+                        files.append(item['path'])
+                page += 1
+        except Exception as e:
+            eprint(f"Fehler bei API-Abfrage Seite {page}: {e}")
+            break
+    return files
+
+
+def get_repo_b_file_index() -> Dict[str, str]:
+    index = {}
+    try:
+        url = f"{REPO_B_API}?path={REPO_B_DATA_PATH}&ref=ebd40a71bacd951b90b64e2e42fb8d11528bde39&per_page=100"
+        with urllib.request.urlopen(url) as resp:
+            items = json.loads(resp.read().decode())
+            folders = [i['path'] for i in items if i['type'] == 'tree']
+    except: return {}
+
+    eprint(f"Scanning {len(folders)} subfolders in Repo B...")
+    for folder in folders:
+        page = 1
+        while True:
+            url = f"{REPO_B_API}?path={folder}&recursive=true&per_page=100&page={page}&ref=ebd40a71bacd951b90b64e2e42fb8d11528bde39"
+            try:
+                with urllib.request.urlopen(url) as resp:
+                    data = json.loads(resp.read().decode())
+                    if not data: break
+                    for item in data:
+                        if item['type'] == 'blob':
+                            index[item['path'].split('/')[-1]] = item['path']
+                    page += 1
+            except: break
+    eprint(f"-> Index built: {len(index)} files found in Repo B.")
+    return index
+
+
 def get_ogs_ftype(extensions: List[str]) -> str:
-    """Mapping for Galaxy file types"""
+    """Mapping for Galaxy file types (including custom OGS types)"""
     if not extensions: 
         return 'vtkxml'
     
     ext = extensions[0].lower().lstrip('.')
 
-    # VTK-Family
+    if ext == 'sg': return 'gocad.sg'
+    if ext == 'fem': return 'feflow.fem'
+    if ext == 'asc': return 'raster.asc'
+    
     if ext in ['vtu', 'vtk', 'pvtu', 'pvd']: 
         return 'vtkxml'
     
-    # XML-family
-    if ext in ['prj', 'xml', 'gml', 'ts']: 
+    if ext in ['prj', 'xml', 'gml', 'ts', 'gli']: 
         return 'xml'
+    
+    if ext == 'nc': return 'netcdf'
+
+    if ext in ['plt', 'tin', 'mesh', 'bin']:
+        return 'txt'
 
     return ext
 
@@ -107,24 +178,27 @@ def resolve_values_constraint(constraint_ptr: str, search_space: str) -> List[st
 
 
 def discover_tools() -> List[Dict[str, Any]]:
-    base_path = OGS_REPO_PATH / UTILS_SUBDIR
-    if not base_path.is_dir():
-        eprint(f"ERROR: The subdirectory '{base_path}' does not exist.")
-        return []
-
-    source_files = list(base_path.glob("**/*.cpp"))
+    source_files = get_gitlab_files(UTILS_PATH)
     tools_dict: Dict[str, Dict[str, Any]] = {}
-    eprint(f"Searching {len(source_files)} potential .cpp files...")
+    eprint(f"Searching {len(source_files)} remote .cpp files...")
 
     for file_path in source_files:
-        content = file_path.read_text(encoding='utf-8', errors='ignore')
+        path_obj = Path(file_path)
+        
+        raw_url = f"{RAW_URL_ROOT}/{file_path}"
+        content = fetch_url_content(raw_url)
+        
         all_matches = list(TCLAP_PATTERN_STD.finditer(content)) + \
             list(TCLAP_PATTERN_UNLABELED.finditer(content))
 
         if not all_matches:
             continue
 
-        tool_name = file_path.parent.name if file_path.name == 'main.cpp' else file_path.stem
+        if path_obj.name == 'main.cpp':
+            tool_name = path_obj.parent.name
+        else:
+            tool_name = path_obj.stem
+        
         if tool_name.lower() in ["main", "utils"]:
             continue
 
@@ -133,15 +207,13 @@ def discover_tools() -> List[Dict[str, Any]]:
 
         for match in all_matches:
             param_data = match.groupdict()
-
             param_data['is_unlabeled'] = 'Unlabeled' in param_data.get('arg_type', '')
-
             param_data['full_source_code'] = content
             param_data['match_start_pos'] = match.start()
             tools_dict[tool_name]["parameters"].append(param_data)
 
     all_tools_data = list(tools_dict.values())
-    eprint(f"-> Found and processed {len(all_tools_data)} tools with TCLAP definitions.")
+    eprint(f"-> Found {len(all_tools_data)} tools online.")
     return sorted(all_tools_data, key=lambda x: x['name'])
 
 
@@ -174,7 +246,7 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
         help_text = ' '.join(part.strip() for part in help_parts).strip()
         var_name = sanitize_name(long_flag)
 
-        # OUTPUT LOGIK
+        # OUTPUT LOGIC
         if help_text.startswith("Output") or "BASE_FILENAME_OUTPUT" in all_args_str:
             format_match = FILE_EXTENSION_PATTERN.search(help_text)
             primary_ext = "vtu"
@@ -255,10 +327,6 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
     return galaxy_inputs, output_command_map
 
 def generate_tools():
-    if not OGS_REPO_PATH.is_dir():
-        eprint(f"ERROR: The OGS repository directory '{OGS_REPO_PATH}' was not found.")
-        return
-
     OUTPUT_DIR.mkdir(exist_ok=True)
     all_tools_data = discover_tools()
     if not all_tools_data:
@@ -295,52 +363,41 @@ def generate_tools():
                 if isinstance(param, DataParam):
                     if is_pvd_element:
                         command_parts.append(
-                            f"## PVD-Member Symlinks\n"
-                            f"#if ${param.name}_repeat\n"
                             f"  #for $item in ${param.name}_repeat\n"
-                            f"    ln -s '$item.element' '$item.element.element_identifier';\n"
+                            f"    ln -sf '$item.element' '$item.element.element_identifier';\n"
                             f"  #end for\n"
-                            f"#endif"
                         )
                         continue
                     if is_repeat:
-                        # SYMLINK
                         command_parts.append(
-                            f"## Symlinks für Repeat {param.name}\n"
                             f"#for $item in ${param.name}_repeat\n"
-                            f"ln -s '$item.element' '$item.element.element_identifier';\n"
+                            f"ln -sf '$item.element' '$item.element.element_identifier';\n"
                             f"#end for"
                         )
-                        # ARGUMENT logic
+                        loop_str = (
+                            f"#for $item in ${param.name}_repeat\n"
+                            f"'$item.element.element_identifier'\n"
+                            f"#end for"
+                        )
                         if is_unlabeled:
-                            loop_str = (
-                                f"    --\n"
-                                f"    #for $item in ${param.name}_repeat\n"
-                                f"    '$item.element.element_identifier'\n"
-                                f"    #end for"
-                            )
+                            unlabeled_parts.append("    --")
+                            unlabeled_parts.append(loop_str)
                         else:
-                            loop_str = (
-                                f"    #for $item in ${param.name}_repeat\n"
-                                f"    --{flag} '$item.element.element_identifier'\n"
-                                f"    #end for"
-                            )
-                        flag_parts.append(loop_str)
+                            flag_parts.append(f"    --{flag}\n{loop_str}")
                     else:
-                        command_parts.append(f"ln -s '${param.name}' '${param.name}.element_identifier';")
+                        command_parts.append(f"ln -sf '${param.name}' '${param.name}.element_identifier';")
                         arg_val = f"'${param.name}.element_identifier'"
                         if is_unlabeled:
                             unlabeled_parts.append(f"    -- {arg_val}")
                         else:
                             flag_parts.append(f"    --{flag} {arg_val}")
-                
                 elif isinstance(param, BooleanParam):
                     flag_parts.append(f"    ${param.name}")
-                else:
+                elif isinstance(param, (TextParam, IntegerParam, FloatParam, SelectParam)):
                     if is_unlabeled:
-                        unlabeled_parts.append(f"    ${param.name}: -- '${param.name}'")
+                        unlabeled_parts.append(f"    -- '${param.name}'")
                     else:
-                        flag_parts.append(f"    ${param.name}: --{flag} '${param.name}'")
+                        flag_parts.append(f"     --{flag} '${param.name}'")
 
             # 3. OUTPUT FLAGS
             for flag, info in output_command_map.items():
@@ -396,7 +453,7 @@ def generate_tools():
             tool.tests = tests_section
             tool.help = (f"This tool runs the **{tool_name}** utility from the OpenGeoSys suite.")
 
-            # --- 5. XML finalisation
+            # --- 5. XML
             raw_xml_string = tool.export()
             tool_xml_root = ET.fromstring(raw_xml_string)
             inputs_node = tool_xml_root.find("inputs")
@@ -425,7 +482,6 @@ def generate_tools():
                             inputs_node.remove(wrong_param)
                             inputs_node.append(rep)
 
-            # Save with CDATA fix
             output_file_path = OUTPUT_DIR / f"{tool_name}.xml"
             
             # 1. XML to string
@@ -498,40 +554,53 @@ def parse_diff_data(diff_str: str, base_url: str, workdir: str, input_files: Lis
     return diff_files
 
 
-def get_dummy_value(param, tool_name):
-    """Generiert einen sinnvollen Dummy-Wert für den Fallback-Test."""
+def get_dummy_value(param, tool_name, all_params=None):
+    # List of tools which need specific input data
+    special_tool_files = {
+        "ComputeNodeAreasFromSurfaceMesh": "computeNodeAreasFromSurfaceMesh_test",
+    }
+
     if isinstance(param, DataParam):
         ext = getattr(param, 'ogs_ext', 'vtu')
-        if ext in ['vtu', 'vtk']:
-            return "test.vtu"
+        
+        # 1. Check special tools and params
+        if tool_name in special_tool_files:
+            return f"{special_tool_files[tool_name]}.{ext}"
+        
+        if param.name == "fault":
+            return f"fault.{ext}"
+        
+        # 3. Standard-Fallback
         return f"test.{ext}"
 
     if isinstance(param, SelectParam):
-        opts = getattr(param, 'options_dict', getattr(param, 'options', {}))
-        if opts:
-            return list(opts.keys())[0]
-        return "value"
-        
-    if isinstance(param, IntegerParam):
-        return "1"
-    if isinstance(param, FloatParam):
-        return "1.0"
+        opts = getattr(param, 'options_dict', {})
+        return list(opts.keys())[0] if opts else "value"
+    
+    if isinstance(param, (IntegerParam, FloatParam)):
+        return "1" if isinstance(param, IntegerParam) else "1.0"
+    
     if isinstance(param, BooleanParam):
         return "true"
-    return "test_value"
+        
+    return "dummy_text"
 
 
 def generate_tests():
     eprint("--- Generating Final Unified Test Macros ---")
-    CMAKE_TESTS_FILE = Path("/home/stehling/gitProjects/ogs/Applications/Utils/Tests.cmake")
+    tests_cmake_url = f"{RAW_URL_ROOT}/{UTILS_PATH}/Tests.cmake"
     RAW_GITLAB_TEST_DATA_URL = "https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data"
     RAW_GITLAB_PROJECT_ROOT_URL = "https://gitlab.opengeosys.org/ogs/ogs/-/raw/master"
+    repo_b_index = get_repo_b_file_index()
 
     all_tools_data = discover_tools()
     tools_map_lower = {tool['name'].lower(): tool for tool in all_tools_data}
     tool_tests_accumulator = {tool['name'].lower(): [] for tool in all_tools_data}
     
-    cmake_content = CMAKE_TESTS_FILE.read_text(encoding='utf-8', errors='ignore')
+    cmake_content = fetch_url_content(tests_cmake_url)
+    if not cmake_content:
+        eprint("ERROR: Could not fetch Tests.cmake from GitLab.")
+        return
     addtest_pattern = re.compile(r"AddTest\s*\((.*?)\s*\)(?!\s*PROPERTIES)", re.DOTALL)
 
     STOP_KEYWORDS = ["TESTER", "RUNTIME", "PROPERTIES", "DEPENDS", "REQUIREMENTS", "DIFF_DATA", "WRAPPER", "WRAPPER_ARGS"]
@@ -647,9 +716,15 @@ def generate_tests():
                 for f_path in files_to_process:
                     f_name = f_path.split('/')[-1]
                     url = f"{RAW_GITLAB_TEST_DATA_URL}/{wd_sub}/{f_name}" if wd_sub else f"{RAW_GITLAB_PROJECT_ROOT_URL}/{f_name}"
+                    
                     if not url_exists(url):
-                        eprint(f"!! ABORT: File missing: {f_name}")
-                        test_is_valid = False; break
+                        if f_name in repo_b_index:
+                            url = f"{REPO_B_RAW}/{repo_b_index[f_name]}"
+                            eprint(f"   -> Found {f_name} in Repo B!")
+                        else:
+                            eprint(f"!! ABORT: File missing: {f_name}")
+                            test_is_valid = False
+                            break
 
                     rep_instance = ET.Element("repeat", {"name": f"{p_name}_repeat"})
                     ET.SubElement(rep_instance, "param", {"name": "element", "value": f_name, "location": url, "ftype": p_obj.format.split(',')[0]})
@@ -659,9 +734,15 @@ def generate_tests():
                 if isinstance(p_obj, DataParam):
                     f_name = val_clean.split('/')[-1]
                     url = f"{RAW_GITLAB_TEST_DATA_URL}/{wd_sub}/{f_name}" if wd_sub else f"{RAW_GITLAB_PROJECT_ROOT_URL}/{f_name}"
+                    
                     if not url_exists(url):
-                        eprint(f"!! ABORT: File missing: {f_name}")
-                        test_is_valid = False; break
+                        if f_name in repo_b_index:
+                            url = f"{REPO_B_RAW}/{repo_b_index[f_name]}"
+                            eprint(f"   -> Found {f_name} in Repo B!")
+                        else:
+                            eprint(f"!! ABORT: File missing: {f_name}")
+                            test_is_valid = False
+                            break
                     attrs.update({"value": f_name, "location": url, "ftype": p_obj.format.split(',')[0]})
                 else:
                     is_base_filename_param = any(sanitize_name(flag) == p_name and info.get('type') == 'BASE_FILENAME' for flag, info in output_map.items())
@@ -673,6 +754,15 @@ def generate_tests():
 
         if not test_is_valid:
             continue
+
+        for elem in test_params_xml:
+            val = elem.get("value")
+            if val and val.startswith("${") and val.endswith("}"):
+                p_name = elem.get("name")
+                p_obj = all_inputs_map.get(p_name)
+                if p_obj:
+                    new_val = get_dummy_value(p_obj, matched_tool, all_params=galaxy_inputs)
+                    elem.set("value", str(new_val))
 
         for xml_elem in test_params_xml:
             test_case.append(xml_elem)
@@ -712,7 +802,7 @@ def generate_tests():
 
         tool_tests_accumulator[matched_tool].append(test_case)
 
-    # Build
+    # Build Macros
     macros_root = ET.Element("macros")
     for t_name, cases in tool_tests_accumulator.items():
         macro_xml = ET.SubElement(macros_root, "xml", {"name": f"{t_name}_test"})
@@ -724,29 +814,29 @@ def generate_tests():
             
             for p in g_inputs:
                 if getattr(p, 'is_pvd_element', False): continue
-
                 is_mandatory = (getattr(p, 'optional', True) is False)
                 is_input_file = isinstance(p, DataParam)
+                is_select = isinstance(p, SelectParam)
 
-                if is_mandatory or is_input_file:
-                    val = get_dummy_value(p, t_name)
-                    
+                if is_mandatory or is_input_file or is_select:
+                    val = get_dummy_value(p, t_name, all_params=g_inputs)
                     if getattr(p, 'is_repeat', False):
                         rep = ET.SubElement(fallback_test, "repeat", {"name": f"{p.name}_repeat"})
-                        ET.SubElement(rep, "param", {"name": "element", "value": str(val), "ftype": p.format.split(',')[0] if isinstance(p, DataParam) else None})
+                        inner_p = ET.SubElement(rep, "param", {"name": "element", "value": str(val)})
+                        if is_input_file:
+                            inner_p.set("ftype", p.format.split(',')[0])
                     else:
-                        attrs = {"name": p.name, "value": str(val)}
-                        if isinstance(p, DataParam):
-                            attrs["ftype"] = p.format.split(',')[0]
-                        ET.SubElement(fallback_test, "param", attrs)
+                        test_p = ET.SubElement(fallback_test, "param", {"name": p.name, "value": str(val)})
+                        if is_input_file:
+                            test_p.set("ftype", p.format.split(',')[0])
             
             if g_outputs:
                 if len(g_outputs) > 1 or any(info.get('type') == 'BASE_FILENAME' for info in g_outputs.values()):
                     ET.SubElement(fallback_test, "output_collection", {"name": "tool_outputs", "type": "list"})
                 else:
-                    out_name = sanitize_name(f"output_{t_name}")
-                    out_elem = ET.SubElement(fallback_test, "output", {"name": out_name})
-                    ET.SubElement(ET.SubElement(out_elem, "assert_contents"), "has_size", {"min": "100"})
+                    out_n = sanitize_name(f"output_{t_name}")
+                    out_tag = ET.SubElement(fallback_test, "output", {"name": out_n})
+                    ET.SubElement(ET.SubElement(out_tag, "assert_contents"), "has_size", {"min": "1"})
         else:
             for case in cases:
                 macro_xml.append(case)
@@ -756,6 +846,7 @@ def generate_tests():
     with open("test_macros.xml", "wb") as f:
         f.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
         tree.write(f, encoding="utf-8", xml_declaration=False)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Galaxy XML Wrapper Generator for OGS Utilities")

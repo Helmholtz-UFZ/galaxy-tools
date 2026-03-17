@@ -8,21 +8,21 @@
   <expand macro="requirements" />
   <version_command><![CDATA[removeMeshElements --version]]></version_command>
   <command><![CDATA[
-ln -s '$mesh_input_file' '$mesh_input_file.element_identifier';
+ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
 removeMeshElements
     $invert
-    $z_max: --z-max '$z_max'
-    $z_min: --z-min '$z_min'
-    $y_max: --y-max '$y_max'
-    $y_min: --y-min '$y_min'
-    $x_max: --x-max '$x_max'
-    $x_min: --x-min '$x_min'
+     --z-max '$z_max'
+     --z-min '$z_min'
+     --y-max '$y_max'
+     --y-min '$y_min'
+     --x-max '$x_max'
+     --x-min '$x_min'
     $zero_volume
-    $element_type: --element-type '$element_type'
-    $property_name: --property-name '$property_name'
-    $property_value: --property-value '$property_value'
-    $min_value: --min-value '$min_value'
-    $max_value: --max-value '$max_value'
+     --element-type '$element_type'
+     --property-name '$property_name'
+     --property-value '$property_value'
+     --min-value '$min_value'
+     --max-value '$max_value'
     $outside
     $inside
     --mesh-input-file '$mesh_input_file.element_identifier'

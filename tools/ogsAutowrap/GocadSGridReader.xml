@@ -8,7 +8,7 @@
   <expand macro="requirements" />
   <version_command><![CDATA[GocadSGridReader --version]]></version_command>
   <command><![CDATA[
-ln -s '$sg' '$sg.element_identifier';
+ln -sf '$sg' '$sg.element_identifier';
 GocadSGridReader
     $generate_face_sets
     --sg '$sg.element_identifier'
@@ -16,7 +16,7 @@ GocadSGridReader
 ]]></command>
   <inputs>
     <param name="generate_face_sets" type="boolean" label="generate face sets" help="Generate face sets." checked="false" truevalue="--generate-face-sets" falsevalue="" />
-    <param name="sg" type="data" optional="false" label="sg" help="Input (.sg). Gocad stratigraphic grid filename" format="sg" multiple="false" />
+    <param name="sg" type="data" optional="false" label="sg" help="Input (.sg). Gocad stratigraphic grid filename" format="gocad.sg" multiple="false" />
   </inputs>
   <outputs>
     <data name="output_GocadSGridReader" format="vtkxml" label="Output from GocadSGridReader" from_work_dir="output_1.vtu" hidden="false" />

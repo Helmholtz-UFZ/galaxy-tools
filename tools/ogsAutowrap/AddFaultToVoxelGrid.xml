@@ -8,10 +8,10 @@
   <expand macro="requirements" />
   <version_command><![CDATA[AddFaultToVoxelGrid --version]]></version_command>
   <command><![CDATA[
-ln -s '$fault' '$fault.element_identifier';
-ln -s '$input' '$input.element_identifier';
+ln -sf '$fault' '$fault.element_identifier';
+ln -sf '$input' '$input.element_identifier';
 AddFaultToVoxelGrid
-    $material: --material '$material'
+     --material '$material'
     --fault '$fault.element_identifier'
     --input '$input.element_identifier'
     --output output_1.vtu

@@ -8,20 +8,19 @@
   <expand macro="requirements" />
   <version_command><![CDATA[identifySubdomains --version]]></version_command>
   <command><![CDATA[
-ln -s '$mesh' '$mesh.element_identifier';
-## Symlinks für Repeat subdomain_meshes_filenames
+ln -sf '$mesh' '$mesh.element_identifier';
 #for $item in $subdomain_meshes_filenames_repeat
-ln -s '$item.element' '$item.element.element_identifier';
+ln -sf '$item.element' '$item.element.element_identifier';
 #end for
 identifySubdomains
     $force
-    $searchlength: --searchlength '$searchlength'
+     --searchlength '$searchlength'
     --mesh '$mesh.element_identifier'
+    --output_prefix 'new_'
     --
 #for $item in $subdomain_meshes_filenames_repeat
-    '$item.element.element_identifier'
+'$item.element.element_identifier'
 #end for
-    --output_prefix 'new_'
 ]]></command>
   <inputs>
     <param name="force" type="boolean" label="force" help="Overwriting existing subdomain meshes." checked="false" truevalue="--force" falsevalue="" />

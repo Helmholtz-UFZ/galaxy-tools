@@ -8,7 +8,7 @@
   <expand macro="requirements" />
   <version_command><![CDATA[ConvertSHPToGLI --version]]></version_command>
   <command><![CDATA[
-ln -s '$shape_file' '$shape_file.element_identifier';
+ln -sf '$shape_file' '$shape_file.element_identifier';
 ConvertSHPToGLI
     --shape-file '$shape_file.element_identifier'
 ]]></command>

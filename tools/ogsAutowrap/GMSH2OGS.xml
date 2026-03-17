@@ -8,7 +8,7 @@
   <expand macro="requirements" />
   <version_command><![CDATA[GMSH2OGS --version]]></version_command>
   <command><![CDATA[
-ln -s '$in' '$in.element_identifier';
+ln -sf '$in' '$in.element_identifier';
 GMSH2OGS
     --in '$in.element_identifier'
     $validation

@@ -8,18 +8,18 @@
   <expand macro="requirements" />
   <version_command><![CDATA[geometryToGmshGeo --version]]></version_command>
   <command><![CDATA[
-## Symlinks für Repeat input
 #for $item in $input_repeat
-ln -s '$item.element' '$item.element.element_identifier';
+ln -sf '$item.element' '$item.element.element_identifier';
 #end for
 geometryToGmshGeo
+    --input
 #for $item in $input_repeat
-    --input '$item.element.element_identifier'
+'$item.element.element_identifier'
 #end for
-    $max_points_in_quadtree_leaf: --max_points_in_quadtree_leaf '$max_points_in_quadtree_leaf'
-    $mesh_density_scaling_at_points: --mesh_density_scaling_at_points '$mesh_density_scaling_at_points'
-    $mesh_density_scaling_at_stations: --mesh_density_scaling_at_stations '$mesh_density_scaling_at_stations'
-    $average_point_density: --average_point_density '$average_point_density'
+     --max_points_in_quadtree_leaf '$max_points_in_quadtree_leaf'
+     --mesh_density_scaling_at_points '$mesh_density_scaling_at_points'
+     --mesh_density_scaling_at_stations '$mesh_density_scaling_at_stations'
+     --average_point_density '$average_point_density'
     $homogeneous
     --output output_1.geo
     --write_merged_geometries output_2.gml

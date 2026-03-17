@@ -8,7 +8,7 @@
   <expand macro="requirements" />
   <version_command><![CDATA[convertToLinearMesh --version]]></version_command>
   <command><![CDATA[
-ln -s '$input_mesh_file' '$input_mesh_file.element_identifier';
+ln -sf '$input_mesh_file' '$input_mesh_file.element_identifier';
 convertToLinearMesh
     --input-mesh-file '$input_mesh_file.element_identifier'
     --output-mesh-file output_1.vtu

@@ -8,10 +8,10 @@
   <expand macro="requirements" />
   <version_command><![CDATA[ComputeNodeAreasFromSurfaceMesh --version]]></version_command>
   <command><![CDATA[
-ln -s '$mesh_input_file' '$mesh_input_file.element_identifier';
+ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
 ComputeNodeAreasFromSurfaceMesh
     --mesh-input-file '$mesh_input_file.element_identifier'
-    $id_prop_name: --id-prop-name '$id_prop_name'
+     --id-prop-name '$id_prop_name'
     --output-base-name 'new_'
 ]]></command>
   <inputs>

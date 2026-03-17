@@ -8,7 +8,7 @@
   <expand macro="requirements" />
   <version_command><![CDATA[createQuadraticMesh --version]]></version_command>
   <command><![CDATA[
-ln -s '$input_mesh_file' '$input_mesh_file.element_identifier';
+ln -sf '$input_mesh_file' '$input_mesh_file.element_identifier';
 createQuadraticMesh
     --input-mesh-file '$input_mesh_file.element_identifier'
     $add_centre_node

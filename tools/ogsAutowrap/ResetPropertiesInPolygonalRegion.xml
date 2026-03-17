@@ -8,24 +8,24 @@
   <expand macro="requirements" />
   <version_command><![CDATA[ResetPropertiesInPolygonalRegion --version]]></version_command>
   <command><![CDATA[
-ln -s '$geometry' '$geometry.element_identifier';
-ln -s '$mesh_input_file' '$mesh_input_file.element_identifier';
-ln -s '$gmsh_path' '$gmsh_path.element_identifier';
+ln -sf '$geometry' '$geometry.element_identifier';
+ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
+ln -sf '$gmsh_path' '$gmsh_path.element_identifier';
 ResetPropertiesInPolygonalRegion
-    $polygon_name: --polygon-name '$polygon_name'
+     --polygon-name '$polygon_name'
     --geometry '$geometry.element_identifier'
     $any_of
-    $char_property_value: --char-property-value '$char_property_value'
-    $int_property_value: --int-property-value '$int_property_value'
-    $property_name: --property-name '$property_name'
-    $restrict_to_MaterialID: --restrict-to-MaterialID '$restrict_to_MaterialID'
+     --char-property-value '$char_property_value'
+     --int-property-value '$int_property_value'
+     --property-name '$property_name'
+     --restrict-to-MaterialID '$restrict_to_MaterialID'
     --mesh-input-file '$mesh_input_file.element_identifier'
     --gmsh-path '$gmsh_path.element_identifier'
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>
     <param name="polygon_name" type="text" optional="true" label="polygon name" help="name of polygon in the geometry" />
-    <param name="geometry" type="data" optional="false" label="geometry" help="Input (.gli | .gml). The name of the file containing the input geometry" format="gli" multiple="false" />
+    <param name="geometry" type="data" optional="false" label="geometry" help="Input (.gli | .gml). The name of the file containing the input geometry" format="xml" multiple="false" />
     <param name="any_of" type="boolean" label="any of" help="all nodes of an element has to be inside the polygon (default behaviour without switch) or any node of an element has to be inside (switch is given)" checked="false" truevalue="--any_of" falsevalue="" />
     <param name="char_property_value" type="text" optional="true" label="char property value" help="new property value (data type char)" />
     <param name="int_property_value" type="integer" optional="true" label="int property value" help="new property value (data type int)" />

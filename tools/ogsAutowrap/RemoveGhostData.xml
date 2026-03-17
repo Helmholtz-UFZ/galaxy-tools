@@ -8,7 +8,7 @@
   <expand macro="requirements" />
   <version_command><![CDATA[RemoveGhostData --version]]></version_command>
   <command><![CDATA[
-ln -s '$input' '$input.element_identifier';
+ln -sf '$input' '$input.element_identifier';
 RemoveGhostData
     --input '$input.element_identifier'
     --output output_1.vtu

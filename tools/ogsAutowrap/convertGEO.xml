@@ -8,8 +8,8 @@
   <expand macro="requirements" />
   <version_command><![CDATA[convertGEO --version]]></version_command>
   <command><![CDATA[
-ln -s '$input_file' '$input_file.element_identifier';
-ln -s '$gmsh_path' '$gmsh_path.element_identifier';
+ln -sf '$input_file' '$input_file.element_identifier';
+ln -sf '$gmsh_path' '$gmsh_path.element_identifier';
 convertGEO
     --input-file '$input_file.element_identifier'
     --gmsh-path '$gmsh_path.element_identifier'

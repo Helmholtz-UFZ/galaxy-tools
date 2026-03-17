@@ -8,10 +8,10 @@
   <expand macro="requirements" />
   <version_command><![CDATA[queryMesh --version]]></version_command>
   <command><![CDATA[
-ln -s '$mesh_file' '$mesh_file.element_identifier';
+ln -sf '$mesh_file' '$mesh_file.element_identifier';
 queryMesh
-    $element_id: --element-id '$element_id'
-    $node_id: --node-id '$node_id'
+     --element-id '$element_id'
+     --node-id '$node_id'
     $show_node_with_max_elements
     -- '$mesh_file.element_identifier'
 ]]></command>

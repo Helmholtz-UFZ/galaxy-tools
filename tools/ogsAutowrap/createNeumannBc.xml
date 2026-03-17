@@ -8,11 +8,11 @@
   <expand macro="requirements" />
   <version_command><![CDATA[createNeumannBc --version]]></version_command>
   <command><![CDATA[
-ln -s '$in_mesh' '$in_mesh.element_identifier';
+ln -sf '$in_mesh' '$in_mesh.element_identifier';
 createNeumannBc
     --in-mesh '$in_mesh.element_identifier'
-    $property_in_name: --property-in-name '$property_in_name'
-    $property_out_name: --property-out-name '$property_out_name'
+     --property-in-name '$property_in_name'
+     --property-out-name '$property_out_name'
     --result-out output_1.txt
 ]]></command>
   <inputs>

@@ -8,7 +8,7 @@
   <expand macro="requirements" />
   <version_command><![CDATA[checkMesh --version]]></version_command>
   <command><![CDATA[
-ln -s '$mesh_file' '$mesh_file.element_identifier';
+ln -sf '$mesh_file' '$mesh_file.element_identifier';
 checkMesh
     $validation
     $print_properties

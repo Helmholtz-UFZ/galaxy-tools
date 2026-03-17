@@ -8,13 +8,11 @@
   <expand macro="requirements" />
   <version_command><![CDATA[postLIE --version]]></version_command>
   <command><![CDATA[
-## PVD-Member Symlinks
-#if $input_file_pvd_data_repeat
 #for $item in $input_file_pvd_data_repeat
-    ln -s '$item.element' '$item.element.element_identifier';
+    ln -sf '$item.element' '$item.element.element_identifier';
 #end for
-#endif
-ln -s '$input_file' '$input_file.element_identifier';
+
+ln -sf '$input_file' '$input_file.element_identifier';
 postLIE
     --input-file '$input_file.element_identifier'
     $no_overwrite

@@ -8,13 +8,13 @@
   <expand macro="requirements" />
   <version_command><![CDATA[CreateAnchors --version]]></version_command>
   <command><![CDATA[
-ln -s '$input' '$input.element_identifier';
-ln -s '$json_file' '$json_file.element_identifier';
+ln -sf '$input' '$input.element_identifier';
+ln -sf '$json_file' '$json_file.element_identifier';
 CreateAnchors
     --input '$input.element_identifier'
     --json-file '$json_file.element_identifier'
-    $tolerance: --tolerance '$tolerance'
-    $max_iter: --max-iter '$max_iter'
+     --tolerance '$tolerance'
+     --max-iter '$max_iter'
     --output output_1.vtu
 ]]></command>
   <inputs>

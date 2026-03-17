@@ -8,11 +8,11 @@
   <expand macro="requirements" />
   <version_command><![CDATA[createLayeredMeshFromRasters --version]]></version_command>
   <command><![CDATA[
-ln -s '$raster_list' '$raster_list.element_identifier';
-ln -s '$input_mesh_file' '$input_mesh_file.element_identifier';
+ln -sf '$raster_list' '$raster_list.element_identifier';
+ln -sf '$input_mesh_file' '$input_mesh_file.element_identifier';
 createLayeredMeshFromRasters
     $ascii_output
-    $thickness: --thickness '$thickness'
+     --thickness '$thickness'
     --raster-list '$raster_list.element_identifier'
     $keep_surface_material_ids
     --input-mesh-file '$input_mesh_file.element_identifier'

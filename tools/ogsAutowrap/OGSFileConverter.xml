@@ -8,7 +8,7 @@
   <expand macro="requirements" />
   <version_command><![CDATA[OGSFileConverter --version]]></version_command>
   <command><![CDATA[
-ln -s '$gmsh_path' '$gmsh_path.element_identifier';
+ln -sf '$gmsh_path' '$gmsh_path.element_identifier';
 OGSFileConverter
     --gmsh-path '$gmsh_path.element_identifier'
 ]]></command>

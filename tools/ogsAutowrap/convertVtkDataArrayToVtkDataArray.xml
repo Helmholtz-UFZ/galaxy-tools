@@ -8,11 +8,11 @@
   <expand macro="requirements" />
   <version_command><![CDATA[convertVtkDataArrayToVtkDataArray --version]]></version_command>
   <command><![CDATA[
-ln -s '$in_mesh' '$in_mesh.element_identifier';
+ln -sf '$in_mesh' '$in_mesh.element_identifier';
 convertVtkDataArrayToVtkDataArray
-    $new_property_data_type: --new-property-data-type '$new_property_data_type'
-    $new_property_name: --new-property-name '$new_property_name'
-    $existing_property_name: --existing-property-name '$existing_property_name'
+     --new-property-data-type '$new_property_data_type'
+     --new-property-name '$new_property_name'
+     --existing-property-name '$existing_property_name'
     --in-mesh '$in_mesh.element_identifier'
     --out-mesh output_1.vtu
 ]]></command>

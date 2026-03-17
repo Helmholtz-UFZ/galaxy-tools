@@ -8,13 +8,13 @@
   <expand macro="requirements" />
   <version_command><![CDATA[AddLayer --version]]></version_command>
   <command><![CDATA[
-ln -s '$input_mesh_file' '$input_mesh_file.element_identifier';
+ln -sf '$input_mesh_file' '$input_mesh_file.element_identifier';
 AddLayer
     --input-mesh-file '$input_mesh_file.element_identifier'
-    $layer_tickness: --layer-tickness '$layer_tickness'
+     --layer-tickness '$layer_tickness'
     $add_layer_on_bottom
     $copy_material_ids
-    $set_material_id: --set-material-id '$set_material_id'
+     --set-material-id '$set_material_id'
     --output-mesh-file output_1.vtu
 ]]></command>
   <inputs>

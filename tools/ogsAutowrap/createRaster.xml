@@ -9,11 +9,11 @@
   <version_command><![CDATA[createRaster --version]]></version_command>
   <command><![CDATA[
 createRaster
-    $n_rows: --n_rows '$n_rows'
-    $n_cols: --n_cols '$n_cols'
-    $cell_size: --cell_size '$cell_size'
-    $ll_y: --ll_y '$ll_y'
-    $ll_x: --ll_x '$ll_x'
+     --n_rows '$n_rows'
+     --n_cols '$n_cols'
+     --cell_size '$cell_size'
+     --ll_y '$ll_y'
+     --ll_x '$ll_x'
     --output output_1.asc
 ]]></command>
   <inputs>
@@ -24,7 +24,7 @@ createRaster
     <param name="ll_x" type="float" optional="true" label="ll x" help="x coordinate of lower left point of axis aligned rectangular region" />
   </inputs>
   <outputs>
-    <data name="output_createRaster" format="asc" label="Output from createRaster" from_work_dir="output_1.asc" hidden="false" />
+    <data name="output_createRaster" format="raster.asc" label="Output from createRaster" from_work_dir="output_1.asc" hidden="false" />
   </outputs>
   <tests>
     <expand macro="createraster_test" />

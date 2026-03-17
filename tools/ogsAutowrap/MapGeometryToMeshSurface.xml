@@ -8,8 +8,8 @@
   <expand macro="requirements" />
   <version_command><![CDATA[MapGeometryToMeshSurface --version]]></version_command>
   <command><![CDATA[
-ln -s '$mesh_file' '$mesh_file.element_identifier';
-ln -s '$input_geometry' '$input_geometry.element_identifier';
+ln -sf '$mesh_file' '$mesh_file.element_identifier';
+ln -sf '$input_geometry' '$input_geometry.element_identifier';
 MapGeometryToMeshSurface
     --mesh-file '$mesh_file.element_identifier'
     --input-geometry '$input_geometry.element_identifier'

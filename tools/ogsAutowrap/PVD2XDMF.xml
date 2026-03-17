@@ -8,13 +8,11 @@
   <expand macro="requirements" />
   <version_command><![CDATA[PVD2XDMF --version]]></version_command>
   <command><![CDATA[
-## PVD-Member Symlinks
-#if $pvd_file_pvd_data_repeat
 #for $item in $pvd_file_pvd_data_repeat
-    ln -s '$item.element' '$item.element.element_identifier';
+    ln -sf '$item.element' '$item.element.element_identifier';
 #end for
-#endif
-ln -s '$pvd_file' '$pvd_file.element_identifier';
+
+ln -sf '$pvd_file' '$pvd_file.element_identifier';
 PVD2XDMF
     --output-directory output_1.vtu
     -- '$pvd_file.element_identifier'

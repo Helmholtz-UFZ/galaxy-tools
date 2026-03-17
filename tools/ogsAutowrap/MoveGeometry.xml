@@ -8,11 +8,11 @@
   <expand macro="requirements" />
   <version_command><![CDATA[MoveGeometry --version]]></version_command>
   <command><![CDATA[
-ln -s '$input' '$input.element_identifier';
+ln -sf '$input' '$input.element_identifier';
 MoveGeometry
-    $z: --z '$z'
-    $y: --y '$y'
-    $x: --x '$x'
+     --z '$z'
+     --y '$y'
+     --x '$x'
     --input '$input.element_identifier'
     --output output_1.gml
 ]]></command>

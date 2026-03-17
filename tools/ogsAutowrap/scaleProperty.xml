@@ -8,11 +8,11 @@
   <expand macro="requirements" />
   <version_command><![CDATA[scaleProperty --version]]></version_command>
   <command><![CDATA[
-ln -s '$mesh' '$mesh.element_identifier';
+ln -sf '$mesh' '$mesh.element_identifier';
 scaleProperty
-    $property_name: --property-name '$property_name'
+     --property-name '$property_name'
     --mesh '$mesh.element_identifier'
-    $input_unit: --input-unit '$input_unit'
+     --input-unit '$input_unit'
     --out-mesh output_1.vtu
 ]]></command>
   <inputs>

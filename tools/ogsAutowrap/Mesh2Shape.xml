@@ -8,7 +8,7 @@
   <expand macro="requirements" />
   <version_command><![CDATA[Mesh2Shape --version]]></version_command>
   <command><![CDATA[
-ln -s '$input_file' '$input_file.element_identifier';
+ln -sf '$input_file' '$input_file.element_identifier';
 Mesh2Shape
     --input-file '$input_file.element_identifier'
     --output-file output_1.shp

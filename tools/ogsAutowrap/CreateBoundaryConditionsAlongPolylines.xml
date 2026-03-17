@@ -8,13 +8,13 @@
   <expand macro="requirements" />
   <version_command><![CDATA[CreateBoundaryConditionsAlongPolylines --version]]></version_command>
   <command><![CDATA[
-ln -s '$input_geometry' '$input_geometry.element_identifier';
-ln -s '$mesh_file' '$mesh_file.element_identifier';
-ln -s '$gmsh_path' '$gmsh_path.element_identifier';
+ln -sf '$input_geometry' '$input_geometry.element_identifier';
+ln -sf '$mesh_file' '$mesh_file.element_identifier';
+ln -sf '$gmsh_path' '$gmsh_path.element_identifier';
 CreateBoundaryConditionsAlongPolylines
     $gml
-    $type: --type '$type'
-    $search_length: --search-length '$search_length'
+     --type '$type'
+     --search-length '$search_length'
     --input-geometry '$input_geometry.element_identifier'
     --mesh-file '$mesh_file.element_identifier'
     --gmsh-path '$gmsh_path.element_identifier'

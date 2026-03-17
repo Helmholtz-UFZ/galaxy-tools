@@ -8,13 +8,13 @@
   <expand macro="requirements" />
   <version_command><![CDATA[BinaryToPVTU --version]]></version_command>
   <command><![CDATA[
-ln -s '$mesh_input_file_base' '$mesh_input_file_base.element_identifier';
+ln -sf '$mesh_input_file_base' '$mesh_input_file_base.element_identifier';
 BinaryToPVTU
     --mesh-input-file-base '$mesh_input_file_base.element_identifier'
-    $output: --output '$output'
+     --output '$output'
 ]]></command>
   <inputs>
-    <param name="mesh_input_file_base" type="data" optional="false" label="mesh input file base" help="Input (.bin). The base name of the files containing the input mesh, i.e., the file name without the string beginning with '_partitioned' and ending with" format="bin" multiple="false" />
+    <param name="mesh_input_file_base" type="data" optional="false" label="mesh input file base" help="Input (.bin). The base name of the files containing the input mesh, i.e., the file name without the string beginning with '_partitioned' and ending with" format="txt" multiple="false" />
     <param name="output" type="text" optional="true" label="output" help="output directory name and output base file name without extensions" />
   </inputs>
   <outputs />

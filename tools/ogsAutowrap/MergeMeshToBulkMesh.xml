@@ -8,19 +8,19 @@
   <expand macro="requirements" />
   <version_command><![CDATA[MergeMeshToBulkMesh --version]]></version_command>
   <command><![CDATA[
-ln -s '$bulk_mesh_input_file' '$bulk_mesh_input_file.element_identifier';
-ln -s '$mesh_input_file' '$mesh_input_file.element_identifier';
+ln -sf '$bulk_mesh_input_file' '$bulk_mesh_input_file.element_identifier';
+ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
 MergeMeshToBulkMesh
     --bulk-mesh-input-file '$bulk_mesh_input_file.element_identifier'
     --mesh-input-file '$mesh_input_file.element_identifier'
-    $pressure: --pressure '$pressure'
-    $gas_pressure: --gas_pressure '$gas_pressure'
-    $capillary_pressure: --capillary_pressure '$capillary_pressure'
-    $temperature: --temperature '$temperature'
-    $sigma_xx: --sigma_xx '$sigma_xx'
-    $sigma_yy: --sigma_yy '$sigma_yy'
-    $sigma_zz: --sigma_zz '$sigma_zz'
-    $material_id: --material_id '$material_id'
+     --pressure '$pressure'
+     --gas_pressure '$gas_pressure'
+     --capillary_pressure '$capillary_pressure'
+     --temperature '$temperature'
+     --sigma_xx '$sigma_xx'
+     --sigma_yy '$sigma_yy'
+     --sigma_zz '$sigma_zz'
+     --material_id '$material_id'
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>

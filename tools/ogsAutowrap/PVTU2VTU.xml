@@ -8,10 +8,10 @@
   <expand macro="requirements" />
   <version_command><![CDATA[pvtu2vtu --version]]></version_command>
   <command><![CDATA[
-ln -s '$input' '$input.element_identifier';
+ln -sf '$input' '$input.element_identifier';
 pvtu2vtu
     --input '$input.element_identifier'
-    $original_mesh: --original_mesh '$original_mesh'
+     --original_mesh '$original_mesh'
     --output output_1.vtu
 ]]></command>
   <inputs>

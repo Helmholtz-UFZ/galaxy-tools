@@ -8,13 +8,13 @@
   <expand macro="requirements" />
   <version_command><![CDATA[MeshMapping --version]]></version_command>
   <command><![CDATA[
-ln -s '$mesh' '$mesh.element_identifier';
-ln -s '$raster' '$raster.element_identifier';
-ln -s '$input' '$input.element_identifier';
+ln -sf '$mesh' '$mesh.element_identifier';
+ln -sf '$raster' '$raster.element_identifier';
+ln -sf '$input' '$input.element_identifier';
 MeshMapping
     $lowpass
-    $static: --static '$static'
-    $distance: --distance '$distance'
+     --static '$static'
+     --distance '$distance'
     --mesh '$mesh.element_identifier'
     --raster '$raster.element_identifier'
     --input '$input.element_identifier'
@@ -25,7 +25,7 @@ MeshMapping
     <param name="static" type="float" optional="true" label="static" help="Static elevation to map the input file to. This can be combined with mapping based on rasters or other meshes to deal with locations where no corresponding data exists." />
     <param name="distance" type="float" optional="true" label="distance" help="Maximum distance to search for mesh nodes if there is no corresponding data for input mesh nodes on the mesh it should be mapped on. (min = 0)" />
     <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). 2D mesh file to map the input file on" format="vtkxml" multiple="false" />
-    <param name="raster" type="data" optional="false" label="raster" help="Input (.asc | .grd | .xyz) Raster file to map the input file on" format="asc" multiple="false" />
+    <param name="raster" type="data" optional="false" label="raster" help="Input (.asc | .grd | .xyz) Raster file to map the input file on" format="raster.asc" multiple="false" />
     <param name="input" type="data" optional="false" label="input" help="Input (.vtu | .msh) mesh file" format="vtkxml" multiple="false" />
   </inputs>
   <outputs>

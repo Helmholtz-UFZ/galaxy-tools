@@ -8,10 +8,10 @@
   <expand macro="requirements" />
   <version_command><![CDATA[constructMeshesFromGeometry --version]]></version_command>
   <command><![CDATA[
-ln -s '$geometry' '$geometry.element_identifier';
-ln -s '$mesh' '$mesh.element_identifier';
+ln -sf '$geometry' '$geometry.element_identifier';
+ln -sf '$mesh' '$mesh.element_identifier';
 constructMeshesFromGeometry
-    $searchlength: --searchlength '$searchlength'
+     --searchlength '$searchlength'
     --geometry '$geometry.element_identifier'
     --mesh '$mesh.element_identifier'
     $multiple_nodes_allowed

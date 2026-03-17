@@ -2,7 +2,7 @@
     <description> with omero-py </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">6</token>
+        <token name="@VERSION_SUFFIX@">0</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -13,9 +13,12 @@
 
         mkdir folder &&
         #for $image in $folder:
-            #set image = $image
             #set image_identifier = re.sub('[^\s\w\-]', '_', str($image.element_identifier))
+        #if $image.ext == "zip"
+            unzip -j '$folder' -d folder &&
+        #else
             ln -s '${image}' folder/'${image_identifier}.$image.ext' &&
+        #end if
         #end for
 
         #if $test_username != ""
@@ -23,28 +26,45 @@
             export OMERO_PASSWORD="$test_password" &&
        #end if
 
-        #if $session_id.session_id_input =="yes"
-          omero import folder
-           -T 'Dataset:name:$dataset_name'
-           -s '$omero_host'
-           -k \$UUID_SESSION_KEY
-           > $log &&
-        #else
-         omero import folder
-           -T 'Dataset:name:$dataset_name'
-           -s '$omero_host'
-           -p $omero_port
-           -u \$OMERO_USER
-           -w \$OMERO_PASSWORD
+        omero import folder
+            -T 'Dataset:name:$dataset_name'
+            -s '$omero_host'
+            -p '$omero_port'
+            --debug DEBUG
+            #if $skip_step
+                --skip $skip_step
+            #end if
+            #if $session_id.session_id_input =="yes"
+                -k "\$UUID_SESSION_KEY"
+            #else
+                -u "\$OMERO_USER"
+                -w "\$OMERO_PASSWORD"
+            #end if
         > '$log' &&
-        #end if
+
         omero search Dataset '$dataset_name' --style json > '$log2' &&
         omero logout
+
     ]]></command>
     <inputs>
         <expand macro="host_port"/>
-        <param name="folder" type="data" format="avi,bmp,btf,cif,csv,eps,fits,fli,gif,hdr,html,jp2,jpg,mov,mrc,ndpi,nhdr,nrrd,ome.tiff,par,pbm,pcx,pgm,png,ppm,psd,scn,sif,svs,tf2,tf8,tif,tif,tiff,top,txt,vms,wav,xml,zip" multiple="true" optional="false" label="Images to import into OMERO"/>
+        <param name="folder" type="data" format="avi,bmp,btf,cif,eps,fits,fli,gif,hdr,jp2,jpg,mov,mrc,ndpi,nhdr,nrrd,ome.tiff,par,pbm,pcx,pgm,png,ppm,psd,scn,sif,svs,tf2,tf8,tiff,top,vms,wav,xml,zip" multiple="true" optional="false" label="Images to import into OMERO"/>
         <param name="dataset_name" type="text" optional="false" label="Target Dataset Name"/>
+        <param name="skip_step" type="select" optional="true" value= "no_skip" label="Specify optional step to skip during import.">
+            <option value="all">
+                Skip all optional steps described below
+            </option>
+            <option value="checksum">
+                Skip checksum calculation on image files before and after transfer
+            </option>
+            <option value="minmax">
+                Skip calculation of the minima and maxima pixel values
+            </option>
+            <option value="thumbnails">
+                Skip generation of thumbnails
+            </option>
+        </param>
+        <param name="zipped" type="boolean" label="Are image inside a .ZIP file?" help="Images can be zipped before import, they will be automatically unzipped in Galaxy"/>
     </inputs>
     <outputs>
         <data name="log" format="txt" label="${tool.name} on ${on_string}: Imported Image List"/>
@@ -58,6 +78,8 @@
             <param name="omero_port" value="6064"/>
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>
+            <param name="skip_step" value="all"/>
+            <param name="zipped" value="False"/>
             <output name="log" value="omero_output.txt" ftype="txt">
                 <assert_contents>
                     <has_n_lines n="2"/>
@@ -68,6 +90,33 @@
                 <has_text_matching expression="IMPORT_DONE.*input1.tif"/>
                 <has_text_matching expression="IMPORT_DONE.*input2.tif"/>
                 <has_text text="files uploaded, 2 filesets created, 2 images imported, 0 errors"/>
+                <has_text text="Skipping minimum/maximum computation"/>
+                <has_text text="Skipping thumbnails creation"/>
+                <has_text text="Disabling upgrade check"/>
+            </assert_stderr>
+        </test>
+        <test>
+            <param name="folder" value="input3.zip" ftype="zip"/>
+            <param name="dataset_name" value="galaxy_test_upload"/>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <param name="skip_step" value="all"/>
+            <param name="zipped" value="True"/>
+            <output name="log" value="omero_output_zip.txt" ftype="txt">
+                <assert_contents>
+                    <has_n_lines n="2"/>
+                </assert_contents>
+            </output>
+            <output name="log2" value="omero_output_2_zip.json" ftype="json"/>
+            <assert_stderr>
+                <has_text_matching expression="IMPORT_DONE.*input1.tif"/>
+                <has_text_matching expression="IMPORT_DONE.*input2.tif"/>
+                <has_text text="files uploaded, 2 filesets created, 2 images imported, 0 errors"/>
+                <has_text text="Skipping minimum/maximum computation"/>
+                <has_text text="Skipping thumbnails creation"/>
+                <has_text text="Disabling upgrade check"/>
             </assert_stderr>
         </test>
     </tests>

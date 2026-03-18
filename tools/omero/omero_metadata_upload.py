@@ -61,7 +61,7 @@ def metadata_import_ezo(
 
     conn = establish_connection(uuid_key, usr, psw, host, port)
 
-    def upload_metadata(conn, obj_type, did, data_dict, ann_type, an_name, df):
+    def upload_metadata(conn, obj_type, did, data_dict, df, ann_type, an_name):
         try:
             if ann_type == "KV":
                 id_map_ann = ez.post_map_annotation(conn, obj_type, object_id=int(did), kv_dict=data_dict, ns=an_name)

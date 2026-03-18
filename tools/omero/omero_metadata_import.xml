@@ -2,7 +2,7 @@
     <description> with ezomero </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@VERSION_SUFFIX@">1</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -56,7 +56,7 @@
             <option value="KV">Key-Value Pairs</option>
             <option value="attachement">File Attachment</option>
         </param>
-        <param argument="ann_file" type="data" format="tabular" optional="false" label="Annotation file" help="Select annotation file"/>
+        <param argument="ann_file" type="data" format="tabular,zip,tar,pdf,txt" optional="false" label="Annotation file" help="Select annotation file"/>
         <param argument="an_name" type="text" optional="false" label="Annotation Name"/>
     </inputs>
     <outputs>
@@ -151,7 +151,7 @@
                 <param name="object_id_selection" value="existing_object"/>
                 <param name="did" value="1"/>
             </conditional>
-            <param name="ann_file" value="input3.zip"/>
+            <param name="ann_file" value="input3.zip" ftype="zip"/>
             <param name="an_name" value="attachement_test"/>
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>

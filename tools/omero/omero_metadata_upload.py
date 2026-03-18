@@ -61,7 +61,7 @@ def metadata_import_ezo(
 
     conn = establish_connection(uuid_key, usr, psw, host, port)
 
-    def upload_metadata(conn, obj_type, did, data_dict, df, ann_type, an_name):
+    def upload_metadata(conn, obj_type, did, data_dict, ann_type, an_name, df=None):
         try:
             if ann_type == "KV":
                 id_map_ann = ez.post_map_annotation(conn, obj_type, object_id=int(did), kv_dict=data_dict, ns=an_name)
@@ -89,13 +89,13 @@ def metadata_import_ezo(
 
     try:
         if ann_type == "table":
-           df = pd.read_csv(ann_file, delimiter='\t')
-           data_dict = df.to_dict(orient='records')
+            df = pd.read_csv(ann_file, delimiter='\t')
+            data_dict = df.to_dict(orient='records')
         elif ann_type == "KV":
-           df = pd.read_csv(ann_file, delimiter='\t')     
-           data_dict = {col: df[col].iloc[0] for col in df.columns}
+            df = pd.read_csv(ann_file, delimiter='\t')
+            data_dict = {col: df[col].iloc[0] for col in df.columns}
         elif ann_type == "attachement":
-           data_dict = ann_file   
+            data_dict = ann_file
     except FileNotFoundError as e:
         log_error(f"Annotation file not found: {str(e)}")
         return

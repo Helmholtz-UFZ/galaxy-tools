@@ -88,17 +88,17 @@ def metadata_import_ezo(
             f.write(f"SUCCESS: {message}\n")
 
     try:
-        df = pd.read_csv(ann_file, delimiter='\t')
+        if ann_type == "table":
+           df = pd.read_csv(ann_file, delimiter='\t')
+           data_dict = df.to_dict(orient='records')
+        elif ann_type == "KV":
+           df = pd.read_csv(ann_file, delimiter='\t')     
+           data_dict = {col: df[col].iloc[0] for col in df.columns}
+        elif ann_type == "attachement":
+           data_dict = ann_file   
     except FileNotFoundError as e:
         log_error(f"Annotation file not found: {str(e)}")
         return
-
-    if ann_type == "table":
-        data_dict = df.to_dict(orient='records')
-    elif ann_type == "KV":
-        data_dict = {col: df[col].iloc[0] for col in df.columns}
-    elif ann_type == "attachement":
-        data_dict = ann_file
 
     try:
         if obj_type == "project":

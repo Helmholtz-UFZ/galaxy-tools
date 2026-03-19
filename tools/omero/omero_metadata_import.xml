@@ -56,7 +56,7 @@
             <option value="KV">Key-Value Pairs</option>
             <option value="attachement">File Attachment</option>
         </param>
-        <param argument="ann_file" type="data" format="tabular,zip,tar,pdf,txt" optional="false" label="Annotation file" help="Select annotation file"/>
+        <param argument="ann_file" type="data" format="tabular,zip,tar,pdf,txt,data" optional="false" label="Annotation file" help="Select annotation file"/>
         <param argument="an_name" type="text" optional="false" label="Annotation Name"/>
     </inputs>
     <outputs>

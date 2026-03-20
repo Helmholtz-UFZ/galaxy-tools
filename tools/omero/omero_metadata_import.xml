@@ -13,6 +13,7 @@
         <include path="omero_metadata_upload.py" />
     </required_files>
     <command detect_errors="exit_code"><![CDATA[
+        #import re
 
         #if $test_username != ""
             export OMERO_USER="$test_username" &&

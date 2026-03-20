@@ -18,12 +18,19 @@
             export OMERO_USER="$test_username" &&
             export OMERO_PASSWORD="$test_password" &&
        #end if
-
+        
+        ## Create a softlink to assure that the file name is the same of the original attachment
+        ## The attachement will then be uploaded with the history or collection element name
+        
+        #set $safeid = re.sub('[^\w\-\.]', '_', str($ann_file.element_identifier))
+        
+        ln -s '$ann_file' '$safeid' &&
+        
         python '$__tool_directory__'/omero_metadata_upload.py
         @HOST_PORT@
         --obj_type $obj_type
         --ann_type $ann_type
-        --ann_file '$ann_file'
+        --ann_file '$safeid'
         --an_name '$an_name'
         --log_file '$log'
         @SESSION_ID@
@@ -193,7 +200,10 @@ If the object does not exist, a new one will be created.
   | Value1 | Value2  | Value3   |
   +--------+---------+----------+
 
-
+- Data types input
+        
+At the present, the tool accept as input .TSV, .ZIP, .TAR, .PDF and .TXT.
+In case of additional data types, you can change the dataset data type to "data" directly trough Galaxy.
 
 @SECURITY_DISCLAIMER@
     </help>

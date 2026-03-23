@@ -2,7 +2,7 @@
     <description> with ezomero </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@VERSION_SUFFIX@">1</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -13,17 +13,25 @@
         <include path="omero_metadata_upload.py" />
     </required_files>
     <command detect_errors="exit_code"><![CDATA[
+        #import re
 
         #if $test_username != ""
             export OMERO_USER="$test_username" &&
             export OMERO_PASSWORD="$test_password" &&
        #end if
-
+        
+        ## Create a softlink to assure that the file name is the same of the original attachment
+        ## The attachement will then be uploaded with the history or collection element name
+        
+        #set $safeid = re.sub('[^\w\-\.]', '_', str($ann_file.element_identifier))
+        
+        ln -s '$ann_file' '$safeid' &&
+        
         python '$__tool_directory__'/omero_metadata_upload.py
         @HOST_PORT@
         --obj_type $obj_type
         --ann_type $ann_type
-        --ann_file '$ann_file'
+        --ann_file '$safeid'
         --an_name '$an_name'
         --log_file '$log'
         @SESSION_ID@
@@ -56,7 +64,7 @@
             <option value="KV">Key-Value Pairs</option>
             <option value="attachement">File Attachment</option>
         </param>
-        <param argument="ann_file" type="data" format="tabular" optional="false" label="Annotation file" help="Select annotation file"/>
+        <param argument="ann_file" type="data" format="tabular,zip,tar,pdf,txt,data" optional="false" label="Annotation file" help="Select annotation file"/>
         <param argument="an_name" type="text" optional="false" label="Annotation Name"/>
     </inputs>
     <outputs>
@@ -64,6 +72,7 @@
     </outputs>
     <tests>
         <test>
+            <!-- test import of a TSV file as Table-->
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>
             <param name="obj_type" value="project"/>
@@ -82,6 +91,7 @@
             </output>
         </test>
         <test>
+            <!-- test import of a TSV file as KV pairs-->
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>
             <param name="obj_type" value="dataset"/>
@@ -100,6 +110,7 @@
             </output>
         </test>
             <test>
+            <!-- test import of a TSV file as second pair of KV pairs-->
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>
             <param name="obj_type" value="dataset"/>
@@ -119,6 +130,7 @@
             </output>
         </test>
             <test>
+            <!-- test import of a TSV file as attachement-->
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>
             <param name="obj_type" value="dataset"/>
@@ -132,6 +144,26 @@
             <param name="test_username" value="root"/>
             <param name="test_password" value="omero"/>
             <output name="log" value="output_attachement_import.txt" ftype="txt">
+                <assert_contents>
+                    <has_text text="SUCCESS: Successfully uploaded metadata for dataset"/>
+                </assert_contents>
+            </output>
+        </test>
+            <test>
+            <!-- test import of a ZIP file as attachement (no text)-->
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="obj_type" value="dataset"/>
+            <param name="ann_type" value="attachement"/>
+            <conditional name="object_id">
+                <param name="object_id_selection" value="existing_object"/>
+                <param name="did" value="1"/>
+            </conditional>
+            <param name="ann_file" value="input3.zip" ftype="zip"/>
+            <param name="an_name" value="attachement_test"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="log" value="output_attachement_import_2.txt" ftype="txt">
                 <assert_contents>
                     <has_text text="SUCCESS: Successfully uploaded metadata for dataset"/>
                 </assert_contents>
@@ -169,7 +201,10 @@ If the object does not exist, a new one will be created.
   | Value1 | Value2  | Value3   |
   +--------+---------+----------+
 
-
+- Data types input
+        
+At the present, the tool accept as input .TSV, .ZIP, .TAR, .PDF and .TXT.
+In case of additional data types, you can change the dataset data type to "data" directly trough Galaxy.
 
 @SECURITY_DISCLAIMER@
     </help>

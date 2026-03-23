@@ -20,7 +20,7 @@ appendLinesAlongPolyline
   <inputs>
     <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" multiple="false" />
     <param name="geo_file" type="data" optional="false" label="geo file" help="Input (.gml). The name of the input geometry file which contains polylines" format="xml" multiple="false" />
-    <param name="gmsh_path" type="data" optional="false" label="gmsh path" help="Input (.msh). The path to the input gmsh binary file" format="msh" multiple="false" />
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input gmsh binary file" format="msh" multiple="false" />
   </inputs>
   <outputs>
     <data name="output_appendLinesAlongPolyline" format="vtkxml" label="Output from appendLinesAlongPolyline" from_work_dir="output_1.vtu" hidden="false" />

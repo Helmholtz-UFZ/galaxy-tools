@@ -11,13 +11,11 @@
 ln -sf '$fault' '$fault.element_identifier';
 ln -sf '$input' '$input.element_identifier';
 AddFaultToVoxelGrid
-     --material '$material'
     --fault '$fault.element_identifier'
     --input '$input.element_identifier'
     --output output_1.vtu
 ]]></command>
   <inputs>
-    <param name="material" type="integer" optional="true" label="material" help="material id for cells intersected by fault, (min = 0)" />
     <param name="fault" type="data" optional="false" label="fault" help="Input (.vtu). Name of mesh file representing fault" format="vtkxml" multiple="false" />
     <param name="input" type="data" optional="false" label="input" help="Input (.vtu). Name of the input file containing the paths the all input in correct order from top to bottom" format="vtkxml" multiple="false" />
   </inputs>

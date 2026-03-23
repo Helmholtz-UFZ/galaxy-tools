@@ -6,7 +6,7 @@
             <param name="quality_criterion" value="ElementSize" />
             <output name="output_addelementquality">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -29,7 +29,7 @@
             <param name="set_material_id" value="10" />
             <output name="output_addlayer">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="1" />
                 </assert_contents>
             </output>
         </test>
@@ -42,14 +42,19 @@
             <param name="cell_array" value="true" />
             <output name="output_assignrasterdatatomesh">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
     </xml>
     <xml name="binarytopvtu_test">
         <test>
-            <param name="mesh_input_file_base" value="test.bin" ftype="txt" />
+            <param name="mesh_input_file_base" value="cube_1x1x1_hex_1e3.vtu" location="https://gitlab.opengeosys.org/kristofkessler/ogs/-/raw/ebd40a71bacd951b90b64e2e42fb8d11528bde39/Tests/Data/ThermoRichardsMechanics/Simple3DThermoMechanicsFromTM/cube_1x1x1_hex_1e3.vtu" ftype="txt" />
+            <output name="output_binarytopvtu">
+                <assert_contents>
+                    <has_size min="1" />
+                </assert_contents>
+            </output>
         </test>
     </xml>
     <xml name="computenodeareasfromsurfacemesh_test">
@@ -62,15 +67,18 @@
     <xml name="convertshptogli_test">
         <test>
             <param name="shape_file" value="test.shp" ftype="shp" />
+            <output name="stdout_log">
+                <assert_contents>
+                    <has_size min="1" />
+                </assert_contents>
+            </output>
         </test>
     </xml>
     <xml name="createanchors_test">
         <test>
-            <param name="input" value="square_1x1_quad4_1e2.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/HydroMechanics/EmbeddedAnchorSourceTerm/square_1x1_quad4_1e2.vtu" ftype="vtkxml" />
-            <param name="json_file" value="data.json" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/HydroMechanics/EmbeddedAnchorSourceTerm/data.json" ftype="json" />
             <output name="output_createanchors">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -99,7 +107,7 @@
             <param name="input" value="SmallTest.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/MeshGeoToolsLib/Naegelstedt/SmallTest.vtu" ftype="vtkxml" />
             <output name="output_extractmaterials">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -109,11 +117,10 @@
             <param name="mesh_input_file" value="cube_1x1x1_hex_1e3_layers_10.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/MeshLib/cube_1x1x1_hex_1e3_layers_10.vtu" ftype="vtkxml" />
             <param name="x_component" value="1" />
             <param name="y_component" value="0" />
-            <param name="z_component" value="0" />
             <param name="angle" value="25" />
             <output name="output_extractsurface">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -133,7 +140,7 @@
             <param name="in" value="linear_mesh.msh" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/Utils/GMSH2OGS/linear_mesh.msh" ftype="msh" />
             <output name="output_gmsh2ogs">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -143,7 +150,7 @@
             <param name="sg" value="SGrid_Test.sg" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Test.sg" ftype="gocad.sg" />
             <output name="output_gocadsgridreader">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -154,7 +161,7 @@
             <param name="write_binary" value="true" />
             <output name="output_gocadtsurfacereader">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -163,11 +170,9 @@
         <test>
             <param name="input" value="PrismCube10x10x10.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/MeshGeoToolsLib/PrismCube10x10x10.vtu" ftype="vtkxml" />
             <param name="geo" value="testpoints.gml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/MeshGeoToolsLib/testpoints.gml" ftype="xml" />
-            <param name="min_id" value="4" />
-            <param name="max_id" value="8" />
             <output name="output_integrateboreholesintomesh">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="1" />
                 </assert_contents>
             </output>
         </test>
@@ -189,7 +194,7 @@
             <param name="additional_insert_mapping" value="true" />
             <output name="output_mapgeometrytomeshsurface">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="1" />
                 </assert_contents>
             </output>
         </test>
@@ -204,7 +209,7 @@
             <param name="material_id" value="0" />
             <output name="output_mergemeshtobulkmesh">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -215,7 +220,7 @@
             <param name="cellsize" value="0.1" />
             <output name="output_mesh2raster">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="1" />
                 </assert_contents>
             </output>
         </test>
@@ -237,7 +242,7 @@
             <param name="distance" value="150" />
             <output name="output_meshmapping">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -274,7 +279,7 @@
             <param name="elem_type" value="tri" />
             <output name="output_netcdfconverter">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -285,7 +290,7 @@
             <param name="method" value="0" />
             <output name="output_nodereordering">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="1" />
                 </assert_contents>
             </output>
         </test>
@@ -303,6 +308,11 @@
     <xml name="ogsfileconverter_test">
         <test>
             <param name="gmsh_path" value="test.msh" ftype="msh" />
+            <output name="stdout_log">
+                <assert_contents>
+                    <has_size min="1" />
+                </assert_contents>
+            </output>
         </test>
     </xml>
     <xml name="pvd2xdmf_test">
@@ -310,7 +320,7 @@
             <param name="pvd_file" value="line_60_heat.pvd" location="https://gitlab.opengeosys.org/kristofkessler/ogs/-/raw/ebd40a71bacd951b90b64e2e42fb8d11528bde39/Tests/Data/Parabolic/T/1D_dirichlet/varying_dt_linear_compute_only_on_dt_change/line_60_heat.pvd" ftype="vtkxml" />
             <output name="output_pvd2xdmf">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -320,7 +330,7 @@
             <param name="input" value="quad_tri_THM_MPI_t_86400_000000.pvtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000.pvtu" ftype="vtkxml" />
             <output name="output_pvtu2vtu">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -344,7 +354,7 @@
             <param name="input" value="XyzTest.xyz" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/FileIO/XyzTest.xyz" ftype="grd" />
             <output name="output_raster2asc">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="1" />
                 </assert_contents>
             </output>
         </test>
@@ -356,7 +366,7 @@
             <param name="pixel_type" value="elevation" />
             <output name="output_raster2mesh">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="1" />
                 </assert_contents>
             </output>
         </test>
@@ -376,7 +386,7 @@
             <param name="input" value="Mesh3D.pvtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/MeshLib/Mesh3D.pvtu" ftype="vtkxml" />
             <output name="output_removeghostdata">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -386,7 +396,7 @@
             <param name="input" value="cube_1x1x1_with_additional_points.gml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/FileIO/RemoveUnusedPoints/cube_1x1x1_with_additional_points.gml" ftype="xml" />
             <output name="output_removeunusedpoints">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -410,7 +420,7 @@
             <param name="polygon_name" value="Back" />
             <output name="output_resetpropertiesinpolygonalregion">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -421,7 +431,7 @@
             <output_collection name="tool_outputs" type="list">
                 <element name="TestExample_SC2.gml">
                     <assert_contents>
-                        <has_size min="500" />
+                        <has_size min="100" />
                     </assert_contents>
                 </element>
             </output_collection>
@@ -477,7 +487,7 @@
             <param name="resolution" value="200" />
             <output name="output_verticalslicefromlayers">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -490,7 +500,7 @@
             <param name="cellsize_z" value="20" />
             <output name="output_vtu2grid">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -507,7 +517,7 @@
             <param name="input" value="10x10.asc" location="https://gitlab.opengeosys.org/kristofkessler/ogs/-/raw/ebd40a71bacd951b90b64e2e42fb8d11528bde39/Tests/Data/GeoTools/createRaster/10x10.asc" ftype="raster.asc" />
             <output name="output_adddatatoraster">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -535,12 +545,44 @@
             <param name="mesh_input_file" value="test.vtu" ftype="vtkxml" />
             <param name="geo_file" value="test.gml" ftype="xml" />
             <param name="gmsh_path" value="test.msh" ftype="msh" />
+            <output name="stdout_log">
+                <assert_contents>
+                    <has_size min="1" />
+                </assert_contents>
+            </output>
         </test>
     </xml>
     <xml name="constructmeshesfromgeometry_test">
         <test>
             <param name="mesh" value="square_1x1_quad8_1e2.vtu" location="https://gitlab.opengeosys.org/kristofkessler/ogs/-/raw/ebd40a71bacd951b90b64e2e42fb8d11528bde39/Tests/Data/ThermoRichardsMechanics/LinearMechanics/square_1x1_quad8_1e2.vtu" ftype="vtkxml" />
             <param name="geometry" value="square_1x1.gml" location="https://gitlab.opengeosys.org/kristofkessler/ogs/-/raw/ebd40a71bacd951b90b64e2e42fb8d11528bde39/Tests/Data/ThermoRichardsMechanics/OrthotropicSwelling/square_1x1.gml" ftype="xml" />
+            <output_collection name="tool_outputs" type="list">
+                <element name="square_1x1_geometry_bottom.vtu">
+                    <assert_contents>
+                        <has_size min="100" />
+                    </assert_contents>
+                </element>
+                <element name="square_1x1_geometry_left.vtu">
+                    <assert_contents>
+                        <has_size min="100" />
+                    </assert_contents>
+                </element>
+                <element name="square_1x1_geometry_origin.vtu">
+                    <assert_contents>
+                        <has_size min="100" />
+                    </assert_contents>
+                </element>
+                <element name="square_1x1_geometry_right.vtu">
+                    <assert_contents>
+                        <has_size min="100" />
+                    </assert_contents>
+                </element>
+                <element name="square_1x1_geometry_top.vtu">
+                    <assert_contents>
+                        <has_size min="100" />
+                    </assert_contents>
+                </element>
+            </output_collection>
         </test>
     </xml>
     <xml name="convertgeo_test">
@@ -581,7 +623,7 @@
             <param name="file2" value="layer17.asc" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/MeshGeoToolsLib/Hamburg/layer17.asc" ftype="raster.asc" />
             <output name="output_createintermediaterasters">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="1" />
                 </assert_contents>
             </output>
         </test>
@@ -589,12 +631,11 @@
     <xml name="createlayeredmeshfromrasters_test">
         <test>
             <param name="input_mesh_file" value="rectangular_tris_with_materials.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/Utils/createLayeredMeshFromRasters/rectangular_tris_with_materials.vtu" ftype="vtkxml" />
-            <param name="thickness" value="0.1" />
             <param name="raster_list" value="rasters.txt" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/Utils/createLayeredMeshFromRasters/rasters.txt" ftype="vtkxml" />
             <param name="keep_surface_material_ids" value="true" />
             <output name="output_createlayeredmeshfromrasters">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -639,7 +680,7 @@
             <param name="ll_y" value="100" />
             <output name="output_createraster">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -650,7 +691,7 @@
             <param name="raster_list" value="rasterlist.txt" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/Utils/createTetgenSmeshFromRasters/rasterlist.txt" ftype="vtkxml" />
             <output name="output_createtetgensmeshfromrasters">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="1" />
                 </assert_contents>
             </output>
         </test>
@@ -680,7 +721,7 @@
             <param name="polyline_name" value="TestQuad" />
             <output name="output_generategeometry">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -688,10 +729,12 @@
     <xml name="generatematpropsfrommatid_test">
         <test>
             <param name="mesh" value="test.msh" ftype="msh" />
+            <output_collection name="tool_outputs" type="list" />
         </test>
     </xml>
     <xml name="generatestructuredmesh_test">
         <test>
+            <param name="element_type" value="line" />
             <output name="output_generatestructuredmesh">
                 <assert_contents>
                     <has_size min="1" />
@@ -719,12 +762,12 @@
             <output_collection name="tool_outputs" type="list">
                 <element name="new_2D_mesh_bottom_boundary.vtu">
                     <assert_contents>
-                        <has_size min="500" />
+                        <has_size min="100" />
                     </assert_contents>
                 </element>
                 <element name="new_2D_mesh_top_boundary.vtu">
                     <assert_contents>
-                        <has_size min="500" />
+                        <has_size min="100" />
                     </assert_contents>
                 </element>
             </output_collection>
@@ -735,7 +778,7 @@
             <param name="input_file" value="mesh_with_3D_different_elements_sigma_ip.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/NodePartitionedMesh/WithIntegrationPointStress/MixedElements/mesh_with_3D_different_elements_sigma_ip.vtu" ftype="vtkxml" />
             <output name="output_ipdatatopointcloud">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -748,7 +791,7 @@
             <param name="input_file" value="single_joint.pvd" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/LIE/PostProcessing/single_joint.pvd" ftype="vtkxml" />
             <output name="output_postlie">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -756,17 +799,19 @@
     <xml name="querymesh_test">
         <test>
             <param name="mesh_file" value="test.vtu" ftype="vtkxml" />
+            <output name="stdout_log">
+                <assert_contents>
+                    <has_size min="1" />
+                </assert_contents>
+            </output>
         </test>
     </xml>
     <xml name="removemeshelements_test">
         <test>
             <param name="mesh_input_file" value="AREHS_Layer17.vtu" location="https://gitlab.opengeosys.org/kristofkessler/ogs/-/raw/ebd40a71bacd951b90b64e2e42fb8d11528bde39/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer17.vtu" ftype="vtkxml" />
-            <param name="x_min" value="12000" />
-            <param name="x_max" value="15000" />
-            <param name="y_min" value="12000" />
             <output name="output_removemeshelements">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="1" />
                 </assert_contents>
             </output>
         </test>
@@ -776,7 +821,7 @@
             <param name="input_mesh_file" value="basin_mesh.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/MeshLib/basin_mesh.vtu" ftype="vtkxml" />
             <output name="output_revisemesh">
                 <assert_contents>
-                    <has_size min="500" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>

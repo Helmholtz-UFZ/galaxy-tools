@@ -22,7 +22,11 @@ constructMeshesFromGeometry
     <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file name of the input mesh where the geometry is defined" format="vtkxml" multiple="false" />
     <param name="multiple_nodes_allowed" type="boolean" label="multiple nodes allowed" help="Allows multiple mesh nodes in eps environment." checked="false" truevalue="--multiple-nodes-allowed" falsevalue="" />
   </inputs>
-  <outputs />
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from constructMeshesFromGeometry">
+      <discover_datasets pattern="(?P&lt;designation&gt;.*)\.vtu" format="vtkxml" visible="true" />
+    </collection>
+  </outputs>
   <tests>
     <expand macro="constructmeshesfromgeometry_test" />
   </tests>

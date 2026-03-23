@@ -16,11 +16,8 @@ generateGeometry
      --y1 '$y1'
      --x1 '$x1'
      --nx '$nx'
-     --nx1 '$nx1'
      --ny '$ny'
-     --ny1 '$ny1'
      --nz '$nz'
-     --nz1 '$nz1'
      --geometry_name '$geometry_name'
      --polyline_name '$polyline_name'
     --output output_1.gml
@@ -33,11 +30,8 @@ generateGeometry
     <param name="y1" type="float" optional="true" label="y1" help="y coordinate of the first point" />
     <param name="x1" type="float" optional="true" label="x1" help="x coordinate of the first point" />
     <param name="nx" type="integer" optional="true" label="nx" help="number of subdivisions in x direction" />
-    <param name="nx1" type="integer" optional="true" label="nx1" help="number of subdivisions in x direction" />
     <param name="ny" type="integer" optional="true" label="ny" help="number of subdivisions in y direction" />
-    <param name="ny1" type="integer" optional="true" label="ny1" help="number of subdivisions in y direction" />
     <param name="nz" type="integer" optional="true" label="nz" help="number of subdivisions in z direction" />
-    <param name="nz1" type="integer" optional="true" label="nz1" help="number of subdivisions in z direction" />
     <param name="geometry_name" type="text" optional="true" label="geometry name" help="name of the generated geometry" />
     <param name="polyline_name" type="text" optional="true" label="polyline name" help="name of the generated polyline" />
   </inputs>

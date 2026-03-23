@@ -9,6 +9,7 @@
   <version_command><![CDATA[generateStructuredMesh --version]]></version_command>
   <command><![CDATA[
 generateStructuredMesh
+     --element-type '$element_type'
      --lx '$lx'
      --ly '$ly'
      --lz '$lz'
@@ -18,9 +19,6 @@ generateStructuredMesh
      --dx0 '$dx0'
      --dy0 '$dy0'
      --dz0 '$dz0'
-     --dx-max '$dx_max'
-     --dy-max '$dy_max'
-     --dz-max '$dz_max'
      --mx '$mx'
      --my '$my'
      --mz '$mz'
@@ -30,6 +28,15 @@ generateStructuredMesh
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>
+    <param name="element_type" type="select" optional="false" label="element type" help="element type to be created">
+      <option value="line">line</option>
+      <option value="tri">tri</option>
+      <option value="quad">quad</option>
+      <option value="hex">hex</option>
+      <option value="prism">prism</option>
+      <option value="tet">tet</option>
+      <option value="pyramid">pyramid</option>
+    </param>
     <param name="lx" type="float" optional="true" label="lx" help="length of a domain in x direction, (min = 0)" />
     <param name="ly" type="float" optional="true" label="ly" help="length of a domain in y direction, (min = 0)" />
     <param name="lz" type="float" optional="true" label="lz" help="length of a domain in z direction, (min = 0)" />
@@ -39,9 +46,6 @@ generateStructuredMesh
     <param name="dx0" type="float" optional="true" label="dx0" help="initial cell length in x direction, (min = 0)" />
     <param name="dy0" type="float" optional="true" label="dy0" help="initial cell length in y direction, (min = 0)" />
     <param name="dz0" type="float" optional="true" label="dz0" help="initial cell length in z direction, (min = 0)" />
-    <param name="dx_max" type="float" optional="true" label="dx max" help="maximum cell length in x direction, (min = 0)" />
-    <param name="dy_max" type="float" optional="true" label="dy max" help="maximum cell length in y direction, (min = 0)" />
-    <param name="dz_max" type="float" optional="true" label="dz max" help="maximum cell length in z direction, (min = 0)" />
     <param name="mx" type="float" optional="true" label="mx" help="multiplier in x direction" />
     <param name="my" type="float" optional="true" label="my" help="multiplier in y direction" />
     <param name="mz" type="float" optional="true" label="mz" help="multiplier in z direction" />

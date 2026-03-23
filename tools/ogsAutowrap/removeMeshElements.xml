@@ -11,12 +11,6 @@
 ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
 removeMeshElements
     $invert
-     --z-max '$z_max'
-     --z-min '$z_min'
-     --y-max '$y_max'
-     --y-min '$y_min'
-     --x-max '$x_max'
-     --x-min '$x_min'
     $zero_volume
      --element-type '$element_type'
      --property-name '$property_name'
@@ -30,14 +24,17 @@ removeMeshElements
 ]]></command>
   <inputs>
     <param name="invert" type="boolean" label="invert" help="inverts the specified bounding box" checked="false" truevalue="--invert" falsevalue="" />
-    <param name="z_max" type="float" optional="true" label="z max" help="largest allowed extent in z-dimension" />
-    <param name="z_min" type="float" optional="true" label="z min" help="smallest allowed extent in z-dimension" />
-    <param name="y_max" type="float" optional="true" label="y max" help="largest allowed extent in y-dimension" />
-    <param name="y_min" type="float" optional="true" label="y min" help="smallest allowed extent in y-dimension" />
-    <param name="x_max" type="float" optional="true" label="x max" help="largest allowed extent in x-dimension" />
-    <param name="x_min" type="float" optional="true" label="x min" help="smallest allowed extent in x-dimension" />
     <param name="zero_volume" type="boolean" label="zero volume" help="remove zero volume elements" checked="false" truevalue="--zero-volume" falsevalue="" />
-    <param name="element_type" type="text" optional="true" label="element type" help="element type to be removed" />
+    <param name="element_type" type="select" optional="false" label="element type" help="element type to be removed">
+      <option value="point">point</option>
+      <option value="line">line</option>
+      <option value="tri">tri</option>
+      <option value="quad">quad</option>
+      <option value="hex">hex</option>
+      <option value="prism">prism</option>
+      <option value="tet">tet</option>
+      <option value="pyramid">pyramid</option>
+    </param>
     <param name="property_name" type="text" optional="true" label="property name" help="name of property in the mesh" />
     <param name="property_value" type="integer" optional="true" label="property value" help="value of selected property to be removed" />
     <param name="min_value" type="float" optional="true" label="min value" help="minimum value of range for selected property" />

@@ -10,12 +10,14 @@
   <command><![CDATA[
 ln -sf '$gmsh_path' '$gmsh_path.element_identifier';
 OGSFileConverter
-    --gmsh-path '$gmsh_path.element_identifier'
+    --gmsh-path '$gmsh_path.element_identifier' > '$stdout_log'
 ]]></command>
   <inputs>
-    <param name="gmsh_path" type="data" optional="false" label="gmsh path" help="Input (.msh). The path to the input gmsh binary file" format="msh" multiple="false" />
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input gmsh binary file" format="msh" multiple="false" />
   </inputs>
-  <outputs />
+  <outputs>
+    <data name="stdout_log" format="txt" label="Output Log from OGSFileConverter" hidden="false" />
+  </outputs>
   <tests>
     <expand macro="ogsfileconverter_test" />
   </tests>

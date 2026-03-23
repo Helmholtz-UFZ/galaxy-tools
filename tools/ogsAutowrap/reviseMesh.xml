@@ -11,13 +11,11 @@
 ln -sf '$input_mesh_file' '$input_mesh_file.element_identifier';
 reviseMesh
      --min-ele-dim '$min_ele_dim'
-     --eps '$eps'
     --input-mesh-file '$input_mesh_file.element_identifier'
     --output-mesh-file output_1.vtu
 ]]></command>
   <inputs>
     <param name="min_ele_dim" type="text" optional="true" label="min ele dim" help="Minimum dimension of elements to be inserted into new mesh" />
-    <param name="eps" type="float" optional="true" label="eps" help="Minimum distance for nodes not to be collapsed" />
     <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu) mesh file" format="vtkxml" multiple="false" />
   </inputs>
   <outputs>

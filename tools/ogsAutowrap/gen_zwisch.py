@@ -163,34 +163,18 @@ def resolve_values_constraint(constraint_ptr: str, search_space: str) -> List[st
     if not vc_match: return []
 
     vector_var_name = vc_match.group(1)
-    options = []
-
-    vec_init_pattern = re.compile(
-        r"std::vector<.*?>\s+" + re.escape(vector_var_name) + r"\s*(?:=)?\s*[({]?\s*\{(.*?)\}\s*[)}]?;", 
+    vec_pattern = re.compile(
+        r"std::vector<.*?>\s+" + re.escape(vector_var_name) + r"\s*\{(.*?)\};", 
         re.DOTALL
     )
-    vec_match = vec_init_pattern.search(search_space)
+    vec_match = vec_pattern.search(search_space)
+
     if vec_match:
         content = vec_match.group(1)
-        string_options = re.findall(r'"(.*?)"', content)
-        if string_options:
-            options.extend(string_options)
-        else:
-            numeric_options = [item.strip() for item in content.split(',') if item.strip()]
-            options.extend(numeric_options)
-
-    push_pattern = re.compile(
-        re.escape(vector_var_name) + r"\.(?:emplace_back|push_back)\s*\(\s*([^)]+)\s*\)\s*;",
-        re.MULTILINE
-    )
-    push_matches = push_pattern.findall(search_space)
-    if push_matches:
-        for val in push_matches:
-            clean_val = val.strip().strip('"')
-            options.append(clean_val)
-
-    seen = set()
-    return [x for x in options if not (x in seen or seen.add(x))]
+        options = re.findall(r'"(.*?)"', content)
+        if options: return options
+        return [item.strip() for item in content.split(',') if item.strip()]
+    return []
 
 
 def discover_tools() -> List[Dict[str, Any]]:
@@ -296,28 +280,10 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
 
         # INPUT & PARAMETER LOGIC
         param = None
-        constraint_ptr = ""
-        if len(args) >= 5:
-            for potential_ptr in args[4:]:
-                ptr_stripped = potential_ptr.strip()
-                if ptr_stripped and not ptr_stripped.startswith('"') and not ptr_stripped[0].isdigit():
-                    constraint_ptr = ptr_stripped
-                    break
 
-        if constraint_ptr:
+        if len(args) >= 6 and args[5].strip().startswith('&'):
+            constraint_ptr = args[5].strip()
             options_list = resolve_values_constraint(constraint_ptr, param_info.get('full_source_code', ''))
-            if options_list:
-                opts_dict = {opt: opt for opt in options_list}
-                is_multi = "MultiArg" in param_info.get('arg_type', '')
-                param = SelectParam(
-                    name=var_name, 
-                    label=var_name.replace('_', ' '), 
-                    help=help_text, 
-                    options=opts_dict,
-                    optional=True,
-                    multiple=is_multi
-                )
-                param.options_dict = opts_dict
             if options_list:
                 opts_dict = {opt: opt for opt in options_list}
                 param = SelectParam(

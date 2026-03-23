@@ -10,12 +10,14 @@
   <command><![CDATA[
 ln -sf '$shape_file' '$shape_file.element_identifier';
 ConvertSHPToGLI
-    --shape-file '$shape_file.element_identifier'
+    --shape-file '$shape_file.element_identifier' > '$stdout_log'
 ]]></command>
   <inputs>
     <param name="shape_file" type="data" optional="false" label="shape file" help="Input (.shp). The name of the input shape file" format="shp" multiple="false" />
   </inputs>
-  <outputs />
+  <outputs>
+    <data name="stdout_log" format="txt" label="Output Log from ConvertSHPToGLI" hidden="false" />
+  </outputs>
   <tests>
     <expand macro="convertshptogli_test" />
   </tests>

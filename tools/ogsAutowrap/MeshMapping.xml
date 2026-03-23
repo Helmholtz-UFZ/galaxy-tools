@@ -24,8 +24,8 @@ MeshMapping
     <param name="lowpass" type="boolean" label="lowpass" help="Applies a lowpass filter to elevation over connected nodes." checked="false" truevalue="--lowpass" falsevalue="" />
     <param name="static" type="float" optional="true" label="static" help="Static elevation to map the input file to. This can be combined with mapping based on rasters or other meshes to deal with locations where no corresponding data exists." />
     <param name="distance" type="float" optional="true" label="distance" help="Maximum distance to search for mesh nodes if there is no corresponding data for input mesh nodes on the mesh it should be mapped on. (min = 0)" />
-    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). 2D mesh file to map the input file on" format="vtkxml" multiple="false" />
-    <param name="raster" type="data" optional="false" label="raster" help="Input (.asc | .grd | .xyz) Raster file to map the input file on" format="raster.asc" multiple="false" />
+    <param name="mesh" type="data" optional="true" label="mesh" help="Input (.vtu). 2D mesh file to map the input file on" format="vtkxml" multiple="false" />
+    <param name="raster" type="data" optional="true" label="raster" help="Input (.asc | .grd | .xyz) Raster file to map the input file on" format="raster.asc" multiple="false" />
     <param name="input" type="data" optional="false" label="input" help="Input (.vtu | .msh) mesh file" format="vtkxml" multiple="false" />
   </inputs>
   <outputs>

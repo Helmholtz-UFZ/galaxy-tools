@@ -12,7 +12,6 @@ ln -sf '$raster_list' '$raster_list.element_identifier';
 ln -sf '$input_mesh_file' '$input_mesh_file.element_identifier';
 createLayeredMeshFromRasters
     $ascii_output
-     --thickness '$thickness'
     --raster-list '$raster_list.element_identifier'
     $keep_surface_material_ids
     --input-mesh-file '$input_mesh_file.element_identifier'
@@ -20,7 +19,6 @@ createLayeredMeshFromRasters
 ]]></command>
   <inputs>
     <param name="ascii_output" type="boolean" label="ascii output" help="Write VTU output in ASCII format." checked="false" truevalue="--ascii_output" falsevalue="" />
-    <param name="thickness" type="float" optional="true" label="thickness" help="The minimum thickness of a layer to be integrated at any given location, (min = 0)" />
     <param name="raster_list" type="data" optional="false" label="raster list" help="Input (.vtu). An ascii-file containing a list of input raster files, starting from top (DEM) to bottom" format="vtkxml" multiple="false" />
     <param name="keep_surface_material_ids" type="boolean" label="keep surface material ids" help="if the argument is present the materials defined in the surface mesh are used to set the material information for the subsurface cells" checked="false" truevalue="--keep-surface-material-ids" falsevalue="" />
     <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu). The file name of the 2D input mesh" format="vtkxml" multiple="false" />

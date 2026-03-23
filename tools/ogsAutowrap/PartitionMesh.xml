@@ -17,7 +17,6 @@ PartitionMesh
     --mesh-input-file '$mesh_input_file.element_identifier'
     --metis-mesh-input-file '$metis_mesh_input_file.element_identifier'
      --np '$np'
-    $ogs2metis
     $exe_metis
     --output output_1.vtu
     --
@@ -27,9 +26,8 @@ PartitionMesh
 ]]></command>
   <inputs>
     <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" multiple="false" />
-    <param name="metis_mesh_input_file" type="data" optional="false" label="metis mesh input file" help="Input (.mesh). Base name (without .mesh extension) of the file containing the metis input mesh" format="txt" multiple="false" />
+    <param name="metis_mesh_input_file" type="data" optional="true" label="metis mesh input file" help="Input (.mesh). Base name (without .mesh extension) of the file containing the metis input mesh" format="txt" multiple="false" />
     <param name="np" type="integer" optional="true" label="np" help="the number of partitions, (min = 0)" />
-    <param name="ogs2metis" type="boolean" label="ogs2metis" help="Indicator to convert the ogs mesh file to METIS input file" checked="false" truevalue="--ogs2metis" falsevalue="" />
     <param name="exe_metis" type="boolean" label="exe metis" help="Call mpmetis inside the programme via system()." checked="false" truevalue="--exe_metis" falsevalue="" />
     <repeat name="other_meshes_filenames_repeat" title="other meshes filenames" min="1">
       <param name="element" type="data" optional="false" label="other meshes filenames" help="mesh file names." format="vtkxml" multiple="false" />

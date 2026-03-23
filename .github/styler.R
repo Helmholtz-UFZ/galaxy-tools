@@ -6,7 +6,7 @@ library("styler")
 parser <- ArgumentParser(description = "Call styler")
 parser$add_argument("dir",
     metavar = "DIR", type = "character",
-    help = "File/Directory to check"
+    help = "File to parse"
 )
 parser$add_argument("--dry",
     choices = c("off", "on"), default = "on"

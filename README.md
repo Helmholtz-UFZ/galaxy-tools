@@ -1,5 +1,40 @@
-Galaxy Tool wrappers
-====================
+![Status](https://img.shields.io/badge/status-active-brightgreen)
+![Build](https://img.shields.io/github/actions/workflow/status/Helmholtz-UFZ/galaxy-tools/ci.yaml)
+![Issues](https://img.shields.io/github/issues/Helmholtz-UFZ/galaxy-tools)
+![Pull Requests](https://img.shields.io/github/issues-pr/Helmholtz-UFZ/galaxy-tools)
 
-This repository contains tools that can be installed and used inside the Galaxy. 
+# Galaxy UFZ - Tool Wrappers Collection
 
+<img align="right" width="150" height="150" alt="ELIXIR" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.ufz.de%2Fexport%2Fdata%2F2%2F268651_UFZ_Logo_Kurzversion_300px.jpg&f=1&nofb=1&ipt=d12393e7d6c409b3822df2b74525d62cbf94670283f920146fb5b58ec506ac79" />
+
+This repository contains tools mantained within the UFZ and that can be installed and used inside any Galaxy instance. 
+
+**Contribution are welcome**. Please open an issue or a PR in case you want to contribuite to the tool list.
+
+
+## List of Tools
+
+### OMERO-suite
+
+A set of tools to import image and metadata in OMERO using Galaxy
+
+- [**OMERO Image Import**](https://usegalaxy.eu/root?tool_id=toolshed.g2.bx.psu.edu/repos/ufz/omero_import/omero_import/5.21.2+galaxy0) with omero-py
+- [**OMERO IDs**](https://usegalaxy.eu/root?tool_id=toolshed.g2.bx.psu.edu/repos/ufz/omero_filter/omero_filter/5.21.2+galaxy0) with ezomero
+- [**OMERO get IDs**](https://usegalaxy.eu/root?tool_id=toolshed.g2.bx.psu.edu/repos/ufz/omero_get_id/omero_get_id/5.21.2+galaxy0) with ezomero
+- [**OMERO get Object**](https://usegalaxy.eu/root?tool_id=toolshed.g2.bx.psu.edu/repos/ufz/omero_get_value/omero_get_value/5.21.2+galaxy0) with ezomero
+- [**OMERO ROI Import**](https://usegalaxy.eu/root?tool_id=toolshed.g2.bx.psu.edu/repos/ufz/omero_roi_import/omero_roi_import/5.21.2+galaxy0) with ezomero
+- [**OMERO Metadata Import**](https://usegalaxy.eu/root?tool_id=toolshed.g2.bx.psu.edu/repos/ufz/omero_metadata_import/omero_metadata_import/5.21.2+galaxy1) with ezomero
+- [**OMERO Dataset to Plate**](https://usegalaxy.eu/root?tool_id=toolshed.g2.bx.psu.edu/repos/ufz/omero_dataset_to_plate/omero_dataset_to_plate/5.21.2+galaxy4) with ezomero
+
+### Toxicology and Ecotoxicology
+Toxicity prediction and dose response curves
+- [**QSAR Baseline Calculator**](https://toolshed.g2.bx.psu.edu/repositories/0ad301feb4e0e566) with pandas
+- [**Dose Response Modelling**](https://toolshed.g2.bx.psu.edu/view/ufz/dose_response_analysis_tool) with drc
+
+### Data Wrangling
+Tools for data conversion and data wrangling
+- [**Excel to Tabular**](https://usegalaxy.eu/root?tool_id=toolshed.g2.bx.psu.edu/repos/ufz/xlsx2tsv/xlsx2tsv/0.2.0+galaxy0) with pandas
+
+### Related work
+- [Galaxy Training Matherial for the OMERO-suite](https://training.galaxyproject.org/training-material/topics/imaging/tutorials/omero-suite/tutorial.html)
+- [OMERO-suite Poster Publication on Zenodo](https://zenodo.org/records/14975462/files/2025_AHM_Galaxy_OMERO-1.pdf)

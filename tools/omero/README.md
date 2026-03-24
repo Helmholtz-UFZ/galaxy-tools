@@ -1,6 +1,6 @@
 # OMERO suite toolbox
 
-[Galaxy Training Matherial to the OMERO suite
+[Galaxy Training Material to the OMERO suite
 ](https://training.galaxyproject.org/training-material/topics/imaging/tutorials/omero-suite/tutorial.html)
 
 ## Overview on the OMERO set-up process for Tool Testing
@@ -56,7 +56,7 @@ Tool testing can add additional files an image to the Data Structure.
 
 As example, OMERO import test will add four additional images with ID:5, 6, 7, 8.
 
-This is also valide for OMERO metadata import or any other tool testing data upload in OMERO.
+This is also valid for OMERO metadata import or any other tool testing data upload in OMERO.
 
 Set-up your tests accordingly.
 

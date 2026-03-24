@@ -11,14 +11,14 @@
 ln -sf '$input_mesh_file' '$input_mesh_file.element_identifier';
 AddLayer
     --input-mesh-file '$input_mesh_file.element_identifier'
-     --layer-tickness '$layer_tickness'
+    --layer-tickness '$layer_tickness'
     $add_layer_on_bottom
     $copy_material_ids
-     --set-material-id '$set_material_id'
+    --set-material-id '$set_material_id'
     --output-mesh-file output_1.vtu
 ]]></command>
   <inputs>
-    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu). The name of the file containing the mesh" format="vtkxml" multiple="false" />
+    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu). The name of the file containing the mesh" format="vtkxml" />
     <param name="layer_tickness" type="float" optional="true" label="layer tickness" help="the thickness of the new layer, (min = 0)" />
     <param name="add_layer_on_bottom" type="boolean" label="add layer on bottom" help="Per default the layer is add on the top, if this argument is set the layer is add on the bottom." checked="false" truevalue="--add-layer-on-bottom" falsevalue="" />
     <param name="copy_material_ids" type="boolean" label="copy material ids" help="Copy the existing material distribution of the layer which is to be extended. If the switch isn't given a new material id will be created." checked="false" truevalue="--copy-material-ids" falsevalue="" />

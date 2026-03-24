@@ -9,22 +9,22 @@
   <version_command><![CDATA[generateStructuredMesh --version]]></version_command>
   <command><![CDATA[
 generateStructuredMesh
-     --element-type '$element_type'
-     --lx '$lx'
-     --ly '$ly'
-     --lz '$lz'
-     --nx '$nx'
-     --ny '$ny'
-     --nz '$nz'
-     --dx0 '$dx0'
-     --dy0 '$dy0'
-     --dz0 '$dz0'
-     --mx '$mx'
-     --my '$my'
-     --mz '$mz'
-     --ox '$ox'
-     --oy '$oy'
-     --oz '$oz'
+    --element-type '$element_type'
+    --lx '$lx'
+    --ly '$ly'
+    --lz '$lz'
+    --nx '$nx'
+    --ny '$ny'
+    --nz '$nz'
+    --dx0 '$dx0'
+    --dy0 '$dy0'
+    --dz0 '$dz0'
+    --mx '$mx'
+    --my '$my'
+    --mz '$mz'
+    --ox '$ox'
+    --oy '$oy'
+    --oz '$oz'
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>

@@ -12,11 +12,11 @@ ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
 removeMeshElements
     $invert
     $zero_volume
-     --element-type '$element_type'
-     --property-name '$property_name'
-     --property-value '$property_value'
-     --min-value '$min_value'
-     --max-value '$max_value'
+    --element-type '$element_type'
+    --property-name '$property_name'
+    --property-value '$property_value'
+    --min-value '$min_value'
+    --max-value '$max_value'
     $outside
     $inside
     --mesh-input-file '$mesh_input_file.element_identifier'
@@ -41,7 +41,7 @@ removeMeshElements
     <param name="max_value" type="float" optional="true" label="max value" help="maximum value of range for selected property" />
     <param name="outside" type="boolean" label="outside" help="remove all elements outside the given property range" checked="false" truevalue="--outside" falsevalue="" />
     <param name="inside" type="boolean" label="inside" help="remove all elements inside the given property range" checked="false" truevalue="--inside" falsevalue="" />
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" multiple="false" />
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" />
   </inputs>
   <outputs>
     <data name="output_removeMeshElements" format="vtkxml" label="Output from removeMeshElements" from_work_dir="output_1.vtu" hidden="false" />

@@ -14,7 +14,7 @@ TIN2VTK
     --output-vtu-file output_1.vtu
 ]]></command>
   <inputs>
-    <param name="input_tin_file" type="data" optional="false" label="input tin file" help="Input (.tin). The name of the input file containing the input TIN" format="txt" multiple="false" />
+    <param name="input_tin_file" type="data" optional="false" label="input tin file" help="Input (.tin). The name of the input file containing the input TIN" format="txt" />
   </inputs>
   <outputs>
     <data name="output_TIN2VTK" format="vtkxml" label="Output from TIN2VTK" from_work_dir="output_1.vtu" hidden="false" />

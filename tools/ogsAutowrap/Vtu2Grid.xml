@@ -10,9 +10,9 @@
   <command><![CDATA[
 ln -sf '$input' '$input.element_identifier';
 Vtu2Grid
-     --cellsize-z '$cellsize_z'
-     --cellsize-y '$cellsize_y'
-     --cellsize-x '$cellsize_x'
+    --cellsize-z '$cellsize_z'
+    --cellsize-y '$cellsize_y'
+    --cellsize-x '$cellsize_x'
     --input '$input.element_identifier'
     --output output_1.vtu
 ]]></command>
@@ -20,7 +20,7 @@ Vtu2Grid
     <param name="cellsize_z" type="float" optional="true" label="cellsize z" help="edge length of cubes in z-direction (depth), (min = 0)" />
     <param name="cellsize_y" type="float" optional="true" label="cellsize y" help="edge length of cubes in y-direction (latitude), (min = 0)" />
     <param name="cellsize_x" type="float" optional="true" label="cellsize x" help="edge length of cubes in x-direction (longitude) or all directions, if y and z are not set, (min = 0)" />
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu | .msh). The 3D input mesh file" format="vtkxml" multiple="false" />
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu | .msh). The 3D input mesh file" format="vtkxml" />
   </inputs>
   <outputs>
     <data name="output_Vtu2Grid" format="vtkxml" label="Output from Vtu2Grid" from_work_dir="output_1.vtu" hidden="false" />

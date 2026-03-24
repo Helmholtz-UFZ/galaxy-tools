@@ -9,26 +9,25 @@
   <version_command><![CDATA[identifySubdomains --version]]></version_command>
   <command><![CDATA[
 ln -sf '$mesh' '$mesh.element_identifier';
-#for $item in $subdomain_meshes_filenames_repeat
-ln -sf '$item.element' '$item.element.element_identifier';
+#for $item in $subdomain_meshes_filenames
+ln -sf '$item' '$item.element_identifier';
 #end for
 identifySubdomains
     $force
-     --searchlength '$searchlength'
+    --searchlength '$searchlength'
     --mesh '$mesh.element_identifier'
     --output_prefix 'new_'
     --
-#for $item in $subdomain_meshes_filenames_repeat
-'$item.element.element_identifier'
+#for $item in $subdomain_meshes_filenames
+'$item.element_identifier'
 #end for
 ]]></command>
   <inputs>
     <param name="force" type="boolean" label="force" help="Overwriting existing subdomain meshes." checked="false" truevalue="--force" falsevalue="" />
     <param name="searchlength" type="float" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number (min = 0)" />
-    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file name of the bulk mesh" format="vtkxml" multiple="false" />
-    <repeat name="subdomain_meshes_filenames_repeat" title="subdomain meshes filenames" min="1">
-      <param name="element" type="data" optional="false" label="subdomain meshes filenames" help="mesh file names." format="vtkxml" multiple="false" />
-    </repeat></inputs>
+    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file name of the bulk mesh" format="vtkxml" />
+    <param name="subdomain_meshes_filenames" type="data_collection" optional="false" label="subdomain meshes filenames" help="mesh file names." format="vtkxml" collection_type="list" />
+  </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from identifySubdomains">
       <discover_datasets pattern="(?P&lt;designation&gt;new_.*)" format="vtkxml" visible="true" />

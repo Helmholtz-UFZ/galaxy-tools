@@ -11,11 +11,11 @@
 ln -sf '$input_mesh_file' '$input_mesh_file.element_identifier';
 swapNodeCoordinateAxes
     --input-mesh-file '$input_mesh_file.element_identifier'
-     --new-order '$new_order'
+    --new-order '$new_order'
     --output-mesh-file output_1.vtu
 ]]></command>
   <inputs>
-    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu) mesh file" format="vtkxml" multiple="false" />
+    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu) mesh file" format="vtkxml" />
     <param name="new_order" type="text" optional="true" label="new order" help="the new order of swapped coordinate values (e.g. 'xzy' for converting XYZ values to XZY values)" />
   </inputs>
   <outputs>

@@ -14,16 +14,16 @@ editMaterialID
     $condense
     $specify
     --mesh-input-file '$mesh_input_file.element_identifier'
-     --current-material-id '$current_material_id'
-     --new-material-id '$new_material_id'
-     --element-type '$element_type'
+    --current-material-id '$current_material_id'
+    --new-material-id '$new_material_id'
+    --element-type '$element_type'
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>
     <param name="replace" type="boolean" label="replace" help="replace material IDs" checked="false" truevalue="--replace" falsevalue="" />
     <param name="condense" type="boolean" label="condense" help="condense material IDs" checked="false" truevalue="--condense" falsevalue="" />
     <param name="specify" type="boolean" label="specify" help="specify material IDs by element types (-e)" checked="false" truevalue="--specify" falsevalue="" />
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu | .msh). The name of the file containing the input mesh" format="vtkxml" multiple="false" />
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu | .msh). The name of the file containing the input mesh" format="vtkxml" />
     <param name="current_material_id" type="text" optional="true" label="current material id" help="current material id to be replaced" />
     <param name="new_material_id" type="text" optional="true" label="new material id" help="new material id" />
     <param name="element_type" type="select" optional="false" label="element type" help="element type">

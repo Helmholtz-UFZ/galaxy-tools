@@ -11,7 +11,7 @@
 ln -sf '$input_mesh' '$input_mesh.element_identifier';
 NodeReordering
     $no_volume_check
-     --method '$method'
+    --method '$method'
     --input_mesh '$input_mesh.element_identifier'
     --output_mesh output_1.vtu
 ]]></command>
@@ -23,7 +23,7 @@ NodeReordering
       <option value="2">2</option>
       <option value="3">3</option>
     </param>
-    <param name="input_mesh" type="data" optional="false" label="input mesh" help="Input (.vtu | .vtk | .msh). The name of the input mesh file" format="vtkxml" multiple="false" />
+    <param name="input_mesh" type="data" optional="false" label="input mesh" help="Input (.vtu | .vtk | .msh). The name of the input mesh file" format="vtkxml" />
   </inputs>
   <outputs>
     <data name="output_NodeReordering" format="vtkxml" label="Output from NodeReordering" from_work_dir="output_1.vtu" hidden="false" />

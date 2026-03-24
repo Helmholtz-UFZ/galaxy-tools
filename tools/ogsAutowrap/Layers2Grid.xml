@@ -8,13 +8,17 @@
   <expand macro="requirements" />
   <version_command><![CDATA[Layers2Grid --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '$input.element_identifier';
+touch input_list.txt;
+#for $item in $input
+  ln -sf '$item' '$item.element_identifier';
+  echo '$item.element_identifier' >> input_list.txt;
+#end for
 Layers2Grid
     $dilate
-     --cellsize-z '$cellsize_z'
-     --cellsize-y '$cellsize_y'
-     --cellsize-x '$cellsize_x'
-    --input '$input.element_identifier'
+    --cellsize-z '$cellsize_z'
+    --cellsize-y '$cellsize_y'
+    --cellsize-x '$cellsize_x'
+    --input input_list.txt
     --output output_1.vtu
 ]]></command>
   <inputs>
@@ -22,7 +26,7 @@ Layers2Grid
     <param name="cellsize_z" type="float" optional="true" label="cellsize z" help="edge length of cubes in z-direction (depth), (min = 0)" />
     <param name="cellsize_y" type="float" optional="true" label="cellsize y" help="edge length of cubes in y-direction (latitude), (min = 0)" />
     <param name="cellsize_x" type="float" optional="true" label="cellsize x" help="edge length of cubes in x-direction (longitude) or all directions, if y and z are not set, (min = 0)" />
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). Name of the input file list containing the paths the all input layers in correct order from top to bottom" format="vtkxml" multiple="false" />
+    <param name="input" type="data_collection" optional="false" label="input" help="Input (.vtu). Name of the input file list containing the paths the all input layers in correct order from top to bottom" format="vtkxml" collection_type="list" />
   </inputs>
   <outputs>
     <data name="output_Layers2Grid" format="vtkxml" label="Output from Layers2Grid" from_work_dir="output_1.vtu" hidden="false" />

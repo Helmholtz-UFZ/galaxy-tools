@@ -8,20 +8,18 @@
   <expand macro="requirements" />
   <version_command><![CDATA[PVD2XDMF --version]]></version_command>
   <command><![CDATA[
-#for $item in $pvd_file_pvd_data_repeat
-    ln -sf '$item.element' '$item.element.element_identifier';
-#end for
-
+#for $item in $pvd_file_pvd_data
+    ln -sf '$item' '$item.element_identifier';
+  #end for
 ln -sf '$pvd_file' '$pvd_file.element_identifier';
 PVD2XDMF
     --output-directory output_1.vtu
-    -- '$pvd_file.element_identifier'
+    '$pvd_file.element_identifier'
 ]]></command>
   <inputs>
-    <param name="pvd_file" type="data" optional="false" label="pvd file" help="Input (.pvd) file" format="vtkxml" multiple="false" />
-  <repeat name="pvd_file_pvd_data_repeat" title="pvd_file PVD Data Elements" min="1">
-      <param name="element" type="data" optional="true" label="pvd_file PVD Data Elements" help="VTU Member" format="vtkxml" multiple="false" />
-    </repeat></inputs>
+    <param name="pvd_file_pvd_data" type="data_collection" optional="true" label="pvd_file PVD Data Elements" help="VTU Member Collection" format="vtkxml" collection_type="list" />
+    <param name="pvd_file" type="data" optional="false" label="pvd file" help="Input (.pvd) file" format="vtkxml" />
+  </inputs>
   <outputs>
     <data name="output_PVD2XDMF" format="vtkxml" label="Output from PVD2XDMF" from_work_dir="output_1.vtu" hidden="false" />
   </outputs>

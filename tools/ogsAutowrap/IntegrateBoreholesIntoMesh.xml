@@ -11,8 +11,8 @@
 ln -sf '$geo' '$geo.element_identifier';
 ln -sf '$input' '$input.element_identifier';
 IntegrateBoreholesIntoMesh
-     --max-elevation '$max_elevation'
-     --min-elevation '$min_elevation'
+    --max-elevation '$max_elevation'
+    --min-elevation '$min_elevation'
     --geo '$geo.element_identifier'
     --input '$input.element_identifier'
     --output output_1.vtu
@@ -20,8 +20,8 @@ IntegrateBoreholesIntoMesh
   <inputs>
     <param name="max_elevation" type="float" optional="true" label="max elevation" help="Maximum elevation for an integrated borehole, (min = 0)" />
     <param name="min_elevation" type="float" optional="true" label="min elevation" help="Minimum elevation for an integrated borehole, (min = 0)" />
-    <param name="geo" type="data" optional="false" label="geo" help="Input (.gml). Name of the geometry file" format="xml" multiple="false" />
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). Name of the mesh file" format="vtkxml" multiple="false" />
+    <param name="geo" type="data" optional="false" label="geo" help="Input (.gml). Name of the geometry file" format="xml" />
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). Name of the mesh file" format="vtkxml" />
   </inputs>
   <outputs>
     <data name="output_IntegrateBoreholesIntoMesh" format="vtkxml" label="Output from IntegrateBoreholesIntoMesh" from_work_dir="output_1.vtu" hidden="false" />

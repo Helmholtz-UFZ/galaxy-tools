@@ -13,7 +13,7 @@ ln -sf '$mesh_file' '$mesh_file.element_identifier';
 ln -sf '$gmsh_path' '$gmsh_path.element_identifier';
 CreateBoundaryConditionsAlongPolylines
     $gml
-     --type '$type'
+    --type '$type'
     --input-geometry '$input_geometry.element_identifier'
     --mesh-file '$mesh_file.element_identifier'
     --gmsh-path '$gmsh_path.element_identifier'
@@ -25,9 +25,9 @@ CreateBoundaryConditionsAlongPolylines
       <option value="LIQUID_FLOW">LIQUID_FLOW</option>
       <option value="GROUNDWATER_FLOW">GROUNDWATER_FLOW</option>
     </param>
-    <param name="input_geometry" type="data" optional="false" label="input geometry" help="Input (.gml | .gli). The name of the input file containing the geometry" format="xml" multiple="false" />
-    <param name="mesh_file" type="data" optional="false" label="mesh file" help="Input (.vtu). The name of the input file containing the mesh" format="vtkxml" multiple="false" />
-    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the gmsh binary" format="msh" multiple="false" />
+    <param name="input_geometry" type="data" optional="false" label="input geometry" help="Input (.gml | .gli). The name of the input file containing the geometry" format="xml" />
+    <param name="mesh_file" type="data" optional="false" label="mesh file" help="Input (.vtu). The name of the input file containing the mesh" format="vtkxml" />
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the gmsh binary" format="msh" />
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from CreateBoundaryConditionsAlongPolylines">

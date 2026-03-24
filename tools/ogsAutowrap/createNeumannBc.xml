@@ -11,12 +11,12 @@
 ln -sf '$in_mesh' '$in_mesh.element_identifier';
 createNeumannBc
     --in-mesh '$in_mesh.element_identifier'
-     --property-in-name '$property_in_name'
-     --property-out-name '$property_out_name'
+    --property-in-name '$property_in_name'
+    --property-out-name '$property_out_name'
     --result-out output_1.txt
 ]]></command>
   <inputs>
-    <param name="in_mesh" type="data" optional="false" label="in mesh" help="Input (.vtu | .msh). The surface mesh input file that has an element property for the Neumann boundary condition" format="vtkxml" multiple="false" />
+    <param name="in_mesh" type="data" optional="false" label="in mesh" help="Input (.vtu | .msh). The surface mesh input file that has an element property for the Neumann boundary condition" format="vtkxml" />
     <param name="property_in_name" type="text" optional="true" label="property in name" help="name of an element property used for the computation of the Neumann boundary condition" />
     <param name="property_out_name" type="text" optional="true" label="property out name" help="name of the node based property used for the output of the Neumann boundary condition" />
   </inputs>

@@ -11,10 +11,10 @@
 ln -sf '$raster' '$raster.element_identifier';
 ln -sf '$input' '$input.element_identifier';
 AssignRasterDataToMesh
-     --nodata '$nodata'
+    --nodata '$nodata'
     $cell_array
     $node_array
-     --scalar-name '$scalar_name'
+    --scalar-name '$scalar_name'
     --raster '$raster.element_identifier'
     --input '$input.element_identifier'
     --output output_1.vtu
@@ -24,8 +24,8 @@ AssignRasterDataToMesh
     <param name="cell_array" type="boolean" label="cell array" help="Assigns raster data to cell array" checked="false" truevalue="--cell-array" falsevalue="" />
     <param name="node_array" type="boolean" label="node array" help="Assigns raster data to node array (default)" checked="false" truevalue="--node-array" falsevalue="" />
     <param name="scalar_name" type="text" optional="true" label="scalar name" help="The name of the newly created scalar array." />
-    <param name="raster" type="data" optional="false" label="raster" help="Input (.asc). Name of the input raster file" format="raster.asc" multiple="false" />
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). Name of the input mesh file" format="vtkxml" multiple="false" />
+    <param name="raster" type="data" optional="false" label="raster" help="Input (.asc). Name of the input raster file" format="raster.asc" />
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). Name of the input mesh file" format="vtkxml" />
   </inputs>
   <outputs>
     <data name="output_AssignRasterDataToMesh" format="vtkxml" label="Output from AssignRasterDataToMesh" from_work_dir="output_1.vtu" hidden="false" />

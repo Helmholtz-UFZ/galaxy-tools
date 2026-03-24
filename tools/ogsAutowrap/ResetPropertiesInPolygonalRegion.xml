@@ -12,23 +12,23 @@ ln -sf '$geometry' '$geometry.element_identifier';
 ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
 ln -sf '$gmsh_path' '$gmsh_path.element_identifier';
 ResetPropertiesInPolygonalRegion
-     --polygon-name '$polygon_name'
+    --polygon-name '$polygon_name'
     --geometry '$geometry.element_identifier'
     $any_of
-     --int-property-value '$int_property_value'
-     --property-name '$property_name'
+    --int-property-value '$int_property_value'
+    --property-name '$property_name'
     --mesh-input-file '$mesh_input_file.element_identifier'
     --gmsh-path '$gmsh_path.element_identifier'
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>
     <param name="polygon_name" type="text" optional="true" label="polygon name" help="name of polygon in the geometry" />
-    <param name="geometry" type="data" optional="false" label="geometry" help="Input (.gli | .gml). The name of the file containing the input geometry" format="xml" multiple="false" />
+    <param name="geometry" type="data" optional="false" label="geometry" help="Input (.gli | .gml). The name of the file containing the input geometry" format="xml" />
     <param name="any_of" type="boolean" label="any of" help="all nodes of an element has to be inside the polygon (default behaviour without switch) or any node of an element has to be inside (switch is given)" checked="false" truevalue="--any_of" falsevalue="" />
     <param name="int_property_value" type="integer" optional="true" label="int property value" help="new property value (data type int)" />
     <param name="property_name" type="text" optional="true" label="property name" help="name of property in the mesh" />
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu | .vtk | .msh). The name of the file containing the input mesh" format="vtkxml" multiple="false" />
-    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input binary" format="msh" multiple="false" />
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu | .vtk | .msh). The name of the file containing the input mesh" format="vtkxml" />
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input binary" format="msh" />
   </inputs>
   <outputs>
     <data name="output_ResetPropertiesInPolygonalRegion" format="vtkxml" label="Output from ResetPropertiesInPolygonalRegion" from_work_dir="output_1.vtu" hidden="false" />

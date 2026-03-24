@@ -14,7 +14,7 @@ VTK2OGS
     --mesh-output-file output_1.msh
 ]]></command>
   <inputs>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtk). The name of the file containing the input mesh" format="vtkxml" multiple="false" />
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtk). The name of the file containing the input mesh" format="vtkxml" />
   </inputs>
   <outputs>
     <data name="output_VTK2OGS" format="msh" label="Output from VTK2OGS" from_work_dir="output_1.msh" hidden="false" />

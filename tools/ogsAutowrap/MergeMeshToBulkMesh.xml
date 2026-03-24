@@ -6,26 +6,26 @@
     <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements" />
-  <version_command><![CDATA[MergeMeshToBulkMesh --version]]></version_command>
+  <version_command><![CDATA[mergeMeshToBulkMesh --version]]></version_command>
   <command><![CDATA[
 ln -sf '$bulk_mesh_input_file' '$bulk_mesh_input_file.element_identifier';
 ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
-MergeMeshToBulkMesh
+mergeMeshToBulkMesh
     --bulk-mesh-input-file '$bulk_mesh_input_file.element_identifier'
     --mesh-input-file '$mesh_input_file.element_identifier'
-     --pressure '$pressure'
-     --gas_pressure '$gas_pressure'
-     --capillary_pressure '$capillary_pressure'
-     --temperature '$temperature'
-     --sigma_xx '$sigma_xx'
-     --sigma_yy '$sigma_yy'
-     --sigma_zz '$sigma_zz'
-     --material_id '$material_id'
+    --pressure '$pressure'
+    --gas_pressure '$gas_pressure'
+    --capillary_pressure '$capillary_pressure'
+    --temperature '$temperature'
+    --sigma_xx '$sigma_xx'
+    --sigma_yy '$sigma_yy'
+    --sigma_zz '$sigma_zz'
+    --material_id '$material_id'
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>
-    <param name="bulk_mesh_input_file" type="data" optional="false" label="bulk mesh input file" help="Input (.vtk | .msh). The name of the file containing the input bulk mesh" format="vtkxml" multiple="false" />
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtk | .msh). The name of the file containing the input mesh to be merged" format="vtkxml" multiple="false" />
+    <param name="bulk_mesh_input_file" type="data" optional="false" label="bulk mesh input file" help="Input (.vtk | .msh). The name of the file containing the input bulk mesh" format="vtkxml" />
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtk | .msh). The name of the file containing the input mesh to be merged" format="vtkxml" />
     <param name="pressure" type="float" optional="true" label="pressure" help="initial pressure value in the mesh to be merged" />
     <param name="gas_pressure" type="float" optional="true" label="gas pressure" help="initial gas pressure value in the mesh to be merged" />
     <param name="capillary_pressure" type="float" optional="true" label="capillary pressure" help="initial capillary pressure value in the mesh to be merged" />

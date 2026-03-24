@@ -15,7 +15,7 @@ OGS2VTK
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.msh). The name of the file containing the input mesh" format="msh" multiple="false" />
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.msh). The name of the file containing the input mesh" format="msh" />
     <param name="ascii_output" type="boolean" label="ascii output" help="Write VTU output in ASCII file. Due to possible rounding the ascii output could result in lower accuracy" checked="false" truevalue="--ascii_output" falsevalue="" />
   </inputs>
   <outputs>

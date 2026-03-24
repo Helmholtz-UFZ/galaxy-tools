@@ -15,7 +15,7 @@ ExtractBoundary
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" multiple="false" />
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" />
     <param name="ascii_output" type="boolean" label="ascii output" help="If the switch is set use ascii instead of binary format for data in the vtu output." checked="false" truevalue="--ascii-output" falsevalue="" />
   </inputs>
   <outputs>

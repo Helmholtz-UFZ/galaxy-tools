@@ -14,7 +14,7 @@ convertToLinearMesh
     --output-mesh-file output_1.vtu
 ]]></command>
   <inputs>
-    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu | .msh) mesh file" format="vtkxml" multiple="false" />
+    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu | .msh) mesh file" format="vtkxml" />
   </inputs>
   <outputs>
     <data name="output_convertToLinearMesh" format="vtkxml" label="Output from convertToLinearMesh" from_work_dir="output_1.vtu" hidden="false" />

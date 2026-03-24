@@ -8,31 +8,30 @@
   <expand macro="requirements" />
   <version_command><![CDATA[geometryToGmshGeo --version]]></version_command>
   <command><![CDATA[
-#for $item in $input_repeat
-ln -sf '$item.element' '$item.element.element_identifier';
+#for $item in $input
+ln -sf '$item' '$item.element_identifier';
 #end for
 geometryToGmshGeo
     --input
-#for $item in $input_repeat
-'$item.element.element_identifier'
+#for $item in $input
+'$item.element_identifier'
 #end for
-     --max_points_in_quadtree_leaf '$max_points_in_quadtree_leaf'
-     --mesh_density_scaling_at_points '$mesh_density_scaling_at_points'
-     --mesh_density_scaling_at_stations '$mesh_density_scaling_at_stations'
-     --average_point_density '$average_point_density'
+    --max_points_in_quadtree_leaf '$max_points_in_quadtree_leaf'
+    --mesh_density_scaling_at_points '$mesh_density_scaling_at_points'
+    --mesh_density_scaling_at_stations '$mesh_density_scaling_at_stations'
+    --average_point_density '$average_point_density'
     $homogeneous
     --output output_1.geo
     --write_merged_geometries output_2.gml
 ]]></command>
   <inputs>
+    <param name="input" type="data_collection" optional="false" label="input" help="Input (.gml) geometry file" format="xml" collection_type="list" />
     <param name="max_points_in_quadtree_leaf" type="text" optional="true" label="max points in quadtree leaf" help="positive number/ (min = 0)" />
     <param name="mesh_density_scaling_at_points" type="float" optional="true" label="mesh density scaling at points" help="positive floating point number, (min = 0)" />
     <param name="mesh_density_scaling_at_stations" type="float" optional="true" label="mesh density scaling at stations" help="positive floating point number, (min = 0)" />
     <param name="average_point_density" type="float" optional="true" label="average point density" help="average point density / average edge length as a positive floating point number, (min = 0)" />
     <param name="homogeneous" type="boolean" label="homogeneous" help="Use Gmsh homogeneous meshing method." checked="false" truevalue="--homogeneous" falsevalue="" />
-  <repeat name="input_repeat" title="input" min="1">
-      <param name="element" type="data" optional="false" label="input" help="Input (.gml) geometry file" format="xml" multiple="false" />
-    </repeat></inputs>
+  </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from geometryToGmshGeo">
       <discover_datasets pattern="output_.*\.(vtu|msh|asc|gml|xml)" format="data" visible="true" />

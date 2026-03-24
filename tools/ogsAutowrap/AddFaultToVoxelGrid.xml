@@ -16,8 +16,8 @@ AddFaultToVoxelGrid
     --output output_1.vtu
 ]]></command>
   <inputs>
-    <param name="fault" type="data" optional="false" label="fault" help="Input (.vtu). Name of mesh file representing fault" format="vtkxml" multiple="false" />
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). Name of the input file containing the paths the all input in correct order from top to bottom" format="vtkxml" multiple="false" />
+    <param name="fault" type="data" optional="false" label="fault" help="Input (.vtu). Name of mesh file representing fault" format="vtkxml" />
+    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). Name of the input file containing the paths the all input in correct order from top to bottom" format="vtkxml" />
   </inputs>
   <outputs>
     <data name="output_AddFaultToVoxelGrid" format="vtkxml" label="Output from AddFaultToVoxelGrid" from_work_dir="output_1.vtu" hidden="false" />

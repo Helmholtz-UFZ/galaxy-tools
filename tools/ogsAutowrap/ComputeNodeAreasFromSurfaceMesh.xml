@@ -11,11 +11,11 @@
 ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
 ComputeNodeAreasFromSurfaceMesh
     --mesh-input-file '$mesh_input_file.element_identifier'
-     --id-prop-name '$id_prop_name'
+    --id-prop-name '$id_prop_name'
     --output-base-name 'new_'
 ]]></command>
   <inputs>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" multiple="false" />
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" />
     <param name="id_prop_name" type="select" optional="false" label="id prop name" help="the name of the property containing the id information">
       <option value="bulk_node_ids">bulk_node_ids</option>
       <option value="bulk_element_ids">bulk_element_ids</option>

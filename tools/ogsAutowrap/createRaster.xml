@@ -9,11 +9,11 @@
   <version_command><![CDATA[createRaster --version]]></version_command>
   <command><![CDATA[
 createRaster
-     --n_rows '$n_rows'
-     --n_cols '$n_cols'
-     --cell_size '$cell_size'
-     --ll_y '$ll_y'
-     --ll_x '$ll_x'
+    --n_rows '$n_rows'
+    --n_cols '$n_cols'
+    --cell_size '$cell_size'
+    --ll_y '$ll_y'
+    --ll_x '$ll_x'
     --output output_1.asc
 ]]></command>
   <inputs>

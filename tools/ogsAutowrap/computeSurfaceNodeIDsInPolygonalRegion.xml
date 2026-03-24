@@ -17,9 +17,9 @@ computeSurfaceNodeIDsInPolygonalRegion
     --gmsh-path '$gmsh_path.element_identifier' > '$stdout_log'
 ]]></command>
   <inputs>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" multiple="false" />
-    <param name="geo_file" type="data" optional="false" label="geo file" help="Input (.gml). The name of the input file containing the polygons" format="xml" multiple="false" />
-    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input binary file" format="msh" multiple="false" />
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" />
+    <param name="geo_file" type="data" optional="false" label="geo file" help="Input (.gml). The name of the input file containing the polygons" format="xml" />
+    <param name="gmsh_path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input binary file" format="msh" />
   </inputs>
   <outputs>
     <data name="stdout_log" format="txt" label="Output Log from computeSurfaceNodeIDsInPolygonalRegion" hidden="false" />

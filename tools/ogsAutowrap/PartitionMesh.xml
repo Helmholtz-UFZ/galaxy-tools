@@ -6,32 +6,31 @@
     <import>test_macros.xml</import>
   </macros>
   <expand macro="requirements" />
-  <version_command><![CDATA[PartitionMesh --version]]></version_command>
+  <version_command><![CDATA[partmesh --version]]></version_command>
   <command><![CDATA[
 ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
 ln -sf '$metis_mesh_input_file' '$metis_mesh_input_file.element_identifier';
-#for $item in $other_meshes_filenames_repeat
-ln -sf '$item.element' '$item.element.element_identifier';
+#for $item in $other_meshes_filenames
+ln -sf '$item' '$item.element_identifier';
 #end for
-PartitionMesh
+partmesh
     --mesh-input-file '$mesh_input_file.element_identifier'
     --metis-mesh-input-file '$metis_mesh_input_file.element_identifier'
-     --np '$np'
+    --np '$np'
     $exe_metis
     --output output_1.vtu
     --
-#for $item in $other_meshes_filenames_repeat
-'$item.element.element_identifier'
+#for $item in $other_meshes_filenames
+'$item.element_identifier'
 #end for
 ]]></command>
   <inputs>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" multiple="false" />
-    <param name="metis_mesh_input_file" type="data" optional="true" label="metis mesh input file" help="Input (.mesh). Base name (without .mesh extension) of the file containing the metis input mesh" format="txt" multiple="false" />
+    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" />
+    <param name="metis_mesh_input_file" type="data" optional="true" label="metis mesh input file" help="Input (.mesh). Base name (without .mesh extension) of the file containing the metis input mesh" format="txt" />
     <param name="np" type="integer" optional="true" label="np" help="the number of partitions, (min = 0)" />
     <param name="exe_metis" type="boolean" label="exe metis" help="Call mpmetis inside the programme via system()." checked="false" truevalue="--exe_metis" falsevalue="" />
-    <repeat name="other_meshes_filenames_repeat" title="other meshes filenames" min="1">
-      <param name="element" type="data" optional="false" label="other meshes filenames" help="mesh file names." format="vtkxml" multiple="false" />
-    </repeat></inputs>
+    <param name="other_meshes_filenames" type="data_collection" optional="false" label="other meshes filenames" help="mesh file names." format="vtkxml" collection_type="list" />
+  </inputs>
   <outputs>
     <data name="output_PartitionMesh" format="vtkxml" label="Output from PartitionMesh" from_work_dir="output_1.vtu" hidden="false" />
   </outputs>

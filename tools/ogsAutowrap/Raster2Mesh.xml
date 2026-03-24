@@ -10,9 +10,9 @@
   <command><![CDATA[
 ln -sf '$input' '$input.element_identifier';
 Raster2Mesh
-     --arrayname '$arrayname'
-     --pixel-type '$pixel_type'
-     --elem-type '$elem_type'
+    --arrayname '$arrayname'
+    --pixel-type '$pixel_type'
+    --elem-type '$elem_type'
     --input '$input.element_identifier'
     --output output_1.vtu
 ]]></command>
@@ -27,7 +27,7 @@ Raster2Mesh
       <option value="tri">tri</option>
       <option value="quad">quad</option>
     </param>
-    <param name="input" type="data" optional="false" label="input" help="Input (.asc). Name of the input raster file" format="raster.asc" multiple="false" />
+    <param name="input" type="data" optional="false" label="input" help="Input (.asc). Name of the input raster file" format="raster.asc" />
   </inputs>
   <outputs>
     <data name="output_Raster2Mesh" format="vtkxml" label="Output from Raster2Mesh" from_work_dir="output_1.vtu" hidden="false" />

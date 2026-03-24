@@ -36,6 +36,13 @@ REPO_B_RAW = "https://gitlab.opengeosys.org/kristofkessler/ogs/-/raw/ebd40a71bac
 REPO_B_API = "https://gitlab.opengeosys.org/api/v4/projects/kristofkessler%2Fogs/repository/tree"
 REPO_B_DATA_PATH = "Tests/Data"
 
+# Tools with broken executable commands
+EXCLUDED_TOOLS = [
+    "netcdfconverter", "binarytopvtu", "ogsfileconverter", 
+    "raster2pointcloud", "verticalslicefromlayers", 
+    "convertshptogli", "mesh2shape"
+]
+
 TCLAP_PATTERN_STD = re.compile(
     r"TCLAP::(?P<arg_type>(?:Value|Switch|Multi)Arg)\s*"
     r"(?:<(?P<cpp_type>.*?)>)?\s*(?P<tclap_var_name>\w+)\s*"
@@ -130,7 +137,7 @@ def get_ogs_ftype(extensions: List[str]) -> str:
     
     if ext == 'nc': return 'netcdf'
 
-    if ext in ['plt', 'tin', 'mesh', 'bin']:
+    if ext in ['plt', 'tin', 'mesh', 'bin', 'smesh']:
         return 'txt'
 
     return ext
@@ -329,31 +336,30 @@ def process_parameters(tclap_params: List[Dict[str, Any]]) -> Tuple[List[object]
                 )
                 param.options_dict = opts_dict
 
-        elif help_text.startswith("Input") or "filenames" in var_name:
+        elif help_text.startswith("Input") or "filenames" in var_name or "INPUT_FILE_LIST" in all_args_str:
             format_match = FILE_EXTENSION_PATTERN.search(help_text)
             all_exts = [e.strip().lstrip('.') for e in format_match.group(1).split('|')] if format_match else []
             is_pvd = "pvd" in help_text.lower() or "pvd" in all_exts
             primary_ext = "pvd" if is_pvd else (all_exts[0] if all_exts else "vtu")
-            
             galaxy_type = get_ogs_ftype([primary_ext])
-            is_repeat_input = ("MultiArg" in param_info.get('arg_type', '') or "filenames" in var_name)
-
-            is_optional = False
-            if len(args) > 3 and args[3].lower() == "false":
-                is_optional = True
+            is_file_list = "INPUT_FILE_LIST" in all_args_str
+            is_collection = ("MultiArg" in param_info.get('arg_type', '') or "filenames" in var_name or is_file_list)
+            is_optional = (len(args) > 3 and args[3].lower() == "false")
 
             param = DataParam(name=var_name, label=var_name.replace('_', ' '), help=help_text, 
-                             format=galaxy_type, multiple=False, optional=is_optional)
-            param.is_repeat = is_repeat_input
+                             format=galaxy_type, optional=is_optional)
+            param.is_data_collection = is_collection 
+            param.is_collection = is_collection
             param.ogs_ext = primary_ext
             param.is_pvd = is_pvd
+            param.is_file_list = is_file_list
 
             if is_pvd:
                 pvd_data = DataParam(name=f"{var_name}_pvd_data", label=f"{var_name} PVD Data Elements", 
-                                    help="VTU Member", format="vtkxml", optional=True)
+                                    help="VTU Member Collection", format="vtkxml", optional=True)
                 pvd_data.is_pvd_element = True
-                pvd_data.is_repeat = True
-                pvd_data.is_unlabeled = False
+                pvd_data.is_data_collection = True 
+                pvd_data.is_collection = True
                 galaxy_inputs.append(pvd_data)
 
         elif 'Switch' in param_info.get('arg_type', ''):
@@ -385,6 +391,9 @@ def generate_tools():
     generated_count = 0
     for tool_data in all_tools_data:
         tool_name = tool_data['name']
+        if tool_name.lower() in EXCLUDED_TOOLS:
+            eprint(f"--> Skipping excluded tool: {tool_name}")
+            continue
         eprint(f"Generating wrapper for: {tool_name}...")
         try:
             galaxy_inputs, output_command_map = process_parameters(tool_data['parameters'])
@@ -393,7 +402,14 @@ def generate_tools():
             current_exe = tool_name
             if tool_name.upper() == "PVTU2VTU": current_exe = "pvtu2vtu"
             elif tool_name[0].isupper() and tool_name[1:].islower(): current_exe = tool_name[0].lower() + tool_name[1:]
-            m_fixes = {"PVTU2VTU": "pvtu2vtu", "Mesh2Raster": "Mesh2Raster", "GMSH2OGS": "GMSH2OGS"}
+
+            m_fixes = {
+                "PVTU2VTU": "pvtu2vtu", 
+                "FEFLOW2OGS": "feflow2ogs",
+                "MergeMeshToBulkMesh": "mergeMeshToBulkMesh",
+                "PartitionMesh": "partmesh"
+            }
+
             executable_name = m_fixes.get(tool_name, current_exe)
 
             command_parts = []
@@ -410,50 +426,45 @@ def generate_tools():
                 is_pvd_element = getattr(param, 'is_pvd_element', False)
 
                 if isinstance(param, DataParam):
-                    if is_pvd_element:
-                        command_parts.append(
-                            f"  #for $item in ${param.name}_repeat\n"
-                            f"    ln -sf '$item.element' '$item.element.element_identifier';\n"
-                            f"  #end for\n"
-                        )
+                    is_file_list = getattr(param, 'is_file_list', False)
+                    is_coll = getattr(param, 'is_data_collection', False)
+                    
+                    if getattr(param, 'is_pvd_element', False):
+                        command_parts.append(f"  #for $item in ${param.name}\n    ln -sf '$item' '$item.element_identifier';\n  #end for")
                         continue
-                    if is_repeat:
-                        command_parts.append(
-                            f"#for $item in ${param.name}_repeat\n"
-                            f"ln -sf '$item.element' '$item.element.element_identifier';\n"
-                            f"#end for"
-                        )
-                        loop_str = (
-                            f"#for $item in ${param.name}_repeat\n"
-                            f"'$item.element.element_identifier'\n"
-                            f"#end for"
-                        )
-                        if is_unlabeled:
-                            unlabeled_parts.append("    --")
-                            unlabeled_parts.append(loop_str)
-                        else:
-                            flag_parts.append(f"    --{flag}\n{loop_str}")
+                    if is_file_list:
+                        list_file = f"{param.name}_list.txt"
+                        command_parts.append(f"touch {list_file};")
+                        command_parts.append(f"#for $item in ${param.name}\n  ln -sf '$item' '$item.element_identifier';\n  echo '$item.element_identifier' >> {list_file};\n#end for")
+                        flag_parts.append(f"    --{flag} {list_file}")
+                        continue
+                    if is_coll:
+                        command_parts.append(f"#for $item in ${param.name}\nln -sf '$item' '$item.element_identifier';\n#end for")
+                        loop_str = f"#for $item in ${param.name}\n'$item.element_identifier'\n#end for"
+                        if is_unlabeled: unlabeled_parts.append(f"    --\n{loop_str}")
+                        else: flag_parts.append(f"    --{flag}\n{loop_str}")
                     else:
                         command_parts.append(f"ln -sf '${param.name}' '${param.name}.element_identifier';")
                         arg_val = f"'${param.name}.element_identifier'"
-                        if is_unlabeled:
-                            unlabeled_parts.append(f"    -- {arg_val}")
-                        else:
-                            flag_parts.append(f"    --{flag} {arg_val}")
+                        if is_unlabeled: unlabeled_parts.append(f"    {arg_val}")
+                        else: flag_parts.append(f"    --{flag} {arg_val}")
                 elif isinstance(param, BooleanParam):
                     flag_parts.append(f"    ${param.name}")
                 elif isinstance(param, (TextParam, IntegerParam, FloatParam, SelectParam)):
                     if is_unlabeled:
-                        unlabeled_parts.append(f"    -- '${param.name}'")
+                        unlabeled_parts.append(f"    '${param.name}'")
                     else:
-                        flag_parts.append(f"     --{flag} '${param.name}'")
+                        flag_parts.append(f"    --{flag} '${param.name}'")
 
             # 3. OUTPUT FLAGS
             for flag, info in output_command_map.items():
                 if flag == "VIRTUAL_no_flag":
                     continue
                 if info.get('type') == 'BASE_FILENAME':
-                    flag_parts.append(f"    --{flag} 'new_'")
+                    if "directory" in flag.lower():
+                        flag_parts.append(f"    --{flag} 'new_output'")
+                    else:
+                        flag_parts.append(f"    --{flag} 'new_'")
                 else:
                     flag_parts.append(f"    --{flag} {info['filename']}")
 
@@ -518,61 +529,28 @@ def generate_tools():
 
             if inputs_node is not None:
                 for param in galaxy_inputs:
-                    if getattr(param, 'is_repeat', False):
-                        wrong_param = inputs_node.find(f"param[@name='{param.name}']")
-                        if wrong_param is not None:
-                            rep = ET.Element("repeat", {
-                                "name": f"{param.name}_repeat",
-                                "title": param.label,
-                                "min": "1"
-                            })
-
-                            rep.text = "\n      "
-                            
-                            inner_attrs = {k: v for k, v in wrong_param.items()}
-                            inner_attrs["name"] = "element"
-                            inner_attrs["multiple"] = "false"
-                            inner_param = ET.Element("param", inner_attrs)
-
-                            inner_param.tail = "\n    "
-                            
-                            rep.append(inner_param)
-                            inputs_node.remove(wrong_param)
-                            inputs_node.append(rep)
+                    if getattr(param, 'is_data_collection', False):
+                        p_node = inputs_node.find(f"param[@name='{param.name}']")
+                        if p_node is not None:
+                            p_node.set("type", "data_collection")
+                            p_node.set("collection_type", "list")
+                            if "multiple" in p_node.attrib: 
+                                del p_node.attrib["multiple"]
 
             output_file_path = OUTPUT_DIR / f"{tool_name}.xml"
-            
-            # 1. XML to string
             xml_str = ET.tostring(tool_xml_root, encoding='unicode')
 
             def version_cdata_rewrite(match):
-                content = match.group(1).strip()
-                return f"<version_command><![CDATA[{content}]]></version_command>"
-            
+                return f"<version_command><![CDATA[{match.group(1).strip()}]]></version_command>"
             xml_str = re.sub(r"<version_command>(.*?)</version_command>", version_cdata_rewrite, xml_str)
 
             def command_cdata_rewrite(match):
-                content = match.group(1).strip()
-
-                content = content.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
-
-                lines = []
-                for line in content.split('\n'):
-                    stripped = line.lstrip()
-                    if stripped.startswith('#'):
-                        lines.append(stripped)
-                    else:
-                        lines.append(line)
-                
-                return f"<command><![CDATA[\n" + "\n".join(lines) + "\n]]></command>"
-
+                content = match.group(1).strip().replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
+                return f"<command><![CDATA[\n{content}\n]]></command>"
             xml_str = re.sub(r"<command.*?>(.*?)</command>", command_cdata_rewrite, xml_str, flags=re.DOTALL)
 
             with open(output_file_path, 'w', encoding='utf-8') as f:
-                f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-                f.write(xml_str)
-                
-            eprint(f"-> Successfully saved: {output_file_path}")
+                f.write('<?xml version="1.0" encoding="UTF-8"?>\n' + xml_str)
             generated_count += 1 
 
         except Exception as e:
@@ -611,36 +589,36 @@ def parse_diff_data(diff_str: str, base_url: str, workdir: str, input_files: Lis
         i += 1
     return diff_files
 
-
 def get_dummy_value(param, tool_name, all_params=None):
-    # List of tools which need specific input data
-    special_tool_files = {
-        "ComputeNodeAreasFromSurfaceMesh": "computeNodeAreasFromSurfaceMesh_test",
-    }
+    URL_AREHS_TEST = "https://gitlab.opengeosys.org/kristofkessler/ogs/-/raw/ebd40a71bacd951b90b64e2e42fb8d11528bde39/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu"
+    URL_AREHS_FAULT = "https://gitlab.opengeosys.org/kristofkessler/ogs/-/raw/ebd40a71bacd951b90b64e2e42fb8d11528bde39/Tests/Data/Utils/VoxelGridFromLayers/AREHS_fault.vtu"
+    URL_PVD_MAIN = "https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/HydroMechanics/IdealGas/flow_pressure_boundary/flow_pressure_boundary.pvd"
+    URL_VTK_TEST = "https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer17.vtu"
 
+    special_tool_files = {
+        "ComputeNodeAreasFromSurfaceMesh": "computeNodeAreasFromSurfaceMesh_test_data",
+    }
     if isinstance(param, DataParam):
-        ext = getattr(param, 'ogs_ext', 'vtu')
-        
-        # 1. Check special tools and params
+        ext = getattr(param, 'ogs_ext', 'vtu').lower()
         if tool_name in special_tool_files:
             return f"{special_tool_files[tool_name]}.{ext}"
-        
-        if param.name == "fault":
-            return f"fault.{ext}"
-        
-        # 3. Standard-Fallback
+        if getattr(param, 'is_pvd', False):
+            return URL_PVD_MAIN
+        if (param.name == "fault" or "fault" in param.label.lower()) and ext in ['vtu', 'vtk', 'msh']:
+            return URL_AREHS_FAULT
+        if ext in ['vtu', 'msh']:
+            return URL_AREHS_TEST
+        if ext in ['vtk']:
+            return URL_VTK_TEST
         return f"test.{ext}"
 
     if isinstance(param, SelectParam):
         opts = getattr(param, 'options_dict', {})
         return list(opts.keys())[0] if opts else "value"
-    
     if isinstance(param, (IntegerParam, FloatParam)):
         return "1" if isinstance(param, IntegerParam) else "1.0"
-    
     if isinstance(param, BooleanParam):
         return "true"
-        
     return "dummy_text"
 
 
@@ -652,8 +630,12 @@ def generate_tests():
     repo_b_index = get_repo_b_file_index()
 
     all_tools_data = discover_tools()
-    tools_map_lower = {tool['name'].lower(): tool for tool in all_tools_data}
-    tool_tests_accumulator = {tool['name'].lower(): [] for tool in all_tools_data}
+    tools_map_lower = {
+        tool['name'].lower(): tool 
+        for tool in all_tools_data 
+        if tool['name'].lower() not in EXCLUDED_TOOLS
+    }
+    tool_tests_accumulator = {tool_name: [] for tool_name in tools_map_lower.keys()}
     
     cmake_content = fetch_url_content(tests_cmake_url)
     if not cmake_content:
@@ -676,12 +658,19 @@ def generate_tests():
                     matched_tool = t
                     break
         
-        if not matched_tool: continue
-
-        if tool_tests_accumulator[matched_tool]:
-            continue 
+        if not matched_tool or matched_tool.lower() in EXCLUDED_TOOLS:
+            continue
 
         tool_data = tools_map_lower[matched_tool]
+        g_inputs_temp, _ = process_parameters(tool_data['parameters'])
+        has_complex_input = any(getattr(p, 'is_pvd', False) or getattr(p, 'is_file_list', False) for p in g_inputs_temp)
+        
+        if has_complex_input:
+            eprint(f"   -> Marking {matched_tool} for Dummy-Test (Complex PVD/List Input).")
+            continue
+
+        if tool_tests_accumulator[matched_tool]:
+            continue
         galaxy_inputs, output_map = process_parameters(tool_data['parameters'])
         all_inputs_map = {p.name: p for p in galaxy_inputs}
 
@@ -756,53 +745,65 @@ def generate_tests():
             
             val_clean = str(p_val).replace("<PATH>", p_rep).replace("${Data_BINARY_DIR}/", "").replace("${Data_SOURCE_DIR}/", "").lstrip("/")
             
-            # PVD Test-Member
+            # PVD
             if getattr(p_obj, 'is_pvd', False):
-                pvd_members = re.findall(r"([^\s/]+\.vt[ui])", test_block)
-                pvd_data_param_name = f"{p_name}_pvd_data"
-                for vfile in set(pvd_members):
-                    if vfile.endswith(".pvd"): continue
-                    vurl = f"{RAW_GITLAB_TEST_DATA_URL}/{wd_sub}/{vfile}" if wd_sub else f"{RAW_GITLAB_PROJECT_ROOT_URL}/{vfile}"
-                    if url_exists(vurl):
-                        rep_inst = ET.Element("repeat", {"name": f"{pvd_data_param_name}_repeat"})
-                        ET.SubElement(rep_inst, "param", {"name": "element", "value": vfile, "location": vurl, "ftype": "vtkxml"})
-                        test_params_xml.append(rep_inst)
+                pvd_members = [v for v in re.findall(r"([^\s/]+\.vt[ui])", test_block) if not v.endswith(".pvd")]
+                if pvd_members:
+                    p_pvd_name = f"{p_name}_pvd_data"
+                    coll_param = ET.Element("param", {"name": p_pvd_name})
+                    coll_wrapper = ET.SubElement(coll_param, "collection", {"type": "list"})
+                    
+                    for v in sorted(set(pvd_members)):
+                        url = f"{RAW_GITLAB_TEST_DATA_URL}/{wd_sub}/{v}" if wd_sub else f"{RAW_GITLAB_PROJECT_ROOT_URL}/{v}"
+                        ET.SubElement(coll_wrapper, "element", {
+                            "name": v,
+                            "value": v,
+                            "location": url,
+                            "ftype": "vtkxml"
+                        })
+                    test_params_xml.append(coll_param)
 
-            is_repeat = getattr(p_obj, 'is_repeat', False)
-            if is_repeat:
+            # Collections / INPUT_FILE_LIST
+            if getattr(p_obj, 'is_data_collection', False):
                 files_to_process = val_clean.split(',')
+                coll_param = ET.Element("param", {"name": p_name})
+                coll_wrapper = ET.SubElement(coll_param, "collection", {"type": "list"})
+    
                 for f_path in files_to_process:
                     f_name = f_path.split('/')[-1]
                     url = f"{RAW_GITLAB_TEST_DATA_URL}/{wd_sub}/{f_name}" if wd_sub else f"{RAW_GITLAB_PROJECT_ROOT_URL}/{f_name}"
-                    
+        
                     if not url_exists(url):
                         search_name = f_name if "." in f_name else f"{f_name}.vtu"
                         if search_name in repo_b_index:
                             url = f"{REPO_B_RAW}/{repo_b_index[search_name]}"
-                            eprint(f"   -> Found {search_name} in Repo B!")
-                            f_name = search_name 
+                            f_name = search_name
                         else:
-                            eprint(f"!! ABORT: File missing: {f_name}")
                             test_is_valid = False
                             break
 
-                    rep_instance = ET.Element("repeat", {"name": f"{p_name}_repeat"})
-                    ET.SubElement(rep_instance, "param", {"name": "element", "value": f_name, "location": url, "ftype": p_obj.format.split(',')[0]})
-                    test_params_xml.append(rep_instance)
+                    ET.SubElement(coll_wrapper, "element", {
+                        "name": f_name,
+                        "value": f_name,
+                        "location": url,
+                        "ftype": p_obj.format.split(',')[0]
+                    })
+                
+                if test_is_valid:
+                    test_params_xml.append(coll_param)
+
+            # 3. single parameter
             else:
                 attrs = {"name": p_name}
                 if isinstance(p_obj, DataParam):
                     f_name = val_clean.split('/')[-1]
                     url = f"{RAW_GITLAB_TEST_DATA_URL}/{wd_sub}/{f_name}" if wd_sub else f"{RAW_GITLAB_PROJECT_ROOT_URL}/{f_name}"
-                    
                     if not url_exists(url):
                         search_name = f_name if "." in f_name else f"{f_name}.vtu"
                         if search_name in repo_b_index:
                             url = f"{REPO_B_RAW}/{repo_b_index[search_name]}"
-                            eprint(f"   -> Found {search_name} in Repo B!")
-                            f_name = search_name 
+                            f_name = search_name
                         else:
-                            eprint(f"!! ABORT: File missing: {f_name}")
                             test_is_valid = False
                             break
                     attrs.update({"value": f_name, "location": url, "ftype": p_obj.format.split(',')[0]})
@@ -871,31 +872,55 @@ def generate_tests():
             g_inputs, g_outputs = process_parameters(tool_data['parameters'])
             
             for p in g_inputs:
-                if getattr(p, 'is_pvd_element', False): continue
-                is_mandatory = (getattr(p, 'optional', True) is False)
-                is_input_file = isinstance(p, DataParam)
-                is_select = isinstance(p, SelectParam)
-
-                if is_mandatory or is_input_file or is_select:
-                    val = get_dummy_value(p, t_name, all_params=g_inputs)
-                    if getattr(p, 'is_repeat', False):
-                        rep = ET.SubElement(fallback_test, "repeat", {"name": f"{p.name}_repeat"})
-                        inner_p = ET.SubElement(rep, "param", {"name": "element", "value": str(val)})
-                        if is_input_file:
-                            inner_p.set("ftype", p.format.split(',')[0])
+                is_data_coll = getattr(p, 'is_data_collection', False)
+                
+                if is_data_coll:
+                    if getattr(p, 'is_pvd_element', False):
+                        urls = [
+                            "https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/HydroMechanics/IdealGas/flow_pressure_boundary/flow_pressure_boundary_ts_0_t_0.000000.vtu",
+                            "https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/HydroMechanics/IdealGas/flow_pressure_boundary/flow_pressure_boundary_ts_100_t_4000.000000.vtu"
+                        ]
+                    elif getattr(p, 'is_file_list', False) or p.name == "raster_list":
+                        urls = [
+                            "https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer0.vtu",
+                            "https://gitlab.opengeosys.org/ogs/ogs/-/raw/master/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer15.vtu"
+                        ]
                     else:
-                        test_p = ET.SubElement(fallback_test, "param", {"name": p.name, "value": str(val)})
-                        if is_input_file:
-                            test_p.set("ftype", p.format.split(',')[0])
+                        urls = [get_dummy_value(p, t_name, all_params=g_inputs)]
+
+                    coll_node = ET.SubElement(fallback_test, "param", {"name": p.name})
+                    coll_wrapper = ET.SubElement(coll_node, "collection", {"type": "list"})
+                    for url in urls:
+                        filename = url.split('/')[-1]
+                        ET.SubElement(coll_wrapper, "element", {
+                            "name": filename,
+                            "value": filename,
+                            "location": url,
+                            "ftype": "vtkxml"
+                        })
+                    continue
+
+                # Standard parameter
+                is_mandatory = (getattr(p, 'optional', True) is False)
+                if is_mandatory or isinstance(p, DataParam) or isinstance(p, SelectParam):
+                    val_str = get_dummy_value(p, t_name, all_params=g_inputs)
+                    is_ext = str(val_str).startswith("http")
+                    clean_val = val_str.split('/')[-1] if is_ext else val_str
+                    attrs = {"name": p.name, "value": clean_val}
+                    if isinstance(p, DataParam):
+                        attrs["ftype"] = p.format.split(',')[0]
+                        if is_ext: attrs["location"] = val_str
+                    ET.SubElement(fallback_test, "param", attrs)
             
+            # Outputs
             if g_outputs:
                 if len(g_outputs) > 1 or any(info.get('type') == 'BASE_FILENAME' for info in g_outputs.values()):
                     ET.SubElement(fallback_test, "output_collection", {"name": "tool_outputs", "type": "list"})
                 else:
                     out_n = sanitize_name(f"output_{t_name}")
                     out_tag = ET.SubElement(fallback_test, "output", {"name": out_n})
-                    ac = ET.SubElement(out_tag, "assert_contents")
-                    ET.SubElement(ac, "has_size", {"min": "1"})
+                    ET.SubElement(ET.SubElement(out_tag, "assert_contents"), "has_size", {"min": "1"})
+
             else:
                 out_tag = ET.SubElement(fallback_test, "output", {"name": "stdout_log"})
                 ac = ET.SubElement(out_tag, "assert_contents")

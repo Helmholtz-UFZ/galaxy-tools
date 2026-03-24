@@ -11,11 +11,11 @@
 ln -sf '$input' '$input.element_identifier';
 pvtu2vtu
     --input '$input.element_identifier'
-     --original_mesh '$original_mesh'
+    --original_mesh '$original_mesh'
     --output output_1.vtu
 ]]></command>
   <inputs>
-    <param name="input" type="data" optional="false" label="input" help="Input (.pvtu). The partitioned input mesh file" format="vtkxml" multiple="false" />
+    <param name="input" type="data" optional="false" label="input" help="Input (.pvtu). The partitioned input mesh file" format="vtkxml" />
     <param name="original_mesh" type="text" optional="true" label="original mesh" help="optional, the original unpartitioned input mesh (*.vtu)" />
   </inputs>
   <outputs>

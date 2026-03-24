@@ -10,13 +10,13 @@
   <command><![CDATA[
 ln -sf '$input_mesh_file' '$input_mesh_file.element_identifier';
 reviseMesh
-     --min-ele-dim '$min_ele_dim'
+    --min-ele-dim '$min_ele_dim'
     --input-mesh-file '$input_mesh_file.element_identifier'
     --output-mesh-file output_1.vtu
 ]]></command>
   <inputs>
     <param name="min_ele_dim" type="text" optional="true" label="min ele dim" help="Minimum dimension of elements to be inserted into new mesh" />
-    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu) mesh file" format="vtkxml" multiple="false" />
+    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu) mesh file" format="vtkxml" />
   </inputs>
   <outputs>
     <data name="output_reviseMesh" format="vtkxml" label="Output from reviseMesh" from_work_dir="output_1.vtu" hidden="false" />

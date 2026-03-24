@@ -11,13 +11,13 @@
 ln -sf '$mesh' '$mesh.element_identifier';
 MoveMesh
     --mesh '$mesh.element_identifier'
-     --x '$x'
-     --y '$y'
-     --z '$z'
+    --x '$x'
+    --y '$y'
+    --z '$z'
     --output-mesh output_1.vtu
 ]]></command>
   <inputs>
-    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu) mesh file" format="vtkxml" multiple="false" />
+    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu) mesh file" format="vtkxml" />
     <param name="x" type="float" optional="true" label="x" help="displacement in x direction" />
     <param name="y" type="float" optional="true" label="y" help="displacement in y direction" />
     <param name="z" type="float" optional="true" label="z" help="displacement in z direction" />

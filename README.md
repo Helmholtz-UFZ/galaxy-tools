@@ -5,7 +5,8 @@
 
 # Galaxy UFZ - Tool Wrappers Collection
 
-<img align="right" width="150" height="150" alt="UFZ-logo" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.ufz.de%2Fexport%2Fdata%2F2%2F268651_UFZ_Logo_Kurzversion_300px.jpg&f=1&nofb=1&ipt=d12393e7d6c409b3822df2b74525d62cbf94670283f920146fb5b58ec506ac79" />
+<img align="top" width="755" height="220" alt="UFZ-logo" src="./images/UFZ-logo.jpg" />
+
 
 This repository contains tools mantained within the UFZ and that can be installed and used inside any Galaxy instance. 
 

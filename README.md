@@ -5,7 +5,7 @@
 
 # Galaxy UFZ - Tool Wrappers Collection
 
-<img align="right" width="150" height="150" alt="ELIXIR" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.ufz.de%2Fexport%2Fdata%2F2%2F268651_UFZ_Logo_Kurzversion_300px.jpg&f=1&nofb=1&ipt=d12393e7d6c409b3822df2b74525d62cbf94670283f920146fb5b58ec506ac79" />
+<img align="right" width="150" height="150" alt="UFZ-logo" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.ufz.de%2Fexport%2Fdata%2F2%2F268651_UFZ_Logo_Kurzversion_300px.jpg&f=1&nofb=1&ipt=d12393e7d6c409b3822df2b74525d62cbf94670283f920146fb5b58ec506ac79" />
 
 This repository contains tools mantained within the UFZ and that can be installed and used inside any Galaxy instance. 
 
@@ -13,6 +13,12 @@ This repository contains tools mantained within the UFZ and that can be installe
 
 
 ## List of Tools
+
+### Time series data
+
+Tools to analyze time-series data for environmental sensor data
+
+- [**SAQC**](https://usegalaxy.eu/root?tool_id=toolshed.g2.bx.psu.edu/repos/ufz/saqc/saqc/2.6.0+galaxy0) with saqc
 
 ### OMERO-suite
 
@@ -26,6 +32,13 @@ A set of tools to import image and metadata in OMERO using Galaxy
 - [**OMERO Metadata Import**](https://usegalaxy.eu/root?tool_id=toolshed.g2.bx.psu.edu/repos/ufz/omero_metadata_import/omero_metadata_import/5.21.2+galaxy1) with ezomero
 - [**OMERO Dataset to Plate**](https://usegalaxy.eu/root?tool_id=toolshed.g2.bx.psu.edu/repos/ufz/omero_dataset_to_plate/omero_dataset_to_plate/5.21.2+galaxy4) with ezomero
 
+### Chemoinformatics
+
+Tools to molecular structures of chemicals with multiple targets.
+
+- [**deepFPlearn train**](https://toolshed.g2.bx.psu.edu/repositories/5b85c6d3751502a1) with deepFPlearn
+- [**deepFPlearn predict**](https://toolshed.g2.bx.psu.edu/repositories/e393abc15e430eff) with deepFPlearn
+
 ### Toxicology and Ecotoxicology
 Toxicity prediction and dose response curves
 - [**QSAR Baseline Calculator**](https://toolshed.g2.bx.psu.edu/repositories/0ad301feb4e0e566) with pandas
@@ -35,6 +48,12 @@ Toxicity prediction and dose response curves
 Tools for data conversion and data wrangling
 - [**Excel to Tabular**](https://usegalaxy.eu/root?tool_id=toolshed.g2.bx.psu.edu/repos/ufz/xlsx2tsv/xlsx2tsv/0.2.0+galaxy0) with pandas
 
-### Related work
+### Related Matherial
+#### OMERO
 - [Galaxy Training Matherial for the OMERO-suite](https://training.galaxyproject.org/training-material/topics/imaging/tutorials/omero-suite/tutorial.html)
 - [OMERO-suite Poster Publication on Zenodo](https://zenodo.org/records/14975462/files/2025_AHM_Galaxy_OMERO-1.pdf)
+#### Time Series Anaylsis
+- [SaQC publication](https://www.sciencedirect.com/science/article/pii/S1364815223001950?via%3Dihub)
+- [SaQC software](https://helmholtz.software/software/saqc)
+#### Chemoinformatics
+- [deepFPlearn repo](https://github.com/yigbt/deepFPlearn)

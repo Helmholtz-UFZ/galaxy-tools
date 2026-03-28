@@ -127,7 +127,6 @@
             <param name="license" value="true"/>
             <param name="INPUT" value="GCF_009025895.1_ASM902589v1_genomic.fna" ftype="fasta"/>
             <param name="DATABASE" value="1.9"/>
-            <section name="annotation">
             <param name="splits" value="8"/><!-- needed for low mem CI-->
             <output name="summary_plasmid_fna">
                 <assert_contents>

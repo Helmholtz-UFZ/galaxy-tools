@@ -1,7 +1,7 @@
 <tool id="genomad_end_to_end" name="geNomad" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0" license="MIT">
     <description>identify virus and plasmid genomes from nucleotide sequences</description>
     <macros>
-        <token name="@TOOL_VERSION@">1.11.1</token>
+        <token name="@TOOL_VERSION@">1.11.2</token>
         <token name="@VERSION_SUFFIX@">0</token>
         <token name="@DB_VERSION@">1.9</token>  <!-- https://portal.nersc.gov/genomad/__data__/releases.txt -->
         <xml name="summary_output_macro" tokens="type">
@@ -50,7 +50,11 @@
             $annotation.lenient_taxonomy
             $annotation.full_ictv_lineage
             --sensitivity $annotation.sensitivity
-            --splits $annotation.splits
+            ## should not be a user parameter since it controls memory
+            ## only used for testing
+            #if $splits != ''
+                --splits $splits
+            #end if
             $provirus.skip_integrase_identification
             $provirus.skip_trna_identification
             --composition $score.composition
@@ -99,7 +103,6 @@
             <param argument="--lenient-taxonomy" type="boolean" truevalue="--lenient-taxonomy" falsevalue="" checked="false" label="Allow classification of virus genomes to taxa below the family rank" help="That is, subfamily, genus, subgenus, and species. The subfamily and subgenus ranks are only shown if --full-ictv-lineage is also used" />
             <param argument="--full-ictv-lineage" type="boolean" truevalue="--full-ictv-lineage" falsevalue="" checked="false" label="Output the full ICTV lineage of each virus genome" help=" including ranks that are hidden by default (subrealm, subkingdom, subphylum, subclass, suborder, subfamily, and, subgenus). The subfamily and subgenus ranks are only shown if --lenient-taxonomy is also used." />
             <param argument="--sensitivity" type="float" min="0" value="4.2" label="MMseqs2 marker search sensitivity" help="Higher values will annotate more proteins, but the search will be slower and consume more memory" />
-            <param argument="--splits" type="integer" min="0" value="0" label="Split the data for the MMseqs2 search." help="Higher values will reduce memory usage, but will make the search slower. If the MMseqs2 search is failing, try to increase the number of splits. Consult you Galaxy admin if more memory may be used" />
         </section>
         <section name="provirus" title="find-proviruses options" expanded="true">
             <param argument="--skip-integrase-identification" type="boolean" truevalue="--skip-integrase-identification" falsevalue="" checked="false" label="Disable provirus boundary extension using nearby integrases" />
@@ -113,6 +116,7 @@
             </param>
             <param argument="--force-auto" type="boolean" truevalue="--force-auto" falsevalue="" checked="false" label="Force automatic composition estimation" help="regardless of the sample size" />
         </section>
+        <param name="splits" type="hidden"/>
     </inputs>
     <outputs>
         <expand macro="summary_output_macro" type="plasmid"/>
@@ -124,8 +128,7 @@
             <param name="INPUT" value="GCF_009025895.1_ASM902589v1_genomic.fna" ftype="fasta"/>
             <param name="DATABASE" value="1.9"/>
             <section name="annotation">
-                <param name="splits" value="8"/><!-- needed for low mem CI-->
-            </section>
+            <param name="splits" value="8"/><!-- needed for low mem CI-->
             <output name="summary_plasmid_fna">
                 <assert_contents>
                     <has_line_matching expression="^>.*" n="6"/>

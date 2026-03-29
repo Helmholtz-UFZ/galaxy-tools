@@ -16,10 +16,13 @@ def translateColumn(inputData: str, index: int) -> str:
     try:
         with open(inputData, "r") as f:
             columns = f.readline()
-            array = np.array(columns.strip().split(','))
+            array = np.array(columns.strip().split(","))
             return array[index]
     except Exception as e:
-        print(f"Could not open dataset '{inputData}' to read header. Error: {e}", file=sys.stderr)
+        print(
+            f"Could not open dataset '{inputData}' to read header. Error: {e}",
+            file=sys.stderr,
+        )
         raise
 
 
@@ -35,14 +38,18 @@ def load_inputs() -> Tuple[Dict[str, Any], str]:
         with open(infile) as fh:
             params_from_galaxy = json.load(fh)
     except Exception as e:
-        sys.stderr.write(f"Error opening or reading JSON file {infile}: {type(e).__name__} - {e}\n")
+        sys.stderr.write(
+            f"Error opening or reading JSON file {infile}: {type(e).__name__} - {e}\n"
+        )
         sys.exit(1)
 
     primary_input_file = None
     try:
         primary_input_file = sys.argv[2]
     except IndexError:
-        sys.stderr.write("FATAL: No second argument handed to the script (data path).\n")
+        sys.stderr.write(
+            "FATAL: No second argument handed to the script (data path).\n"
+        )
         sys.exit(2)
 
     if not primary_input_file:
@@ -52,7 +59,9 @@ def load_inputs() -> Tuple[Dict[str, Any], str]:
     return params_from_galaxy, primary_input_file
 
 
-def process_main_column(params_to_process: Dict[str, Any], primary_input_file: str, method_name: str) -> Tuple[str, Dict[str, Any]]:
+def process_main_column(
+    params_to_process: Dict[str, Any], primary_input_file: str, method_name: str
+) -> Tuple[str, Dict[str, Any]]:
     """
     Finds, translates, and removes the main column ('field' or 'target').
 
@@ -87,17 +96,21 @@ def process_main_column(params_to_process: Dict[str, Any], primary_input_file: s
                 index_int = int(index_str)
                 name = translateColumn(primary_input_file, index_int)
                 column_names.append(name)
-            field_str = ','.join(column_names)
+            field_str = ",".join(column_names)
 
         except Exception as e:
-            sys.stderr.write(f"FATAL: translateColumn failed for MAIN column of method '{method_name}' with index '{raw_field_val}'. Error: {e}\n")
+            sys.stderr.write(
+                f"FATAL: translateColumn failed for MAIN column of method '{method_name}' with index '{raw_field_val}'. Error: {e}\n"
+            )
             traceback.print_exc(file=sys.stderr)
             field_str = f"ERROR_CONVERSION_FAILED_{raw_field_val}"
 
     return field_str, params_to_process
 
 
-def process_parameters(params_to_process: Dict[str, Any], primary_input_file: str) -> Dict[str, Any]:
+def process_parameters(
+    params_to_process: Dict[str, Any], primary_input_file: str
+) -> Dict[str, Any]:
     """
     Processes remaining params: resolves conditionals, translates secondary
     columns (like 'target' or '*field*'), and handles 'None' values.
@@ -124,11 +137,19 @@ def process_parameters(params_to_process: Dict[str, Any], primary_input_file: st
                 if f"{actual_param_name_for_saqc}_start" in inner_params:
                     start = inner_params.get(f"{actual_param_name_for_saqc}_start")
                     end = inner_params.get(f"{actual_param_name_for_saqc}_end")
-                    current_value_for_saqc = f"slice({start}, {end})" if start is not None or end is not None else None
+                    current_value_for_saqc = (
+                        f"slice({start}, {end})"
+                        if start is not None or end is not None
+                        else None
+                    )
                 elif f"{actual_param_name_for_saqc}_min" in inner_params:
                     min_val = inner_params.get(f"{actual_param_name_for_saqc}_min")
                     max_val = inner_params.get(f"{actual_param_name_for_saqc}_max")
-                    current_value_for_saqc = f"({min_val}, {max_val})" if min_val is not None or max_val is not None else None
+                    current_value_for_saqc = (
+                        f"({min_val}, {max_val})"
+                        if min_val is not None or max_val is not None
+                        else None
+                    )
                 else:
                     current_value_for_saqc = None
 
@@ -139,11 +160,26 @@ def process_parameters(params_to_process: Dict[str, Any], primary_input_file: st
         # Handle 'None' values
         if current_value_for_saqc == "__none__":
             saqc_args_dict[actual_param_name_for_saqc] = None
-        elif isinstance(current_value_for_saqc, str) and current_value_for_saqc == "" and actual_param_name_for_saqc in ["xscope", "yscope", "max_gap", "min_periods", "min_residuals", "min_offset"]:
+        elif (
+            isinstance(current_value_for_saqc, str)
+            and current_value_for_saqc == ""
+            and actual_param_name_for_saqc
+            in [
+                "xscope",
+                "yscope",
+                "max_gap",
+                "min_periods",
+                "min_residuals",
+                "min_offset",
+            ]
+        ):
             saqc_args_dict[actual_param_name_for_saqc] = None
 
         # Translate secondary column params
-        elif "field" in actual_param_name_for_saqc.lower() or actual_param_name_for_saqc in ["target", "reference"]:
+        elif (
+            "field" in actual_param_name_for_saqc.lower()
+            or actual_param_name_for_saqc in ["target", "reference"]
+        ):
             try:
                 indices_from_galaxy = []
                 if isinstance(current_value_for_saqc, list):
@@ -163,9 +199,13 @@ def process_parameters(params_to_process: Dict[str, Any], primary_input_file: st
                     saqc_args_dict[actual_param_name_for_saqc] = column_names[0]
 
             except Exception as e:
-                sys.stderr.write(f"FATAL: translateColumn failed for PARAMETER '{actual_param_name_for_saqc}' with index '{current_value_for_saqc}'. Error: {e}\n")
+                sys.stderr.write(
+                    f"FATAL: translateColumn failed for PARAMETER '{actual_param_name_for_saqc}' with index '{current_value_for_saqc}'. Error: {e}\n"
+                )
                 traceback.print_exc(file=sys.stderr)
-                saqc_args_dict[actual_param_name_for_saqc] = f"ERROR_CONVERSION_FAILED_{current_value_for_saqc}"
+                saqc_args_dict[actual_param_name_for_saqc] = (
+                    f"ERROR_CONVERSION_FAILED_{current_value_for_saqc}"
+                )
 
         # Add normal parameter
         else:
@@ -197,9 +237,9 @@ def format_saqc_value(v_saqc_raw: Any, k_saqc: str) -> Optional[str]:
         v_str_repr = "True" if v_saqc_raw else "False"
 
     elif isinstance(v_saqc_raw, (float, int)):
-        if v_saqc_raw == float('inf'):
+        if v_saqc_raw == float("inf"):
             v_str_repr = "float('inf')"
-        elif v_saqc_raw == float('-inf'):
+        elif v_saqc_raw == float("-inf"):
             v_str_repr = "float('-inf')"
         elif isinstance(v_saqc_raw, float) and math.isnan(v_saqc_raw):
             v_str_repr = "float('nan')"
@@ -216,10 +256,10 @@ def format_saqc_value(v_saqc_raw: Any, k_saqc: str) -> Optional[str]:
             v_str_repr = "float('nan')"
         elif "func" in k_saqc.lower():
             v_str_repr = v_saqc_raw
-        elif v_saqc_raw.startswith(('slice(', '(', '[', "'", '"')):
+        elif v_saqc_raw.startswith(("slice(", "(", "[", "'", '"')):
             v_str_repr = v_saqc_raw
         else:
-            escaped_v = v_saqc_raw.replace('\\', '\\\\').replace('"', '\\"')
+            escaped_v = v_saqc_raw.replace("\\", "\\\\").replace('"', '\\"')
             v_str_repr = f'"{escaped_v}"'
 
     elif isinstance(v_saqc_raw, list):
@@ -236,7 +276,7 @@ def format_saqc_value(v_saqc_raw: Any, k_saqc: str) -> Optional[str]:
                     if isinstance(val, str):
                         if val.startswith("'") and val.endswith("'"):
                             return val
-                        if val.lower() in ['np.mean', 'np.min', 'np.max', 'np.std']:
+                        if val.lower() in ["np.mean", "np.min", "np.max", "np.std"]:
                             return val
                         return f'"{val}"'
                     if isinstance(val, (int, float)):
@@ -246,7 +286,7 @@ def format_saqc_value(v_saqc_raw: Any, k_saqc: str) -> Optional[str]:
                 v_str_repr = f"[{format_tuple_val(pos0_val_raw)}, {format_tuple_val(pos1_val_raw)}]"
 
             # Galaxy dict repeat
-            elif 'key' in inner_dict:
+            elif "key" in inner_dict:
                 dict_items = [f'"{i["key"]}": "{i["value"]}"' for i in v_saqc_raw]
                 v_str_repr = f"{{{', '.join(dict_items)}}}"
 
@@ -263,7 +303,9 @@ def format_saqc_value(v_saqc_raw: Any, k_saqc: str) -> Optional[str]:
             v_str_repr = f"[{', '.join(formatted_list_items)}]"
 
     else:
-        sys.stderr.write(f"Warning: Param '{k_saqc}' has unhandled type {type(v_saqc_raw)}. Converting to string representation: '{str(v_saqc_raw)}'.\n")
+        sys.stderr.write(
+            f"Warning: Param '{k_saqc}' has unhandled type {type(v_saqc_raw)}. Converting to string representation: '{str(v_saqc_raw)}'.\n"
+        )
         v_str_repr = repr(v_saqc_raw)
 
     return v_str_repr
@@ -288,9 +330,13 @@ def main():
 
         try:
             # Extract method and parameters
-            method_cond_params = r_method_set.get("module_cond", {}).get("method_cond", {})
+            method_cond_params = r_method_set.get("module_cond", {}).get(
+                "method_cond", {}
+            )
             if not method_cond_params:
-                sys.stderr.write(f"Warning: Skipping a methods_repeat entry due to missing/empty method_cond: {r_method_set}\n")
+                sys.stderr.write(
+                    f"Warning: Skipping a methods_repeat entry due to missing/empty method_cond: {r_method_set}\n"
+                )
                 continue
 
             params_to_process = method_cond_params.copy()
@@ -298,7 +344,9 @@ def main():
             method_str_for_error = method
 
             # Process the main column
-            field_str, params_to_process = process_main_column(params_to_process, primary_input_file, method)
+            field_str, params_to_process = process_main_column(
+                params_to_process, primary_input_file, method
+            )
             field_str_for_error = field_str
 
             # Process remaining parameters (incl. secondary columns)
@@ -312,13 +360,23 @@ def main():
                     param_strings_for_saqc_call.append(f"{k_saqc}={v_str_repr}")
 
             # Print final config line
-            print(f"{field_str}; {method}({', '.join(param_strings_for_saqc_call)})", flush=True)
+            print(
+                f"{field_str}; {method}({', '.join(param_strings_for_saqc_call)})",
+                flush=True,
+            )
 
         except Exception as e:
-            sys.stderr.write(f"FATAL Error processing a method entry in json_to_saqc_config.py: {type(e).__name__}\n")
-            sys.stderr.write(f"Method context: {method_str_for_error}, Field context: {field_str_for_error}\n")
+            sys.stderr.write(
+                f"FATAL Error processing a method entry in json_to_saqc_config.py: {type(e).__name__}\n"
+            )
+            sys.stderr.write(
+                f"Method context: {method_str_for_error}, Field context: {field_str_for_error}\n"
+            )
             traceback.print_exc(file=sys.stderr)
-            print(f"{field_str_for_error}; ERROR_PROCESSING_METHOD({method_str_for_error})", flush=True)
+            print(
+                f"{field_str_for_error}; ERROR_PROCESSING_METHOD({method_str_for_error})",
+                flush=True,
+            )
             continue
 
 

@@ -50,7 +50,7 @@ TRACING_DATA = []
 
 HARDCODED_PARAMETERS = {
     # https://git.ufz.de/rdm-software/saqc/-/issues/511
-    'saqc.funcs.tools|plot|path': ("OutputPath", ["OutputPath"], False),
+    "saqc.funcs.tools|plot|path": ("OutputPath", ["OutputPath"], False),
 }
 
 
@@ -73,11 +73,14 @@ def discover_literals(*modules_to_scan) -> Dict[str, Any]:
         if module is None:
             continue
         for attr_name in dir(module):
-            if attr_name.isupper() and not attr_name.startswith('_'):
+            if attr_name.isupper() and not attr_name.startswith("_"):
                 try:
                     literal_obj = getattr(module, attr_name)
                     if get_origin(literal_obj) is Literal:
-                        print(f"Discovered Literal '{attr_name}' in module '{module.__name__}'", file=sys.stderr)
+                        print(
+                            f"Discovered Literal '{attr_name}' in module '{module.__name__}'",
+                            file=sys.stderr,
+                        )
                         discovered_literals[attr_name] = literal_obj
                 except Exception:
                     continue
@@ -93,15 +96,15 @@ def clean_annotation_string(s: str) -> str:
 
     all_literals = "|".join(SAQC_CUSTOM_SELECT_TYPES.keys())
     if all_literals:
-        s = re.sub(fr'\b({all_literals})\b', "str", s)
+        s = re.sub(rf"\b({all_literals})\b", "str", s)
 
-    s = re.sub(r'\b(FreqStr|OffsetStr)\b', "str", s)
+    s = re.sub(r"\b(FreqStr|OffsetStr)\b", "str", s)
     s = s.replace("GenericFunction", "Callable")
     s = s.replace("ArrayLike", "list")
-    s = re.sub(r'\bInt\s*(?:\[.*?\]|[><=]\s*\d+)?', 'int', s)
-    s = re.sub(r'\bFloat\s*(?:\[.*?\]|[><=]\s*\d*\.?\d+)?', 'float', s)
-    s = s.replace('(', '').replace(')', '')
-    s = re.sub(r'\s*\|\s*', ' | ', s).strip()
+    s = re.sub(r"\bInt\s*(?:\[.*?\]|[><=]\s*\d+)?", "int", s)
+    s = re.sub(r"\bFloat\s*(?:\[.*?\]|[><=]\s*\d*\.?\d+)?", "float", s)
+    s = s.replace("(", "").replace(")", "")
+    s = re.sub(r"\s*\|\s*", " | ", s).strip()
 
     return s
 
@@ -120,7 +123,7 @@ def _get_doc(doc_str: Optional[str]) -> str:
         .replace(":py:meth:", "")
     )
     doc_str = re.sub(r".. doctest:: (\w+).*", r"\1::", doc_str)
-    doc_str = re.sub(r".. doctest::$", "Example::", doc_str, flags= re.MULTILINE)
+    doc_str = re.sub(r".. doctest::$", "Example::", doc_str, flags=re.MULTILINE)
 
     doc_str_lines = doc_str.splitlines()
     if len(doc_str_lines) > 0:
@@ -161,7 +164,7 @@ def parse_docstring(method: Callable) -> Dict[str, str]:
             i == 0 and not first_section_processed_by_title and match.start() == 0
         ):
             if title_key or "" not in sections or (i == 0 and match.start() == 0):
-                sections[title_key] = docstring[end: match.start()].strip()
+                sections[title_key] = docstring[end : match.start()].strip()
 
         title_key = match.group("title").strip()
         end = match.end()
@@ -251,9 +254,7 @@ def parse_parameter_docs(sections: Dict[str, str]) -> Dict[str, str]:
 
 
 def _get_options_text_from_param_docs(
-        param_name: str,
-        options_list: list[str],
-        param_docs: dict[str, str]
+    param_name: str, options_list: list[str], param_docs: dict[str, str]
 ) -> dict[str, str]:
     """
     parse desriptions of literals. needs to be
@@ -291,11 +292,7 @@ def get_label_help(param_name: str, parameter_docs: str) -> Tuple[str, str]:
     if not doc_string:
         return param_name, ""
 
-    clean_doc = (
-        doc_string.replace(":py:attr:", "")
-        .replace(":py:class:", "")
-        .strip()
-    )
+    clean_doc = doc_string.replace(":py:attr:", "").replace(":py:class:", "").strip()
 
     # remove type annotations from first line of parameter docs
     # TODO can be removed in 2.8 https://git.ufz.de/rdm-software/saqc/-/merge_requests/891
@@ -307,20 +304,24 @@ def get_label_help(param_name: str, parameter_docs: str) -> Tuple[str, str]:
         clean_doc = "\n".join(clean_doc)
 
     # https://git.ufz.de/rdm-software/saqc/-/issues/518
-    clean_doc = re.sub(r'pd\.([a-zA-Z0-9_.]+)', r'pandas.\1', clean_doc, flags=re.IGNORECASE)
-    clean_doc = re.sub(r'np\.([a-zA-Z0-9_.]+)', r'numpy.\1', clean_doc, flags=re.IGNORECASE)
+    clean_doc = re.sub(
+        r"pd\.([a-zA-Z0-9_.]+)", r"pandas.\1", clean_doc, flags=re.IGNORECASE
+    )
+    clean_doc = re.sub(
+        r"np\.([a-zA-Z0-9_.]+)", r"numpy.\1", clean_doc, flags=re.IGNORECASE
+    )
 
     # can be removed in >2.7.0
-    clean_doc = re.sub(r'^[:]+\s*', '', clean_doc).strip()
+    clean_doc = re.sub(r"^[:]+\s*", "", clean_doc).strip()
 
     if not clean_doc:
         return param_name, ""
 
-    paragraphs = re.split(r'\n\s*\n', clean_doc, maxsplit=1)
+    paragraphs = re.split(r"\n\s*\n", clean_doc, maxsplit=1)
     first_paragraph = paragraphs[0].replace("\n", " ").strip()
     rest_of_paragraphs = paragraphs[1].strip() if len(paragraphs) > 1 else ""
 
-    sentence_split = re.split(r'(\.\s+)', first_paragraph, maxsplit=1)
+    sentence_split = re.split(r"(\.\s+)", first_paragraph, maxsplit=1)
 
     is_single_sentence = len(sentence_split) == 1
     is_single_paragraph = not rest_of_paragraphs
@@ -329,7 +330,7 @@ def get_label_help(param_name: str, parameter_docs: str) -> Tuple[str, str]:
     help_text = ""
 
     if is_single_sentence and is_single_paragraph and is_long:
-        parts = first_paragraph.split(',')
+        parts = first_paragraph.split(",")
         if len(parts) > 2:
             label = parts[0] + "," + parts[1]
             help_text = ",".join(parts[2:]).strip()
@@ -353,7 +354,7 @@ def get_label_help(param_name: str, parameter_docs: str) -> Tuple[str, str]:
             help_text = rest_of_paragraphs
 
     help_text = help_text.replace("\n", " ").strip()
-    help_text = re.sub(r'^[,\.:;-]+\s*', '', help_text).strip()
+    help_text = re.sub(r"^[,\.:;-]+\s*", "", help_text).strip()
     help_text = help_text.rstrip(".")
     label = label.strip(" .")
 
@@ -379,9 +380,7 @@ def get_methods(module):
                 if isinstance(self_param.annotation, str):
                     annotation_str = self_param.annotation.strip("'")
                 elif isinstance(self_param.annotation, ForwardRef):
-                    annotation_str = self_param.annotation.__forward_arg__.strip(
-                        "'"
-                    )
+                    annotation_str = self_param.annotation.__forward_arg__.strip("'")
                 elif hasattr(self_param.annotation, "__name__"):
                     annotation_str = self_param.annotation.__name__
 
@@ -395,12 +394,12 @@ def _split_type_string_safely(type_string: str) -> list[str]:
     current_part = ""
     bracket_level = 0
     for char in type_string:
-        if char in ('[', '('):
+        if char in ("[", "("):
             bracket_level += 1
-        elif char in (']', ')'):
+        elif char in ("]", ")"):
             bracket_level -= 1
 
-        if char in ('|', ',') and bracket_level == 0:
+        if char in ("|", ",") and bracket_level == 0:
             if current_part.strip():
                 parts.append(current_part.strip())
             current_part = ""
@@ -445,35 +444,47 @@ def check_method_for_skip_condition(method: Callable, module: "ModuleType") -> b
         annotation = param.annotation
         raw_annotation_str = ""
         if isinstance(annotation, (str, ForwardRef)):
-            raw_annotation_str = annotation.__forward_arg__ if isinstance(annotation, ForwardRef) else str(annotation)
+            raw_annotation_str = (
+                annotation.__forward_arg__
+                if isinstance(annotation, ForwardRef)
+                else str(annotation)
+            )
         elif annotation is not inspect.Parameter.empty:
             raw_annotation_str = str(annotation).replace("typing.", "")
 
         is_func_name = "func" in param_name.lower()
-        is_func_type = any(t in raw_annotation_str for t in ["Callable", "GenericFunction", "CurveFitter"])
+        is_func_type = any(
+            t in raw_annotation_str
+            for t in ["Callable", "GenericFunction", "CurveFitter"]
+        )
 
         if not (is_func_name or is_func_type):
             continue
 
-        is_literal_type = "Literal[" in raw_annotation_str or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
+        is_literal_type = (
+            "Literal[" in raw_annotation_str
+            or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
+        )
         if is_literal_type:
             continue
 
-        if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
+        if raw_annotation_str.startswith("Union[") and raw_annotation_str.endswith("]"):
             inner_content = raw_annotation_str[6:-1]
             type_parts = _split_type_string_safely(inner_content)
         else:
             type_parts = _split_type_string_safely(raw_annotation_str)
 
-        is_python_optional_by_default = (param.default is not inspect.Parameter.empty)
-        is_optional_by_none = 'None' in type_parts
+        is_python_optional_by_default = param.default is not inspect.Parameter.empty
+        is_optional_by_none = "None" in type_parts
 
         is_truly_optional = is_python_optional_by_default or is_optional_by_none
 
         if is_truly_optional:
             continue
 
-        sys.stderr.write(f"Info ({module.__name__}): Skipping method '{method.__name__}' from XML. Reason: Contains MANDATORY function-parameter '{param_name}' (Type: {raw_annotation_str}) which cannot be mapped to Galaxy UI.\n")
+        sys.stderr.write(
+            f"Info ({module.__name__}): Skipping method '{method.__name__}' from XML. Reason: Contains MANDATORY function-parameter '{param_name}' (Type: {raw_annotation_str}) which cannot be mapped to Galaxy UI.\n"
+        )
         return True
 
     return False
@@ -506,7 +517,7 @@ def is_method_deprecated(method: Callable) -> bool:
 
 def is_parameter_deprecated(param_docs: Dict[str, str], param_name: str) -> bool:
     param_doc_entry = param_docs.get(param_name, "")
-    param_doc_lines = param_doc_entry.split('\n')
+    param_doc_lines = param_doc_entry.split("\n")
 
     first_line = param_doc_lines[0].lower().strip() if param_doc_lines else ""
     is_deprecated = "deprecated" in first_line
@@ -515,23 +526,35 @@ def is_parameter_deprecated(param_docs: Dict[str, str], param_name: str) -> bool
     return is_deprecated
 
 
-def _create_param_from_type_str(type_str: str, param_name: str, param_constructor_args: dict, is_optional: bool, param_docs: dict[str, str]) -> "InputParameter":
+def _create_param_from_type_str(
+    type_str: str,
+    param_name: str,
+    param_constructor_args: dict,
+    is_optional: bool,
+    param_docs: dict[str, str],
+) -> "InputParameter":
 
     pattern_offset = r"\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*"
 
     regex_offset_full = f"(^$)|({pattern_offset})"
     msg_offset = "Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."
-    validator_offset = ValidatorParam(type="regex", message=msg_offset, text=regex_offset_full)
+    validator_offset = ValidatorParam(
+        type="regex", message=msg_offset, text=regex_offset_full
+    )
 
     pattern_timedelta = r"-?(\d+(\.\d*)?|\.\d+)\s*(W|D|days?|d|H|hours?|hr|h|T|minutes?|min|m|S|seconds?|sec|s|L|milliseconds?|ms|U|microseconds?|us|N|nanoseconds?|ns)\s*"
 
     regex_timedelta_full = f"(^$)|(^{pattern_timedelta}$)"
     msg_timedelta = "Must be a valid Pandas Timedelta string (e.g., '1d', '2.5h', '30min'). Month (M) or Year (Y) are NOT allowed."
-    validator_timedelta = ValidatorParam(type="regex", message=msg_timedelta, text=regex_timedelta_full)
+    validator_timedelta = ValidatorParam(
+        type="regex", message=msg_timedelta, text=regex_timedelta_full
+    )
 
     regex_combined = f"(^$)|({pattern_offset})|(^{pattern_timedelta}$)"
     msg_combined = "Accepts both Pandas Frequencies (e.g. '1M', 'W-SAT') AND Timedeltas (e.g. '3 days', '1.5h')."
-    validator_combined = ValidatorParam(type="regex", message=msg_combined, text=regex_combined)
+    validator_combined = ValidatorParam(
+        type="regex", message=msg_combined, text=regex_combined
+    )
 
     param_object = None
     base_type_str = type_str.strip()
@@ -539,32 +562,61 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
     creation_args = param_constructor_args.copy()
     base_help = creation_args.get("help", "")
 
-    text_types = ('list', 'sequence', 'arraylike', 'pd.series', 'pd.dataframe', 'pd.datetimeindex',
-                  'str', 'string', 'any')
+    text_types = (
+        "list",
+        "sequence",
+        "arraylike",
+        "pd.series",
+        "pd.dataframe",
+        "pd.datetimeindex",
+        "str",
+        "string",
+        "any",
+    )
 
     is_text_type = base_type_str.lower() in text_types
-    is_list_str = re.fullmatch(r"(list|Sequence)\[\s*str\s*\]", base_type_str, re.IGNORECASE)
+    is_list_str = re.fullmatch(
+        r"(list|Sequence)\[\s*str\s*\]", base_type_str, re.IGNORECASE
+    )
 
     if is_text_type or is_list_str:
         creation_args.pop("optional", None)
 
-    tuple_match = re.fullmatch(r"tuple(?:\[\s*(.*)\s*\])?", base_type_str, re.IGNORECASE)
+    tuple_match = re.fullmatch(
+        r"tuple(?:\[\s*(.*)\s*\])?", base_type_str, re.IGNORECASE
+    )
     if tuple_match:
         inner_types_str = tuple_match.group(1) or ""
         inner_types_str = inner_types_str.replace("...", "").strip()
         inner_types_list = _split_type_string_safely(inner_types_str)
         type_0 = inner_types_list[0] if len(inner_types_list) >= 1 else "str"
-        type_1 = inner_types_list[1] if len(inner_types_list) >= 2 else (inner_types_list[0] if len(inner_types_list) == 1 else "str")
+        type_1 = (
+            inner_types_list[1]
+            if len(inner_types_list) >= 2
+            else (inner_types_list[0] if len(inner_types_list) == 1 else "str")
+        )
 
         title = param_constructor_args.get("label", param_name)
 
         repeat = Repeat(name=param_name, title=title, help=base_help)
 
-        inner_args_0 = {'label': f"{param_name}_pos0", 'help': f"First element (index 0) of the {param_name} tuple.", 'optional': is_optional}
-        param_0 = _create_param_from_type_str(type_0, f"{param_name}_pos0", inner_args_0, is_optional, param_docs)
+        inner_args_0 = {
+            "label": f"{param_name}_pos0",
+            "help": f"First element (index 0) of the {param_name} tuple.",
+            "optional": is_optional,
+        }
+        param_0 = _create_param_from_type_str(
+            type_0, f"{param_name}_pos0", inner_args_0, is_optional, param_docs
+        )
 
-        inner_args_1 = {'label': f"{param_name}_pos1", 'help': f"Second element (index 1) of the {param_name} tuple.", 'optional': is_optional}
-        param_1 = _create_param_from_type_str(type_1, f"{param_name}_pos1", inner_args_1, is_optional, param_docs)
+        inner_args_1 = {
+            "label": f"{param_name}_pos1",
+            "help": f"Second element (index 1) of the {param_name} tuple.",
+            "optional": is_optional,
+        }
+        param_1 = _create_param_from_type_str(
+            type_1, f"{param_name}_pos1", inner_args_1, is_optional, param_docs
+        )
 
         if param_0:
             repeat.append(param_0)
@@ -590,50 +642,73 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
 
     # create a typing string for the custom literal types
     if base_type_str in SAQC_CUSTOM_SELECT_TYPES:
-        base_type_str = str(SAQC_CUSTOM_SELECT_TYPES[base_type_str]).replace("typing.", "")
+        base_type_str = str(SAQC_CUSTOM_SELECT_TYPES[base_type_str]).replace(
+            "typing.", ""
+        )
 
-    if base_type_str in ('SaQCFields', 'NewSaQCFields'):
+    if base_type_str in ("SaQCFields", "NewSaQCFields"):
         creation_args.pop("value", None)
-        creation_args['type'] = "data_column"
-        creation_args['data_ref'] = "data"
-        creation_args['multiple'] = True
+        creation_args["type"] = "data_column"
+        creation_args["data_ref"] = "data"
+        creation_args["multiple"] = True
         param_object = SelectParam(argument=param_name, **creation_args)
 
     elif is_list_str:
         param_object = TextParam(argument=param_name, multiple=True, **creation_args)
 
-    elif re.fullmatch(r"list\[\s*tuple\[\s*float\s*,\s*float\s*\]\s*\]", base_type_str, re.IGNORECASE):
-        repeat = Repeat(name=param_name, title=creation_args.get("label", param_name), help=creation_args.get("help", ""))
+    elif re.fullmatch(
+        r"list\[\s*tuple\[\s*float\s*,\s*float\s*\]\s*\]", base_type_str, re.IGNORECASE
+    ):
+        repeat = Repeat(
+            name=param_name,
+            title=creation_args.get("label", param_name),
+            help=creation_args.get("help", ""),
+        )
         repeat.append(FloatParam(name=f"{param_name}_min", label=f"{param_name}_min"))
         repeat.append(FloatParam(name=f"{param_name}_max", label=f"{param_name}_max"))
         param_object = repeat
 
-    elif base_type_str.lower() in ('list', 'sequence', 'arraylike', 'pd.series', 'pd.dataframe', 'pd.datetimeindex'):
+    elif base_type_str.lower() in (
+        "list",
+        "sequence",
+        "arraylike",
+        "pd.series",
+        "pd.dataframe",
+        "pd.datetimeindex",
+    ):
         param_object = TextParam(argument=param_name, **creation_args)
 
-    elif base_type_str.lower() == 'pd.timedelta':
+    elif base_type_str.lower() == "pd.timedelta":
         specific_help = " Format: Fixed time duration (no calendar logic). Examples: '1d', '2.5h', '30min'. (No 'M' or 'Y')."
         creation_args["help"] = (base_help + specific_help).strip()
         param_object = TextParam(argument=param_name, **creation_args)
         param_object.append(validator_timedelta)
 
-    elif base_type_str.lower() == 'offsetlike' or 'offsetlike' in base_type_str:
+    elif base_type_str.lower() == "offsetlike" or "offsetlike" in base_type_str:
         specific_help = " Format: Time object. Accepts Pandas Frequencies (e.g. '1M', 'W-MON') OR Timedeltas (e.g. '3 days', '1.5h')."
         creation_args["help"] = (base_help + specific_help).strip()
         param_object = TextParam(argument=param_name, **creation_args)
         param_object.append(validator_combined)
 
-    elif base_type_str in ['OffsetStr', 'FreqStr']:
+    elif base_type_str in ["OffsetStr", "FreqStr"]:
         specific_help = " Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon)."
         creation_args["help"] = (base_help + specific_help).strip()
         param_object = TextParam(argument=param_name, **creation_args)
         param_object.append(validator_offset)
 
-    elif base_type_str.lower() in ('dict', 'dictionary'):
-        repeat = Repeat(name=param_name, title=creation_args.get("label", param_name), help=base_help)
-        key_param = TextParam(name="key", label="Key", help="Name of the dictionary key.")
+    elif base_type_str.lower() in ("dict", "dictionary"):
+        repeat = Repeat(
+            name=param_name,
+            title=creation_args.get("label", param_name),
+            help=base_help,
+        )
+        key_param = TextParam(
+            name="key", label="Key", help="Name of the dictionary key."
+        )
         key_param.append(ValidatorParam(type="empty_field"))
-        value_param = TextParam(name="value", label="Value", help="Value for the key (e.g., 'min,max').")
+        value_param = TextParam(
+            name="value", label="Value", help="Value for the key (e.g., 'min,max')."
+        )
         value_param.append(ValidatorParam(type="empty_field"))
         repeat.append(key_param)
         repeat.append(value_param)
@@ -642,20 +717,30 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
     elif re.match(r"Literal\[(.*)\]", base_type_str):
         literal_match = re.match(r"Literal\[(.*)\]", base_type_str)
         options_str = literal_match.group(1)
-        options_list = [opt.strip().strip("'\"") for opt in _split_type_string_safely(options_str)]
-        options_text = _get_options_text_from_param_docs(param_name, options_list, param_docs)
+        options_list = [
+            opt.strip().strip("'\"") for opt in _split_type_string_safely(options_str)
+        ]
+        options_text = _get_options_text_from_param_docs(
+            param_name, options_list, param_docs
+        )
         if options_list:
             creation_args["default"] = creation_args.pop("value", None)
             options = {o: options_text.get(o, o) for o in options_list}
-            param_object = SelectParam(argument=param_name, options=options, **creation_args)
+            param_object = SelectParam(
+                argument=param_name, options=options, **creation_args
+            )
         else:
             raise Exception(f"Could not process {base_type_str}")
 
-    elif (range_match := re.fullmatch(r"(Float|Int)\[\s*([0-9.-]+)\s*,\s*([0-9.-]+)\s*\]", base_type_str, re.IGNORECASE)):
+    elif range_match := re.fullmatch(
+        r"(Float|Int)\[\s*([0-9.-]+)\s*,\s*([0-9.-]+)\s*\]",
+        base_type_str,
+        re.IGNORECASE,
+    ):
         type_name, min_val, max_val = range_match.groups()
-        creation_args['min'] = min_val
-        creation_args['max'] = max_val
-        if type_name.lower() == 'float':
+        creation_args["min"] = min_val
+        creation_args["max"] = max_val
+        if type_name.lower() == "float":
             param_object = FloatParam(argument=param_name, **creation_args)
         else:
             param_object = IntegerParam(argument=param_name, **creation_args)
@@ -665,40 +750,42 @@ def _create_param_from_type_str(type_str: str, param_name: str, param_constructo
         match = pattern.search(base_type_str)
         if match:
             type_name, _, value_str = match.groups()
-            creation_args['min'] = value_str
-            if type_name == 'Int':
+            creation_args["min"] = value_str
+            if type_name == "Int":
                 param_object = IntegerParam(argument=param_name, **creation_args)
             else:
                 param_object = FloatParam(argument=param_name, **creation_args)
 
-    elif base_type_str in ['str', 'string', 'Any']:
+    elif base_type_str in ["str", "string", "Any"]:
         param_object = TextParam(argument=param_name, **creation_args)
 
-    elif base_type_str == 'int':
+    elif base_type_str == "int":
         param_object = IntegerParam(argument=param_name, **creation_args)
-    elif base_type_str == 'float':
+    elif base_type_str == "float":
         param_object = FloatParam(argument=param_name, **creation_args)
-    elif base_type_str == 'bool':
+    elif base_type_str == "bool":
         creation_args.pop("value", None)
         creation_args.pop("multiple", None)
         creation_args.pop("optional", None)
         param_object = BooleanParam(argument=param_name, checked=False, **creation_args)
 
-        if 'truevalue' in param_object.node.attrib:
-            del param_object.node.attrib['truevalue']
-        if 'falsevalue' in param_object.node.attrib:
-            del param_object.node.attrib['falsevalue']
+        if "truevalue" in param_object.node.attrib:
+            del param_object.node.attrib["truevalue"]
+        if "falsevalue" in param_object.node.attrib:
+            del param_object.node.attrib["falsevalue"]
     # hardcoded path parameter of tools.plot
     # https://git.ufz.de/rdm-software/saqc/-/issues/511
-    elif base_type_str == 'OutputPath':
+    elif base_type_str == "OutputPath":
         param_object = TextParam(argument=param_name, **creation_args)
         param_object.append(ValidatorParam(type="regex", text=r"[\w -\.]+"))
 
     if param_object:
-        if isinstance(param_object, TextParam) and not getattr(param_object, 'multiple', False):
-            if hasattr(param_object, 'optional'):
-                if 'optional' in param_object.node.attrib:
-                    del param_object.node.attrib['optional']
+        if isinstance(param_object, TextParam) and not getattr(
+            param_object, "multiple", False
+        ):
+            if hasattr(param_object, "optional"):
+                if "optional" in param_object.node.attrib:
+                    del param_object.node.attrib["optional"]
 
             if not is_optional:
                 param_object.append(ValidatorParam(type="empty_field"))
@@ -720,16 +807,16 @@ def _get_user_friendly_type_name(type_str: str) -> str:
     clean = s.replace("typing.", "").strip()
     lower = clean.lower()
 
-    if 'pd.timedelta' in lower:
+    if "pd.timedelta" in lower:
         return "pd.Timedelta"
 
-    if 'offsetlike' in lower or 'OffsetLike' in clean:
+    if "offsetlike" in lower or "OffsetLike" in clean:
         return "Time Object (Offset/Timedelta)"
 
-    if any(x in clean for x in ['OffsetStr', 'FreqStr']):
+    if any(x in clean for x in ["OffsetStr", "FreqStr"]):
         return "OffsetStr (Pandas Frequency)"
 
-    if 'saqcfields' in lower:
+    if "saqcfields" in lower:
         return "Column Selection"
 
     if re.search(r"list\[\s*tuple\[\s*float\s*,\s*float\s*\]\s*\]", lower):
@@ -738,13 +825,21 @@ def _get_user_friendly_type_name(type_str: str) -> str:
     if re.fullmatch(r"tuple\[\s*float\s*,\s*float\s*\]", lower):
         return "Tuple (Float, Float)"
 
-    list_match = re.match(r"^(?:list|sequence|array(?:like)?)(?:\[(.*)\])?$", clean, re.IGNORECASE)
+    list_match = re.match(
+        r"^(?:list|sequence|array(?:like)?)(?:\[(.*)\])?$", clean, re.IGNORECASE
+    )
     if list_match:
         inner_content = list_match.group(1)
         if inner_content:
             inner_name = _get_user_friendly_type_name(inner_content)
 
-            if not inner_name.endswith('s') and inner_name not in ["Integer", "Float", "String", "Boolean", "pd.Timedelta"]:
+            if not inner_name.endswith("s") and inner_name not in [
+                "Integer",
+                "Float",
+                "String",
+                "Boolean",
+                "pd.Timedelta",
+            ]:
                 return f"List of {inner_name}s"
             return f"List of {inner_name}"
         return "List"
@@ -754,11 +849,11 @@ def _get_user_friendly_type_name(type_str: str) -> str:
         inner_content = tuple_match.group(1)
         if inner_content:
             if "..." in inner_content:
-                base_type = inner_content.split(',')[0]
+                base_type = inner_content.split(",")[0]
                 return f"Tuple of {_get_user_friendly_type_name(base_type)}s"
 
-            parts = [p.strip() for p in inner_content.split(',')]
-            if not any('[' in p for p in parts):
+            parts = [p.strip() for p in inner_content.split(",")]
+            if not any("[" in p for p in parts):
                 friendly_parts = [_get_user_friendly_type_name(p) for p in parts]
                 return f"Tuple ({', '.join(friendly_parts)})"
         return "Tuple"
@@ -772,21 +867,23 @@ def _get_user_friendly_type_name(type_str: str) -> str:
     if re.search(r"(^|[^a-z])float([^a-z]|$)", lower):
         return "Float"
 
-    if 'bool' in lower:
+    if "bool" in lower:
         return "Boolean"
 
-    if lower in ['str', 'string', 'any']:
+    if lower in ["str", "string", "any"]:
         return "String"
 
-    if 'literal' in lower:
+    if "literal" in lower:
         return "Selection"
 
     return clean
 
 
-def _clean_types(type_parts: list[str], module_name: str, method_name: str, param_name: str) -> list[str]:
+def _clean_types(
+    type_parts: list[str], module_name: str, method_name: str, param_name: str
+) -> list[str]:
     # remove
-    # - dict 
+    # - dict
     # - slice https://git.ufz.de/rdm-software/saqc/-/issues/522 (which has currently only one occurence)
     # - mpl.axes.Axes
     # - None (this is covered by making the corresponding input optional)
@@ -796,14 +893,18 @@ def _clean_types(type_parts: list[str], module_name: str, method_name: str, para
         if p.lower() == "dict":
             continue
         elif p.lower() == "slice":
-            sys.stderr.write(f"Info: Ignoring type {p} in {module_name}|{method_name}|{param_name}\n")
+            sys.stderr.write(
+                f"Info: Ignoring type {p} in {module_name}|{method_name}|{param_name}\n"
+            )
             continue
         elif p == "None":
             continue
         elif p == "mpl.axes.Axes":
             continue
         elif f"list[{p}]" in type_parts:
-            sys.stderr.write(f"Info: Ignoring type {p} in {module_name}|{method_name}|{param_name} because list[{p}] is also there\n")
+            sys.stderr.write(
+                f"Info: Ignoring type {p} in {module_name}|{method_name}|{param_name} because list[{p}] is also there\n"
+            )
             continue
         type_parts_cleaned.append(p)
     return type_parts_cleaned
@@ -944,9 +1045,13 @@ def _create_parameter_widget(
     elif len(type_parts_cleaned) == 1:
         single_type_str = type_parts_cleaned[0]
         param_object = _create_param_from_type_str(
-            single_type_str, param_name, param_constructor_args, is_truly_optional, param_docs
+            single_type_str,
+            param_name,
+            param_constructor_args,
+            is_truly_optional,
+            param_docs,
         )
-    # if there are multiple annotated types we create a conditional that allows the user 
+    # if there are multiple annotated types we create a conditional that allows the user
     # to choose how she wants to input the data. has the advantage that we do not need
     # to consider all parameter type combinations
     else:
@@ -1001,10 +1106,10 @@ def _create_param_from_default(
             argument=param.name, checked=default_value, **param_constructor_args
         )
 
-        if 'truevalue' in param_object.node.attrib:
-            del param_object.node.attrib['truevalue']
-        if 'falsevalue' in param_object.node.attrib:
-            del param_object.node.attrib['falsevalue']
+        if "truevalue" in param_object.node.attrib:
+            del param_object.node.attrib["truevalue"]
+        if "falsevalue" in param_object.node.attrib:
+            del param_object.node.attrib["falsevalue"]
 
     elif isinstance(default_value, int):
         param_object = IntegerParam(argument=param.name, **param_constructor_args)
@@ -1059,7 +1164,10 @@ def get_method_params(method: Callable, module: "ModuleType", tracing=False):
         param_object = None
 
         is_func_name = "func" in param_name.lower()
-        is_func_type = any(t in raw_annotation_str for t in ["Callable", "GenericFunction", "CurveFitter"])
+        is_func_type = any(
+            t in raw_annotation_str
+            for t in ["Callable", "GenericFunction", "CurveFitter"]
+        )
         is_func_param = is_func_name or is_func_type
 
         is_literal_type = (
@@ -1101,7 +1209,10 @@ def get_method_params(method: Callable, module: "ModuleType", tracing=False):
             creation_args["type"] = "data_column"
             creation_args["data_ref"] = "data"
             creation_args["multiple"] = False
-            if "list" in raw_annotation_str.lower() or "sequence" in raw_annotation_str.lower():
+            if (
+                "list" in raw_annotation_str.lower()
+                or "sequence" in raw_annotation_str.lower()
+            ):
                 creation_args["multiple"] = True
 
             param_object = SelectParam(argument=param_name, **creation_args)
@@ -1284,7 +1395,9 @@ def generate_tool_xml(tracing=False):
             short_module_doc, module_doc = _get_doc(module_obj.__doc__)
             if not short_module_doc:
                 short_module_doc = module_name
-            module_select_options.append((module_name, f"{module_name}: {short_module_doc}"))
+            module_select_options.append(
+                (module_name, f"{module_name}: {short_module_doc}")
+            )
         else:
             pass
 
@@ -1316,7 +1429,9 @@ def generate_tool_xml(tracing=False):
         if methods_conditional_obj:
             module_when.append(methods_conditional_obj)
         else:
-            raise Exception(f"Could not generate method selection for module '{module_name}'.")
+            raise Exception(
+                f"Could not generate method selection for module '{module_name}'."
+            )
         module_conditional.append(module_when)
 
         short_module_doc, module_doc = _get_doc(module_obj.__doc__)
@@ -1350,7 +1465,9 @@ def generate_tool_xml(tracing=False):
         DiscoverDatasets(pattern=r"(?P<name>.*)\.png", ext="png", visible=True)
     )
     plot_outputs.append(
-        OutputFilter(text="any( r['module_cond']['module_select'] == 'tools' and r['module_cond']['method_cond']['method_select'] == 'plot' for r in methods_repeat)")
+        OutputFilter(
+            text="any( r['module_cond']['module_select'] == 'tools' and r['module_cond']['method_cond']['method_select'] == 'plot' for r in methods_repeat)"
+        )
     )
     outputs_section.append(plot_outputs)
     outputs_section.append(
@@ -1372,9 +1489,9 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
     """
     clean_type = type_str.strip()
 
-    if clean_type.lower() in ('dict', 'dictionary'):
-        return [{'key': 'test_key', 'value': 'test_value'}]
-    if clean_type == 'slice':
+    if clean_type.lower() in ("dict", "dictionary"):
+        return [{"key": "test_key", "value": "test_value"}]
+    if clean_type == "slice":
         return {f"{param_name}_start": 0, f"{param_name}_end": 10}
 
     if re.fullmatch(r"tuple\[\s*float\s*,\s*float\s*\]", clean_type, re.IGNORECASE):
@@ -1401,36 +1518,42 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
 
         def get_simple_val(typ):
             clean_typ = typ.strip()
-            if clean_typ == 'int' or 'Int' in clean_typ:
+            if clean_typ == "int" or "Int" in clean_typ:
                 return 1
-            if clean_typ == 'float' or 'Float' in clean_typ:
+            if clean_typ == "float" or "Float" in clean_typ:
                 return 1.0
-            if clean_typ == 'bool':
+            if clean_typ == "bool":
                 return True
 
-            if 'pd.timedelta' in clean_typ.lower():
+            if "pd.timedelta" in clean_typ.lower():
                 return "1d"
-            if 'OffsetStr' in clean_typ or 'FreqStr' in clean_typ or 'OffsetLike' in clean_typ:
+            if (
+                "OffsetStr" in clean_typ
+                or "FreqStr" in clean_typ
+                or "OffsetLike" in clean_typ
+            ):
                 return "1D"
 
-            if 'SaQCFields' in clean_typ or 'NewSaQCFields' in clean_typ:
+            if "SaQCFields" in clean_typ or "NewSaQCFields" in clean_typ:
                 return 1
             return "test_string"
 
         val_0 = get_simple_val(type_0)
         val_1 = get_simple_val(type_1)
 
-        return [
-            {f"{param_name}_pos0": val_0, f"{param_name}_pos1": val_1}
-        ]
+        return [{f"{param_name}_pos0": val_0, f"{param_name}_pos1": val_1}]
 
-    if re.fullmatch(r"list\[\s*tuple\[\s*float\s*,\s*float\s*\]\s*\]", clean_type, re.IGNORECASE):
+    if re.fullmatch(
+        r"list\[\s*tuple\[\s*float\s*,\s*float\s*\]\s*\]", clean_type, re.IGNORECASE
+    ):
         return [{f"{param_name}_min": 0.0, f"{param_name}_max": 1.0}]
 
     literal_match = re.search(r"Literal\[(.*)\]", clean_type)
     if literal_match:
         options_str = literal_match.group(1)
-        options_list = [opt.strip().strip("'\"") for opt in _split_type_string_safely(options_str)]
+        options_list = [
+            opt.strip().strip("'\"") for opt in _split_type_string_safely(options_str)
+        ]
         if options_list:
             return options_list[0]
     if clean_type in SAQC_CUSTOM_SELECT_TYPES:
@@ -1439,24 +1562,26 @@ def get_test_value_for_type(type_str: str, param_name: str) -> Any:
         if args:
             return args[0]
 
-    if 'callable' in clean_type.lower() or 'genericfunction' in clean_type.lower():
+    if "callable" in clean_type.lower() or "genericfunction" in clean_type.lower():
         return "'mean'"
-    if 'int' in clean_type.lower() or 'float' in clean_type.lower():
+    if "int" in clean_type.lower() or "float" in clean_type.lower():
         return 1
-    if 'bool' in clean_type.lower():
+    if "bool" in clean_type.lower():
         return True
 
-    if 'pd.timedelta' in clean_type.lower():
+    if "pd.timedelta" in clean_type.lower():
         return "1d"
-    if any(s in clean_type.lower() for s in ['offset', 'freq']):
+    if any(s in clean_type.lower() for s in ["offset", "freq"]):
         return "1D"
 
     return "a_string"
 
 
-def generate_test_variants(method: Callable, method_name: str, module: "ModuleType", module_name: str) -> list:
+def generate_test_variants(
+    method: Callable, method_name: str, module: "ModuleType", module_name: str
+) -> list:
     variants = []
-    
+
     # common parameters (SaQC object and references to the data)
     base_params = {}
     # all other parameters
@@ -1468,7 +1593,10 @@ def generate_test_variants(method: Callable, method_name: str, module: "ModuleTy
     parameters = inspect.signature(method).parameters
 
     for param_name, param in parameters.items():
-        if param_name in ["self", "kwargs", "reduce_func", "metric"] or "kwarg" in param_name.lower():
+        if (
+            param_name in ["self", "kwargs", "reduce_func", "metric"]
+            or "kwarg" in param_name.lower()
+        ):
             continue
 
         if is_parameter_deprecated(param_docs, param_name):
@@ -1477,7 +1605,11 @@ def generate_test_variants(method: Callable, method_name: str, module: "ModuleTy
         annotation = param.annotation
         raw_annotation_str = ""
         if isinstance(annotation, (str, ForwardRef)):
-            raw_annotation_str = annotation.__forward_arg__ if isinstance(annotation, ForwardRef) else str(annotation)
+            raw_annotation_str = (
+                annotation.__forward_arg__
+                if isinstance(annotation, ForwardRef)
+                else str(annotation)
+            )
         elif annotation is not inspect.Parameter.empty:
             raw_annotation_str = str(annotation).replace("typing.", "")
 
@@ -1485,55 +1617,68 @@ def generate_test_variants(method: Callable, method_name: str, module: "ModuleTy
             base_params[param_name] = 1
             continue
 
-        if 'Sequence[SaQC]' in raw_annotation_str:
+        if "Sequence[SaQC]" in raw_annotation_str:
             base_params[param_name] = "test1/data.csv"
             continue
 
         is_func_name = "func" in param_name.lower()
-        is_func_type = any(t in raw_annotation_str for t in ["Callable", "GenericFunction", "CurveFitter"])
+        is_func_type = any(
+            t in raw_annotation_str
+            for t in ["Callable", "GenericFunction", "CurveFitter"]
+        )
         is_func_param = is_func_name or is_func_type
 
-        is_literal_type = "Literal[" in raw_annotation_str or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
+        is_literal_type = (
+            "Literal[" in raw_annotation_str
+            or raw_annotation_str in SAQC_CUSTOM_SELECT_TYPES
+        )
 
         if is_func_param and not is_literal_type:
             continue
 
-        if raw_annotation_str.startswith('Union[') and raw_annotation_str.endswith(']'):
+        if raw_annotation_str.startswith("Union[") and raw_annotation_str.endswith("]"):
             inner_content = raw_annotation_str[6:-1]
             type_parts = _split_type_string_safely(inner_content)
         else:
             type_parts = _split_type_string_safely(raw_annotation_str)
 
-        type_parts_cleaned = _clean_types(type_parts, module_name, method_name, param.name)
+        type_parts_cleaned = _clean_types(
+            type_parts, module_name, method_name, param.name
+        )
         if not type_parts_cleaned:
             continue
 
         is_all_saqc_fields = False
         if len(type_parts_cleaned) > 1:
             is_all_saqc_fields = all(
-                p in ('SaQCFields', 'NewSaQCFields') for p in type_parts_cleaned
+                p in ("SaQCFields", "NewSaQCFields") for p in type_parts_cleaned
             )
 
         if is_all_saqc_fields:
-            type_parts_cleaned = ['SaQCFields']
+            type_parts_cleaned = ["SaQCFields"]
 
         if len(type_parts_cleaned) > 1:
 
             has_literal = any(
-                "Literal[" in part or part in SAQC_CUSTOM_SELECT_TYPES for part in type_parts_cleaned
+                "Literal[" in part or part in SAQC_CUSTOM_SELECT_TYPES
+                for part in type_parts_cleaned
             )
 
             if has_literal:
                 type_parts_cleaned = [
-                    part for part in type_parts_cleaned
-                    if not any(func_type in part for func_type in ['Callable', 'CurveFitter', 'GenericFunction'])
+                    part
+                    for part in type_parts_cleaned
+                    if not any(
+                        func_type in part
+                        for func_type in ["Callable", "CurveFitter", "GenericFunction"]
+                    )
                 ]
 
         if len(type_parts_cleaned) > 1:
             complex_params[param_name] = type_parts_cleaned
         elif type_parts_cleaned:
             single_type_str = type_parts_cleaned[0]
-            if single_type_str in ('SaQCFields', 'NewSaQCFields'):
+            if single_type_str in ("SaQCFields", "NewSaQCFields"):
                 base_params[param_name] = 1
             else:
                 test_value = get_test_value_for_type(single_type_str, param_name)
@@ -1561,10 +1706,12 @@ def generate_test_variants(method: Callable, method_name: str, module: "ModuleTy
             when_params[name] = test_value
         default_galaxy_params[f"{name}_cond"] = when_params
 
-    variants.append({
-        "description": f"Test mit Defaults für {method.__name__}",
-        "galaxy_params": default_galaxy_params,
-    })
+    variants.append(
+        {
+            "description": f"Test mit Defaults für {method.__name__}",
+            "galaxy_params": default_galaxy_params,
+        }
+    )
 
     for name, type_parts in complex_params.items():
         for i, type_str in enumerate(type_parts):
@@ -1582,10 +1729,12 @@ def generate_test_variants(method: Callable, method_name: str, module: "ModuleTy
 
             variant_galaxy_params[f"{name}_cond"] = when_params
 
-            variants.append({
-                "description": f"Test-Variante für '{name}' mit Typ '{type_str}'",
-                "galaxy_params": variant_galaxy_params,
-            })
+            variants.append(
+                {
+                    "description": f"Test-Variante für '{name}' mit Typ '{type_str}'",
+                    "galaxy_params": variant_galaxy_params,
+                }
+            )
 
     return variants
 
@@ -1600,7 +1749,11 @@ def build_test_xml_recursively(parent_element: ET.Element, params_dict: dict):
             for item_dict in value:
                 build_test_xml_recursively(repeat_elem, item_dict)
         else:
-            val_str = str(value).lower() if isinstance(value, bool) else str(value) if value is not None else ""
+            val_str = (
+                str(value).lower()
+                if isinstance(value, bool)
+                else str(value) if value is not None else ""
+            )
             ET.SubElement(parent_element, "param", {"name": name, "value": val_str})
 
 
@@ -1645,26 +1798,52 @@ def generate_test_macros():
                 continue
 
             method_name = method.__name__
-            test_variants = generate_test_variants(method, method_name, module_obj, module_name)
+            test_variants = generate_test_variants(
+                method, method_name, module_obj, module_name
+            )
 
             for variant in test_variants:
                 expect_num_outputs = "2"
                 if module_name == "tools" and method.__name__ == "plot":
                     expect_num_outputs = "3"
-                test_elem = ET.SubElement(all_tests_macro, "test", {"expect_num_outputs": expect_num_outputs})
-                ET.SubElement(test_elem, "param", {"name": "data", "value": "test1/data.csv", "ftype": "csv"})
-                ET.SubElement(test_elem, "param", {"name": "run_test_mode", "value": "true"})
+                test_elem = ET.SubElement(
+                    all_tests_macro, "test", {"expect_num_outputs": expect_num_outputs}
+                )
+                ET.SubElement(
+                    test_elem,
+                    "param",
+                    {"name": "data", "value": "test1/data.csv", "ftype": "csv"},
+                )
+                ET.SubElement(
+                    test_elem, "param", {"name": "run_test_mode", "value": "true"}
+                )
 
-                repeat_elem = ET.SubElement(test_elem, "repeat", {"name": "methods_repeat"})
-                module_cond_elem = ET.SubElement(repeat_elem, "conditional", {"name": "module_cond"})
-                ET.SubElement(module_cond_elem, "param", {"name": "module_select", "value": module_name})
+                repeat_elem = ET.SubElement(
+                    test_elem, "repeat", {"name": "methods_repeat"}
+                )
+                module_cond_elem = ET.SubElement(
+                    repeat_elem, "conditional", {"name": "module_cond"}
+                )
+                ET.SubElement(
+                    module_cond_elem,
+                    "param",
+                    {"name": "module_select", "value": module_name},
+                )
 
-                method_cond_elem = ET.SubElement(module_cond_elem, "conditional", {"name": "method_cond"})
-                ET.SubElement(method_cond_elem, "param", {"name": "method_select", "value": method_name})
+                method_cond_elem = ET.SubElement(
+                    module_cond_elem, "conditional", {"name": "method_cond"}
+                )
+                ET.SubElement(
+                    method_cond_elem,
+                    "param",
+                    {"name": "method_select", "value": method_name},
+                )
 
                 build_test_xml_recursively(method_cond_elem, variant["galaxy_params"])
 
-                output_elem = ET.SubElement(test_elem, "output", {"name": "config_out", "ftype": "txt"})
+                output_elem = ET.SubElement(
+                    test_elem, "output", {"name": "config_out", "ftype": "txt"}
+                )
                 assert_contents = ET.SubElement(output_elem, "assert_contents")
 
                 ET.SubElement(assert_contents, "has_text", {"text": method_name})
@@ -1674,12 +1853,12 @@ def generate_test_macros():
                 def extract_recursive(d):
                     for p_name, p_value in d.items():
 
-                        if p_name.endswith('_selector'):
+                        if p_name.endswith("_selector"):
                             continue
 
                         if isinstance(p_value, dict):
 
-                            if p_name.endswith('_cond'):
+                            if p_name.endswith("_cond"):
                                 actual_name = p_name[:-5]
                                 final_params_to_check[actual_name] = True
                             extract_recursive(p_value)
@@ -1699,7 +1878,17 @@ def generate_test_macros():
                     if p_name in ["field", "target", "group", "method_select"]:
                         continue
 
-                    if any(suffix in p_name for suffix in ["_pos0", "_pos1", "_min", "_max", "_start", "_end"]):
+                    if any(
+                        suffix in p_name
+                        for suffix in [
+                            "_pos0",
+                            "_pos1",
+                            "_min",
+                            "_max",
+                            "_start",
+                            "_end",
+                        ]
+                    ):
                         continue
 
                     ET.SubElement(assert_contents, "has_text", {"text": f"{p_name}="})
@@ -1707,7 +1896,9 @@ def generate_test_macros():
     try:
         ET.indent(macros_root, space="  ")
         sys.stdout.buffer.write(b'<?xml version="1.0" encoding="utf-8"?>\n')
-        sys.stdout.buffer.write(ET.tostring(macros_root, encoding="utf-8", xml_declaration=False))
+        sys.stdout.buffer.write(
+            ET.tostring(macros_root, encoding="utf-8", xml_declaration=False)
+        )
         print("\nSuccessfully generated test macro XML.", file=sys.stderr)
     except Exception as e:
         print(f"\nXML Serialization failed. Error: {e}", file=sys.stderr)
@@ -1740,7 +1931,9 @@ if __name__ == "__main__":
         for _, func_module in inspect.getmembers(saqc.funcs, inspect.ismodule):
             SAQC_CUSTOM_SELECT_TYPES.update(discover_literals(func_module))
     except (ImportError, TypeError) as e:
-        sys.stderr.write(f"Warning: Could not automatically discover saqc Literals: {e}\n")
+        sys.stderr.write(
+            f"Warning: Could not automatically discover saqc Literals: {e}\n"
+        )
 
     if args.generate_tool:
         print("--- Generating Galaxy Tool XML ---", file=sys.stderr)

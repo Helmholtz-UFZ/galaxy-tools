@@ -4,6 +4,7 @@ import inspect
 import re
 import sys
 import xml.etree.ElementTree as ET
+from collections import OrderedDict
 from typing import (
     Any,
     Callable,
@@ -44,6 +45,7 @@ from saqc.lib import types as saqc_types
 
 if TYPE_CHECKING:
     from types import ModuleType
+
     from galaxyxml.tool.parameters import InputParameter
 
 TRACING_DATA = []
@@ -109,7 +111,7 @@ def clean_annotation_string(s: str) -> str:
     return s
 
 
-def _get_doc(doc_str: Optional[str]) -> str:
+def _get_doc(doc_str: Optional[str]) -> Tuple[str, str]:
     """
     get the the short (1st line) and long doc from a method doc string
     """
@@ -146,7 +148,9 @@ def parse_docstring(method: Callable) -> Dict[str, str]:
     if not docstring:
         return {}
 
-    sections = {}
+    docstring = docstring.replace(".. figure:: /resources/images/", ".. images:: ")
+
+    sections = OrderedDict()
     section_pattern = r"^([^\S\n]*)(?P<title>\S.*?)(\n\1([=-])+\n)"
     section_matches = list(re.finditer(section_pattern, docstring, re.MULTILINE))
 
@@ -164,7 +168,7 @@ def parse_docstring(method: Callable) -> Dict[str, str]:
             i == 0 and not first_section_processed_by_title and match.start() == 0
         ):
             if title_key or "" not in sections or (i == 0 and match.start() == 0):
-                sections[title_key] = docstring[end : match.start()].strip()
+                sections[title_key] = docstring[end: match.start()].strip()
 
         title_key = match.group("title").strip()
         end = match.end()
@@ -176,7 +180,7 @@ def parse_docstring(method: Callable) -> Dict[str, str]:
     elif not sections and not docstring:
         return {}
 
-    return {k: v for k, v in sections.items() if v or k == ""}
+    return OrderedDict((k, v) for k, v in sections.items() if v or k == "")
 
 
 def parse_parameter_docs(sections: Dict[str, str]) -> Dict[str, str]:
@@ -1289,7 +1293,13 @@ def get_methods_conditional(methods, module_name, module, tracing=False):
         short_doc, doc = _get_doc(method_obj.__doc__)
         if not short_doc:
             short_doc = method_name
-        doc = re.sub("----*", "`````````````", doc)
+        sections = parse_docstring(method_obj)
+        if "Parameters" in sections:
+            del sections["Parameters"]
+        if "Returns" in sections:
+            del sections["Returns"]
+
+        doc = "\n".join([f"{k}\n`````````````\n\n{v}\n" for k, v in sections.items()])
         methods_help += f"""
 
 {module_name}.{method_name}

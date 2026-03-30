@@ -1202,13 +1202,13 @@ breaks.flagIsolated
 -----------------------------
 
 
-
 Find and flag temporally isolated groups of data.
 
 The function flags groups of values that are surrounded by sufficiently large
 data gaps. A data gap is a timespan containing no valid data. (Data is valid if it is not `NaN` and if it is not assigned a flag with a level higher than the functions `flag` value).
 
 Notes
+``````````
 
 A series of values `x_k, x_{k+1}, ..., x_{k+n}` with timestamps
 `t_k, t_{k+1}, ..., t_{k+n}` is considered isolated if:
@@ -1223,7 +1223,6 @@ breaks.flagJumps
 -----------------------------
 
 
-
 Flag jumps and drops in data.
 
 Flags values where the mean changes significantly between two adjacent rolling
@@ -1232,11 +1231,13 @@ between the means of the two windows exceeds `thresh`, the values between the
 windows are flagged.
 
 Notes
+``````````
 
 Jumps closer together than three fourths (3/4) of the window size may not be
 detected reliably.
 
 Examples
+``````````
 
 Below diagram illustrates the interaction of parameters for a positive value jump
 initializing a new mean level.
@@ -1250,7 +1251,6 @@ initializing a new mean level.
 
 breaks.flagNAN
 -----------------------------
-
 
 
 Flag NaNs in data.
@@ -1274,7 +1274,6 @@ constants.flagByVariance
 -----------------------------
 
 
-
 Flag low-variance data.
 
 Flags plateaus of constant data if the variance in a rolling window does not
@@ -1289,7 +1288,6 @@ Any interval of values y(t),..y(t+n) is flagged, if:
 
 constants.flagConstants
 -----------------------------
-
 
 
 Flag constant data values.
@@ -1314,10 +1312,10 @@ curvefit.fitLowpassFilter
 -----------------------------
 
 
-
 Fits the data using the butterworth filter.
 
 Notes
+``````````
 
 The data is expected to be regularly sampled.
 
@@ -1327,17 +1325,18 @@ curvefit.fitMomentFM
 -----------------------------
 
 
-
 Fits the data by reconstructing it with the Moment Foundational Timeseries Model (MomentFM).
 
 The function applies MomentFM [1] in its reconstruction mode on a window of size `context`, striding through the data
 with step size `context`/`ratio`
 
 Examples
+``````````
 
 .. images:: fitFMpic.png
 
 Notes
+``````````
 
 [1] https://arxiv.org/abs/2402.03885
 [2] https://github.com/moment-timeseries-foundation-model/moment
@@ -1346,7 +1345,6 @@ Notes
 
 curvefit.fitPolynomial
 -----------------------------
-
 
 
 Fit a polynomial model to the data.
@@ -1376,7 +1374,6 @@ drift.assignRegimeAnomaly
 -----------------------------
 
 
-
 A function to detect values belonging to an anomalous regime regarding modelling
 regimes of field.
 
@@ -1398,12 +1395,12 @@ drift.correctDrift
 -----------------------------
 
 
-
 The function corrects drifting behavior.
 
 See the Notes section for an overview over the correction algorithm.
 
 Notes
+``````````
 
 It is assumed, that between support points, there is a drift effect shifting the
 meassurements in a way, that can be described, by a model function M(t, p, origin, target).
@@ -1431,6 +1428,7 @@ The new values at t are computed via:::
 Wheras ``new_target`` represents the value level immediately after the next support point.
 
 Examples
+``````````
 
 Some examples of meaningful driftmodels.
 
@@ -1460,10 +1458,8 @@ drift.correctOffset
 
 
 
-
 drift.flagDriftFromNorm
 -----------------------------
-
 
 
 Flags data that deviates from an avarage data course.
@@ -1475,6 +1471,7 @@ that members of a normal group must not exceed. In addition, only a group is con
 See the Notes section for a more detailed presentation of the algorithm
 
 Notes
+``````````
 
 following steps are performed for every data "segment" of length `freq` in order to find the
 "abnormal" data:
@@ -1503,6 +1500,7 @@ the "averaged manhattan metric" is set as the metric default, since it correspon
 averaged value distance, two data sets have (as opposed by euclidean, for example).
 
 References
+``````````
 
 Documentation of the underlying hierarchical clustering algorithm:
     [1] https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html
@@ -1515,11 +1513,11 @@ drift.flagDriftFromReference
 -----------------------------
 
 
-
 Flags data that deviates from a reference course. Deviation is measured by a
 custom distance function.
 
 Notes
+``````````
 
 It is advisable to choose a distance function, that can be well interpreted in
 the units dimension of the measurement and where the interpretation is invariant over the
@@ -1531,7 +1529,6 @@ by euclidean, for example).
 
 drift.flagRegimeAnomaly
 -----------------------------
-
 
 
 Flags anomalous regimes regarding to modelling regimes of ``field``.
@@ -1561,7 +1558,6 @@ flagtools.andGroup
 -----------------------------
 
 
-
 Logical AND operation for Flags.
 
 Flag the variable(s) `field` at every period, at wich `field` in all of the saqc objects in
@@ -1570,6 +1566,7 @@ Flag the variable(s) `field` at every period, at wich `field` in all of the saqc
 See Examples section for examples.
 
 Examples
+``````````
 
 Flag data, if the values are above a certain threshold (determined by `flagRange`) AND if the values are
 constant for 3 periods (determined by `flagConstants`)
@@ -1633,10 +1630,10 @@ flagtools.clearFlags
 -----------------------------
 
 
-
 Assign the flag UNFLAGGED to all timestamps.
 
 Notes
+``````````
 
 This function ignores the ``dfilter`` keyword, because the data
 is not relevant for processing.
@@ -1644,6 +1641,7 @@ A warning is triggered if the ``flag`` keyword is given, because
 the flags are always set to ``UNFLAGGED``.
 
 Seealso
+``````````
 
 forceFlags : Assign a specific flag value to all timestamps.
 flagUnflagged : Assign a specific flag value to all timestamps that have no flag value assigned.
@@ -1654,7 +1652,6 @@ flagtools.flagDummy
 -----------------------------
 
 
-
 Function does nothing but returning data and flags.
 
 
@@ -1663,15 +1660,16 @@ flagtools.flagUnflagged
 -----------------------------
 
 
-
 Assign a `flag` to all timestamps.
 
 Notes
+``````````
 
 This function ignores the ``dfilter`` keyword, because the
 data is not relevant for processing.
 
 See also
+``````````
 
 clearFlags : assign UNFLAGGED to all timestamps
 forceFlags : Assign a specific flag value to all timestamps.
@@ -1682,10 +1680,10 @@ flagtools.forceFlags
 -----------------------------
 
 
-
 Set whole column to a flag value.
 
 See also
+``````````
 
 clearFlags : set whole column to UNFLAGGED
 flagUnflagged : set flag value at all unflagged positions
@@ -1702,7 +1700,6 @@ flagtools.orGroup
 -----------------------------
 
 
-
 Logical OR operation for Flags.
 
 Flag the variable(s) `field` at every period, at wich `field` is flagged in at least one of the saqc objects
@@ -1711,6 +1708,7 @@ in `group`.
 See Examples section for examples.
 
 Examples
+``````````
 
 Flag data, if the values are above a certain threshold (determined by `flagRange`) OR if the values are
 constant for 3 periods (determined by `flagConstants`)
@@ -1741,12 +1739,12 @@ flagtools.propagateFlags
 -----------------------------
 
 
-
 Propagate already assigned flags along the date axis.
 
 Extent and direction of propagation can be controlled through parameters ``window`` and ``method``.
 
 Examples
+``````````
 
 First, generate some data and some flags:
 
@@ -1816,7 +1814,6 @@ flagtools.transferFlags
 -----------------------------
 
 
-
 Transfer flags from one field to another.
 
 Flags present at timestamps in the source field(s) are also assigned to that same timestamps in the target field(s).
@@ -1824,6 +1821,7 @@ Flags present at timestamps in the source field(s) are also assigned to that sam
 Optionally, flags already assigned to target, are being overridden or squashed together with the new assignment, into a single flags column.
 
 Examples
+``````````
 
 First, generate some data with flags:
 
@@ -1859,6 +1857,7 @@ Project flags of `a` to both `b` and `c`:
    1  255.0  255.0  255.0
 
 See also
+``````````
 
 * `flagGeneric`
 * `concatFlags`
@@ -1876,7 +1875,6 @@ interpolation.align
 -----------------------------
 
 
-
 Convert a time series to a specified frequency, interpolating values
 according to the chosen method.
 
@@ -1884,7 +1882,6 @@ according to the chosen method.
 
 interpolation.interpolateByRolling
 -----------------------------
-
 
 
 Replace NaN by the aggregation result of the surrounding window.
@@ -1900,7 +1897,6 @@ noise
 
 noise.flagByScatterLowpass
 -----------------------------
-
 
 
 Flag anomalous data chunks based on scatter statistics.
@@ -1924,12 +1920,12 @@ outliers.flagByStray
 -----------------------------
 
 
-
 Flag outliers in 1-dimensional (score) data using the STRAY Algorithm.
 
 For more details about the algorithm please refer to [1].
 
 References
+``````````
 
 [1]  Priyanga Dilini Talagala, Rob J. Hyndman & Kate Smith-Miles (2021):
      Anomaly Detection in High-Dimensional Data,
@@ -1942,10 +1938,10 @@ outliers.flagLOF
 -----------------------------
 
 
-
 Flag values where the Local Outlier Factor (LOF) exceeds cutoff.
 
 Notes
+``````````
 
 * The `flagLOF` function calculates the Local
   Outlier Factor (LOF) for every point in the input timeseries.
@@ -1971,7 +1967,6 @@ outliers.flagOffset
 -----------------------------
 
 
-
 Flag offsetting value courses.
 
 This test classifies values or value sequences as outliers by detecting
@@ -1988,6 +1983,7 @@ Values `x_n, x_{n+1}, ..., x_{n+k}` with timestamps
 5. `|t_{n-1} - t_{n+k+1}| <` `window`
 
 Examples
+``````````
 
 Below picture gives an abstract interpretation of the parameter interplay in case of a positive
 value jump, initializing an offset course.
@@ -2060,14 +2056,12 @@ outliers.flagRange
 -----------------------------
 
 
-
 Flag values outside the closed interval [`min`, `max`].
 
 
 
 outliers.flagUniLOF
 -----------------------------
-
 
 
 Flag anomalous values using the *Univariate Local Outlier Factor (UniLOF)* method.
@@ -2078,6 +2072,7 @@ LOF is applied on a combination of the variable values and a temporal
 density/penalty measure that reflects spacing between data points.
 
 Notes
+``````````
 
 * The UniLOF score quantifies how outlier-like a point is in the
   2D space defined by values and their timestamps.
@@ -2085,6 +2080,7 @@ Notes
 * A binary label (outlier vs. inlier) is obtained by applying the cutoff defined by ``thresh``.
 
 Examples
+``````````
 
 See the :ref:`outlier detection cookbook
 <cookbooks/OutlierDetection:Outlier Detection>` for a detailed
@@ -2143,6 +2139,7 @@ evaluate to ``20`` and ``1.5``, respectively.
    qc.plot('sac254_raw')
 
 See also
+``````````
 
 :ref:`introduction to outlier detection with saqc <cookbooks/OutlierDetection:Outlier Detection>`
 
@@ -2152,7 +2149,6 @@ outliers.flagZScore
 -----------------------------
 
 
-
 Uses standard score cutoffs to detect outliers. (For example, "*3*-sigma rule".)
 
 The function supports both *standard* and *modified* Z-score definitions. To handle
@@ -2160,6 +2156,7 @@ non-stationary data, the calculation can be applied within a rolling window. A m
 residual value may be required to avoid over-flagging in low-variance segments.
 
 Notes
+``````````
 
 For any data value `x` at timestamp `t` the following steps are performed in order to determine the flagging:
 
@@ -2191,7 +2188,6 @@ pattern.flagPatternByDTW
 -----------------------------
 
 
-
 Pattern Recognition via Dynamic Time Warping.
 
 The steps are:
@@ -2205,11 +2201,13 @@ The steps are:
    window gets flagged
 
 Notes
+``````````
 
 The window size of the moving window is set to equal the temporal
 extension of the reference datas datetime index.
 
 References
+``````````
 
 Find a nice description of underlying the Dynamic Time Warping
 Algorithm here:
@@ -2222,16 +2220,17 @@ pattern.flagPlateau
 -----------------------------
 
 
-
 Flag anomalous value plateaus.
 
 Notes
+``````````
 
 Minimum plateau length should be set higher than about twice the sampling rate.
 For detecting shorter anomalies, use `flagUniLOF` or
 `flagZScore`.
 
 Examples
+``````````
 
 .. plot::
    :context: reset
@@ -2274,11 +2273,11 @@ resampling.concatFlags
 -----------------------------
 
 
-
 Project flags/history of `field` to `target` and adjust to the frequeny grid
 of `target` by 'undoing' former interpolation, shifting or resampling operations
 
 Notes
+``````````
 
 To just use the appropriate inversion with regard to a certain method, set the
 `invert` parameter to True and pass the method you want to invert.
@@ -2291,16 +2290,17 @@ resampling.reindex
 -----------------------------
 
 
-
 Change a variables index.
 
 Simultaneously changes the indices of the data, flags and the history assigned to `field`.
 
 Notes
+``````````
 
 .. images:: reindexMethods.png
 
 Examples
+``````````
 
 Generate some example data with messed up 1 day-ish sampling rate
 
@@ -2481,7 +2481,6 @@ resampling.resample
 -----------------------------
 
 
-
 Resample data points and flags to a regular frequency.
 
 The data will be sampled to regular (equidistant) timestamps.
@@ -2497,6 +2496,7 @@ Sampling intervals therefore get aggregated with a function, specified by
   the result gets assigned to the next grid point.
 
 Notes
+``````````
 
 For perfomance reasons, ``func`` will be mapped to pandas.resample methods,
 if possible. However, for this to work, functions need an initialized
@@ -2515,7 +2515,6 @@ residuals
 
 residuals.calculatePolynomialResiduals
 -----------------------------
-
 
 
 Fits a polynomial model to the data and calculate the residuals.
@@ -2544,7 +2543,6 @@ residuals.calculateRollingResiduals
 -----------------------------
 
 
-
 Calculate the diff of a rolling-window function and the data.
 
 Note, that the data gets assigned the worst flag present in the original data.
@@ -2562,7 +2560,6 @@ rolling.rolling
 -----------------------------
 
 
-
 Evaluate a function at all shifts of a fixed-size window ("rolling window application").
 
 The resulting values are assigned the worst flag present in the window from which
@@ -2570,6 +2567,7 @@ they were aggregated. Multiple fields can be selected in order to apply a rollin
 on arrays obtained from the concatenation of the different field specific windows.
 
 Notes
+``````````
 
 .. images:: horizontalAxisRollingExample.png
    :class: with-border
@@ -2587,7 +2585,6 @@ scores
 
 scores.assignKNNScore
 -----------------------------
-
 
 
 Score datapoints by an aggregation of the distances to their `k` nearest neighbors.
@@ -2611,6 +2608,7 @@ The steps taken to calculate the scores are as follows:
 5. The resulting timeseries of scores gets assigned to the field target.
 
 References
+``````````
 
 [1] https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.NearestNeighbors.html
 
@@ -2620,10 +2618,10 @@ scores.assignLOF
 -----------------------------
 
 
-
 Assign Local Outlier Factor (LOF).
 
 Notes
+``````````
 
 * `n` determines the "locality" of an observation (its `n` nearest neighbors) and sets the upper limit of
   values of an outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than `n/2`
@@ -2637,7 +2635,6 @@ scores.assignUniLOF
 -----------------------------
 
 
-
 Assign "univariate" Local Outlier Factor (LOF) or "inivariate" Local Outlier Probability (LOP)
 
 The Function is a wrapper around a usual LOF implementation, aiming for an easy to use, parameter minimal
@@ -2648,6 +2645,7 @@ that measures temporal distance between data points.
 See the Notes section for more details on the algorithm.
 
 Notes
+``````````
 
 LOP: Kriegel, H.-P.; Kröger, P.; Schubert, E.; Zimek, A. LoOP: local outlier probabilities. Proceedings
   of the 18th ACM conference on Information and knowledge management 2009, 1649–1652.
@@ -2664,12 +2662,12 @@ scores.assignZScore
 -----------------------------
 
 
-
 Calculate (rolling) Zscores.
 
 See the Notes section for a detailed overview of the calculation
 
 Notes
+``````````
 
 Steps of calculation:
 
@@ -2696,7 +2694,6 @@ tools.copyField
 -----------------------------
 
 
-
 Make a copy of the data and flags to a new field.
 
 
@@ -2705,14 +2702,12 @@ tools.dropField
 -----------------------------
 
 
-
 Drops field from the data and flags.
 
 
 
 tools.plot
 -----------------------------
-
 
 
 Plot data and flags or store plot to file.
@@ -2724,6 +2719,7 @@ store mode the generated plot is stored to disk and no manually interaction is
 needed.
 
 Notes
+``````````
 
 * Check/modify the module parameter `saqc.lib.plotting.SCATTER_KWARGS` to see/modify global marker defaults
 * Check/modify the module parameter `saqc.lib.plotting.PLOT_KWARGS` to see/modify global plot line defaults
@@ -2734,14 +2730,12 @@ tools.renameField
 -----------------------------
 
 
-
 Rename field to the given name.
 
 
 
 tools.selectTime
 -----------------------------
-
 
 
 Realizes masking within saqc.
@@ -2762,6 +2756,7 @@ Here comes a recipe on how to apply a flagging function only on a masked chunk o
 To see an implemented example, checkout flagSeasonalRange in the saqc.functions module
 
 Examples
+``````````
 
 The `period_start` and `end` parameters provide a conveniant way to generate seasonal / date-periodic masks.
 They have to be strings of the forms:

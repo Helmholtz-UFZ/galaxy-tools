@@ -114,7 +114,17 @@ def clean_annotation_string(s: str) -> str:
 def _clean_py_annot(doc_str: Optional[str]) -> str:
     if not doc_str:
         return ""
-    return doc_str.replace(":math:", "").replace(":py:attr:", "").replace(":py:class:`Any`,", "").replace(":py:class:", "").replace(":py:func:", "").replace(":py:meth:", "").replace("~saqc.SaQC.", "").replace("saqc.SaQC.", "")
+    return (
+        doc_str.replace(":math:", "")
+        .replace(":py:attr:", "")
+        .replace(":py:class:`Any`,", "")
+        .replace(":py:class:", "")
+        .replace(":py:func:", "")
+        .replace(":py:meth:", "")
+        .replace("~saqc.SaQC.", "")
+        .replace("saqc.SaQC.", "")
+    )
+
 
 def _get_doc(doc_str: Optional[str]) -> Tuple[str, str]:
     """
@@ -1298,7 +1308,12 @@ def get_methods_conditional(methods, module_name, module, tracing=False):
         if "Returns" in sections:
             del sections["Returns"]
 
-        doc = "\n".join([f"{k}\n\n{v}\n" for k, v in sections.items()])
+        doc = ""
+        for k, v in sections.items():
+            if k:
+                doc += f"\n{k}\n``````````\n\n{v}\n"
+            else:
+                doc += f"\n{v}\n"
         methods_help += f"""
 
 {module_name}.{method_name}
@@ -1453,7 +1468,7 @@ def generate_tool_xml(tracing=False):
 {methods_help}
 """
     tool.help = _clean_py_annot(tool.help)
-    tool.help = tool.help.replace("SaQC", "SaQC [#saqcurl]_" , 1)
+    tool.help = tool.help.replace("SaQC", "SaQC [#saqcurl]_", 1)
     tool.help += "\n@SAQCLINKS@"
 
     if module_select_options:

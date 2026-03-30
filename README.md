@@ -19,7 +19,7 @@ This repository contains tools mantained within the UFZ and that can be installe
 
 Tools to analyze time-series data for environmental sensor data
 
-- [**SAQC**](https://usegalaxy.eu/root?tool_id=toolshed.g2.bx.psu.edu/repos/ufz/saqc/saqc/2.6.0+galaxy0) with saqc
+- [**SaQC**](https://usegalaxy.eu/root?tool_id=toolshed.g2.bx.psu.edu/repos/ufz/saqc/saqc/2.6.0+galaxy0) with SaQC
 
 ### OMERO-suite
 

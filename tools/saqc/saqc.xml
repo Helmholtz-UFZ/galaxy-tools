@@ -1210,10 +1210,10 @@ data gaps. A data gap is a timespan containing no valid data. (Data is valid if 
 
 Notes
 
-A series of values :math:`x_k, x_{k+1}, ..., x_{k+n}` with timestamps
-:math:`t_k, t_{k+1}, ..., t_{k+n}` is considered isolated if:
+A series of values `x_k, x_{k+1}, ..., x_{k+n}` with timestamps
+`t_k, t_{k+1}, ..., t_{k+n}` is considered isolated if:
 
-1. :math:`t_{k+1} - t_n <` `group_window`
+1. `t_{k+1} - t_n <` `group_window`
 2. No valid values in a succeeding period of `gap_window` extension.
 3. No valid values exist in the succeeding gap of size `gap_window`.
 
@@ -1479,8 +1479,8 @@ Notes
 following steps are performed for every data "segment" of length `freq` in order to find the
 "abnormal" data:
 
-1. Calculate distances :math:`d(x_i,x_j)` for all :math:`x_i` in parameter `field`.
-   (with :math:`d` denoting the distance function, specified by `metric`.
+1. Calculate distances `d(x_i,x_j)` for all `x_i` in parameter `field`.
+   (with `d` denoting the distance function, specified by `metric`.
 2. Calculate a dendogram with a hierarchical linkage algorithm, specified by `method`.
 3. Flatten the dendogram at the level, the agglomeration costs exceed `spread`
 4. check if a cluster containing more than `frac` variables.
@@ -1571,8 +1571,8 @@ See Examples section for examples.
 
 Examples
 
-Flag data, if the values are above a certain threshold (determined by :py:meth:`~saqc.SaQC.flagRange`) AND if the values are
-constant for 3 periods (determined by :py:meth:`~saqc.SaQC.flagConstants`)
+Flag data, if the values are above a certain threshold (determined by `flagRange`) AND if the values are
+constant for 3 periods (determined by `flagConstants`)
 
 .. doctest:: andGroupExample
 
@@ -1595,7 +1595,7 @@ constant for 3 periods (determined by :py:meth:`~saqc.SaQC.flagConstants`)
    Freq: 10min, dtype: float64
 
 Masking data, so that a test result only gets assigned during daytime (between 6 and 18 o clock for example).
-The daytime condition is generated via :py:meth:`~saqc.SaQC.flagGeneric`:
+The daytime condition is generated via `flagGeneric`:
 
 .. doctest:: andGroupExample
 
@@ -1689,11 +1689,11 @@ See also
 
 clearFlags : set whole column to UNFLAGGED
 flagUnflagged : set flag value at all unflagged positions
-target : :py:class:`SaQCFields` | :py:class:`newSaQCFields` , optional
-    Variable name to which the results are written. :py:attr:`target` will be created if it does not exist. Defaults to :py:attr:`field`.
-dfilter : :py:class:`Any`, optional
+target : `SaQCFields` | `newSaQCFields` , optional
+    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+dfilter :  optional
     Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
-flag : :py:class:`Any`, optional
+flag :  optional
     The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
 
 
@@ -1712,8 +1712,8 @@ See Examples section for examples.
 
 Examples
 
-Flag data, if the values are above a certain threshold (determined by :py:meth:`~saqc.SaQC.flagRange`) OR if the values are
-constant for 3 periods (determined by :py:meth:`~saqc.SaQC.flagConstants`)
+Flag data, if the values are above a certain threshold (determined by `flagRange`) OR if the values are
+constant for 3 periods (determined by `flagConstants`)
 
 .. doctest:: orGroupExample
 
@@ -1860,8 +1860,8 @@ Project flags of `a` to both `b` and `c`:
 
 See also
 
-* :py:meth:`saqc.SaQC.flagGeneric`
-* :py:meth:`saqc.SaQC.concatFlags`
+* `flagGeneric`
+* `concatFlags`
 
 
 
@@ -1947,23 +1947,23 @@ Flag values where the Local Outlier Factor (LOF) exceeds cutoff.
 
 Notes
 
-* The :py:meth:`~saqc.SaQC.flagLOF` function calculates the Local
+* The `flagLOF` function calculates the Local
   Outlier Factor (LOF) for every point in the input timeseries.
   The *LOF* is a scalar value, that roughly correlates to the
   *reachability*, or "outlierishnes" of the evaluated datapoint.
-  If a point is as reachable, as all its :py:attr:`n`-nearest
+  If a point is as reachable, as all its `n`-nearest
   neighbors, the *LOF* score evaluates to around ``1``. If it
   is only as half as reachable as all its ``n``-nearest neighbors
   are (so to say, as double as "outlierish"), the score is about
   ``2``. So, the Local Outlier *Factor* relates a point's *reachability*
-  to the *reachability* of its :py:attr:`n`-nearest neighbors
+  to the *reachability* of its `n`-nearest neighbors
   in a multiplicative fashion (as a "factor").
 * The *reachability* of a point thereby is determined as an aggregation
-  of the points distances to its :py:attr:`n`-nearest neighbors,
-  measured with regard to the minkowski metric of degree :py:attr:`p`
+  of the points distances to its `n`-nearest neighbors,
+  measured with regard to the minkowski metric of degree `p`
   (usually euclidean).
 * To derive a binary label for every point (outlier: *yes*, or *no*),
-  the scores are cut off at a level, determined by :py:attr:`thresh`.
+  the scores are cut off at a level, determined by `thresh`.
 
 
 
@@ -1978,14 +1978,14 @@ This test classifies values or value sequences as outliers by detecting
 abrupt rises and subsequent returns to the original value level within a given amount of time. Both single-value
 spikes and plateau-like sequences are detected.
 
-Values :math:`x_n, x_{n+1}, ..., x_{n+k}` with timestamps
-:math:`t_n, t_{n+1}, ..., t_{n+k}` are considered offsets if:
+Values `x_n, x_{n+1}, ..., x_{n+k}` with timestamps
+`t_n, t_{n+1}, ..., t_{n+k}` are considered offsets if:
 
-1. :math:`|x_{n-1} - x_{n+s}| >` `thresh` for all :math:`s \in [0, ..., k]`
-2. If `thresh_relative` > 0, :math:`x_{n+s} > x_{n-1}*(1 + thresh_relative)`
-3. If `thresh_relative` < 0, :math:`x_{n+s} < x_{n-1}*(1 + thresh_relative)`
-4. :math:`|x_{n-1} - x_{n+k+1}| <` `tolerance`
-5. :math:`|t_{n-1} - t_{n+k+1}| <` `window`
+1. `|x_{n-1} - x_{n+s}| >` `thresh` for all `s \in [0, ..., k]`
+2. If `thresh_relative` > 0, `x_{n+s} > x_{n-1}*(1 + thresh_relative)`
+3. If `thresh_relative` < 0, `x_{n+s} < x_{n-1}*(1 + thresh_relative)`
+4. `|x_{n-1} - x_{n+k+1}| <` `tolerance`
+5. `|t_{n-1} - t_{n+k+1}| <` `window`
 
 Examples
 
@@ -2008,7 +2008,7 @@ value jump, initializing an offset course.
    data = pd.DataFrame({'data':np.array([5,5,8,16,17,7,4,4,4,1,1,4])}, index=pd.date_range('2000',freq='1h', periods=12))
 
 Lets generate a simple, regularly sampled timeseries with an hourly sampling rate and generate an
-:py:class:`saqc.SaQC` instance from it.
+`saqc.SaQC` instance from it.
 
 .. doctest:: flagOffsetExample
 
@@ -2030,7 +2030,7 @@ Lets generate a simple, regularly sampled timeseries with an hourly sampling rat
    2000-01-01 11:00:00     4
    >>> qc = saqc.SaQC(data)
 
-Now we are applying :py:meth:`~saqc.SaQC.flagOffset` and try to flag offset courses that don't extend
+Now we are applying `flagOffset` and try to flag offset courses that don't extend
 longer than 6 hours in time (`window`) and that have an initial value jump higher than 2 (`thresh`),
 and that return to the initial value level within a tolerance of 1.5 (`tolerance`).
 
@@ -2105,7 +2105,7 @@ introduction and tuning guidance.
 Example usage with default parameter configuration:
 
 Loading data via the pandas CSV parser, casting the index to a DatetimeIndex,
-generating a :py:class:`~saqc.SaQC` instance from the data, and plotting the variable
+generating a `~saqc.SaQC` instance from the data, and plotting the variable
 representing light scattering at 254 nanometers wavelength.
 
 .. doctest:: flagUniLOFExample
@@ -2124,8 +2124,8 @@ representing light scattering at 254 nanometers wavelength.
 
    qc.plot('sac254_raw')
 
-We apply :py:meth:`~saqc.SaQC.flagUniLOF` with default parameter values.
-This means that the main calibration parameters :py:attr:`n` and :py:attr:`thresh`
+We apply `flagUniLOF` with default parameter values.
+This means that the main calibration parameters `n` and `thresh`
 evaluate to ``20`` and ``1.5``, respectively.
 
 .. doctest:: flagUniLOFExample
@@ -2161,22 +2161,22 @@ residual value may be required to avoid over-flagging in low-variance segments.
 
 Notes
 
-For any data value :math:`x` at timestamp :math:`t` the following steps are performed in order to determine the flagging:
+For any data value `x` at timestamp `t` the following steps are performed in order to determine the flagging:
 
-1. Collect a context population :math:`X` based on ``axis`` and ``window``.
-   * If ``axis=0``, :math:`X` contains values of the same field :math:`x` is obtained from, sampled within ``window`` distance around :math:`t`.
-   * If ``axis=1``, :math:`X` contains values of all fields, sampled within ``window`` distance from :math:`t`.
-   * If ``axis=1`` and ``window=1``, :math:`X` contains values of all fields sampled at :math:`t`.
+1. Collect a context population `X` based on ``axis`` and ``window``.
+   * If ``axis=0``, `X` contains values of the same field `x` is obtained from, sampled within ``window`` distance around `t`.
+   * If ``axis=1``, `X` contains values of all fields, sampled within ``window`` distance from `t`.
+   * If ``axis=1`` and ``window=1``, `X` contains values of all fields sampled at `t`.
 
 .. images:: ZscorePopulation.png
    :class: with-border
 
-2. Compute the score :math:`Z = \frac{|E(X) - x|}{S(X)}`
+2. Compute the score `Z = \frac{|E(X) - x|}{S(X)}`
 
-   * If ``method="standard"``: :math:`E(X)=mean(X)`, :math:`S(X)=std(X)`
-   * If ``method="modified"``: :math:`E(X)=median(X)`, :math:`S(X)=MAD(X)`
+   * If ``method="standard"``: `E(X)=mean(X)`, `S(X)=std(X)`
+   * If ``method="modified"``: `E(X)=median(X)`, `S(X)=MAD(X)`
 
-3. Flag :math:`x`, if :math:`Z >` ``thresh`` and :math:`|E(X) - x|`> ``min_residuals``.
+3. Flag `x`, if `Z >` ``thresh`` and `|E(X) - x|`> ``min_residuals``.
 
 
 
@@ -2228,8 +2228,8 @@ Flag anomalous value plateaus.
 Notes
 
 Minimum plateau length should be set higher than about twice the sampling rate.
-For detecting shorter anomalies, use :py:meth:`~saqc.SaQC.flagUniLOF` or
-:py:meth:`~saqc.SaQC.flagZScore`.
+For detecting shorter anomalies, use `flagUniLOF` or
+`flagZScore`.
 
 Examples
 
@@ -2275,8 +2275,8 @@ resampling.concatFlags
 
 
 
-Project flags/history of :py:attr:`field` to :py:attr:`target` and adjust to the frequeny grid
-of :py:attr:`target` by 'undoing' former interpolation, shifting or resampling operations
+Project flags/history of `field` to `target` and adjust to the frequeny grid
+of `target` by 'undoing' former interpolation, shifting or resampling operations
 
 Notes
 
@@ -2673,15 +2673,15 @@ Notes
 
 Steps of calculation:
 
-1. Consider a window :math:`W` of successive points :math:`W = x_{1},...x_{w}`
-containing the value :math:`y_{K}` wich is to be checked.
-(The index of :math:`K` depends on the selection of the parameter `center`.)
+1. Consider a window `W` of successive points `W = x_{1},...x_{w}`
+containing the value `y_{K}` wich is to be checked.
+(The index of `K` depends on the selection of the parameter `center`.)
 
-2. The "moment" :math:`M` for the window gets calculated via :math:`M=` model_func(:math:`W`)
+2. The "moment" `M` for the window gets calculated via `M=` model_func(`W`)
 
-3. The "scaling" :math:`N` for the window gets calculated via :math:`N=` norm_func(:math:`W`)
+3. The "scaling" `N` for the window gets calculated via `N=` norm_func(`W`)
 
-4. The "score" :math:`S` for the point :math:`x_{k}`gets calculated via :math:`S=(x_{k} - M) / N`
+4. The "score" `S` for the point `x_{k}`gets calculated via `S=(x_{k} - M) / N`
 
 
 

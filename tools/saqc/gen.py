@@ -111,19 +111,18 @@ def clean_annotation_string(s: str) -> str:
     return s
 
 
+def _clean_py_annot(doc_str: Optional[str]) -> str:
+    if not doc_str:
+        return ""
+    return doc_str.replace(":math:", "").replace(":py:attr:", "").replace(":py:class:`Any`,", "").replace(":py:class:", "").replace(":py:func:", "").replace(":py:meth:", "").replace("~saqc.SaQC.", "").replace("saqc.SaQC.", "")
+
 def _get_doc(doc_str: Optional[str]) -> Tuple[str, str]:
     """
     get the the short (1st line) and long doc from a method doc string
     """
     if not doc_str:
         return "", ""
-    doc_str = (
-        doc_str.replace(":py:attr:", "")
-        .replace(":py:class:`Any`,", "")
-        .replace(":py:class:", "")
-        .replace(":py:func:", "")
-        .replace(":py:meth:", "")
-    )
+    doc_str = _clean_py_annot(doc_str)
     doc_str = re.sub(r".. doctest:: (\w+).*", r"\1::", doc_str)
     doc_str = re.sub(r".. doctest::$", "Example::", doc_str, flags=re.MULTILINE)
 
@@ -1453,6 +1452,7 @@ def generate_tool_xml(tracing=False):
 
 {methods_help}
 """
+    tool.help = _clean_py_annot(tool.help)
     tool.help = tool.help.replace("SaQC", "SaQC [#saqcurl]_" , 1)
     tool.help += "\n@SAQCLINKS@"
 

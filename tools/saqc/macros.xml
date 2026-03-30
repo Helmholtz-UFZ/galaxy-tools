@@ -1,18 +1,29 @@
 <macros>
+    <token name="@TOOL_VERSION@">2.7.0</token>
+    <token name="@VERSION_SUFFIX@">0</token>
+
     <xml name="requirements">
         <requirements>
             <requirement type="package" version="@TOOL_VERSION@">saqc</requirement>
         </requirements>
     </xml>
-
-    <token name="@TOOL_VERSION@">2.7.0</token>
-    <token name="@VERSION_SUFFIX@">0</token>
+    <xml name="creator">
+        <creator>
+            <organization name="Helmholtz Centre for Environmental Research - UFZ, Research Data Management" url ="https://www.ufz.de/index.php?en=45348"/>
+            <person givenName="Matthias" familyName="Bernt" url="https://www.ufz.de/index.php?en=43047"/>
+        </creator>
+    </xml>
 
     <xml name="citations">
         <citations>
             <citation type="doi">https://doi.org/10.1016/j.envsoft.2023.105809</citation>
         </citations>
     </xml>
+
+    <token name="@SAQCLINKS@">
+        .. [#saqcurl]  https://rdm-software.pages.ufz.de/saqc/index.html
+        .. [#saqgit] https://git.ufz.de/rdm-software/saqc
+    </token>
 
     <xml name="saqc_tests">
     <tests>

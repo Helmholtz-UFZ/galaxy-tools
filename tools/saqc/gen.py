@@ -1299,7 +1299,7 @@ def get_methods_conditional(methods, module_name, module, tracing=False):
         if "Returns" in sections:
             del sections["Returns"]
 
-        doc = "\n".join([f"{k}\n`````````````\n\n{v}\n" for k, v in sections.items()])
+        doc = "\n".join([f"{k}\n\n{v}\n" for k, v in sections.items()])
         methods_help += f"""
 
 {module_name}.{method_name}
@@ -1453,6 +1453,8 @@ def generate_tool_xml(tracing=False):
 
 {methods_help}
 """
+    tool.help = tool.help.replace("SaQC", "SaQC [#saqcurl]_" , 1)
+    tool.help += "\n@SAQCLINKS@"
 
     if module_select_options:
         module_repeat.append(module_conditional)

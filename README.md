@@ -10,7 +10,7 @@
 
 This repository contains tools mantained within the UFZ and that can be installed and used inside any Galaxy instance. 
 
-**Contribution are welcome**. Please open an issue or a PR in case you want to contribuite to the tool list.
+**Contributions are welcome**. Please open an issue or a PR in case you want to contribute to the tool list.
 
 
 ## List of Tools

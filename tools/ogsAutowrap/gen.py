@@ -457,144 +457,171 @@ def generate_tools(ogs_root: Path):
     for tool_data in all_tools_data:
         tool_name = tool_data["name"]
         if tool_name.lower() in EXCLUDED_TOOLS:
-            eprint(f"--> Skipping excluded tool: {tool_name}")
+            logging.info(f"--> Skipping excluded tool: {tool_name}")
             continue
-        eprint(f"Generating wrapper for: {tool_name}...")
-        try:
-            galaxy_inputs, output_command_map = process_parameters(
-                tool_data["parameters"]
-            )
+        logging.info(f"Generating wrapper for: {tool_name}...")
+        galaxy_inputs, output_command_map = process_parameters(
+            tool_data["parameters"]
+        )
 
-            # 1. EXECUTABLE NAMING
-            current_exe = tool_name
-            if tool_name.upper() == "PVTU2VTU":
-                current_exe = "pvtu2vtu"
-            elif tool_name[0].isupper() and tool_name[1:].islower():
-                current_exe = tool_name[0].lower() + tool_name[1:]
+        # 1. EXECUTABLE NAMING
+        current_exe = tool_name
+        if tool_name.upper() == "PVTU2VTU":
+            current_exe = "pvtu2vtu"
+        elif tool_name[0].isupper() and tool_name[1:].islower():
+            current_exe = tool_name[0].lower() + tool_name[1:]
 
-            m_fixes = {
-                "PVTU2VTU": "pvtu2vtu",
-                "FEFLOW2OGS": "feflow2ogs",
-                "MergeMeshToBulkMesh": "mergeMeshToBulkMesh",
-                "PartitionMesh": "partmesh",
-            }
+        m_fixes = {
+            "PVTU2VTU": "pvtu2vtu",
+            "FEFLOW2OGS": "feflow2ogs",
+            "MergeMeshToBulkMesh": "mergeMeshToBulkMesh",
+            "PartitionMesh": "partmesh",
+        }
 
-            executable_name = m_fixes.get(tool_name, current_exe)
+        executable_name = m_fixes.get(tool_name, current_exe)
 
-            command_parts = []
-            flag_parts = []
-            unlabeled_parts = []
+        command_parts = []
+        flag_parts = []
+        unlabeled_parts = []
 
-            # 2. SYMLINKS & ARGUMENT MAPPING
-            for param in galaxy_inputs:
-                is_repeat = getattr(param, "is_repeat", False)
-                is_unlabeled = getattr(param, "is_unlabeled", False)
+        # 2. SYMLINKS & ARGUMENT MAPPING
+        for param in galaxy_inputs:
+            is_repeat = getattr(param, "is_repeat", False)
+            is_unlabeled = getattr(param, "is_unlabeled", False)
 
-                flag = getattr(param, "original_long_flag", param.name)
+            flag = getattr(param, "original_long_flag", param.name)
 
-                is_pvd_element = getattr(param, "is_pvd_element", False)
+            is_pvd_element = getattr(param, "is_pvd_element", False)
 
-                if isinstance(param, DataParam):
-                    is_file_list = getattr(param, "is_file_list", False)
-                    is_coll = getattr(param, "is_data_collection", False)
+            if isinstance(param, DataParam):
+                is_file_list = getattr(param, "is_file_list", False)
+                is_coll = getattr(param, "is_data_collection", False)
 
-                    if getattr(param, "is_pvd_element", False):
-                        command_parts.append(
-                            f"  #for $item in ${param.name}\n    ln -sf '$item' '$item.element_identifier';\n  #end for"
-                        )
-                        continue
-                    if is_file_list:
-                        list_file = f"{param.name}_list.txt"
-                        command_parts.append(f"touch {list_file};")
-                        command_parts.append(
-                            f"#for $item in ${param.name}\n  ln -sf '$item' '$item.element_identifier';\n  echo '$item.element_identifier' >> {list_file};\n#end for"
-                        )
-                        flag_parts.append(f"    --{flag} {list_file}")
-                        continue
-                    if is_coll:
-                        command_parts.append(
-                            f"#for $item in ${param.name}\nln -sf '$item' '$item.element_identifier';\n#end for"
-                        )
-                        loop_str = f"#for $item in ${param.name}\n'$item.element_identifier'\n#end for"
-                        if is_unlabeled:
-                            unlabeled_parts.append(f"    --\n{loop_str}")
-                        else:
-                            flag_parts.append(f"    --{flag}\n{loop_str}")
-                    else:
-                        command_parts.append(
-                            f"ln -sf '${param.name}' '${param.name}.element_identifier';"
-                        )
-                        arg_val = f"'${param.name}.element_identifier'"
-                        if is_unlabeled:
-                            unlabeled_parts.append(f"    {arg_val}")
-                        else:
-                            flag_parts.append(f"    --{flag} {arg_val}")
-                elif isinstance(param, BooleanParam):
-                    flag_parts.append(f"    ${param.name}")
-                elif isinstance(
-                    param, (TextParam, IntegerParam, FloatParam, SelectParam)
-                ):
-                    if is_unlabeled:
-                        unlabeled_parts.append(f"    '${param.name}'")
-                    else:
-                        flag_parts.append(f"    --{flag} '${param.name}'")
-
-            # 3. OUTPUT FLAGS
-            for flag, info in output_command_map.items():
-                if flag == "VIRTUAL_no_flag":
+                if getattr(param, "is_pvd_element", False):
+                    command_parts.append(
+                        f"  #for $item in ${param.name}\n    ln -sf '$item' '$item.element_identifier';\n  #end for"
+                    )
                     continue
-                if info.get("type") == "BASE_FILENAME":
-                    if "directory" in flag.lower():
-                        flag_parts.append(f"    --{flag} 'new_output'")
+                if is_file_list:
+                    list_file = f"{param.name}_list.txt"
+                    command_parts.append(f"touch {list_file};")
+                    command_parts.append(
+                        f"#for $item in ${param.name}\n  ln -sf '$item' '$item.element_identifier';\n  echo '$item.element_identifier' >> {list_file};\n#end for"
+                    )
+                    flag_parts.append(f"    --{flag} {list_file}")
+                    continue
+                if is_coll:
+                    command_parts.append(
+                        f"#for $item in ${param.name}\nln -sf '$item' '$item.element_identifier';\n#end for"
+                    )
+                    loop_str = f"#for $item in ${param.name}\n'$item.element_identifier'\n#end for"
+                    if is_unlabeled:
+                        unlabeled_parts.append(f"    --\n{loop_str}")
                     else:
-                        flag_parts.append(f"    --{flag} 'new_'")
+                        flag_parts.append(f"    --{flag}\n{loop_str}")
                 else:
-                    flag_parts.append(f"    --{flag} {info['filename']}")
+                    command_parts.append(
+                        f"ln -sf '${param.name}' '${param.name}.element_identifier';"
+                    )
+                    arg_val = f"'${param.name}.element_identifier'"
+                    if is_unlabeled:
+                        unlabeled_parts.append(f"    {arg_val}")
+                    else:
+                        flag_parts.append(f"    --{flag} {arg_val}")
+            elif isinstance(param, BooleanParam):
+                flag_parts.append(f"    ${param.name}")
+            elif isinstance(
+                param, (TextParam, IntegerParam, FloatParam, SelectParam)
+            ):
+                if is_unlabeled:
+                    unlabeled_parts.append(f"    '${param.name}'")
+                else:
+                    flag_parts.append(f"    --{flag} '${param.name}'")
 
-            final_exec_line = [executable_name]
-            final_exec_line.extend(flag_parts)
-            final_exec_line.extend(unlabeled_parts)
-            command_parts.extend(final_exec_line)
-            if not output_command_map:
-                command_parts[-1] += " > '$stdout_log'"
-            command_str = "\n".join(command_parts)
+        # 3. OUTPUT FLAGS
+        for flag, info in output_command_map.items():
+            if flag == "VIRTUAL_no_flag":
+                continue
+            if info.get("type") == "BASE_FILENAME":
+                if "directory" in flag.lower():
+                    flag_parts.append(f"    --{flag} 'new_output'")
+                else:
+                    flag_parts.append(f"    --{flag} 'new_'")
+            else:
+                flag_parts.append(f"    --{flag} {info['filename']}")
 
-            # 4. Tool object
-            tool = Tool(
-                name=f"OGS: {tool_name}",
-                id=f"ogs_{tool_name.lower()}",
-                version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@",
-                description=f"Galaxy wrapper for the OGS utility '{tool_name}'.",
-                executable=executable_name,
-                macros=["macros.xml", "test_macros.xml"],
-                profile="22.01",
-                version_command=f"{executable_name} --version",
-                command_override=[command_str],
+        final_exec_line = [executable_name]
+        final_exec_line.extend(flag_parts)
+        final_exec_line.extend(unlabeled_parts)
+        command_parts.extend(final_exec_line)
+        if not output_command_map:
+            command_parts[-1] += " > '$stdout_log'"
+        command_str = "\n".join(command_parts)
+
+        # 4. Tool object
+        tool = Tool(
+            name=f"OGS: {tool_name}",
+            id=f"ogs_{tool_name.lower()}",
+            version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@",
+            description=f"Galaxy wrapper for the OGS utility '{tool_name}'.",
+            executable=executable_name,
+            macros=["macros.xml", "test_macros.xml"],
+            profile="22.01",
+            version_command=f"{executable_name} --version",
+            command_override=[command_str],
+        )
+
+        inputs_tag = tool.inputs = Inputs()
+        for param in galaxy_inputs:
+            inputs_tag.append(param)
+
+        if output_command_map:
+            outputs_tag = tool.outputs = Outputs()
+            uses_base_filename = any(
+                info.get("type") == "BASE_FILENAME"
+                for info in output_command_map.values()
             )
 
-            inputs_tag = tool.inputs = Inputs()
-            for param in galaxy_inputs:
-                inputs_tag.append(param)
-
-            if output_command_map:
-                outputs_tag = tool.outputs = Outputs()
-                uses_base_filename = any(
-                    info.get("type") == "BASE_FILENAME"
-                    for info in output_command_map.values()
+            if uses_base_filename:
+                pattern = (
+                    r"(?P<designation>.*)\.vtu"
+                    if "VIRTUAL_no_flag" in output_command_map
+                    else r"(?P<designation>new_.*)"
                 )
-
-                if uses_base_filename:
-                    pattern = (
-                        r"(?P<designation>.*)\.vtu"
-                        if "VIRTUAL_no_flag" in output_command_map
-                        else r"(?P<designation>new_.*)"
+                first_out_info = next(
+                    info
+                    for info in output_command_map.values()
+                    if info.get("type") == "BASE_FILENAME"
+                )
+                target_fmt = first_out_info.get("format", "vtkxml")
+                collection = OutputCollection(
+                    name="tool_outputs",
+                    type="list",
+                    label=f"Outputs from {tool_name}",
+                )
+                collection.append(
+                    DiscoverDatasets(
+                        pattern=pattern, format=target_fmt, visible=True
                     )
-                    first_out_info = next(
-                        info
-                        for info in output_command_map.values()
-                        if info.get("type") == "BASE_FILENAME"
+                )
+                outputs_tag.append(collection)
+            else:
+                single_file_outputs = [
+                    v
+                    for v in output_command_map.values()
+                    if v.get("type") == "FIXED_FILE"
+                ]
+                if len(single_file_outputs) == 1 and len(output_command_map) == 1:
+                    flag, info = list(output_command_map.items())[0]
+                    outputs_tag.append(
+                        OutputData(
+                            name=sanitize_name(f"output_{tool_name}"),
+                            format=info["format"],
+                            from_work_dir=info["filename"],
+                            label=f"Output from {tool_name}",
+                        )
                     )
-                    target_fmt = first_out_info.get("format", "vtkxml")
+                else:
                     collection = OutputCollection(
                         name="tool_outputs",
                         type="list",
@@ -602,110 +629,76 @@ def generate_tools(ogs_root: Path):
                     )
                     collection.append(
                         DiscoverDatasets(
-                            pattern=pattern, format=target_fmt, visible=True
+                            pattern=r"output_.*\.(vtu|msh|asc|gml|xml)",
+                            format="data",
+                            visible=True,
                         )
                     )
                     outputs_tag.append(collection)
-                else:
-                    single_file_outputs = [
-                        v
-                        for v in output_command_map.values()
-                        if v.get("type") == "FIXED_FILE"
-                    ]
-                    if len(single_file_outputs) == 1 and len(output_command_map) == 1:
-                        flag, info = list(output_command_map.items())[0]
-                        outputs_tag.append(
-                            OutputData(
-                                name=sanitize_name(f"output_{tool_name}"),
-                                format=info["format"],
-                                from_work_dir=info["filename"],
-                                label=f"Output from {tool_name}",
-                            )
-                        )
-                    else:
-                        collection = OutputCollection(
-                            name="tool_outputs",
-                            type="list",
-                            label=f"Outputs from {tool_name}",
-                        )
-                        collection.append(
-                            DiscoverDatasets(
-                                pattern=r"output_.*\.(vtu|msh|asc|gml|xml)",
-                                format="data",
-                                visible=True,
-                            )
-                        )
-                        outputs_tag.append(collection)
-            else:
-                outputs_tag = tool.outputs = Outputs()
-                outputs_tag.append(
-                    OutputData(
-                        name="stdout_log",
-                        format="txt",
-                        label=f"Output Log from {tool_name}",
-                    )
+        else:
+            outputs_tag = tool.outputs = Outputs()
+            outputs_tag.append(
+                OutputData(
+                    name="stdout_log",
+                    format="txt",
+                    label=f"Output Log from {tool_name}",
                 )
-
-            tests_section = Tests()
-            tests_section.append(Expand(macro=f"{tool_name.lower()}_test"))
-            tool.tests = tests_section
-            tool.help = (
-                f"This tool runs the **{tool_name}** utility from the OpenGeoSys suite."
             )
 
-            # --- 5. XML
-            raw_xml_string = tool.export()
-            tool_xml_root = ET.fromstring(raw_xml_string)
-            inputs_node = tool_xml_root.find("inputs")
+        tests_section = Tests()
+        tests_section.append(Expand(macro=f"{tool_name.lower()}_test"))
+        tool.tests = tests_section
+        tool.help = (
+            f"This tool runs the **{tool_name}** utility from the OpenGeoSys suite."
+        )
 
-            if inputs_node is not None:
-                for param in galaxy_inputs:
-                    if getattr(param, "is_data_collection", False):
-                        p_node = inputs_node.find(f"param[@name='{param.name}']")
-                        if p_node is not None:
-                            p_node.set("type", "data_collection")
-                            p_node.set("collection_type", "list")
-                            if "multiple" in p_node.attrib:
-                                del p_node.attrib["multiple"]
+        # --- 5. XML
+        raw_xml_string = tool.export()
+        tool_xml_root = ET.fromstring(raw_xml_string)
+        inputs_node = tool_xml_root.find("inputs")
 
-            output_file_path = OUTPUT_DIR / f"{tool_name}.xml"
-            xml_str = ET.tostring(tool_xml_root, encoding="unicode")
+        if inputs_node is not None:
+            for param in galaxy_inputs:
+                if getattr(param, "is_data_collection", False):
+                    p_node = inputs_node.find(f"param[@name='{param.name}']")
+                    if p_node is not None:
+                        p_node.set("type", "data_collection")
+                        p_node.set("collection_type", "list")
+                        if "multiple" in p_node.attrib:
+                            del p_node.attrib["multiple"]
 
-            def version_cdata_rewrite(match):
-                return f"<version_command><![CDATA[{match.group(1).strip()}]]></version_command>"
+        output_file_path = OUTPUT_DIR / f"{tool_name}.xml"
+        xml_str = ET.tostring(tool_xml_root, encoding="unicode")
 
-            xml_str = re.sub(
-                r"<version_command>(.*?)</version_command>",
-                version_cdata_rewrite,
-                xml_str,
+        def version_cdata_rewrite(match):
+            return f"<version_command><![CDATA[{match.group(1).strip()}]]></version_command>"
+
+        xml_str = re.sub(
+            r"<version_command>(.*?)</version_command>",
+            version_cdata_rewrite,
+            xml_str,
+        )
+
+        def command_cdata_rewrite(match):
+            content = (
+                match.group(1)
+                .strip()
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&amp;", "&")
             )
+            return f"<command><![CDATA[\n{content}\n]]></command>"
 
-            def command_cdata_rewrite(match):
-                content = (
-                    match.group(1)
-                    .strip()
-                    .replace("&lt;", "<")
-                    .replace("&gt;", ">")
-                    .replace("&amp;", "&")
-                )
-                return f"<command><![CDATA[\n{content}\n]]></command>"
+        xml_str = re.sub(
+            r"<command.*?>(.*?)</command>",
+            command_cdata_rewrite,
+            xml_str,
+            flags=re.DOTALL,
+        )
 
-            xml_str = re.sub(
-                r"<command.*?>(.*?)</command>",
-                command_cdata_rewrite,
-                xml_str,
-                flags=re.DOTALL,
-            )
-
-            with open(output_file_path, "w", encoding="utf-8") as f:
-                f.write('<?xml version="1.0" encoding="UTF-8"?>\n' + xml_str)
-            generated_count += 1
-
-        except Exception as e:
-            eprint(f"!! ERROR while processing '{tool_name}': {e}")
-            import traceback
-
-            traceback.print_exc(file=sys.stderr)
+        with open(output_file_path, "w", encoding="utf-8") as f:
+            f.write('<?xml version="1.0" encoding="UTF-8"?>\n' + xml_str)
+        generated_count += 1
 
     eprint(f"\nFinished. {generated_count} tool wrappers created.")
 

@@ -16,9 +16,9 @@ scaleProperty
     --out-mesh output_1.vtu
 ]]></command>
   <inputs>
-    <param name="property_name" type="text" optional="true" label="property name" help="the name of the property the values are stored for" />
-    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The input mesh is read from this file" format="vtkxml" />
-    <param name="input_unit" type="select" optional="false" label="input unit" help="input unit of the data">
+    <param argument="--property-name" type="text" optional="true" label="property name" help="the name of the property the values are stored for" />
+    <param argument="--mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The input mesh is read from this file" format="vtkxml" />
+    <param argument="--input-unit" type="select" optional="true" label="input unit" help="input unit of the data" multiple="false">
       <option value="mm/a">mm/a</option>
       <option value="mm/month">mm/month</option>
       <option value="m/s">m/s</option>

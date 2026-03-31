@@ -21,18 +21,18 @@ addDataToRaster
     --output_raster output_1.asc
 ]]></command>
   <inputs>
-    <param name="scaling_value" type="float" optional="true" label="scaling value" help="value the function sin(x pi) sin(y pi) will be scaled with" />
-    <param name="offset_value" type="float" optional="true" label="offset value" help="constant added to the function 'scaling * sin(x pi) * sin(y pi)'" />
-    <param name="ll_x" type="float" optional="true" label="ll x" help="x coordinate of lower left point of axis aligned rectangular region" />
-    <param name="ll_y" type="float" optional="true" label="ll y" help="y coordinate of lower left point of axis aligned rectangular region" />
-    <param name="ur_x" type="float" optional="true" label="ur x" help="x coordinate of the upper right point of axis aligned rectangular region" />
-    <param name="ur_y" type="float" optional="true" label="ur y" help="y coordinate of the upper right point of axis aligned rectangular region" />
-    <param name="function" type="select" optional="false" label="function" help="Name of the function used to modify the raster">
+    <param argument="--scaling_value" type="float" optional="true" label="scaling value" help="value the function sin(x pi) sin(y pi) will be scaled with" />
+    <param argument="--offset_value" type="float" optional="true" label="offset value" help="constant added to the function 'scaling * sin(x pi) * sin(y pi)'" />
+    <param argument="--ll_x" type="float" optional="true" label="ll x" help="x coordinate of lower left point of axis aligned rectangular region" />
+    <param argument="--ll_y" type="float" optional="true" label="ll y" help="y coordinate of lower left point of axis aligned rectangular region" />
+    <param argument="--ur_x" type="float" optional="true" label="ur x" help="x coordinate of the upper right point of axis aligned rectangular region" />
+    <param argument="--ur_y" type="float" optional="true" label="ur y" help="y coordinate of the upper right point of axis aligned rectangular region" />
+    <param argument="--function" type="select" optional="true" label="function" help="Name of the function used to modify the raster" multiple="false">
       <option value="sinxsiny">sinxsiny</option>
       <option value="exp">exp</option>
       <option value="step">step</option>
     </param>
-    <param name="input" type="data" optional="false" label="input" help="Input (.asc). Name of the input raster file" format="raster.asc" />
+    <param argument="--input" type="data" optional="false" label="input" help="Input (.asc). Name of the input raster file" format="raster.asc" />
   </inputs>
   <outputs>
     <data name="output_addDataToRaster" format="raster.asc" label="Output from addDataToRaster" from_work_dir="output_1.asc" hidden="false" />

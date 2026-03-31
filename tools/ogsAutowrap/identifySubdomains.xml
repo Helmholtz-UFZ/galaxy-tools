@@ -23,10 +23,10 @@ identifySubdomains
 #end for
 ]]></command>
   <inputs>
-    <param name="force" type="boolean" label="force" help="Overwriting existing subdomain meshes." checked="false" truevalue="--force" falsevalue="" />
-    <param name="searchlength" type="float" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number (min = 0)" />
-    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file name of the bulk mesh" format="vtkxml" />
-    <param name="subdomain_meshes_filenames" type="data_collection" optional="false" label="subdomain meshes filenames" help="mesh file names." format="vtkxml" collection_type="list" />
+    <param argument="--force" type="boolean" label="force" help="Overwriting existing subdomain meshes." checked="false" truevalue="--force" falsevalue="" />
+    <param argument="--searchlength" type="float" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number (min = 0)" />
+    <param argument="--mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file name of the bulk mesh" format="vtkxml" />
+    <param argument="--subdomain_meshes_filenames" type="data" optional="false" label="subdomain meshes filenames" help="mesh file names." format="vtkxml" />
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from identifySubdomains">

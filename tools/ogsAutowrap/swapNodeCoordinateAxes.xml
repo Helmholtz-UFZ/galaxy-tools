@@ -15,8 +15,8 @@ swapNodeCoordinateAxes
     --output-mesh-file output_1.vtu
 ]]></command>
   <inputs>
-    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu) mesh file" format="vtkxml" />
-    <param name="new_order" type="text" optional="true" label="new order" help="the new order of swapped coordinate values (e.g. 'xzy' for converting XYZ values to XZY values)" />
+    <param argument="--input-mesh-file" type="data" optional="false" label="input mesh file" help="Input (.vtu) mesh file" format="vtkxml" />
+    <param argument="--new-order" type="text" optional="true" label="new order" help="the new order of swapped coordinate values (e.g. 'xzy' for converting XYZ values to XZY values)" />
   </inputs>
   <outputs>
     <data name="output_swapNodeCoordinateAxes" format="vtkxml" label="Output from swapNodeCoordinateAxes" from_work_dir="output_1.vtu" hidden="false" />

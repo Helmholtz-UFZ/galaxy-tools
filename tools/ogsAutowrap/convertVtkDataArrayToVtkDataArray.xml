@@ -17,13 +17,13 @@ convertVtkDataArrayToVtkDataArray
     --out-mesh output_1.vtu
 ]]></command>
   <inputs>
-    <param name="new_property_data_type" type="select" optional="false" label="new property data type" help="the name of the data type as string">
+    <param argument="--new-property-data-type" type="select" optional="true" label="new property data type" help="the name of the data type as string" multiple="false">
       <option value="int">int</option>
       <option value="double">double</option>
     </param>
-    <param name="new_property_name" type="text" optional="true" label="new property name" help="the name of the new cell data array (PropertyVector) the values are stored" />
-    <param name="existing_property_name" type="text" optional="true" label="existing property name" help="the name of the existing cell data array (PropertyVector)" />
-    <param name="in_mesh" type="data" optional="false" label="in mesh" help="Input (.vtk) mesh file name" format="vtkxml" />
+    <param argument="--new-property-name" type="text" optional="true" label="new property name" help="the name of the new cell data array (PropertyVector) the values are stored" />
+    <param argument="--existing-property-name" type="text" optional="true" label="existing property name" help="the name of the existing cell data array (PropertyVector)" />
+    <param argument="--in-mesh" type="data" optional="false" label="in mesh" help="Input (.vtk) mesh file name" format="vtkxml" />
   </inputs>
   <outputs>
     <data name="output_convertVtkDataArrayToVtkDataArray" format="vtkxml" label="Output from convertVtkDataArrayToVtkDataArray" from_work_dir="output_1.vtu" hidden="false" />

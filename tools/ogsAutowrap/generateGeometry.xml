@@ -23,17 +23,17 @@ generateGeometry
     --output output_1.gml
 ]]></command>
   <inputs>
-    <param name="z0" type="float" optional="true" label="z0" help="z coordinate of the first point" />
-    <param name="y0" type="float" optional="true" label="y0" help="y coordinate of the first point" />
-    <param name="x0" type="float" optional="true" label="x0" help="x coordinate of the first point" />
-    <param name="z1" type="float" optional="true" label="z1" help="z coordinate of the first point" />
-    <param name="y1" type="float" optional="true" label="y1" help="y coordinate of the first point" />
-    <param name="x1" type="float" optional="true" label="x1" help="x coordinate of the first point" />
-    <param name="nx" type="integer" optional="true" label="nx" help="number of subdivisions in x direction" />
-    <param name="ny" type="integer" optional="true" label="ny" help="number of subdivisions in y direction" />
-    <param name="nz" type="integer" optional="true" label="nz" help="number of subdivisions in z direction" />
-    <param name="geometry_name" type="text" optional="true" label="geometry name" help="name of the generated geometry" />
-    <param name="polyline_name" type="text" optional="true" label="polyline name" help="name of the generated polyline" />
+    <param argument="--z0" type="float" optional="true" label="z0" help="z coordinate of the first point" />
+    <param argument="--y0" type="float" optional="true" label="y0" help="y coordinate of the first point" />
+    <param argument="--x0" type="float" optional="true" label="x0" help="x coordinate of the first point" />
+    <param argument="--z1" type="float" optional="true" label="z1" help="z coordinate of the first point" />
+    <param argument="--y1" type="float" optional="true" label="y1" help="y coordinate of the first point" />
+    <param argument="--x1" type="float" optional="true" label="x1" help="x coordinate of the first point" />
+    <param argument="--nx" type="integer" optional="true" label="nx" help="number of subdivisions in x direction" />
+    <param argument="--ny" type="integer" optional="true" label="ny" help="number of subdivisions in y direction" />
+    <param argument="--nz" type="integer" optional="true" label="nz" help="number of subdivisions in z direction" />
+    <param argument="--geometry_name" type="text" optional="true" label="geometry name" help="name of the generated geometry" />
+    <param argument="--polyline_name" type="text" optional="true" label="polyline name" help="name of the generated polyline" />
   </inputs>
   <outputs>
     <data name="output_generateGeometry" format="xml" label="Output from generateGeometry" from_work_dir="output_1.gml" hidden="false" />

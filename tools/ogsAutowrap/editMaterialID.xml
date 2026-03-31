@@ -20,13 +20,13 @@ editMaterialID
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>
-    <param name="replace" type="boolean" label="replace" help="replace material IDs" checked="false" truevalue="--replace" falsevalue="" />
-    <param name="condense" type="boolean" label="condense" help="condense material IDs" checked="false" truevalue="--condense" falsevalue="" />
-    <param name="specify" type="boolean" label="specify" help="specify material IDs by element types (-e)" checked="false" truevalue="--specify" falsevalue="" />
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu | .msh). The name of the file containing the input mesh" format="vtkxml" />
-    <param name="current_material_id" type="text" optional="true" label="current material id" help="current material id to be replaced" />
-    <param name="new_material_id" type="text" optional="true" label="new material id" help="new material id" />
-    <param name="element_type" type="select" optional="false" label="element type" help="element type">
+    <param argument="--replace" type="boolean" label="replace" help="replace material IDs" checked="false" truevalue="--replace" falsevalue="" />
+    <param argument="--condense" type="boolean" label="condense" help="condense material IDs" checked="false" truevalue="--condense" falsevalue="" />
+    <param argument="--specify" type="boolean" label="specify" help="specify material IDs by element types (-e)" checked="false" truevalue="--specify" falsevalue="" />
+    <param argument="--mesh-input-file" type="data" optional="false" label="mesh input file" help="Input (.vtu | .msh). The name of the file containing the input mesh" format="vtkxml" />
+    <param argument="--current-material-id" type="text" optional="true" label="current material id" help="current material id to be replaced" />
+    <param argument="--new-material-id" type="text" optional="true" label="new material id" help="new material id" />
+    <param argument="--element-type" type="select" optional="true" label="element type" help="element type" multiple="false">
       <option value="point">point</option>
       <option value="line">line</option>
       <option value="quad">quad</option>

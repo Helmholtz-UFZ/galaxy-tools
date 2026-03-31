@@ -17,10 +17,10 @@ constructMeshesFromGeometry
     $multiple_nodes_allowed
 ]]></command>
   <inputs>
-    <param name="searchlength" type="float" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number, (min = 0)" />
-    <param name="geometry" type="data" optional="false" label="geometry" help="Input (.gml | .gli). The file name of the input geometry" format="xml" />
-    <param name="mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file name of the input mesh where the geometry is defined" format="vtkxml" />
-    <param name="multiple_nodes_allowed" type="boolean" label="multiple nodes allowed" help="Allows multiple mesh nodes in eps environment." checked="false" truevalue="--multiple-nodes-allowed" falsevalue="" />
+    <param argument="--searchlength" type="float" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number, (min = 0)" />
+    <param argument="--geometry" type="data" optional="false" label="geometry" help="Input (.gml | .gli). The file name of the input geometry" format="xml" />
+    <param argument="--mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file name of the input mesh where the geometry is defined" format="vtkxml" />
+    <param argument="--multiple-nodes-allowed" type="boolean" label="multiple nodes allowed" help="Allows multiple mesh nodes in eps environment." checked="false" truevalue="--multiple-nodes-allowed" falsevalue="" />
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from constructMeshesFromGeometry">

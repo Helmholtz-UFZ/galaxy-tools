@@ -20,11 +20,11 @@ SWMMConverter
     --csv output_3.csv
 ]]></command>
   <inputs>
-    <param name="input" type="data" optional="false" label="input" help="Input (.inp). SWMM input file" format="inp" />
-    <param name="node_vars" type="boolean" label="node vars" help="Read node variables and add to output mesh" checked="false" truevalue="--node_vars" falsevalue="" />
-    <param name="link_vars" type="boolean" label="link vars" help="Read link variables and add to output mesh" checked="false" truevalue="--link_vars" falsevalue="" />
-    <param name="subcatchment_vars" type="boolean" label="subcatchment vars" help="Read subcatchment variables and write to CSV-file" checked="false" truevalue="--subcatchment_vars" falsevalue="" />
-    <param name="system_vars" type="boolean" label="system vars" help="Read system variables and write to CSV-file" checked="false" truevalue="--system_vars" falsevalue="" />
+    <param argument="--input" type="data" optional="false" label="input" help="Input (.inp). SWMM input file" format="inp" />
+    <param argument="--node_vars" type="boolean" label="node vars" help="Read node variables and add to output mesh" checked="false" truevalue="--node_vars" falsevalue="" />
+    <param argument="--link_vars" type="boolean" label="link vars" help="Read link variables and add to output mesh" checked="false" truevalue="--link_vars" falsevalue="" />
+    <param argument="--subcatchment_vars" type="boolean" label="subcatchment vars" help="Read subcatchment variables and write to CSV-file" checked="false" truevalue="--subcatchment_vars" falsevalue="" />
+    <param argument="--system_vars" type="boolean" label="system vars" help="Read system variables and write to CSV-file" checked="false" truevalue="--system_vars" falsevalue="" />
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from SWMMConverter">

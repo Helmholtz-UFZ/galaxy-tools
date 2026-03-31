@@ -14,7 +14,7 @@ Raster2ASC
     --output output_1.asc
 ]]></command>
   <inputs>
-    <param name="input" type="data" optional="false" label="input" help="Input (.grd | .xyz). Filename for input raster" format="grd" />
+    <param argument="--input" type="data" optional="false" label="input" help="Input (.grd | .xyz). Filename for input raster" format="grd" />
   </inputs>
   <outputs>
     <data name="output_Raster2ASC" format="raster.asc" label="Output from Raster2ASC" from_work_dir="output_1.asc" hidden="false" />

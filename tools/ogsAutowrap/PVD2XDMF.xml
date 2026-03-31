@@ -17,8 +17,8 @@ PVD2XDMF
     '$pvd_file.element_identifier'
 ]]></command>
   <inputs>
-    <param name="pvd_file_pvd_data" type="data_collection" optional="true" label="pvd_file PVD Data Elements" help="VTU Member Collection" format="vtkxml" collection_type="list" />
-    <param name="pvd_file" type="data" optional="false" label="pvd file" help="Input (.pvd) file" format="vtkxml" />
+    <param name="pvd_file_pvd_data" type="data" optional="true" label="pvd_file PVD Data Elements" help="VTU Member Collection" format="vtkxml" />
+    <param argument="--pvd-file" type="data" optional="false" label="pvd file" help="Input (.pvd) file" format="vtkxml" />
   </inputs>
   <outputs>
     <data name="output_PVD2XDMF" format="vtkxml" label="Output from PVD2XDMF" from_work_dir="output_1.vtu" hidden="false" />

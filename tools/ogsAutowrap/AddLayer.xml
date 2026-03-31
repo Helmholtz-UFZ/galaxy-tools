@@ -18,11 +18,11 @@ AddLayer
     --output-mesh-file output_1.vtu
 ]]></command>
   <inputs>
-    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu). The name of the file containing the mesh" format="vtkxml" />
-    <param name="layer_tickness" type="float" optional="true" label="layer tickness" help="the thickness of the new layer, (min = 0)" />
-    <param name="add_layer_on_bottom" type="boolean" label="add layer on bottom" help="Per default the layer is add on the top, if this argument is set the layer is add on the bottom." checked="false" truevalue="--add-layer-on-bottom" falsevalue="" />
-    <param name="copy_material_ids" type="boolean" label="copy material ids" help="Copy the existing material distribution of the layer which is to be extended. If the switch isn't given a new material id will be created." checked="false" truevalue="--copy-material-ids" falsevalue="" />
-    <param name="set_material_id" type="integer" optional="true" label="set material id" help="the material id of the new layer, (min = 0)" />
+    <param argument="--input-mesh-file" type="data" optional="false" label="input mesh file" help="Input (.vtu). The name of the file containing the mesh" format="vtkxml" />
+    <param argument="--layer-tickness" type="float" optional="true" label="layer tickness" help="the thickness of the new layer, (min = 0)" />
+    <param argument="--add-layer-on-bottom" type="boolean" label="add layer on bottom" help="Per default the layer is add on the top, if this argument is set the layer is add on the bottom." checked="false" truevalue="--add-layer-on-bottom" falsevalue="" />
+    <param argument="--copy-material-ids" type="boolean" label="copy material ids" help="Copy the existing material distribution of the layer which is to be extended. If the switch isn't given a new material id will be created." checked="false" truevalue="--copy-material-ids" falsevalue="" />
+    <param argument="--set-material-id" type="integer" optional="true" label="set material id" help="the material id of the new layer, (min = 0)" />
   </inputs>
   <outputs>
     <data name="output_AddLayer" format="vtkxml" label="Output from AddLayer" from_work_dir="output_1.vtu" hidden="false" />

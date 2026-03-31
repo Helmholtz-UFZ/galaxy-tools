@@ -13,7 +13,7 @@ generateMatPropsFromMatID
     --mesh '$mesh.element_identifier'
 ]]></command>
   <inputs>
-    <param name="mesh" type="data" optional="true" label="mesh" help="Input (.msh). The mesh to open from a file" format="msh" />
+    <param argument="--mesh" type="data" optional="true" label="mesh" help="Input (.msh). The mesh to open from a file" format="msh" />
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from generateMatPropsFromMatID">

@@ -15,9 +15,9 @@ checkMesh
     '$mesh_file.element_identifier' > '$stdout_log'
 ]]></command>
   <inputs>
-    <param name="validation" type="boolean" label="validation" help="validate the mesh" checked="false" truevalue="--validation" falsevalue="" />
-    <param name="print_properties" type="boolean" label="print properties" help="print properties stored in the mesh" checked="false" truevalue="--print_properties" falsevalue="" />
-    <param name="mesh_file" type="data" optional="false" label="mesh file" help="Input (.vtu | .msh). Mesh file" format="vtkxml" />
+    <param argument="--validation" type="boolean" label="validation" help="validate the mesh" checked="false" truevalue="--validation" falsevalue="" />
+    <param argument="--print_properties" type="boolean" label="print properties" help="print properties stored in the mesh" checked="false" truevalue="--print_properties" falsevalue="" />
+    <param argument="--mesh-file" type="data" optional="false" label="mesh file" help="Input (.vtu | .msh). Mesh file" format="vtkxml" />
   </inputs>
   <outputs>
     <data name="stdout_log" format="txt" label="Output Log from checkMesh" hidden="false" />

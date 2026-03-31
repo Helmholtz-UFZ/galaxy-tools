@@ -15,8 +15,8 @@ ComputeNodeAreasFromSurfaceMesh
     --output-base-name 'new_'
 ]]></command>
   <inputs>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" />
-    <param name="id_prop_name" type="select" optional="false" label="id prop name" help="the name of the property containing the id information">
+    <param argument="--mesh-input-file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" />
+    <param argument="--id-prop-name" type="select" optional="true" label="id prop name" help="the name of the property containing the id information" multiple="false">
       <option value="bulk_node_ids">bulk_node_ids</option>
       <option value="bulk_element_ids">bulk_element_ids</option>
       <option value="bulk_edge_ids">bulk_edge_ids</option>

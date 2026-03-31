@@ -18,11 +18,11 @@ GMSH2OGS
     --out output_1.msh
 ]]></command>
   <inputs>
-    <param name="in" type="data" optional="false" label="in" help="Input (.msh) file" format="msh" />
-    <param name="validation" type="boolean" label="validation" help="validate the mesh" checked="false" truevalue="--validation" falsevalue="" />
-    <param name="boundaries" type="boolean" label="boundaries" help="if set, boundary meshes will be generated" checked="false" truevalue="--boundaries" falsevalue="" />
-    <param name="exclude_lines" type="boolean" label="exclude lines" help="if set, lines will not be written to the ogs mesh" checked="false" truevalue="--exclude-lines" falsevalue="" />
-    <param name="gmsh2_physical_id" type="boolean" label="gmsh2 physical id" help="" checked="false" truevalue="--gmsh2_physical_id" falsevalue="" />
+    <param argument="--in" type="data" optional="false" label="in" help="Input (.msh) file" format="msh" />
+    <param argument="--validation" type="boolean" label="validation" help="validate the mesh" checked="false" truevalue="--validation" falsevalue="" />
+    <param argument="--boundaries" type="boolean" label="boundaries" help="if set, boundary meshes will be generated" checked="false" truevalue="--boundaries" falsevalue="" />
+    <param argument="--exclude-lines" type="boolean" label="exclude lines" help="if set, lines will not be written to the ogs mesh" checked="false" truevalue="--exclude-lines" falsevalue="" />
+    <param argument="--gmsh2_physical_id" type="boolean" label="gmsh2 physical id" help="" checked="false" truevalue="--gmsh2_physical_id" falsevalue="" />
   </inputs>
   <outputs>
     <data name="output_GMSH2OGS" format="msh" label="Output from GMSH2OGS" from_work_dir="output_1.msh" hidden="false" />

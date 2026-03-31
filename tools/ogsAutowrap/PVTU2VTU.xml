@@ -15,8 +15,8 @@ pvtu2vtu
     --output output_1.vtu
 ]]></command>
   <inputs>
-    <param name="input" type="data" optional="false" label="input" help="Input (.pvtu). The partitioned input mesh file" format="vtkxml" />
-    <param name="original_mesh" type="text" optional="true" label="original mesh" help="optional, the original unpartitioned input mesh (*.vtu)" />
+    <param argument="--input" type="data" optional="false" label="input" help="Input (.pvtu). The partitioned input mesh file" format="vtkxml" />
+    <param argument="--original_mesh" type="text" optional="true" label="original mesh" help="optional, the original unpartitioned input mesh (*.vtu)" />
   </inputs>
   <outputs>
     <data name="output_PVTU2VTU" format="vtkxml" label="Output from PVTU2VTU" from_work_dir="output_1.vtu" hidden="false" />

@@ -18,10 +18,10 @@ IntegrateBoreholesIntoMesh
     --output output_1.vtu
 ]]></command>
   <inputs>
-    <param name="max_elevation" type="float" optional="true" label="max elevation" help="Maximum elevation for an integrated borehole, (min = 0)" />
-    <param name="min_elevation" type="float" optional="true" label="min elevation" help="Minimum elevation for an integrated borehole, (min = 0)" />
-    <param name="geo" type="data" optional="false" label="geo" help="Input (.gml). Name of the geometry file" format="xml" />
-    <param name="input" type="data" optional="false" label="input" help="Input (.vtu). Name of the mesh file" format="vtkxml" />
+    <param argument="--max-elevation" type="float" optional="true" label="max elevation" help="Maximum elevation for an integrated borehole, (min = 0)" />
+    <param argument="--min-elevation" type="float" optional="true" label="min elevation" help="Minimum elevation for an integrated borehole, (min = 0)" />
+    <param argument="--geo" type="data" optional="false" label="geo" help="Input (.gml). Name of the geometry file" format="xml" />
+    <param argument="--input" type="data" optional="false" label="input" help="Input (.vtu). Name of the mesh file" format="vtkxml" />
   </inputs>
   <outputs>
     <data name="output_IntegrateBoreholesIntoMesh" format="vtkxml" label="Output from IntegrateBoreholesIntoMesh" from_work_dir="output_1.vtu" hidden="false" />

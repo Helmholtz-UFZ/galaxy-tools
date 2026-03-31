@@ -25,11 +25,11 @@ partmesh
 #end for
 ]]></command>
   <inputs>
-    <param name="mesh_input_file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" />
-    <param name="metis_mesh_input_file" type="data" optional="true" label="metis mesh input file" help="Input (.mesh). Base name (without .mesh extension) of the file containing the metis input mesh" format="txt" />
-    <param name="np" type="integer" optional="true" label="np" help="the number of partitions, (min = 0)" />
-    <param name="exe_metis" type="boolean" label="exe metis" help="Call mpmetis inside the programme via system()." checked="false" truevalue="--exe_metis" falsevalue="" />
-    <param name="other_meshes_filenames" type="data_collection" optional="false" label="other meshes filenames" help="mesh file names." format="vtkxml" collection_type="list" />
+    <param argument="--mesh-input-file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" />
+    <param argument="--metis-mesh-input-file" type="data" optional="true" label="metis mesh input file" help="Input (.mesh). Base name (without .mesh extension) of the file containing the metis input mesh" format="txt" />
+    <param argument="--np" type="integer" optional="true" label="np" help="the number of partitions, (min = 0)" />
+    <param argument="--exe_metis" type="boolean" label="exe metis" help="Call mpmetis inside the programme via system()." checked="false" truevalue="--exe_metis" falsevalue="" />
+    <param argument="--other_meshes_filenames" type="data" optional="false" label="other meshes filenames" help="mesh file names." format="vtkxml" />
   </inputs>
   <outputs>
     <data name="output_PartitionMesh" format="vtkxml" label="Output from PartitionMesh" from_work_dir="output_1.vtu" hidden="false" />

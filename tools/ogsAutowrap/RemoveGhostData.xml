@@ -14,7 +14,7 @@ RemoveGhostData
     --output output_1.vtu
 ]]></command>
   <inputs>
-    <param name="input" type="data" optional="false" label="input" help="Input (.pvtu). The partitioned input mesh file" format="vtkxml" />
+    <param argument="--input" type="data" optional="false" label="input" help="Input (.pvtu). The partitioned input mesh file" format="vtkxml" />
   </inputs>
   <outputs>
     <data name="output_RemoveGhostData" format="vtkxml" label="Output from RemoveGhostData" from_work_dir="output_1.vtu" hidden="false" />

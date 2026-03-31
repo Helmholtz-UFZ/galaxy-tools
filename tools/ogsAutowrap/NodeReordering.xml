@@ -16,14 +16,14 @@ NodeReordering
     --output_mesh output_1.vtu
 ]]></command>
   <inputs>
-    <param name="no_volume_check" type="boolean" label="no volume check" help="By default the volumes of original and reordered elements are compared if they are numerically equal, i.e., relative volume difference is smaller than a threshold. This switch disables the volume comparison." checked="false" truevalue="--no_volume_check" falsevalue="" />
-    <param name="method" type="select" optional="false" label="method" help="reordering method selection">
+    <param argument="--no_volume_check" type="boolean" label="no volume check" help="By default the volumes of original and reordered elements are compared if they are numerically equal, i.e., relative volume difference is smaller than a threshold. This switch disables the volume comparison." checked="false" truevalue="--no_volume_check" falsevalue="" />
+    <param argument="--method" type="select" optional="true" label="method" help="reordering method selection" multiple="false">
       <option value="0">0</option>
       <option value="1">1</option>
       <option value="2">2</option>
       <option value="3">3</option>
     </param>
-    <param name="input_mesh" type="data" optional="false" label="input mesh" help="Input (.vtu | .vtk | .msh). The name of the input mesh file" format="vtkxml" />
+    <param argument="--input_mesh" type="data" optional="false" label="input mesh" help="Input (.vtu | .vtk | .msh). The name of the input mesh file" format="vtkxml" />
   </inputs>
   <outputs>
     <data name="output_NodeReordering" format="vtkxml" label="Output from NodeReordering" from_work_dir="output_1.vtu" hidden="false" />

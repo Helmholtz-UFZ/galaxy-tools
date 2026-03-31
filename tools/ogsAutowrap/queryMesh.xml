@@ -16,10 +16,10 @@ queryMesh
     '$mesh_file.element_identifier' > '$stdout_log'
 ]]></command>
   <inputs>
-    <param name="element_id" type="integer" optional="true" label="element id" help="element ID" />
-    <param name="node_id" type="integer" optional="true" label="node id" help="node ID" />
-    <param name="show_node_with_max_elements" type="boolean" label="show node with max elements" help="show a node having the max number of connected elements" checked="false" truevalue="--show-node-with-max-elements" falsevalue="" />
-    <param name="mesh_file" type="data" optional="false" label="mesh file" help="Input (.vtu) mesh file" format="vtkxml" />
+    <param argument="--element-id" type="integer" optional="true" label="element id" help="element ID" />
+    <param argument="--node-id" type="integer" optional="true" label="node id" help="node ID" />
+    <param argument="--show-node-with-max-elements" type="boolean" label="show node with max elements" help="show a node having the max number of connected elements" checked="false" truevalue="--show-node-with-max-elements" falsevalue="" />
+    <param argument="--mesh-file" type="data" optional="false" label="mesh file" help="Input (.vtu) mesh file" format="vtkxml" />
   </inputs>
   <outputs>
     <data name="stdout_log" format="txt" label="Output Log from queryMesh" hidden="false" />

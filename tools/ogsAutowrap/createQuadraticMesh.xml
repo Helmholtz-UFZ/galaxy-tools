@@ -15,8 +15,8 @@ createQuadraticMesh
     --output-mesh-file output_1.vtu
 ]]></command>
   <inputs>
-    <param name="input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu | .msh) mesh file" format="vtkxml" />
-    <param name="add_centre_node" type="boolean" label="add centre node" help="add centre node" checked="false" truevalue="--add-centre-node" falsevalue="" />
+    <param argument="--input-mesh-file" type="data" optional="false" label="input mesh file" help="Input (.vtu | .msh) mesh file" format="vtkxml" />
+    <param argument="--add-centre-node" type="boolean" label="add centre node" help="add centre node" checked="false" truevalue="--add-centre-node" falsevalue="" />
   </inputs>
   <outputs>
     <data name="output_createQuadraticMesh" format="vtkxml" label="Output from createQuadraticMesh" from_work_dir="output_1.vtu" hidden="false" />

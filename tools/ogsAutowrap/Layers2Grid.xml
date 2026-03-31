@@ -22,11 +22,11 @@ Layers2Grid
     --output output_1.vtu
 ]]></command>
   <inputs>
-    <param name="dilate" type="boolean" label="dilate" help="assign mat IDs based on single nodes instead of a majority of nodes, which can result in a slightly increased voxel grid extent" checked="false" truevalue="--dilate" falsevalue="" />
-    <param name="cellsize_z" type="float" optional="true" label="cellsize z" help="edge length of cubes in z-direction (depth), (min = 0)" />
-    <param name="cellsize_y" type="float" optional="true" label="cellsize y" help="edge length of cubes in y-direction (latitude), (min = 0)" />
-    <param name="cellsize_x" type="float" optional="true" label="cellsize x" help="edge length of cubes in x-direction (longitude) or all directions, if y and z are not set, (min = 0)" />
-    <param name="input" type="data_collection" optional="false" label="input" help="Input (.vtu). Name of the input file list containing the paths the all input layers in correct order from top to bottom" format="vtkxml" collection_type="list" />
+    <param argument="--dilate" type="boolean" label="dilate" help="assign mat IDs based on single nodes instead of a majority of nodes, which can result in a slightly increased voxel grid extent" checked="false" truevalue="--dilate" falsevalue="" />
+    <param argument="--cellsize-z" type="float" optional="true" label="cellsize z" help="edge length of cubes in z-direction (depth), (min = 0)" />
+    <param argument="--cellsize-y" type="float" optional="true" label="cellsize y" help="edge length of cubes in y-direction (latitude), (min = 0)" />
+    <param argument="--cellsize-x" type="float" optional="true" label="cellsize x" help="edge length of cubes in x-direction (longitude) or all directions, if y and z are not set, (min = 0)" />
+    <param argument="--input" type="data" optional="false" label="input" help="Input (.vtu). Name of the input file list containing the paths the all input layers in correct order from top to bottom" format="vtkxml" />
   </inputs>
   <outputs>
     <data name="output_Layers2Grid" format="vtkxml" label="Output from Layers2Grid" from_work_dir="output_1.vtu" hidden="false" />

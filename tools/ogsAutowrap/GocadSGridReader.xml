@@ -15,8 +15,8 @@ GocadSGridReader
     --output-mesh output_1.vtu
 ]]></command>
   <inputs>
-    <param name="generate_face_sets" type="boolean" label="generate face sets" help="Generate face sets." checked="false" truevalue="--generate-face-sets" falsevalue="" />
-    <param name="sg" type="data" optional="false" label="sg" help="Input (.sg). Gocad stratigraphic grid filename" format="gocad.sg" />
+    <param argument="--generate-face-sets" type="boolean" label="generate face sets" help="Generate face sets." checked="false" truevalue="--generate-face-sets" falsevalue="" />
+    <param argument="--sg" type="data" optional="false" label="sg" help="Input (.sg). Gocad stratigraphic grid filename" format="gocad.sg" />
   </inputs>
   <outputs>
     <data name="output_GocadSGridReader" format="vtkxml" label="Output from GocadSGridReader" from_work_dir="output_1.vtu" hidden="false" />

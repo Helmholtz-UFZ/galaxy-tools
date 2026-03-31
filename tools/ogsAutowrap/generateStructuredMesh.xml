@@ -28,7 +28,7 @@ generateStructuredMesh
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>
-    <param name="element_type" type="select" optional="false" label="element type" help="element type to be created">
+    <param argument="--element-type" type="select" optional="true" label="element type" help="element type to be created" multiple="false">
       <option value="line">line</option>
       <option value="tri">tri</option>
       <option value="quad">quad</option>
@@ -37,21 +37,21 @@ generateStructuredMesh
       <option value="tet">tet</option>
       <option value="pyramid">pyramid</option>
     </param>
-    <param name="lx" type="float" optional="true" label="lx" help="length of a domain in x direction, (min = 0)" />
-    <param name="ly" type="float" optional="true" label="ly" help="length of a domain in y direction, (min = 0)" />
-    <param name="lz" type="float" optional="true" label="lz" help="length of a domain in z direction, (min = 0)" />
-    <param name="nx" type="text" optional="true" label="nx" help="the number of subdivision in x direction, (min = 0)" />
-    <param name="ny" type="text" optional="true" label="ny" help="the number of subdivision in y direction, (min = 0)" />
-    <param name="nz" type="text" optional="true" label="nz" help="the number of subdivision in z direction, (min = 0)" />
-    <param name="dx0" type="float" optional="true" label="dx0" help="initial cell length in x direction, (min = 0)" />
-    <param name="dy0" type="float" optional="true" label="dy0" help="initial cell length in y direction, (min = 0)" />
-    <param name="dz0" type="float" optional="true" label="dz0" help="initial cell length in z direction, (min = 0)" />
-    <param name="mx" type="float" optional="true" label="mx" help="multiplier in x direction" />
-    <param name="my" type="float" optional="true" label="my" help="multiplier in y direction" />
-    <param name="mz" type="float" optional="true" label="mz" help="multiplier in z direction" />
-    <param name="ox" type="float" optional="true" label="ox" help="mesh origin (lower left corner) in x direction" />
-    <param name="oy" type="float" optional="true" label="oy" help="mesh origin (lower left corner) in y direction" />
-    <param name="oz" type="float" optional="true" label="oz" help="mesh origin (lower left corner) in z direction" />
+    <param argument="--lx" type="float" optional="true" label="lx" help="length of a domain in x direction, (min = 0)" />
+    <param argument="--ly" type="float" optional="true" label="ly" help="length of a domain in y direction, (min = 0)" />
+    <param argument="--lz" type="float" optional="true" label="lz" help="length of a domain in z direction, (min = 0)" />
+    <param argument="--nx" type="text" optional="true" label="nx" help="the number of subdivision in x direction, (min = 0)" />
+    <param argument="--ny" type="text" optional="true" label="ny" help="the number of subdivision in y direction, (min = 0)" />
+    <param argument="--nz" type="text" optional="true" label="nz" help="the number of subdivision in z direction, (min = 0)" />
+    <param argument="--dx0" type="float" optional="true" label="dx0" help="initial cell length in x direction, (min = 0)" />
+    <param argument="--dy0" type="float" optional="true" label="dy0" help="initial cell length in y direction, (min = 0)" />
+    <param argument="--dz0" type="float" optional="true" label="dz0" help="initial cell length in z direction, (min = 0)" />
+    <param argument="--mx" type="float" optional="true" label="mx" help="multiplier in x direction" />
+    <param argument="--my" type="float" optional="true" label="my" help="multiplier in y direction" />
+    <param argument="--mz" type="float" optional="true" label="mz" help="multiplier in z direction" />
+    <param argument="--ox" type="float" optional="true" label="ox" help="mesh origin (lower left corner) in x direction" />
+    <param argument="--oy" type="float" optional="true" label="oy" help="mesh origin (lower left corner) in y direction" />
+    <param argument="--oz" type="float" optional="true" label="oz" help="mesh origin (lower left corner) in z direction" />
   </inputs>
   <outputs>
     <data name="output_generateStructuredMesh" format="vtkxml" label="Output from generateStructuredMesh" from_work_dir="output_1.vtu" hidden="false" />

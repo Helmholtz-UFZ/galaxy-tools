@@ -14,7 +14,7 @@ RemoveUnusedPoints
     --output output_1.gml
 ]]></command>
   <inputs>
-    <param name="input" type="data" optional="false" label="input" help="Input (.gml) geometry" format="xml" />
+    <param argument="--input" type="data" optional="false" label="input" help="Input (.gml) geometry" format="xml" />
   </inputs>
   <outputs>
     <data name="output_RemoveUnusedPoints" format="xml" label="Output from RemoveUnusedPoints" from_work_dir="output_1.gml" hidden="false" />

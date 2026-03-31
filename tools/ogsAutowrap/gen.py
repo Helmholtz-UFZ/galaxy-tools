@@ -293,6 +293,7 @@ def process_parameters(
         help_parts = re.findall(r'"(.*?)"', help_text_raw, re.DOTALL)
         help_text = " ".join(part.strip() for part in help_parts).strip()
         var_name = sanitize_name(long_flag)
+        argument = f"--{long_flag}" if long_flag else f"-{short_flag}"
 
         # OUTPUT LOGIC
         is_output_help = (
@@ -345,7 +346,7 @@ def process_parameters(
                 opts_dict = {opt: opt for opt in options_list}
                 is_multi = "MultiArg" in param_info.get("arg_type", "")
                 param = SelectParam(
-                    name=var_name,
+                    argument=argument,
                     label=var_name.replace("_", " "),
                     help=help_text,
                     options=opts_dict,
@@ -353,17 +354,6 @@ def process_parameters(
                     multiple=is_multi,
                 )
                 param.options_dict = opts_dict
-            if options_list:
-                opts_dict = {opt: opt for opt in options_list}
-                param = SelectParam(
-                    name=var_name,
-                    label=var_name.replace("_", " "),
-                    help=help_text,
-                    options=opts_dict,
-                    optional=False,
-                )
-                param.options_dict = opts_dict
-
         elif (
             help_text.startswith("Input")
             or "filenames" in var_name
@@ -387,7 +377,7 @@ def process_parameters(
             is_optional = len(args) > 3 and args[3].lower() == "false"
 
             param = DataParam(
-                name=var_name,
+                argument=argument,
                 label=var_name.replace("_", " "),
                 help=help_text,
                 format=galaxy_type,
@@ -414,7 +404,7 @@ def process_parameters(
 
         elif "Switch" in param_info.get("arg_type", ""):
             param = BooleanParam(
-                name=var_name,
+                argument=argument,
                 label=var_name.replace("_", " "),
                 help=help_text,
                 truevalue=f"--{long_flag}",
@@ -431,7 +421,7 @@ def process_parameters(
             else:
                 p_class = TextParam
             param = p_class(
-                name=var_name,
+                argument=argument,
                 label=var_name.replace("_", " "),
                 help=help_text,
                 optional=True,
@@ -489,7 +479,11 @@ def generate_tools(ogs_root: Path):
             is_repeat = getattr(param, "is_repeat", False)
             is_unlabeled = getattr(param, "is_unlabeled", False)
 
-            flag = getattr(param, "original_long_flag", param.name)
+            flag = getattr(param, "original_long_flag", None)
+            if flag:
+                name = sanitize_name(flag)
+            else:
+                name = ""
 
             is_pvd_element = getattr(param, "is_pvd_element", False)
 
@@ -503,40 +497,40 @@ def generate_tools(ogs_root: Path):
                     )
                     continue
                 if is_file_list:
-                    list_file = f"{param.name}_list.txt"
+                    list_file = f"{name}_list.txt"
                     command_parts.append(f"touch {list_file};")
                     command_parts.append(
-                        f"#for $item in ${param.name}\n  ln -sf '$item' '$item.element_identifier';\n  echo '$item.element_identifier' >> {list_file};\n#end for"
+                        f"#for $item in ${name}\n  ln -sf '$item' '$item.element_identifier';\n  echo '$item.element_identifier' >> {list_file};\n#end for"
                     )
                     flag_parts.append(f"    --{flag} {list_file}")
                     continue
                 if is_coll:
                     command_parts.append(
-                        f"#for $item in ${param.name}\nln -sf '$item' '$item.element_identifier';\n#end for"
+                        f"#for $item in ${name}\nln -sf '$item' '$item.element_identifier';\n#end for"
                     )
-                    loop_str = f"#for $item in ${param.name}\n'$item.element_identifier'\n#end for"
+                    loop_str = f"#for $item in ${name}\n'$item.element_identifier'\n#end for"
                     if is_unlabeled:
                         unlabeled_parts.append(f"    --\n{loop_str}")
                     else:
                         flag_parts.append(f"    --{flag}\n{loop_str}")
                 else:
                     command_parts.append(
-                        f"ln -sf '${param.name}' '${param.name}.element_identifier';"
+                        f"ln -sf '${name}' '${name}.element_identifier';"
                     )
-                    arg_val = f"'${param.name}.element_identifier'"
+                    arg_val = f"'${name}.element_identifier'"
                     if is_unlabeled:
                         unlabeled_parts.append(f"    {arg_val}")
                     else:
                         flag_parts.append(f"    --{flag} {arg_val}")
             elif isinstance(param, BooleanParam):
-                flag_parts.append(f"    ${param.name}")
+                flag_parts.append(f"    ${name}")
             elif isinstance(
                 param, (TextParam, IntegerParam, FloatParam, SelectParam)
             ):
                 if is_unlabeled:
-                    unlabeled_parts.append(f"    '${param.name}'")
+                    unlabeled_parts.append(f"    '${name}'")
                 else:
-                    flag_parts.append(f"    --{flag} '${param.name}'")
+                    flag_parts.append(f"    --{flag} '${name}'")
 
         # 3. OUTPUT FLAGS
         for flag, info in output_command_map.items():
@@ -660,7 +654,7 @@ def generate_tools(ogs_root: Path):
         if inputs_node is not None:
             for param in galaxy_inputs:
                 if getattr(param, "is_data_collection", False):
-                    p_node = inputs_node.find(f"param[@name='{param.name}']")
+                    p_node = inputs_node.find(f"param[@argument='--{flag}']")
                     if p_node is not None:
                         p_node.set("type", "data_collection")
                         p_node.set("collection_type", "list")

@@ -1,0 +1,2468 @@
+<?xml version="1.0" encoding="utf-8"?>
+<macros>
+  <xml name="config_tests">
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="breaks" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagIsolated" />
+            <param name="field" value="1" />
+            <param name="gap_window" value="1D" />
+            <param name="group_window" value="1D" />
+            <param name="flag" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagIsolated" />
+          <has_text text="gap_window=" />
+          <has_text text="group_window=" />
+          <has_text text="flag=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="breaks" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagJumps" />
+            <param name="field" value="1" />
+            <param name="thresh" value="1" />
+            <param name="window" value="1D" />
+            <param name="min_periods" value="1" />
+            <param name="flag" value="1" />
+            <param name="dfilter" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagJumps" />
+          <has_text text="thresh=" />
+          <has_text text="window=" />
+          <has_text text="min_periods=" />
+          <has_text text="flag=" />
+          <has_text text="dfilter=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="breaks" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagNAN" />
+            <param name="field" value="1" />
+            <param name="flag" value="1" />
+            <param name="dfilter" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagNAN" />
+          <has_text text="flag=" />
+          <has_text text="dfilter=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="constants" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagByVariance" />
+            <param name="field" value="1" />
+            <param name="window" value="1D" />
+            <param name="thresh" value="1" />
+            <param name="maxna" value="1" />
+            <param name="maxna_group" value="1" />
+            <param name="flag" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagByVariance" />
+          <has_text text="window=" />
+          <has_text text="thresh=" />
+          <has_text text="maxna=" />
+          <has_text text="maxna_group=" />
+          <has_text text="flag=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="constants" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagConstants" />
+            <param name="field" value="1" />
+            <param name="thresh" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_0" />
+              <param name="window" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagConstants" />
+          <has_text text="thresh=" />
+          <has_text text="min_periods=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="constants" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagConstants" />
+            <param name="field" value="1" />
+            <param name="thresh" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_1" />
+              <param name="window" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagConstants" />
+          <has_text text="thresh=" />
+          <has_text text="min_periods=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="curvefit" />
+          <conditional name="method_cond">
+            <param name="method_select" value="fitLowpassFilter" />
+            <param name="field" value="1" />
+            <param name="nyq" value="1" />
+            <param name="filter_order" value="1" />
+            <param name="fill_method" value="linear" />
+            <conditional name="cutoff_cond">
+              <param name="cutoff_selector" value="type_0" />
+              <param name="cutoff" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="fitLowpassFilter" />
+          <has_text text="nyq=" />
+          <has_text text="filter_order=" />
+          <has_text text="fill_method=" />
+          <has_text text="cutoff=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="curvefit" />
+          <conditional name="method_cond">
+            <param name="method_select" value="fitLowpassFilter" />
+            <param name="field" value="1" />
+            <param name="nyq" value="1" />
+            <param name="filter_order" value="1" />
+            <param name="fill_method" value="linear" />
+            <conditional name="cutoff_cond">
+              <param name="cutoff_selector" value="type_1" />
+              <param name="cutoff" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="fitLowpassFilter" />
+          <has_text text="nyq=" />
+          <has_text text="filter_order=" />
+          <has_text text="fill_method=" />
+          <has_text text="cutoff=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="curvefit" />
+          <conditional name="method_cond">
+            <param name="method_select" value="fitMomentFM" />
+            <param name="field" value="1" />
+            <param name="ratio" value="1" />
+            <param name="context" value="1" />
+            <param name="agg" value="center" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="fitMomentFM" />
+          <has_text text="ratio=" />
+          <has_text text="context=" />
+          <has_text text="agg=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="curvefit" />
+          <conditional name="method_cond">
+            <param name="method_select" value="fitPolynomial" />
+            <param name="field" value="1" />
+            <param name="order" value="1" />
+            <param name="min_periods" value="1" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_0" />
+              <param name="window" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="fitPolynomial" />
+          <has_text text="order=" />
+          <has_text text="min_periods=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="curvefit" />
+          <conditional name="method_cond">
+            <param name="method_select" value="fitPolynomial" />
+            <param name="field" value="1" />
+            <param name="order" value="1" />
+            <param name="min_periods" value="1" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_1" />
+              <param name="window" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="fitPolynomial" />
+          <has_text text="order=" />
+          <has_text text="min_periods=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="drift" />
+          <conditional name="method_cond">
+            <param name="method_select" value="assignRegimeAnomaly" />
+            <param name="field" value="1" />
+            <param name="cluster_field" value="1" />
+            <param name="spread" value="1" />
+            <param name="method" value="single" />
+            <param name="frac" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="assignRegimeAnomaly" />
+          <has_text text="cluster_field=" />
+          <has_text text="spread=" />
+          <has_text text="method=" />
+          <has_text text="frac=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="drift" />
+          <conditional name="method_cond">
+            <param name="method_select" value="correctDrift" />
+            <param name="field" value="1" />
+            <param name="maintenance_field" value="1" />
+            <param name="model" value="linear" />
+            <param name="cal_range" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="correctDrift" />
+          <has_text text="maintenance_field=" />
+          <has_text text="model=" />
+          <has_text text="cal_range=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="drift" />
+          <conditional name="method_cond">
+            <param name="method_select" value="correctOffset" />
+            <param name="field" value="1" />
+            <param name="max_jump" value="1" />
+            <param name="spread" value="1" />
+            <param name="window" value="1D" />
+            <param name="min_periods" value="1" />
+            <param name="tolerance" value="1D" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="correctOffset" />
+          <has_text text="max_jump=" />
+          <has_text text="spread=" />
+          <has_text text="window=" />
+          <has_text text="min_periods=" />
+          <has_text text="tolerance=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="drift" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagDriftFromNorm" />
+            <param name="field" value="1" />
+            <param name="window" value="1D" />
+            <param name="spread" value="1" />
+            <param name="frac" value="1" />
+            <param name="method" value="single" />
+            <param name="flag" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagDriftFromNorm" />
+          <has_text text="window=" />
+          <has_text text="spread=" />
+          <has_text text="frac=" />
+          <has_text text="method=" />
+          <has_text text="flag=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="drift" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagDriftFromReference" />
+            <param name="field" value="1" />
+            <param name="reference" value="1" />
+            <param name="freq" value="1D" />
+            <param name="thresh" value="1" />
+            <param name="flag" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagDriftFromReference" />
+          <has_text text="reference=" />
+          <has_text text="freq=" />
+          <has_text text="thresh=" />
+          <has_text text="flag=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="drift" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagRegimeAnomaly" />
+            <param name="field" value="1" />
+            <param name="cluster_field" value="1" />
+            <param name="spread" value="1" />
+            <param name="method" value="single" />
+            <param name="frac" value="1" />
+            <param name="flag" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagRegimeAnomaly" />
+          <has_text text="cluster_field=" />
+          <has_text text="spread=" />
+          <has_text text="method=" />
+          <has_text text="frac=" />
+          <has_text text="flag=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="flagtools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="andGroup" />
+            <param name="field" value="1" />
+            <param name="group" value="test1/data.csv" />
+            <param name="target" value="1" />
+            <param name="flag" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="andGroup" />
+          <has_text text="flag=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="flagtools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="clearFlags" />
+            <param name="field" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="clearFlags" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="flagtools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagDummy" />
+            <param name="field" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagDummy" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="flagtools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagUnflagged" />
+            <param name="field" value="1" />
+            <param name="flag" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagUnflagged" />
+          <has_text text="flag=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="flagtools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="forceFlags" />
+            <param name="field" value="1" />
+            <param name="flag" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="forceFlags" />
+          <has_text text="flag=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="flagtools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="orGroup" />
+            <param name="field" value="1" />
+            <param name="group" value="test1/data.csv" />
+            <param name="target" value="1" />
+            <param name="flag" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="orGroup" />
+          <has_text text="flag=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="flagtools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="propagateFlags" />
+            <param name="field" value="1" />
+            <param name="method" value="ffill" />
+            <param name="flag" value="1" />
+            <param name="dfilter" value="1" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_0" />
+              <param name="window" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="propagateFlags" />
+          <has_text text="method=" />
+          <has_text text="flag=" />
+          <has_text text="dfilter=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="flagtools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="propagateFlags" />
+            <param name="field" value="1" />
+            <param name="method" value="ffill" />
+            <param name="flag" value="1" />
+            <param name="dfilter" value="1" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_1" />
+              <param name="window" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="propagateFlags" />
+          <has_text text="method=" />
+          <has_text text="flag=" />
+          <has_text text="dfilter=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="flagtools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="transferFlags" />
+            <param name="field" value="1" />
+            <param name="target" value="1" />
+            <param name="squeeze" value="true" />
+            <param name="overwrite" value="true" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="transferFlags" />
+          <has_text text="squeeze=" />
+          <has_text text="overwrite=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="interpolation" />
+          <conditional name="method_cond">
+            <param name="method_select" value="align" />
+            <param name="field" value="1" />
+            <param name="method" value="a_string" />
+            <param name="order" value="1" />
+            <param name="overwrite" value="true" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="align" />
+          <has_text text="method=" />
+          <has_text text="order=" />
+          <has_text text="overwrite=" />
+          <has_text text="freq=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="interpolation" />
+          <conditional name="method_cond">
+            <param name="method_select" value="align" />
+            <param name="field" value="1" />
+            <param name="method" value="a_string" />
+            <param name="order" value="1" />
+            <param name="overwrite" value="true" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_1" />
+              <param name="freq" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="align" />
+          <has_text text="method=" />
+          <has_text text="order=" />
+          <has_text text="overwrite=" />
+          <has_text text="freq=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="interpolation" />
+          <conditional name="method_cond">
+            <param name="method_select" value="interpolateByRolling" />
+            <param name="field" value="1" />
+            <param name="center" value="true" />
+            <param name="min_periods" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_0" />
+              <param name="window" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="interpolateByRolling" />
+          <has_text text="center=" />
+          <has_text text="min_periods=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="interpolation" />
+          <conditional name="method_cond">
+            <param name="method_select" value="interpolateByRolling" />
+            <param name="field" value="1" />
+            <param name="center" value="true" />
+            <param name="min_periods" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_1" />
+              <param name="window" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="interpolateByRolling" />
+          <has_text text="center=" />
+          <has_text text="min_periods=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="noise" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagByScatterLowpass" />
+            <param name="field" value="1" />
+            <param name="thresh" value="1" />
+            <param name="func" value="std" />
+            <param name="sub_thresh" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_0" />
+              <param name="window" value="1D" />
+            </conditional>
+            <conditional name="sub_window_cond">
+              <param name="sub_window_selector" value="type_0" />
+              <param name="sub_window" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagByScatterLowpass" />
+          <has_text text="thresh=" />
+          <has_text text="func=" />
+          <has_text text="sub_thresh=" />
+          <has_text text="min_periods=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
+          <has_text text="sub_window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="noise" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagByScatterLowpass" />
+            <param name="field" value="1" />
+            <param name="thresh" value="1" />
+            <param name="func" value="std" />
+            <param name="sub_thresh" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_1" />
+              <param name="window" value="1d" />
+            </conditional>
+            <conditional name="sub_window_cond">
+              <param name="sub_window_selector" value="type_0" />
+              <param name="sub_window" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagByScatterLowpass" />
+          <has_text text="thresh=" />
+          <has_text text="func=" />
+          <has_text text="sub_thresh=" />
+          <has_text text="min_periods=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
+          <has_text text="sub_window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="noise" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagByScatterLowpass" />
+            <param name="field" value="1" />
+            <param name="thresh" value="1" />
+            <param name="func" value="std" />
+            <param name="sub_thresh" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_0" />
+              <param name="window" value="1D" />
+            </conditional>
+            <conditional name="sub_window_cond">
+              <param name="sub_window_selector" value="type_1" />
+              <param name="sub_window" value="1d" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagByScatterLowpass" />
+          <has_text text="thresh=" />
+          <has_text text="func=" />
+          <has_text text="sub_thresh=" />
+          <has_text text="min_periods=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
+          <has_text text="sub_window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagByStray" />
+            <param name="field" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="iter_start" value="1" />
+            <param name="alpha" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_0" />
+              <param name="window" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagByStray" />
+          <has_text text="min_periods=" />
+          <has_text text="alpha=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagByStray" />
+            <param name="field" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="iter_start" value="1" />
+            <param name="alpha" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_1" />
+              <param name="window" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagByStray" />
+          <has_text text="min_periods=" />
+          <has_text text="alpha=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagLOF" />
+            <param name="field" value="1" />
+            <param name="n" value="1" />
+            <param name="algorithm" value="ball_tree" />
+            <param name="p" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="thresh_cond">
+              <param name="thresh_selector" value="type_0" />
+              <param name="thresh" value="auto" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagLOF" />
+          <has_text text="n=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="flag=" />
+          <has_text text="thresh=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagLOF" />
+            <param name="field" value="1" />
+            <param name="n" value="1" />
+            <param name="algorithm" value="ball_tree" />
+            <param name="p" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="thresh_cond">
+              <param name="thresh_selector" value="type_1" />
+              <param name="thresh" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagLOF" />
+          <has_text text="n=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="flag=" />
+          <has_text text="thresh=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagOffset" />
+            <param name="field" value="1" />
+            <param name="window" value="1D" />
+            <param name="tolerance" value="1" />
+            <param name="thresh" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="thresh_relative_cond">
+              <param name="thresh_relative_selector" value="type_0" />
+              <repeat name="thresh_relative">
+                <param name="thresh_relative_pos0" value="test_string" />
+                <param name="thresh_relative_pos1" value="test_string" />
+              </repeat>
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagOffset" />
+          <has_text text="window=" />
+          <has_text text="tolerance=" />
+          <has_text text="thresh=" />
+          <has_text text="flag=" />
+          <has_text text="thresh_relative=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagOffset" />
+            <param name="field" value="1" />
+            <param name="window" value="1D" />
+            <param name="tolerance" value="1" />
+            <param name="thresh" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="thresh_relative_cond">
+              <param name="thresh_relative_selector" value="type_1" />
+              <param name="thresh_relative" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagOffset" />
+          <has_text text="window=" />
+          <has_text text="tolerance=" />
+          <has_text text="thresh=" />
+          <has_text text="flag=" />
+          <has_text text="thresh_relative=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagRange" />
+            <param name="field" value="1" />
+            <param name="min" value="1" />
+            <param name="max" value="1" />
+            <param name="flag" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagRange" />
+          <has_text text="min=" />
+          <has_text text="max=" />
+          <has_text text="flag=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagUniLOF" />
+            <param name="field" value="1" />
+            <param name="n" value="1" />
+            <param name="probability" value="1" />
+            <param name="algorithm" value="ball_tree" />
+            <param name="p" value="1" />
+            <param name="fill_na" value="true" />
+            <param name="slope_correct" value="true" />
+            <param name="min_offset" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="thresh_cond">
+              <param name="thresh_selector" value="type_0" />
+              <param name="thresh" value="auto" />
+            </conditional>
+            <conditional name="corruption_cond">
+              <param name="corruption_selector" value="type_0" />
+              <param name="corruption" value="1" />
+            </conditional>
+            <conditional name="density_cond">
+              <param name="density_selector" value="type_0" />
+              <param name="density" value="auto" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagUniLOF" />
+          <has_text text="n=" />
+          <has_text text="probability=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="fill_na=" />
+          <has_text text="slope_correct=" />
+          <has_text text="min_offset=" />
+          <has_text text="flag=" />
+          <has_text text="thresh=" />
+          <has_text text="corruption=" />
+          <has_text text="density=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagUniLOF" />
+            <param name="field" value="1" />
+            <param name="n" value="1" />
+            <param name="probability" value="1" />
+            <param name="algorithm" value="ball_tree" />
+            <param name="p" value="1" />
+            <param name="fill_na" value="true" />
+            <param name="slope_correct" value="true" />
+            <param name="min_offset" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="thresh_cond">
+              <param name="thresh_selector" value="type_1" />
+              <param name="thresh" value="1" />
+            </conditional>
+            <conditional name="corruption_cond">
+              <param name="corruption_selector" value="type_0" />
+              <param name="corruption" value="1" />
+            </conditional>
+            <conditional name="density_cond">
+              <param name="density_selector" value="type_0" />
+              <param name="density" value="auto" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagUniLOF" />
+          <has_text text="n=" />
+          <has_text text="probability=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="fill_na=" />
+          <has_text text="slope_correct=" />
+          <has_text text="min_offset=" />
+          <has_text text="flag=" />
+          <has_text text="thresh=" />
+          <has_text text="corruption=" />
+          <has_text text="density=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagUniLOF" />
+            <param name="field" value="1" />
+            <param name="n" value="1" />
+            <param name="probability" value="1" />
+            <param name="algorithm" value="ball_tree" />
+            <param name="p" value="1" />
+            <param name="fill_na" value="true" />
+            <param name="slope_correct" value="true" />
+            <param name="min_offset" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="thresh_cond">
+              <param name="thresh_selector" value="type_0" />
+              <param name="thresh" value="auto" />
+            </conditional>
+            <conditional name="corruption_cond">
+              <param name="corruption_selector" value="type_1" />
+              <param name="corruption" value="1" />
+            </conditional>
+            <conditional name="density_cond">
+              <param name="density_selector" value="type_0" />
+              <param name="density" value="auto" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagUniLOF" />
+          <has_text text="n=" />
+          <has_text text="probability=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="fill_na=" />
+          <has_text text="slope_correct=" />
+          <has_text text="min_offset=" />
+          <has_text text="flag=" />
+          <has_text text="thresh=" />
+          <has_text text="corruption=" />
+          <has_text text="density=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagUniLOF" />
+            <param name="field" value="1" />
+            <param name="n" value="1" />
+            <param name="probability" value="1" />
+            <param name="algorithm" value="ball_tree" />
+            <param name="p" value="1" />
+            <param name="fill_na" value="true" />
+            <param name="slope_correct" value="true" />
+            <param name="min_offset" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="thresh_cond">
+              <param name="thresh_selector" value="type_0" />
+              <param name="thresh" value="auto" />
+            </conditional>
+            <conditional name="corruption_cond">
+              <param name="corruption_selector" value="type_0" />
+              <param name="corruption" value="1" />
+            </conditional>
+            <conditional name="density_cond">
+              <param name="density_selector" value="type_1" />
+              <param name="density" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagUniLOF" />
+          <has_text text="n=" />
+          <has_text text="probability=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="fill_na=" />
+          <has_text text="slope_correct=" />
+          <has_text text="min_offset=" />
+          <has_text text="flag=" />
+          <has_text text="thresh=" />
+          <has_text text="corruption=" />
+          <has_text text="density=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagZScore" />
+            <param name="field" value="1" />
+            <param name="method" value="standard" />
+            <param name="thresh" value="1" />
+            <param name="min_residuals" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="center" value="true" />
+            <param name="axis" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_0" />
+              <param name="window" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagZScore" />
+          <has_text text="method=" />
+          <has_text text="thresh=" />
+          <has_text text="min_residuals=" />
+          <has_text text="min_periods=" />
+          <has_text text="center=" />
+          <has_text text="axis=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="outliers" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagZScore" />
+            <param name="field" value="1" />
+            <param name="method" value="standard" />
+            <param name="thresh" value="1" />
+            <param name="min_residuals" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="center" value="true" />
+            <param name="axis" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_1" />
+              <param name="window" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagZScore" />
+          <has_text text="method=" />
+          <has_text text="thresh=" />
+          <has_text text="min_residuals=" />
+          <has_text text="min_periods=" />
+          <has_text text="center=" />
+          <has_text text="axis=" />
+          <has_text text="flag=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="pattern" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagPatternByDTW" />
+            <param name="field" value="1" />
+            <param name="reference" value="1" />
+            <param name="max_distance" value="1" />
+            <param name="normalize" value="true" />
+            <param name="plot" value="true" />
+            <param name="flag" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagPatternByDTW" />
+          <has_text text="reference=" />
+          <has_text text="max_distance=" />
+          <has_text text="normalize=" />
+          <has_text text="plot=" />
+          <has_text text="flag=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="pattern" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagPlateau" />
+            <param name="field" value="1" />
+            <param name="min_jump" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="min_length_cond">
+              <param name="min_length_selector" value="type_0" />
+              <param name="min_length" value="1" />
+            </conditional>
+            <conditional name="max_length_cond">
+              <param name="max_length_selector" value="type_0" />
+              <param name="max_length" value="1" />
+            </conditional>
+            <conditional name="granularity_cond">
+              <param name="granularity_selector" value="type_0" />
+              <param name="granularity" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagPlateau" />
+          <has_text text="min_jump=" />
+          <has_text text="flag=" />
+          <has_text text="min_length=" />
+          <has_text text="max_length=" />
+          <has_text text="granularity=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="pattern" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagPlateau" />
+            <param name="field" value="1" />
+            <param name="min_jump" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="min_length_cond">
+              <param name="min_length_selector" value="type_1" />
+              <param name="min_length" value="1D" />
+            </conditional>
+            <conditional name="max_length_cond">
+              <param name="max_length_selector" value="type_0" />
+              <param name="max_length" value="1" />
+            </conditional>
+            <conditional name="granularity_cond">
+              <param name="granularity_selector" value="type_0" />
+              <param name="granularity" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagPlateau" />
+          <has_text text="min_jump=" />
+          <has_text text="flag=" />
+          <has_text text="min_length=" />
+          <has_text text="max_length=" />
+          <has_text text="granularity=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="pattern" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagPlateau" />
+            <param name="field" value="1" />
+            <param name="min_jump" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="min_length_cond">
+              <param name="min_length_selector" value="type_0" />
+              <param name="min_length" value="1" />
+            </conditional>
+            <conditional name="max_length_cond">
+              <param name="max_length_selector" value="type_1" />
+              <param name="max_length" value="1D" />
+            </conditional>
+            <conditional name="granularity_cond">
+              <param name="granularity_selector" value="type_0" />
+              <param name="granularity" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagPlateau" />
+          <has_text text="min_jump=" />
+          <has_text text="flag=" />
+          <has_text text="min_length=" />
+          <has_text text="max_length=" />
+          <has_text text="granularity=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="pattern" />
+          <conditional name="method_cond">
+            <param name="method_select" value="flagPlateau" />
+            <param name="field" value="1" />
+            <param name="min_jump" value="1" />
+            <param name="flag" value="1" />
+            <conditional name="min_length_cond">
+              <param name="min_length_selector" value="type_0" />
+              <param name="min_length" value="1" />
+            </conditional>
+            <conditional name="max_length_cond">
+              <param name="max_length_selector" value="type_0" />
+              <param name="max_length" value="1" />
+            </conditional>
+            <conditional name="granularity_cond">
+              <param name="granularity_selector" value="type_1" />
+              <param name="granularity" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="flagPlateau" />
+          <has_text text="min_jump=" />
+          <has_text text="flag=" />
+          <has_text text="min_length=" />
+          <has_text text="max_length=" />
+          <has_text text="granularity=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="concatFlags" />
+            <param name="field" value="1" />
+            <param name="target" value="1" />
+            <param name="method" value="fagg" />
+            <param name="invert" value="true" />
+            <param name="drop" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="concatFlags" />
+          <has_text text="method=" />
+          <has_text text="invert=" />
+          <has_text text="drop=" />
+          <has_text text="squeeze=" />
+          <has_text text="override=" />
+          <has_text text="freq=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="concatFlags" />
+            <param name="field" value="1" />
+            <param name="target" value="1" />
+            <param name="method" value="fagg" />
+            <param name="invert" value="true" />
+            <param name="drop" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_1" />
+              <param name="freq" value="1d" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="concatFlags" />
+          <has_text text="method=" />
+          <has_text text="invert=" />
+          <has_text text="drop=" />
+          <has_text text="squeeze=" />
+          <has_text text="override=" />
+          <has_text text="freq=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="reindex" />
+            <param name="field" value="1" />
+            <param name="method" value="fagg" />
+            <param name="broadcast" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+            <conditional name="index_cond">
+              <param name="index_selector" value="type_0" />
+              <param name="index" value="1D" />
+            </conditional>
+            <conditional name="tolerance_cond">
+              <param name="tolerance_selector" value="type_0" />
+              <param name="tolerance" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="reindex" />
+          <has_text text="method=" />
+          <has_text text="broadcast=" />
+          <has_text text="squeeze=" />
+          <has_text text="override=" />
+          <has_text text="index=" />
+          <has_text text="tolerance=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="reindex" />
+            <param name="field" value="1" />
+            <param name="method" value="fagg" />
+            <param name="broadcast" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+            <conditional name="index_cond">
+              <param name="index_selector" value="type_1" />
+              <param name="index" value="a_string" />
+            </conditional>
+            <conditional name="tolerance_cond">
+              <param name="tolerance_selector" value="type_0" />
+              <param name="tolerance" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="reindex" />
+          <has_text text="method=" />
+          <has_text text="broadcast=" />
+          <has_text text="squeeze=" />
+          <has_text text="override=" />
+          <has_text text="index=" />
+          <has_text text="tolerance=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="reindex" />
+            <param name="field" value="1" />
+            <param name="method" value="fagg" />
+            <param name="broadcast" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+            <conditional name="index_cond">
+              <param name="index_selector" value="type_2" />
+              <param name="index" value="a_string" />
+            </conditional>
+            <conditional name="tolerance_cond">
+              <param name="tolerance_selector" value="type_0" />
+              <param name="tolerance" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="reindex" />
+          <has_text text="method=" />
+          <has_text text="broadcast=" />
+          <has_text text="squeeze=" />
+          <has_text text="override=" />
+          <has_text text="index=" />
+          <has_text text="tolerance=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="reindex" />
+            <param name="field" value="1" />
+            <param name="method" value="fagg" />
+            <param name="broadcast" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+            <conditional name="index_cond">
+              <param name="index_selector" value="type_0" />
+              <param name="index" value="1D" />
+            </conditional>
+            <conditional name="tolerance_cond">
+              <param name="tolerance_selector" value="type_1" />
+              <param name="tolerance" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="reindex" />
+          <has_text text="method=" />
+          <has_text text="broadcast=" />
+          <has_text text="squeeze=" />
+          <has_text text="override=" />
+          <has_text text="index=" />
+          <has_text text="tolerance=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="resample" />
+            <param name="field" value="1" />
+            <param name="method" value="fagg" />
+            <param name="maxna" value="1" />
+            <param name="maxna_group" value="1" />
+            <param name="squeeze" value="true" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="resample" />
+          <has_text text="method=" />
+          <has_text text="maxna=" />
+          <has_text text="maxna_group=" />
+          <has_text text="squeeze=" />
+          <has_text text="freq=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="resample" />
+            <param name="field" value="1" />
+            <param name="method" value="fagg" />
+            <param name="maxna" value="1" />
+            <param name="maxna_group" value="1" />
+            <param name="squeeze" value="true" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_1" />
+              <param name="freq" value="1d" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="resample" />
+          <has_text text="method=" />
+          <has_text text="maxna=" />
+          <has_text text="maxna_group=" />
+          <has_text text="squeeze=" />
+          <has_text text="freq=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="residuals" />
+          <conditional name="method_cond">
+            <param name="method_select" value="calculatePolynomialResiduals" />
+            <param name="field" value="1" />
+            <param name="order" value="1" />
+            <param name="min_periods" value="1" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_0" />
+              <param name="window" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="calculatePolynomialResiduals" />
+          <has_text text="order=" />
+          <has_text text="min_periods=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="residuals" />
+          <conditional name="method_cond">
+            <param name="method_select" value="calculatePolynomialResiduals" />
+            <param name="field" value="1" />
+            <param name="order" value="1" />
+            <param name="min_periods" value="1" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_1" />
+              <param name="window" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="calculatePolynomialResiduals" />
+          <has_text text="order=" />
+          <has_text text="min_periods=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="residuals" />
+          <conditional name="method_cond">
+            <param name="method_select" value="calculateRollingResiduals" />
+            <param name="field" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="center" value="true" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_0" />
+              <param name="window" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="calculateRollingResiduals" />
+          <has_text text="min_periods=" />
+          <has_text text="center=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="residuals" />
+          <conditional name="method_cond">
+            <param name="method_select" value="calculateRollingResiduals" />
+            <param name="field" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="center" value="true" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_1" />
+              <param name="window" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="calculateRollingResiduals" />
+          <has_text text="min_periods=" />
+          <has_text text="center=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="rolling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="rolling" />
+            <param name="field" value="1" />
+            <param name="target" value="1" />
+            <param name="func" value="sum" />
+            <param name="min_periods" value="1" />
+            <param name="center" value="true" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_0" />
+              <param name="window" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="rolling" />
+          <has_text text="func=" />
+          <has_text text="min_periods=" />
+          <has_text text="center=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="rolling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="rolling" />
+            <param name="field" value="1" />
+            <param name="target" value="1" />
+            <param name="func" value="sum" />
+            <param name="min_periods" value="1" />
+            <param name="center" value="true" />
+            <conditional name="window_cond">
+              <param name="window_selector" value="type_1" />
+              <param name="window" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="rolling" />
+          <has_text text="func=" />
+          <has_text text="min_periods=" />
+          <has_text text="center=" />
+          <has_text text="window=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="scores" />
+          <conditional name="method_cond">
+            <param name="method_select" value="assignKNNScore" />
+            <param name="field" value="1" />
+            <param name="target" value="1" />
+            <param name="n" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="algorithm" value="ball_tree" />
+            <param name="p" value="1" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="assignKNNScore" />
+          <has_text text="n=" />
+          <has_text text="min_periods=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="freq=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="scores" />
+          <conditional name="method_cond">
+            <param name="method_select" value="assignKNNScore" />
+            <param name="field" value="1" />
+            <param name="target" value="1" />
+            <param name="n" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="algorithm" value="ball_tree" />
+            <param name="p" value="1" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_1" />
+              <param name="freq" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="assignKNNScore" />
+          <has_text text="n=" />
+          <has_text text="min_periods=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="freq=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="scores" />
+          <conditional name="method_cond">
+            <param name="method_select" value="assignLOF" />
+            <param name="field" value="1" />
+            <param name="target" value="1" />
+            <param name="n" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="algorithm" value="ball_tree" />
+            <param name="p" value="1" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="assignLOF" />
+          <has_text text="n=" />
+          <has_text text="min_periods=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="freq=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="scores" />
+          <conditional name="method_cond">
+            <param name="method_select" value="assignLOF" />
+            <param name="field" value="1" />
+            <param name="target" value="1" />
+            <param name="n" value="1" />
+            <param name="min_periods" value="1" />
+            <param name="algorithm" value="ball_tree" />
+            <param name="p" value="1" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_1" />
+              <param name="freq" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="assignLOF" />
+          <has_text text="n=" />
+          <has_text text="min_periods=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="freq=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="scores" />
+          <conditional name="method_cond">
+            <param name="method_select" value="assignUniLOF" />
+            <param name="field" value="1" />
+            <param name="n" value="1" />
+            <param name="algorithm" value="ball_tree" />
+            <param name="p" value="1" />
+            <param name="fill_na" value="true" />
+            <conditional name="density_cond">
+              <param name="density_selector" value="type_0" />
+              <param name="density" value="auto" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="assignUniLOF" />
+          <has_text text="n=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="fill_na=" />
+          <has_text text="density=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="scores" />
+          <conditional name="method_cond">
+            <param name="method_select" value="assignUniLOF" />
+            <param name="field" value="1" />
+            <param name="n" value="1" />
+            <param name="algorithm" value="ball_tree" />
+            <param name="p" value="1" />
+            <param name="fill_na" value="true" />
+            <conditional name="density_cond">
+              <param name="density_selector" value="type_1" />
+              <param name="density" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="assignUniLOF" />
+          <has_text text="n=" />
+          <has_text text="algorithm=" />
+          <has_text text="p=" />
+          <has_text text="fill_na=" />
+          <has_text text="density=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="scores" />
+          <conditional name="method_cond">
+            <param name="method_select" value="assignZScore" />
+            <param name="field" value="1" />
+            <param name="window" value="1D" />
+            <param name="center" value="true" />
+            <param name="min_periods" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="assignZScore" />
+          <has_text text="window=" />
+          <has_text text="center=" />
+          <has_text text="min_periods=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="tools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="copyField" />
+            <param name="field" value="1" />
+            <param name="target" value="1" />
+            <param name="overwrite" value="true" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="copyField" />
+          <has_text text="overwrite=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="tools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="dropField" />
+            <param name="field" value="1" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="dropField" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="3">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="tools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="plot" />
+            <param name="field" value="1" />
+            <param name="path" value="a_string" />
+            <param name="max_gap" value="1D" />
+            <repeat name="yscope">
+              <param name="yscope_min" value="0.0" />
+              <param name="yscope_max" value="1.0" />
+            </repeat>
+            <param name="dfilter" value="1" />
+            <conditional name="mode_cond">
+              <param name="mode_selector" value="type_0" />
+              <param name="mode" value="subplots" />
+            </conditional>
+            <conditional name="history_cond">
+              <param name="history_selector" value="type_0" />
+              <param name="history" value="valid" />
+            </conditional>
+            <conditional name="xscope_cond">
+              <param name="xscope_selector" value="type_0" />
+              <param name="xscope" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="plot" />
+          <has_text text="path=" />
+          <has_text text="max_gap=" />
+          <has_text text="yscope=" />
+          <has_text text="dfilter=" />
+          <has_text text="mode=" />
+          <has_text text="history=" />
+          <has_text text="xscope=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="3">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="tools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="plot" />
+            <param name="field" value="1" />
+            <param name="path" value="a_string" />
+            <param name="max_gap" value="1D" />
+            <repeat name="yscope">
+              <param name="yscope_min" value="0.0" />
+              <param name="yscope_max" value="1.0" />
+            </repeat>
+            <param name="dfilter" value="1" />
+            <conditional name="mode_cond">
+              <param name="mode_selector" value="type_1" />
+              <param name="mode" value="a_string" />
+            </conditional>
+            <conditional name="history_cond">
+              <param name="history_selector" value="type_0" />
+              <param name="history" value="valid" />
+            </conditional>
+            <conditional name="xscope_cond">
+              <param name="xscope_selector" value="type_0" />
+              <param name="xscope" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="plot" />
+          <has_text text="path=" />
+          <has_text text="max_gap=" />
+          <has_text text="yscope=" />
+          <has_text text="dfilter=" />
+          <has_text text="mode=" />
+          <has_text text="history=" />
+          <has_text text="xscope=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="3">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="tools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="plot" />
+            <param name="field" value="1" />
+            <param name="path" value="a_string" />
+            <param name="max_gap" value="1D" />
+            <repeat name="yscope">
+              <param name="yscope_min" value="0.0" />
+              <param name="yscope_max" value="1.0" />
+            </repeat>
+            <param name="dfilter" value="1" />
+            <conditional name="mode_cond">
+              <param name="mode_selector" value="type_0" />
+              <param name="mode" value="subplots" />
+            </conditional>
+            <conditional name="history_cond">
+              <param name="history_selector" value="type_1" />
+              <param name="history" value="a_string" />
+            </conditional>
+            <conditional name="xscope_cond">
+              <param name="xscope_selector" value="type_0" />
+              <param name="xscope" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="plot" />
+          <has_text text="path=" />
+          <has_text text="max_gap=" />
+          <has_text text="yscope=" />
+          <has_text text="dfilter=" />
+          <has_text text="mode=" />
+          <has_text text="history=" />
+          <has_text text="xscope=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="3">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="tools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="plot" />
+            <param name="field" value="1" />
+            <param name="path" value="a_string" />
+            <param name="max_gap" value="1D" />
+            <repeat name="yscope">
+              <param name="yscope_min" value="0.0" />
+              <param name="yscope_max" value="1.0" />
+            </repeat>
+            <param name="dfilter" value="1" />
+            <conditional name="mode_cond">
+              <param name="mode_selector" value="type_0" />
+              <param name="mode" value="subplots" />
+            </conditional>
+            <conditional name="history_cond">
+              <param name="history_selector" value="type_0" />
+              <param name="history" value="valid" />
+            </conditional>
+            <conditional name="xscope_cond">
+              <param name="xscope_selector" value="type_1" />
+              <param name="xscope" value="a_string" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="plot" />
+          <has_text text="path=" />
+          <has_text text="max_gap=" />
+          <has_text text="yscope=" />
+          <has_text text="dfilter=" />
+          <has_text text="mode=" />
+          <has_text text="history=" />
+          <has_text text="xscope=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="tools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="renameField" />
+            <param name="field" value="1" />
+            <param name="new_name" value="a_string" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="renameField" />
+          <has_text text="new_name=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="tools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="selectTime" />
+            <param name="field" value="1" />
+            <param name="mode" value="periodic" />
+            <param name="selection_field" value="1" />
+            <param name="start" value="a_string" />
+            <param name="end" value="a_string" />
+            <param name="closed" value="true" />
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="selectTime" />
+          <has_text text="mode=" />
+          <has_text text="selection_field=" />
+          <has_text text="start=" />
+          <has_text text="end=" />
+          <has_text text="closed=" />
+        </assert_contents>
+      </output>
+    </test>
+  </xml>
+</macros>

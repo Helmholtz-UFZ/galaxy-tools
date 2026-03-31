@@ -8,9 +8,7 @@ remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/blob/main/t
 homepage_url: https://git.ufz.de/rdm-software/saqc
 type: unrestricted
 exclude:
-  - tracing.tsv
   - gen.py
-  - tracing.tsv
 auto_tool_repositories:
   name_template: "{{ tool_id }}"
   description_template: "Wrapper for SAQC: {{ tool_name }}."

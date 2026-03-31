@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool name="OGS: postLIE" id="ogs_postlie" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'postLIE'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <version_command><![CDATA[postLIE --version]]></version_command>
+  <command><![CDATA[
+#for $item in $input_file_pvd_data
+    ln -sf '$item' '$item.element_identifier';
+  #end for
+ln -sf '$input_file' '$input_file.element_identifier';
+postLIE
+    --input-file '$input_file.element_identifier'
+    $no_overwrite
+    --output-file output_1.vtu
+]]></command>
+  <inputs>
+    <param name="input_file_pvd_data" type="data" optional="true" label="input_file PVD Data Elements" help="VTU Member Collection" format="vtkxml" />
+    <param argument="--input-file" type="data" optional="false" label="input file" help="Input (.vtu | .pvd). The original PVD or VTU file name" format="vtkxml" />
+    <param argument="--no-overwrite" type="boolean" label="no overwrite" help="don't overwrite existing post processed VTU files" checked="false" truevalue="--no-overwrite" falsevalue="" />
+  </inputs>
+  <outputs>
+    <data name="output_postLIE" format="vtkxml" label="Output from postLIE" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="postlie_test" />
+  </tests>
+  <help>This tool runs the **postLIE** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
+</tool>

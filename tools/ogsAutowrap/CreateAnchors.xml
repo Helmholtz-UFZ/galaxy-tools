@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool name="OGS: CreateAnchors" id="ogs_createanchors" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'CreateAnchors'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <version_command><![CDATA[CreateAnchors --version]]></version_command>
+  <command><![CDATA[
+CreateAnchors
+    --output output_1.vtu
+]]></command>
+  <inputs />
+  <outputs>
+    <data name="output_CreateAnchors" format="vtkxml" label="Output from CreateAnchors" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="createanchors_test" />
+  </tests>
+  <help>This tool runs the **CreateAnchors** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
+</tool>

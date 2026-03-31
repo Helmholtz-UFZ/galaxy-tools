@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool name="OGS: swapNodeCoordinateAxes" id="ogs_swapnodecoordinateaxes" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'swapNodeCoordinateAxes'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <version_command><![CDATA[swapNodeCoordinateAxes --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$input_mesh_file' '$input_mesh_file.element_identifier';
+swapNodeCoordinateAxes
+    --input-mesh-file '$input_mesh_file.element_identifier'
+    --new-order '$new_order'
+    --output-mesh-file output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--input-mesh-file" type="data" optional="false" label="input mesh file" help="Input (.vtu) mesh file" format="vtkxml" />
+    <param argument="--new-order" type="text" optional="true" label="new order" help="the new order of swapped coordinate values (e.g. 'xzy' for converting XYZ values to XZY values)" />
+  </inputs>
+  <outputs>
+    <data name="output_swapNodeCoordinateAxes" format="vtkxml" label="Output from swapNodeCoordinateAxes" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="swapnodecoordinateaxes_test" />
+  </tests>
+  <help>This tool runs the **swapNodeCoordinateAxes** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
+</tool>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool name="OGS: constructMeshesFromGeometry" id="ogs_constructmeshesfromgeometry" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'constructMeshesFromGeometry'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <version_command><![CDATA[constructMeshesFromGeometry --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$geometry' '$geometry.element_identifier';
+ln -sf '$mesh' '$mesh.element_identifier';
+constructMeshesFromGeometry
+    --searchlength '$searchlength'
+    --geometry '$geometry.element_identifier'
+    --mesh '$mesh.element_identifier'
+    $multiple_nodes_allowed
+]]></command>
+  <inputs>
+    <param argument="--searchlength" type="float" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number, (min = 0)" />
+    <param argument="--geometry" type="data" optional="false" label="geometry" help="Input (.gml | .gli). The file name of the input geometry" format="xml" />
+    <param argument="--mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file name of the input mesh where the geometry is defined" format="vtkxml" />
+    <param argument="--multiple-nodes-allowed" type="boolean" label="multiple nodes allowed" help="Allows multiple mesh nodes in eps environment." checked="false" truevalue="--multiple-nodes-allowed" falsevalue="" />
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from constructMeshesFromGeometry">
+      <discover_datasets pattern="(?P&lt;designation&gt;.*)\.vtu" format="vtkxml" visible="true" />
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="constructmeshesfromgeometry_test" />
+  </tests>
+  <help>This tool runs the **constructMeshesFromGeometry** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
+</tool>

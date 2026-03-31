@@ -1,20 +1,28 @@
 <tool id="iphop_build_database" name="iPHoP" tool_type="manage_data" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
     <description>database builder</description>
     <macros>
-        <token name="@TOOL_VERSION@">1.3.3</token>
-        <token name="@VERSION_SUFFIX@">3</token>
-        <token name="@PROFILE@">22.01</token>
+        <token name="@TOOL_VERSION@">1.4.2</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@PROFILE@">24.0</token>
     </macros>
     <requirements>
         <requirement type="package" version="@TOOL_VERSION@">iphop</requirement>
+        <requirement type="package" version="4.10.0">findutils</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        mkdir -p '$out_file.extra_files_path'/db &&
+        mkdir tmp_download/ &&
         iphop download
-            --db_dir '$out_file.extra_files_path'/db
+            --db_dir tmp_download
             --db_version $db_version
-            ## --full_verify  https://bitbucket.org/srouxjgi/iphop/issues/114/db-download-verification-error
             --no_prompt &&
+
+        ## download was done in a temp folder (containing tgz, md5 and extracted folder)
+        ## mv the folder contents to where Galaxy expects it, since the folder name depends on the download
+        ## it is determined with find
+        mkdir -p '$out_file.extra_files_path'/db &&
+        mv "\$(find tmp_download/ -mindepth 1 -maxdepth 1 -type d)"/* '$out_file.extra_files_path'/db/ &&
+        iphop download --db_dir '$out_file.extra_files_path'/db/ --full_verify &&
+
         cp '$dmjson' '$out_file'
     ]]></command>
     <configfiles>
@@ -35,7 +43,10 @@
     </configfiles>
     <inputs>
         <param name="db_version" type="select" multiple="false" label="Database Version">
+            <option value="iPHoP_db_Jun25_rw">iPHoP_db_Jun25_rw</option>
             <option value="iPHoP_db_Aug23_rw">iPHoP_db_Aug23_rw</option>
+            <option value="iPHoP_db_rw_for-test">iPHoP_db_rw_for-test (only useful for testing)</option>
+            <option value="iPHoP_db_rw_1.4_for-test">iPHoP_db_rw_1.4_for-test (only useful for testing)</option>
         </param>
     </inputs>
     <outputs>
@@ -43,17 +54,22 @@
     </outputs>
     <tests>
         <!-- <test expect_num_outputs="1">
-            <param name="db_version" value="iPHoP_db_Aug23_rw" />
+            <param name="db_version" value="iPHoP_db_rw_for-test" />
             <output name="out_file">
                 <assert_contents>
-                    <has_text text='"value":"iPHoP_db_Aug23_rw"'/>
-                    <has_text text='"name":"Version iPHoP_db_Aug23_rw"'/>
+                    <has_text text='"value":"iPHoP_db_rw_for-test"'/>
+                    <has_text text='"name":"Version iPHoP_db_rw_for-test"'/>
                 </assert_contents>
             </output>
         </test> -->
     </tests>
     <help><![CDATA[
-Download and extract iPHoP reference data
+Download and extract iPHoP reference data: 
+
+- iPHoP_db_Jun25_rw: Full database updated in June 2025 for version 1.4 and later. Host genomes extracted from GTDB r226, IMG unrestricted bins as of April 2025, MGnify MAG collections as of April 2025. This is the current default database, starting with the release of iPHoP version 1.4.1.
+- iPHoP_db_Aug23_rw: Full database updated in Aug 2023 for version 1.3 and later. Host genomes extracted from GTDB r214, IMG published genomes as of Aug. 2023, MGnify MAG collections, and GEMv1. This was the default database starting with iPHoP v1.3.3.
+- iPHoP_db_rw_for-test: Subset of the database, used with the test input file to check iPHoP installation
+- iPHoP_db_rw_1.4_for-test: Subset of the database, used with the test input file to check iPHoP installation for version 1.4 and later.
     ]]></help>
     <citations>
         <citation type="doi">10.1371/journal.pbio.3002083</citation>

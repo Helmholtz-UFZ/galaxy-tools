@@ -1,11 +1,19 @@
 import argparse
-import json
+import os
 import re
+from pathlib import Path
+from typing import Optional
 
+import ezomero as ez
 import numpy as np
 import pandas as pd
-from ezomero import connect, post_roi
+from connect_omero import establish_connection
 from ezomero.rois import Ellipse, Label, Line, Point, Polygon, Polyline, Rectangle
+
+# Import environmental variables
+usr = os.getenv("OMERO_USER")
+psw = os.getenv("OMERO_PASSWORD")
+uuid_key = os.getenv("UUID_SESSION_KEY")
 
 
 def parse_color(color_str):
@@ -24,6 +32,7 @@ def parse_points(points_str):
     return [tuple(map(float, point.split(','))) for point in points]
 
 
+# function to create different shapes
 def create_shape(row):
     shape_type = row['shape']
     shape = None
@@ -122,55 +131,85 @@ def create_shape(row):
     return shape
 
 
-def main(input_file, conn, image_id, log_file):
+def import_rois(
+    host: str,
+    port: int,
+    input_file: Path,
+    image_id: int,
+    log_file: Path,
+    uuid_key: Optional[str] = None,
+    ses_close: Optional[bool] = True,
+) -> str | int:
+
+    """
+    Create shapes from a tabular file and upload them as an ROI to OMERO.
+
+    Parameters
+    ----------
+    host : str
+        OMERO server host (i.e. OMERO address or domain name)"
+    port : int
+        OMERO server port (default:4064)
+    image_id : str
+        ID of the image to which the ROI will be linked
+    input_file: Path
+        Path to the input tabular file
+    log_file : str
+        Output path for the log file
+    uuid_key : str, optional
+        OMERO UUID session key to connect without password
+    ses_close : bool
+        Decide if close or not the section after executing the script. Defaulf value is true, useful when connecting with the UUID session key.
+    Returns
+    -------
+    str | int
+        A CSV writer object configured to write TSV data and ID of newly created ROI
+    """
+
+    # Try to connect with UUID or with username and password
+    conn = establish_connection(uuid_key, usr, psw, host, port)
+
     # Open log file
-    with open(log_file, 'w') as log:
-        df = pd.read_csv(input_file, sep='\t')
-        # Replace nan to none
-        df = df.replace({np.nan: None})
-        for index, row in df.iterrows():
-            msg = f"Processing row {index + 1}/{len(df)}: {row.to_dict()}"
-            print(msg)
-            log.write(msg + "\n")
-            shape = create_shape(row)
-            if shape:
-                roi_name = row['roi_name'] if 'roi_name' in row else None
-                roi_description = row['roi_description'] if 'roi_description' in row else None
-                roi_id = post_roi(conn, image_id, [shape], name=roi_name, description=roi_description)
-                msg = f"ROI ID: {roi_id} for row {index + 1}"
+    try:
+        with open(log_file, 'w') as log:
+            df = pd.read_csv(input_file, sep='\t')
+            # Replace nan to none
+            df = df.replace({np.nan: None})
+            for index, row in df.iterrows():
+                msg = f"Processing row {index + 1}/{len(df)}: {row.to_dict()}"
                 print(msg)
                 log.write(msg + "\n")
-            else:
-                msg = f"Skipping row {index + 1}: Unable to create shape"
-                print(msg)
-                log.write(msg + "\n")
+                shape = create_shape(row)
+                if shape:
+                    roi_name = row['roi_name'] if 'roi_name' in row else None
+                    roi_description = row['roi_description'] if 'roi_description' in row else None
+                    roi_id = ez.post_roi(conn, image_id, [shape], name=roi_name, description=roi_description)
+                    msg = f"ROI ID: {roi_id} for row {index + 1}"
+                    print(msg)
+                    log.write(msg + "\n")
+                else:
+                    msg = f"Skipping row {index + 1}: Unable to create shape"
+                    print(msg)
+                    log.write(msg + "\n")
+    finally:
+        if ses_close:
+            conn.close()
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Create shapes from a tabular file and optionally post them as an ROI to OMERO.")
+    parser = argparse.ArgumentParser(description="Create shapes from a tabular file and post them as an ROI to OMERO.")
+    parser.add_argument("--host", type=str, required=True, help="OMERO server host (i.e. OMERO address or domain name)")
+    parser.add_argument("--port", type=int, default=4064, help="OMERO server port (default:4064)")
     parser.add_argument("--input_file", help="Path to the input tabular file.")
     parser.add_argument("--image_id", type=int, required=True, help="ID of the image to which the ROI will be linked")
-    parser.add_argument("--host", type=str, required=True, help="OMERO server host")
-    parser.add_argument("--credential-file", dest="credential_file", type=str, required=True, help="Credential file (JSON file with username and password for OMERO)")
-    parser.add_argument("--port", type=int, default=4064, help="OMERO server port")
-    parser.add_argument("--log_file", type=str, default="process.txt", help="Log file path")
+    parser.add_argument('--session_close', required=False, help='Namespace or title for the annotation')
+    parser.add_argument("--log_file", type=str, default="process.txt", help="Output path for the log file")
 
     args = parser.parse_args()
 
-    with open(args.credential_file, 'r') as f:
-        crds = json.load(f)
-
-    conn = connect(
-        host=args.host,
-        user=crds['username'],
-        password=crds['password'],
-        port=args.port,
-        group="",
-        secure=True
-    )
-
-    try:
-        main(args.input_file, conn, args.image_id, args.log_file)
-    finally:
-        conn.close()
+    import_rois(host=args.host,
+                port=args.port,
+                input_file=args.input_file,
+                image_id=args.image_id,
+                ses_close=args.session_close,
+                log_file=args.log_file)

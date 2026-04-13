@@ -51,4 +51,7 @@
 
 \i ./.github/lambdaminer/journal/240325-0_drop-table-ufz-user-role.sql
 \i ./.github/lambdaminer/journal/240508-0_new-calibration-function.sql
+\i ./.github/lambdaminer/journal/240508-1_reverse-new-calibration-function.sql
 \i ./.github/lambdaminer/journal/240521-0_geo-distance-function.sql
+\i ./.github/lambdaminer/journal/241205-0_update-sample-origin-check.sql
+\i ./.github/lambdaminer/journal/241210-0_add-pretty-formula-function.sql

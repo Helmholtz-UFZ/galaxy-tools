@@ -175,6 +175,7 @@
         <param type="data_collection" name="iphop" format="csv" label="iPHop Host prediction to genome"/>
         <param type="data_collection" name="abricate" format="tabular" label="Abricate results"/> 
         <param type="data_collection" name="vibrant" format="tabular" label="Vibrant Individual predicted virus AMGs" help="Vibrant output option 'Individual predicted virus AMGs by protein and its respective genome'"/>
+        <param type="boolean" name="tsv_outputs" checked="false" label="Produce tabular outputs"/>
     </inputs>
     <outputs>
         <data name="report" format="html"/>

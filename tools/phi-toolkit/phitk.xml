@@ -294,6 +294,7 @@
                 </collection>
             </param>
             <param name="checkm" value="checkm2.Quality_report-wext.tabular"/>
+            <param name="tsv_outputs" value="true"/>
             <expand macro="test_collection" name="genomad" suffix=".fasta" folder="genomad_virus_summary" ext="tabular"/>
             <expand macro="test_collection" name="genomad_phages" suffix=".fasta" folder="genomad_virus_fasta" ext="fasta"/>
             <expand macro="test_collection" name="genomad_annotations" suffix=".fasta" folder="genomad_virus_genes" ext="tabular"/>

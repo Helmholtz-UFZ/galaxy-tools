@@ -2,7 +2,7 @@
     <description></description>
     <icon src="logo.jpg"/>
     <macros>
-        <token name="@TOOL_VERSION@">0.2.0</token>
+        <token name="@TOOL_VERSION@">0.3.0</token>
         <token name="@VERSION_SUFFIX@">0</token>
 
         <xml name="zenodo_collection_element" tokens="id" token_suffix="">
@@ -175,12 +175,48 @@
         <param type="data_collection" name="iphop" format="csv" label="iPHop Host prediction to genome"/>
         <param type="data_collection" name="abricate" format="tabular" label="Abricate results"/> 
         <param type="data_collection" name="vibrant" format="tabular" label="Vibrant Individual predicted virus AMGs" help="Vibrant output option 'Individual predicted virus AMGs by protein and its respective genome'"/>
+        <param type="boolean" name="tsv_outputs" checked="false" label="Produce tabular outputs"/>
     </inputs>
     <outputs>
         <data name="report" format="html"/>
+        <data name="overview" format="tsv" from_work_dir="data/Overview/overview.tsv" label="${tool.name} on ${on_string}: Overview">
+            <filter>tsv_outputs</filter>
+        </data>
+        <collection name="genomad_checkv_out" type="list" label="${tool.name} on ${on_string}: Genomad + CheckV">
+            <discover_datasets directory="data/Genomad_CheckV" pattern="__name_and_ext__"/>
+            <filter>tsv_outputs</filter>
+        </collection>
+        <collection name="checkm2_summary_out" type="list" label="${tool.name} on ${on_string}: CheckM2 Summary">
+            <discover_datasets directory="data/CheckM2_Summary" pattern="__name_and_ext__"/>
+            <filter>tsv_outputs</filter>
+        </collection>
+        <collection name="gtdb_tk_out" type="list" label="${tool.name} on ${on_string}: GTDB‑Tk">
+            <discover_datasets directory="data/GTDB_Tk" pattern="__name_and_ext__"/>
+            <filter>tsv_outputs</filter>
+        </collection>
+        <collection name="defense_finder_out" type="list" label="${tool.name} on ${on_string}: DefenseFinder">
+            <discover_datasets directory="data/DefenseFinder" pattern="__name_and_ext__"/>
+            <filter>tsv_outputs</filter>
+        </collection>
+        <collection name="abricate_out" type="list" label="${tool.name} on ${on_string}: Abricate">
+            <discover_datasets directory="data/Abricate" pattern="__name_and_ext__"/>
+            <filter>tsv_outputs</filter>
+        </collection>
+        <collection name="iphop_out" type="list" label="${tool.name} on ${on_string}: iPHOP">
+            <discover_datasets directory="data/iPHOP" pattern="__name_and_ext__"/>
+            <filter>tsv_outputs</filter>
+        </collection>
+        <collection name="vibrant_out" type="list" label="${tool.name} on ${on_string}: VIBRANT">
+            <discover_datasets directory="data/VIBRANT" pattern="__name_and_ext__"/>
+            <filter>tsv_outputs</filter>
+        </collection>
+        <collection name="genomad_out" type="list" label="${tool.name} on ${on_string}: GeNomad">
+            <discover_datasets directory="data/GeNomad" pattern="__name_and_ext__"/>
+            <filter>tsv_outputs</filter>
+        </collection>
     </outputs>
     <tests>
-        <test>
+        <test expect_num_outputs="1">
             <param name="genomes">
                 <collection type="list">
                     <expand macro="zenodo_collection_element" id="NC_000913"/>
@@ -230,7 +266,7 @@
 
         <!-- test with collection element identifiers contain suffix .fasta
              also GTDBTk and CheckM2 output tables contain the .fasta suffix-->
-        <test>
+        <test expect_num_outputs="10">
             <param name="genomes">
                 <collection type="list">
                     <expand macro="zenodo_collection_element" id="NC_000913" suffix=".fasta"/>
@@ -258,6 +294,7 @@
                 </collection>
             </param>
             <param name="checkm" value="checkm2.Quality_report-wext.tabular"/>
+            <param name="tsv_outputs" value="true"/>
             <expand macro="test_collection" name="genomad" suffix=".fasta" folder="genomad_virus_summary" ext="tabular"/>
             <expand macro="test_collection" name="genomad_phages" suffix=".fasta" folder="genomad_virus_fasta" ext="fasta"/>
             <expand macro="test_collection" name="genomad_annotations" suffix=".fasta" folder="genomad_virus_genes" ext="tabular"/>
@@ -277,6 +314,20 @@
                     <has_text text="Error: " negate="true"/>
                 </assert_contents>
             </output>
+            <output name="overview" ftype="tsv">
+                <assert_contents>
+                    <has_n_columns n="10"/>
+                    <has_n_lines n="23"/>
+                </assert_contents>
+            </output>
+            <output_collection name="genomad_checkv_out" type="list" count="13"/>
+            <output_collection name="checkm2_summary_out" type="list" count="22"/>
+            <output_collection name="gtdb_tk_out" type="list" count="22"/>
+            <output_collection name="defense_finder_out" type="list" count="21"/>
+            <output_collection name="abricate_out" type="list" count="3"/>
+            <output_collection name="iphop_out" type="list" count="13"/>
+            <output_collection name="vibrant_out" type="list" count="7"/>
+            <output_collection name="genomad_out" type="list" count="39"/>
         </test>
     </tests>
     <help><![CDATA[

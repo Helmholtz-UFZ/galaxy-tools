@@ -1,0 +1,154 @@
+<tool id="neurobeat" name="neuroBEAT" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@"
+      profile="21.05"> <!-- how do I know the galaxy version required to run the tool? -->
+    <description>Analysis of zebrafish behavior data</description>
+
+    <macros>
+        <token name="@TOOL_VERSION@">1.0</token>
+        <token name="@VERSION_SUFFIX@">0</token> <!--version of galaxy wrapper i.e., the xml? -->
+    </macros>
+
+    <requirements>
+        <requirement type="package" version="1.4.0">r-scales</requirement>
+        <requirement type="package" version="3.5.1">r-ggplot2</requirement>
+        <requirement type="package" version="1.1.3">r-cowplot</requirement>
+        <requirement type="package" version="1.1_3">r-RColorBrewer</requirement>
+        <requirement type="package" version="2.3">r-gridextra</requirement>
+        <requirement type="package" version="0.3.0">r-ggh4x</requirement>
+        <requirement type="package" version="1.1.4">r-dplyr</requirement>
+        <requirement type="package" version="1.15.4">r-data.table</requirement>
+        <requirement type="package" version="1.11.1">r-emmeans</requirement>
+        <requirement type="package" version="1.9_3">r-mgcv</requirement>
+        <requirement type="package" version="3.2.1">r-tibble</requirement>
+        <requirement type="package" version="2.2.3">r-argparse</requirement>
+        <requirement type="package" version="1.5.1">r-stringr</requirement>
+        <requirement type="package" version="2.1.3">r-svglite</requirement>
+        <requirement type="package" version="0.1.8">r-tcplfit2</requirement>
+        <requirement type="package" version="2.4.7">r-longitudinalData</requirement>
+        <requirement type="package" version="1.3.1">r-tidyr</requirement>
+        <requirement type="package" version="1.0.2">r-purrr</requirement>
+        <requirement type="package" version="3.0">zip</requirement>
+    </requirements>
+
+    <command detect_errors="exit_code"><![CDATA[
+    set -e
+
+    echo "COMMAND STARTED" &&
+    echo "Tool dir: $__tool_directory__" &&
+    echo "mode: $mode" &&
+    echo "exp_name: $exp_name" &&
+    echo "utils: $__tool_directory__/R/utils" &&
+    echo "zip version: " &&
+    zip --version &&
+
+    mkdir -p '$exp_name/raw_data_ZebraBox' &&
+    mkdir -p '$exp_name/logsheets' &&
+    mkdir -p '$exp_name/aesthetic_files' &&
+
+    #for $i, $raw in enumerate($raw_data_ZebraBox)
+    cp '$raw' $exp_name/raw_data_ZebraBox/${raw.element_identifier};
+    #end for
+
+    #for $i, $log in enumerate($logsheets)
+    cp '$log' $exp_name/logsheets/${log.element_identifier};
+    #end for
+
+    cp '$__tool_directory__/inst/aesthetic_files/'*.csv '$exp_name/aesthetic_files/' &&
+
+    #if $conc_data
+    cp '$conc_data' '$exp_name/aesthetic_files/conc_data.csv' &&
+    #end if
+
+    R CMD INSTALL '$__tool_directory__' &&
+    Rscript '$__tool_directory__/00_mainCLI_forGalaxy.R' --mode '$mode' --name '$exp_name' --utils '$__tool_directory__/R/utils' &&
+
+    zip -r neurobeat_results.zip '$exp_name' &&
+    mv neurobeat_results.zip '$results'
+    ]]>
+    </command>
+
+    <inputs>
+        <!-- File uploads -->
+        <param name="raw_data_ZebraBox" type="data" format="csv,txt,tsv,xls" label="Raw data from ZebraBox"
+               multiple="true"/>
+        <param name="logsheets" type="data" format="csv,txt" label="Log sheets - must match number of zebrabox files"
+               multiple="true"/>
+
+        <!-- Aesthetic files -->
+        <param name="aesthetic_zip" type="data" format="zip" optional="true"
+               label="Aesthetic files (ZIP, optional)"
+               help="Upload a ZIP containing all 7 aesthetic CSVs at the top level. Leave empty to use the defaults shipped with the tool. Individual files below override anything from this ZIP."/>
+
+        <!--
+        <param name="assay_phases"           type="data" format="csv" optional="true" label="assay_phases.csv (optional override)" />
+        <param name="assay_phases_indiv"     type="data" format="csv" optional="true" label="assay_phases_indiv.csv (optional override)" />
+        <param name="acoustic_stimuli"       type="data" format="csv" optional="true" label="acoustic_stimuli.csv (optional override)" />
+        <param name="acoustic_stimuli_indiv" type="data" format="csv" optional="true" label="acoustic_stimuli_indiv.csv (optional override)" />
+        <param name="stimuli_classes"        type="data" format="csv" optional="true" label="stimuli_classes.csv (optional override)" />
+        <param name="stimuli_info"           type="data" format="csv" optional="true" label="stimuli_info.csv (optional override)" />
+        <param name="vamr_colors"            type="data" format="csv" optional="true" label="VAMR_colors.csv (optional override)" />
+        -->
+
+        <param name="conc_data" type="data" format="csv" optional="true" label="conc_data.csv (optional override)"
+        help="Optional override for the conc_data file if specific colors are desired.
+        If provided, will be used instead of the default concentration data that is created based on the the logsheets."/>
+
+        <!-- Pipeline parameters -->
+        <param name="mode" type="select" label="Pipeline mode"> <!--multiple="true"-->
+            <option value="all">all</option>
+            <option value="plot_timeseries">plot_timeseries</option>
+            <option value="GAMM_model">GAMM_model</option>
+            <option value="CRC_phases">CRC_phases</option>
+            <option value="violin_plots_phases">violin_plots_phases</option>
+            <option value="CRC_LM">CRC_LM</option>
+            <option value="CR_modeling_all">CR_modeling_all</option>
+            <option value="violins_SV">violins_SV</option>
+            <option value="violins_all">violins_all</option>
+        </param>
+
+        <param name="exp_name" type="text" label="Experiment name"/>
+        <!-- <param name="path" type="text" label="Experiment folder path"/> -->
+        <!-- <param name="utils" type="text" label="Path to utils folder"/> -->
+
+        <param name="healthyAnimalScore" type="integer" value="0" label="Healthy animal score"/>
+        <param name="unit_var1" type="text" value="µM" label="Unit for var1"/>
+        <param name="control_var1" type="text" value="0" label="Control var1"/>
+        <param name="y_max" type="integer" value="8" label="Y-axis maximum"/>
+        <param name="endpoint_list" type="text" value="BSL1 BSL2 BSL3 BSL4 VMR1 VMR2 VMR3 VMR4 VMR5"
+               label="Endpoint list"/>
+        <param name="binsize" type="integer" value="60" label="Binsize"/>
+        <param name="phase_name" type="text" value="BSL1_VMR5" label="Phase name"/>
+        <param name="x_axis_title" type="text" value="Time (s)" label="X-axis title"/>
+        <param name="y_axis_title" type="text" value="Motor activity (px/min)" label="Y-axis title"/>
+        <param name="var1_def" type="text" value="c" label="Var1 definition"/>
+       <!-- <param name="review_colors" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false"
+               label="Review colors"/> -->
+    </inputs>
+
+    <outputs>
+        <data name="results" format="zip" label="neuroBEAT results"/>
+    </outputs>
+
+    <tests>
+        <test expect_exit_code="0">
+            <param name="logsheets" value="L3898-PFAS3028A_treatmentlist.txt,L3899-PFAS3028B_treatmentlist.txt,L4008-PFAS3029A_treatmentlist.txt,L4009-PFAS3029B_treatmentlist.txt"/>
+            <param name="raw_data_ZebraBox" value="L3898-PFAS3028A.xls,L3899-PFAS3028B.xls,L4008-PFAS3029A.xls,L4009-PFAS3029B.xls"/>
+            <param name="conc_data" value="conc_data.csv"/>
+            <param name="mode" value="violins_all"/>
+            <param name="exp_name" value="PFAS3028"/>
+        </test>
+
+
+    </tests>
+
+    <help><![CDATA[
+    neuroBEAT is a pipeline for analyzing zebrafish behavior data.
+    It provides a comprehensive set of tools for preprocessing, analysis, and visualization such as
+    concentration-response curves.
+]]>
+    </help>
+
+    <citations>
+        <citation type="doi">10.1016/j.neuro.2026.103414</citation>
+    </citations>
+
+</tool>

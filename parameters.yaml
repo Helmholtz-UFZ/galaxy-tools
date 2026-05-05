@@ -1,0 +1,45 @@
+# Setup
+#exp_name: "sim_var2_PFAS3028_PFAS3029"
+#pathToExp: "/run/user/1001/gvfs/smb-share:server=isa.intranet.ufz.de,share=extra/tallab/Experiments_new/neuroBEAT/neuroBEAT_pyCharm/pipeline_test/sim_var2_PFAS3028_PFAS3029"
+
+exp_name: "one_exp"
+pathToExp: "/run/user/1000/gvfs/smb-share:server=isa,share=extra/tallab/Experiments_new/neuroBEAT/20260414_package_testrun_JR/new_conc_data_func"
+
+#experiments: ["PFAS3028", "PFAS3029"]
+
+# Pre-processing
+healthyAnimalScore: 0
+control_var1: "0"
+unit_var1: "\u00B5M"
+review_colors: TRUE
+
+# maximum value on y-axis in line plots
+y_max: 6
+
+# GAMM fitting
+endpoint_list: ["BSL1", "BSL2", "BSL3", "BSL4", "VMR1", "VMR2", "VMR3", "VMR4", "VMR5"]
+binsize: 60
+phase_name: "BSL1_VMR5"
+
+# Plotting the fitted GAMM splines on the data points
+plot_xlimits: [10, 3200]
+plot_xbreaks: [0, 600, 1200, 1800, 2400, 3000]
+plot_ylimits: [-5000, 50000]
+plot_ybreaks: [0, 10000, 20000, 30000, 40000, 50000]
+x_axis_title: "Time (s)"
+y_axis_title: "Motor activity (px/min)"
+ref_grid_size: 10000
+
+# Concentration-response modeling timeseries
+cutoff_method: "meanModelMAD_all"
+bsd: "bsd_model"
+
+# Violin plots
+var1_def: "c"
+
+# Endpoint-specific line plots
+groups:
+  group1: [ "BSL1", "BSL2", "BSL3", "BSL4" ]
+  group2: [ "VMR2", "VMR3", "VMR4", "VMR5" ]
+habituation_assay_list: "ASH1"
+reference_pos: -1

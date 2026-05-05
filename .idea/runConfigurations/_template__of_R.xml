@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="true" type="R">
+    <r-file-path value="$PROJECT_DIR$/00_mainCLI.R" />
+    <working-directory value="/run/user/1001/gvfs/smb-share:server=isa.intranet.ufz.de,share=extra/tallab/Experiments_new/neuroBEAT/neuroBEAT_pyCharm/pipeline_test/final_PFAS3028" />
+    <interpreter-arguments value="--vanilla" />
+    <script-arguments value="--mode violins_SV --healthyAnimalScore 0 --unit_var1 \u00B5M  --name final_PFAS3028 --path /run/user/1001/gvfs/smb-share:server=isa.intranet.ufz.de,share=extra/tallab/Experiments_new/neuroBEAT/neuroBEAT_pyCharm/pipeline_test/final_PFAS3028 --utils $PROJECT_DIR$/R/utils" />
+    <envs />
+    <method v="2" />
+  </configuration>
+</component>

@@ -725,6 +725,7 @@ process_sample <- function(sample, combined_unique, host_genomes_paths, genome_d
                     checkv_data %>% dplyr::select(contig_id, gene_count, viral_genes, checkv_quality, miuvig_quality),
                     by = c("seq_name" = "contig_id")
                 )
+                dplyr::select(seq_name, length, gene_count, viral_genes, checkv_quality, miuvig_quality, taxonomy, topology, coordinates)
             write_tsv_table(genomad_checkv_tbl, "Genomad_CheckV", sample)
 
             cat("**Host Genome Ideogram with Phages**:\n\n")

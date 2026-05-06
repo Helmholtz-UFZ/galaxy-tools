@@ -1,0 +1,13 @@
+Package: neuroBEAT
+Type: Package
+Title: Analysis of the Visual and Acoustic Motor Response (VAMR) Assay
+Version: 0.1.0
+Date: 20226-01-23
+Authors@R: c(person(given = "Jana", family = "Raab", role = c("aut", "cre"), email = "jana.raab@ufz.de"), person(given = "Jana", family = "Schor", role = "ctb", email = "jana.schor@ufz.de"), person(given = "Tamara", family = "Tal*", role = "ctb", email = "tamara.tal@ufz.de"), person(given = "Sebastian", family = "Gutsfeld*", role = "aut", email = "sebastian.gutsfeld@ufz.de"))
+Description: Tools to preprocess VAMR data, create phase-annotated time-series plots, model time-resolved endpoints with generalized additive (mixed) models, and summarize single-value endpoints. Generates concentration–response curves (AC50/POD) and violin/box plots with emmeans-based contrasts versus control. Includes a CLI and interoperates with ‘tcplfit2’.
+SystemRequirements: R (>= 4.4); Conda/Mamba. See environment.yml.
+License: What license is it under?
+RoxygenNote: 7.3.2
+Encoding: UTF-8
+
+

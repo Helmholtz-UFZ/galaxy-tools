@@ -1,0 +1,31 @@
+assays,colors,start,end,label_pos,y_pos,divider_lines,boxplot_y_min,boxplot_y_max,boxplot_y_interval,letter_pos,y_axis_title
+VSRB,#E5E5E5,-89.5,210.5,60.5,-2.5,no,-400,2000,500,-200,"expression(paste(""Motor activity ("", Delta, ""px/s)""))"
+BSL1,#CCCCCC,61,361,211,-1.1,yes,-10000,40000,10000,-5000,"expression(paste(""Motor activity (10""^4, "" "", Delta, ""px/s)""))"
+BSL2,#BFBFBF,361,661,511,-1.1,yes,-10000,40000,10000,-5000,"expression(paste(""Motor activity (10""^4, "" "", Delta, ""px/s)""))"
+BSL3,#A6A6A6,661,961,811,-1.1,yes,-10000,40000,10000,-5000,"expression(paste(""Motor activity (10""^4, "" "", Delta, ""px/s)""))"
+BSL4,#8C8C8C,961,1260,1110.5,-1.1,yes,-10000,40000,10000,-5000,"expression(paste(""Motor activity (10""^4, "" "", Delta, ""px/s)""))"
+VSR1,#ffe062,1260,1261,1260.5,-2.5,no,-400,2000,500,-200,"expression(paste(""Motor activity ("", Delta, ""px/s)""))"
+VMR1,#ffd014,1261,1860,1560.5,-1.1,yes,-10000,40000,10000,-5000,"expression(paste(""Motor activity (10""^4, "" "", Delta, ""px/s)""))"
+VSR2,#e0a7fc,1860,1861,1860.5,-2.5,no,-400,2000,500,-200,"expression(paste(""Motor activity ("", Delta, ""px/s)""))"
+VMR2,#d98dff,1861,2161,2011,-1.1,no,-10000,40000,10000,-5000,"expression(paste(""Motor activity (10""^4, "" "", Delta, ""px/s)""))"
+VMR3,#CC66FF,2161,2461,2311,-1.1,yes,-10000,40000,10000,-5000,"expression(paste(""Motor activity (10""^4, "" "", Delta, ""px/s)""))"
+VMR4,#b442ed,2461,2761,2611,-1.1,yes,-10000,40000,10000,-5000,"expression(paste(""Motor activity (10""^4, "" "", Delta, ""px/s)""))"
+VMR5,#8f20c7,2761,3060,2910.5,-1.1,yes,-10000,40000,10000,-5000,"expression(paste(""Motor activity (10""^4, "" "", Delta, ""px/s)""))"
+ASR1,#a5d0fa,3060,3310,3182.5,-1.1,yes,-400,2000,500,-200,"expression(paste(""Average motor activity ("", Delta, ""px/s)""))"
+ISI1,#3a9bfc,3060,3310,3182.5,-2.5,yes,-40000,200000,50000,-20000,"expression(paste(""Summed motor activity ("", Delta, ""px/s)""))"
+IEI1,#f2a2d8,3230,3445,3337,-3.9,no,-10000,50000,10000,-5000,"expression(paste(""Summed motor activity ("", Delta, ""px/s)""))"
+ASR2,#92c5f7,3363,3620,3487.5,-1.1,yes,-400,2000,500,-200,"expression(paste(""Average motor activity ("", Delta, ""px/s)""))"
+ISI2,#1f87f0,3363,3620,3487.5,-2.5,yes,-40000,200000,50000,-20000,"expression(paste(""Summed motor activity ("", Delta, ""px/s)""))"
+IEI2,#ed8acd,3515,3729,3622,-3.9,no,-10000,50000,10000,-5000,"expression(paste(""Summed motor activity ("", Delta, ""px/s)""))"
+IBI,#29d1c4,3729,4190,3944.5,-3.9,no,-40000,200000,50000,-20000,"expression(paste(""Summed motor activity ("", Delta, ""px/s)""))"
+ASHsum,#22b9ae,3665,4210,3937.5,-1.1,yes,-30000,150000,30000,-15000,"expression(paste(""Summed motor activity (""px/s)""))"
+ASH1,#38f5eb,3669,3730,3792.5,-2.5,yes,-0.2,1,0.2,-0.1,"expression(paste(""Habituation index (proportion of activity in last 10 taps)""))"
+IEI3,#eb78c5,4193,4407,4300,-3.9,no,-50000,120000,30000,-25000,"expression(paste(""Summed motor activity ("", Delta, ""px/s)""))"
+ASR3,#6bb6ff,4380,4640,4507.5,-1.1,yes,-400,2000,500,-200,"expression(paste(""Average motor activity ("", Delta, ""px/s)""))"
+ISI3,#0b75e0,4380,4640,4507.5,-2.5,yes,-40000,200000,50000,-20000,"expression(paste(""Summed motor activity ("", Delta, ""px/s)""))"
+ASH2,#22b9ae,3790,3849,3819.5,-1.1,no,,,,,
+ASH3,#22b9ae,3907,3968,3937.5,-1.1,no,,,,,
+ASH4,#22b9ae,4026,4087,4056.5,-1.1,no,,,,,
+ASH5,#22b9ae,4147,4206,4176.5,-1.1,no,,,,,
+ASH1/5,#b8f2ef,,,,,,-0.2,1,0.2,-0.1,"expression(paste(""Potentiation of habituation""))"
+ASR2/3,#6db6ff,,,,,,-0.2,1,0.2,-0.1,"expression(paste(""Retention index""))"

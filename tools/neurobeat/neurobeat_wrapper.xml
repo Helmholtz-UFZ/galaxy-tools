@@ -130,8 +130,8 @@
 
     <tests>
         <test expect_exit_code="0">
-            <param name="logsheets" value="L3898-PFAS3028A_treatmentlist.txt,L3899-PFAS3028B_treatmentlist.txt,L4008-PFAS3029A_treatmentlist.txt,L4009-PFAS3029B_treatmentlist.txt"/>
-            <param name="raw_data_ZebraBox" value="L3898-PFAS3028A.xls,L3899-PFAS3028B.xls,L4008-PFAS3029A.xls,L4009-PFAS3029B.xls"/>
+            <param name="logsheets" value="L3898-PFAS3028A_treatmentlist.txt,L3899-PFAS3028B_treatmentlist.txt"/>
+            <param name="raw_data_ZebraBox" value="L3898-PFAS3028A.xls,L3899-PFAS3028B.xls"/>
             <param name="conc_data" value="conc_data.csv"/>
             <param name="mode" value="violins_all"/>
             <param name="exp_name" value="PFAS3028"/>

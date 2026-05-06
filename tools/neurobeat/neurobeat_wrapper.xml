@@ -40,37 +40,39 @@
     echo "zip version: " &&
     zip --version &&
 
-    mkdir -p '$exp_name/raw_data_ZebraBox' &&
-    mkdir -p '$exp_name/logsheets' &&
-    mkdir -p '$exp_name/aesthetic_files' &&
+    mkdir -p 'data/raw_data_ZebraBox' &&
+    mkdir -p 'data/logsheets' &&
+    mkdir -p 'data/aesthetic_files' &&
 
     #for $i, $raw in enumerate($raw_data_ZebraBox)
-    cp '$raw' $exp_name/raw_data_ZebraBox/${raw.element_identifier};
+    cp '$raw' data/raw_data_ZebraBox/${raw.element_identifier};
     #end for
 
     #for $i, $log in enumerate($logsheets)
-    cp '$log' $exp_name/logsheets/${log.element_identifier};
+    cp '$log' data/logsheets/${log.element_identifier};
     #end for
 
-    cp '$__tool_directory__/inst/aesthetic_files/'*.csv '$exp_name/aesthetic_files/' &&
+    cp '$__tool_directory__/inst/aesthetic_files/'*.csv 'data/aesthetic_files/' &&
 
     #if $conc_data
-    cp '$conc_data' '$exp_name/aesthetic_files/conc_data.csv' &&
+    cp '$conc_data' 'data/aesthetic_files/conc_data.csv' &&
     #end if
 
-    R CMD INSTALL '$__tool_directory__' &&
-    Rscript '$__tool_directory__/00_mainCLI_forGalaxy.R' --mode '$mode' --name '$exp_name' --utils '$__tool_directory__/R/utils' &&
+    mkdir ~/R-packages/ &&
+    export R_LIBS_USER=~/R-packages/ &&
+    R CMD INSTALL -l ~/R-packages '$__tool_directory__' &&
+    Rscript '$__tool_directory__/00_mainCLI_forGalaxy.R' --mode '$mode' --name 'data' --utils '$__tool_directory__/R/utils'
 
-    zip -r neurobeat_results.zip '$exp_name' &&
-    mv neurobeat_results.zip '$results'
+    ## zip -r neurobeat_results.zip '$exp_name' &&
+    ## mv neurobeat_results.zip '$results'
     ]]>
     </command>
 
     <inputs>
         <!-- File uploads -->
-        <param name="raw_data_ZebraBox" type="data" format="csv,txt,tsv,xls" label="Raw data from ZebraBox"
+        <param name="raw_data_ZebraBox" type="data" format="csv,tabular,tsv,xls" label="Raw data from ZebraBox"
                multiple="true"/>
-        <param name="logsheets" type="data" format="csv,txt" label="Log sheets - must match number of zebrabox files"
+        <param name="logsheets" type="data" format="csv,tabular" label="Log sheets - must match number of zebrabox files"
                multiple="true"/>
 
         <!-- Aesthetic files -->
@@ -126,13 +128,16 @@
 
     <outputs>
         <data name="results" format="zip" label="neuroBEAT results"/>
+        <collection name="c" type="list:list">
+            <discover_datasets pattern="(?P&lt;identifier_0&gt;.+)/(?P&lt;identifier_1&gt;.+)\.(?P&lt;ext&gt;.+)" directory="data/result_files/" recurse="true" match_relative_path="true"/>
+        </collection>
     </outputs>
 
     <tests>
         <test expect_exit_code="0">
-            <param name="logsheets" value="L3898-PFAS3028A_treatmentlist.txt,L3899-PFAS3028B_treatmentlist.txt,L4008-PFAS3029A_treatmentlist.txt,L4009-PFAS3029B_treatmentlist.txt"/>
-            <param name="raw_data_ZebraBox" value="L3898-PFAS3028A.xls,L3899-PFAS3028B.xls,L4008-PFAS3029A.xls,L4009-PFAS3029B.xls"/>
-            <param name="conc_data" value="conc_data.csv"/>
+            <param name="logsheets" value="L3898-PFAS3028A_treatmentlist.txt,L3899-PFAS3028B_treatmentlist.txt"/>
+            <param name="raw_data_ZebraBox" value="L3898-PFAS3028A.xls,L3899-PFAS3028B.xls"/>
+            <!-- <param name="conc_data" value="conc_data.csv"/> -->
             <param name="mode" value="violins_all"/>
             <param name="exp_name" value="PFAS3028"/>
         </test>

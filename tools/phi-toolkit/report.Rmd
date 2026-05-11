@@ -43,6 +43,17 @@ required_packages <- c(
 
 # Load required packages
 invisible(lapply(required_packages, library, character.only = TRUE))
+
+## ------------------------------------------------------------------------
+## Helper to write a data.frame to a TSV file in <outdir>/<tool>/<name>.tsv
+## Used for both per‑genome tables (sub‑folder = tool name, file = genome) and
+## summary tables to a file named by the tool.
+## ------------------------------------------------------------------------
+write_tsv_table <- function(df, tool, name) {
+    dir_path <- file.path(params$outdir, tool)
+    if (!fs::dir_exists(dir_path)) fs::dir_create(dir_path)
+    readr::write_tsv(df, file.path(dir_path, paste0(name, ".tsv")))
+}
 ```
 
 ```{r helper_functions, echo=FALSE}
@@ -133,7 +144,6 @@ process_genome_folder <- function(folder, host_analyses_dir, virus_analyses_dir)
     list(file_info = file_info, virus_count = virus_count, loaded_data = loaded_data)
 }
 ```
-
 
 ```{r compile_results, message=FALSE, warning=FALSE, echo=FALSE}
 compile_results <- function() {
@@ -423,6 +433,18 @@ table_data <- data %>%
         `Genome size (bp)`, `N50 (contigs)`
     )
 
+# Write overview summary TSV (plain text, no HTML)
+clean_table_data <- table_data %>%
+    mutate(
+        `GTDB Taxonomy` = gsub("<[^>]+>", "", `GTDB Taxonomy`),
+        Virus_Count = gsub("<[^>]+>", "", Virus_Count),
+        Quality_Score = gsub("<[^>]+>", "", Quality_Score),
+        Genome_Quality = gsub("<[^>]+>", "", Genome_Quality),
+        Completeness = gsub("<[^>]+>", "", Completeness),
+        Contamination = gsub("<[^>]+>", "", Contamination)
+    )
+write_tsv_table(clean_table_data, "Overview", "overview")
+
 log_debug("Creating the table")
 kableExtra::kbl(table_data,
     escape = FALSE,
@@ -473,7 +495,6 @@ combined_unique <- bind_rows(
 
 log_debug(paste("combined_unique samples:", paste(combined_unique$Sample, collapse = ", ")))
 ```
-
 
 
 ```{r main_workflow, fig.width=6, fig.height=6, out.height="100%", out.width='100%', dpi=300, fig.align='center', warning=FALSE, message=FALSE, results='asis'}
@@ -618,6 +639,12 @@ process_sample <- function(sample, combined_unique, host_genomes_paths, genome_d
                 kableExtra::scroll_box(width = "100%", height = "100%") %>%
                 cat()
 
+            # Write GTDB‑Tk taxonomy per‑genome TSV
+            gtdb_tbl <- data_gtdbtk_host %>%
+                dplyr::filter(user_genome == sample) %>%
+                dplyr::select(classification)
+            write_tsv_table(gtdb_tbl, "GTDB_Tk", sample)
+
             # Cat checkm summary for this genome
             cat("**CheckM2 Summary**:\n\n")
             # checkm_summary <- data_checkm_host %>% dplyr::filter(`bin_id` == sample)
@@ -632,6 +659,13 @@ process_sample <- function(sample, combined_unique, host_genomes_paths, genome_d
                 kableExtra::scroll_box(width = "100%", height = "100%") %>%
                 cat()
 
+            # Write detailed CheckM2 summary TSV for this sample
+            checkm_summary_tbl <- data_checkm_host %>%
+                dplyr::filter(`name` == sample) %>%
+                janitor::clean_names() %>%
+                dplyr::select(total_contigs, contig_n50, completeness, contamination)
+            write_tsv_table(checkm_summary_tbl, "CheckM2_Summary", sample)
+
             # Display defense-finder as a table
             if (!is.null(defense_finder_data) && nrow(defense_finder_data) > 0) {
                 cat("**Defense-Finder Systems**:\n\n")
@@ -643,6 +677,11 @@ process_sample <- function(sample, combined_unique, host_genomes_paths, genome_d
                     kableExtra::kable_paper("striped", full_width = TRUE) %>%
                     kableExtra::scroll_box(width = "100%", height = "100%") %>%
                     cat()
+
+                # Write filtered Defense‑Finder TSV (same columns as markdown)
+                defense_finder_tbl <- defense_finder_data %>%
+                    dplyr::select(sys_id, type, subtype, sys_beg, sys_end, protein_in_syst, genes_count, name_of_profiles_in_sys)
+                write_tsv_table(defense_finder_tbl, "DefenseFinder", sample)
             } else {
                 cat("No Defense-Finder systems detected.\n\n")
             }
@@ -679,6 +718,15 @@ process_sample <- function(sample, combined_unique, host_genomes_paths, genome_d
                 kableExtra::scroll_box(width = "100%", height = "100%") %>%
                 cat()
 
+            # Write Genomad + CheckV summary per‑genome TSV
+            genomad_checkv_tbl <- genomad_summary %>%
+                dplyr::select(seq_name, taxonomy, topology, coordinates, length) %>%
+                dplyr::left_join(
+                    checkv_data %>% dplyr::select(contig_id, gene_count, viral_genes, checkv_quality, miuvig_quality),
+                    by = c("seq_name" = "contig_id")
+                )
+            write_tsv_table(genomad_checkv_tbl, "Genomad_CheckV", sample)
+
             cat("**Host Genome Ideogram with Phages**:\n\n")
             plot_genome_ideogram(sample, proviruses_gr_features)
             cat('In this circular plot, **"c"** indicates the contig, and the number that follows (e.g., **c1**) represents the contig number.
@@ -711,6 +759,9 @@ If multiple contigs are present in the genome, each will be shown with a distinc
                     kableExtra::scroll_box(width = "100%", height = "100%") %>%
                     cat()
                 cat("\n\n")
+                # Write Abricate virulence‑genes per‑genome TSV
+                abricate_tbl <- abricate_data %>% dplyr::select(-number_file)
+                write_tsv_table(abricate_tbl, "Abricate", sample)
             }
 
             # Creating table with iPHOP
@@ -724,6 +775,9 @@ If multiple contigs are present in the genome, each will be shown with a distinc
                     kableExtra::scroll_box(width = "100%", height = "100%") %>%
                     cat()
                 cat("\n\n")
+                # Write iPHOP host‑prediction per‑genome TSV
+                iphop_tbl <- iphop_data
+                write_tsv_table(iphop_tbl, "iPHOP", sample)
             }
 
             # Creating table with VIBRANT AMGs
@@ -737,6 +791,9 @@ If multiple contigs are present in the genome, each will be shown with a distinc
                     kableExtra::scroll_box(width = "100%", height = "100%") %>%
                     cat()
                 cat("\n\n")
+                # Write VIBRANT AMGs per‑genome TSV
+                vibrant_tbl <- vibrant_data
+                write_tsv_table(vibrant_tbl, "VIBRANT", sample)
             }
 
             log_debug(paste("Finished processing sample:", sample))
@@ -765,7 +822,6 @@ process_phage <- function(virus, genomad_summary, genomad_annotation, checkv_dat
     ), ] %>%
         dplyr::mutate(arrow_pos = ifelse(strand == -1, "start", "end"))
 
-
     cat("\n\n**Phage-Host Genome Ideogram:**\n\n")
 
     plot_phage_circos(virus, genomad_summary, current_annotations, virus_length, host_genome_size, provirus_start, provirus_end, checkv_data)
@@ -780,6 +836,11 @@ process_phage <- function(virus, genomad_summary, genomad_annotation, checkv_dat
         kableExtra::kable_paper() %>%
         cat()
     cat("\n\n")
+
+    # Write per‑phage gene‑annotation TSV (filename includes sample and virus ID)
+    phage_ann_tbl <- current_annotations %>%
+        dplyr::select(gene, length, marker, annotation_accessions, annotation_description)
+    write_tsv_table(phage_ann_tbl, "GeNomad", str_replace_all(virus$seq_name, "[^A-Za-z0-9.-]", "_"))
 }
 
 plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus_length, host_genome_size, provirus_start, provirus_end, checkv_data) {

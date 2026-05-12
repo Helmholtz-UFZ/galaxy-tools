@@ -24,7 +24,7 @@
         --value1 '$filter_type.value1'
         --id '$filter_type.did'
         --tsv_file '$tsv'
-        #if $filter == "KP"
+        #if $filter_type.filter == "KP"
         --value2 '$filter_type.value2'
         #end if
         @SESSION_ID@
@@ -102,6 +102,24 @@
             <output name="tsv" value="output_filter_tag.tsv" ftype="tabular">
                 <assert_contents>
                     <has_text text="1"/>
+                    <has_n_columns n="1"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <conditional name="filter_type">
+                <param name="filter" value="KP"/>
+                <param name="value1" value="Condition"/>
+                <param name="value2" value="Infected"/>
+                <param name="did" value="1,2"/>
+            </conditional>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <output name="tsv" value="output_filter_KV.tsv" ftype="tabular">
+                <assert_contents>
+                    <has_text text="2"/>
                     <has_n_columns n="1"/>
                 </assert_contents>
             </output>

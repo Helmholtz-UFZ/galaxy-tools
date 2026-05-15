@@ -10,7 +10,6 @@
     <expand macro="omeropy_requirements"/>
     <command detect_errors="exit_code"><![CDATA[
         #import re
-
         mkdir folder &&
         #for $image in $folder:
             #set image_identifier = re.sub('[^\s\w\-]', '_', str($image.element_identifier))

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool name="OGS: checkMesh" id="ogs_checkmesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'checkMesh'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <version_command><![CDATA[checkMesh --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$mesh_file' '$mesh_file.element_identifier';
+checkMesh
+    $validation
+    $print_properties
+    '$mesh_file.element_identifier' > '$stdout_log'
+]]></command>
+  <inputs>
+    <param argument="--validation" type="boolean" label="validation" help="validate the mesh" checked="false" truevalue="--validation" falsevalue="" />
+    <param argument="--print_properties" type="boolean" label="print properties" help="print properties stored in the mesh" checked="false" truevalue="--print_properties" falsevalue="" />
+    <param argument="--mesh-file" type="data" optional="false" label="mesh file" help="Input (.vtu | .msh). Mesh file" format="vtkxml" />
+  </inputs>
+  <outputs>
+    <data name="stdout_log" format="txt" label="Output Log from checkMesh" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="checkmesh_test" />
+  </tests>
+  <help>This tool runs the **checkMesh** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
+</tool>

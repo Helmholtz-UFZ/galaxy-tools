@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool name="OGS: VTK2OGS" id="ogs_vtk2ogs" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'VTK2OGS'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <version_command><![CDATA[VTK2OGS --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
+VTK2OGS
+    --mesh-input-file '$mesh_input_file.element_identifier'
+    --mesh-output-file output_1.msh
+]]></command>
+  <inputs>
+    <param argument="--mesh-input-file" type="data" optional="false" label="mesh input file" help="Input (.vtk). The name of the file containing the input mesh" format="vtkxml" />
+  </inputs>
+  <outputs>
+    <data name="output_VTK2OGS" format="msh" label="Output from VTK2OGS" from_work_dir="output_1.msh" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="vtk2ogs_test" />
+  </tests>
+  <help>This tool runs the **VTK2OGS** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
+</tool>

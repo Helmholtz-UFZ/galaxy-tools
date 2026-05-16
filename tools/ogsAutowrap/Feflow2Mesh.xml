@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool name="OGS: Feflow2Mesh" id="ogs_feflow2mesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'Feflow2Mesh'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <version_command><![CDATA[Feflow2Mesh --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$in' '$in.element_identifier';
+Feflow2Mesh
+    --in '$in.element_identifier'
+    --out output_1.if extension is msh, old OGS file format is written
+]]></command>
+  <inputs>
+    <param argument="--in" type="data" optional="false" label="in" help="Input (.fem). FEFLOW input file" format="feflow.fem" />
+  </inputs>
+  <outputs>
+    <data name="output_Feflow2Mesh" format="if extension is msh, old ogs file format is written" label="Output from Feflow2Mesh" from_work_dir="output_1.if extension is msh, old OGS file format is written" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="feflow2mesh_test" />
+  </tests>
+  <help>This tool runs the **Feflow2Mesh** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
+</tool>

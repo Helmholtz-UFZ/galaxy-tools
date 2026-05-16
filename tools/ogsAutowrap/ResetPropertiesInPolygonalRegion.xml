@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool name="OGS: ResetPropertiesInPolygonalRegion" id="ogs_resetpropertiesinpolygonalregion" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'ResetPropertiesInPolygonalRegion'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <version_command><![CDATA[ResetPropertiesInPolygonalRegion --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$geometry' '$geometry.element_identifier';
+ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
+ln -sf '$gmsh_path' '$gmsh_path.element_identifier';
+ResetPropertiesInPolygonalRegion
+    --polygon-name '$polygon_name'
+    --geometry '$geometry.element_identifier'
+    $any_of
+    --int-property-value '$int_property_value'
+    --property-name '$property_name'
+    --mesh-input-file '$mesh_input_file.element_identifier'
+    --gmsh-path '$gmsh_path.element_identifier'
+    --mesh-output-file output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--polygon-name" type="text" optional="true" label="polygon name" help="name of polygon in the geometry" />
+    <param argument="--geometry" type="data" optional="false" label="geometry" help="Input (.gli | .gml). The name of the file containing the input geometry" format="xml" />
+    <param argument="--any_of" type="boolean" label="any of" help="all nodes of an element has to be inside the polygon (default behaviour without switch) or any node of an element has to be inside (switch is given)" checked="false" truevalue="--any_of" falsevalue="" />
+    <param argument="--int-property-value" type="integer" optional="true" label="int property value" help="new property value (data type int)" />
+    <param argument="--property-name" type="text" optional="true" label="property name" help="name of property in the mesh" />
+    <param argument="--mesh-input-file" type="data" optional="false" label="mesh input file" help="Input (.vtu | .vtk | .msh). The name of the file containing the input mesh" format="vtkxml" />
+    <param argument="--gmsh-path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input binary" format="msh" />
+  </inputs>
+  <outputs>
+    <data name="output_ResetPropertiesInPolygonalRegion" format="vtkxml" label="Output from ResetPropertiesInPolygonalRegion" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="resetpropertiesinpolygonalregion_test" />
+  </tests>
+  <help>This tool runs the **ResetPropertiesInPolygonalRegion** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
+</tool>

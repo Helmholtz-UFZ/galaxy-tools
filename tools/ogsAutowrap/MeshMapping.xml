@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool name="OGS: MeshMapping" id="ogs_meshmapping" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'MeshMapping'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <version_command><![CDATA[MeshMapping --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$mesh' '$mesh.element_identifier';
+ln -sf '$raster' '$raster.element_identifier';
+ln -sf '$input' '$input.element_identifier';
+MeshMapping
+    $lowpass
+    --static '$static'
+    --distance '$distance'
+    --mesh '$mesh.element_identifier'
+    --raster '$raster.element_identifier'
+    --input '$input.element_identifier'
+    --output output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--lowpass" type="boolean" label="lowpass" help="Applies a lowpass filter to elevation over connected nodes." checked="false" truevalue="--lowpass" falsevalue="" />
+    <param argument="--static" type="float" optional="true" label="static" help="Static elevation to map the input file to. This can be combined with mapping based on rasters or other meshes to deal with locations where no corresponding data exists." />
+    <param argument="--distance" type="float" optional="true" label="distance" help="Maximum distance to search for mesh nodes if there is no corresponding data for input mesh nodes on the mesh it should be mapped on. (min = 0)" />
+    <param argument="--mesh" type="data" optional="true" label="mesh" help="Input (.vtu). 2D mesh file to map the input file on" format="vtkxml" />
+    <param argument="--raster" type="data" optional="true" label="raster" help="Input (.asc | .grd | .xyz) Raster file to map the input file on" format="raster.asc" />
+    <param argument="--input" type="data" optional="false" label="input" help="Input (.vtu | .msh) mesh file" format="vtkxml" />
+  </inputs>
+  <outputs>
+    <data name="output_MeshMapping" format="vtkxml" label="Output from MeshMapping" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="meshmapping_test" />
+  </tests>
+  <help>This tool runs the **MeshMapping** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
+</tool>

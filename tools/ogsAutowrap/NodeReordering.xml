@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool name="OGS: NodeReordering" id="ogs_nodereordering" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'NodeReordering'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <version_command><![CDATA[NodeReordering --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$input_mesh' '$input_mesh.element_identifier';
+NodeReordering
+    $no_volume_check
+    --method '$method'
+    --input_mesh '$input_mesh.element_identifier'
+    --output_mesh output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--no_volume_check" type="boolean" label="no volume check" help="By default the volumes of original and reordered elements are compared if they are numerically equal, i.e., relative volume difference is smaller than a threshold. This switch disables the volume comparison." checked="false" truevalue="--no_volume_check" falsevalue="" />
+    <param argument="--method" type="select" optional="true" label="method" help="reordering method selection" multiple="false">
+      <option value="0">0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+    </param>
+    <param argument="--input_mesh" type="data" optional="false" label="input mesh" help="Input (.vtu | .vtk | .msh). The name of the input mesh file" format="vtkxml" />
+  </inputs>
+  <outputs>
+    <data name="output_NodeReordering" format="vtkxml" label="Output from NodeReordering" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="nodereordering_test" />
+  </tests>
+  <help>This tool runs the **NodeReordering** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
+</tool>

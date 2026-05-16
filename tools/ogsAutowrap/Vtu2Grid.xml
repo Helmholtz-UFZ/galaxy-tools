@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool name="OGS: Vtu2Grid" id="ogs_vtu2grid" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'Vtu2Grid'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <version_command><![CDATA[Vtu2Grid --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$input' '$input.element_identifier';
+Vtu2Grid
+    --cellsize-z '$cellsize_z'
+    --cellsize-y '$cellsize_y'
+    --cellsize-x '$cellsize_x'
+    --input '$input.element_identifier'
+    --output output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--cellsize-z" type="float" optional="true" label="cellsize z" help="edge length of cubes in z-direction (depth), (min = 0)" />
+    <param argument="--cellsize-y" type="float" optional="true" label="cellsize y" help="edge length of cubes in y-direction (latitude), (min = 0)" />
+    <param argument="--cellsize-x" type="float" optional="true" label="cellsize x" help="edge length of cubes in x-direction (longitude) or all directions, if y and z are not set, (min = 0)" />
+    <param argument="--input" type="data" optional="false" label="input" help="Input (.vtu | .msh). The 3D input mesh file" format="vtkxml" />
+  </inputs>
+  <outputs>
+    <data name="output_Vtu2Grid" format="vtkxml" label="Output from Vtu2Grid" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="vtu2grid_test" />
+  </tests>
+  <help>This tool runs the **Vtu2Grid** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
+</tool>

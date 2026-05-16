@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool name="OGS: geometryToGmshGeo" id="ogs_geometrytogmshgeo" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'geometryToGmshGeo'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <version_command><![CDATA[geometryToGmshGeo --version]]></version_command>
+  <command><![CDATA[
+#for $item in $input
+ln -sf '$item' '$item.element_identifier';
+#end for
+geometryToGmshGeo
+    --input
+#for $item in $input
+'$item.element_identifier'
+#end for
+    --max_points_in_quadtree_leaf '$max_points_in_quadtree_leaf'
+    --mesh_density_scaling_at_points '$mesh_density_scaling_at_points'
+    --mesh_density_scaling_at_stations '$mesh_density_scaling_at_stations'
+    --average_point_density '$average_point_density'
+    $homogeneous
+    --output output_1.geo
+    --write_merged_geometries output_2.gml
+]]></command>
+  <inputs>
+    <param argument="--input" type="data" optional="false" label="input" help="Input (.gml) geometry file" format="xml" />
+    <param argument="--max_points_in_quadtree_leaf" type="text" optional="true" label="max points in quadtree leaf" help="positive number/ (min = 0)" />
+    <param argument="--mesh_density_scaling_at_points" type="float" optional="true" label="mesh density scaling at points" help="positive floating point number, (min = 0)" />
+    <param argument="--mesh_density_scaling_at_stations" type="float" optional="true" label="mesh density scaling at stations" help="positive floating point number, (min = 0)" />
+    <param argument="--average_point_density" type="float" optional="true" label="average point density" help="average point density / average edge length as a positive floating point number, (min = 0)" />
+    <param argument="--homogeneous" type="boolean" label="homogeneous" help="Use Gmsh homogeneous meshing method." checked="false" truevalue="--homogeneous" falsevalue="" />
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from geometryToGmshGeo">
+      <discover_datasets pattern="output_.*\.(vtu|msh|asc|gml|xml)" format="data" visible="true" />
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="geometrytogmshgeo_test" />
+  </tests>
+  <help>This tool runs the **geometryToGmshGeo** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
+</tool>

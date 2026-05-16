@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool name="OGS: IntegrateBoreholesIntoMesh" id="ogs_integrateboreholesintomesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'IntegrateBoreholesIntoMesh'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <version_command><![CDATA[IntegrateBoreholesIntoMesh --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$geo' '$geo.element_identifier';
+ln -sf '$input' '$input.element_identifier';
+IntegrateBoreholesIntoMesh
+    --max-elevation '$max_elevation'
+    --min-elevation '$min_elevation'
+    --geo '$geo.element_identifier'
+    --input '$input.element_identifier'
+    --output output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--max-elevation" type="float" optional="true" label="max elevation" help="Maximum elevation for an integrated borehole, (min = 0)" />
+    <param argument="--min-elevation" type="float" optional="true" label="min elevation" help="Minimum elevation for an integrated borehole, (min = 0)" />
+    <param argument="--geo" type="data" optional="false" label="geo" help="Input (.gml). Name of the geometry file" format="xml" />
+    <param argument="--input" type="data" optional="false" label="input" help="Input (.vtu). Name of the mesh file" format="vtkxml" />
+  </inputs>
+  <outputs>
+    <data name="output_IntegrateBoreholesIntoMesh" format="vtkxml" label="Output from IntegrateBoreholesIntoMesh" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="integrateboreholesintomesh_test" />
+  </tests>
+  <help>This tool runs the **IntegrateBoreholesIntoMesh** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
+</tool>

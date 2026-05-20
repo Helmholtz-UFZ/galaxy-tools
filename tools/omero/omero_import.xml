@@ -15,7 +15,7 @@
         #for $image in $folder:
             #set image_identifier = re.sub('[^\s\w\-]', '_', str($image.element_identifier))
         #if $image.ext == "zip"
-            unzip -j '$folder' -d folder &&
+            unzip -j '$image' -d folder &&
         #else
             ln -s '${image}' folder/'${image_identifier}.$image.ext' &&
         #end if

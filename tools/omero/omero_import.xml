@@ -2,7 +2,7 @@
     <description> with omero-py </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@VERSION_SUFFIX@">1</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">omero</xref>
@@ -96,7 +96,7 @@
             </assert_stderr>
         </test>
         <test>
-            <param name="folder" value="input3.zip,input4.zip" ftype="zip"/>
+            <param name="folder" value="input3.zip" ftype="zip"/>
             <param name="dataset_name" value="galaxy_test_upload"/>
             <param name="omero_host" value="host.docker.internal"/>
             <param name="omero_port" value="6064"/>
@@ -117,6 +117,20 @@
                 <has_text text="Skipping minimum/maximum computation"/>
                 <has_text text="Skipping thumbnails creation"/>
                 <has_text text="Disabling upgrade check"/>
+            </assert_stderr>
+        </test>
+        <!-- check that unzipping does not everwrite if zips contain files with same name -->
+        <test expect_failure="true" expect_exit_code="1">
+            <param name="folder" value="input3.zip,input4.zip" ftype="zip"/>
+            <param name="dataset_name" value="galaxy_test_upload"/>
+            <param name="omero_host" value="host.docker.internal"/>
+            <param name="omero_port" value="6064"/>
+            <param name="test_username" value="root"/>
+            <param name="test_password" value="omero"/>
+            <param name="skip_step" value="all"/>
+            <param name="zipped" value="True"/>
+            <assert_stderr>
+                <has_text text="File exists"/>
             </assert_stderr>
         </test>
     </tests>

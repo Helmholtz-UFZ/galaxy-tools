@@ -1,8 +1,8 @@
 categories:
   - Text Manipulation
-description: Convert an xlsx file to a tabular
-long_description: Extract one sheet from an xlsx/xls file and convert it to a tabular format
-name: xlsx2tsv
+description: Create an archieve file from a collection
+long_description: Collects the selected input files into a single ZIP archive, keeping only those whose file name matches the given pattern.
+name: zipping
 owner: ufz
 homepage_url: https://github.com/Helmholtz-UFZ/galaxy-tools
-remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/xls2tsv
+remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/utility

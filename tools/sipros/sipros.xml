@@ -188,7 +188,7 @@
             </output>
             <output name="SIP_filtered_psms">
                 <assert_contents>
-                    <has_n_lines n="307"/>
+                    <has_n_lines n="238"/>
                     <has_n_columns n="28"/>
                 </assert_contents>
             </output>

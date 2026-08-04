@@ -1,35 +1,45 @@
-<tool id="zip_files" name="Zip files" version="0.1.0" profile="21.05">
+<tool id="zip_files" name="Zip files" version="0.1.0" profile="26.0">
     <description>matching a name pattern or extension</description>
     <requirements>
         <requirement type="package" version="3.0">zip</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mkdir zip_folder &&
-
-        #for $i, $f in enumerate($inputs)
+        #for $f in $inputs
             ln -s '$f' 'zip_folder/${f.element_identifier}.${f.ext}' &&
         #end for
-
         cd zip_folder &&
-
-        zip
-            -$compression
-            archive.zip
-            $pattern
-            && mv archive.zip '$output'
+        zip -$compression archive.zip
+        #if $filter == "all_files"
+            *
+        #else
+            *$pattern
+        #end if
+        && cd .. && mv zip_folder/archive.zip '$output'
     ]]></command>
     <inputs>
         <param name="inputs" type="data_collection" collection_type="list" format="data"
             label="Input collection"
             help="Select the collection whose elements you want to zip" /> 
-        <param name="pattern" type="text" value="*" label="Files extension patterns"
-               help="Glob pattern matched against file names, e.g. '*.txt', '*.pdf', 'sample_*'. Default '*' includes everything.">
-            <sanitizer invalid_char="">
-                <valid initial="string.printable">
-                    <remove value="&apos;" />
-                </valid>
-            </sanitizer>
-        </param>
+        <conditional name = "file_filter">
+            <param name="filter" type="select" optional="false" label="Select which files add to archieve">
+                <option value="all_files">All files in the collection</option>
+                <option value="data_type">Filter by data type</option>
+            </param>
+            <when value="all_files">
+                <param name="pattern" value="" type="hidden"/>
+            </when>
+            <when value="data_type">
+                <param name="pattern" type="select" label="Files extension patterns"
+               help="Select datatype according to the supported Galaxy data types">
+                <options from_url="https://usegalaxy.org/api/datatypes">
+                <postprocess_expression><![CDATA[${
+                    return Object.values(inputs).map((v) => [v, v])
+                    }]]></postprocess_expression>
+                </options>
+                </param>
+            </when>
+        </conditional>
         <param name="compression" type="select" label="Compression level"
                help="0 = store (no compression), 9 = maximum compression.">
             <option value="0">0 - Store (no compression)</option>
@@ -50,7 +60,10 @@
                 <element name="file3.pdf" value="file3.pdf" ftype="pdf"/>
             </collection>
          </param>
-         <param name="pattern" value="*.txt" />
+         <conditional name="file_filter">
+                <param name="filter" value="all_files"/>
+                <param name="pattern" value=""/>
+            </conditional>
          <param name="compression" value="6" />
          <output name="output" file="archive1.zip" compare="sim_size" delta="500" />
         </test>
@@ -62,7 +75,10 @@
                 <element name="file3.pdf" value="file3.pdf" ftype="pdf"/>
             </collection>
          </param>
-         <param name="pattern" value="*.pdf" />
+            <conditional name="file_filter">
+                <param name="filter" value="data_type"/>
+                <param name="pattern" value="pdf"/>
+            </conditional>
          <param name="compression" value="0" />
          <output name="output" file="archive2.zip" compare="sim_size" delta="500" />
         </test>
@@ -70,16 +86,12 @@
     <help><![CDATA[
 **What it does**
 
-Collects the selected input files into a single ZIP archive, keeping only those
-whose file name matches the given pattern.
+Create a ZIP file from a collection input.
 
-**Pattern**
+**File selection options**
 
-A shell glob matched against the file names:
-
-- ``*.txt`` — all files ending in .txt
-- ``sample_*`` — all files starting with sample
-- ``*`` — everything (default)
+1) *All files in the collection*: ZIP all files in the collection creating a single bundle
+2) *Filter by data type*: ZIP just files a specific extension
 
 **Compression level**
 

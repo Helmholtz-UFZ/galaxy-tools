@@ -6,7 +6,9 @@
     <command detect_errors="exit_code"><![CDATA[
         mkdir zip_folder &&
         #for $f in $inputs
-            ln -s '$f' 'zip_folder/${f.element_identifier}.${f.ext}' &&
+	        #if $file_filter.filter == "all_files" or $file_filter.pattern == $f.ext
+                ln -s '$f' 'zip_folder/${f.element_identifier}.${f.ext}' &&
+            #end if
         #end for
         cd zip_folder &&
         zip -$compression archive.zip

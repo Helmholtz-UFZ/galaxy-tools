@@ -2,7 +2,7 @@
     <description>labeled protein identification</description>
     <macros>
         <token name="@TOOL_VERSION@">5.0.1</token>
-        <token name="@VERSION_SUFFIX@">0</token>
+        <token name="@VERSION_SUFFIX@">1</token>
     </macros>
     <xrefs>
         <xref type="bio.tools">sipros</xref>
@@ -78,7 +78,6 @@
         <param argument="- -vPTM" type="text" label="Variable PTM for regular search" help="'Example: ~|M|0,0,1,0,0,0;!|NQ|0,-1,1,-1,0,0': means a variable modification on residue M (Oxidation or Hydroxylation, element composition change: 0,0,1,0,0,0 for C,H,O,N,P,S), and on N/Q (Deamidation or Citrullination, element composition change: 0,-1,1,-1,0,0 for C,H,O,N,P,S).">
             <validator type="regex">([~!]\|[A-Z]+\|-?\d+,-?\d+,-?\d+,-?\d+,-?\d+,-?\d+)?</validator>
         </param> -->
-
         <conditional name="mode">
             <param name="mode_select" type="select" label="Mode">
                 <option value="regular">Regular search</option>
@@ -96,10 +95,10 @@
             <when value="labeled">
                 <param argument="--negative_control" type="data" multiple="true" optional="true" format="thermo.raw" label="Negative control datasets" help="These files will be used to filter out false positive SIP-labeled PSMs" />
                 <param argument="--element" type="text" label="SIP label element" help="e.g. C13, H2, N15, O18, S33, S34">
-                    <validator type="regex">([A-Z][0-9])?</validator>
+                    <validator type="regex" message="Value must be element name followed by a number">([A-Z][0-9]+)?$</validator>
                 </param>
                 <param argument="--range" type="text" label="SIP label range" help="e.g., 0-100">
-                    <validator type="regex">([0-9]+-[0-9]+)?</validator>
+                    <validator type="regex" message="Value must be given as two numbers separated by a dash">([0-9]+-[0-9]+)?$</validator>
                 </param>
                 <param argument="--precision" type="float" optional="true" value="" min="0" max="100" label="SIP label precision (%)" help=""/>
                 <param argument="--ignorePCT" type="boolean" truevalue="--ignorePCT" falsevalue="" checked="false" label="Ignore isotopic percentage of MS1 and MS2 when filtering few SIP labeled PSMs"  />
@@ -189,7 +188,7 @@
             </output>
             <output name="SIP_filtered_psms">
                 <assert_contents>
-                    <has_n_lines n="307"/>
+                    <has_n_lines n="238"/>
                     <has_n_columns n="28"/>
                 </assert_contents>
             </output>

@@ -1,4 +1,4 @@
-<tool id="zip_files" name="Zip files" version="0.1.0" profile="26.0">
+<tool id="zip_files" name="Zip files" version="0.1.0" profile="25.0">
     <description>matching a name pattern or extension</description>
     <requirements>
         <requirement type="package" version="3.0">zip</requirement>

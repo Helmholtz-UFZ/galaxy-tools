@@ -4,6 +4,7 @@
         <requirement type="package" version="3.0">zip</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
+		set -o pipefail &&
         mkdir zip_folder &&
         #for $f in $inputs
 	        #if $file_filter.filter == "all_files" or $file_filter.pattern == $f.ext

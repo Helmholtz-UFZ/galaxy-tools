@@ -12,12 +12,7 @@
             #end if
         #end for
         cd zip_folder &&
-        zip -$compression archive.zip
-        #if $filter == "all_files"
-            *
-        #else
-            *$pattern
-        #end if
+        find . -print | zip archive --names-stdin
         && cd .. && mv zip_folder/archive.zip '$output'
     ]]></command>
     <inputs>

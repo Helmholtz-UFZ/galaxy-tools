@@ -84,7 +84,7 @@
             <param name="test_password" value="omero"/>
             <output name="tsv" value="output_filter_filename.tsv" ftype="tabular">
                 <assert_contents>
-                    <has_text text="1"/>
+                    <has_text text="2"/>
                     <has_n_columns n="1"/>
                 </assert_contents>
             </output>

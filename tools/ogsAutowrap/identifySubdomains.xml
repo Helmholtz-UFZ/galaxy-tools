@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool name="OGS: identifySubdomains" id="ogs_identifysubdomains" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'identifySubdomains'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <version_command><![CDATA[identifySubdomains --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$mesh' '$mesh.element_identifier';
+#for $item in $subdomain_meshes_filenames
+ln -sf '$item' '$item.element_identifier';
+#end for
+identifySubdomains
+    $force
+    --searchlength '$searchlength'
+    --mesh '$mesh.element_identifier'
+    --output_prefix 'new_'
+    --
+#for $item in $subdomain_meshes_filenames
+'$item.element_identifier'
+#end for
+]]></command>
+  <inputs>
+    <param argument="--force" type="boolean" label="force" help="Overwriting existing subdomain meshes." checked="false" truevalue="--force" falsevalue="" />
+    <param argument="--searchlength" type="float" optional="true" label="searchlength" help="search length determining radius for the node search algorithm. Non-negative floating point number (min = 0)" />
+    <param argument="--mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The file name of the bulk mesh" format="vtkxml" />
+    <param argument="--subdomain_meshes_filenames" type="data" optional="false" label="subdomain meshes filenames" help="mesh file names." format="vtkxml" />
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from identifySubdomains">
+      <discover_datasets pattern="(?P&lt;designation&gt;new_.*)" format="vtkxml" visible="true" />
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="identifysubdomains_test" />
+  </tests>
+  <help>This tool runs the **identifySubdomains** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
+</tool>

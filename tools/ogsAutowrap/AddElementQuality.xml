@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool name="OGS: AddElementQuality" id="ogs_addelementquality" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'AddElementQuality'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <version_command><![CDATA[AddElementQuality --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$input_mesh_file' '$input_mesh_file.element_identifier';
+AddElementQuality
+    --quality_criterion '$quality_criterion'
+    --input_mesh_file '$input_mesh_file.element_identifier'
+    --output_mesh_file output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--quality_criterion" type="select" optional="true" label="quality criterion" help="quality criterion" multiple="false">
+      <option value="ElementSize">ElementSize</option>
+      <option value="EdgeRatio">EdgeRatio</option>
+      <option value="EquiAngleSkew">EquiAngleSkew</option>
+      <option value="RadiusEdgeRatio">RadiusEdgeRatio</option>
+      <option value="SizeDifference">SizeDifference</option>
+    </param>
+    <param argument="--input_mesh_file" type="data" optional="false" label="input mesh file" help="Input (.vtu | .msh) mesh file" format="vtkxml" />
+  </inputs>
+  <outputs>
+    <data name="output_AddElementQuality" format="vtkxml" label="Output from AddElementQuality" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="addelementquality_test" />
+  </tests>
+  <help>This tool runs the **AddElementQuality** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
+</tool>

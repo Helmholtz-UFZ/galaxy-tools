@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool name="OGS: PartitionMesh" id="ogs_partitionmesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'PartitionMesh'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <version_command><![CDATA[partmesh --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
+ln -sf '$metis_mesh_input_file' '$metis_mesh_input_file.element_identifier';
+#for $item in $other_meshes_filenames
+ln -sf '$item' '$item.element_identifier';
+#end for
+partmesh
+    --mesh-input-file '$mesh_input_file.element_identifier'
+    --metis-mesh-input-file '$metis_mesh_input_file.element_identifier'
+    --np '$np'
+    $exe_metis
+    --output output_1.vtu
+    --
+#for $item in $other_meshes_filenames
+'$item.element_identifier'
+#end for
+]]></command>
+  <inputs>
+    <param argument="--mesh-input-file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" />
+    <param argument="--metis-mesh-input-file" type="data" optional="true" label="metis mesh input file" help="Input (.mesh). Base name (without .mesh extension) of the file containing the metis input mesh" format="txt" />
+    <param argument="--np" type="integer" optional="true" label="np" help="the number of partitions, (min = 0)" />
+    <param argument="--exe_metis" type="boolean" label="exe metis" help="Call mpmetis inside the programme via system()." checked="false" truevalue="--exe_metis" falsevalue="" />
+    <param argument="--other_meshes_filenames" type="data" optional="false" label="other meshes filenames" help="mesh file names." format="vtkxml" />
+  </inputs>
+  <outputs>
+    <data name="output_PartitionMesh" format="vtkxml" label="Output from PartitionMesh" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="partitionmesh_test" />
+  </tests>
+  <help>This tool runs the **PartitionMesh** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
+</tool>

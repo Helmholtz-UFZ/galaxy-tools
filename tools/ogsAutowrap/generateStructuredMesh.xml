@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool name="OGS: generateStructuredMesh" id="ogs_generatestructuredmesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
+  <description>Galaxy wrapper for the OGS utility 'generateStructuredMesh'.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <version_command><![CDATA[generateStructuredMesh --version]]></version_command>
+  <command><![CDATA[
+generateStructuredMesh
+    --element-type '$element_type'
+    --lx '$lx'
+    --ly '$ly'
+    --lz '$lz'
+    --nx '$nx'
+    --ny '$ny'
+    --nz '$nz'
+    --dx0 '$dx0'
+    --dy0 '$dy0'
+    --dz0 '$dz0'
+    --mx '$mx'
+    --my '$my'
+    --mz '$mz'
+    --ox '$ox'
+    --oy '$oy'
+    --oz '$oz'
+    --mesh-output-file output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--element-type" type="select" optional="true" label="element type" help="element type to be created" multiple="false">
+      <option value="line">line</option>
+      <option value="tri">tri</option>
+      <option value="quad">quad</option>
+      <option value="hex">hex</option>
+      <option value="prism">prism</option>
+      <option value="tet">tet</option>
+      <option value="pyramid">pyramid</option>
+    </param>
+    <param argument="--lx" type="float" optional="true" label="lx" help="length of a domain in x direction, (min = 0)" />
+    <param argument="--ly" type="float" optional="true" label="ly" help="length of a domain in y direction, (min = 0)" />
+    <param argument="--lz" type="float" optional="true" label="lz" help="length of a domain in z direction, (min = 0)" />
+    <param argument="--nx" type="text" optional="true" label="nx" help="the number of subdivision in x direction, (min = 0)" />
+    <param argument="--ny" type="text" optional="true" label="ny" help="the number of subdivision in y direction, (min = 0)" />
+    <param argument="--nz" type="text" optional="true" label="nz" help="the number of subdivision in z direction, (min = 0)" />
+    <param argument="--dx0" type="float" optional="true" label="dx0" help="initial cell length in x direction, (min = 0)" />
+    <param argument="--dy0" type="float" optional="true" label="dy0" help="initial cell length in y direction, (min = 0)" />
+    <param argument="--dz0" type="float" optional="true" label="dz0" help="initial cell length in z direction, (min = 0)" />
+    <param argument="--mx" type="float" optional="true" label="mx" help="multiplier in x direction" />
+    <param argument="--my" type="float" optional="true" label="my" help="multiplier in y direction" />
+    <param argument="--mz" type="float" optional="true" label="mz" help="multiplier in z direction" />
+    <param argument="--ox" type="float" optional="true" label="ox" help="mesh origin (lower left corner) in x direction" />
+    <param argument="--oy" type="float" optional="true" label="oy" help="mesh origin (lower left corner) in y direction" />
+    <param argument="--oz" type="float" optional="true" label="oz" help="mesh origin (lower left corner) in z direction" />
+  </inputs>
+  <outputs>
+    <data name="output_generateStructuredMesh" format="vtkxml" label="Output from generateStructuredMesh" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="generatestructuredmesh_test" />
+  </tests>
+  <help>This tool runs the **generateStructuredMesh** utility from the OpenGeoSys suite.</help>
+  <expand macro="citations" />
+</tool>

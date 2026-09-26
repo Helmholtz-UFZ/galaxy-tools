@@ -1,0 +1,174 @@
+<macros>
+    <token name="@TOOL_VERSION@">0.1.0</token>
+    <token name="@VERSION_SUFFIX@">0</token>
+    <xml name="requirements">
+        <requirements>
+            <requirement type="package" version="@TOOL_VERSION@">r-proteomicsr</requirement>
+            <!-- <requirement type="package" version="2.58.0">bioconductor-biomart</requirement>
+            <requirement type="package" version="4.10.0">bioconductor-clusterprofiler</requirement>
+            <requirement type="package" version="1.24.0">bioconductor-dep</requirement>
+            <requirement type="package" version="2.18.0">bioconductor-complexheatmap</requirement>
+            <requirement type="package" version="1.20.0">bioconductor-kinswingr</requirement>
+            <requirement type="package" version="0.4.15">r-circlize</requirement>
+            <requirement type="package" version="3.4.0">r-classdiscovery</requirement>
+            <requirement type="package" version="0.92">r-corrplot</requirement>
+            <requirement type="package" version="0.3.4">r-dendsort</requirement>
+            <requirement type="package" version="1.63_1">r-dynamictreecut</requirement>
+            <requirement type="package" version="3.4.2">r-ggplot2</requirement>
+            <requirement type="package" version="0.6.0">r-ggpubr</requirement>
+            <requirement type="package" version="6.3.2">r-mixomics</requirement>
+            <requirement type="package" version="7.5.1">r-msigdbr</requirement>
+            <requirement type="package" version="1.0.12">r-pheatmap</requirement>
+            <requirement type="package" version="1.8.9">r-plyr</requirement>
+            <requirement type="package" version="2.1.4">r-readr</requirement>
+            <requirement type="package" version="1.4.4">r-reshape2</requirement>
+            <requirement type="package" version="1.2.1">r-scales</requirement>
+            <requirement type="package" version="1.4.8">r-splitstackshape</requirement>
+            <requirement type="package" version="1.3.0">r-tidyr</requirement>
+            <requirement type="package" version="1.71">r-wgcna</requirement>
+            <requirement type="package" version="2.3.4">r-dbplyr</requirement> -->
+
+            <!-- conda create -y \-\-quiet \-\-strict-channel-priority \-\-solver libmamba \-\-override-channels \-\-channel conda-forge \-\-channel bioconda \-\-channel defaults \-\-name 
+                __r-proteomicsr@0.1.0 
+                "bioconductor-biomart=2.58.0" # needed update https://github.com/grimbough/biomaRt/issues/87
+                "bioconductor-clusterprofiler=4.10.0" #(newer needed, otherwise conflict with bioconductor-biomart)
+                "bioconductor-dep=1.24.0"  # same 
+                bioconductor-complexheatmap=2.18.0
+                bioconductor-kinswingr
+                r-circlize=0.4.15
+                r-classdiscovery=3.4.0
+                r-corrplot=0.92 r-dendsort=0.3.4
+                r-dynamictreecut=1.63_1
+                r-ggplot2=3.4.2
+                r-ggpubr=0.6.0
+                r-mixomics=6.3.2
+                r-msigdbr=7.5.1
+                r-pheatmap=1.0.12
+                r-plyr=1.8.9
+                r-readr=2.1.4
+                r-reshape2=1.4.4
+                r-scales=1.2.1
+                r-splitstackshape=1.4.8
+                r-tidyr=1.3.0
+                r-wgcna=1.71
+                "r-dbplyr<2.4"
+            -->
+            <!-- <requirement type="package" version="3.0.0">r-ggsci</requirement> -->
+            <!-- <requirement type="package" version="2.3">r-gridextra</requirement> -->
+
+            <yield/>
+        </requirements>
+    </xml>
+
+    <token name="@READ_INPUTS@"><![CDATA[
+#if $sampleTable.ext == 'csv'
+    sampleTable <- read.csv("$sampleTable", row.names = 1)
+#else
+    sampleTable <- read.delim("$sampleTable", header = TRUE, row.names = 1, sep = "\t")
+#end if
+@READ_SAMPLE_GENES_MAPPING@
+    ]]></token>
+
+    <token name="@READ_SAMPLE_GENES_MAPPING@"><![CDATA[
+#if $sampleGenes
+    #if $sampleGenes.ext == 'csv'
+        sampleGenes <- read.csv("$sampleGenes", row.names = 1)
+    #else
+        sampleGenes <- read.delim("$sampleGenes", header = TRUE, row.names = 1, sep = "\t")
+    #end if
+#else
+    sampleGenes <- NULL
+#end if
+#if $sampleMapping
+    #if $sampleMapping.ext == 'csv'
+        sampleMapping <- read.csv("$sampleMapping", row.names = 1)
+    #else
+        sampleMapping <- read.delim("$sampleMapping", header = TRUE, row.names = 1, sep = "\t")
+    #end if
+#else
+    sampleMapping <- NULL
+#end if
+    ]]></token>
+
+    <token name="@COMMON_WF_PARAMETERS@"><![CDATA[
+    sampleTable,
+    sampleGenes = sampleGenes,  ## this implies more output data sets!
+    sampleMapping = sampleMapping,
+    remove_outliers = $remove_outliers,
+    median_normalize = $median_normalize,
+    number_replicates_reliable = $number_replicates_reliable,
+    reliable_all_comparisons = $reliable_all_comparisons,
+    alternative = "$alternative",
+    var.equal = $var_equal,
+    paired = $paired,
+    pvalue_decision = "$pvalue_decision",
+    pvalue_adjustment = "$pvalue_adjustment",
+    significance_cutoff = $significance_cutoff,
+    color_up = "${color_up}FF",
+    color_none = "${color_none}FF",
+    color_down = "${color_down}FF"
+    ]]></token>
+    <xml name="common_wf_paramerters">
+        <param argument="sampleTable" type="data" format="csv,tabular" label="Sample table" help="Rows: unique identifiers (e.g. uniprot accessions), Columns: samples. Replicates should be indicated using _1, _2, .... Content should be numeric."/>
+        <expand macro="sample_genes_mapping"/>
+        <param argument="remove_outliers" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Remove outliers" help="Identified by the function identify_outliers() based on Mahalanobis distances"/>
+        <param argument="median_normalize" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="false" label="Apply median normalization" help=""/>
+
+        <yield/>
+
+        <param argument="number_replicates_reliable" type="integer" min="1" value="3" label="Number of replicates for reliable identification" help="Number of replicates for which quantitation data should be available to consider a protein reliably identified under the particular condition (i.e. in a sample)"/>
+        <!--TODO formulation unclear, comparisons between what? Samples? -->
+        <param argument="reliable_all_comparisons" type="select" label="Required comparisons" help="Candidates are returned that are identified in the given number of replicates (number_replicates_reliable) in all/at least one comparison.">
+            <option value="FALSE">At least one</option>
+            <option value="TRUE">All</option>
+        </param>
+        <!-- TODO which variances? -->
+        <param argument="var.equal" name="var_equal" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="true" label="Treat variances as equal" help="for t-test"/>
+        <param argument="paired" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="true" label="Use paired t-test" help=""/>
+        <param argument="alternative" type="select" label="Alternative hypothesis" help="">
+            <option value="two.sided">two.sided</option>
+            <option value="greater">greater</option>
+            <option value="less">less</option>
+        </param>
+        <param argument="pvalue_adjustment" type="select" label="Method for p-value adjustment" help="">
+            <option value="holm">Holm</option>
+            <option value="hochberg">Hochberg</option>
+            <option value="hommel">Hommel</option>
+            <option value="bonferroni">Bonferroni</option>
+            <option value="BY">Benjamini &amp; Yekutieli (BY)</option>
+            <option value="fdr" selected="true">Benjamini &amp; Hochberg (BH/fdr)</option>
+            <option value="none">None</option>
+        </param>
+        <param argument="pvalue_decision" type="select" label="Choose whether to extract and visualize data based on adjusted p-values or raw p-values" help="">
+            <option value="pvalueadj" selected="true">adjusted p-values</option>
+            <option value="pvalue">raw p-values</option>
+        </param>
+        <param argument="significance_cutoff" type="float" value="0.05" min="0" max="1" label="Significance cutoff" help="All candidates with lower value are considered significantly affected"/>
+        <param argument="color_up" type="color" value="#DC0000" label="Color for up-regulated candidates"/>
+        <param argument="color_down" type="color" value="#3C5488" label="Color for down-regulated candidates"/>
+        <param argument="color_none" type="color" value="#000000" label="Color for not significantly altered candidates"/>
+    </xml>
+
+    <xml name="sample_genes_mapping">
+        <param argument="sampleGenes" type="data" format="csv,tabular" optional="true" label="Accession - Gene name mapping" help="An optional table conatining columns Accession and Gene"/>
+        <param argument="sampleMapping" type="data" format="csv,tabular" optional="true" label="Sample mapping" help="An optional table that is used to relate different conditions to ggplot facets. See help."/>
+    </xml>
+
+    <xml name="citations">
+        <citations>
+            <citation type="bibtex">@UNPUBLISHED{Linnarsson2016,
+                author = "Isabel Karkossa",
+                title = "proteomicsr",
+                publisher = {UFZ GitLab},
+                journal = {Git repository},
+                year = "2023"
+                note = "https://git.ufz.de/kratochv/proteomicsr"
+            }
+            </citation>
+        </citations>
+    </xml>
+    <!-- TODO citations: helmholz codebase / doi -->
+
+
+
+</macros>

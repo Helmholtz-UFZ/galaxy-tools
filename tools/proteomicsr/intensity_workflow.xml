@@ -1,0 +1,104 @@
+<tool id="proteomicsr_intensity_workflow" name="proteomicsr: intensity workflow" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="21.05">
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements"/>
+    <command detect_errors="exit_code"><![CDATA[
+        Rscript '$rscript'
+        && mv Rdata/dat_calculated.csv .
+    ]]></command>
+    <configfiles>
+        <configfile name="rscript"><![CDATA[
+library(proteomicsr)
+
+@READ_INPUTS@
+
+#set controlSamples = 'c("' + '", "'.join(str($control_samples).split(",")) + '")'
+
+null <- run_intensity_workflow(
+    @COMMON_WF_PARAMETERS@,
+    control_samples = $controlSamples,
+    comparisons_relevant = NULL, ## if NULL, script continues with all possible comparisons. Otherwise, a vector should be provided, e.g. c("treatment1_vs_ctrl", "treatment2_vs_ctrl", "treatment2_vs_treatment1")
+    run_vsn = $run_vsn,
+#if $impute.run_imputation == "TRUE"
+    run_imputation = $impute.run_imputation,
+    imp_fun = $impute.imp_fun,
+    imp_q = $impute.imp_q,
+    impute_completely_missing_only = $impute_completely_missing_only,
+#end if
+
+)
+        ]]></configfile>
+    </configfiles>
+    <inputs>
+        <param argument="control_samples" type="text" label="Control samples" help="Comma separated list of sample names, as used in the input table"/>
+        <expand macro="common_wf_paramerters">
+            <param argument="run_vsn" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="true" label="Apply variance stabilization using the DEP package" help=""/>
+            <conditional name="impute">
+                <param argument="run_imputation" type="select" label="Apply imputation using the DEP package" help="If TRUE, variance stabilization is performed anyway and also the parameters imp_fun, imp_q, and impute_completely_missing_only should be double-checked and adjusted if necessary">
+                    <option value="TRUE">TRUE</option>
+                    <option value="FALSE" selected="true">FALSE</option>
+                </param>
+                <when value="TRUE">
+                    <param argument="impute_completely_missing_only" type="boolean" truevalue="TRUE" falsevalue="FALSE" checked="true" label="Decide which missing data should be imputed." help=""/>
+                    <param argument="imp_fun" type="select" label="Method for imputation" help="">
+                        <option value="MLE">Maximum likelihood-based imputation method using the EM algorithm</option>
+                        <option value="bpca">Bayesian missing value imputation</option>
+                        <option value="knn">Nearest neighbour averaging</option>
+                        <option value="QRILC"> Imputation of left-censored missing data using random draws from a truncated distribution with parameters estimated using quantile regression</option>
+                        <option value="MinDet">Imputation of left-censored missing data using a deterministic minimal value approach</option>
+                        <option value="MinProb" selected="true"> Imputation of left-censored missing data by random draws from a Gaussian distribution centred to a minimal value</option>
+                        <option value="min">Replaces the missing values by the smallest non-missing value in the data</option>
+                        <option value="zero">Replaces the missing values by 0</option>
+                        <option value="nbavg">Average neighbour imputation for fractions collected along a fractionation/separation gradient</option>
+                        <option value="none">No imputation</option>
+                    </param>
+                    <param argument="imp_q" type="float" value="0.01" min="0" max="1" label="q-th quantile for left-censored imputation" help="The minimal value observed is estimated as being the q-th quantile of the observed values in that sample."/>
+                </when>
+                <when value="FALSE"/>
+            </conditional>
+        </expand>
+        <param name="out_select" type="select" multiple="true" optional="true" label="Optional outputs">
+            <option value="tables">Detailed tables</option>
+            <option value="plots">Plots</option>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="dat_calculated" format="csv" from_work_dir="dat_calculated.csv"/>
+        <collection name="output" type="list" label="${tool.name} on ${on_string}: additional tables">
+            <discover_datasets pattern="__name_and_ext__" directory="Rdata"/>
+            <filter>out_select and "tables" in out_select</filter>
+        </collection>
+        <collection name="plots" type="list" label="${tool.name} on ${on_string}: plots">
+            <discover_datasets pattern="__name_and_ext__" directory="Plots"/>
+            <filter>out_select and "plots" in out_select</filter>
+        </collection>
+    </outputs>
+    <tests>
+        <test expect_num_outputs="1">
+            <param name="sampleTable" value="sampleTable.csv" ftype="csv"/>
+            <param name="control_samples" value="control_04h_plusLPS_vs_control_04h_noLPS"/>
+            <output name="dat_calculated">
+                <assert_contents>
+                    <has_n_lines n="4269"/>
+                    <has_n_columns sep="," n="31"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+
+Intensity workflow
+
+1. Evaluating data quality
+2. Identification (and removal) of outliers (param: remove_outliers)
+3. Log2 transformation 
+4. Optional: median normalization (param: median_normalize)
+5. Filtering for reliably identified candidates (param: number_replicates_reliable, reliable_all_comparisons)
+6. Optional: variance stabilization (param: run_vsn)
+7. Optional: imputation, which includes variance stabilization as data preparation step (param: run_imputation, imp_fun, imp_q, impute_completely_missing_only)
+8. Principal component analysis of processed dataCalculation of average log2 fold changes and (adjusted) p-values (param: control_samples, comparisons_relevant, alternative, var.equal, paired, pvalue_adjustment)
+9. Visualization of the results (param: pvalue_decision, significance_cutoff, color_up, color_none, color_down)
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

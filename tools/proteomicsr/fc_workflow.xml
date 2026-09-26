@@ -1,0 +1,180 @@
+<tool id="proteomicsr_fc_workflow" name="proteomicsr: fold change workflow" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="21.05">
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements"/>
+    <command detect_errors="exit_code"><![CDATA[
+        Rscript '$rscript'
+        && mv Rdata/dat_calculated.csv .
+    ]]></command>
+    <configfiles>
+        <configfile name="rscript"><![CDATA[
+library(proteomicsr)
+
+@READ_INPUTS@
+
+null <- run_FC_workflow(
+    @COMMON_WF_PARAMETERS@
+)
+        ]]></configfile>
+    </configfiles>
+    <inputs>
+        <expand macro="common_wf_paramerters"/>
+        <param name="out_select" type="select" multiple="true" optional="true" label="Optional outputs">
+            <option value="tables">Detailed tables</option>
+            <option value="plots">Plots</option>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="dat_calculated" format="csv" from_work_dir="dat_calculated.csv"/>
+        <collection name="output" type="list" label="${tool.name} on ${on_string}: additional tables">
+            <discover_datasets pattern="__name_and_ext__" directory="Rdata"/>
+            <filter>out_select and "tables" in out_select</filter>
+        </collection>
+        <collection name="plots" type="list" label="${tool.name} on ${on_string}: plots">
+            <discover_datasets pattern="__name_and_ext__" directory="Plots"/>
+            <filter>out_select and "plots" in out_select</filter>
+        </collection>
+    </outputs>
+    <tests>
+        <test expect_num_outputs="1">
+            <param name="sampleTable" value="sampleTable.csv" ftype="csv"/>
+            <output name="dat_calculated" value="dat_calculated.csv">
+                <assert_contents>
+                    <has_n_lines n="4269"/>
+                    <has_n_columns sep="," n="35"/>
+                </assert_contents>
+            </output>
+        </test>
+        <test expect_num_outputs="3">
+            <param name="sampleTable" value="sampleTable.csv" ftype="csv"/>
+            <param name="out_select" value="tables,plots"/>
+            <output name="dat_calculated">
+                <assert_contents>
+                    <has_n_lines n="4269"/>
+                    <has_n_columns sep="," n="35"/>
+                </assert_contents>
+            </output>
+            <output_collection name="output" count="7" type="list">
+                <element name="Mahalanobis_Outliers" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="25"/>
+                        <has_n_columns sep="," n="3"/>
+                    </assert_contents>
+                </element>
+                <element name="dat_log2" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="5058"/>
+                        <has_n_columns sep="," n="25"/>
+                    </assert_contents>
+                </element>
+                <element name="dat_reliable" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="4269"/>
+                        <has_n_columns sep="," n="25"/>
+                    </assert_contents>
+                </element>
+
+            </output_collection>
+            <output_collection name="plots" count="19" type="list"/>
+        </test>
+        <!-- tests with optional sampleGenes input -->
+        <test expect_num_outputs="3">
+            <param name="sampleTable" value="sampleTable.csv" ftype="csv"/>
+            <param name="sampleGenes" value="sampleGenes.csv" ftype="csv"/>
+            <param name="out_select" value="tables,plots"/>
+            <output name="dat_calculated">
+                <assert_contents>
+                    <has_n_lines n="4269"/>
+                    <has_n_columns sep="," n="35"/>
+                </assert_contents>
+            </output>
+            <output_collection name="output" count="9" type="list">
+                <element name="Mahalanobis_Outliers" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="25"/>
+                        <has_n_columns sep="," n="3"/>
+                    </assert_contents>
+                </element>
+                <element name="dat_log2" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="5058"/>
+                        <has_n_columns sep="," n="25"/>
+                    </assert_contents>
+                </element>
+                <element name="dat_reliable" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="4269"/>
+                        <has_n_columns sep="," n="25"/>
+                    </assert_contents>
+                </element>
+
+            </output_collection>
+            <output_collection name="plots" count="19" type="list"/>
+        </test>
+        <!-- tests with both optional inputs -->
+        <test expect_num_outputs="3">
+            <param name="sampleTable" value="sampleTable.csv" ftype="csv"/>
+            <param name="sampleGenes" value="sampleGenes.csv" ftype="csv"/>
+            <param name="sampleMapping" value="sampleMapping.csv" ftype="csv"/>
+            <param name="out_select" value="tables,plots"/>
+            <output name="dat_calculated">
+                <assert_contents>
+                    <has_n_lines n="4269"/>
+                    <has_n_columns sep="," n="35"/>
+                </assert_contents>
+            </output>
+            <output_collection name="output" count="9" type="list">
+                <element name="Mahalanobis_Outliers" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="25"/>
+                        <has_n_columns sep="," n="3"/>
+                    </assert_contents>
+                </element>
+                <element name="dat_log2" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="5058"/>
+                        <has_n_columns sep="," n="25"/>
+                    </assert_contents>
+                </element>
+                <element name="dat_reliable" ftype="csv">
+                    <assert_contents>
+                        <has_n_lines n="4269"/>
+                        <has_n_columns sep="," n="25"/>
+                    </assert_contents>
+                </element>
+
+            </output_collection>
+            <output_collection name="plots" count="19" type="list"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+
+Fold change workflow
+
+1. Evaluating data quality
+2. Identification (and removal) of outliers (param: remove_outliers)
+3. Log2 transformation
+4. Optional: median normalization (param: median_normalize)
+5. Filtering for reliably identified candidates (param: number_replicates_reliable, reliable_all_comparisons)
+6. Principal component analysis of processed data
+7. Calculation of average log2 fold changes and (adjusted) p-values (param: alternative, var.equal, paired, pvalue_adjustment)
+8. Visualization of the results (param: pvalue_decision, significance_cutoff, color_up, color_none, color_down)
+
+sampleMapping
+
+A dataframe, which can be used to relate different
+conditions to ggplot facets. The treatments, which should
+also appear in the sampleTable, have to be the rownames. The
+following columns should be present: "Xname" (the sample
+name, which will be shown on the X-axis), "Order" (numbers
+indicating the preferred order of the treatments/comparisons
+on the X-axis - from left to right), Condition1 (character,
+which will be used for the first level ggplot facet),
+Condition2 (character, which will be used for the second
+level ggplot facet). If no sampleMapping dataframe is
+available, use sampleMapping = NULL, which is also the
+default.
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

@@ -1,0 +1,22 @@
+<tool id="fail" name="fail" version="0.1.2">
+    <requirements>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        echo "" > $out_file1 &&    
+        sh -c "exit $code"
+    ]]></command>
+    <inputs>
+        <param name="code" type="integer" value=""/>
+    </inputs>
+    <outputs>
+        <data format="tabular" name="out_file1" />
+    </outputs>
+    <tests>
+        <test expect_failure="true" expect_exit_code="4">
+            <param name="code" value="4"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>

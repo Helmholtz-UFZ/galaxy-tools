@@ -1,4 +1,4 @@
-<tool id="lm_get_projects" name="Get LMDB Projects" version="0.1.0+galaxy1" profile="21.05">
+<tool id="lm_get_cfcs" name="Get LMDB CFCs" version="0.1.0+galaxy0" profile="21.05">
     <requirements>
         <requirement type="package" version="2.2.2">pandas</requirement>
         <requirement type="package" version="2.9.9">psycopg2</requirement>
@@ -8,26 +8,20 @@
         #if $test != ''
             export LAMBDAMINER_CREDENTIALS='$__tool_directory__/test-data/$test';
         #end if
-        python '$__tool_directory__/get_projects.py'
+        python '$__tool_directory__/get_cfcs.py'
         --login-name '$__user_name__'
-        --output-file '$projects'
+        --output-file '$cfcs'
     ]]></command>
     <inputs>
         <param name="test" type="hidden"/>
     </inputs>
     <outputs>
-        <data name="projects" format="csv"/>
+        <data name="cfcs" format="csv"/>
     </outputs>
     <tests>
         <test>
             <param name="test" value="test_lmdb_credentials.json"/>
-            <output name="projects" value="get_projects/test_projects.csv" compare="contains"/>
-        </test>
-        <test expect_failure="true">
-            <param name="test" value="test_credentials_false.json"/>
-        </test>
-        <test expect_failure="true">
-            <param name="test" value="test_credentials_nonexistent.json"/>
+            <output name="cfcs" value="get_cfcs/test_chemical_formula_configurations.csv" compare="contains"/>
         </test>
         <test expect_failure="true">
             <param name="test" value="test_credentials_false.json"/>
@@ -39,7 +33,7 @@
     <help><![CDATA[
 **What it does**
 
-This tool queries the Lambda-Miner database for the users projects.
+This tool queries the Lambda-Miner database for the Chemical Formula Configurations (CFCs).
 
 **Input**
 
@@ -47,7 +41,7 @@ There is no input necessary from the user. The tool connects to the Lambda-Miner
 
 **Output**
 
-CSV file containing the projects (id, name, sample count) corresponding to the user.]]>
+CSV file containing the available CFCs.]]>
     </help>
     <citations>
         <citation type="doi">10.5194/egusphere-egu24-15782</citation>

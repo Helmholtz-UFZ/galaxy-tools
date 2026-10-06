@@ -1,0 +1,112 @@
+<tool id="recap_prok_module4_genbank" name="RECAP-PROK GenBank Reconstruction" version="0.1.0" profile="25.1">
+    <description>build a re-annotated GenBank file from Prodigal and eggNOG-mapper results</description>
+    <requirements>
+        <requirement type="package" version="3.12">python</requirement>
+        <requirement type="package" version="1.84">biopython</requirement>
+        <requirement type="package" version="3.9.2">matplotlib</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+python '$__tool_directory__/module4_build_genbank.py'
+  --metadata '$metadata'
+  --metadata-key '$metadata_key'
+  --fna '$prodigal_fna'
+  --faa '$prodigal_faa'
+  --gff '$prodigal_gff'
+  --eggnog '$eggnog_annotations'
+  --pfam-duf-map '$__tool_directory__/resources/pfam_duf_map.tsv.gz'
+  --topology '$topology'
+  --transl-table '$translation_table'
+  #if str($locus_prefix).strip()
+  --locus-prefix '$locus_prefix'
+  #end if
+  #if str($taxon_id).strip()
+  --taxon '$taxon_id'
+  #end if
+  --out '$output_genbank'
+    ]]></command>
+    <inputs>
+        <param name="eggnog_annotations" type="data" format="tabular" label="Re-annotated eggNOG-mapper annotations"/>
+        <param name="metadata" type="data" format="tabular" label="RECAP-PROK replicon metadata"/>
+        <param name="metadata_key" type="text" label="Metadata record identifier" help="Replicon_accession, Genome_ID, or Inf value identifying this replicon.">
+            <validator type="empty_field"/>
+        </param>
+        <param name="prodigal_fna" type="data" format="fasta" label="Prodigal nucleotide FASTA"/>
+        <param name="prodigal_faa" type="data" format="fasta" label="Prodigal protein FASTA"/>
+        <param name="prodigal_gff" type="data" format="gff,gff3" label="Prodigal GFF"/>
+        <param name="topology" type="select" label="Replicon topology">
+            <option value="circular" selected="true">Circular</option>
+            <option value="linear">Linear</option>
+        </param>
+        <param name="translation_table" type="select" label="NCBI translation table">
+            <option value="1">1 - Standard Code</option>
+            <option value="2">2 - Vertebrate Mitochondrial Code</option>
+            <option value="3">3 - Yeast Mitochondrial Code</option>
+            <option value="4">4 - Mold, Protozoan, and Coelenterate Mitochondrial Code and Mycoplasma/Spiroplasma Code</option>
+            <option value="5">5 - Invertebrate Mitochondrial Code</option>
+            <option value="6">6 - Ciliate, Dasycladacean and Hexamita Nuclear Code</option>
+            <option value="9">9 - Echinoderm and Flatworm Mitochondrial Code</option>
+            <option value="10">10 - Euplotid Nuclear Code</option>
+            <option value="11" selected="true">11 - Bacterial, Archaeal and Plant Plastid Code</option>
+            <option value="12">12 - Alternative Yeast Nuclear Code</option>
+            <option value="13">13 - Ascidian Mitochondrial Code</option>
+            <option value="14">14 - Alternative Flatworm Mitochondrial Code</option>
+            <option value="16">16 - Chlorophycean Mitochondrial Code</option>
+            <option value="21">21 - Trematode Mitochondrial Code</option>
+            <option value="22">22 - Scenedesmus obliquus Mitochondrial Code</option>
+            <option value="23">23 - Thraustochytrium Mitochondrial Code</option>
+            <option value="24">24 - Pterobranchia Mitochondrial Code</option>
+            <option value="25">25 - Candidate Division SR1 and Gracilibacteria Code</option>
+            <option value="26">26 - Pachysolen tannophilus Nuclear Code</option>
+            <option value="27">27 - Karyorelict Nuclear Code</option>
+            <option value="28">28 - Condylostoma Nuclear Code</option>
+            <option value="29">29 - Mesodinium Nuclear Code</option>
+            <option value="30">30 - Peritrich Nuclear Code</option>
+            <option value="31">31 - Blastocrithidia Nuclear Code</option>
+            <option value="32">32 - Balanophoraceae Plastid Code</option>
+            <option value="33">33 - Cephalodiscidae Mitochondrial UAA-Tyr Code</option>
+        </param>
+        <param name="locus_prefix" type="text" optional="true" label="Locus tag prefix">
+            <validator type="regex" message="Locus tag prefix may contain only letters, numbers, and underscores.">^[A-Za-z0-9_]+$</validator>
+        </param>
+        <param name="taxon_id" type="integer" optional="true" min="1" label="NCBI taxonomy ID"/>
+    </inputs>
+    <outputs>
+        <data name="output_genbank" format="genbank" label="${tool.name} on ${on_string}: reconstructed GenBank"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="eggnog_annotations" value="eggNOG_Mapper_on_dataset_1__annotations_37.tabular.tabular"/>
+            <param name="metadata" value="03_replicon_metadata.tsv"/>
+            <param name="metadata_key" value="BASIHUMIx_08"/>
+            <param name="prodigal_fna" value="Re-annotated_08.fna"/>
+            <param name="prodigal_faa" value="Re-annotated_08.proteins.faa"/>
+            <param name="prodigal_gff" value="Re-annotated_08.prodigal.gff"/>
+            <param name="topology" value="circular"/>
+            <param name="translation_table" value="11"/>
+            <output name="output_genbank">
+                <assert_contents>
+                    <has_text text="LOCUS"/>
+                    <has_text text="Bifidobacterium"/>
+                    <has_text text="FEATURES"/>
+                    <has_text text="CDS"/>
+                    <has_text text="ORIGIN"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+Builds a re-annotated GenBank file from Prodigal outputs, Galaxy eggNOG-mapper
+annotations, and RECAP-PROK metadata. The tool is replicon-generic and does not
+require bacterial/plasmid-specific filenames.
+    ]]></help>
+    <citations>
+        <citation type="bibtex"><![CDATA[
+@software{recap_prok,
+  author = {Ataa, Asaad},
+  title = {RECAP-PROK},
+  url = {https://github.com/AboJoan/RECAP-PROK},
+  year = {2026}
+}
+    ]]></citation>
+    </citations>
+</tool>

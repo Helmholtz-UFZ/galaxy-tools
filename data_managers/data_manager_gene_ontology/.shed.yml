@@ -1,0 +1,11 @@
+categories:
+- Data Managers
+description: Data manager for Gene Ontology reference data
+homepage_url: https://geneontology.org/
+long_description: |
+  Downloads the official Gene Ontology go-basic ontology and makes it
+  available through the Galaxy gene_ontology tool data table.
+name: gene_ontology_download
+owner: ufz
+remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/data_managers/data_manager_gene_ontology
+type: unrestricted

@@ -1,0 +1,60 @@
+<tool id="recap_prok_module4_antismash_analysis" name="RECAP-PROK antiSMASH Result Analysis" version="0.1.0" profile="25.1">
+    <description>summarize antiSMASH BGC classes from regions.js</description>
+    <requirements>
+        <requirement type="package" version="3.12">python</requirement>
+        <requirement type="package" version="1.84">biopython</requirement>
+        <requirement type="package" version="3.9.2">matplotlib</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+python '$__tool_directory__/module4_antismash_analysis.py'
+  --regions-js '$regions_js'
+  --label '$dataset_label'
+  --out '$summary'
+  --out-pdf '$figure'
+    ]]></command>
+    <inputs>
+        <param name="regions_js" type="data" format="txt" label="antiSMASH regions.js from HTML report files"/>
+        <param name="dataset_label" type="text" value="Re-annotated" label="Dataset label">
+            <validator type="regex" message="Dataset label must contain at least one non-whitespace character.">.*\S.*</validator>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="summary" format="tabular" label="${tool.name} on ${on_string}: BGC summary"/>
+        <data name="figure" format="pdf" label="${tool.name} on ${on_string}: BGC figure"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="regions_js" value="regions.js"/>
+            <param name="dataset_label" value="Re-annotated"/>
+            <output name="summary">
+                <assert_contents>
+                    <has_text text="Canonical_Class"/>
+                    <has_text text="BGC_count"/>
+                    <has_text text="NRPS"/>
+                    <has_text text="Other"/>
+                    <has_text text="PKS"/>
+                </assert_contents>
+            </output>
+            <output name="figure">
+                <assert_contents>
+                    <has_size value="10000" delta="10000"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+Summarizes biosynthetic gene-cluster classes from the ``regions.js`` file
+contained in the downloadable HTML report files produced by the Galaxy
+antiSMASH tool. This wrapper does not run antiSMASH itself.
+]]></help>
+    <citations>
+        <citation type="bibtex"><![CDATA[
+@software{recap_prok,
+  author = {Ataa, Asaad},
+  title = {RECAP-PROK},
+  url = {https://github.com/AboJoan/RECAP-PROK},
+  year = {2026}
+}
+    ]]></citation>
+    </citations>
+</tool>

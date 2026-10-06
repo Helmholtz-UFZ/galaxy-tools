@@ -1,0 +1,24 @@
+LOCUS       REANN_TEST              300 bp    DNA     linear   BCT 01-JAN-2026
+DEFINITION  RECAP-PROK re-annotated test fixture.
+ACCESSION   REANN_TEST
+VERSION     REANN_TEST
+FEATURES             Location/Qualifiers
+     source          1..300
+                     /organism="Test prokaryote"
+     CDS             1..90
+                     /locus_tag="REANN_001"
+                     /protein_id="REANN_P001"
+                     /product="hypothetical protein"
+                     /translation="MKTIIALSYIFCLVFADYKDDDDK"
+     CDS             100..210
+                     /locus_tag="REANN_002"
+                     /protein_id="REANN_P002"
+                     /product="DNA helicase"
+                     /translation="MNNIRRVAIAGPCSIETLEE"
+ORIGIN
+        1 atgaaaacaa ttattgcact ttcatacatt ttttgtttgg cttattgaaa
+       61 gatgaaaatg aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa
+      121 aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa
+      181 aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa
+      241 aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa
+//

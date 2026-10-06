@@ -1,0 +1,31 @@
+LOCUS       REF_TEST                400 bp    DNA     linear   BCT 01-JAN-2026
+DEFINITION  RECAP-PROK reference-mapped test fixture.
+ACCESSION   REF_TEST
+VERSION     REF_TEST
+FEATURES             Location/Qualifiers
+     source          1..400
+                     /organism="Test prokaryote"
+     CDS             1..90
+                     /locus_tag="REF_001"
+                     /protein_id="REF_P001"
+                     /product="uncharacterized protein"
+                     /translation="MKKIGYSAPRQTKEAIE"
+     CDS             100..210
+                     /locus_tag="REF_002"
+                     /protein_id="REF_P002"
+                     /product="ATP synthase subunit"
+                     /translation="MARGKKIGYSAPRQTKEAIE"
+     CDS             220..330
+                     /locus_tag="REF_003"
+                     /protein_id="REF_P003"
+                     /product="ribosomal protein"
+                     /translation="MARGKKIGYSAPRQTKEAIE"
+ORIGIN
+        1 atgaaaaaaa ttggttattc tgctcctcgt caaacaaaag aagctattga
+       61 aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa
+      121 aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa
+      181 aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa
+      241 aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa
+      301 aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa
+      361 aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa
+//

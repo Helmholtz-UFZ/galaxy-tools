@@ -1,0 +1,105 @@
+<tool id="recap_prok_module4_functional_comparison" name="RECAP-PROK Functional Annotation Comparison" version="0.1.0" profile="25.1">
+    <description>compare multi-layer functional annotations between re-annotated and reference-mapped proteins</description>
+    <requirements>
+        <requirement type="package" version="3.12">python</requirement>
+        <requirement type="package" version="1.84">biopython</requirement>
+        <requirement type="package" version="3.9.2">matplotlib</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+python '$__tool_directory__/module4_functional_comparison.py'
+    --reann-eggnog '$reann_eggnog'
+    --ref-eggnog '$ref_eggnog'
+    --reann-faa '$reann_faa'
+    --ref-faa '$ref_faa'
+    --go-obo '$go_database.fields.path'
+    --out '$comparison'
+    ]]></command>
+    <inputs>
+        <param name="reann_eggnog" type="data" format="tabular" label="Re-annotated eggNOG-mapper annotations" help="Tabular annotation output generated from the re-annotated protein set by the Galaxy eggNOG-mapper tool."/>
+        <param name="ref_eggnog" type="data" format="tabular" label="Reference-mapped eggNOG-mapper annotations" help="Tabular annotation output generated from the reference-mapped protein set by the Galaxy eggNOG-mapper tool."/>
+        <param name="reann_faa" type="data" format="fasta" label="Re-annotated protein FASTA" help="Protein FASTA corresponding to the re-annotated eggNOG-mapper annotations."/>
+        <param name="ref_faa" type="data" format="fasta" label="Reference-mapped protein FASTA" help="Protein FASTA corresponding to the reference-mapped eggNOG-mapper annotations."/>
+        <param name="go_database" type="select" label="Gene Ontology database">
+            <options from_data_table="gene_ontology">
+                <validator type="no_options" message="No Gene Ontology reference data available. Contact your Galaxy admin."/>
+            </options>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="comparison" format="tabular"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="reann_eggnog" value="eggNOG_Mapper_on_dataset_1__annotations_37.tabular.tabular"/>
+            <param name="ref_eggnog" value="eggNOG_Mapper_on_dataset_2__annotations_9b7c1a7.tabular"/>
+            <param name="reann_faa" value="Re-annotated_08.proteins.faa"/>
+            <param name="ref_faa" value="Ref_NCBI_mapped_08.faa"/>
+            <output name="comparison">
+                <assert_contents>
+                    <has_text text="Metric"/>
+                    <has_text text="Re-annotated"/>
+                    <has_text text="Reference-mapped"/>
+                    <has_text text="Total Proteins&#9;1830&#9;1770&#9;60&#9;3.39"/>
+                    <has_text text="COG_Known Function&#9;1343&#9;1290&#9;53&#9;4.11"/>
+                    <has_text text="COG_Unknown Function&#9;296&#9;299&#9;-3&#9;-1.00"/>
+                    <has_text text="No Hit&#9;127&#9;131&#9;-4&#9;-3.05"/>
+                    <has_text text="Missing&#9;64&#9;50&#9;14&#9;28.00"/>
+                    <has_text text="KEGG Annotated&#9;1105&#9;1091&#9;14&#9;1.28"/>
+                    <has_text text="Unique KO&#9;959&#9;956&#9;3&#9;0.31"/>
+                    <has_text text="GO_BP&#9;361&#9;360&#9;1&#9;0.28"/>
+                    <has_text text="GO_MF&#9;267&#9;265&#9;2&#9;0.75"/>
+                    <has_text text="GO_CC&#9;356&#9;354&#9;2&#9;0.56"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+**RECAP-PROK Functional Annotation Comparison**
+
+This tool compares multiple layers of functional annotation between
+re-annotated and reference-mapped protein sets.
+
+Inputs
+------
+
+- Re-annotated eggNOG-mapper annotations
+- Reference-mapped eggNOG-mapper annotations
+- Re-annotated protein FASTA
+- Reference-mapped protein FASTA
+
+The protein FASTA files are used to determine the total number of proteins
+and proteins not represented in the eggNOG-mapper annotation tables.
+
+Reported metrics
+----------------
+
+- Total proteins
+- COG known-function assignments
+- COG unknown-function assignments
+- No COG hit
+- Missing from the eggNOG-mapper annotation table
+- Proteins with KEGG KO annotation
+- Unique KEGG orthology identifiers
+- Proteins with Gene Ontology Biological Process annotations
+- Proteins with Gene Ontology Molecular Function annotations
+- Proteins with Gene Ontology Cellular Component annotations
+
+GO identifiers are classified into BP, MF, and CC namespaces using the
+Gene Ontology reference selected from the Galaxy ``gene_ontology`` data table.
+
+The eggNOG-mapper tables must contain the ``#query``, ``COG_category``,
+``GOs``, and ``KEGG_ko`` columns.
+
+This tool does not run eggNOG-mapper itself.
+    ]]></help>
+    <citations>
+        <citation type="bibtex"><![CDATA[
+@software{recap_prok,
+  author = {Ataa, Asaad},
+  title = {RECAP-PROK},
+  url = {https://github.com/AboJoan/RECAP-PROK},
+  year = {2026}
+}
+    ]]></citation>
+    </citations>
+</tool>

@@ -1,0 +1,71 @@
+<tool id="gene_ontology_download" name="Gene Ontology" tool_type="manage_data" version="1.0.0" profile="23.0">
+    <description>download the official go-basic ontology</description>
+    <requirements>
+        <requirement type="package" version="1.21.4">wget</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        set -eo pipefail;
+
+        mkdir -p '$out_file.extra_files_path/go' &&
+
+        wget
+            -O '$out_file.extra_files_path/go/go-basic.obo'
+            'https://purl.obolibrary.org/obo/go/go-basic.obo' &&
+
+        test -s '$out_file.extra_files_path/go/go-basic.obo' &&
+
+        grep -q '^ontology: go$'
+            '$out_file.extra_files_path/go/go-basic.obo' &&
+
+        cp '$dmjson' '$out_file'
+    ]]></command>
+    <configfiles>
+        <configfile name="dmjson"><![CDATA[
+{
+  "data_tables": {
+    "gene_ontology": [
+      {
+        "path": "go/",
+        "name": "Gene Ontology go-basic",
+        "version": "current",
+        "value": "go-basic"
+      }
+    ]
+  }
+}
+        ]]></configfile>
+    </configfiles>
+    <inputs>
+        <param name="version" type="select" label="Gene Ontology release">
+            <option value="current">Current official release</option>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="out_file" format="data_manager_json"/>
+    </outputs>
+    <tests>
+        <test expect_num_outputs="1">
+            <param name="version" value="current"/>
+            <output name="out_file">
+                <assert_contents>
+                    <has_text text="&quot;value&quot;: &quot;go-basic&quot;"/>
+                    <has_text text="&quot;name&quot;: &quot;Gene Ontology go-basic&quot;"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+Downloads the complete official Gene Ontology ``go-basic.obo`` reference
+ontology for use through the Galaxy ``gene_ontology`` tool data table.
+
+The ontology is downloaded from the official OBO Library distribution.
+    ]]></help>
+    <citations>
+        <citation type="bibtex"><![CDATA[
+@misc{gene_ontology,
+  title = {Gene Ontology},
+  url = {https://geneontology.org/}
+}
+        ]]></citation>
+    </citations>
+</tool>

@@ -1,0 +1,93 @@
+<tool id="recap_prok_module4_nr_analysis" name="RECAP-PROK NR Result Analysis" version="0.1.0" profile="25.1">
+    <description>classify best NCBI NR hits for hypothetical proteins</description>
+    <requirements>
+        <requirement type="package" version="3.12">python</requirement>
+        <requirement type="package" version="1.84">biopython</requirement>
+        <requirement type="package" version="3.9.2">matplotlib</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+python '$__tool_directory__/module4_nr_analysis.py'
+  --reann '$reann_nr'
+  --ref '$ref_nr'
+  --out-best-reann '$reann_best'
+  --out-best-ref '$ref_best'
+  --out-summary '$summary'
+  --out-pdf '$figure'
+    ]]></command>
+    <inputs>
+        <param name="reann_nr" type="data" format="tabular" label="Re-annotated hypothetical proteins: NCBI NR DIAMOND results"/>
+        <param name="ref_nr" type="data" format="tabular" label="Reference-mapped hypothetical proteins: NCBI NR DIAMOND results"/>
+    </inputs>
+    <outputs>
+        <data name="reann_best" format="tabular" label="${tool.name} on ${on_string}: re-annotated best NR hits"/>
+        <data name="ref_best" format="tabular" label="${tool.name} on ${on_string}: reference-mapped best NR hits"/>
+        <data name="summary" format="tabular" label="${tool.name} on ${on_string}: NR classification summary"/>
+        <data name="figure" format="pdf" label="${tool.name} on ${on_string}: NR classification figure"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="reann_nr" value="Galaxy21-[Diamond on dataset 8_ Blast Tabular].tabular"/>
+            <param name="ref_nr" value="Galaxy22-[Diamond on dataset 7_ Blast Tabular].tabular"/>
+            <output name="reann_best">
+                <assert_contents>
+                    <has_text text="qseqid"/>
+                    <has_text text="nr_class"/>
+                </assert_contents>
+            </output>
+            <output name="ref_best">
+                <assert_contents>
+                    <has_text text="qseqid"/>
+                    <has_text text="nr_class"/>
+                </assert_contents>
+            </output>
+            <output name="summary">
+                <assert_contents>
+                    <has_text text="Dataset"/>
+                    <has_text text="Strict hypothetical/unclassified"/>
+                    <has_text text="Putative functional evidence"/>
+                    <has_text text="Clear functional annotation"/>
+                    <has_text text="Re-annotated&#x9;Strict hypothetical/unclassified&#x9;1&#x9;33.33"/>
+                    <has_text text="Re-annotated&#x9;Putative functional evidence&#x9;1&#x9;33.33"/>
+                    <has_text text="Re-annotated&#x9;Clear functional annotation&#x9;1&#x9;33.33"/>
+                    <has_text text="Reference-mapped&#x9;Strict hypothetical/unclassified&#x9;1&#x9;25.00"/>
+                    <has_text text="Reference-mapped&#x9;Putative functional evidence&#x9;1&#x9;25.00"/>
+                    <has_text text="Reference-mapped&#x9;Clear functional annotation&#x9;2&#x9;50.00"/>
+                </assert_contents>
+            </output>
+            <output name="figure">
+                <assert_contents>
+                    <has_size value="10000" delta="10000"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+Analyze Galaxy DIAMOND searches against NCBI NR.
+
+Use BLAST tabular output without a header and select these fields in this exact order:
+
+1. Query Seq-id (qseqid)
+2. Subject Seq-id (sseqid)
+3. Percentage identical (pident)
+4. Query sequence length (qlen)
+5. Subject sequence length (slen)
+6. Alignment length (length)
+7. Expect value (evalue)
+8. Bit score (bitscore)
+9. Subject title (stitle)
+
+The tool selects the best hit for each query by highest bit score, with lowest
+E-value as the tie-breaker, then classifies the NR title into strict hypothetical,
+putative functional evidence, or clear functional annotation.
+    ]]></help>
+    <citations>
+        <citation type="bibtex"><![CDATA[
+@software{recap_prok,
+  author = {Ataa, Asaad},
+  title = {RECAP-PROK},
+  url = {https://github.com/AboJoan/RECAP-PROK},
+  year = {2026}
+}
+    ]]></citation>
+    </citations>
+</tool>

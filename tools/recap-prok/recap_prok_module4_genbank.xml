@@ -13,7 +13,7 @@ python '$__tool_directory__/module4_build_genbank.py'
   --faa '$prodigal_faa'
   --gff '$prodigal_gff'
   --eggnog '$eggnog_annotations'
-  --pfam-duf-map '$__tool_directory__/resources/pfam_duf_map.tsv'
+  --pfam-duf-map '$__tool_directory__/resources/pfam_duf_map.tsv.gz'
   --topology '$topology'
   --transl-table '$translation_table'
   #if str($locus_prefix).strip()

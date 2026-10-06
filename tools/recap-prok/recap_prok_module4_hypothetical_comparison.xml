@@ -30,17 +30,19 @@ python '$__tool_directory__/module4_hypothetical_comparison.py'
             <param name="ref_gb" value="Ref_NCBI_mapped_08.gb"/>
             <output name="comparison">
                 <assert_contents>
-                    <has_text text="Hypothetical"/>
+                    <has_text text="Protein_coding_CDSs"/>
+                    <has_text text="Re-annotated&#x9;2&#x9;1&#x9;50.00&#x9;1"/>
+                    <has_text text="Reference-mapped&#x9;3&#x9;1&#x9;33.33&#x9;2"/>
                 </assert_contents>
             </output>
             <output name="reann_hypothetical">
                 <assert_contents>
-                    <has_text text="&gt;"/>
+                    <has_text text="&gt;Re-annotated|REANN_TEST|locus=REANN_001|protein=REANN_P001"/>
                 </assert_contents>
             </output>
             <output name="ref_hypothetical">
                 <assert_contents>
-                    <has_text text="&gt;"/>
+                    <has_text text="&gt;Reference-mapped|REF_TEST|locus=REF_001|protein=REF_P001"/>
                 </assert_contents>
             </output>
             <output name="figure">

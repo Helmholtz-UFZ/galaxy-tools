@@ -46,8 +46,12 @@ python '$__tool_directory__/module4_nr_analysis.py'
                     <has_text text="Strict hypothetical/unclassified"/>
                     <has_text text="Putative functional evidence"/>
                     <has_text text="Clear functional annotation"/>
-                    <has_text text="70.71"/>
-                    <has_text text="40.83"/>
+                    <has_text text="Re-annotated&#x9;Strict hypothetical/unclassified&#x9;1&#x9;33.33"/>
+                    <has_text text="Re-annotated&#x9;Putative functional evidence&#x9;1&#x9;33.33"/>
+                    <has_text text="Re-annotated&#x9;Clear functional annotation&#x9;1&#x9;33.33"/>
+                    <has_text text="Reference-mapped&#x9;Strict hypothetical/unclassified&#x9;1&#x9;25.00"/>
+                    <has_text text="Reference-mapped&#x9;Putative functional evidence&#x9;1&#x9;25.00"/>
+                    <has_text text="Reference-mapped&#x9;Clear functional annotation&#x9;2&#x9;50.00"/>
                 </assert_contents>
             </output>
             <output name="figure">

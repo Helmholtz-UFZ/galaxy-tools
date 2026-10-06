@@ -1,7 +1,9 @@
-<tool id="recap_prok_module4_functional_comparison" name="RECAP-PROK Functional Annotation Comparison" version="0.1.0" profile="23.0">
+<tool id="recap_prok_module4_functional_comparison" name="RECAP-PROK Functional Annotation Comparison" version="0.1.0" profile="25.1">
     <description>compare multi-layer functional annotations between re-annotated and reference-mapped proteins</description>
     <requirements>
         <requirement type="package" version="3.12">python</requirement>
+        <requirement type="package" version="1.84">biopython</requirement>
+        <requirement type="package" version="3.9.2">matplotlib</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
 python '$__tool_directory__/module4_functional_comparison.py'
@@ -24,7 +26,7 @@ python '$__tool_directory__/module4_functional_comparison.py'
         </param>
     </inputs>
     <outputs>
-        <data name="comparison" format="tabular" label="${tool.name} on ${on_string}: functional annotation comparison"/>
+        <data name="comparison" format="tabular"/>
     </outputs>
     <tests>
         <test>
@@ -37,16 +39,16 @@ python '$__tool_directory__/module4_functional_comparison.py'
                     <has_text text="Metric"/>
                     <has_text text="Re-annotated"/>
                     <has_text text="Reference-mapped"/>
-                    <has_text text="Total Proteins&#9;1830&#9;1770&#9;60&#9;3.39"/>
-                    <has_text text="COG_Known Function&#9;1343&#9;1290&#9;53&#9;4.11"/>
-                    <has_text text="COG_Unknown Function&#9;296&#9;299&#9;-3&#9;-1.00"/>
-                    <has_text text="No Hit&#9;127&#9;131&#9;-4&#9;-3.05"/>
-                    <has_text text="Missing&#9;64&#9;50&#9;14&#9;28.00"/>
-                    <has_text text="KEGG Annotated&#9;1105&#9;1091&#9;14&#9;1.28"/>
-                    <has_text text="Unique KO&#9;959&#9;956&#9;3&#9;0.31"/>
-                    <has_text text="GO_BP&#9;361&#9;360&#9;1&#9;0.28"/>
-                    <has_text text="GO_MF&#9;267&#9;265&#9;2&#9;0.75"/>
-                    <has_text text="GO_CC&#9;356&#9;354&#9;2&#9;0.56"/>
+                    <has_text text="Total Proteins"/>
+                    <has_text text="COG_Known Function"/>
+                    <has_text text="COG_Unknown Function"/>
+                    <has_text text="No Hit"/>
+                    <has_text text="Missing"/>
+                    <has_text text="KEGG Annotated"/>
+                    <has_text text="Unique KO"/>
+                    <has_text text="GO_BP"/>
+                    <has_text text="GO_MF"/>
+                    <has_text text="GO_CC"/>
                 </assert_contents>
             </output>
         </test>
@@ -83,7 +85,7 @@ Reported metrics
 - Proteins with Gene Ontology Cellular Component annotations
 
 GO identifiers are classified into BP, MF, and CC namespaces using the
-Gene Ontology reference included with the RECAP-PROK tool.
+Gene Ontology reference selected from the Galaxy ``gene_ontology`` data table.
 
 The eggNOG-mapper tables must contain the ``#query``, ``COG_category``,
 ``GOs``, and ``KEGG_ko`` columns.

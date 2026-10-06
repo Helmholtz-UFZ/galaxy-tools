@@ -1,8 +1,9 @@
-<tool id="recap_prok_module4_genbank" name="RECAP-PROK GenBank Reconstruction" version="0.1.0" profile="23.0">
+<tool id="recap_prok_module4_genbank" name="RECAP-PROK GenBank Reconstruction" version="0.1.0" profile="25.1">
     <description>build a re-annotated GenBank file from Prodigal and eggNOG-mapper results</description>
     <requirements>
         <requirement type="package" version="3.12">python</requirement>
         <requirement type="package" version="1.84">biopython</requirement>
+        <requirement type="package" version="3.9.2">matplotlib</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
 python '$__tool_directory__/module4_build_genbank.py'
@@ -12,7 +13,7 @@ python '$__tool_directory__/module4_build_genbank.py'
   --faa '$prodigal_faa'
   --gff '$prodigal_gff'
   --eggnog '$eggnog_annotations'
-  --pfam-duf-map '$__tool_directory__/resources/pfam_duf_map.tsv.gz'
+  --pfam-duf-map '$__tool_directory__/resources/pfam_duf_map.tsv'
   --topology '$topology'
   --transl-table '$translation_table'
   #if str($locus_prefix).strip()
@@ -36,8 +37,37 @@ python '$__tool_directory__/module4_build_genbank.py'
             <option value="circular" selected="true">Circular</option>
             <option value="linear">Linear</option>
         </param>
-        <param name="translation_table" type="integer" value="11" min="1" label="NCBI translation table"/>
-        <param name="locus_prefix" type="text" optional="true" label="Locus tag prefix"/>
+        <param name="translation_table" type="select" label="NCBI translation table">
+            <option value="1">1 - Standard Code</option>
+            <option value="2">2 - Vertebrate Mitochondrial Code</option>
+            <option value="3">3 - Yeast Mitochondrial Code</option>
+            <option value="4">4 - Mold, Protozoan, and Coelenterate Mitochondrial Code and Mycoplasma/Spiroplasma Code</option>
+            <option value="5">5 - Invertebrate Mitochondrial Code</option>
+            <option value="6">6 - Ciliate, Dasycladacean and Hexamita Nuclear Code</option>
+            <option value="9">9 - Echinoderm and Flatworm Mitochondrial Code</option>
+            <option value="10">10 - Euplotid Nuclear Code</option>
+            <option value="11" selected="true">11 - Bacterial, Archaeal and Plant Plastid Code</option>
+            <option value="12">12 - Alternative Yeast Nuclear Code</option>
+            <option value="13">13 - Ascidian Mitochondrial Code</option>
+            <option value="14">14 - Alternative Flatworm Mitochondrial Code</option>
+            <option value="16">16 - Chlorophycean Mitochondrial Code</option>
+            <option value="21">21 - Trematode Mitochondrial Code</option>
+            <option value="22">22 - Scenedesmus obliquus Mitochondrial Code</option>
+            <option value="23">23 - Thraustochytrium Mitochondrial Code</option>
+            <option value="24">24 - Pterobranchia Mitochondrial Code</option>
+            <option value="25">25 - Candidate Division SR1 and Gracilibacteria Code</option>
+            <option value="26">26 - Pachysolen tannophilus Nuclear Code</option>
+            <option value="27">27 - Karyorelict Nuclear Code</option>
+            <option value="28">28 - Condylostoma Nuclear Code</option>
+            <option value="29">29 - Mesodinium Nuclear Code</option>
+            <option value="30">30 - Peritrich Nuclear Code</option>
+            <option value="31">31 - Blastocrithidia Nuclear Code</option>
+            <option value="32">32 - Balanophoraceae Plastid Code</option>
+            <option value="33">33 - Cephalodiscidae Mitochondrial UAA-Tyr Code</option>
+        </param>
+        <param name="locus_prefix" type="text" optional="true" label="Locus tag prefix">
+            <validator type="regex" message="Locus tag prefix may contain only letters, numbers, and underscores.">^[A-Za-z0-9_]+$</validator>
+        </param>
         <param name="taxon_id" type="integer" optional="true" min="1" label="NCBI taxonomy ID"/>
     </inputs>
     <outputs>

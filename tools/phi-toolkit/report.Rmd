@@ -32,7 +32,7 @@ cat("params$outdir:", params$outdir, "\n")
 
 ```{r setup_libraries, message=FALSE, warning=FALSE, echo=FALSE, results='asis'}
 # Define required packages
-# Note: update version_command if changed here!
+
 required_packages <- c(
     "tidyverse", "janitor", "here",
     "kableExtra", "gmoviz", "circlize",
@@ -88,6 +88,104 @@ load_file <- function(path) {
         log_debug(paste("File does not exist:", path))
         NULL
     }
+}
+
+
+extract_host_name_from_gtdbtk <- function(sample) {
+    host_name <- sample
+
+    if (exists("data_gtdbtk_host", inherits = TRUE)) {
+        host_taxonomy <- data_gtdbtk_host %>%
+            dplyr::filter(user_genome == sample) %>%
+            dplyr::pull(classification)
+
+        if (length(host_taxonomy) > 0 && !is.na(host_taxonomy[1]) && host_taxonomy[1] != "") {
+            last_taxon <- extract_last_known_taxonomy(host_taxonomy[1])
+            host_name <- stringr::str_replace_all(last_taxon$name, "_", " ")
+            if (is.na(host_name) || host_name == "") host_name <- sample
+        }
+    }
+
+    host_name
+}
+
+# Infer a genome accession from the submitted genome name or
+# from the corresponding FASTA header. If no genome-level accession can be obtained return "NA".
+infer_host_accession <- function(sample) {
+    accession_regex <- "^(NC|NZ|AC|CP|CM|CU|AE|LT|LN|LR|AP|BA|GCA|GCF)_[A-Za-z0-9]+(\\.[0-9]+)?$"
+
+    # If the sample name itself is already an accession, use it.
+    if (!is.na(sample) && stringr::str_detect(sample, accession_regex)) {
+        return(sample)
+    }
+
+    fasta_file_path <- file.path(params$outdir, "genomes", paste0(sample, ".fna"))
+    if (!file.exists(fasta_file_path)) {
+        return("NA")
+    }
+
+    fasta_headers <- readLines(fasta_file_path, warn = FALSE)
+    fasta_headers <- fasta_headers[stringr::str_starts(fasta_headers, ">")]
+    if (length(fasta_headers) == 0) {
+        return("NA")
+    }
+
+    # Use the first FASTA token, stripping ">" and any description text.
+    fasta_ids <- fasta_headers %>%
+        stringr::str_remove("^>") %>%
+        stringr::str_replace("\\s.*$", "")
+
+    if (length(fasta_ids) == 1 && stringr::str_detect(fasta_ids[1], accession_regex)) {
+        return(fasta_ids[1])
+    }
+
+    # For complete genomes, geNomad provirus records may use names such as
+    # NC_003228.3|provirus_2674949_2724741. Use this only when a single unique
+    # accession-like contig is found among coordinate-defined provirus records.
+    genomad_summary_path <- file.path(
+        params$outdir, "host_analyses", "genomad", sample,
+        paste0(sample, "_summary"), paste0(sample, "_virus_summary.tsv")
+    )
+
+    if (file.exists(genomad_summary_path)) {
+        genomad_summary <- tryCatch(
+            readr::read_tsv(genomad_summary_path, show_col_types = FALSE) %>% janitor::clean_names(),
+            error = function(e) NULL
+        )
+
+        if (!is.null(genomad_summary) && all(c("seq_name", "coordinates") %in% colnames(genomad_summary))) {
+            candidate_accessions <- genomad_summary %>%
+                dplyr::filter(!is.na(coordinates), coordinates != "", coordinates != "NA", coordinates != ".") %>%
+                dplyr::mutate(contig_id = stringr::str_replace(seq_name, "\\|provirus_.*$", "")) %>%
+                dplyr::pull(contig_id) %>%
+                unique()
+
+            candidate_accessions <- candidate_accessions[stringr::str_detect(candidate_accessions, accession_regex)]
+            if (length(candidate_accessions) == 1) {
+                return(candidate_accessions[1])
+            }
+        }
+    }
+
+    "NA"
+}
+
+format_host_display_label <- function(sample) {
+    host_name <- extract_host_name_from_gtdbtk(sample)
+    accession <- infer_host_accession(sample)
+    label_id <- ifelse(!is.na(accession) && accession != "NA" && accession != "", accession, sample)
+    paste0(host_name, " (accession/sample ID: ", label_id, ")")
+}
+
+# Return a visible two-line metadata block for the host ideogram.
+format_host_ideogram_metadata <- function(sample) {
+    host_name <- extract_host_name_from_gtdbtk(sample)
+    accession <- infer_host_accession(sample)
+
+    paste0(
+        "**Strain/taxon name:** ", host_name, "\n\n",
+        "**Accession number:** ", accession, "\n\n"
+    )
 }
 
 get_file_info <- function(path, loaded_data) {
@@ -264,6 +362,7 @@ result$summary <- result$summary %>%
 # Summary {.tabset .tabset-fade}
 
 This table provides sample-by-sample information on detected viruses and key host genome statistics. It includes taxonomy, virus count, genome quality classification, CheckM2 metrics (completeness and contamination), and genome assembly statistics such as size and N50.
+
 
 ```{r render_table, message=FALSE, warning=FALSE, echo=FALSE, results='asis'}
 data <- result$summary
@@ -496,21 +595,81 @@ combined_unique <- bind_rows(
 log_debug(paste("combined_unique samples:", paste(combined_unique$Sample, collapse = ", ")))
 ```
 
+```{r report_specific_helpers, echo=FALSE}
+# DefenseFinder output headers renamed
+format_defense_finder_output <- function(defense_finder_data) {
+    required_cols <- c(
+        "sys_id", "type", "subtype", "sys_beg", "sys_end",
+        "protein_in_syst", "genes_count", "name_of_profiles_in_sys"
+    )
+
+    missing_cols <- setdiff(required_cols, names(defense_finder_data))
+    if (length(missing_cols) > 0) {
+        log_debug(paste("DefenseFinder table missing columns:", paste(missing_cols, collapse = ", ")))
+        return(defense_finder_data)
+    }
+
+    defense_finder_data %>%
+        dplyr::select(dplyr::all_of(required_cols)) %>%
+        dplyr::rename(
+            `System ID` = sys_id,
+            `Type` = type,
+            `Subtype` = subtype,
+            `System_start` = sys_beg,
+            `System_end` = sys_end,
+            `Proteins in system` = protein_in_syst,
+            `Gene count` = genes_count,
+            `Profile names in system` = name_of_profiles_in_sys
+        )
+}
+```
+
 
 ```{r main_workflow, fig.width=6, fig.height=6, out.height="100%", out.width='100%', dpi=300, fig.align='center', warning=FALSE, message=FALSE, results='asis'}
 # Process proviruses data
+# Handling of missing/NA geNomad coordinates and fragmented MAGs
+# Normalize sequence/contig names for matching geNomad output to FASTA-derived ideogram names.
+# This avoids false mismatches when FASTA headers include descriptions, e.g.
+# ">NC_000913.3 Escherichia coli ...", while geNomad reports
+# "NC_000913.3|provirus_...".
+normalize_contig_id <- function(x) {
+    x <- as.character(x)
+    x <- stringr::str_replace(x, "\\|provirus_.*$", "")
+    x <- stringr::str_replace(x, "\\s.*$", "")
+    x
+}
+
+# Process proviruses data
+# Keep coordinate-defined provirus regions, but keep the ORIGINAL normalized
+# contig name. The conversion to c1/c2/... is done later using the FASTA order.
 process_proviruses <- function(data_genomad) {
+    if (is.null(data_genomad) || nrow(data_genomad) == 0) {
+        log_debug("No geNomad data available for process_proviruses")
+        return(GRanges())
+    }
+
     proviruses <- data_genomad %>%
-        dplyr::filter(topology == "Provirus") %>%
-        dplyr::mutate(contig = sub("\\|provirus_.*", "", seq_name)) %>% # take everything before "|provirus"
-        dplyr::mutate(contig = paste0("c", as.numeric(factor(contig)))) %>% # map them to c_1, c_2, ...
-        dplyr::select(seq_name, coordinates, length, contig, virus_score, n_hallmarks)
+        dplyr::filter(
+            topology == "Provirus",
+            !is.na(coordinates),
+            coordinates != "",
+            coordinates != "NA",
+            coordinates != ".",
+            stringr::str_detect(coordinates, "^[0-9]+-[0-9]+$")
+        ) %>%
+        dplyr::mutate(contig = normalize_contig_id(seq_name)) %>%
+        dplyr::select(seq_name, coordinates, length, contig, virus_score, n_hallmarks) %>%
+        tidyr::separate(coordinates, into = c("start", "end"), sep = "-", remove = FALSE) %>%
+        dplyr::mutate(
+            start = as.integer(start),
+            end = as.integer(end)
+        ) %>%
+        dplyr::filter(!is.na(start), !is.na(end), end >= start)
 
-    proviruses <- proviruses %>%
-        tidyr::separate(coordinates, into = c("start", "end"), sep = "-")
-
-    proviruses$start <- as.integer(proviruses$start)
-    proviruses$end <- as.integer(proviruses$end)
+    if (nrow(proviruses) == 0) {
+        log_debug("No coordinate-defined provirus regions available for ideogram")
+        return(GRanges())
+    }
 
     proviruses_gr_features <- GRanges(
         seqnames = proviruses$contig,
@@ -519,11 +678,10 @@ process_proviruses <- function(data_genomad) {
             end = proviruses$end
         )
     )
-    proviruses_gr_features$length <- proviruses_gr_features %>%
-        ranges() %>%
-        width()
+    proviruses_gr_features$length <- as.numeric(proviruses$end - proviruses$start + 1)
     proviruses_gr_features$score <- as.numeric(proviruses$virus_score)
     proviruses_gr_features$n_hallmarks <- as.numeric(proviruses$n_hallmarks)
+    proviruses_gr_features$seq_name <- proviruses$seq_name
 
     proviruses_gr_features$n_hallmarks_pos <-
         abs(start(proviruses_gr_features) - end(proviruses_gr_features)) / 2
@@ -531,18 +689,91 @@ process_proviruses <- function(data_genomad) {
     return(proviruses_gr_features)
 }
 
-plot_genome_ideogram <- function(genome_current, proviruses_gr_features) {
+plot_genome_ideogram <- function(genome_current, proviruses_gr_features, host_display_label = genome_current) {
+    if (length(proviruses_gr_features) == 0) {
+        cat("No coordinate-defined provirus regions were available for this sample. Candidate viral sequences are shown in the Genomad and CheckV summary table, but they cannot be placed on the host-genome ideogram because genomic coordinates were not defined. This situation can occur for fragmented assemblies or MAG-derived viral-like contigs.\n\n")
+        return(invisible(NULL))
+    }
+
     fasta_file_path <- file.path(params$outdir, "genomes", paste0(genome_current, ".fna"))
-    # cat(fasta_file_path, "\n\n")
     genome_ideogram <- gmoviz::getIdeogramData(fasta_file = fasta_file_path)
 
-    # Replace any seqlevel to c_1, c_2, c_3, ...
-    new_seqlevels <- paste0("c", seq_along(GenomeInfoDb::seqlevels(genome_ideogram)))
-    names(new_seqlevels) <- GenomeInfoDb::seqlevels(genome_ideogram)
+    original_seqlevels <- as.character(GenomeInfoDb::seqlevels(genome_ideogram))
+    original_tokens <- normalize_contig_id(original_seqlevels)
+
+    feature_tokens <- normalize_contig_id(as.character(GenomeInfoDb::seqnames(proviruses_gr_features)))
+    matched_idx <- match(feature_tokens, original_tokens)
+    keep_features <- !is.na(matched_idx)
+
+    # If a genome has only one FASTA sequence, allow coordinate-defined proviruses
+    # to be placed on that sequence even when the FASTA header and geNomad contig
+    # name differ by description text or minor formatting.
+    if (!any(keep_features) && length(original_seqlevels) == 1) {
+        matched_idx <- rep(1L, length(proviruses_gr_features))
+        keep_features <- rep(TRUE, length(proviruses_gr_features))
+    }
+
+    if (!any(keep_features)) {
+        cat("Coordinate-defined provirus regions were reported, but their contig names could not be matched to the host-genome FASTA. Candidate viral sequences are shown in the summary table, but the host-genome ideogram was skipped to avoid plotting inconsistent coordinates.\n\n")
+        return(invisible(NULL))
+    }
+
+    proviruses_gr_features <- proviruses_gr_features[keep_features]
+    matched_seqlevels <- original_seqlevels[matched_idx[keep_features]]
+
+    # Rebuild the GRanges with the FASTA-derived seqlevel names. This keeps the
+    # plotting coordinates but ensures that feature seqnames and ideogram seqlevels
+    # refer to the same sequences before both are renamed to c1/c2/...
+    proviruses_gr_features <- GRanges(
+        seqnames = matched_seqlevels,
+        ranges = IRanges(
+            start = as.numeric(start(proviruses_gr_features)),
+            end = as.numeric(end(proviruses_gr_features))
+        ),
+        length = as.numeric(proviruses_gr_features$length),
+        score = as.numeric(proviruses_gr_features$score),
+        n_hallmarks = as.numeric(proviruses_gr_features$n_hallmarks),
+        seq_name = proviruses_gr_features$seq_name
+    )
+
+    # Remove impossible coordinates when sequence lengths are available.
+    seq_lengths <- GenomeInfoDb::seqlengths(genome_ideogram)
+    if (!is.null(seq_lengths) && any(!is.na(seq_lengths))) {
+        feature_seq <- as.character(GenomeInfoDb::seqnames(proviruses_gr_features))
+        feature_bounds <- seq_lengths[feature_seq]
+        in_bounds <- is.na(feature_bounds) |
+            (as.numeric(start(proviruses_gr_features)) >= 1 &
+                as.numeric(end(proviruses_gr_features)) <= as.numeric(feature_bounds))
+        proviruses_gr_features <- proviruses_gr_features[in_bounds]
+    }
+
+    if (length(proviruses_gr_features) == 0) {
+        cat("Coordinate-defined provirus regions were reported, but the coordinates were outside the host FASTA sequence lengths. Candidate viral sequences are shown in the summary table, but the host-genome ideogram was skipped.\n\n")
+        return(invisible(NULL))
+    }
+
+    new_seqlevels <- paste0("c", seq_along(original_seqlevels))
+    names(new_seqlevels) <- original_seqlevels
+
     genome_ideogram <- GenomeInfoDb::renameSeqlevels(genome_ideogram, new_seqlevels)
+    feature_rename_map <- new_seqlevels[names(new_seqlevels) %in% GenomeInfoDb::seqlevels(proviruses_gr_features)]
+    proviruses_gr_features <- GenomeInfoDb::renameSeqlevels(proviruses_gr_features, feature_rename_map)
+    proviruses_gr_features <- GenomeInfoDb::keepSeqlevels(
+        proviruses_gr_features,
+        intersect(GenomeInfoDb::seqlevels(proviruses_gr_features), GenomeInfoDb::seqlevels(genome_ideogram)),
+        pruning.mode = "coarse"
+    )
+
+    if (length(proviruses_gr_features) == 0) {
+        cat("No coordinate-defined provirus regions could be matched to the renamed host-genome ideogram. Candidate viral sequences are shown in the summary table, but the host-genome ideogram was skipped.\n\n")
+        return(invisible(NULL))
+    }
+
     colours <- rep("#a58bc5", length(GenomeInfoDb::seqlevels(genome_ideogram)))
 
-    par(mar = c(2, 2, 2, 2)) # minimal margins around the plot
+    circlize::circos.clear()
+    on.exit(circlize::circos.clear(), add = TRUE)
+    par(mar = c(2, 2, 2, 2))
 
     gmoviz::gmovizInitialise(genome_ideogram,
         sector_colours = colours,
@@ -550,11 +781,18 @@ plot_genome_ideogram <- function(genome_current, proviruses_gr_features) {
         sector_labels = FALSE
     )
 
-    for (i in 1:length(proviruses_gr_features)) {
-        name <- as.character(seqnames(proviruses_gr_features[i]))
-        start <- as.numeric(start(proviruses_gr_features[i]))
-        end <- as.numeric(end(proviruses_gr_features[i]))
-        region <- data.frame(start = start, end = end)
+    valid_sectors <- circlize::get.all.sector.index()
+    proviruses_gr_features <- proviruses_gr_features[as.character(GenomeInfoDb::seqnames(proviruses_gr_features)) %in% valid_sectors]
+    if (length(proviruses_gr_features) == 0) {
+        cat("No coordinate-defined provirus regions could be matched to initialized ideogram sectors. Candidate viral sequences are shown in the summary table, but the host-genome ideogram was skipped.\n\n")
+        return(invisible(NULL))
+    }
+
+    for (i in seq_along(proviruses_gr_features)) {
+        name <- as.character(GenomeInfoDb::seqnames(proviruses_gr_features[i]))
+        feature_start <- as.numeric(start(proviruses_gr_features[i]))
+        feature_end <- as.numeric(end(proviruses_gr_features[i]))
+        region <- data.frame(start = feature_start, end = feature_end)
         circlize::circos.genomicRect(
             seqnames = name,
             region,
@@ -567,18 +805,20 @@ plot_genome_ideogram <- function(genome_current, proviruses_gr_features) {
         )
     }
 
-    length <- as.numeric(proviruses_gr_features$length)
-    length <- ifelse(length > 1000000,
-        paste0(round(length / 1000000, 2), "mb"),
-        paste0(round(length / 1000, 2), "kb")
+    # changes to unit labels usch as Kb/Mb format
+    feature_lengths <- as.numeric(proviruses_gr_features$length)
+    feature_lengths <- ifelse(feature_lengths > 1000000,
+        paste0(round(feature_lengths / 1000000, 2), " Mb"),
+        paste0(round(feature_lengths / 1000, 2), " Kb")
     )
-    labels <- paste0(as.character(seqnames(proviruses_gr_features)), " (", length, ")")
+    labels <- paste0(as.character(GenomeInfoDb::seqnames(proviruses_gr_features)), " (", feature_lengths, ")")
     circlize::circos.labels(
-        sectors = as.character(seqnames(proviruses_gr_features)),
+        sectors = as.character(GenomeInfoDb::seqnames(proviruses_gr_features)),
         x = as.numeric(start(proviruses_gr_features)),
         labels,
         facing = "clockwise"
     )
+    title(main = paste0("Candidate prophages in ", host_display_label), cex.main = 0.9)
 }
 
 process_sample <- function(sample, combined_unique, host_genomes_paths, genome_data) {
@@ -619,6 +859,7 @@ process_sample <- function(sample, combined_unique, host_genomes_paths, genome_d
             }
 
             sample_data <- genome_data[[sample]]$loaded_data
+            host_display_label <- format_host_display_label(sample)
             genomad_summary <- sample_data$genomad
             genomad_annotation <- sample_data$genomad_annotations
             checkv_data <- sample_data$checkv
@@ -666,49 +907,60 @@ process_sample <- function(sample, combined_unique, host_genomes_paths, genome_d
                 dplyr::select(total_contigs, contig_n50, completeness, contamination)
             write_tsv_table(checkm_summary_tbl, "CheckM2_Summary", sample)
 
-            # Display defense-finder as a table
+            # Display DefenseFinder output as a table with human-readable headers
             if (!is.null(defense_finder_data) && nrow(defense_finder_data) > 0) {
-                cat("**Defense-Finder Systems**:\n\n")
+                cat("**DefenseFinder Systems**:\n\n")
 
-                defense_finder_data %>%
-                    dplyr::select(sys_id, type, subtype, sys_beg, sys_end, protein_in_syst, genes_count, name_of_profiles_in_sys) %>%
+                defense_finder_tbl <- format_defense_finder_output(defense_finder_data)
+
+                defense_finder_tbl %>%
                     kableExtra::kbl() %>%
                     kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
                     kableExtra::kable_paper("striped", full_width = TRUE) %>%
                     kableExtra::scroll_box(width = "100%", height = "100%") %>%
                     cat()
 
-                # Write filtered Defense‑Finder TSV (same columns as markdown)
-                defense_finder_tbl <- defense_finder_data %>%
-                    dplyr::select(sys_id, type, subtype, sys_beg, sys_end, protein_in_syst, genes_count, name_of_profiles_in_sys)
                 write_tsv_table(defense_finder_tbl, "DefenseFinder", sample)
             } else {
-                cat("No Defense-Finder systems detected.\n\n")
+                cat("No DefenseFinder systems detected.\n\n")
             }
 
             if (is.null(genomad_summary) || nrow(genomad_summary) == 0) {
-                q
                 log_debug(paste("No geNomad summary data found for sample:", sample))
+                cat("No candidate viral or prophage sequences were reported by geNomad for this sample. Downstream viral analyses are therefore unavailable for this sample.\n\n")
                 return()
             }
 
             if (length(GenomeInfoDb::seqlevels(host_genome_ideogram)) == 1) {
                 host_genome_size <- sum(width(host_genome_ideogram))
             } else {
-                virus_containing_contigs <- unique(sub("\\|.*", "", genomad_summary$seq_name))
-                virus_containing_contigs <- paste0("c_", as.numeric(factor(virus_containing_contigs)))
-                filtered_host_genome <- subset_and_update_ideogram(host_genome_ideogram, virus_containing_contigs)
-                host_genome_size <- sum(width(filtered_host_genome))
+                virus_containing_contigs <- unique(normalize_contig_id(genomad_summary$seq_name))
+                host_seqlevels <- as.character(GenomeInfoDb::seqlevels(host_genome_ideogram))
+                host_tokens <- normalize_contig_id(host_seqlevels)
+                matched_host_contigs <- host_seqlevels[match(virus_containing_contigs, host_tokens)]
+                matched_host_contigs <- matched_host_contigs[!is.na(matched_host_contigs)]
+
+                if (length(matched_host_contigs) > 0) {
+                    filtered_host_genome <- subset_and_update_ideogram(host_genome_ideogram, matched_host_contigs)
+                    host_genome_size <- sum(width(filtered_host_genome))
+                } else {
+                    host_genome_size <- sum(width(host_genome_ideogram))
+                }
             }
 
             # Process proviruses
             proviruses_gr_features <- process_proviruses(genomad_summary)
 
             cat("**Genomad and CheckV Summary**:\n\n")
+            checkv_for_join <- if (!is.null(checkv_data) && nrow(checkv_data) > 0) {
+                checkv_data %>% dplyr::select(contig_id, gene_count, viral_genes, checkv_quality, miuvig_quality)
+            } else {
+                tibble::tibble(contig_id = character(), gene_count = numeric(), viral_genes = numeric(), checkv_quality = character(), miuvig_quality = character())
+            }
             genomad_summary %>%
                 dplyr::select(seq_name, taxonomy, topology, coordinates, length) %>%
                 dplyr::left_join(
-                    checkv_data %>% dplyr::select(contig_id, gene_count, viral_genes, checkv_quality, miuvig_quality),
+                    checkv_for_join,
                     by = c("seq_name" = "contig_id")
                 ) %>%
                 dplyr::select(seq_name, length, gene_count, viral_genes, checkv_quality, miuvig_quality, taxonomy, topology, coordinates) %>%
@@ -722,15 +974,25 @@ process_sample <- function(sample, combined_unique, host_genomes_paths, genome_d
             genomad_checkv_tbl <- genomad_summary %>%
                 dplyr::select(seq_name, taxonomy, topology, coordinates, length) %>%
                 dplyr::left_join(
-                    checkv_data %>% dplyr::select(contig_id, gene_count, viral_genes, checkv_quality, miuvig_quality),
+                    checkv_for_join,
                     by = c("seq_name" = "contig_id")
                 )
             write_tsv_table(genomad_checkv_tbl, "Genomad_CheckV", sample)
 
+
             cat("**Host Genome Ideogram with Phages**:\n\n")
-            plot_genome_ideogram(sample, proviruses_gr_features)
+            cat(format_host_ideogram_metadata(sample))
+            tryCatch(
+                {
+                    plot_genome_ideogram(sample, proviruses_gr_features, host_display_label = host_display_label)
+                },
+                error = function(e) {
+                    log_debug(paste("Ideogram skipped for", sample, ":", conditionMessage(e)))
+                    cat("Host-genome ideogram could not be rendered for this sample because coordinate-defined prophage intervals could not be safely matched to the host genome. Candidate viral sequences remain available in the summary tables.\n\n")
+                }
+            )
             cat('In this circular plot, **"c"** indicates the contig, and the number that follows (e.g., **c1**) represents the contig number.
-If multiple contigs are present in the genome, each will be shown with a distinct label (e.g., **c1**, **c2**, etc.).\n\n')
+If multiple contigs are present in the genome, each will be shown with a distinct label (e.g., **c1**, **c2**, etc.). \n\n')
             cat("\n\n")
 
             # Process phage genomes
@@ -748,7 +1010,7 @@ If multiple contigs are present in the genome, each will be shown with a distinc
             }
 
             # Creating table with Abricate data
-            if (nrow(abricate_data) > 0) {
+            if (!is.null(abricate_data) && nrow(abricate_data) > 0) {
                 cat("### Virulence Genes {.tabset .tabset-fade} \n\n")
                 cat("Screening of virulence genes present in the prophage contigs. \n\n")
                 abricate_data %>%
@@ -765,9 +1027,8 @@ If multiple contigs are present in the genome, each will be shown with a distinc
             }
 
             # Creating table with iPHOP
-            if (nrow(iphop_data) > 0) {
+            if (!is.null(iphop_data) && nrow(iphop_data) > 0) {
                 cat("### Prophage-Host Prediction {.tabset .tabset-fade} \n\n")
-                cat("Prediction of potential hosts for the prophage contigs. \n\n")
                 iphop_data %>%
                     kableExtra::kbl() %>%
                     kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
@@ -781,9 +1042,8 @@ If multiple contigs are present in the genome, each will be shown with a distinc
             }
 
             # Creating table with VIBRANT AMGs
-            if (nrow(vibrant_data) > 0) {
+            if (!is.null(vibrant_data) && nrow(vibrant_data) > 0) {
                 cat("### AMG Predictions {.tabset .tabset-fade} \n\n")
-                cat("Prediction of auxiliary metabolic genes in the prophage contigs. \n\n")
                 vibrant_data %>%
                     kableExtra::kbl() %>%
                     kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
@@ -800,7 +1060,7 @@ If multiple contigs are present in the genome, each will be shown with a distinc
         },
         error = function(e) {
             log_debug(paste("Error in process_sample for", sample, ":", conditionMessage(e)))
-            cat(paste("Error processing sample", sample, ":", conditionMessage(e), "\n\n"))
+            cat(paste("Sample", sample, "could not be fully rendered. Some tables may still be available above; details were written to the debug log.\n\n"))
         }
     )
 }
@@ -809,38 +1069,71 @@ process_phage <- function(virus, genomad_summary, genomad_annotation, checkv_dat
     cat(paste("#### Phage ID:", virus$seq_name, " {.tabset .tabset-fade} \n\n"))
 
     current_contig <- sub("\\|.*", "", virus$seq_name)
+    # phage-level ideogram drawn only for coordinate-defined provirus boundaries
+    has_provirus_coordinates <- !is.na(virus$coordinates) &&
+        virus$coordinates != "NA" &&
+        stringr::str_detect(virus$coordinates, "^[0-9]+-[0-9]+$") &&
+        stringr::str_detect(virus$seq_name, "\\|provirus_[0-9]+_[0-9]+")
 
-    provirus_start <- as.numeric(sub(".*provirus_(\\d+)_\\d+", "\\1", virus$seq_name))
-    provirus_end <- as.numeric(sub(".*provirus_\\d+_(\\d+)", "\\1", virus$seq_name))
-    virus_length <- provirus_end - provirus_start + 1
+    if (has_provirus_coordinates) {
+        provirus_start <- as.numeric(sub(".*provirus_(\\d+)_\\d+", "\\1", virus$seq_name))
+        provirus_end <- as.numeric(sub(".*provirus_\\d+_(\\d+)", "\\1", virus$seq_name))
+        virus_length <- provirus_end - provirus_start + 1
+        current_contig_base <- sub("\\|provirus_.*", "", virus$seq_name)
+        current_provirus_range <- sub(".*\\|provirus_", "", virus$seq_name)
+    } else {
+        provirus_start <- NA_real_
+        provirus_end <- NA_real_
+        virus_length <- as.numeric(virus$length)
+        current_contig_base <- current_contig
+        current_provirus_range <- NA_character_
+    }
 
-    current_contig_base <- sub("\\|provirus_.*", "", virus$seq_name)
-    current_provirus_range <- sub(".*\\|provirus_", "", virus$seq_name)
-    current_annotations <- genomad_annotation[grepl(paste0(current_contig_base, "\\|provirus_", current_provirus_range, "_"),
-        genomad_annotation$gene,
-        fixed = FALSE
-    ), ] %>%
-        dplyr::mutate(arrow_pos = ifelse(strand == -1, "start", "end"))
+    if (!is.null(genomad_annotation) && nrow(genomad_annotation) > 0 && "gene" %in% names(genomad_annotation)) {
+        if (has_provirus_coordinates) {
+            current_annotations <- genomad_annotation[grepl(paste0(current_contig_base, "\\|provirus_", current_provirus_range, "_"),
+                genomad_annotation$gene,
+                fixed = FALSE
+            ), ]
+        } else {
+            current_annotations <- genomad_annotation[grepl(paste0("^", current_contig_base), genomad_annotation$gene), ]
+        }
+        if (nrow(current_annotations) > 0 && "strand" %in% names(current_annotations)) {
+            current_annotations <- current_annotations %>%
+                dplyr::mutate(arrow_pos = ifelse(strand == -1, "start", "end"))
+        }
+    } else {
+        current_annotations <- tibble::tibble()
+    }
 
     cat("\n\n**Phage-Host Genome Ideogram:**\n\n")
 
-    plot_phage_circos(virus, genomad_summary, current_annotations, virus_length, host_genome_size, provirus_start, provirus_end, checkv_data)
+    if (has_provirus_coordinates) {
+        plot_phage_circos(virus, genomad_summary, current_annotations, virus_length, host_genome_size, provirus_start, provirus_end, checkv_data)
+    } else {
+        cat("This candidate does not have coordinate-defined provirus boundaries in the geNomad output. It is therefore reported in the summary tables, but no host-genome ideogram is drawn for this candidate. This situation can occur when a viral sequence is assembled as an independent viral-like contig rather than as a bounded provirus interval within a longer host contig.\n\n")
+    }
 
     cat("\n\n")
     cat("\n\n**Genes Annotation (geNomad):**\n\n")
 
-    current_annotations %>%
-        dplyr::select(gene, length, marker, annotation_accessions, annotation_description) %>%
-        kableExtra::kbl() %>%
-        kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
-        kableExtra::kable_paper() %>%
-        cat()
-    cat("\n\n")
+    required_gene_cols <- c("gene", "length", "marker", "annotation_accessions", "annotation_description")
+    if (nrow(current_annotations) > 0 && all(required_gene_cols %in% names(current_annotations))) {
+        current_annotations %>%
+            dplyr::select(dplyr::all_of(required_gene_cols)) %>%
+            kableExtra::kbl() %>%
+            kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
+            kableExtra::kable_paper() %>%
+            cat()
+        cat("\n\n")
 
-    # Write per‑phage gene‑annotation TSV (filename includes sample and virus ID)
-    phage_ann_tbl <- current_annotations %>%
-        dplyr::select(gene, length, marker, annotation_accessions, annotation_description)
-    write_tsv_table(phage_ann_tbl, "GeNomad", str_replace_all(virus$seq_name, "[^A-Za-z0-9.-]", "_"))
+        # Write per‑phage gene‑annotation TSV (filename includes sample and virus ID)
+        phage_ann_tbl <- current_annotations %>%
+            dplyr::select(dplyr::all_of(required_gene_cols))
+        write_tsv_table(phage_ann_tbl, "GeNomad", str_replace_all(virus$seq_name, "[^A-Za-z0-9.-]", "_"))
+    } else {
+        cat("No geNomad gene annotation table was available for this candidate.\n\n")
+    }
 }
 
 plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus_length, host_genome_size, provirus_start, provirus_end, checkv_data) {
@@ -912,6 +1205,7 @@ plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus
             log_debug("Initializing circos")
             circlize::circos.initialize(factors = c("Zoom", "Main"), xlim = c(0, 100))
 
+            # numeric values inside circular plots use spaced Kb/Mb labels
             format_genome_labels <- function(x) {
                 ifelse(x >= 1e6, paste0(round(x / 1e6, 2), " Mb"),
                     ifelse(x >= 1e3, paste0(round(x / 1e3, 2), " Kb"),
@@ -1013,6 +1307,7 @@ plot_phage_circos <- function(virus, genomad_summary, current_annotations, virus
             end_positions <- as.numeric(sub(".*provirus_[0-9]+_([0-9]+)", "\\1", contig_viruses$seq_name))
 
             # Create phage labels with the desired format
+            # numerical values inside the ring use spaced Kb labels
             phage_labels <- paste0(round(contig_viruses$length / 1e3, 2), " Kb")
 
             # Apply labels to circos plot
@@ -1130,12 +1425,15 @@ plot_drep <- function(sample, genomad_summary) {
 }
 
 subset_and_update_ideogram <- function(ideogram, contigs) {
-    filtered <- ideogram[seqnames(ideogram) %in% contigs]
-    GenomeInfoDb::seqlevels(filtered) <- contigs
-    seqinfo(filtered) <- seqinfo(filtered)[contigs]
-    filtered
+    contigs <- unique(as.character(contigs))
+    contigs <- contigs[!is.na(contigs) & contigs != ""]
+    keep <- as.character(GenomeInfoDb::seqnames(ideogram)) %in% contigs
+    filtered <- ideogram[keep]
+    if (length(filtered) == 0) {
+        return(filtered)
+    }
+    GenomeInfoDb::keepSeqlevels(filtered, unique(as.character(GenomeInfoDb::seqnames(filtered))), pruning.mode = "coarse")
 }
-
 render_all_samples <- function(test_mode = FALSE) {
     if (test_mode) {
         if (nrow(combined_unique) > 0) {

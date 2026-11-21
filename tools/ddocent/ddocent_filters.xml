@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<tool id="ddocent_filters" name="dDocent Filters" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@" license="MIT">
+    <description>filter a FreeBayes VCF from dDocent</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements"/>
+    <expand macro="stdio"/>
+    <!-- dDocent_filters carries no version string of its own; it is shipped with
+         the ddocent package and pinned by the requirement. -->
+    <expand macro="version_command"/>
+    <command detect_errors="exit_code"><![CDATA[
+export LC_ALL=C;
+
+## dDocent_filters derives a dozen intermediate file names from its two positional
+## arguments, so both the input and the output prefix are pinned to short names in
+## the working directory.
+cp '$vcf' input.vcf;
+
+## Argument 5 switches to a manual cutoff only when it is literally "yes";
+## argument 6 is then the cutoff itself and argument 3/4 are "yes"/"no" answers.
+dDocent_filters input.vcf out
+    '$overlapping'
+    '$mixed_libraries'
+#if $depth_cutoff.cutoff_mode == 'manual'
+    yes '$depth_cutoff.max_mean_depth'
+#else
+    no
+#end if
+    < /dev/null;
+
+## the script happily hands back a header-only VCF when the data sit outside the
+## filter ranges, which looks like success but is useless
+[ "\$(grep -vc '^#' out.FIL.recode.vcf 2>/dev/null)" -gt 0 ] || { echo "ERROR: the filters removed every site - check that the input is an unfiltered FreeBayes VCF from dDocent and that the read layout answers are right." >&2; exit 1; };
+
+cp out.FIL.recode.vcf '$filtered_vcf' &&
+cp out.filterstats '$filterstats'
+    ]]></command>
+    <inputs>
+        <param name="vcf" type="data" format="vcf" label="FreeBayes VCF file from dDocent" help="This is the Final.recode.vcf produced by the dDocent pipeline."/>
+        <param argument="overlapping" type="select" label="Do the reads of a fragment overlap?" help="That is, is the fragment size less than twice the read length? With overlapping reads both read pairs cover the same bases, so the forward/reverse read balance filters must be skipped.">
+            <option value="no" selected="true">No - fragments are longer than 2x the read length</option>
+            <option value="yes">Yes - reads overlap within a fragment</option>
+        </param>
+        <param argument="mixed_libraries" type="select" label="Is this a mixture of single-end and paired-end libraries?" help="With mixed libraries the properly-paired filter is replaced by a tag-based one, because single-end reads are never marked as properly paired.">
+            <option value="no" selected="true">No - all libraries have the same layout</option>
+            <option value="yes">Yes - single-end and paired-end libraries are mixed</option>
+        </param>
+        <conditional name="depth_cutoff">
+            <param argument="cutoff_mode" type="select" label="Maximum mean depth cutoff" help="Sites with an average depth above the cutoff are dropped; highly covered sites are usually collapsed repeats. The automatic cutoff is the 95th percentile of the mean depth per site, rounded down to an integer; dDocent prints the histogram of the observed mean depth per site so the choice can be checked.">
+                <option value="auto" selected="true">Automatic (95th percentile of the mean depth)</option>
+                <option value="manual">Use a fixed value</option>
+            </param>
+            <when value="auto"/>
+            <when value="manual">
+                <param argument="max_mean_depth" type="integer" value="100" min="1" label="Maximum mean depth per site"/>
+            </when>
+        </conditional>
+    </inputs>    <outputs>
+        <data name="filtered_vcf" format="vcf" label="${tool.name} on ${on_string}: filtered VCF"/>
+        <data name="filterstats" format="txt" label="${tool.name} on ${on_string}: filter statistics"/>
+    </outputs>
+    <tests>
+        <test expect_num_outputs="2">
+            <param name="vcf" value="Final.recode.vcf" ftype="vcf"/>
+            <param name="overlapping" value="no"/>
+            <param name="mixed_libraries" value="no"/>
+            <param name="depth_cutoff|cutoff_mode" value="auto"/>
+            <output name="filtered_vcf">
+                <assert_contents>
+                    <has_n_lines n="146" delta="0"/>
+                    <has_text text="##fileformat=VCF"/>
+                </assert_contents>
+            </output>
+            <output name="filterstats">
+                <assert_contents>
+                    <has_text text="Remaining sites"/>
+                    <has_text text="Maximum mean depth cutoff is 26"/>
+                    <has_text text="Histogram of mean depth per site"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+What it does
+------------
+
+``dDocent_filters`` applies dDocent's recommended post-processing filters to the
+FreeBayes VCF file produced by the dDocent pipeline tool.  The filters
+are applied in this order:
+
+1. **Allele balance, locus quality and mapping quality** - heterozygous genotypes must
+   have an allele balance between 0.2 and 0.8 (or close to 0/1), the reference and
+   alternate allele qualities (``QR``/``QA``) must be non-zero, ``QUAL / DP`` must
+   exceed 0.1, and the forward/reverse mapping qualities (``MQM``/``MQMR``) must be
+   balanced.
+2. **Overlapping reads** - only when the reads of a fragment overlap: loci must be
+   supported by both strands with comparable forward and reverse coverage
+   (``SAF``/``SAR``/``SRF``/``SRR``).  With fragments longer than twice the read length
+   this filter is skipped, because the two reads then cover different bases.
+3. **Properly paired reads** - loci must be supported by a comparable share of
+   properly paired reads (``PAIRED``/``PAIREDR``).  For a mixture of single-end and
+   paired-end libraries the equivalent tag-based filter is used instead, because
+   single-end reads are never flagged as properly paired.
+4. **High depth with low quality** - loci whose depth is above the mean plus one
+   standard deviation and whose ``QUAL`` is below twice that depth are removed.
+5. **Maximum mean depth** - loci whose mean depth exceeds the cutoff are removed;
+   highly covered sites are usually collapsed repeats.
+6. **Within-locus depth mismatch** - individuals whose depth at a locus is below 60%
+   of the mean depth of that locus are dropped, which removes loci with a badly
+   unbalanced coverage across individuals.
+
+Input
+-----
+
+The VCF file written by the dDocent pipeline (``Final.recode.vcf``), i.e. a FreeBayes
+file that still carries the ``NS``, ``DP``, ``MQM``, ``MQMR``, ``PAIRED`` or ``PAIREDR``
+statistics.  A VCF that has been re-processed by other tools may lack these fields and
+will then be filtered into nothing.
+
+Outputs
+-------
+
+* the filtered VCF (``<prefix>.FIL.recode.vcf``),
+* a plain-text report (``<prefix>.filterstats``) with the number of sites removed by
+  each step, the ASCII histogram of the mean depth per site and the cutoff that was used.
+
+If every site is removed the tool fails instead of returning an empty VCF: that
+happens when the input was already filtered once, or when the answers about the read
+layout are wrong, and it is not what a run of this tool should produce.
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

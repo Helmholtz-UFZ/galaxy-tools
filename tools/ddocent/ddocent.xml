@@ -1,0 +1,433 @@
+<?xml version="1.0"?>
+<tool id="ddocent" name="dDocent" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@" license="MIT">
+    <description>RAD-seq reference assembly and variant calling pipeline</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements"/>
+    <expand macro="stdio"/>
+    <expand macro="version_command"/>
+    <command detect_errors="exit_code"><![CDATA[
+mkdir -p work &&
+cd work &&
+
+## dDocent discovers its input by filename: Locality_Individual.F.fq.gz / .R.fq.gz
+#for $element in $reads
+ln -s '$element.forward' '${element.element_identifier}.F.fq.gz' &&
+ln -s '$element.reverse' '${element.element_identifier}.R.fq.gz' &&
+#end for
+
+## dDocent derives the population of a sample from the part of its name before the
+## first underscore and refuses to run when that is not possible
+for f in *.F.fq.gz; do case "\$f" in *[[:space:]/]*) echo "ERROR: collection element '\$f' contains whitespace or a slash; dDocent cannot use it as a file name." >&2; exit 1 ;; *_*) ;; *) echo "ERROR: collection element '\$f' does not follow the dDocent naming convention Locality_Individual (no underscore in the name)." >&2; exit 1 ;; esac; done &&
+
+#if $analysis.analysis_type == 'assembly_only' and $reference_source.reference_option == 'history'
+echo "ERROR: 'Build the reference only' cannot be combined with 'Use a reference from the history' - choose one, or extend the analysis to mapping." >&2; exit 1 &&
+#end if
+
+#if $popmap_source.popmap_option == 'file'
+cp '$popmap_source.popmap_file' popmap &&
+#end if
+
+#if $reference_source.reference_option == 'history'
+cp '$reference_source.reference_file' reference.fasta &&
+#end if
+
+## dDocent rejects NUMProc < 2 and its configuration parser is strictly
+## positional, so the configuration file is written as a pair of lines per option
+NUMProc=\$(( \${GALAXY_SLOTS:-4} < 2 ? 2 : \${GALAXY_SLOTS:-4} )); MAXMEM=\$(( \${GALAXY_MEMORY_MB:-8192} / 1024 ));
+
+#if $reference_source.reference_option == 'denovo'
+ASSEMBLY=yes; ATYPEP=$reference_source.atype; SIM=$reference_source.sim; K1=$reference_source.k1; K2=$reference_source.k2;
+#else
+## not read by dDocent when no assembly is requested, but the parser needs a value
+ASSEMBLY=no; ATYPEP=PE; SIM=0.9; K1=5; K2=6;
+#end if
+
+#if $analysis.analysis_type == 'snps'
+MAPV=yes; SNPV=yes;
+#elif $analysis.analysis_type == 'map_only'
+MAPV=yes; SNPV=no;
+#else
+MAPV=no; SNPV=no;
+#end if
+
+printf 'Number of Processors\n%s\nMaximum Memory\n%s\nTrimming\nyes\nAssembly?\n%s\nType_of_Assembly\n%s\nClustering_Similarity%%\n%s\nMinimum within individual coverage level to include a read for assembly (K1)\n%s\nMinimum number of individuals a read must be present in to include for assembly (K2)\n%s\nMapping_Reads?\n%s\nMapping_Match_Value\n%s\nMapping_MisMatch_Value\n%s\nMapping_GapOpen_Penalty\n%s\nCalling_SNPs?\n%s\nEmail\ngalaxy@galaxyproject.org\n' "\$NUMProc" "\$MAXMEM" "\$ASSEMBLY" "\$ATYPEP" "\$SIM" "\$K1" "\$K2" "\$MAPV" '$mapping.match' '$mapping.mismatch' '$mapping.gap' "\$SNPV" > Configuration &&
+
+## dDocent reads all further input from the configuration file; stdin is closed so
+## that an unforeseen prompt fails instead of hanging the job
+failed=0 && dDocent Configuration < /dev/null || { echo "ERROR: dDocent exited with a non-zero status." >&2; failed=1; };
+
+## dDocent prints most in-pipeline failures on stdout and still exits 0, so the
+## outputs have to be validated here instead of relying on its exit status
+#if $reference_source.reference_option == 'denovo'
+[ -s reference.fasta ] || { echo "ERROR: dDocent did not produce an assembly - reference.fasta is missing or empty." >&2; failed=1; };
+#end if
+if [ "\$MAPV" = yes ]; then for bam in *-RG.bam; do [ -e "\$bam" ] || continue; [ -s "\$bam" ] || { echo "ERROR: BAM file '\$bam' is empty, so the reads of that sample could not be mapped." >&2; failed=1; }; done; true; fi;
+if [ "\$SNPV" = yes ]; then [ -s Final.recode.vcf ] && [ "\$(grep -vc '^#' Final.recode.vcf)" -gt 0 ] || { echo "ERROR: no variant was called - Final.recode.vcf is missing, empty or contains no records." >&2; failed=1; }; fi;
+## the fastp and samtools logs are the only place where a sample with broken input
+## shows up: dDocent itself only greps the BAM logs for 'error', and fastp reports
+## truncated or mismatched read pairs as "WARNNIG: different read numbers" (sic)
+## and then silently drops the unmatched reads.
+if [ -d logfiles ]; then for log in logfiles/*.trim.log logfiles/*.bam.log; do [ -e "\$log" ] || continue; grep -qE '(^|: )ERROR|fail(ed)? to |different read numbers' "\$log" && { echo "ERROR: dDocent reported a problem in '\$log':" >&2; grep -E '(^|: )ERROR|fail(ed)? to |different read numbers' "\$log" >&2; failed=1; }; done; true; fi;
+
+## expose the trimmed reads for 'dDocent Remake Reference' and further analyses;
+## dDocent writes .R1.fq.gz for both layouts and .R2.fq.gz only for paired data
+mkdir -p trimmed_reads trimmed_reads_se; for f in *.R1.fq.gz; do [ -e "\$f" ] || continue; sample="\${f%.R1.fq.gz}"; if [ -e "\$sample.R2.fq.gz" ]; then ln -L "\$f" "trimmed_reads/\$sample.forward.fq.gz" || cp "\$f" "trimmed_reads/\$sample.forward.fq.gz"; ln -L "\$sample.R2.fq.gz" "trimmed_reads/\$sample.reverse.fq.gz" || cp "\$sample.R2.fq.gz" "trimmed_reads/\$sample.reverse.fq.gz"; else ln -L "\$f" "trimmed_reads_se/\$sample.fq.gz" || cp "\$f" "trimmed_reads_se/\$sample.fq.gz"; fi; done;
+## an empty collection would break the dataset discovery of the other output
+rmdir trimmed_reads 2>/dev/null || true; rmdir trimmed_reads_se 2>/dev/null || true;
+mkdir -p logfiles; [ -e dDocent_main.LOG ] || : > dDocent_main.LOG; tar -czf dDocent_logs.tar.gz logfiles dDocent_main.LOG;
+[ "\$failed" -eq 0 ] || { echo "---- last lines of the dDocent summary logs ----" >&2; for log in logfiles/*.log; do case "\$log" in logfiles/bwa.*.log|logfiles/*.trim.log|logfiles/*.bam.log) continue ;; esac; echo "== \$log ==" >&2; tail -n 3 "\$log" >&2; done; echo "ERROR: dDocent did not finish successfully, see the messages above." >&2; exit 1; }
+    ]]></command>
+
+    <inputs>
+        <param name="reads" type="data_collection" collection_type="list:paired" format="fastqsanger.gz,fastq.gz" label="Raw paired-end reads" help="A list of paired collections, one per individual. Gzipped FASTQ only - dDocent refuses to run on uncompressed files. Element identifiers become the sample names, see the help section below."/>
+
+        <conditional name="popmap_source">
+            <param name="popmap_option" type="select" label="Population assignment" help="A popmap maps every sample to a population. dDocent needs it for the FreeBayes '--populations' option.">
+                <option value="auto" selected="true">Infer from the sample names (prefix before the first underscore)</option>
+                <option value="file">Use a popmap from the history</option>
+            </param>
+            <when value="auto"/>
+            <when value="file">
+                <param name="popmap_file" type="data" format="tabular,txt" label="Popmap" help="Two tab-separated columns, sample name and population, one line per sample."/>
+            </when>
+        </conditional>
+
+        <conditional name="reference_source">
+            <param name="reference_option" type="select" label="Reference" help="dDocent either builds a reference de novo from the reads (the default for RAD-seq without a genome assembly) or maps the reads against a reference provided in the history.">
+                <option value="denovo" selected="true">Build a de novo reference (Rainbow + CD-HIT)</option>
+                <option value="history">Use a reference from the history</option>
+            </param>
+            <when value="denovo">
+                <expand macro="denovo_assembly_params"/>
+            </when>
+            <when value="history">
+                <param name="reference_file" type="data" format="fasta" label="Reference genome or contigs" help="dDocent maps to a file called reference.fasta, which the wrapper creates for you. The contig headers must not contain whitespace."/>
+            </when>
+        </conditional>
+
+        <conditional name="analysis">
+            <param name="analysis_type" type="select" label="Analysis steps" help="dDocent always trims the reads; the remaining stages can be limited to the reference assembly or the mapping step.">
+                <option value="snps" selected="true">Map the reads and call variants</option>
+                <option value="map_only">Map the reads only (no variant calling)</option>
+                <option value="assembly_only">Build the reference only</option>
+            </param>
+            <when value="snps"/>
+            <when value="map_only"/>
+            <when value="assembly_only"/>
+        </conditional>
+
+        <section name="mapping" title="Read mapping and variant calling options" expanded="false">
+            <expand macro="mapping_params"/>
+        </section>
+    </inputs>
+
+    <outputs>
+        <data name="reference" format="fasta" from_work_dir="work/reference.fasta" label="${tool.name} on ${on_string}: reference"/>
+
+        <collection name="trimmed_reads" type="list:paired" label="${tool.name} on ${on_string}: trimmed reads">
+            <filter>not (reference_source['reference_option'] == 'denovo' and reference_source.get('atype', 'PE') == 'SE')</filter>
+            <discover_datasets pattern="(?P&lt;identifier_0&gt;[^.]+)\.(?P&lt;identifier_1&gt;forward|reverse)\.fq\.gz$" directory="work/trimmed_reads" format="fastqsanger.gz" visible="false"/>
+        </collection>
+        <collection name="trimmed_reads_se" type="list" label="${tool.name} on ${on_string}: trimmed reads (single-end)">
+            <filter>reference_source['reference_option'] == 'denovo' and reference_source.get('atype', 'PE') == 'SE'</filter>
+            <discover_datasets pattern="(?P&lt;designation&gt;[^.]+)\.fq\.gz$" directory="work/trimmed_reads_se" format="fastqsanger.gz" visible="false"/>
+        </collection>
+
+        <collection name="bams" type="list" label="${tool.name} on ${on_string}: read groups (BAM)">
+            <filter>analysis['analysis_type'] != 'assembly_only'</filter>
+            <discover_datasets pattern="(?P&lt;designation&gt;.+)-RG\.bam$" directory="work" format="bam" visible="false"/>
+        </collection>
+        <data name="mapped_bed" format="bed" from_work_dir="work/mapped.bed" label="${tool.name} on ${on_string}: covered intervals">
+            <filter>analysis['analysis_type'] != 'assembly_only'</filter>
+        </data>
+
+        <data name="raw_vcf" format="vcf" from_work_dir="work/TotalRawSNPs.vcf" label="${tool.name} on ${on_string}: raw variants">
+            <filter>analysis['analysis_type'] == 'snps'</filter>
+        </data>
+        <data name="final_vcf" format="vcf" from_work_dir="work/Final.recode.vcf" label="${tool.name} on ${on_string}: variants called in at least 90% of the individuals">
+            <filter>analysis['analysis_type'] == 'snps'</filter>
+        </data>
+        <data name="popmap" format="tabular" from_work_dir="work/popmap" label="${tool.name} on ${on_string}: popmap used">
+            <filter>analysis['analysis_type'] == 'snps'</filter>
+        </data>
+        <data name="runs" format="txt" from_work_dir="work/dDocent.runs" label="${tool.name} on ${on_string}: parameters used"/>
+
+        <collection name="trim_reports" type="list" label="${tool.name} on ${on_string}: fastp trimming reports">
+            <discover_datasets pattern="(?P&lt;designation&gt;.+)\.html$" directory="work/logfiles/trim_reports" format="html" visible="false"/>
+        </collection>
+        <data name="logs" format="tar.gz" from_work_dir="work/dDocent_logs.tar.gz" label="${tool.name} on ${on_string}: logs"/>
+    </outputs>
+
+    <tests>
+        <test expect_num_outputs="10">
+            <param name="reads">
+                <collection type="list:paired">
+                    <element name="PopA_01">
+                        <collection type="paired">
+                            <element name="forward" value="PopA_01.F.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopA_01.R.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopA_02">
+                        <collection type="paired">
+                            <element name="forward" value="PopA_02.F.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopA_02.R.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopA_03">
+                        <collection type="paired">
+                            <element name="forward" value="PopA_03.F.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopA_03.R.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopA_04">
+                        <collection type="paired">
+                            <element name="forward" value="PopA_04.F.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopA_04.R.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopB_01">
+                        <collection type="paired">
+                            <element name="forward" value="PopB_01.F.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopB_01.R.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopB_02">
+                        <collection type="paired">
+                            <element name="forward" value="PopB_02.F.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopB_02.R.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopB_03">
+                        <collection type="paired">
+                            <element name="forward" value="PopB_03.F.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopB_03.R.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopB_04">
+                        <collection type="paired">
+                            <element name="forward" value="PopB_04.F.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopB_04.R.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                </collection>
+            </param>
+            <param name="popmap_source|popmap_option" value="auto"/>
+            <param name="reference_source|reference_option" value="denovo"/>
+            <param name="reference_source|atype" value="PE"/>
+            <param name="reference_source|sim" value="0.9"/>
+            <param name="reference_source|k1" value="5"/>
+            <param name="reference_source|k2" value="6"/>
+            <param name="analysis|analysis_type" value="snps"/>
+            <output name="reference" ftype="fasta">
+                <assert_contents>
+                    <has_text_matching expression="^>dDocent_Contig_1"/>
+                </assert_contents>
+            </output>
+            <output_collection name="trimmed_reads" type="list:paired" count="8">
+                <element name="PopA_01">
+                    <element name="forward" ftype="fastqsanger.gz"/>
+                    <element name="reverse" ftype="fastqsanger.gz"/>
+                </element>
+                <element name="PopB_04">
+                    <element name="forward" ftype="fastqsanger.gz"/>
+                    <element name="reverse" ftype="fastqsanger.gz"/>
+                </element>
+            </output_collection>
+            <output_collection name="bams" type="list" count="8"/>
+            <output name="mapped_bed" ftype="bed"/>
+            <output name="raw_vcf" ftype="vcf">
+                <assert_contents>
+                    <has_text text="#CHROM"/>
+                    <has_text text="##fileformat=VCF"/>
+                </assert_contents>
+            </output>
+            <output name="final_vcf" ftype="vcf">
+                <assert_contents>
+                    <has_text text="#CHROM"/>
+                </assert_contents>
+            </output>
+            <output name="popmap" ftype="tabular">
+                <assert_contents>
+                    <has_text_matching expression="PopA_01\tPopA"/>
+                    <has_text_matching expression="PopB_04\tPopB"/>
+                </assert_contents>
+            </output>
+            <output name="runs" ftype="txt">
+                <assert_contents>
+                    <has_text text="Number of Processors"/>
+                    <has_text text="Calling_SNPs?"/>
+                </assert_contents>
+            </output>
+            <output_collection name="trim_reports" type="list" count="8"/>
+            <output name="logs" ftype="tar.gz"/>
+        </test>
+        <test expect_num_outputs="7">
+<param name="reads">
+                <collection type="list:paired">
+                    <element name="PopA_01">
+                        <collection type="paired">
+                            <element name="forward" value="PopA_01.F.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopA_01.R.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopA_02">
+                        <collection type="paired">
+                            <element name="forward" value="PopA_02.F.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopA_02.R.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopA_03">
+                        <collection type="paired">
+                            <element name="forward" value="PopA_03.F.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopA_03.R.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopA_04">
+                        <collection type="paired">
+                            <element name="forward" value="PopA_04.F.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopA_04.R.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopB_01">
+                        <collection type="paired">
+                            <element name="forward" value="PopB_01.F.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopB_01.R.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopB_02">
+                        <collection type="paired">
+                            <element name="forward" value="PopB_02.F.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopB_02.R.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopB_03">
+                        <collection type="paired">
+                            <element name="forward" value="PopB_03.F.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopB_03.R.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopB_04">
+                        <collection type="paired">
+                            <element name="forward" value="PopB_04.F.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopB_04.R.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                </collection>
+            </param>
+            <param name="popmap_source|popmap_option" value="auto"/>
+            <param name="reference_source|reference_option" value="history"/>
+            <param name="reference_source|reference_file" value="reference.fasta" ftype="fasta"/>
+            <param name="analysis|analysis_type" value="map_only"/>
+            <output name="reference" file="reference.fasta" ftype="fasta"/>
+            <output_collection name="trimmed_reads" type="list:paired">
+                <element name="PopA_01">
+                    <element name="forward" ftype="fastqsanger.gz"/>
+                    <element name="reverse" ftype="fastqsanger.gz"/>
+                </element>
+                <element name="PopB_04">
+                    <element name="forward" ftype="fastqsanger.gz"/>
+                    <element name="reverse" ftype="fastqsanger.gz"/>
+                </element>
+            </output_collection>
+            <output_collection name="bams" type="list" count="8"/>
+            <output name="mapped_bed" ftype="bed">
+                <assert_contents>
+                    <has_n_lines n="58" delta="0"/>
+                </assert_contents>
+            </output>
+            <output name="runs" ftype="txt">
+                <assert_contents>
+                    <has_text text="Mapping_Reads?"/>
+                    <has_text text="Calling_SNPs?"/>
+                </assert_contents>
+            </output>
+            <output_collection name="trim_reports" type="list" count="8"/>
+            <output name="logs" ftype="tar.gz"/>
+        </test>
+    </tests>
+
+    <help><![CDATA[
+.. class:: infomark
+
+**What it does**
+
+`dDocent <https://www.ddocent.com/>`_ chains established tools into a single RAD-seq
+pipeline for non-model organisms, following the workflow of Puritz et al. 2014
+(doi:10.7717/peerj.431):
+
+1. **Trimming** - ``fastp`` removes adapters and low-quality bases from every
+   individual, and infers the minimum read length from the data.
+2. **De novo reference assembly** (optional) - reads are assembled per individual
+   with ``Rainbow``, filtered for within-individual coverage (K1) and for presence
+   across individuals (K2), and clustered with ``CD-HIT`` at the requested
+   similarity into ``reference.fasta``. Skip this step by providing a reference
+   from the history instead.
+3. **Mapping** - ``BWA-MEM`` maps the trimmed reads to the reference with the
+   configured match/mismatch/gap scores, and ``samtools`` adds a read group to
+   every alignment.
+4. **Variant calling** - ``FreeBayes`` is run in parallel over the intervals
+   covered by the reads, the per-instance calls are merged with ``vcfcombine``, and
+   ``vcftools`` retains the sites genotyped in at least 90% of the individuals
+   (``Final.recode.vcf``).
+
+@HELP_SAMPLE_NAMING@
+
+---
+
+.. class:: warningmark
+
+**Reads must be gzipped and paired**
+
+dDocent only accepts ``*.fq.gz`` input; feeding it uncompressed FASTQ aborts the run.
+Every element of the input collection must contain both a forward and a reverse
+read file. Reads demultiplexed with **Stacks: process radtags** are the usual input;
+relabel the resulting collection so that the element identifiers follow the
+``Locality_Individual`` convention before running dDocent.
+
+---
+
+.. class:: infomark
+
+**Choosing assembly parameters**
+
+K1, K2 and the CD-HIT similarity strongly affect the number of reference contigs and
+therefore the number of RAD loci that can be genotyped. dDocent ships two survey
+scripts, ``ReferenceOpt.sh`` and ``RefMapOpt.sh``, that sweep these parameters by
+running the assembly many times (hundreds of assemblies for a typical range). They
+are shell-command tools driven by follow-up plotting and human judgement of the
+plateau, so they are not wrapped here; run them outside Galaxy, then enter the
+chosen values. ``dDocent Remake Reference`` re-assembles the reference from
+already-trimmed reads for a single parameter set.
+
+Sensible starting points for a small ddRAD data set are K1 = 5, K2 = 10% of the
+individuals, and a CD-HIT similarity of 0.9.
+
+---
+
+.. class:: infomark
+
+**Outputs**
+
+* ``reference`` - the assembled contigs, or the reference that was mapped against
+* ``trimmed reads`` - one paired collection per individual, the input of
+  ``dDocent Remake Reference``
+* ``read groups (BAM)`` and ``covered intervals`` - per-sample alignments and the
+  genomic intervals covered by at least one read, the input of ``FreeBayes``
+* ``raw variants`` - the merged FreeBayes output before filtering,
+  ``variants called in at least 90% of the individuals`` - the recommended
+  starting point for ``dDocent Filters``, whose output can be fed to
+  ``dDocent Error Count``
+* ``popmap used`` - the sample to population assignment that was applied
+* ``parameters used`` - the settings of the run, as recorded by dDocent
+* ``fastp trimming reports`` and ``logs`` - per-sample QC and the full log archive
+
+If a stage fails, dDocent still terminates with exit status 0 and prints
+"dDocent has finished with an analysis"; the wrapper therefore inspects the
+reference, the BAM files, the VCF, and the per-sample logs, and fails the job with
+a pointer to the offending log instead of handing back empty results.
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

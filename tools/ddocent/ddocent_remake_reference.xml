@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<tool id="ddocent_remake_reference" name="dDocent Remake Reference" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@" license="MIT">
+    <description>re-assemble the reference from trimmed reads with new assembly parameters</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements"/>
+    <expand macro="stdio"/>
+    <expand macro="version_command"/>
+    <command detect_errors="exit_code"><![CDATA[
+mkdir -p work &&
+cd work &&
+
+## remake_reference.sh discovers its input by filename (Locality_Individual.F/R.fq.gz)
+#for $element in $reads
+ln -s '$element.forward' '${element.element_identifier}.F.fq.gz' &&
+ln -s '$element.reverse' '${element.element_identifier}.R.fq.gz' &&
+#end for
+
+## the sample names end up in unquoted shell loops and in namelist, so keep them plain
+for f in *.F.fq.gz; do case "\$f" in *[[:space:]/]*) echo "ERROR: collection element '\$f' contains whitespace or a slash; dDocent cannot use it as a file name." >&2; exit 1 ;; esac; done &&
+
+## remake_reference.sh takes K1, K2, similarity, assembly type and processors
+## positionally and never asks for them when all five are given
+remake_reference.sh '$assembly.k1' '$assembly.k2' '$assembly.sim' '$assembly.atype' \${GALAXY_SLOTS:-4} < /dev/null &&
+
+## the script reports the contigs it assembled but exits 0 even when the assembly
+## was aborted early, so the output is checked explicitly
+test -s reference.fasta || { echo "ERROR: remake_reference.sh did not produce an assembly - reference.fasta is missing or empty." >&2; exit 1; }
+    ]]></command>
+    <inputs>
+        <param name="reads" type="data_collection" collection_type="list:paired" format="fastqsanger,fastqsanger.gz" label="Trimmed reads" help="The trimmed reads collection of the dDocent pipeline, i.e. the reads that were assembled into the current reference. The element identifiers must be the sample names used by dDocent (e.g. PopA_01)."/>
+        <section name="assembly" title="Assembly parameters" expanded="true">
+            <param argument="atype" type="select" label="Assembly type" help="Must be the layout the reads were trimmed for. Single-end data sets cannot be re-assembled with this tool, because the input is a paired collection; run the dDocent pipeline again instead.">
+                <option value="PE" selected="true">PE - paired-end ddRAD fragments</option>
+                <option value="RPE">RPE - paired-end, randomly sheared</option>
+                <option value="OL">OL - paired-end with substantial overlap</option>
+                <option value="HYB">HYB - a mixture of overlapping and non-overlapping paired-end fragments</option>
+            </param>
+            <expand macro="assembly_params"/>
+        </section>
+    </inputs>
+    <outputs>
+        <data name="reference" format="fasta" from_work_dir="work/reference.fasta" label="${tool.name} on ${on_string}: reference assembly" />
+    </outputs>
+    <tests>
+        <test expect_num_outputs="1">
+            <param name="reads">
+                <collection type="list:paired">
+                    <element name="PopA_01">
+                        <collection type="paired">
+                            <element name="forward" value="PopA_01.forward.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopA_01.reverse.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopA_02">
+                        <collection type="paired">
+                            <element name="forward" value="PopA_02.forward.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopA_02.reverse.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopA_03">
+                        <collection type="paired">
+                            <element name="forward" value="PopA_03.forward.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopA_03.reverse.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopA_04">
+                        <collection type="paired">
+                            <element name="forward" value="PopA_04.forward.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopA_04.reverse.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopB_01">
+                        <collection type="paired">
+                            <element name="forward" value="PopB_01.forward.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopB_01.reverse.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopB_02">
+                        <collection type="paired">
+                            <element name="forward" value="PopB_02.forward.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopB_02.reverse.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopB_03">
+                        <collection type="paired">
+                            <element name="forward" value="PopB_03.forward.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopB_03.reverse.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                    <element name="PopB_04">
+                        <collection type="paired">
+                            <element name="forward" value="PopB_04.forward.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="reverse" value="PopB_04.reverse.fq.gz" ftype="fastqsanger.gz"/>
+                        </collection>
+                    </element>
+                </collection>
+            </param>
+            <param name="assembly|atype" value="PE"/>
+            <param name="assembly|k1" value="5"/>
+            <param name="assembly|k2" value="6"/>
+            <param name="assembly|sim" value="0.9"/>
+            <output name="reference" file="reference.fasta" ftype="fasta"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+What it does
+------------
+
+``remake_reference.sh`` re-runs only the reference assembly step of dDocent on reads
+that are already trimmed.  It is the cheap way to explore the assembly parameters:
+the assembly takes seconds to minutes instead of re-running the trimming step, and
+it needs no mapping and no SNP calling.
+
+The tool therefore takes the *trimmed reads* collection of a completed
+dDocent pipeline tool run, so a new (K1, K2, similarity) combination can
+be tried without touching the raw data, and returns a new ``reference.fasta`` that
+can be fed back into the pipeline as a reference from the history.
+
+Parameters
+----------
+
+K1
+    Minimum number of times a read must be seen *within one individual* to be used
+    for the assembly; higher values remove more sequencing errors.
+
+K2
+    Minimum number of *individuals* a read must be seen in; higher values keep only
+    reads that are shared across the sample set, which removes individual-specific
+    errors and low-level contamination.
+
+Similarity
+    CD-HIT threshold used to collapse the assembled sequences into contigs.
+    dDocent recommends 0.9; because the assembly clusters forward reads only, the
+    effective threshold used by CD-HIT is ``max(similarity - 0.1, 0.8)``.
+
+Assembly type
+    Must match the layout of the reads: PE for standard ddRAD fragments, RPE for
+    randomly sheared paired-end libraries, OL for paired-end libraries whose
+    fragments are shorter than twice the read length and HYB for a mixture of
+    overlapping and non-overlapping fragments.  OL and HYB merge overlapping read
+    pairs with PEAR first, so they are noticeably slower.
+
+Choosing the parameters
+-----------------------
+
+dDocent ships two survey scripts (``ReferenceOpt.sh`` and ``RefMapOpt.sh``) that
+sweep K1, K2 and the similarity and evaluate the resulting assembly.  They need a
+compute budget of days and a human to read the plots, so they are not wrapped here;
+the recommended procedure in Galaxy is to run this tool for the handful of parameter
+combinations that the survey on a subset of the data suggests.
+
+@HELP_SAMPLE_NAMING@
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

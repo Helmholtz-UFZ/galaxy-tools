@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<macros>
+    <token name="@TOOL_VERSION@">2.9.8</token>
+    <token name="@VERSION_SUFFIX@">0</token>
+    <token name="@PROFILE@">25.0</token>
+
+    <xml name="requirements">
+        <requirements>
+            <requirement type="package" version="@TOOL_VERSION@">ddocent</requirement>
+            <!-- 1.3.8 and newer require vcflib >= 1.0.9, which no longer has vcfcombine
+                 (dDocent merges the per-individual calls with it), 1.3.6 is the newest
+                 release that works with the vcflib < 1.0.4 that the ddocent package
+                 itself asks for. -->
+            <requirement type="package" version="1.3.6">freebayes</requirement>
+            <!-- The ddocent package allows any vcflib < 1.0.4, this is the newest one.
+                 dDocent needs vcfcombine (gone in 1.0.4) and the INFO and FORMAT header
+                 definitions that vcflib >= 1.0.4 no longer copies into combined VCFs. -->
+            <requirement type="package" version="1.0.3">vcflib</requirement>
+            <!-- dDocent's version check and remake_reference.sh both reject fastp >= 1.0. -->
+            <requirement type="package" version="0.26.0">fastp</requirement>
+            <!-- dDocent plots ASCII histograms and waits with 'pause -1'.  gnuplot 5.0.3,
+                 which is what the ddocent package pulls in by default, is linked against a
+                 libtiff that is no longer shipped, and gnuplot 6 segfaults as soon as it
+                 inherits the LC_ALL=en_US.UTF-8 that the dDocent scripts export (that locale
+                 does not exist in the image) - the histogram is then lost from the filter
+                 report.  5.4.10 is the newest release of the last series that survives both. -->
+            <requirement type="package" version="5.4.10">gnuplot</requirement>
+            <!-- ErrorCount.sh, filter_missing_ind.sh, RefMapOpt.sh, ReferenceOpt.sh and
+                 remake_reference.sh call bare 'python', which is not a dependency of the
+                 ddocent package itself. -->
+            <requirement type="package" version="3.12">python</requirement>
+            <yield/>
+        </requirements>
+    </xml>
+
+    <xml name="citations">
+        <citations>
+            <citation type="doi">10.7717/peerj.431</citation>
+        </citations>
+    </xml>
+
+    <!-- ErrorCount.sh, dDocent_filters and remake_reference.sh have no version flag of
+         their own; they are shipped inside the ddocent package and run only with the
+         dDocent they come with, so all four wrappers report that version. -->
+    <xml name="version_command">
+        <version_command><![CDATA[
+dDocent --help 2>&1 | grep -m1 -oE 'dDocent [0-9]+(\.[0-9]+)*' | cut -d' ' -f2
+        ]]></version_command>
+    </xml>
+
+    <xml name="stdio">
+        <stdio>
+            <!-- dDocent exits 0 for most in-pipeline failures (its stdout is piped
+                 through tee and followed by backgrounding commands), so the wrappers
+                 validate the outputs explicitly and only the exit code is honoured
+                 here; 'aggressive' detection would misfire on dDocent's own
+                 "dDocent has finished with errors" summary. -->
+            <exit_code range="1:" />
+        </stdio>
+    </xml>
+
+    <token name="@HELP_SAMPLE_NAMING@"><![CDATA[
+The dDocent pipeline expects paired FASTQ files named after the sample:
+``Locality_Individual.F.fq.gz`` and ``Locality_Individual.R.fq.gz``.
+The wrapper renames the collection elements accordingly, so the only requirements
+on the element identifiers are:
+
+* no whitespace or slashes, and
+* an underscore separating locality and individual, e.g. ``PopA_01``.
+
+When no popmap is supplied, the population of a sample is taken as the part of its
+name before the first underscore (``PopA_01`` belongs to population ``PopA``).
+]]></token>
+
+    <xml name="assembly_params">
+        <param argument="sim" type="float" value="0.9" min="0.8" max="1.0" label="CD-HIT clustering similarity (-c)" help="Similarity threshold used by CD-HIT to collapse assembled sequences into reference contigs. 0.9 is the value recommended by dDocent."/>
+        <param argument="k1" type="integer" value="5" min="1" label="K1: minimum within-individual coverage to include a read in the assembly" help="Low-coverage reads are the ones most likely to be sequencing errors; 5 is dDocent's suggested starting point. Run the ReferenceOpt.sh survey (outside Galaxy) if you need to explore this parameter."/>
+        <param argument="k2" type="integer" value="6" min="2" label="K2: minimum number of individuals a read must be present in" help="Suggested starting point is roughly 10% of the number of individuals. Both K1 and K2 must be given, otherwise dDocent asks for them interactively."/>
+    </xml>
+
+    <xml name="denovo_assembly_params">
+        <param argument="atype" type="select" label="Assembly type" help="The read layout used for the reference assembly. RPE (randomly sheared paired-end), OL (paired-end with substantial overlap) and HYB (a mixture of the two) are the specialised alternatives to the default ddRAD PE layout; OL and HYB merge overlapping read pairs with PEAR and are noticeably slower.">
+            <option value="PE" selected="true">PE - paired-end ddRAD fragments</option>
+            <option value="SE">SE - single-end reads</option>
+            <option value="RPE">RPE - paired-end, randomly sheared</option>
+            <option value="OL">OL - paired-end with substantial overlap</option>
+            <option value="HYB">HYB - a mixture of overlapping and non-overlapping paired-end fragments</option>
+        </param>
+        <expand macro="assembly_params"/>
+    </xml>
+
+    <xml name="mapping_params">
+        <param argument="match" type="integer" value="1" min="1" label="BWA match score (A)"/>
+        <param argument="mismatch" type="integer" value="4" min="1" label="BWA mismatch penalty (B)" help="dDocent's recommended default is 4; the Configuration_example distributed with dDocent uses 3."/>
+        <param argument="gap" type="integer" value="6" min="1" label="BWA gap-open penalty (O)" help="dDocent's recommended default is 6; the Configuration_example distributed with dDocent uses 5."/>
+    </xml>
+</macros>

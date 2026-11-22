@@ -9,25 +9,21 @@
   <expand macro="creator" />
   <version_command><![CDATA[createTetgenSmeshFromRasters --version]]></version_command>
   <command><![CDATA[
-touch raster_list_list.txt;
-#for $item in $raster_list
-  ln -sf '$item' '$item.element_identifier';
-  echo '$item.element_identifier' >> raster_list_list.txt;
-#end for
+ln -sf '$raster_list' '$raster_list.element_identifier';
 ln -sf '$input_mesh_file' '$input_mesh_file.element_identifier';
 createTetgenSmeshFromRasters
     $ascii_output
 #if str($thickness)
     --thickness '$thickness'
 #end if
-    --raster-list raster_list_list.txt
+    --raster-list '$raster_list.element_identifier'
     --input-mesh-file '$input_mesh_file.element_identifier'
     --output-mesh-file output_1.smesh
 ]]></command>
   <inputs>
     <param argument="--ascii_output" type="boolean" label="ascii output" help="Write VTU output in ASCII format." checked="false" truevalue="--ascii_output" falsevalue="" />
     <param argument="--thickness" type="float" optional="true" label="thickness" help="The minimum thickness of a layer to be integrated at any given location (min = 0)" />
-    <param argument="--raster-list" type="data" optional="false" label="raster list" help="Input (.vtu). An ascii-file containing a list of raster files, starting from top (DEM) to bottom." format="vtkxml" />
+    <param argument="--raster-list" type="data" optional="false" label="raster list" help="Input (.vtu). An ascii-file containing a list of raster files, starting from top (DEM) to bottom." format="txt" />
     <param argument="--input-mesh-file" type="data" optional="false" label="input mesh file" help="Input (.vtu | .msh). The file name of the 2D input mesh" format="vtkxml" />
   </inputs>
   <outputs>

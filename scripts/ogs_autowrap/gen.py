@@ -418,12 +418,13 @@ def process_parameters(
             primary_ext = "pvd" if is_pvd else (all_exts[0] if all_exts else "vtu")
             galaxy_type = get_ogs_ftype([primary_ext], role="input")
             is_file_list = "INPUT_FILE_LIST" in all_args_str
-            is_collection = (
-                "MultiArg" in param_info.get("arg_type", "")
-                or "filenames" in var_name
-                or is_file_list
-            )
+            # A *_INPUT_FILE_LIST argument is a single ASCII text file naming
+            # the input files (OGS reads it with readStringListFromFile), NOT a
+            # Galaxy collection. Model it as one txt input.
+            is_collection = "MultiArg" in param_info.get("arg_type", "")
             is_optional = len(args) > 3 and args[3].lower() == "false"
+            if is_file_list:
+                galaxy_type = "txt"
 
             param = DataParam(
                 argument=argument,
@@ -546,12 +547,14 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                     )
                     continue
                 if is_file_list:
-                    list_file = f"{name}_list.txt"
-                    command_parts.append(f"touch {list_file};")
+                    # Single ASCII list file (OGS readStringListFromFile); pass
+                    # it straight through, no collection loop is needed.
                     command_parts.append(
-                        f"#for $item in ${name}\n  ln -sf '$item' '$item.element_identifier';\n  echo '$item.element_identifier' >> {list_file};\n#end for"
+                        f"ln -sf '${name}' '${name}.element_identifier';"
                     )
-                    flag_parts.append(f"    --{flag} {list_file}")
+                    flag_parts.append(
+                        f"    --{flag} '${name}.element_identifier'"
+                    )
                     continue
                 if is_coll:
                     command_parts.append(
@@ -725,7 +728,11 @@ def generate_tools(ogs_root: Path, output_dir: Path):
         if inputs_node is not None:
             for param in galaxy_inputs:
                 if getattr(param, "is_data_collection", False):
-                    p_node = inputs_node.find(f"param[@argument='--{flag}']")
+                    arg = getattr(param, "argument", None) or f"--{flag}"
+                    p_node = inputs_node.find(f"param[@argument='{arg}']")
+                    if p_node is None:
+                        # Fall back to the (possibly stale) outer ``flag`` var.
+                        p_node = inputs_node.find(f"param[@argument='--{flag}']")
                     if p_node is not None:
                         p_node.set("type", "data_collection")
                         p_node.set("collection_type", "list")
@@ -836,10 +843,22 @@ def get_dummy_value(param, tool_name, all_params=None):
     special_tool_files = {
         "ComputeNodeAreasFromSurfaceMesh": "computeNodeAreasFromSurfaceMesh_test_data",
     }
+    # For *_INPUT_FILE_LIST arguments the wrapper takes a single ASCII list
+    # file (not a collection). Fall back to the correct, known list file for
+    # tools that have no entry in Tests.cmake.
+    file_list_fixtures = {
+        "layers2grid": "Utils/VoxelGridFromLayers/AREHS_test_layers.txt",
+    }
     if isinstance(param, DataParam):
         ext = getattr(param, "ogs_ext", "vtu").lower()
         if tool_name in special_tool_files:
             return f"{special_tool_files[tool_name]}.{ext}"
+        if getattr(param, "is_file_list", False):
+            return _tdata(
+                file_list_fixtures.get(
+                    tool_name.lower(), "Utils/VoxelGridFromLayers/AREHS_test_layers.txt"
+                )
+            )
         if getattr(param, "is_pvd", False):
             return URL_PVD_MAIN
         if (
@@ -919,14 +938,16 @@ def generate_tests(ogs_root: Path, output_dir: Path):
 
         tool_data = tools_map_lower[matched_tool]
         g_inputs_temp, _ = process_parameters(tool_data["parameters"])
+        # Skip only true PVD inputs (a list of .vtu members that must be
+        # rendered as a collection). File-list inputs are single txt files
+        # nowadays and render fine from the real EXECUTABLE_ARGS recipe.
         has_complex_input = any(
-            getattr(p, "is_pvd", False) or getattr(p, "is_file_list", False)
-            for p in g_inputs_temp
+            getattr(p, "is_pvd", False) for p in g_inputs_temp
         )
 
         if has_complex_input:
             eprint(
-                f"   -> Marking {matched_tool} for Dummy-Test (Complex PVD/List Input)."
+                f"   -> Marking {matched_tool} for Dummy-Test (Complex PVD input)."
             )
             continue
 

@@ -34,7 +34,7 @@ geometryToGmshGeo
     --write_merged_geometries output_2.gml
 ]]></command>
   <inputs>
-    <param argument="--input" type="data" optional="false" label="input" help="Input (.gml) geometry file" format="xml" />
+    <param argument="--input" type="data_collection" optional="false" label="input" help="Input (.gml) geometry file" format="xml" collection_type="list" />
     <param argument="--max_points_in_quadtree_leaf" type="text" optional="true" label="max points in quadtree leaf" help="positive number/ (min = 0)" />
     <param argument="--mesh_density_scaling_at_points" type="float" optional="true" label="mesh density scaling at points" help="positive floating point number, (min = 0)" />
     <param argument="--mesh_density_scaling_at_stations" type="float" optional="true" label="mesh density scaling at stations" help="positive floating point number, (min = 0)" />

@@ -140,12 +140,7 @@
     </xml>
     <xml name="layers2grid_test">
         <test>
-            <param name="input">
-                <collection type="list">
-                    <element name="AREHS_Layer0.vtu" value="AREHS_Layer0.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer0.vtu" ftype="vtkxml" />
-                    <element name="AREHS_Layer15.vtu" value="AREHS_Layer15.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer15.vtu" ftype="vtkxml" />
-                </collection>
-            </param>
+            <param name="input" value="AREHS_test_layers.txt" ftype="txt" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test_layers.txt" />
             <output name="output_layers2grid">
                 <assert_contents>
                     <has_size min="1" />
@@ -509,16 +504,13 @@
     </xml>
     <xml name="createlayeredmeshfromrasters_test">
         <test>
-            <param name="raster_list">
-                <collection type="list">
-                    <element name="AREHS_Layer0.vtu" value="AREHS_Layer0.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer0.vtu" ftype="vtkxml" />
-                    <element name="AREHS_Layer15.vtu" value="AREHS_Layer15.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer15.vtu" ftype="vtkxml" />
-                </collection>
-            </param>
-            <param name="input_mesh_file" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
+            <param name="input_mesh_file" value="rectangular_tris_with_materials.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createLayeredMeshFromRasters/rectangular_tris_with_materials.vtu" ftype="vtkxml" />
+            <param name="thickness" value="0.1" />
+            <param name="raster_list" value="rasters.txt" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createLayeredMeshFromRasters/rasters.txt" ftype="txt" />
+            <param name="keep_surface_material_ids" value="true" />
             <output name="output_createlayeredmeshfromrasters">
                 <assert_contents>
-                    <has_size min="1" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -570,13 +562,8 @@
     </xml>
     <xml name="createtetgensmeshfromrasters_test">
         <test>
-            <param name="raster_list">
-                <collection type="list">
-                    <element name="AREHS_Layer0.vtu" value="AREHS_Layer0.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer0.vtu" ftype="vtkxml" />
-                    <element name="AREHS_Layer15.vtu" value="AREHS_Layer15.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer15.vtu" ftype="vtkxml" />
-                </collection>
-            </param>
-            <param name="input_mesh_file" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
+            <param name="input_mesh_file" value="sfc_mesh_9k.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createTetgenSmeshFromRasters/sfc_mesh_9k.vtu" ftype="vtkxml" />
+            <param name="raster_list" value="rasterlist.txt" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createTetgenSmeshFromRasters/rasterlist.txt" ftype="txt" />
             <output name="output_createtetgensmeshfromrasters">
                 <assert_contents>
                     <has_size min="1" />

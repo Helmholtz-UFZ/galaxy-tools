@@ -3,6 +3,7 @@ import logging
 import re
 import shlex
 import sys
+import tempfile
 import urllib.request
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -181,13 +182,53 @@ def param_var_name(param) -> str:
     return sanitize_name(getattr(param, "original_long_flag", "") or "param")
 
 
+# Test fixtures always live under the immutable pinned commit and are taken
+# from OGS's own Tests.cmake at that same commit, i.e. they exist by
+# construction. A live HEAD request would make generation network-dependent
+# and non-deterministic (a flaky request silently swaps a real recipe for a
+# dummy fallback). So we trust pinned URLs by default and only hit the network
+# when --verify-urls is passed (for occasional maintenance).
+VERIFY_URLS = False
+_URL_EXISTS_CACHE: Dict[str, bool] = {}
+
+
 def url_exists(url: str) -> bool:
+    """Return True if ``url`` is a usable OGS test-data fixture.
+
+    By default this trusts the URL (the pinned commit is immutable, so a
+    fixture referenced by a passing AddTest exists). With ``VERIFY_URLS`` set
+    (``--verify-urls``) a cached HEAD request is made instead.
+    """
+    if not VERIFY_URLS or not url.startswith(OGS_TEST_DATA_URL):
+        return True
+    if url in _URL_EXISTS_CACHE:
+        return _URL_EXISTS_CACHE[url]
     try:
         req = urllib.request.Request(url, method="HEAD")
-        with urllib.request.urlopen(req, timeout=5) as response:
-            return response.status == 200
+        with urllib.request.urlopen(req, timeout=10) as response:
+            ok = response.status == 200
     except Exception:
-        return False
+        ok = False
+    _URL_EXISTS_CACHE[url] = ok
+    return ok
+
+
+def _fixture_url(path: str, wd_sub: str) -> str:
+    """Build the pinned test-data URL for a fixture referenced by a test.
+
+    ``path`` is the fixture path with any ``${Data_SOURCE_DIR}/`` already
+    stripped. If it already names a directory (e.g.
+    ``FileIO/FEFLOW/prism.fem``) that directory is authoritative; a bare
+    filename falls back to the test's working directory ``wd_sub``.
+    """
+    p = path.strip().lstrip("/")
+    if "/" in p:
+        rel = p
+    elif wd_sub:
+        rel = f"{wd_sub}/{p}"
+    else:
+        rel = p
+    return f"{OGS_TEST_DATA_URL}/{rel}"
 
 
 def resolve_values_constraint(constraint_ptr: str, search_space: str) -> List[str]:
@@ -951,15 +992,31 @@ def generate_tests(ogs_root: Path, output_dir: Path):
         if exec_match and exec_match.group(1).lower() in tools_map_lower:
             matched_tool = exec_match.group(1).lower()
         else:
+            # No direct EXECUTABLE match: the binary name can differ from the
+            # .cpp-derived tool name (e.g. ``partmesh`` -> PartitionMesh). Scan
+            # only the metadata fields -- NOT EXECUTABLE_ARGS, whose file paths
+            # can name another tool (ExtractSurface reads
+            # ``Utils/GMSH2OGS/quadratic_mesh.vtu``) and would otherwise
+            # mis-attribute that test to the wrong tool.
+            search_space = " ".join(
+                m.group(1).lower()
+                for m in re.finditer(
+                    r"(?:NAME|PATH|WORKING_DIRECTORY)\s+([^\n\)]+)", test_block
+                )
+            )
             for t in tools_map_lower.keys():
                 if re.search(
                     r"(?:[\s/_-]|^)" + re.escape(t) + r"(?:[\s/_-]|$)",
-                    test_block.lower(),
+                    search_space,
                 ):
                     matched_tool = t
                     break
 
-        if not matched_tool or matched_tool.lower() in EXCLUDED_TOOLS:
+        if (
+            not matched_tool
+            or matched_tool.lower() in EXCLUDED_TOOLS
+            or matched_tool.lower() in HAND_WRAPPED_TOOLS
+        ):
             continue
 
         tool_data = tools_map_lower[matched_tool]
@@ -1035,8 +1092,10 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                             val = (
                                 args_list[i]
                                 .replace("<PATH>", p_rep)
+                                .replace("<SOURCE_PATH>", p_rep)
+                                .replace("${Data_SOURCE_DIR}/", "")
                                 .replace("${Data_BINARY_DIR}/", "")
-                                .split("/")[-1]
+                                .lstrip("/")
                             )
                             if val:
                                 collected_vals.append(val)
@@ -1057,7 +1116,14 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                         and not args_list[i].startswith("-")
                         and args_list[i].upper() not in STOP_KEYWORDS
                     ):
-                        val = args_list[i].replace("<PATH>", p_rep).split("/")[-1]
+                        val = (
+                            args_list[i]
+                            .replace("<PATH>", p_rep)
+                            .replace("<SOURCE_PATH>", p_rep)
+                            .replace("${Data_SOURCE_DIR}/", "")
+                            .replace("${Data_BINARY_DIR}/", "")
+                            .lstrip("/")
+                        )
                         if any(
                             val.lower().endswith(ext)
                             for ext in [
@@ -1093,6 +1159,7 @@ def generate_tests(ogs_root: Path, output_dir: Path):
             val_clean = (
                 str(p_val)
                 .replace("<PATH>", p_rep)
+                .replace("<SOURCE_PATH>", p_rep)
                 .replace("${Data_BINARY_DIR}/", "")
                 .replace("${Data_SOURCE_DIR}/", "")
                 .lstrip("/")
@@ -1133,11 +1200,7 @@ def generate_tests(ogs_root: Path, output_dir: Path):
 
                 for f_path in files_to_process:
                     f_name = f_path.split("/")[-1]
-                    url = (
-                        f"{OGS_TEST_DATA_URL}/{wd_sub}/{f_name}"
-                        if wd_sub
-                        else f"{OGS_TEST_DATA_URL}/{f_name}"
-                    )
+                    url = _fixture_url(f_path, wd_sub)
 
                     if not url_exists(url):
                         test_is_valid = False
@@ -1162,11 +1225,7 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                 attrs = {"name": p_name}
                 if isinstance(p_obj, DataParam):
                     f_name = val_clean.split("/")[-1]
-                    url = (
-                        f"{OGS_TEST_DATA_URL}/{wd_sub}/{f_name}"
-                        if wd_sub
-                        else f"{OGS_TEST_DATA_URL}/{f_name}"
-                    )
+                    url = _fixture_url(val_clean, wd_sub)
                     if not url_exists(url):
                         test_is_valid = False
                         break
@@ -1404,6 +1463,42 @@ def generate_tests(ogs_root: Path, output_dir: Path):
     eprint(f"Wrote {out_path}")
 
 
+def _check_outputs(ogs_root: Path, target: Path) -> int:
+    """Regenerate every tool wrapper and the test macros and verify they match.
+
+    Wrappers must be produced by the generator (no hand-edits), so CI can
+    assert that the committed ``tools/ogs/`` outputs are reproducible. Each
+    file the generator produces (61 tool XMLs + ``test_macros.xml``) is
+    regenerated into a throw-away directory and compared byte-for-byte with
+    its counterpart under ``target`` (normally ``tools/ogs/``).
+
+    Returns 0 if everything matches (plain string-files also byte matches),
+    else returns the number of mismatches (and prints each one).
+    """
+    with tempfile.TemporaryDirectory(prefix="ogs_autowrap_ck_") as tmp:
+        out = Path(tmp)
+        # --check always regenerates the full, canonical output set.
+        generate_tools(ogs_root, out)
+        generate_tests(ogs_root, out)
+        generated = sorted(out.glob("*.xml"))
+        mismatches = 0
+        for f in generated:
+            counterpart = target / f.name
+            if not counterpart.exists():
+                eprint(f"CHECK MISMATCH: generated {f.name} has no counterpart in {target}")
+                mismatches += 1
+                continue
+            with open(f, "rb") as a, open(counterpart, "rb") as b:
+                if a.read() != b.read():
+                    eprint(f"CHECK MISMATCH: {target / f.name} differs from regenerated output")
+                    mismatches += 1
+        if mismatches:
+            eprint(f"CHECK FAILED: {mismatches} file(s) out of sync with generator (run --generate-tools --generate-tests).")
+        else:
+            logging.info(f"--check: all {len(generated)} generated files match {target}")
+        return mismatches
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Galaxy XML Wrapper Generator for OGS Utilities"
@@ -1430,8 +1525,33 @@ def main():
         action="store_true",
         help="Generate a single test_macros.xml file for all tools.",
     )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Regenerate everything and verify it matches the committed tools/ogs/ outputs "
+        "(exit non-zero on drift). Implies --generate-tools --generate-tests.",
+    )
+    parser.add_argument(
+        "--check-target",
+        type=Path,
+        default=Path("tools/ogs"),
+        help="Directory the generated outputs are expected to match (default: tools/ogs).",
+    )
+
+    parser.add_argument(
+        "--verify-urls",
+        action="store_true",
+        help="HEAD-check test-data fixture URLs instead of trusting the pinned "
+        "commit (network-dependent; off by default so --check is deterministic).",
+    )
 
     args = parser.parse_args()
+
+    global VERIFY_URLS
+    VERIFY_URLS = args.verify_urls
+
+    if args.check:
+        sys.exit(1 if _check_outputs(args.ogs_root, args.check_target) else 0)
 
     if args.generate_tests:
         generate_tests(args.ogs_root, args.output_dir)

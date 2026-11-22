@@ -86,10 +86,10 @@
     </xml>
     <xml name="feflow2mesh_test">
         <test>
-            <param name="in" value="test.fem" ftype="feflow.fem" />
+            <param name="in" value="prism_with_material_properties.fem" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/FEFLOW/prism_with_material_properties.fem" ftype="feflow.fem" />
             <output name="output_feflow2mesh">
                 <assert_contents>
-                    <has_size min="1" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -402,11 +402,17 @@
     </xml>
     <xml name="adddatatoraster_test">
         <test>
+            <param name="ll_x" value="1000" />
+            <param name="ll_y" value="100" />
+            <param name="ur_x" value="1100" />
+            <param name="ur_y" value="200" />
             <param name="function" value="sinxsiny" />
-            <param name="input" value="test.asc" ftype="raster.asc" />
+            <param name="scaling_value" value="1" />
+            <param name="offset_value" value="0" />
+            <param name="input" value="10x10.asc" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/GeoTools/createRaster/10x10.asc" ftype="raster.asc" />
             <output name="output_adddatatoraster">
                 <assert_contents>
-                    <has_size min="1" />
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -448,12 +454,12 @@
     </xml>
     <xml name="constructmeshesfromgeometry_test">
         <test>
-            <param name="geometry" value="test.gml" ftype="xml" />
-            <param name="mesh" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
+            <param name="mesh" value="square_1x1_quad8_1e2.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/ConstructMeshesFromGeometry/square_1x1_quad8_1e2.vtu" ftype="vtkxml" />
+            <param name="geometry" value="square_1x1.gml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/ConstructMeshesFromGeometry/square_1x1.gml" ftype="xml" />
             <output_collection name="tool_outputs" type="list">
                 <element name="new_">
                     <assert_contents>
-                        <has_size min="1" />
+                        <has_size min="100" />
                     </assert_contents>
                 </element>
             </output_collection>
@@ -672,8 +678,10 @@
     </xml>
     <xml name="removemeshelements_test">
         <test>
-            <param name="element_type" value="point" />
-            <param name="mesh_input_file" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
+            <param name="mesh_input_file" value="AREHS_Layer17.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer17.vtu" ftype="vtkxml" />
+            <param name="x_min" value="12000" />
+            <param name="x_max" value="15000" />
+            <param name="y_min" value="12000" />
             <output name="output_removemeshelements">
                 <assert_contents>
                     <has_size min="1" />

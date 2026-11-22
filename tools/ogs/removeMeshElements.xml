@@ -12,6 +12,24 @@
 ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
 removeMeshElements
     $invert
+#if str($z_max)
+    --z-max '$z_max'
+#end if
+#if str($z_min)
+    --z-min '$z_min'
+#end if
+#if str($y_max)
+    --y-max '$y_max'
+#end if
+#if str($y_min)
+    --y-min '$y_min'
+#end if
+#if str($x_max)
+    --x-max '$x_max'
+#end if
+#if str($x_min)
+    --x-min '$x_min'
+#end if
     $zero_volume
 #if str($element_type)
     --element-type '$element_type'
@@ -35,6 +53,12 @@ removeMeshElements
 ]]></command>
   <inputs>
     <param argument="--invert" type="boolean" label="invert" help="inverts the specified bounding box" checked="false" truevalue="--invert" falsevalue="" />
+    <param argument="--z-max" type="float" optional="true" label="z max" help="largest allowed extent in z-dimension" />
+    <param argument="--z-min" type="float" optional="true" label="z min" help="smallest allowed extent in z-dimension" />
+    <param argument="--y-max" type="float" optional="true" label="y max" help="largest allowed extent in y-dimension" />
+    <param argument="--y-min" type="float" optional="true" label="y min" help="smallest allowed extent in y-dimension" />
+    <param argument="--x-max" type="float" optional="true" label="x max" help="largest allowed extent in x-dimension" />
+    <param argument="--x-min" type="float" optional="true" label="x min" help="smallest allowed extent in x-dimension" />
     <param argument="--zero-volume" type="boolean" label="zero volume" help="remove zero volume elements" checked="false" truevalue="--zero-volume" falsevalue="" />
     <param argument="--element-type" type="select" optional="true" label="element type" help="element type to be removed" multiple="true">
       <option value="point">point</option>

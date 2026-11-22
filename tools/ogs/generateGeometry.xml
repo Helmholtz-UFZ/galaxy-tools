@@ -31,11 +31,20 @@ generateGeometry
 #if str($nx)
     --nx '$nx'
 #end if
+#if str($nx1)
+    --nx1 '$nx1'
+#end if
 #if str($ny)
     --ny '$ny'
 #end if
+#if str($ny1)
+    --ny1 '$ny1'
+#end if
 #if str($nz)
     --nz '$nz'
+#end if
+#if str($nz1)
+    --nz1 '$nz1'
 #end if
 #if str($geometry_name)
     --geometry_name '$geometry_name'
@@ -53,8 +62,11 @@ generateGeometry
     <param argument="--y1" type="float" optional="true" label="y1" help="y coordinate of the first point" />
     <param argument="--x1" type="float" optional="true" label="x1" help="x coordinate of the first point" />
     <param argument="--nx" type="integer" optional="true" label="nx" help="number of subdivisions in x direction" />
+    <param argument="--nx1" type="integer" optional="true" label="nx1" help="number of subdivisions in x direction" />
     <param argument="--ny" type="integer" optional="true" label="ny" help="number of subdivisions in y direction" />
+    <param argument="--ny1" type="integer" optional="true" label="ny1" help="number of subdivisions in y direction" />
     <param argument="--nz" type="integer" optional="true" label="nz" help="number of subdivisions in z direction" />
+    <param argument="--nz1" type="integer" optional="true" label="nz1" help="number of subdivisions in z direction" />
     <param argument="--geometry_name" type="text" optional="true" label="geometry name" help="name of the generated geometry" />
     <param argument="--polyline_name" type="text" optional="true" label="polyline name" help="name of the generated polyline" />
   </inputs>

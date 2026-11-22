@@ -20,6 +20,7 @@ partmesh
 #if str($np)
     --np '$np'
 #end if
+    $ogs2metis
     $exe_metis
     --output output_1.vtu
     --
@@ -31,6 +32,7 @@ partmesh
     <param argument="--mesh-input-file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" />
     <param argument="--metis-mesh-input-file" type="data" optional="true" label="metis mesh input file" help="Input (.mesh). Base name (without .mesh extension) of the file containing the metis input mesh" format="txt" />
     <param argument="--np" type="integer" optional="true" label="np" help="the number of partitions, (min = 0)" />
+    <param argument="--ogs2metis" type="boolean" label="ogs2metis" help="Indicator to convert the ogs mesh file to METIS input file" checked="false" truevalue="--ogs2metis" falsevalue="" />
     <param argument="--exe_metis" type="boolean" label="exe metis" help="Call mpmetis inside the programme via system()." checked="false" truevalue="--exe_metis" falsevalue="" />
     <param argument="--other_meshes_filenames" type="data" optional="false" label="other meshes filenames" help="mesh file names." format="vtkxml" />
   </inputs>

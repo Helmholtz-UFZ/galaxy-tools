@@ -383,18 +383,26 @@ def process_parameters(
             options_list = resolve_values_constraint(
                 constraint_ptr, param_info.get("full_source_code", "")
             )
-            if options_list:
-                opts_dict = {opt: opt for opt in options_list}
-                is_multi = "MultiArg" in param_info.get("arg_type", "")
-                param = SelectParam(
-                    argument=argument,
-                    label=var_name.replace("_", " "),
-                    help=help_text,
-                    options=opts_dict,
-                    optional=True,
-                    multiple=is_multi,
-                )
-                param.options_dict = opts_dict
+        else:
+            options_list = []
+
+        # Only treat a value as a Select when a real ValuesConstraint was
+        # found. A ``constraint_ptr`` false positive (e.g. the trailing
+        # ``cmd`` argument of TCLAP's 7-arg form, or a default value such as
+        # ``std::numeric_limits<double>::epsilon()``) must NOT swallow the
+        # generic input/select/switch handling, or the tool loses all inputs.
+        if options_list:
+            opts_dict = {opt: opt for opt in options_list}
+            is_multi = "MultiArg" in param_info.get("arg_type", "")
+            param = SelectParam(
+                argument=argument,
+                label=var_name.replace("_", " "),
+                help=help_text,
+                options=opts_dict,
+                optional=True,
+                multiple=is_multi,
+            )
+            param.options_dict = opts_dict
         elif (
             help_text.startswith("Input")
             or "filenames" in var_name

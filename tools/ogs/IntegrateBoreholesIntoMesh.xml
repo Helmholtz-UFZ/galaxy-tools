@@ -18,6 +18,12 @@ IntegrateBoreholesIntoMesh
 #if str($min_elevation)
     --min-elevation '$min_elevation'
 #end if
+#if str($max_id)
+    --max-id '$max_id'
+#end if
+#if str($min_id)
+    --min-id '$min_id'
+#end if
     --geo '$geo.element_identifier'
     --input '$input.element_identifier'
     --output output_1.vtu
@@ -25,6 +31,8 @@ IntegrateBoreholesIntoMesh
   <inputs>
     <param argument="--max-elevation" type="float" optional="true" label="max elevation" help="Maximum elevation for an integrated borehole, (min = 0)" />
     <param argument="--min-elevation" type="float" optional="true" label="min elevation" help="Minimum elevation for an integrated borehole, (min = 0)" />
+    <param argument="--max-id" type="integer" optional="true" label="max id" help="Maximum MaterialID for an integrated borehole" />
+    <param argument="--min-id" type="integer" optional="true" label="min id" help="Minimum MaterialID for an integrated borehole" />
     <param argument="--geo" type="data" optional="false" label="geo" help="Input (.gml). Name of the geometry file" format="xml" />
     <param argument="--input" type="data" optional="false" label="input" help="Input (.vtu). Name of the mesh file" format="vtkxml" />
   </inputs>

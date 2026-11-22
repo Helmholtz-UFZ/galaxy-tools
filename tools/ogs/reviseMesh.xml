@@ -14,11 +14,15 @@ reviseMesh
 #if str($min_ele_dim)
     --min-ele-dim '$min_ele_dim'
 #end if
+#if str($eps)
+    --eps '$eps'
+#end if
     --input-mesh-file '$input_mesh_file.element_identifier'
     --output-mesh-file output_1.vtu
 ]]></command>
   <inputs>
     <param argument="--min-ele-dim" type="text" optional="true" label="min ele dim" help="Minimum dimension of elements to be inserted into new mesh" />
+    <param argument="--eps" type="float" optional="true" label="eps" help="Minimum distance for nodes not to be collapsed" />
     <param argument="--input-mesh-file" type="data" optional="false" label="input mesh file" help="Input (.vtu) mesh file" format="vtkxml" />
   </inputs>
   <outputs>

@@ -283,6 +283,26 @@ def discover_tools(ogs_root: Path) -> List[Dict[str, Any]]:
 def process_parameters(
     tclap_params: List[Dict[str, Any]]
 ) -> Tuple[List[object], Dict[str, str]]:
+    """Turn a tool's raw TCLAP parameter descriptors into Galaxy parameter objects.
+
+    Each element of ``tclap_params`` is one ``TCLAP::(Value|Switch|Multi)Arg``
+    declaration captured by :func:`discover_tools`. This function classifies it
+    (TCLAP arg type + C++ type) and emits the matching Galaxy parameter object
+    (``DataParam``, ``SelectParam``, ``TextParam``, ``IntegerParam``,
+    ``FloatParam``, ``BooleanParam``). It also:
+
+      * models OGS ``*_INPUT_FILE_LIST`` args as a single ``format=txt`` input
+        (OGS reads one ASCII list file, not a collection);
+      * sets ``is_data_collection`` for ``MultiArg``/``UnlabeledMultiArg`` args;
+      * resolves TCLAP ``ValuesConstraint`` option lists into ``SelectParam``
+        choices (with the ``cmd``/default-value false-positive guard);
+      * records the OGS file extension (``ogs_ext``) for runtime-correct
+        symlink naming, and builds the ``output_command_map`` used to derive
+        the tool's ``<outputs>`` (``BASE_FILENAME`` outputs for tools that only
+        accept an output basename).
+
+    Returns ``(galaxy_inputs, output_command_map)``.
+    """
     galaxy_inputs = []
     output_command_map = {}
     output_idx = 1

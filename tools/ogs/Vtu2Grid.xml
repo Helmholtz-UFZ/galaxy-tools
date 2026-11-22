@@ -9,7 +9,7 @@
   <expand macro="creator" />
   <version_command><![CDATA[Vtu2Grid --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '$input.element_identifier';
+ln -sf '$input' '$input.vtu';
 Vtu2Grid
 #if str($cellsize_z)
     --cellsize-z '$cellsize_z'
@@ -20,7 +20,7 @@ Vtu2Grid
 #if str($cellsize_x)
     --cellsize-x '$cellsize_x'
 #end if
-    --input '$input.element_identifier'
+    --input '$input.vtu'
     --output output_1.vtu
 ]]></command>
   <inputs>

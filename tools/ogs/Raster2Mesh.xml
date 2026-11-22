@@ -9,7 +9,7 @@
   <expand macro="creator" />
   <version_command><![CDATA[Raster2Mesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '$input.element_identifier';
+ln -sf '$input' '$input.asc';
 Raster2Mesh
 #if str($arrayname)
     --arrayname '$arrayname'
@@ -20,7 +20,7 @@ Raster2Mesh
 #if str($elem_type)
     --elem-type '$elem_type'
 #end if
-    --input '$input.element_identifier'
+    --input '$input.asc'
     --output output_1.vtu
 ]]></command>
   <inputs>

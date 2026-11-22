@@ -9,13 +9,13 @@
   <expand macro="creator" />
   <version_command><![CDATA[computeSurfaceNodeIDsInPolygonalRegion --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
-ln -sf '$geo_file' '$geo_file.element_identifier';
-ln -sf '$gmsh_path' '$gmsh_path.element_identifier';
+ln -sf '$mesh_input_file' '$mesh_input_file.vtu';
+ln -sf '$geo_file' '$geo_file.gml';
+ln -sf '$gmsh_path' '$gmsh_path.msh';
 computeSurfaceNodeIDsInPolygonalRegion
-    --mesh-input-file '$mesh_input_file.element_identifier'
-    --geo-file '$geo_file.element_identifier'
-    --gmsh-path '$gmsh_path.element_identifier' > '$stdout_log'
+    --mesh-input-file '$mesh_input_file.vtu'
+    --geo-file '$geo_file.gml'
+    --gmsh-path '$gmsh_path.msh' > '$stdout_log'
 ]]></command>
   <inputs>
     <param argument="--mesh-input-file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" />

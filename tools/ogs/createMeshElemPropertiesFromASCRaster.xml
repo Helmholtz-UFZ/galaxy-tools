@@ -9,18 +9,18 @@
   <expand macro="creator" />
   <version_command><![CDATA[createMeshElemPropertiesFromASCRaster --version]]></version_command>
   <command><![CDATA[
-ln -sf '$raster_file' '$raster_file.element_identifier';
-ln -sf '$mesh' '$mesh.element_identifier';
+ln -sf '$raster_file' '$raster_file.asc';
+ln -sf '$mesh' '$mesh.vtu';
 createMeshElemPropertiesFromASCRaster
     $output_refined_raster
 #if str($refine)
     --refine '$refine'
 #end if
-    --raster-file '$raster_file.element_identifier'
+    --raster-file '$raster_file.asc'
 #if str($property_name)
     --property-name '$property_name'
 #end if
-    --mesh '$mesh.element_identifier'
+    --mesh '$mesh.vtu'
     --out-mesh output_1.vtu
 ]]></command>
   <inputs>

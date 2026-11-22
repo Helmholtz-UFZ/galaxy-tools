@@ -9,9 +9,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[ComputeNodeAreasFromSurfaceMesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
+ln -sf '$mesh_input_file' '$mesh_input_file.vtu';
 ComputeNodeAreasFromSurfaceMesh
-    --mesh-input-file '$mesh_input_file.element_identifier'
+    --mesh-input-file '$mesh_input_file.vtu'
 #if str($id_prop_name)
     --id-prop-name '$id_prop_name'
 #end if

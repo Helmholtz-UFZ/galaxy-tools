@@ -9,7 +9,7 @@
   <expand macro="creator" />
   <version_command><![CDATA[convertVtkDataArrayToVtkDataArray --version]]></version_command>
   <command><![CDATA[
-ln -sf '$in_mesh' '$in_mesh.element_identifier';
+ln -sf '$in_mesh' '$in_mesh.vtk';
 convertVtkDataArrayToVtkDataArray
 #if str($new_property_data_type)
     --new-property-data-type '$new_property_data_type'
@@ -20,7 +20,7 @@ convertVtkDataArrayToVtkDataArray
 #if str($existing_property_name)
     --existing-property-name '$existing_property_name'
 #end if
-    --in-mesh '$in_mesh.element_identifier'
+    --in-mesh '$in_mesh.vtk'
     --out-mesh output_1.vtu
 ]]></command>
   <inputs>

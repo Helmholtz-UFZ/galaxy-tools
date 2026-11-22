@@ -12,9 +12,9 @@
 #for $item in $input_file_pvd_data
     ln -sf '$item' '$item.element_identifier';
   #end for
-ln -sf '$input_file' '$input_file.element_identifier';
+ln -sf '$input_file' '$input_file.pvd';
 postLIE
-    --input-file '$input_file.element_identifier'
+    --input-file '$input_file.pvd'
     $no_overwrite
     --output-file output_1.vtu
 ]]></command>

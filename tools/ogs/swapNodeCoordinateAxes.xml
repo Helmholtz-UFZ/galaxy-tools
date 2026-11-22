@@ -9,9 +9,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[swapNodeCoordinateAxes --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input_mesh_file' '$input_mesh_file.element_identifier';
+ln -sf '$input_mesh_file' '$input_mesh_file.vtu';
 swapNodeCoordinateAxes
-    --input-mesh-file '$input_mesh_file.element_identifier'
+    --input-mesh-file '$input_mesh_file.vtu'
 #if str($new_order)
     --new-order '$new_order'
 #end if

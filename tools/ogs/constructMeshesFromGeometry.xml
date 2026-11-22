@@ -9,14 +9,14 @@
   <expand macro="creator" />
   <version_command><![CDATA[constructMeshesFromGeometry --version]]></version_command>
   <command><![CDATA[
-ln -sf '$geometry' '$geometry.element_identifier';
-ln -sf '$mesh' '$mesh.element_identifier';
+ln -sf '$geometry' '$geometry.gml';
+ln -sf '$mesh' '$mesh.vtu';
 constructMeshesFromGeometry
 #if str($searchlength)
     --searchlength '$searchlength'
 #end if
-    --geometry '$geometry.element_identifier'
-    --mesh '$mesh.element_identifier'
+    --geometry '$geometry.gml'
+    --mesh '$mesh.vtu'
     $multiple_nodes_allowed
 ]]></command>
   <inputs>

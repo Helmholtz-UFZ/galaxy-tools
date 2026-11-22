@@ -9,9 +9,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[GMSH2OGS --version]]></version_command>
   <command><![CDATA[
-ln -sf '$in' '$in.element_identifier';
+ln -sf '$in' '$in.msh';
 GMSH2OGS
-    --in '$in.element_identifier'
+    --in '$in.msh'
     $validation
     $boundaries
     $exclude_lines

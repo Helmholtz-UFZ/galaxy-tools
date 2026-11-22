@@ -9,9 +9,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[CreateBoundaryConditionsAlongPolylines --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input_geometry' '$input_geometry.element_identifier';
-ln -sf '$mesh_file' '$mesh_file.element_identifier';
-ln -sf '$gmsh_path' '$gmsh_path.element_identifier';
+ln -sf '$input_geometry' '$input_geometry.gml';
+ln -sf '$mesh_file' '$mesh_file.vtu';
+ln -sf '$gmsh_path' '$gmsh_path.msh';
 CreateBoundaryConditionsAlongPolylines
     $gml
 #if str($type)
@@ -20,9 +20,9 @@ CreateBoundaryConditionsAlongPolylines
 #if str($search_length)
     --search-length '$search_length'
 #end if
-    --input-geometry '$input_geometry.element_identifier'
-    --mesh-file '$mesh_file.element_identifier'
-    --gmsh-path '$gmsh_path.element_identifier'
+    --input-geometry '$input_geometry.gml'
+    --mesh-file '$mesh_file.vtu'
+    --gmsh-path '$gmsh_path.msh'
     --output-base-file-name 'new_'
 ]]></command>
   <inputs>

@@ -9,14 +9,14 @@
   <expand macro="creator" />
   <version_command><![CDATA[ResetPropertiesInPolygonalRegion --version]]></version_command>
   <command><![CDATA[
-ln -sf '$geometry' '$geometry.element_identifier';
-ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
-ln -sf '$gmsh_path' '$gmsh_path.element_identifier';
+ln -sf '$geometry' '$geometry.gli';
+ln -sf '$mesh_input_file' '$mesh_input_file.vtu';
+ln -sf '$gmsh_path' '$gmsh_path.msh';
 ResetPropertiesInPolygonalRegion
 #if str($polygon_name)
     --polygon-name '$polygon_name'
 #end if
-    --geometry '$geometry.element_identifier'
+    --geometry '$geometry.gli'
     $any_of
 #if str($char_property_value)
     --char-property-value '$char_property_value'
@@ -30,8 +30,8 @@ ResetPropertiesInPolygonalRegion
 #if str($restrict_to_MaterialID)
     --restrict-to-MaterialID '$restrict_to_MaterialID'
 #end if
-    --mesh-input-file '$mesh_input_file.element_identifier'
-    --gmsh-path '$gmsh_path.element_identifier'
+    --mesh-input-file '$mesh_input_file.vtu'
+    --gmsh-path '$gmsh_path.msh'
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>

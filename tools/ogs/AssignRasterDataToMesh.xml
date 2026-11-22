@@ -9,8 +9,8 @@
   <expand macro="creator" />
   <version_command><![CDATA[AssignRasterDataToMesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$raster' '$raster.element_identifier';
-ln -sf '$input' '$input.element_identifier';
+ln -sf '$raster' '$raster.asc';
+ln -sf '$input' '$input.vtu';
 AssignRasterDataToMesh
 #if str($nodata)
     --nodata '$nodata'
@@ -20,8 +20,8 @@ AssignRasterDataToMesh
 #if str($scalar_name)
     --scalar-name '$scalar_name'
 #end if
-    --raster '$raster.element_identifier'
-    --input '$input.element_identifier'
+    --raster '$raster.asc'
+    --input '$input.vtu'
     --output output_1.vtu
 ]]></command>
   <inputs>

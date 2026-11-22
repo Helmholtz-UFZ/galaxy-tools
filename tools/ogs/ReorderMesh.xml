@@ -9,9 +9,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[ReorderMesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '$input.element_identifier';
+ln -sf '$input' '$input.vtu';
 ReorderMesh
-    --input '$input.element_identifier'
+    --input '$input.vtu'
     --output output_1.vtu
 ]]></command>
   <inputs>

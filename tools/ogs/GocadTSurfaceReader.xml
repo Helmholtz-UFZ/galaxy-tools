@@ -9,12 +9,12 @@
   <expand macro="creator" />
   <version_command><![CDATA[GocadTSurfaceReader --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input_file' '$input_file.element_identifier';
+ln -sf '$input_file' '$input_file.ts';
 GocadTSurfaceReader
     $write_binary
     $surfaces_only
     $lines_only
-    --input-file '$input_file.element_identifier'
+    --input-file '$input_file.ts'
     --output-dir output_1.vtu
 ]]></command>
   <inputs>

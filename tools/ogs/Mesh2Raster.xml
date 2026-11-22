@@ -9,12 +9,12 @@
   <expand macro="creator" />
   <version_command><![CDATA[Mesh2Raster --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input_file' '$input_file.element_identifier';
+ln -sf '$input_file' '$input_file.vtu';
 Mesh2Raster
 #if str($cellsize)
     --cellsize '$cellsize'
 #end if
-    --input-file '$input_file.element_identifier'
+    --input-file '$input_file.vtu'
     --output-file output_1.asc
 ]]></command>
   <inputs>

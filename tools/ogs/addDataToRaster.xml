@@ -9,7 +9,7 @@
   <expand macro="creator" />
   <version_command><![CDATA[addDataToRaster --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '$input.element_identifier';
+ln -sf '$input' '$input.asc';
 addDataToRaster
 #if str($scaling_value)
     --scaling_value '$scaling_value'
@@ -32,7 +32,7 @@ addDataToRaster
 #if str($function)
     --function '$function'
 #end if
-    --input '$input.element_identifier'
+    --input '$input.asc'
     --output_raster output_1.asc
 ]]></command>
   <inputs>

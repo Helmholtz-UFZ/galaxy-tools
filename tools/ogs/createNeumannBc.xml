@@ -9,9 +9,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[createNeumannBc --version]]></version_command>
   <command><![CDATA[
-ln -sf '$in_mesh' '$in_mesh.element_identifier';
+ln -sf '$in_mesh' '$in_mesh.vtu';
 createNeumannBc
-    --in-mesh '$in_mesh.element_identifier'
+    --in-mesh '$in_mesh.vtu'
 #if str($property_in_name)
     --property-in-name '$property_in_name'
 #end if

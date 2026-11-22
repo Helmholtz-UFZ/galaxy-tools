@@ -9,12 +9,12 @@
   <expand macro="creator" />
   <version_command><![CDATA[scaleProperty --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh' '$mesh.element_identifier';
+ln -sf '$mesh' '$mesh.vtu';
 scaleProperty
 #if str($property_name)
     --property-name '$property_name'
 #end if
-    --mesh '$mesh.element_identifier'
+    --mesh '$mesh.vtu'
 #if str($input_unit)
     --input-unit '$input_unit'
 #end if

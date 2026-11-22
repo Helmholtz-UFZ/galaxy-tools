@@ -9,11 +9,11 @@
   <expand macro="creator" />
   <version_command><![CDATA[checkMesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh_file' '$mesh_file.element_identifier';
+ln -sf '$mesh_file' '$mesh_file.vtu';
 checkMesh
     $validation
     $print_properties
-    '$mesh_file.element_identifier' > '$stdout_log'
+    '$mesh_file.vtu' > '$stdout_log'
 ]]></command>
   <inputs>
     <param argument="--validation" type="boolean" label="validation" help="validate the mesh" checked="false" truevalue="--validation" falsevalue="" />

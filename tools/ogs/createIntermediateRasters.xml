@@ -9,14 +9,14 @@
   <expand macro="creator" />
   <version_command><![CDATA[createIntermediateRasters --version]]></version_command>
   <command><![CDATA[
-ln -sf '$file2' '$file2.element_identifier';
-ln -sf '$file1' '$file1.element_identifier';
+ln -sf '$file2' '$file2.asc';
+ln -sf '$file1' '$file1.asc';
 createIntermediateRasters
 #if str($number)
     --number '$number'
 #end if
-    --file2 '$file2.element_identifier'
-    --file1 '$file1.element_identifier'
+    --file2 '$file2.asc'
+    --file1 '$file1.asc'
     --output-file output_1.asc
 ]]></command>
   <inputs>

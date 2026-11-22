@@ -9,7 +9,7 @@
   <expand macro="creator" />
   <version_command><![CDATA[MoveGeometry --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '$input.element_identifier';
+ln -sf '$input' '$input.gml';
 MoveGeometry
 #if str($z)
     --z '$z'
@@ -20,7 +20,7 @@ MoveGeometry
 #if str($x)
     --x '$x'
 #end if
-    --input '$input.element_identifier'
+    --input '$input.gml'
     --output output_1.gml
 ]]></command>
   <inputs>

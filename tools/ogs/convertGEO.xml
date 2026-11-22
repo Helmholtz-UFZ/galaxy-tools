@@ -9,11 +9,11 @@
   <expand macro="creator" />
   <version_command><![CDATA[convertGEO --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input_file' '$input_file.element_identifier';
-ln -sf '$gmsh_path' '$gmsh_path.element_identifier';
+ln -sf '$input_file' '$input_file.gml';
+ln -sf '$gmsh_path' '$gmsh_path.msh';
 convertGEO
-    --input-file '$input_file.element_identifier'
-    --gmsh-path '$gmsh_path.element_identifier'
+    --input-file '$input_file.gml'
+    --gmsh-path '$gmsh_path.msh'
     --output-file output_1.vtu
 ]]></command>
   <inputs>

@@ -9,14 +9,14 @@
   <expand macro="creator" />
   <version_command><![CDATA[partmesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
-ln -sf '$metis_mesh_input_file' '$metis_mesh_input_file.element_identifier';
+ln -sf '$mesh_input_file' '$mesh_input_file.vtu';
+ln -sf '$metis_mesh_input_file' '$metis_mesh_input_file.mesh';
 #for $item in $other_meshes_filenames
 ln -sf '$item' '$item.element_identifier';
 #end for
 partmesh
-    --mesh-input-file '$mesh_input_file.element_identifier'
-    --metis-mesh-input-file '$metis_mesh_input_file.element_identifier'
+    --mesh-input-file '$mesh_input_file.vtu'
+    --metis-mesh-input-file '$metis_mesh_input_file.mesh'
 #if str($np)
     --np '$np'
 #end if

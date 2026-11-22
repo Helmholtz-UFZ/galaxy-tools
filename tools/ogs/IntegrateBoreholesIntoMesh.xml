@@ -9,8 +9,8 @@
   <expand macro="creator" />
   <version_command><![CDATA[IntegrateBoreholesIntoMesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$geo' '$geo.element_identifier';
-ln -sf '$input' '$input.element_identifier';
+ln -sf '$geo' '$geo.gml';
+ln -sf '$input' '$input.vtu';
 IntegrateBoreholesIntoMesh
 #if str($max_elevation)
     --max-elevation '$max_elevation'
@@ -24,8 +24,8 @@ IntegrateBoreholesIntoMesh
 #if str($min_id)
     --min-id '$min_id'
 #end if
-    --geo '$geo.element_identifier'
-    --input '$input.element_identifier'
+    --geo '$geo.gml'
+    --input '$input.vtu'
     --output output_1.vtu
 ]]></command>
   <inputs>

@@ -9,11 +9,11 @@
   <expand macro="creator" />
   <version_command><![CDATA[MapGeometryToMeshSurface --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh_file' '$mesh_file.element_identifier';
-ln -sf '$input_geometry' '$input_geometry.element_identifier';
+ln -sf '$mesh_file' '$mesh_file.vtu';
+ln -sf '$input_geometry' '$input_geometry.gml';
 MapGeometryToMeshSurface
-    --mesh-file '$mesh_file.element_identifier'
-    --input-geometry '$input_geometry.element_identifier'
+    --mesh-file '$mesh_file.vtu'
+    --input-geometry '$input_geometry.gml'
     $additional_insert_mapping
     --output-geometry output_1.gml
 ]]></command>

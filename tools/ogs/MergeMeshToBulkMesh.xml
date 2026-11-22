@@ -9,11 +9,11 @@
   <expand macro="creator" />
   <version_command><![CDATA[mergeMeshToBulkMesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$bulk_mesh_input_file' '$bulk_mesh_input_file.element_identifier';
-ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
+ln -sf '$bulk_mesh_input_file' '$bulk_mesh_input_file.vtk';
+ln -sf '$mesh_input_file' '$mesh_input_file.vtk';
 mergeMeshToBulkMesh
-    --bulk-mesh-input-file '$bulk_mesh_input_file.element_identifier'
-    --mesh-input-file '$mesh_input_file.element_identifier'
+    --bulk-mesh-input-file '$bulk_mesh_input_file.vtk'
+    --mesh-input-file '$mesh_input_file.vtk'
 #if str($pressure)
     --pressure '$pressure'
 #end if

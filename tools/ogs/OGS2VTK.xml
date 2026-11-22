@@ -9,9 +9,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[OGS2VTK --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh_input_file' '$mesh_input_file.element_identifier';
+ln -sf '$mesh_input_file' '$mesh_input_file.msh';
 OGS2VTK
-    --mesh-input-file '$mesh_input_file.element_identifier'
+    --mesh-input-file '$mesh_input_file.msh'
     $ascii_output
     --mesh-output-file output_1.vtu
 ]]></command>

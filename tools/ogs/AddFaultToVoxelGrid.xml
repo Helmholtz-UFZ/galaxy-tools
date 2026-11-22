@@ -9,14 +9,14 @@
   <expand macro="creator" />
   <version_command><![CDATA[AddFaultToVoxelGrid --version]]></version_command>
   <command><![CDATA[
-ln -sf '$fault' '$fault.element_identifier';
-ln -sf '$input' '$input.element_identifier';
+ln -sf '$fault' '$fault.vtu';
+ln -sf '$input' '$input.vtu';
 AddFaultToVoxelGrid
 #if str($material)
     --material '$material'
 #end if
-    --fault '$fault.element_identifier'
-    --input '$input.element_identifier'
+    --fault '$fault.vtu'
+    --input '$input.vtu'
     --output output_1.vtu
 ]]></command>
   <inputs>

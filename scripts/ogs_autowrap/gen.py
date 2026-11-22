@@ -540,6 +540,7 @@ def generate_tools(ogs_root: Path, output_dir: Path):
             if isinstance(param, DataParam):
                 is_file_list = getattr(param, "is_file_list", False)
                 is_coll = getattr(param, "is_data_collection", False)
+                ext = getattr(param, "ogs_ext", "vtu").lower()
 
                 if getattr(param, "is_pvd_element", False):
                     command_parts.append(
@@ -548,12 +549,14 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                     continue
                 if is_file_list:
                     # Single ASCII list file (OGS readStringListFromFile); pass
-                    # it straight through, no collection loop is needed.
+                    # it straight through, no collection loop is needed. The
+                    # on-disk symlink keeps a real .txt extension so OGS can
+                    # open it (OGS infers format from the file extension).
                     command_parts.append(
-                        f"ln -sf '${name}' '${name}.element_identifier';"
+                        f"ln -sf '${name}' '${name}.txt';"
                     )
                     flag_parts.append(
-                        f"    --{flag} '${name}.element_identifier'"
+                        f"    --{flag} '${name}.txt'"
                     )
                     continue
                 if is_coll:
@@ -566,10 +569,13 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                     else:
                         flag_parts.append(f"    --{flag}\n{loop_str}")
                 else:
+                    # Symlink the dataset to a name carrying the OGS extension
+                    # (OGS infers input format from the file extension; the
+                    # Galaxy ``element_identifier`` suffix has none).
                     command_parts.append(
-                        f"ln -sf '${name}' '${name}.element_identifier';"
+                        f"ln -sf '${name}' '${name}.{ext}';"
                     )
-                    arg_val = f"'${name}.element_identifier'"
+                    arg_val = f"'${name}.{ext}'"
                     if is_unlabeled:
                         unlabeled_parts.append(f"    {arg_val}")
                     else:

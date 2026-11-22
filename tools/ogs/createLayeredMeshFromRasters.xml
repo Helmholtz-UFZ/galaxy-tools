@@ -9,16 +9,16 @@
   <expand macro="creator" />
   <version_command><![CDATA[createLayeredMeshFromRasters --version]]></version_command>
   <command><![CDATA[
-ln -sf '$raster_list' '$raster_list.element_identifier';
-ln -sf '$input_mesh_file' '$input_mesh_file.element_identifier';
+ln -sf '$raster_list' '$raster_list.txt';
+ln -sf '$input_mesh_file' '$input_mesh_file.vtu';
 createLayeredMeshFromRasters
     $ascii_output
 #if str($thickness)
     --thickness '$thickness'
 #end if
-    --raster-list '$raster_list.element_identifier'
+    --raster-list '$raster_list.txt'
     $keep_surface_material_ids
-    --input-mesh-file '$input_mesh_file.element_identifier'
+    --input-mesh-file '$input_mesh_file.vtu'
     --output-mesh-file output_1.vtu
 ]]></command>
   <inputs>

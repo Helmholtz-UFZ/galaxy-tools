@@ -9,9 +9,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[pvtu2vtu --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '$input.element_identifier';
+ln -sf '$input' '$input.pvtu';
 pvtu2vtu
-    --input '$input.element_identifier'
+    --input '$input.pvtu'
 #if str($original_mesh)
     --original_mesh '$original_mesh'
 #end if

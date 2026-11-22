@@ -9,9 +9,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[MoveMesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh' '$mesh.element_identifier';
+ln -sf '$mesh' '$mesh.vtu';
 MoveMesh
-    --mesh '$mesh.element_identifier'
+    --mesh '$mesh.vtu'
 #if str($x)
     --x '$x'
 #end if

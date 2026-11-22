@@ -9,7 +9,7 @@
   <expand macro="creator" />
   <version_command><![CDATA[reviseMesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input_mesh_file' '$input_mesh_file.element_identifier';
+ln -sf '$input_mesh_file' '$input_mesh_file.vtu';
 reviseMesh
 #if str($min_ele_dim)
     --min-ele-dim '$min_ele_dim'
@@ -17,7 +17,7 @@ reviseMesh
 #if str($eps)
     --eps '$eps'
 #end if
-    --input-mesh-file '$input_mesh_file.element_identifier'
+    --input-mesh-file '$input_mesh_file.vtu'
     --output-mesh-file output_1.vtu
 ]]></command>
   <inputs>

@@ -40,6 +40,12 @@ first:
 * `Final.recode.vcf` - input of `dDocent Filters` and `dDocent Error Count`;
   `dDocent Filters` with `overlapping = no`, `mixed libraries = no` and the
   automatic depth cutoff keeps 80 of the 100 sites (cutoff 26)
-* `*.forward.fq.gz` / `*.reverse.fq.gz` - trimmed reads, input of
-  `dDocent Remake Reference`; reassembling them with the pipeline parameters
-  reproduces `reference.fasta` byte for byte
+* `*.forward.fq.gz` / `*.reverse.fq.gz` - trimmed reads of the pipeline runs
+* `*.forward.fq` / `*.reverse.fq` - the same reads uncompressed, input of
+  `dDocent Remake Reference`
+
+Reassembling the trimmed reads with the pipeline parameters reproduces
+`reference.fasta` byte for byte. `dDocent Remake Reference` is tested on the
+uncompressed files, so that its run also covers the `fastqsanger` input path,
+and the collection elements carry a dot and a dash in their identifiers, so that
+its run also covers the identifier sanitization of the wrapper.

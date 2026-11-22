@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <tool id="ddocent_filters" name="dDocent Filters" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@" license="MIT">
     <description>filter a FreeBayes VCF from dDocent</description>
     <macros>
@@ -6,8 +5,6 @@
     </macros>
     <expand macro="requirements"/>
     <expand macro="stdio"/>
-    <!-- dDocent_filters carries no version string of its own; it is shipped with
-         the ddocent package and pinned by the requirement. -->
     <expand macro="version_command"/>
     <command detect_errors="exit_code"><![CDATA[
 export LC_ALL=C;
@@ -19,6 +16,9 @@ cp '$vcf' input.vcf;
 
 ## Argument 5 switches to a manual cutoff only when it is literally "yes";
 ## argument 6 is then the cutoff itself and argument 3/4 are "yes"/"no" answers.
+## All of them are given, so the prompts of the script are not reached; stdin is
+## closed because the gnuplot histograms end with 'pause -1', which otherwise
+## waits for a keypress instead of returning at the end of the input.
 dDocent_filters input.vcf out
     '$overlapping'
     '$mixed_libraries'

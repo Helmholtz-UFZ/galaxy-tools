@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <tool id="ddocent_remake_reference" name="dDocent Remake Reference" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@" license="MIT">
     <description>re-assemble the reference from trimmed reads with new assembly parameters</description>
     <macros>
@@ -11,14 +10,26 @@
 mkdir -p work &&
 cd work &&
 
-## remake_reference.sh discovers its input by filename (Locality_Individual.F/R.fq.gz)
+## remake_reference.sh discovers its input by filename (Locality_Individual.F/R.fq.gz),
+## so the element identifier becomes the sample name.  Letters, digits and
+## underscores are kept and everything else is replaced by an underscore, so that
+## the name is safe in the shell, in the sed/mawk one-liners of the script and in
+## the namelist it writes.  The script reads gzipped reads only, uncompressed
+## elements are compressed here.
 #for $element in $reads
-ln -s '$element.forward' '${element.element_identifier}.F.fq.gz' &&
-ln -s '$element.reverse' '${element.element_identifier}.R.fq.gz' &&
+#set $ident = ''.join([c if (c.isalnum() or c == '_') else '_' for c in str($element.element_identifier)])
+#if $element.forward.ext == 'fastqsanger.gz'
+ln -s '$element.forward' '${ident}.F.fq.gz' &&
+ln -s '$element.reverse' '${ident}.R.fq.gz' &&
+#else
+gzip -c '$element.forward' > '${ident}.F.fq.gz' &&
+gzip -c '$element.reverse' > '${ident}.R.fq.gz' &&
+#end if
 #end for
 
-## the sample names end up in unquoted shell loops and in namelist, so keep them plain
-for f in *.F.fq.gz; do case "\$f" in *[[:space:]/]*) echo "ERROR: collection element '\$f' contains whitespace or a slash; dDocent cannot use it as a file name." >&2; exit 1 ;; esac; done &&
+## the script derives the population of a sample from the part of its name before the
+## first underscore and refuses to run when there is none
+for f in *.F.fq.gz; do case "\$f" in *_*) ;; *) echo "ERROR: collection element '\${f%.F.fq.gz}' does not follow the dDocent naming convention Locality_Individual (no underscore in the name)." >&2; exit 1 ;; esac; done &&
 
 ## remake_reference.sh takes K1, K2, similarity, assembly type and processors
 ## positionally and never asks for them when all five are given
@@ -47,52 +58,52 @@ test -s reference.fasta || { echo "ERROR: remake_reference.sh did not produce an
         <test expect_num_outputs="1">
             <param name="reads">
                 <collection type="list:paired">
-                    <element name="PopA_01">
+                    <element name="PopA.01">
                         <collection type="paired">
-                            <element name="forward" value="PopA_01.forward.fq.gz" ftype="fastqsanger.gz"/>
-                            <element name="reverse" value="PopA_01.reverse.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="forward" value="PopA_01.forward.fq" ftype="fastqsanger"/>
+                            <element name="reverse" value="PopA_01.reverse.fq" ftype="fastqsanger"/>
                         </collection>
                     </element>
-                    <element name="PopA_02">
+                    <element name="PopA-02">
                         <collection type="paired">
-                            <element name="forward" value="PopA_02.forward.fq.gz" ftype="fastqsanger.gz"/>
-                            <element name="reverse" value="PopA_02.reverse.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="forward" value="PopA_02.forward.fq" ftype="fastqsanger"/>
+                            <element name="reverse" value="PopA_02.reverse.fq" ftype="fastqsanger"/>
                         </collection>
                     </element>
                     <element name="PopA_03">
                         <collection type="paired">
-                            <element name="forward" value="PopA_03.forward.fq.gz" ftype="fastqsanger.gz"/>
-                            <element name="reverse" value="PopA_03.reverse.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="forward" value="PopA_03.forward.fq" ftype="fastqsanger"/>
+                            <element name="reverse" value="PopA_03.reverse.fq" ftype="fastqsanger"/>
                         </collection>
                     </element>
                     <element name="PopA_04">
                         <collection type="paired">
-                            <element name="forward" value="PopA_04.forward.fq.gz" ftype="fastqsanger.gz"/>
-                            <element name="reverse" value="PopA_04.reverse.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="forward" value="PopA_04.forward.fq" ftype="fastqsanger"/>
+                            <element name="reverse" value="PopA_04.reverse.fq" ftype="fastqsanger"/>
                         </collection>
                     </element>
-                    <element name="PopB_01">
+                    <element name="PopB.01">
                         <collection type="paired">
-                            <element name="forward" value="PopB_01.forward.fq.gz" ftype="fastqsanger.gz"/>
-                            <element name="reverse" value="PopB_01.reverse.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="forward" value="PopB_01.forward.fq" ftype="fastqsanger"/>
+                            <element name="reverse" value="PopB_01.reverse.fq" ftype="fastqsanger"/>
                         </collection>
                     </element>
-                    <element name="PopB_02">
+                    <element name="PopB-02">
                         <collection type="paired">
-                            <element name="forward" value="PopB_02.forward.fq.gz" ftype="fastqsanger.gz"/>
-                            <element name="reverse" value="PopB_02.reverse.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="forward" value="PopB_02.forward.fq" ftype="fastqsanger"/>
+                            <element name="reverse" value="PopB_02.reverse.fq" ftype="fastqsanger"/>
                         </collection>
                     </element>
                     <element name="PopB_03">
                         <collection type="paired">
-                            <element name="forward" value="PopB_03.forward.fq.gz" ftype="fastqsanger.gz"/>
-                            <element name="reverse" value="PopB_03.reverse.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="forward" value="PopB_03.forward.fq" ftype="fastqsanger"/>
+                            <element name="reverse" value="PopB_03.reverse.fq" ftype="fastqsanger"/>
                         </collection>
                     </element>
                     <element name="PopB_04">
                         <collection type="paired">
-                            <element name="forward" value="PopB_04.forward.fq.gz" ftype="fastqsanger.gz"/>
-                            <element name="reverse" value="PopB_04.reverse.fq.gz" ftype="fastqsanger.gz"/>
+                            <element name="forward" value="PopB_04.forward.fq" ftype="fastqsanger"/>
+                            <element name="reverse" value="PopB_04.reverse.fq" ftype="fastqsanger"/>
                         </collection>
                     </element>
                 </collection>

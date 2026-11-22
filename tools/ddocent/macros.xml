@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <macros>
     <token name="@TOOL_VERSION@">2.9.8</token>
     <token name="@VERSION_SUFFIX@">0</token>
@@ -18,6 +17,10 @@
             <requirement type="package" version="1.0.3">vcflib</requirement>
             <!-- dDocent's version check and remake_reference.sh both reject fastp >= 1.0. -->
             <requirement type="package" version="0.26.0">fastp</requirement>
+            <!-- dDocent compresses and decompresses its intermediates with gzip, which the
+                 ddocent package does not depend on; the wrappers also gzip uncompressed
+                 fastqsanger input, because dDocent only accepts *.fq.gz. -->
+            <requirement type="package" version="1.13">gzip</requirement>
             <!-- dDocent plots ASCII histograms and waits with 'pause -1'.  gnuplot 5.0.3,
                  which is what the ddocent package pulls in by default, is linked against a
                  libtiff that is no longer shipped, and gnuplot 6 segfaults as soon as it
@@ -62,11 +65,10 @@ dDocent --help 2>&1 | grep -m1 -oE 'dDocent [0-9]+(\.[0-9]+)*' | cut -d' ' -f2
     <token name="@HELP_SAMPLE_NAMING@"><![CDATA[
 The dDocent pipeline expects paired FASTQ files named after the sample:
 ``Locality_Individual.F.fq.gz`` and ``Locality_Individual.R.fq.gz``.
-The wrapper renames the collection elements accordingly, so the only requirements
-on the element identifiers are:
-
-* no whitespace or slashes, and
-* an underscore separating locality and individual, e.g. ``PopA_01``.
+The wrapper renames the collection elements accordingly and replaces every
+character that is not a word character by an underscore, so the only requirement
+on the element identifiers is an underscore separating locality and individual,
+e.g. ``PopA_01``.
 
 When no popmap is supplied, the population of a sample is taken as the part of its
 name before the first underscore (``PopA_01`` belongs to population ``PopA``).

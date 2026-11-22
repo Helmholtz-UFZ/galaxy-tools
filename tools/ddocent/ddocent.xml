@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <tool id="ddocent" name="dDocent" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@" license="MIT">
     <description>RAD-seq reference assembly and variant calling pipeline</description>
     <macros>
@@ -11,15 +10,25 @@
 mkdir -p work &&
 cd work &&
 
-## dDocent discovers its input by filename: Locality_Individual.F.fq.gz / .R.fq.gz
+## dDocent discovers its input by filename (Locality_Individual.F.fq.gz / .R.fq.gz),
+## so the element identifier becomes the sample name.  Letters, digits and
+## underscores are kept and everything else is replaced by an underscore, so that
+## the name is safe in the shell, in dDocent's sed/mawk one-liners and in the
+## popmap dDocent writes.
 #for $element in $reads
-ln -s '$element.forward' '${element.element_identifier}.F.fq.gz' &&
-ln -s '$element.reverse' '${element.element_identifier}.R.fq.gz' &&
+#set $ident = ''.join([c if (c.isalnum() or c == '_') else '_' for c in str($element.element_identifier)])
+#if $element.forward.ext == 'fastqsanger.gz'
+ln -s '$element.forward' '${ident}.F.fq.gz' &&
+ln -s '$element.reverse' '${ident}.R.fq.gz' &&
+#else
+gzip -c '$element.forward' > '${ident}.F.fq.gz' &&
+gzip -c '$element.reverse' > '${ident}.R.fq.gz' &&
+#end if
 #end for
 
 ## dDocent derives the population of a sample from the part of its name before the
-## first underscore and refuses to run when that is not possible
-for f in *.F.fq.gz; do case "\$f" in *[[:space:]/]*) echo "ERROR: collection element '\$f' contains whitespace or a slash; dDocent cannot use it as a file name." >&2; exit 1 ;; *_*) ;; *) echo "ERROR: collection element '\$f' does not follow the dDocent naming convention Locality_Individual (no underscore in the name)." >&2; exit 1 ;; esac; done &&
+## first underscore and refuses to run when there is none
+for f in *.F.fq.gz; do case "\$f" in *_*) ;; *) echo "ERROR: collection element '\${f%.F.fq.gz}' does not follow the dDocent naming convention Locality_Individual (no underscore in the name)." >&2; exit 1 ;; esac; done &&
 
 #if $analysis.analysis_type == 'assembly_only' and $reference_source.reference_option == 'history'
 echo "ERROR: 'Build the reference only' cannot be combined with 'Use a reference from the history' - choose one, or extend the analysis to mapping." >&2; exit 1 &&
@@ -81,7 +90,7 @@ mkdir -p logfiles; [ -e dDocent_main.LOG ] || : > dDocent_main.LOG; tar -czf dDo
     ]]></command>
 
     <inputs>
-        <param name="reads" type="data_collection" collection_type="list:paired" format="fastqsanger.gz,fastq.gz" label="Raw paired-end reads" help="A list of paired collections, one per individual. Gzipped FASTQ only - dDocent refuses to run on uncompressed files. Element identifiers become the sample names, see the help section below."/>
+        <param name="reads" type="data_collection" collection_type="list:paired" format="fastqsanger,fastqsanger.gz" label="Raw paired-end reads" help="A list of paired collections, one per individual. dDocent only accepts gzipped FASTQ, uncompressed fastqsanger is gzipped by the wrapper. The element identifiers become the sample names, see the help section below."/>
 
         <conditional name="popmap_source">
             <param name="popmap_option" type="select" label="Population assignment" help="A popmap maps every sample to a population. dDocent needs it for the FreeBayes '--populations' option.">
@@ -164,13 +173,13 @@ mkdir -p logfiles; [ -e dDocent_main.LOG ] || : > dDocent_main.LOG; tar -czf dDo
         <test expect_num_outputs="10">
             <param name="reads">
                 <collection type="list:paired">
-                    <element name="PopA_01">
+                    <element name="PopA.01">
                         <collection type="paired">
                             <element name="forward" value="PopA_01.F.fq.gz" ftype="fastqsanger.gz"/>
                             <element name="reverse" value="PopA_01.R.fq.gz" ftype="fastqsanger.gz"/>
                         </collection>
                     </element>
-                    <element name="PopA_02">
+                    <element name="PopA-02">
                         <collection type="paired">
                             <element name="forward" value="PopA_02.F.fq.gz" ftype="fastqsanger.gz"/>
                             <element name="reverse" value="PopA_02.R.fq.gz" ftype="fastqsanger.gz"/>
@@ -379,13 +388,13 @@ pipeline for non-model organisms, following the workflow of Puritz et al. 2014
 
 .. class:: warningmark
 
-**Reads must be gzipped and paired**
+**Reads must be paired**
 
-dDocent only accepts ``*.fq.gz`` input; feeding it uncompressed FASTQ aborts the run.
-Every element of the input collection must contain both a forward and a reverse
-read file. Reads demultiplexed with **Stacks: process radtags** are the usual input;
-relabel the resulting collection so that the element identifiers follow the
-``Locality_Individual`` convention before running dDocent.
+dDocent only accepts ``*.fq.gz`` input, so uncompressed ``fastqsanger`` elements are
+gzipped by the wrapper. Every element of the input collection must contain both a
+forward and a reverse read file. Reads demultiplexed with **Stacks: process radtags**
+are the usual input; relabel the resulting collection so that the element identifiers
+follow the ``Locality_Individual`` convention before running dDocent.
 
 ---
 

@@ -1634,6 +1634,14 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="1D" />
             </conditional>
+            <conditional name="data_aggregation_cond">
+              <param name="data_aggregation_selector" value="type_0" />
+              <param name="data_aggregation" value="sum" />
+            </conditional>
+            <conditional name="flags_aggregation_cond">
+              <param name="flags_aggregation_selector" value="type_0" />
+              <param name="flags_aggregation" value="sum" />
+            </conditional>
           </conditional>
         </conditional>
       </repeat>
@@ -1646,6 +1654,8 @@
           <has_text text="override=" />
           <has_text text="index=" />
           <has_text text="tolerance=" />
+          <has_text text="data_aggregation=" />
+          <has_text text="flags_aggregation=" />
         </assert_contents>
       </output>
     </test>
@@ -1670,6 +1680,14 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="1D" />
             </conditional>
+            <conditional name="data_aggregation_cond">
+              <param name="data_aggregation_selector" value="type_0" />
+              <param name="data_aggregation" value="sum" />
+            </conditional>
+            <conditional name="flags_aggregation_cond">
+              <param name="flags_aggregation_selector" value="type_0" />
+              <param name="flags_aggregation" value="sum" />
+            </conditional>
           </conditional>
         </conditional>
       </repeat>
@@ -1682,6 +1700,8 @@
           <has_text text="override=" />
           <has_text text="index=" />
           <has_text text="tolerance=" />
+          <has_text text="data_aggregation=" />
+          <has_text text="flags_aggregation=" />
         </assert_contents>
       </output>
     </test>
@@ -1706,6 +1726,14 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="1D" />
             </conditional>
+            <conditional name="data_aggregation_cond">
+              <param name="data_aggregation_selector" value="type_0" />
+              <param name="data_aggregation" value="sum" />
+            </conditional>
+            <conditional name="flags_aggregation_cond">
+              <param name="flags_aggregation_selector" value="type_0" />
+              <param name="flags_aggregation" value="sum" />
+            </conditional>
           </conditional>
         </conditional>
       </repeat>
@@ -1718,6 +1746,8 @@
           <has_text text="override=" />
           <has_text text="index=" />
           <has_text text="tolerance=" />
+          <has_text text="data_aggregation=" />
+          <has_text text="flags_aggregation=" />
         </assert_contents>
       </output>
     </test>
@@ -1742,6 +1772,14 @@
               <param name="tolerance_selector" value="type_1" />
               <param name="tolerance" value="1D" />
             </conditional>
+            <conditional name="data_aggregation_cond">
+              <param name="data_aggregation_selector" value="type_0" />
+              <param name="data_aggregation" value="sum" />
+            </conditional>
+            <conditional name="flags_aggregation_cond">
+              <param name="flags_aggregation_selector" value="type_0" />
+              <param name="flags_aggregation" value="sum" />
+            </conditional>
           </conditional>
         </conditional>
       </repeat>
@@ -1754,6 +1792,100 @@
           <has_text text="override=" />
           <has_text text="index=" />
           <has_text text="tolerance=" />
+          <has_text text="data_aggregation=" />
+          <has_text text="flags_aggregation=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="reindex" />
+            <param name="field" value="1" />
+            <param name="method" value="fagg" />
+            <param name="broadcast" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+            <conditional name="index_cond">
+              <param name="index_selector" value="type_0" />
+              <param name="index" value="1D" />
+            </conditional>
+            <conditional name="tolerance_cond">
+              <param name="tolerance_selector" value="type_0" />
+              <param name="tolerance" value="1D" />
+            </conditional>
+            <conditional name="data_aggregation_cond">
+              <param name="data_aggregation_selector" value="type_1" />
+              <param name="data_aggregation" value="1" />
+            </conditional>
+            <conditional name="flags_aggregation_cond">
+              <param name="flags_aggregation_selector" value="type_0" />
+              <param name="flags_aggregation" value="sum" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="reindex" />
+          <has_text text="method=" />
+          <has_text text="broadcast=" />
+          <has_text text="squeeze=" />
+          <has_text text="override=" />
+          <has_text text="index=" />
+          <has_text text="tolerance=" />
+          <has_text text="data_aggregation=" />
+          <has_text text="flags_aggregation=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="reindex" />
+            <param name="field" value="1" />
+            <param name="method" value="fagg" />
+            <param name="broadcast" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+            <conditional name="index_cond">
+              <param name="index_selector" value="type_0" />
+              <param name="index" value="1D" />
+            </conditional>
+            <conditional name="tolerance_cond">
+              <param name="tolerance_selector" value="type_0" />
+              <param name="tolerance" value="1D" />
+            </conditional>
+            <conditional name="data_aggregation_cond">
+              <param name="data_aggregation_selector" value="type_0" />
+              <param name="data_aggregation" value="sum" />
+            </conditional>
+            <conditional name="flags_aggregation_cond">
+              <param name="flags_aggregation_selector" value="type_1" />
+              <param name="flags_aggregation" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="reindex" />
+          <has_text text="method=" />
+          <has_text text="broadcast=" />
+          <has_text text="squeeze=" />
+          <has_text text="override=" />
+          <has_text text="index=" />
+          <has_text text="tolerance=" />
+          <has_text text="data_aggregation=" />
+          <has_text text="flags_aggregation=" />
         </assert_contents>
       </output>
     </test>
@@ -2253,7 +2385,7 @@
             <param name="max_gap" value="1D" />
             <repeat name="yscope">
               <param name="yscope_min" value="0.0" />
-              <param name="yscope_max" value="1.0" />
+              <param name="yscope_max" value="0.0" />
             </repeat>
             <param name="dfilter" value="1" />
             <conditional name="mode_cond">
@@ -2297,7 +2429,7 @@
             <param name="max_gap" value="1D" />
             <repeat name="yscope">
               <param name="yscope_min" value="0.0" />
-              <param name="yscope_max" value="1.0" />
+              <param name="yscope_max" value="0.0" />
             </repeat>
             <param name="dfilter" value="1" />
             <conditional name="mode_cond">
@@ -2341,7 +2473,7 @@
             <param name="max_gap" value="1D" />
             <repeat name="yscope">
               <param name="yscope_min" value="0.0" />
-              <param name="yscope_max" value="1.0" />
+              <param name="yscope_max" value="0.0" />
             </repeat>
             <param name="dfilter" value="1" />
             <conditional name="mode_cond">
@@ -2385,7 +2517,7 @@
             <param name="max_gap" value="1D" />
             <repeat name="yscope">
               <param name="yscope_min" value="0.0" />
-              <param name="yscope_max" value="1.0" />
+              <param name="yscope_max" value="0.0" />
             </repeat>
             <param name="dfilter" value="1" />
             <conditional name="mode_cond">

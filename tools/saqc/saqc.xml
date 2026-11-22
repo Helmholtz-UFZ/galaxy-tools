@@ -401,7 +401,7 @@
                   <param argument="window" type="integer" label="The size of the window, the aggregation is computed from" help="An integer define the number of periods to be used, a string is interpreted as an offset. ( see `pandas.rolling` for more information). Integer windows may result in screwed aggregations if called on none-harmonized or irregular data" min="0"/>
                 </when>
               </conditional>
-              <param argument="center" type="boolean" label="Center the window around the value" help="Can only be used with integer windows, otherwise it is silently ignored" checked="false"/>
+              <param argument="center" type="boolean" label="Center the window around the value" help="Can only be used with integer windows, otherwise it is silently ignored" checked="true"/>
               <param argument="min_periods" type="integer" value="0" label="Minimum number of valid (not numpy.nan) values that have to be available in a window for its aggregation to be computed" help="" min="0"/>
               <param argument="flag" type="float" value="-inf" label="The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
             </when>
@@ -599,8 +599,8 @@
                   <param argument="density" type="float" label="How to derive temporal density" help="``'auto'`` uses the median absolute step size; a ``float`` sets a fixed increment" min="0"/>
                 </when>
               </conditional>
-              <param argument="fill_na" type="boolean" label="If ``True``, fill NaNs by linear interpolation before LOF calculation" help="" checked="false"/>
-              <param argument="slope_correct" type="boolean" label="If ``True``, suppress flagging of groups of points" help="that seem to correspond to steep value slopes rather than to actual outliers" checked="false"/>
+              <param argument="fill_na" type="boolean" label="If ``True``, fill NaNs by linear interpolation before LOF calculation" help="" checked="true"/>
+              <param argument="slope_correct" type="boolean" label="If ``True``, suppress flagging of groups of points" help="that seem to correspond to steep value slopes rather than to actual outliers" checked="true"/>
               <param argument="min_offset" type="float" optional="true" label="Minimum jump in values before and after an outlier cluster for it to be flagged" help="" min="0"/>
               <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
             </when>
@@ -627,7 +627,7 @@
               <param argument="thresh" type="float" value="3" label="Cutoff value" help="Points with absolute Z-scores larger than this threshold are flagged" min="0"/>
               <param argument="min_residuals" type="float" optional="true" label="Minimum absolute distance a value must be apart from its context windows expectation, in order for the Z scoring test to be applied" help="" min="0"/>
               <param argument="min_periods" type="integer" optional="true" label="Minimum number of valid observations that is required to be contained in a values context window, in order for the Z scoring test to be applied" help="" min="0"/>
-              <param argument="center" type="boolean" label="If ``True`` (default), the tested value is centered in its context window; otherwise" help="it is the window’s last value" checked="false"/>
+              <param argument="center" type="boolean" label="If ``True`` (default), the tested value is centered in its context window; otherwise" help="it is the window’s last value" checked="true"/>
               <param argument="axis" type="integer" value="0" label="Axis along which to compute scores:" help="* ``0`` (default) — compute along the time axis only (separate windows for all fields). * ``1`` — compute along time and data axis (windows are 2 dimensional and span over all fields)" min="0" max="1"/>
               <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
             </when>
@@ -643,7 +643,7 @@
               <param argument="field" type="data_column" label="Variable to process" help="" data_ref="data" multiple="false"/>
               <param argument="reference" type="data_column" label="The name in `data` which holds the pattern" help="The pattern must not have NaNs, have a datetime index and must not be empty" data_ref="data" multiple="false"/>
               <param argument="max_distance" type="float" value="0.0" label="Maximum dtw-distance between chunk and pattern, if the distance is lower than ``max_distance`` the data gets flagged" help="With default, ``0.0``, only exact matches are flagged" min="0"/>
-              <param argument="normalize" type="boolean" label="If `False`, return unmodified distances" help="If `True`, normalize distances by the number of observations of the reference. This helps to make it easier to find a good cutoff threshold for further processing. The distances then refer to the mean distance per datapoint, expressed in the datas units" checked="false"/>
+              <param argument="normalize" type="boolean" label="If `False`, return unmodified distances" help="If `True`, normalize distances by the number of observations of the reference. This helps to make it easier to find a good cutoff threshold for further processing. The distances then refer to the mean distance per datapoint, expressed in the datas units" checked="true"/>
               <param argument="plot" type="boolean" label="Show a calibration plot, which can be quite helpful to find the right threshold for `max_distance`" help="It works best with `normalize=True`. Do not use in automatic setups / pipelines. The plot show three lines:  - data: the data the function was called on - distances: the calculated distances by the algorithm - indicator: have to distinct levels: `0` and the value of `max_distance`. If `max_distance` is `0.0` it defaults to `1`. Everywhere where the indicator is not `0` the data will be flagged" checked="false"/>
               <param argument="flag" type="float" value="255.0" label="The flag value the function uses to mark observations" help="Defaults to the ``BAD`` value of the translation scheme"/>
             </when>
@@ -717,11 +717,11 @@
                 <option value="sshift">sshift</option>
                 <option value="mshift">mshift</option>
                 <option value="match">match</option>
-                <option selected="true" value="auto">auto: invert the last alignment/resampling operation </option>
+                <option selected="true" value="auto">auto: invert the last alignment/resampling operation</option>
                 <option value="linear">linear</option>
                 <option value="pad">pad</option>
               </param>
-              <param argument="invert" type="boolean" label="If True, not the actual method is applied, but its inversion-method" help="" checked="false"/>
+              <param argument="invert" type="boolean" label="If True, not the actual method is applied, but its inversion-method" help="" checked="true"/>
               <conditional name="freq_cond">
                 <param name="freq_selector" type="select" label="Choose type for 'Projection range'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">OffsetStr (Pandas Frequency)</option>
@@ -850,7 +850,7 @@
                   <param argument="flags_aggregation" type="float" optional="true" label="Function string or custom Function, determining how to aggregate new flags values from the values at the periods selected according to the `index_selection_method`" help="If a scalar value is passed, the new flags series will just evaluate to that scalar at any new index"/>
                 </when>
               </conditional>
-              <param argument="broadcast" type="boolean" label="Weather to propagate aggregation result to full reindex window when using aggregation reindexer" help="(as opposed to only assign to next/previous/closest)" checked="false"/>
+              <param argument="broadcast" type="boolean" label="Weather to propagate aggregation result to full reindex window when using aggregation reindexer" help="(as opposed to only assign to next/previous/closest)" checked="true"/>
               <param argument="squeeze" type="boolean" label="squeeze" help="" checked="false"/>
               <param argument="override" type="boolean" label="override" help="" checked="false"/>
             </when>
@@ -929,7 +929,7 @@
                 </when>
               </conditional>
               <param argument="min_periods" type="integer" value="0" label="The minimum number of periods to get a valid value" help="" min="0"/>
-              <param argument="center" type="boolean" label="If True, center the rolling window" help="" checked="false"/>
+              <param argument="center" type="boolean" label="If True, center the rolling window" help="" checked="true"/>
             </when>
           </conditional>
         </when>
@@ -969,7 +969,7 @@
                 <option value="count">count: Number of non-NA observations in the window</option>
               </param>
               <param argument="min_periods" type="integer" value="0" label="Minimum number of valid observations in the window required to calculate a value" help="" min="0"/>
-              <param argument="center" type="boolean" label="If ``True``, function results are assigned to the timestamp at the center of the windows; if ``False``" help="they are assigned to the highest timestamp in the windows" checked="false"/>
+              <param argument="center" type="boolean" label="If ``True``, function results are assigned to the timestamp at the center of the windows; if ``False``" help="they are assigned to the highest timestamp in the windows" checked="true"/>
             </when>
           </conditional>
         </when>
@@ -1061,7 +1061,7 @@
                   <param argument="density" type="float" label="How to calculate the temporal distance/density for the variable-to-be-flagged" help="* float - introduces linear density with an increment equal to `density` * Callable - calculates the density by applying the function passed onto the variable to be flagged (passed as Series)" min="0"/>
                 </when>
               </conditional>
-              <param argument="fill_na" type="boolean" label="If True, NaNs in the data are filled with a linear interpolation" help="" checked="false"/>
+              <param argument="fill_na" type="boolean" label="If True, NaNs in the data are filled with a linear interpolation" help="" checked="true"/>
               <param argument="statistical_extent" type="integer" value="1" label="statistical_extent" help=""/>
             </when>
             <when value="assignZScore">
@@ -1069,7 +1069,7 @@
               <param argument="window" type="text" label="Size of the window" help="can be determined as: * Offset String, denoting the windows temporal extension * Integer, denoting the windows number of periods. * `None` (default), All data points share the same scoring window, which than equals the whole data Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
                 <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
               </param>
-              <param argument="center" type="boolean" label="Weather or not to center the target value in the scoring window" help="If `False`, the target value is the last value in the window" checked="false"/>
+              <param argument="center" type="boolean" label="Weather or not to center the target value in the scoring window" help="If `False`, the target value is the last value in the window" checked="true"/>
               <param argument="min_periods" type="integer" optional="true" label="Minimum number of valid meassurements in a scoring window, to consider the resulting score valid" help="" min="0"/>
             </when>
           </conditional>
@@ -1108,7 +1108,7 @@
                 <when value="type_0">
                   <param argument="mode" type="select" label="How to process multiple variables to be plotted:" help="* `&quot;oneplot&quot;` : plot all variables with their flags in one axis (default) * `&quot;subplots&quot;` : generate subplot grid where each axis contains one variable plot with associated flags * `&quot;biplot&quot;` : plotting first and second variable in field against each other in a scatter plot  (point cloud)">
                     <option value="subplots">subplots: generate subplot grid where each axis contains one variable plot with associated flags</option>
-                    <option value="oneplot">oneplot: plot all variables with their flags in one axis </option>
+                    <option value="oneplot">oneplot: plot all variables with their flags in one axis</option>
                   </param>
                 </when>
                 <when value="type_1">
@@ -1167,7 +1167,7 @@
               <param argument="selection_field" type="data_column" optional="true" label="Only effective if mode == &quot;mask_var&quot; Fieldname of the column, holding the data that is to be used as mask" help="(must be boolean series) Neither the series` length nor its labels have to match data[field]`s index and length. An inner join of the indices will be calculated and values get masked where the values of the inner join are ``True``" data_ref="data" multiple="false"/>
               <param argument="start" type="text" label="Only effective if mode == &quot;seasonal&quot; String denoting starting point of every period" help="Formally, it has to be a truncated instance of &quot;mm-ddTHH:MM:SS&quot;. Has to be of same length as `end` parameter. See examples section below for some examples"/>
               <param argument="end" type="text" label="Only effective if mode == &quot;periodic&quot; String denoting starting point of every period" help="Formally, it has to be a truncated instance of &quot;mm-ddTHH:MM:SS&quot;. Has to be of same length as `end` parameter. See examples section below for some examples"/>
-              <param argument="closed" type="boolean" label="Wheather or not to include the mask defining bounds to the mask" help="" checked="false"/>
+              <param argument="closed" type="boolean" label="Wheather or not to include the mask defining bounds to the mask" help="" checked="true"/>
             </when>
           </conditional>
         </when>
@@ -1186,7 +1186,7 @@
   <help><![CDATA[This tool provides access to SaQC [#saqcurl]_ functions for quality control of time series data. Select a module and method, then configure its parameters.
 
 breaks
-=============
+======
 
 
 Detecting breaks in data.
@@ -1199,7 +1199,7 @@ isolated values (`flagIsolated`).
 
 
 breaks.flagIsolated
------------------------------
+-------------------
 
 
 Find and flag temporally isolated groups of data.
@@ -1220,7 +1220,7 @@ A series of values `x_k, x_{k+1}, ..., x_{k+n}` with timestamps
 
 
 breaks.flagJumps
------------------------------
+----------------
 
 
 Flag jumps and drops in data.
@@ -1242,15 +1242,14 @@ Examples
 Below diagram illustrates the interaction of parameters for a positive value jump
 initializing a new mean level.
 
-.. images:: flagJumpsPic.png
-
+.. figure:: flagJumpsPic.png
    The two adjacent windows of size `window` roll through the data series. Whenever
    the mean values differ by more than `thresh`, flagging is triggered.
 
 
 
 breaks.flagNAN
------------------------------
+--------------
 
 
 Flag NaNs in data.
@@ -1264,14 +1263,14 @@ function evaluates the NaNs.
 
 
 constants
-=============
+=========
 
 
 
 
 
 constants.flagByVariance
------------------------------
+------------------------
 
 
 Flag low-variance data.
@@ -1287,7 +1286,7 @@ Any interval of values y(t),..y(t+n) is flagged, if:
 
 
 constants.flagConstants
------------------------------
+-----------------------
 
 
 Flag constant data values.
@@ -1302,14 +1301,14 @@ Any interval of values y(t), ..., y(t+n) is flagged if:
 
 
 curvefit
-=============
+========
 
 
 
 
 
 curvefit.fitLowpassFilter
------------------------------
+-------------------------
 
 
 Fits the data using the butterworth filter.
@@ -1322,7 +1321,7 @@ The data is expected to be regularly sampled.
 
 
 curvefit.fitMomentFM
------------------------------
+--------------------
 
 
 Fits the data by reconstructing it with the Moment Foundational Timeseries Model (MomentFM).
@@ -1333,7 +1332,7 @@ with step size `context`/`ratio`
 Examples
 ``````````
 
-.. images:: fitFMpic.png
+.. figure:: fitFMpic.png
 
 Notes
 ``````````
@@ -1344,7 +1343,7 @@ Notes
 
 
 curvefit.fitPolynomial
------------------------------
+----------------------
 
 
 Fit a polynomial model to the data.
@@ -1364,14 +1363,14 @@ For regularly sampled data:
 
 
 drift
-=============
+=====
 
 
 
 
 
 drift.assignRegimeAnomaly
------------------------------
+-------------------------
 
 
 A function to detect values belonging to an anomalous regime regarding modelling
@@ -1392,7 +1391,7 @@ method "complete".
 
 
 drift.correctDrift
------------------------------
+------------------
 
 
 The function corrects drifting behavior.
@@ -1434,13 +1433,13 @@ Some examples of meaningful driftmodels.
 
 Linear drift modell (no free parameters).
 
-.. doctest::
+Example::
 
     >>> Model = lambda t, origin, target: origin + t*target
 
 exponential drift model (exponential raise!)
 
-.. doctest::
+Example::
 
     >>> expFunc = lambda t, a, b, c: a + b * (np.exp(c * x) - 1)
     >>> Model = lambda t, p, origin, target: expFunc(t, (target - origin) / (np.exp(abs(c)) - 1), abs(c))
@@ -1451,15 +1450,13 @@ Exponential and linear driftmodels are part of the ``ts_operators`` library, und
 
 
 drift.correctOffset
------------------------------
-
-
+-------------------
 
 
 
 
 drift.flagDriftFromNorm
------------------------------
+-----------------------
 
 
 Flags data that deviates from an avarage data course.
@@ -1510,7 +1507,7 @@ Introduction to Hierarchical clustering:
 
 
 drift.flagDriftFromReference
------------------------------
+----------------------------
 
 
 Flags data that deviates from a reference course. Deviation is measured by a
@@ -1528,7 +1525,7 @@ by euclidean, for example).
 
 
 drift.flagRegimeAnomaly
------------------------------
+-----------------------
 
 
 Flags anomalous regimes regarding to modelling regimes of ``field``.
@@ -1548,14 +1545,14 @@ method "complete".
 
 
 flagtools
-=============
+=========
 
 
 
 
 
 flagtools.andGroup
------------------------------
+------------------
 
 
 Logical AND operation for Flags.
@@ -1571,7 +1568,7 @@ Examples
 Flag data, if the values are above a certain threshold (determined by `flagRange`) AND if the values are
 constant for 3 periods (determined by `flagConstants`)
 
-.. doctest:: andGroupExample
+Example::
 
    >>> dat = pd.Series([1,0,0,0,1,2,3,4,5,5,5,4], name='data', index=pd.date_range('2000', freq='10min', periods=12))
    >>> qc = saqc.SaQC(dat)
@@ -1594,7 +1591,7 @@ constant for 3 periods (determined by `flagConstants`)
 Masking data, so that a test result only gets assigned during daytime (between 6 and 18 o clock for example).
 The daytime condition is generated via `flagGeneric`:
 
-.. doctest:: andGroupExample
+Example::
 
    >>> from saqc.lib.tools import periodicMask
        >>> mask_func = lambda x: ~periodicMask(x.index, '06:00:00', '18:00:00', True)
@@ -1627,7 +1624,7 @@ The daytime condition is generated via `flagGeneric`:
 
 
 flagtools.clearFlags
------------------------------
+--------------------
 
 
 Assign the flag UNFLAGGED to all timestamps.
@@ -1649,7 +1646,7 @@ flagUnflagged : Assign a specific flag value to all timestamps that have no flag
 
 
 flagtools.flagDummy
------------------------------
+-------------------
 
 
 Function does nothing but returning data and flags.
@@ -1657,7 +1654,7 @@ Function does nothing but returning data and flags.
 
 
 flagtools.flagUnflagged
------------------------------
+-----------------------
 
 
 Assign a `flag` to all timestamps.
@@ -1671,13 +1668,16 @@ data is not relevant for processing.
 See also
 ``````````
 
-clearFlags : assign UNFLAGGED to all timestamps
-forceFlags : Assign a specific flag value to all timestamps.
+clearFlags
+    assign UNFLAGGED to all timestamps
+
+forceFlags
+    Assign a specific flag value to all timestamps.
 
 
 
 flagtools.forceFlags
------------------------------
+--------------------
 
 
 Set whole column to a flag value.
@@ -1685,19 +1685,25 @@ Set whole column to a flag value.
 See also
 ``````````
 
-clearFlags : set whole column to UNFLAGGED
-flagUnflagged : set flag value at all unflagged positions
-target : `SaQCFields` | `newSaQCFields` , optional
-    Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
-dfilter :  optional
-    Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
-flag :  optional
-    The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
+clearFlags
+    set whole column to UNFLAGGED
+
+flagUnflagged
+    set flag value at all unflagged positions
+
+target
+    `SaQCFields` | `newSaQCFields` , optional Variable name to which the results are written. `target` will be created if it does not exist. Defaults to `field`.
+
+dfilter
+     optional Defines which observations will be masked based on the already existing flags. Any data point with a flag equal or worse to this threshold will be passed as ``NaN`` to the function. Defaults to the ``DFILTER_ALL`` value of the translation scheme.
+
+flag
+     optional The flag value the function uses to mark observations. Defaults to the ``BAD`` value of the translation scheme.
 
 
 
 flagtools.orGroup
------------------------------
+-----------------
 
 
 Logical OR operation for Flags.
@@ -1713,7 +1719,7 @@ Examples
 Flag data, if the values are above a certain threshold (determined by `flagRange`) OR if the values are
 constant for 3 periods (determined by `flagConstants`)
 
-.. doctest:: orGroupExample
+Example::
 
    >>> dat = pd.Series([1,0,0,0,0,2,3,4,5,5,7,8], name='data', index=pd.date_range('2000', freq='10min', periods=12))
    >>> qc = saqc.SaQC(dat)
@@ -1736,7 +1742,7 @@ constant for 3 periods (determined by `flagConstants`)
 
 
 flagtools.propagateFlags
------------------------------
+------------------------
 
 
 Propagate already assigned flags along the date axis.
@@ -1748,7 +1754,7 @@ Examples
 
 First, generate some data and some flags:
 
-.. doctest:: propagateFlags
+Example::
 
    >>> import saqc
    >>> data = pd.DataFrame({"a": [-3, -2, -1, 0, 1, 2, 3]})
@@ -1767,7 +1773,7 @@ First, generate some data and some flags:
 Now, to repeat the flag '255.0' two times in the direction of ascending
 indices, execute:
 
-.. doctest:: propagateFlags
+Example::
 
    >>> qc.propagateFlags('a', window=2, method="ffill").flags["a"]
    0     -inf
@@ -1781,7 +1787,7 @@ indices, execute:
 
 Choosing "bfill" will result in:
 
-.. doctest:: propagateFlags
+Example::
 
    >>> qc.propagateFlags('a', window=2, method="bfill").flags["a"]
    0     -inf
@@ -1796,7 +1802,7 @@ Choosing "bfill" will result in:
 If an explicit flag is passed, it will be used to fill the
 repetition window:
 
-.. doctest:: propagateFlags
+Example::
 
    >>> qc.propagateFlags('a', window=2, method="bfill", flag=111).flags["a"]
    0     -inf
@@ -1811,7 +1817,7 @@ repetition window:
 
 
 flagtools.transferFlags
------------------------------
+-----------------------
 
 
 Transfer flags from one field to another.
@@ -1825,7 +1831,7 @@ Examples
 
 First, generate some data with flags:
 
-.. doctest:: exampleTransfer
+Example::
 
    >>> import saqc
    >>> data = pd.DataFrame({'a': [1, 2], 'b': [1, 2], 'c': [1, 2]})
@@ -1838,7 +1844,7 @@ First, generate some data with flags:
 
 Project the flag from `a` to `b`:
 
-.. doctest:: exampleTransfer
+Example::
 
    >>> qc = qc.transferFlags('a', target='b')
    >>> qc.flags.to_pandas()
@@ -1848,7 +1854,7 @@ Project the flag from `a` to `b`:
 
 Project flags of `a` to both `b` and `c`:
 
-.. doctest:: exampleTransfer
+Example::
 
    >>> qc = qc.transferFlags(['a','a'], ['b', 'c'], overwrite=True)
    >>> qc.flags.to_pandas()
@@ -1860,7 +1866,10 @@ See also
 ``````````
 
 * `flagGeneric`
+    
+
 * `concatFlags`
+    
 
 
 
@@ -1872,7 +1881,7 @@ interpolation
 
 
 interpolation.align
------------------------------
+-------------------
 
 
 Convert a time series to a specified frequency, interpolating values
@@ -1881,7 +1890,7 @@ according to the chosen method.
 
 
 interpolation.interpolateByRolling
------------------------------
+----------------------------------
 
 
 Replace NaN by the aggregation result of the surrounding window.
@@ -1889,14 +1898,14 @@ Replace NaN by the aggregation result of the surrounding window.
 
 
 noise
-=============
+=====
 
 
 
 
 
 noise.flagByScatterLowpass
------------------------------
+--------------------------
 
 
 Flag anomalous data chunks based on scatter statistics.
@@ -1910,14 +1919,14 @@ Chunks of length ``window`` are flagged if:
 
 
 outliers
-=============
+========
 
 
 
 
 
 outliers.flagByStray
------------------------------
+--------------------
 
 
 Flag outliers in 1-dimensional (score) data using the STRAY Algorithm.
@@ -1935,7 +1944,7 @@ References
 
 
 outliers.flagLOF
------------------------------
+----------------
 
 
 Flag values where the Local Outlier Factor (LOF) exceeds cutoff.
@@ -1964,7 +1973,7 @@ Notes
 
 
 outliers.flagOffset
------------------------------
+-------------------
 
 
 Flag offsetting value courses.
@@ -1988,25 +1997,15 @@ Examples
 Below picture gives an abstract interpretation of the parameter interplay in case of a positive
 value jump, initializing an offset course.
 
-.. images:: flagOffsetPic.png
-
+.. figure:: flagOffsetPic.png
    The four values marked red are flagged because (1) the initial value jump
    exceeds `thresh`, (2) the temporal extension of the group does not exceed `window`,
    and (3) the returning value after the group lies within `tolerance` distance from the initial one.
 
-.. plot::
-   :context:
-   :include-source: False
-
-   import matplotlib
-   import saqc
-   import pandas as pd
-   data = pd.DataFrame({'data':np.array([5,5,8,16,17,7,4,4,4,1,1,4])}, index=pd.date_range('2000',freq='1h', periods=12))
-
 Lets generate a simple, regularly sampled timeseries with an hourly sampling rate and generate an
 `saqc.SaQC` instance from it.
 
-.. doctest:: flagOffsetExample
+Example::
 
    >>> import saqc
    >>> data = pd.DataFrame({'data':np.array([5,5,8,16,17,7,4,4,4,1,1,4])}, index=pd.date_range('2000',freq='1h', periods=12))
@@ -2030,7 +2029,7 @@ Now we are applying `flagOffset` and try to flag offset courses that don't exten
 longer than 6 hours in time (`window`) and that have an initial value jump higher than 2 (`thresh`),
 and that return to the initial value level within a tolerance of 1.5 (`tolerance`).
 
-.. doctest:: flagOffsetExample
+Example::
 
    >>> qc = qc.flagOffset(field="data", thresh=2, tolerance=1.5, window="6h")
    >>> qc.plot(field="data")  # doctest: +SKIP
@@ -2038,14 +2037,14 @@ and that return to the initial value level within a tolerance of 1.5 (`tolerance
 Note that both negative and positive jumps are considered starting points of offsets. To restrict
 detection to positive jumps only, use `thresh_relative` > 0:
 
-.. doctest:: flagOffsetExample
+Example::
 
    >>> qc = qc.flagOffset(field="data", thresh=2, thresh_relative=.9, tolerance=1.5, window='6h')
    >>> qc.plot(field="data")  # doctest:+SKIP
 
 To detect only negative offsets, use a negative relative threshold:
 
-.. doctest:: flagOffsetExample
+Example::
 
    >>> qc = qc.flagOffset(field="data", thresh=2, thresh_relative=-.5, tolerance=1.5, window="6h")
    >>> qc.plot(field="data")  # doctest:+SKIP
@@ -2053,7 +2052,7 @@ To detect only negative offsets, use a negative relative threshold:
 
 
 outliers.flagRange
------------------------------
+------------------
 
 
 Flag values outside the closed interval [`min`, `max`].
@@ -2061,7 +2060,7 @@ Flag values outside the closed interval [`min`, `max`].
 
 
 outliers.flagUniLOF
------------------------------
+-------------------
 
 
 Flag anomalous values using the *Univariate Local Outlier Factor (UniLOF)* method.
@@ -2082,21 +2081,9 @@ Notes
 Examples
 ``````````
 
-See the :ref:`outlier detection cookbook
+See the `outlier detection cookbook
 <cookbooks/OutlierDetection:Outlier Detection>` for a detailed
 introduction and tuning guidance.
-
-.. plot::
-   :context: reset
-   :include-source: False
-
-   import matplotlib
-   import saqc
-   import pandas as pd
-   data = pd.read_csv('../resources/data/hydro_data.csv')
-   data = data.set_index('Timestamp')
-   data.index = pd.DatetimeIndex(data.index)
-   qc = saqc.SaQC(data)
 
 Example usage with default parameter configuration:
 
@@ -2104,7 +2091,7 @@ Loading data via the pandas CSV parser, casting the index to a DatetimeIndex,
 generating a `~saqc.SaQC` instance from the data, and plotting the variable
 representing light scattering at 254 nanometers wavelength.
 
-.. doctest:: flagUniLOFExample
+Example::
 
    >>> import saqc
    >>> data = pd.read_csv('./resources/data/hydro_data.csv')
@@ -2113,40 +2100,26 @@ representing light scattering at 254 nanometers wavelength.
    >>> qc = saqc.SaQC(data)
    >>> qc.plot('sac254_raw') # doctest: +SKIP
 
-.. plot::
-   :context:
-   :include-source: False
-   :class: center
-
-   qc.plot('sac254_raw')
-
 We apply `flagUniLOF` with default parameter values.
 This means that the main calibration parameters `n` and `thresh`
 evaluate to ``20`` and ``1.5``, respectively.
 
-.. doctest:: flagUniLOFExample
+Example::
 
    >>> import saqc
    >>> qc = qc.flagUniLOF('sac254_raw')
    >>> qc.plot('sac254_raw') # doctest: +SKIP
 
-.. plot::
-   :context: close-figs
-   :include-source: False
-   :class: center
-
-   qc = qc.flagUniLOF('sac254_raw')
-   qc.plot('sac254_raw')
-
 See also
 ``````````
 
-:ref:`introduction to outlier detection with saqc <cookbooks/OutlierDetection:Outlier Detection>`
+`introduction to outlier detection with saqc <cookbooks/OutlierDetection:Outlier Detection>`
+    
 
 
 
 outliers.flagZScore
------------------------------
+-------------------
 
 
 Uses standard score cutoffs to detect outliers. (For example, "*3*-sigma rule".)
@@ -2165,7 +2138,7 @@ For any data value `x` at timestamp `t` the following steps are performed in ord
    * If ``axis=1``, `X` contains values of all fields, sampled within ``window`` distance from `t`.
    * If ``axis=1`` and ``window=1``, `X` contains values of all fields sampled at `t`.
 
-.. images:: ZscorePopulation.png
+.. figure:: ZscorePopulation.png
    :class: with-border
 
 2. Compute the score `Z = \frac{|E(X) - x|}{S(X)}`
@@ -2178,14 +2151,14 @@ For any data value `x` at timestamp `t` the following steps are performed in ord
 
 
 pattern
-=============
+=======
 
 
 
 
 
 pattern.flagPatternByDTW
------------------------------
+------------------------
 
 
 Pattern Recognition via Dynamic Time Warping.
@@ -2217,7 +2190,7 @@ Algorithm here:
 
 
 pattern.flagPlateau
------------------------------
+-------------------
 
 
 Flag anomalous value plateaus.
@@ -2232,19 +2205,9 @@ For detecting shorter anomalies, use `flagUniLOF` or
 Examples
 ``````````
 
-.. plot::
-   :context: reset
-   :include-source: False
-
-   import matplotlib
-   import saqc
-   import pandas as pd
-   data = pd.read_csv('../resources/data/turbidity_plateaus.csv', parse_dates=['data'], index_col=0, nrows=1000)
-   qc = saqc.SaQC(data)
-
 Detect plateaus longer than 100 minutes:
 
-.. doctest:: flagPlateauExample
+Example::
 
    >>> import saqc
    >>> data = pd.read_csv('./resources/data/turbidity_plateaus.csv', parse_dates=['data'], index_col=0, nrows=10000)
@@ -2252,25 +2215,17 @@ Detect plateaus longer than 100 minutes:
    >>> qc = qc.flagPlateau(field='base3', min_length='100min')
    >>> qc.plot('base3')  # doctest: +SKIP
 
-.. plot::
-   :context:
-   :include-source: False
-   :class: center
-
-   qc = qc.flagPlateau(field='base3', min_length='100min')
-   qc.plot('base3')
-
 
 
 resampling
-=============
+==========
 
 
 
 
 
 resampling.concatFlags
------------------------------
+----------------------
 
 
 Project flags/history of `field` to `target` and adjust to the frequeny grid
@@ -2287,7 +2242,7 @@ To backtrack a preveous resampling, shifting or interpolation operation automati
 
 
 resampling.reindex
------------------------------
+------------------
 
 
 Change a variables index.
@@ -2297,14 +2252,14 @@ Simultaneously changes the indices of the data, flags and the history assigned t
 Notes
 ``````````
 
-.. images:: reindexMethods.png
+.. figure:: reindexMethods.png
 
 Examples
 ``````````
 
 Generate some example data with messed up 1 day-ish sampling rate
 
-.. doctest:: reindexExample
+Example::
 
    >>> import pandas as pd
    >>> import saqc
@@ -2342,7 +2297,7 @@ Generate some example data with messed up 1 day-ish sampling rate
 
 Performing linear alignment to 2 days grid, with and without limiting the reindexing range:
 
-.. doctest:: reindexExample
+Example::
 
    >>> qc = saqc.SaQC(data)
    >>> qc = qc.reindex('data', target='linear', index='2D', method='mshift', data_aggregation='linear')
@@ -2374,7 +2329,7 @@ Performing linear alignment to 2 days grid, with and without limiting the reinde
 
 Setting a flag, reindexing the linearly aligned field with the originl index (deharmonisation")
 
-.. doctest:: reindexExample
+Example::
 
    >>> qc = qc.setFlags('linear', data=['2000-01-16'])
    >>> qc = qc.reindex('linear', index='data', tolerance='2D', method='sshift', dfilter=FILTER_NONE)
@@ -2407,7 +2362,7 @@ Now, `linear` flags can easily be appended to data, to complete "deharm" step.
 
 Another example: Shifting to nearest regular frequeny and back. Note, how 'nearest' - style reindexers "invert" themselfs.
 
-.. doctest:: reindexExample
+Example::
 
    >>> qc = saqc.SaQC(data)
    >>> qc = qc.reindex('data', index='1D', target='n_shifted', method='nshift')
@@ -2443,7 +2398,7 @@ Another example: Shifting to nearest regular frequeny and back. Note, how 'neare
 
 Furthermoer, forward/backward style reindexers can be inverted by backward/forward style reindexers:
 
-.. doctest:: reindexExample
+Example::
 
    >>> qc = saqc.SaQC(data)
    >>> qc = qc.reindex('data', target='sum_aggregate', index='3D', method='fagg', data_aggregation='sum')
@@ -2478,7 +2433,7 @@ Furthermoer, forward/backward style reindexers can be inverted by backward/forwa
 
 
 resampling.resample
------------------------------
+-------------------
 
 
 Resample data points and flags to a regular frequency.
@@ -2507,14 +2462,14 @@ cannot be optimised and the handling of ``NaN`` is already taken care of.
 
 
 residuals
-=============
+=========
 
 
 
 
 
 residuals.calculatePolynomialResiduals
------------------------------
+--------------------------------------
 
 
 Fits a polynomial model to the data and calculate the residuals.
@@ -2540,7 +2495,7 @@ the original data.
 
 
 residuals.calculateRollingResiduals
------------------------------
+-----------------------------------
 
 
 Calculate the diff of a rolling-window function and the data.
@@ -2550,14 +2505,14 @@ Note, that the data gets assigned the worst flag present in the original data.
 
 
 rolling
-=============
+=======
 
 
 
 
 
 rolling.rolling
------------------------------
+---------------
 
 
 Evaluate a function at all shifts of a fixed-size window ("rolling window application").
@@ -2569,7 +2524,7 @@ on arrays obtained from the concatenation of the different field specific window
 Notes
 ``````````
 
-.. images:: horizontalAxisRollingExample.png
+.. figure:: horizontalAxisRollingExample.png
    :class: with-border
 
    Example of rolling over multiple variables.
@@ -2577,14 +2532,14 @@ Notes
 
 
 scores
-=============
+======
 
 
 
 
 
 scores.assignKNNScore
------------------------------
+---------------------
 
 
 Score datapoints by an aggregation of the distances to their `k` nearest neighbors.
@@ -2615,7 +2570,7 @@ References
 
 
 scores.assignLOF
------------------------------
+----------------
 
 
 Assign Local Outlier Factor (LOF).
@@ -2632,7 +2587,7 @@ Notes
 
 
 scores.assignUniLOF
------------------------------
+-------------------
 
 
 Assign "univariate" Local Outlier Factor (LOF) or "inivariate" Local Outlier Probability (LOP)
@@ -2659,7 +2614,7 @@ Algorithm steps for uniLOF flagging of variable `x`:
 
 
 scores.assignZScore
------------------------------
+-------------------
 
 
 Calculate (rolling) Zscores.
@@ -2684,14 +2639,14 @@ containing the value `y_{K}` wich is to be checked.
 
 
 tools
-=============
+=====
 
 
 
 
 
 tools.copyField
------------------------------
+---------------
 
 
 Make a copy of the data and flags to a new field.
@@ -2699,7 +2654,7 @@ Make a copy of the data and flags to a new field.
 
 
 tools.dropField
------------------------------
+---------------
 
 
 Drops field from the data and flags.
@@ -2707,7 +2662,7 @@ Drops field from the data and flags.
 
 
 tools.plot
------------------------------
+----------
 
 
 Plot data and flags or store plot to file.
@@ -2727,7 +2682,7 @@ Notes
 
 
 tools.renameField
------------------------------
+-----------------
 
 
 Rename field to the given name.
@@ -2735,7 +2690,7 @@ Rename field to the given name.
 
 
 tools.selectTime
------------------------------
+----------------
 
 
 Realizes masking within saqc.
@@ -2772,21 +2727,21 @@ Single digit specifications have to be given with leading zeros.
 The highest date unit gives the period.
 For example:
 
-.. doctest::
+Example::
 
    >>> start = "01T15:00:00"
    >>> end = "13T17:30:00"
 
 Will result in all values sampled between 15:00 at the first and  17:30 at the 13th of every month get masked
 
-.. doctest::
+Example::
 
    >>> start = "01:00"
    >>> end = "04:00"
 
 All the values between the first and 4th minute of every hour get masked.
 
-.. doctest::
+Example::
 
    >>> start = "01-01T00:00:00"
    >>> end = "01-03T00:00:00"
@@ -2794,7 +2749,7 @@ All the values between the first and 4th minute of every hour get masked.
 Mask january and february of evcomprosed in theery year. masking is inclusive always, so in this case the mask will
 include 00:00:00 at the first of march. To exclude this one, pass:
 
-.. doctest::
+Example::
 
    >>> start = "01-01T00:00:00"
    >>> end = "02-28T23:59:59"
@@ -2810,4 +2765,3 @@ season end. For example, to mask night hours between 22:00:00 in the evening and
 @SAQCLINKS@]]></help>
   <expand macro="citations"/>
 </tool>
-

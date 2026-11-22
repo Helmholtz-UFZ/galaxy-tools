@@ -9,9 +9,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[Feflow2Mesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$in' '$in.fem';
+ln -sf '$in' '${in}.fem';
 Feflow2Mesh
-    --in '$in.fem'
+    --in '${in}.fem'
     --out output_1.vtu
 ]]></command>
   <inputs>

@@ -9,9 +9,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[RemoveGhostData --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '$input.pvtu';
+ln -sf '$input' '${input}.pvtu';
 RemoveGhostData
-    --input '$input.pvtu'
+    --input '${input}.pvtu'
     --output output_1.vtu
 ]]></command>
   <inputs>

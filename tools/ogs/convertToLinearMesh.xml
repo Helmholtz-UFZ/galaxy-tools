@@ -9,9 +9,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[convertToLinearMesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input_mesh_file' '$input_mesh_file.vtu';
+ln -sf '$input_mesh_file' '${input_mesh_file}.vtu';
 convertToLinearMesh
-    --input-mesh-file '$input_mesh_file.vtu'
+    --input-mesh-file '${input_mesh_file}.vtu'
     --output-mesh-file output_1.vtu
 ]]></command>
   <inputs>

@@ -9,26 +9,24 @@
   <expand macro="creator" />
   <version_command><![CDATA[AssignRasterDataToMesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$raster' '$raster.asc';
-ln -sf '$input' '$input.vtu';
+ln -sf '$raster' '${raster}.asc';
+ln -sf '$input' '${input}.vtu';
 AssignRasterDataToMesh
 #if str($nodata)
     --nodata '$nodata'
 #end if
     $cell_array
     $node_array
-#if str($scalar_name)
     --scalar-name '$scalar_name'
-#end if
-    --raster '$raster.asc'
-    --input '$input.vtu'
+    --raster '${raster}.asc'
+    --input '${input}.vtu'
     --output output_1.vtu
 ]]></command>
   <inputs>
     <param argument="--nodata" type="float" optional="true" label="nodata" help="The no data value used for missing values (min = 0)" />
     <param argument="--cell-array" type="boolean" label="cell array" help="Assigns raster data to cell array" checked="false" truevalue="--cell-array" falsevalue="" />
     <param argument="--node-array" type="boolean" label="node array" help="Assigns raster data to node array (default)" checked="false" truevalue="--node-array" falsevalue="" />
-    <param argument="--scalar-name" type="text" optional="true" label="scalar name" help="The name of the newly created scalar array." />
+    <param argument="--scalar-name" type="text" optional="false" label="scalar name" help="The name of the newly created scalar array." />
     <param argument="--raster" type="data" optional="false" label="raster" help="Input (.asc). Name of the input raster file" format="raster.asc" />
     <param argument="--input" type="data" optional="false" label="input" help="Input (.vtu). Name of the input mesh file" format="vtkxml" />
   </inputs>

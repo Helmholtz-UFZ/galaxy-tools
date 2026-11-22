@@ -12,14 +12,14 @@
 #for $item in $input_file_pvd_data
     ln -sf '$item' '$item.element_identifier';
   #end for
-ln -sf '$input_file' '$input_file.pvd';
+ln -sf '$input_file' '${input_file}.pvd';
 postLIE
-    --input-file '$input_file.pvd'
+    --input-file '${input_file}.pvd'
     $no_overwrite
     --output-file output_1.vtu
 ]]></command>
   <inputs>
-    <param name="input_file_pvd_data" type="data" optional="true" label="input_file PVD Data Elements" help="VTU Member Collection" format="vtkxml" />
+    <param name="input_file_pvd_data" type="data_collection" optional="true" label="input_file PVD Data Elements" help="VTU Member Collection" format="vtkxml" collection_type="list" />
     <param argument="--input-file" type="data" optional="false" label="input file" help="Input (.vtu | .pvd). The original PVD or VTU file name" format="vtkxml" />
     <param argument="--no-overwrite" type="boolean" label="no overwrite" help="don't overwrite existing post processed VTU files" checked="false" truevalue="--no-overwrite" falsevalue="" />
   </inputs>

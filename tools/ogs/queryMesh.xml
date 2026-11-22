@@ -9,7 +9,7 @@
   <expand macro="creator" />
   <version_command><![CDATA[queryMesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh_file' '$mesh_file.vtu';
+ln -sf '$mesh_file' '${mesh_file}.vtu';
 queryMesh
 #if str($element_id)
     --element-id '$element_id'
@@ -18,7 +18,7 @@ queryMesh
     --node-id '$node_id'
 #end if
     $show_node_with_max_elements
-    '$mesh_file.vtu' > '$stdout_log'
+    '${mesh_file}.vtu' > '$stdout_log'
 ]]></command>
   <inputs>
     <param argument="--element-id" type="integer" optional="true" label="element id" help="element ID" />

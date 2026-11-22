@@ -9,9 +9,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[VTK2TIN --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh_input_file' '$mesh_input_file.vtk';
+ln -sf '$mesh_input_file' '${mesh_input_file}.vtk';
 VTK2TIN
-    --mesh-input-file '$mesh_input_file.vtk'
+    --mesh-input-file '${mesh_input_file}.vtk'
     --TIN-output-file output_1.tin
 ]]></command>
   <inputs>

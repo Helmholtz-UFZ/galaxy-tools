@@ -9,11 +9,11 @@
   <expand macro="creator" />
   <version_command><![CDATA[CreateAnchors --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '$input.vtu';
-ln -sf '$json_file' '$json_file.json';
+ln -sf '$input' '${input}.vtu';
+ln -sf '$json_file' '${json_file}.json';
 CreateAnchors
-    --input '$input.vtu'
-    --json-file '$json_file.json'
+    --input '${input}.vtu'
+    --json-file '${json_file}.json'
 #if str($tolerance)
     --tolerance '$tolerance'
 #end if
@@ -24,7 +24,7 @@ CreateAnchors
 ]]></command>
   <inputs>
     <param argument="--input" type="data" optional="false" label="input" help="Input (.vtu) bulk mesh file" format="vtkxml" />
-    <param argument="--json-file" type="data" optional="false" label="json file" help="Input (.json) JSON file containing anchor start and end points" format="data" />
+    <param argument="--json-file" type="data" optional="false" label="json file" help="Input (.json) JSON file containing anchor start and end points" format="json" />
     <param argument="--tolerance" type="float" optional="true" label="tolerance" help="Tolerance/Search length" />
     <param argument="--max-iter" type="text" optional="true" label="max iter" help="maximum number of iterations of the internal root-finding algorithm, (min = 0)" />
   </inputs>

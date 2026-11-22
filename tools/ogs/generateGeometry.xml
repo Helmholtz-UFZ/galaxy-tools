@@ -10,24 +10,12 @@
   <version_command><![CDATA[generateGeometry --version]]></version_command>
   <command><![CDATA[
 generateGeometry
-#if str($z0)
     --z0 '$z0'
-#end if
-#if str($y0)
     --y0 '$y0'
-#end if
-#if str($x0)
     --x0 '$x0'
-#end if
-#if str($z1)
     --z1 '$z1'
-#end if
-#if str($y1)
     --y1 '$y1'
-#end if
-#if str($x1)
     --x1 '$x1'
-#end if
 #if str($nx)
     --nx '$nx'
 #end if
@@ -55,12 +43,12 @@ generateGeometry
     --output output_1.gml
 ]]></command>
   <inputs>
-    <param argument="--z0" type="float" optional="true" label="z0" help="z coordinate of the first point" />
-    <param argument="--y0" type="float" optional="true" label="y0" help="y coordinate of the first point" />
-    <param argument="--x0" type="float" optional="true" label="x0" help="x coordinate of the first point" />
-    <param argument="--z1" type="float" optional="true" label="z1" help="z coordinate of the first point" />
-    <param argument="--y1" type="float" optional="true" label="y1" help="y coordinate of the first point" />
-    <param argument="--x1" type="float" optional="true" label="x1" help="x coordinate of the first point" />
+    <param argument="--z0" type="float" optional="false" label="z0" help="z coordinate of the first point" />
+    <param argument="--y0" type="float" optional="false" label="y0" help="y coordinate of the first point" />
+    <param argument="--x0" type="float" optional="false" label="x0" help="x coordinate of the first point" />
+    <param argument="--z1" type="float" optional="false" label="z1" help="z coordinate of the first point" />
+    <param argument="--y1" type="float" optional="false" label="y1" help="y coordinate of the first point" />
+    <param argument="--x1" type="float" optional="false" label="x1" help="x coordinate of the first point" />
     <param argument="--nx" type="integer" optional="true" label="nx" help="number of subdivisions in x direction" />
     <param argument="--nx1" type="integer" optional="true" label="nx1" help="number of subdivisions in x direction" />
     <param argument="--ny" type="integer" optional="true" label="ny" help="number of subdivisions in y direction" />

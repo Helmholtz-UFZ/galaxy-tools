@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <macros>
     <xml name="addelementquality_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input_mesh_file" value="AmmerGWN.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/Ammer/AmmerGWN.vtu" ftype="vtkxml" />
             <param name="quality_criterion" value="ElementSize" />
             <output name="output_addelementquality">
@@ -12,7 +12,7 @@
         </test>
     </xml>
     <xml name="addfaulttovoxelgrid_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="fault" value="AREHS_fault.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_fault.vtu" />
             <param name="input" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
             <output name="output_addfaulttovoxelgrid">
@@ -23,7 +23,7 @@
         </test>
     </xml>
     <xml name="assignrasterdatatomesh_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input" value="Ammer-Homogen100m-Final-TopSurface.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/Ammer/Ammer-Homogen100m-Final-TopSurface.vtu" ftype="vtkxml" />
             <param name="raster" value="AmmerGWN.asc" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/Ammer/AmmerGWN.asc" ftype="raster.asc" />
             <param name="scalar_name" value="GWN" />
@@ -49,9 +49,9 @@
         </test>
     </xml>
     <xml name="createanchors_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input" value="square_1x1_quad4_1e2.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/HydroMechanics/EmbeddedAnchorSourceTerm/square_1x1_quad4_1e2.vtu" ftype="vtkxml" />
-            <param name="json_file" value="data.json" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/HydroMechanics/EmbeddedAnchorSourceTerm/data.json" ftype="data" />
+            <param name="json_file" value="data.json" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/HydroMechanics/EmbeddedAnchorSourceTerm/data.json" ftype="json" />
             <output name="output_createanchors">
                 <assert_contents>
                     <has_size min="100" />
@@ -75,7 +75,7 @@
         </test>
     </xml>
     <xml name="extractmaterials_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input" value="SmallTest.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/Naegelstedt/SmallTest.vtu" ftype="vtkxml" />
             <output name="output_extractmaterials">
                 <assert_contents>
@@ -85,7 +85,7 @@
         </test>
     </xml>
     <xml name="feflow2mesh_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="in" value="prism_with_material_properties.fem" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/FEFLOW/prism_with_material_properties.fem" ftype="feflow.fem" />
             <output name="output_feflow2mesh">
                 <assert_contents>
@@ -95,7 +95,7 @@
         </test>
     </xml>
     <xml name="gmsh2ogs_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="in" value="linear_mesh.msh" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/GMSH2OGS/linear_mesh.msh" ftype="gmsh.msh" />
             <output name="output_gmsh2ogs">
                 <assert_contents>
@@ -105,7 +105,7 @@
         </test>
     </xml>
     <xml name="gocadsgridreader_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="sg" value="SGrid_Test.sg" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Test.sg" ftype="gocad.sg" />
             <output name="output_gocadsgridreader">
                 <assert_contents>
@@ -115,7 +115,7 @@
         </test>
     </xml>
     <xml name="gocadtsurfacereader_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input_file" value="Top-Lower-Shaly.ts" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshLib/Top-Lower-Shaly.ts" ftype="xml" />
             <param name="write_binary" value="true" />
             <output name="output_gocadtsurfacereader">
@@ -126,7 +126,7 @@
         </test>
     </xml>
     <xml name="integrateboreholesintomesh_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input" value="PrismCube10x10x10.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/PrismCube10x10x10.vtu" ftype="vtkxml" />
             <param name="geo" value="testpoints.gml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/testpoints.gml" ftype="xml" />
             <param name="min_id" value="4" />
@@ -139,7 +139,8 @@
         </test>
     </xml>
     <xml name="layers2grid_test">
-        <test>
+        <test expect_num_outputs="1">
+            <param name="cellsize_x" value="1.0" />
             <param name="input" value="AREHS_test_layers.txt" ftype="txt" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test_layers.txt" />
             <output name="output_layers2grid">
                 <assert_contents>
@@ -149,7 +150,7 @@
         </test>
     </xml>
     <xml name="mapgeometrytomeshsurface_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="mesh_file" value="Ammer-Homogen100m-Final-TopSurface.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/Ammer/Ammer-Homogen100m-Final-TopSurface.vtu" ftype="vtkxml" />
             <param name="input_geometry" value="Ammer-Rivers.gml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/Ammer/Ammer-Rivers.gml" ftype="xml" />
             <param name="additional_insert_mapping" value="true" />
@@ -161,7 +162,7 @@
         </test>
     </xml>
     <xml name="mergemeshtobulkmesh_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="bulk_mesh_input_file" value="sma_h2m_excavation_plastic_ts_6.3072e+08.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/MergeMeshToBulkMesh/sma_h2m_excavation_plastic_ts_6.3072e+08.vtu" ftype="vtkxml" />
             <param name="mesh_input_file" value="SMA_2D_cavern.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/MergeMeshToBulkMesh/SMA_2D_cavern.vtu" ftype="vtkxml" />
             <param name="temperature" value="293.15" />
@@ -176,7 +177,7 @@
         </test>
     </xml>
     <xml name="mesh2raster_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input_file" value="tri_8_ascii.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Mesh2Raster/tri_8_ascii.vtu" ftype="vtkxml" />
             <param name="cellsize" value="0.1" />
             <output name="output_mesh2raster">
@@ -187,7 +188,7 @@
         </test>
     </xml>
     <xml name="meshmapping_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input" value="plain.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/Hamburg/plain.vtu" ftype="vtkxml" />
             <param name="mesh" value="00-surface.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/Hamburg/00-surface.vtu" ftype="vtkxml" />
             <param name="distance" value="150" />
@@ -199,7 +200,7 @@
         </test>
     </xml>
     <xml name="movegeometry_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input" value="test.gml" ftype="xml" />
             <output name="output_movegeometry">
                 <assert_contents>
@@ -209,7 +210,7 @@
         </test>
     </xml>
     <xml name="movemesh_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="mesh" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
             <output name="output_movemesh">
                 <assert_contents>
@@ -219,7 +220,7 @@
         </test>
     </xml>
     <xml name="nodereordering_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input_mesh" value="gmsh_quad_tri_linear.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/NodeReordering/gmsh_quad_tri_linear.vtu" ftype="vtkxml" />
             <param name="method" value="0" />
             <output name="output_nodereordering">
@@ -230,7 +231,7 @@
         </test>
     </xml>
     <xml name="ogs2vtk_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="mesh_input_file" value="AREHS_test.vtu" ftype="gmsh.msh" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
             <output name="output_ogs2vtk">
                 <assert_contents>
@@ -240,7 +241,7 @@
         </test>
     </xml>
     <xml name="pvd2xdmf_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="pvd_file_pvd_data">
                 <collection type="list">
                     <element name="flow_pressure_boundary_ts_0_t_0.000000.vtu" value="flow_pressure_boundary_ts_0_t_0.000000.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/HydroMechanics/IdealGas/flow_pressure_boundary/flow_pressure_boundary_ts_0_t_0.000000.vtu" ftype="vtkxml" />
@@ -256,7 +257,7 @@
         </test>
     </xml>
     <xml name="pvtu2vtu_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input" value="quad_tri_THM_MPI_t_86400_000000.pvtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000.pvtu" ftype="vtkxml" />
             <output name="output_pvtu2vtu">
                 <assert_contents>
@@ -266,7 +267,7 @@
         </test>
     </xml>
     <xml name="partitionmesh_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="mesh_input_file" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
             <param name="metis_mesh_input_file" value="test.mesh" ftype="txt" />
             <param name="other_meshes_filenames">
@@ -282,8 +283,8 @@
         </test>
     </xml>
     <xml name="raster2asc_test">
-        <test>
-            <param name="input" value="XyzTest.xyz" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/XyzTest.xyz" ftype="data" />
+        <test expect_num_outputs="1">
+            <param name="input" value="XyzTest.xyz" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/XyzTest.xyz" ftype="raster.asc" />
             <output name="output_raster2asc">
                 <assert_contents>
                     <has_size min="1" />
@@ -292,7 +293,7 @@
         </test>
     </xml>
     <xml name="raster2mesh_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input" value="RainEvent30.asc" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileConverter/RainEvent30.asc" ftype="raster.asc" />
             <param name="elem_type" value="tri" />
             <param name="pixel_type" value="elevation" />
@@ -304,7 +305,7 @@
         </test>
     </xml>
     <xml name="removeghostdata_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input" value="Mesh3D.pvtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshLib/Mesh3D.pvtu" ftype="vtkxml" />
             <output name="output_removeghostdata">
                 <assert_contents>
@@ -314,7 +315,7 @@
         </test>
     </xml>
     <xml name="removeunusedpoints_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input" value="cube_1x1x1_with_additional_points.gml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/RemoveUnusedPoints/cube_1x1x1_with_additional_points.gml" ftype="xml" />
             <output name="output_removeunusedpoints">
                 <assert_contents>
@@ -324,7 +325,7 @@
         </test>
     </xml>
     <xml name="reordermesh_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
             <output name="output_reordermesh">
                 <assert_contents>
@@ -334,7 +335,7 @@
         </test>
     </xml>
     <xml name="resetpropertiesinpolygonalregion_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="mesh_input_file" value="Cube.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/ResetPropertiesInPolygonalRegion/Cube.vtu" ftype="vtkxml" />
             <param name="property_name" value="ValidCells" />
             <param name="int_property_value" value="1" />
@@ -348,7 +349,7 @@
         </test>
     </xml>
     <xml name="tin2vtk_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input_tin_file" value="test.tin" ftype="txt" />
             <output name="output_tin2vtk">
                 <assert_contents>
@@ -358,7 +359,7 @@
         </test>
     </xml>
     <xml name="tecplottools_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input_file" value="test.plt" ftype="txt" />
             <output name="output_tecplottools">
                 <assert_contents>
@@ -368,7 +369,7 @@
         </test>
     </xml>
     <xml name="vtk2ogs_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="mesh_input_file" value="AREHS_Layer17.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer17.vtu" />
             <output name="output_vtk2ogs">
                 <assert_contents>
@@ -378,7 +379,7 @@
         </test>
     </xml>
     <xml name="vtk2tin_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="mesh_input_file" value="AREHS_Layer17.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer17.vtu" />
             <output name="output_vtk2tin">
                 <assert_contents>
@@ -388,7 +389,7 @@
         </test>
     </xml>
     <xml name="vtu2grid_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input" value="AmmerSubsurfaceCoarse.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/AmmerSubsurfaceCoarse.vtu" ftype="vtkxml" />
             <param name="cellsize_x" value="200" />
             <param name="cellsize_y" value="200" />
@@ -401,7 +402,7 @@
         </test>
     </xml>
     <xml name="adddatatoraster_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="ll_x" value="1000" />
             <param name="ll_y" value="100" />
             <param name="ur_x" value="1100" />
@@ -418,7 +419,7 @@
         </test>
     </xml>
     <xml name="appendlinesalongpolyline_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="mesh_input_file" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
             <param name="geo_file" value="test.gml" ftype="xml" />
             <param name="gmsh_path" value="AREHS_test.vtu" ftype="gmsh.msh" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
@@ -430,7 +431,7 @@
         </test>
     </xml>
     <xml name="checkmesh_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="print_properties" value="true" />
             <param name="mesh_file" value="TaskB_mesh.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/LIE/HydroMechanics/TaskB_mesh.vtu" ftype="vtkxml" />
             <output name="stdout_log">
@@ -441,7 +442,7 @@
         </test>
     </xml>
     <xml name="computesurfacenodeidsinpolygonalregion_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="mesh_input_file" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
             <param name="geo_file" value="test.gml" ftype="xml" />
             <param name="gmsh_path" value="AREHS_test.vtu" ftype="gmsh.msh" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
@@ -466,7 +467,7 @@
         </test>
     </xml>
     <xml name="convertgeo_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input_file" value="test.gml" ftype="xml" />
             <param name="gmsh_path" value="AREHS_test.vtu" ftype="gmsh.msh" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
             <output name="output_convertgeo">
@@ -477,7 +478,7 @@
         </test>
     </xml>
     <xml name="converttolinearmesh_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input_mesh_file" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
             <output name="output_converttolinearmesh">
                 <assert_contents>
@@ -487,8 +488,9 @@
         </test>
     </xml>
     <xml name="convertvtkdataarraytovtkdataarray_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="new_property_data_type" value="int" />
+            <param name="existing_property_name" value="dummy_text" />
             <param name="in_mesh" value="AREHS_Layer17.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer17.vtu" />
             <output name="output_convertvtkdataarraytovtkdataarray">
                 <assert_contents>
@@ -498,7 +500,7 @@
         </test>
     </xml>
     <xml name="createintermediaterasters_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="file1" value="layer04.asc" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/Hamburg/layer04.asc" ftype="raster.asc" />
             <param name="file2" value="layer17.asc" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/Hamburg/layer17.asc" ftype="raster.asc" />
             <output name="output_createintermediaterasters">
@@ -509,7 +511,7 @@
         </test>
     </xml>
     <xml name="createlayeredmeshfromrasters_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input_mesh_file" value="rectangular_tris_with_materials.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createLayeredMeshFromRasters/rectangular_tris_with_materials.vtu" ftype="vtkxml" />
             <param name="thickness" value="0.1" />
             <param name="raster_list" value="rasters.txt" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createLayeredMeshFromRasters/rasters.txt" ftype="txt" />
@@ -522,8 +524,9 @@
         </test>
     </xml>
     <xml name="createmeshelempropertiesfromascraster_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="raster_file" value="test.asc" ftype="raster.asc" />
+            <param name="property_name" value="dummy_text" />
             <param name="mesh" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
             <output name="output_createmeshelempropertiesfromascraster">
                 <assert_contents>
@@ -533,8 +536,10 @@
         </test>
     </xml>
     <xml name="createneumannbc_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="in_mesh" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
+            <param name="property_in_name" value="dummy_text" />
+            <param name="property_out_name" value="dummy_text" />
             <output name="output_createneumannbc">
                 <assert_contents>
                     <has_size min="1" />
@@ -543,7 +548,7 @@
         </test>
     </xml>
     <xml name="createquadraticmesh_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input_mesh_file" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
             <output name="output_createquadraticmesh">
                 <assert_contents>
@@ -553,7 +558,7 @@
         </test>
     </xml>
     <xml name="createraster_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="cell_size" value="10" />
             <param name="n_rows" value="10" />
             <param name="n_cols" value="10" />
@@ -567,7 +572,7 @@
         </test>
     </xml>
     <xml name="createtetgensmeshfromrasters_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input_mesh_file" value="sfc_mesh_9k.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createTetgenSmeshFromRasters/sfc_mesh_9k.vtu" ftype="vtkxml" />
             <param name="raster_list" value="rasterlist.txt" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createTetgenSmeshFromRasters/rasterlist.txt" ftype="txt" />
             <output name="output_createtetgensmeshfromrasters">
@@ -578,7 +583,7 @@
         </test>
     </xml>
     <xml name="editmaterialid_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="mesh_input_file" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
             <param name="element_type" value="point" />
             <output name="output_editmaterialid">
@@ -589,7 +594,7 @@
         </test>
     </xml>
     <xml name="generategeometry_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="x0" value="0" />
             <param name="y0" value="0" />
             <param name="z0" value="0" />
@@ -641,7 +646,7 @@
         </test>
     </xml>
     <xml name="ipdatatopointcloud_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input_file" value="mesh_with_3D_different_elements_sigma_ip.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/NodePartitionedMesh/WithIntegrationPointStress/MixedElements/mesh_with_3D_different_elements_sigma_ip.vtu" ftype="vtkxml" />
             <output name="output_ipdatatopointcloud">
                 <assert_contents>
@@ -651,7 +656,7 @@
         </test>
     </xml>
     <xml name="postlie_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input_file_pvd_data">
                 <collection type="list">
                     <element name="flow_pressure_boundary_ts_0_t_0.000000.vtu" value="flow_pressure_boundary_ts_0_t_0.000000.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/HydroMechanics/IdealGas/flow_pressure_boundary/flow_pressure_boundary_ts_0_t_0.000000.vtu" ftype="vtkxml" />
@@ -667,7 +672,7 @@
         </test>
     </xml>
     <xml name="querymesh_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="mesh_file" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
             <output name="stdout_log">
                 <assert_contents>
@@ -677,7 +682,7 @@
         </test>
     </xml>
     <xml name="removemeshelements_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="mesh_input_file" value="AREHS_Layer17.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer17.vtu" ftype="vtkxml" />
             <param name="x_min" value="12000" />
             <param name="x_max" value="15000" />
@@ -690,7 +695,7 @@
         </test>
     </xml>
     <xml name="revisemesh_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input_mesh_file" value="basin_mesh.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshLib/basin_mesh.vtu" ftype="vtkxml" />
             <output name="output_revisemesh">
                 <assert_contents>
@@ -700,7 +705,8 @@
         </test>
     </xml>
     <xml name="scaleproperty_test">
-        <test>
+        <test expect_num_outputs="1">
+            <param name="property_name" value="dummy_text" />
             <param name="mesh" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
             <param name="input_unit" value="mm/a" />
             <output name="output_scaleproperty">
@@ -711,8 +717,9 @@
         </test>
     </xml>
     <xml name="swapnodecoordinateaxes_test">
-        <test>
+        <test expect_num_outputs="1">
             <param name="input_mesh_file" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
+            <param name="new_order" value="dummy_text" />
             <output name="output_swapnodecoordinateaxes">
                 <assert_contents>
                     <has_size min="1" />

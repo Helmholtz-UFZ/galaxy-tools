@@ -9,13 +9,13 @@
   <expand macro="creator" />
   <version_command><![CDATA[Raster2ASC --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '$input.grd';
+ln -sf '$input' '${input}.grd';
 Raster2ASC
-    --input '$input.grd'
+    --input '${input}.grd'
     --output output_1.asc
 ]]></command>
   <inputs>
-    <param argument="--input" type="data" optional="false" label="input" help="Input (.grd | .xyz). Filename for input raster" format="data" />
+    <param argument="--input" type="data" optional="false" label="input" help="Input (.grd | .xyz). Filename for input raster" format="raster.asc" />
   </inputs>
   <outputs>
     <data name="output_raster2asc" format="raster.asc" label="Output from Raster2ASC" from_work_dir="output_1.asc" hidden="false" />

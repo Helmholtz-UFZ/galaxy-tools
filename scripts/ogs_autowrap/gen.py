@@ -115,7 +115,12 @@ DATATYPE_MAP = {
     "ts": "xml",
     # Rasters and NetCDF
     "asc": "raster.asc",
+    "grd": "raster.asc",
     "nc": "netcdf",
+    # Tabular / structured text
+    "csv": "csv",
+    "json": "json",
+    "txt": "txt",
     # ASCII text-ish formats (no dedicated Galaxy datatype)
     "gli": "txt",
     "plt": "txt",
@@ -135,12 +140,19 @@ DATATYPE_MAP = {
 MESH_INPUT_DATATYPE = "gmsh.msh"
 MESH_OUTPUT_DATATYPE = "data"
 
+# Extensions already warned about, so the unmapped-datatype warning is not
+# repeated once per wrapped utility.
+_UNMAPPED_EXT_WARNED: set = set()
+
 
 def get_ogs_ftype(extensions: List[str], role: str = "output") -> str:
     """Map OGS file extensions to a Galaxy datatype.
 
     ``role`` is ``"input"`` or ``"output"`` and is only meaningful for the
     ambiguous ``.msh`` extension (Gmsh input vs. legacy OGS-5 mesh output).
+    Extensions with no mapping fall back to the generic ``data`` type and a
+    one-time warning is emitted so gaps in :data:`DATATYPE_MAP` are visible
+    during generation instead of being silently mis-typed.
     """
     if not extensions:
         return "vtkxml"
@@ -148,11 +160,42 @@ def get_ogs_ftype(extensions: List[str], role: str = "output") -> str:
     ext = extensions[0].lower().lstrip(".")
     if ext == "msh":
         return MESH_INPUT_DATATYPE if role == "input" else MESH_OUTPUT_DATATYPE
-    return DATATYPE_MAP.get(ext, "data")
+    fmt = DATATYPE_MAP.get(ext)
+    if fmt is None:
+        if ext not in _UNMAPPED_EXT_WARNED:
+            _UNMAPPED_EXT_WARNED.add(ext)
+            logging.warning(
+                "No Galaxy datatype mapped for OGS extension %r; falling back "
+                "to generic 'data'. Add it to DATATYPE_MAP if a real Galaxy "
+                "datatype exists.",
+                ext,
+            )
+        return "data"
+    return fmt
 
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
+
+
+def _node_attr_true(param, attr: str) -> bool:
+    """Return True when a galaxyxml parameter's XML attribute is ``"true"``."""
+    val = getattr(param, attr, None)
+    return str(val).strip().lower() == "true"
+
+
+def is_param_optional(param, default: bool = True) -> bool:
+    """Return whether a galaxyxml parameter is optional.
+
+    ``galaxyxml.XMLParam.__getattr__`` proxies attribute access to the lxml
+    ``node.attrib`` dict, so ``param.optional`` is the *string* ``"true"`` /
+    ``"false"`` (when set) and the string ``"false"`` is truthy. Read the
+    attribute explicitly instead of relying on truthiness.
+    """
+    val = getattr(param, "optional", None)
+    if val is None:
+        return default
+    return str(val).strip().lower() == "true"
 
 
 def sanitize_name(name: str) -> str:
@@ -397,6 +440,17 @@ def process_parameters(
         var_name = sanitize_name(long_flag)
         argument = f"--{long_flag}" if long_flag else f"-{short_flag}"
 
+        # TCLAP constructor arity:
+        #   Value/MultiArg(flag, name, desc, required, ...) -> required at [3]
+        #   Unlabeled(Value|Multi)Arg(name, desc, required, ...) -> required at [2]
+        # Anything we cannot classify as explicitly required stays optional so a
+        # parse quirk never turns a working wrapper into a mandatory-input tool.
+        req_idx = 2 if is_unlabeled else 3
+        is_required = (
+            len(args) > req_idx and args[req_idx].strip().lower() == "true"
+        )
+        is_optional = not is_required
+
         # OUTPUT LOGIC
         is_output_help = (
             help_text.lower().startswith("output")
@@ -460,7 +514,7 @@ def process_parameters(
                 label=var_name.replace("_", " "),
                 help=help_text,
                 options=opts_dict,
-                optional=True,
+                optional=is_optional,
                 multiple=is_multi,
             )
             param.options_dict = opts_dict
@@ -483,7 +537,6 @@ def process_parameters(
             # the input files (OGS reads it with readStringListFromFile), NOT a
             # Galaxy collection. Model it as one txt input.
             is_collection = "MultiArg" in param_info.get("arg_type", "")
-            is_optional = len(args) > 3 and args[3].lower() == "false"
             if is_file_list:
                 galaxy_type = "txt"
 
@@ -535,7 +588,7 @@ def process_parameters(
                 argument=argument,
                 label=var_name.replace("_", " "),
                 help=help_text,
-                optional=True,
+                optional=is_optional,
             )
 
         if param:
@@ -614,10 +667,10 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                     # on-disk symlink keeps a real .txt extension so OGS can
                     # open it (OGS infers format from the file extension).
                     command_parts.append(
-                        f"ln -sf '${name}' '${name}.txt';"
+                        f"ln -sf '${name}' '${{{name}}}.txt';"
                     )
                     flag_parts.append(
-                        f"    --{flag} '${name}.txt'"
+                        f"    --{flag} '${{{name}}}.txt'"
                     )
                     continue
                 if is_coll:
@@ -633,10 +686,13 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                     # Symlink the dataset to a name carrying the OGS extension
                     # (OGS infers input format from the file extension; the
                     # Galaxy ``element_identifier`` suffix has none).
+                    # NB: use ``${name}.ext`` (braced), not ``$name.ext`` -- the
+                    # latter is Cheetah attribute access (``getattr(name, ext)``)
+                    # and raises NameMapper.NotFound: cannot find '<ext>'.
                     command_parts.append(
-                        f"ln -sf '${name}' '${name}.{ext}';"
+                        f"ln -sf '${name}' '${{{name}}}.{ext}';"
                     )
-                    arg_val = f"'${name}.{ext}'"
+                    arg_val = f"'${{{name}}}.{ext}'"
                     if is_unlabeled:
                         unlabeled_parts.append(f"    {arg_val}")
                     else:
@@ -646,19 +702,29 @@ def generate_tools(ogs_root: Path, output_dir: Path):
             elif isinstance(
                 param, (TextParam, IntegerParam, FloatParam, SelectParam)
             ):
+                if isinstance(param, SelectParam) and _node_attr_true(
+                    param, "multiple"
+                ):
+                    # Multi-value selects render as a Python list; repeat the
+                    # flag once per selected value (a plain ``'$x'`` would
+                    # stringify the whole list, or ``'None'`` when empty).
+                    flag_parts.append(
+                        f"#for $v in ${name}\n    --{flag} '$v'\n#end for"
+                    )
+                    continue
                 # Optional value arguments are wrapped in ``#if str(...)`` so an
                 # empty value is omitted from the command line rather than passed
                 # as ``--flag ''`` (which TCLAP silently accepts, giving silently
                 # wrong results).
                 if is_unlabeled:
-                    if getattr(param, "optional", False):
+                    if is_param_optional(param, default=False):
                         unlabeled_parts.append(
                             f"#if str(${name})\n    '${name}'\n#end if"
                         )
                     else:
                         unlabeled_parts.append(f"    '${name}'")
                 else:
-                    if getattr(param, "optional", False):
+                    if is_param_optional(param, default=False):
                         flag_parts.append(
                             f"#if str(${name})\n    --{flag} '${name}'\n#end if"
                         )
@@ -795,9 +861,15 @@ def generate_tools(ogs_root: Path, output_dir: Path):
         if inputs_node is not None:
             for param in galaxy_inputs:
                 if getattr(param, "is_data_collection", False):
-                    arg = getattr(param, "argument", None) or f"--{flag}"
-                    p_node = inputs_node.find(f"param[@argument='{arg}']")
-                    if p_node is None:
+                    arg = getattr(param, "argument", None)
+                    p_node = (
+                        inputs_node.find(f"param[@argument='{arg}']") if arg else None
+                    )
+                    if p_node is None and getattr(param, "name", None):
+                        # PVD element collections are declared by ``name`` and
+                        # have no ``argument`` attribute in the emitted XML.
+                        p_node = inputs_node.find(f"param[@name='{param.name}']")
+                    if p_node is None and arg:
                         # Fall back to the (possibly stale) outer ``flag`` var.
                         p_node = inputs_node.find(f"param[@argument='--{flag}']")
                     if p_node is not None:
@@ -1271,6 +1343,11 @@ def generate_tests(ogs_root: Path, output_dir: Path):
         # --- OUTPUT LOGIK ---
         dm = re.search(r"DIFF_DATA\s+(.*?)(?=\s*\)|$)", test_block, re.DOTALL)
         output_added = False
+        # Set below when the test asserts exactly one plain data output, so we
+        # can emit ``expect_num_outputs="1"`` (guards against silently
+        # dropped or extra outputs). Collection outputs have a data-dependent
+        # element count and are left without an explicit count.
+        expect_single_output = False
 
         if dm:
             diff_files = parse_diff_data(
@@ -1311,6 +1388,7 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                         {"min": "100"},
                     )
                     output_added = True
+                    expect_single_output = True
 
         # Fallback
         if not output_added and not output_map and output_has_stdout:
@@ -1321,6 +1399,7 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                 ET.SubElement(out_elem, "assert_contents"), "has_size", {"min": "1"}
             )
             output_added = True
+            expect_single_output = True
 
         if not output_added and output_map:
             if len(output_map) > 1 or any(
@@ -1350,6 +1429,10 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                 ET.SubElement(
                     ET.SubElement(out_elem, "assert_contents"), "has_size", {"min": "1"}
                 )
+                expect_single_output = True
+
+        if expect_single_output:
+            test_case.set("expect_num_outputs", "1")
 
         tool_tests_accumulator[matched_tool].append(test_case)
 
@@ -1401,7 +1484,7 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                     continue
 
                 # Standard parameter
-                is_mandatory = getattr(p, "optional", True) is False
+                is_mandatory = not is_param_optional(p, default=True)
                 if (
                     is_mandatory
                     or isinstance(p, DataParam)
@@ -1444,11 +1527,13 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                         "has_size",
                         {"min": "1"},
                     )
+                    fallback_test.set("expect_num_outputs", "1")
 
             else:
                 out_tag = ET.SubElement(fallback_test, "output", {"name": "stdout_log"})
                 ac = ET.SubElement(out_tag, "assert_contents")
                 ET.SubElement(ac, "has_size", {"min": "1"})
+                fallback_test.set("expect_num_outputs", "1")
         else:
             for case in cases:
                 macro_xml.append(case)

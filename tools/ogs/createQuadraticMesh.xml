@@ -9,9 +9,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[createQuadraticMesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input_mesh_file' '$input_mesh_file.vtu';
+ln -sf '$input_mesh_file' '${input_mesh_file}.vtu';
 createQuadraticMesh
-    --input-mesh-file '$input_mesh_file.vtu'
+    --input-mesh-file '${input_mesh_file}.vtu'
     $add_centre_node
     --output-mesh-file output_1.vtu
 ]]></command>

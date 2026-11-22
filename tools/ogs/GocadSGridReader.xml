@@ -9,10 +9,10 @@
   <expand macro="creator" />
   <version_command><![CDATA[GocadSGridReader --version]]></version_command>
   <command><![CDATA[
-ln -sf '$sg' '$sg.sg';
+ln -sf '$sg' '${sg}.sg';
 GocadSGridReader
     $generate_face_sets
-    --sg '$sg.sg'
+    --sg '${sg}.sg'
     --output-mesh output_1.vtu
 ]]></command>
   <inputs>

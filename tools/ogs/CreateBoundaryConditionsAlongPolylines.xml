@@ -9,25 +9,23 @@
   <expand macro="creator" />
   <version_command><![CDATA[CreateBoundaryConditionsAlongPolylines --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input_geometry' '$input_geometry.gml';
-ln -sf '$mesh_file' '$mesh_file.vtu';
-ln -sf '$gmsh_path' '$gmsh_path.msh';
+ln -sf '$input_geometry' '${input_geometry}.gml';
+ln -sf '$mesh_file' '${mesh_file}.vtu';
+ln -sf '$gmsh_path' '${gmsh_path}.msh';
 CreateBoundaryConditionsAlongPolylines
     $gml
-#if str($type)
     --type '$type'
-#end if
 #if str($search_length)
     --search-length '$search_length'
 #end if
-    --input-geometry '$input_geometry.gml'
-    --mesh-file '$mesh_file.vtu'
-    --gmsh-path '$gmsh_path.msh'
+    --input-geometry '${input_geometry}.gml'
+    --mesh-file '${mesh_file}.vtu'
+    --gmsh-path '${gmsh_path}.msh'
     --output-base-file-name 'new_'
 ]]></command>
   <inputs>
     <param argument="--gml" type="boolean" label="gml" help="Write found nodes to gml file." checked="false" truevalue="--gml" falsevalue="" />
-    <param argument="--type" type="select" optional="true" label="type" help="the process type the boundary condition will be written for currently LIQUID_FLOW (primary variable PRESSURE1) and GROUNDWATER_FLOW (primary variable HEAD, default) are supported," multiple="false">
+    <param argument="--type" type="select" optional="false" label="type" help="the process type the boundary condition will be written for currently LIQUID_FLOW (primary variable PRESSURE1) and GROUNDWATER_FLOW (primary variable HEAD, default) are supported," multiple="false">
       <option value="LIQUID_FLOW">LIQUID_FLOW</option>
       <option value="GROUNDWATER_FLOW">GROUNDWATER_FLOW</option>
     </param>

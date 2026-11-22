@@ -9,9 +9,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[ipDataToPointCloud --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input_file' '$input_file.vtu';
+ln -sf '$input_file' '${input_file}.vtu';
 ipDataToPointCloud
-    --input-file '$input_file.vtu'
+    --input-file '${input_file}.vtu'
 #if str($integration_order)
     --integration-order '$integration_order'
 #end if

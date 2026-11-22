@@ -9,28 +9,24 @@
   <expand macro="creator" />
   <version_command><![CDATA[Raster2Mesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '$input.asc';
+ln -sf '$input' '${input}.asc';
 Raster2Mesh
 #if str($arrayname)
     --arrayname '$arrayname'
 #end if
-#if str($pixel_type)
     --pixel-type '$pixel_type'
-#end if
-#if str($elem_type)
     --elem-type '$elem_type'
-#end if
-    --input '$input.asc'
+    --input '${input}.asc'
     --output output_1.vtu
 ]]></command>
   <inputs>
     <param argument="--arrayname" type="text" optional="true" label="arrayname" help="Name of the scalar array. Only required if assigning pixel values to cell data has been selected (default name is 'Values')." />
-    <param argument="--pixel-type" type="select" optional="true" label="pixel type" help="The choice how pixel values should be interpreted by the software: 'elevation' adjusts z-coordinates; 'materials' sets (integer) material IDs; 'scalar' creates a (floating-point) array associated. with mesh elements." multiple="false">
+    <param argument="--pixel-type" type="select" optional="false" label="pixel type" help="The choice how pixel values should be interpreted by the software: 'elevation' adjusts z-coordinates; 'materials' sets (integer) material IDs; 'scalar' creates a (floating-point) array associated. with mesh elements." multiple="false">
       <option value="elevation">elevation</option>
       <option value="materials">materials</option>
       <option value="scalar">scalar</option>
     </param>
-    <param argument="--elem-type" type="select" optional="true" label="elem type" help="The element type used in the resulting OGS mesh" multiple="false">
+    <param argument="--elem-type" type="select" optional="false" label="elem type" help="The element type used in the resulting OGS mesh" multiple="false">
       <option value="tri">tri</option>
       <option value="quad">quad</option>
     </param>

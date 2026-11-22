@@ -9,7 +9,7 @@
   <expand macro="creator" />
   <version_command><![CDATA[removeMeshElements --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh_input_file' '$mesh_input_file.vtu';
+ln -sf '$mesh_input_file' '${mesh_input_file}.vtu';
 removeMeshElements
     $invert
 #if str($z_max)
@@ -31,9 +31,9 @@ removeMeshElements
     --x-min '$x_min'
 #end if
     $zero_volume
-#if str($element_type)
-    --element-type '$element_type'
-#end if
+#for $v in $element_type
+    --element-type '$v'
+#end for
 #if str($property_name)
     --property-name '$property_name'
 #end if
@@ -48,7 +48,7 @@ removeMeshElements
 #end if
     $outside
     $inside
-    --mesh-input-file '$mesh_input_file.vtu'
+    --mesh-input-file '${mesh_input_file}.vtu'
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>

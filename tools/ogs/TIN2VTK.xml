@@ -9,9 +9,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[TIN2VTK --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input_tin_file' '$input_tin_file.tin';
+ln -sf '$input_tin_file' '${input_tin_file}.tin';
 TIN2VTK
-    --input-tin-file '$input_tin_file.tin'
+    --input-tin-file '${input_tin_file}.tin'
     --output-vtu-file output_1.vtu
 ]]></command>
   <inputs>

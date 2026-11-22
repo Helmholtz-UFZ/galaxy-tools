@@ -9,14 +9,14 @@
   <expand macro="creator" />
   <version_command><![CDATA[partmesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh_input_file' '$mesh_input_file.vtu';
-ln -sf '$metis_mesh_input_file' '$metis_mesh_input_file.mesh';
+ln -sf '$mesh_input_file' '${mesh_input_file}.vtu';
+ln -sf '$metis_mesh_input_file' '${metis_mesh_input_file}.mesh';
 #for $item in $other_meshes_filenames
 ln -sf '$item' '$item.element_identifier';
 #end for
 partmesh
-    --mesh-input-file '$mesh_input_file.vtu'
-    --metis-mesh-input-file '$metis_mesh_input_file.mesh'
+    --mesh-input-file '${mesh_input_file}.vtu'
+    --metis-mesh-input-file '${metis_mesh_input_file}.mesh'
 #if str($np)
     --np '$np'
 #end if
@@ -34,7 +34,7 @@ partmesh
     <param argument="--np" type="integer" optional="true" label="np" help="the number of partitions, (min = 0)" />
     <param argument="--ogs2metis" type="boolean" label="ogs2metis" help="Indicator to convert the ogs mesh file to METIS input file" checked="false" truevalue="--ogs2metis" falsevalue="" />
     <param argument="--exe_metis" type="boolean" label="exe metis" help="Call mpmetis inside the programme via system()." checked="false" truevalue="--exe_metis" falsevalue="" />
-    <param argument="--other_meshes_filenames" type="data_collection" optional="false" label="other meshes filenames" help="mesh file names." format="vtkxml" collection_type="list" />
+    <param argument="--other_meshes_filenames" type="data_collection" optional="true" label="other meshes filenames" help="mesh file names." format="vtkxml" collection_type="list" />
   </inputs>
   <outputs>
     <data name="output_partitionmesh" format="vtkxml" label="Output from PartitionMesh" from_work_dir="output_1.vtu" hidden="false" />

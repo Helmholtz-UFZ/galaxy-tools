@@ -9,7 +9,7 @@
   <expand macro="creator" />
   <version_command><![CDATA[convertVtkDataArrayToVtkDataArray --version]]></version_command>
   <command><![CDATA[
-ln -sf '$in_mesh' '$in_mesh.vtk';
+ln -sf '$in_mesh' '${in_mesh}.vtk';
 convertVtkDataArrayToVtkDataArray
 #if str($new_property_data_type)
     --new-property-data-type '$new_property_data_type'
@@ -17,10 +17,8 @@ convertVtkDataArrayToVtkDataArray
 #if str($new_property_name)
     --new-property-name '$new_property_name'
 #end if
-#if str($existing_property_name)
     --existing-property-name '$existing_property_name'
-#end if
-    --in-mesh '$in_mesh.vtk'
+    --in-mesh '${in_mesh}.vtk'
     --out-mesh output_1.vtu
 ]]></command>
   <inputs>
@@ -29,7 +27,7 @@ convertVtkDataArrayToVtkDataArray
       <option value="double">double</option>
     </param>
     <param argument="--new-property-name" type="text" optional="true" label="new property name" help="the name of the new cell data array (PropertyVector) the values are stored" />
-    <param argument="--existing-property-name" type="text" optional="true" label="existing property name" help="the name of the existing cell data array (PropertyVector)" />
+    <param argument="--existing-property-name" type="text" optional="false" label="existing property name" help="the name of the existing cell data array (PropertyVector)" />
     <param argument="--in-mesh" type="data" optional="false" label="in mesh" help="Input (.vtk) mesh file name" format="vtkxml" />
   </inputs>
   <outputs>

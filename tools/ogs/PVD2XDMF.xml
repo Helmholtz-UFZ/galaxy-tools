@@ -12,13 +12,13 @@
 #for $item in $pvd_file_pvd_data
     ln -sf '$item' '$item.element_identifier';
   #end for
-ln -sf '$pvd_file' '$pvd_file.pvd';
+ln -sf '$pvd_file' '${pvd_file}.pvd';
 PVD2XDMF
     --output-directory output_1.vtu
-    '$pvd_file.pvd'
+    '${pvd_file}.pvd'
 ]]></command>
   <inputs>
-    <param name="pvd_file_pvd_data" type="data" optional="true" label="pvd_file PVD Data Elements" help="VTU Member Collection" format="vtkxml" />
+    <param name="pvd_file_pvd_data" type="data_collection" optional="true" label="pvd_file PVD Data Elements" help="VTU Member Collection" format="vtkxml" collection_type="list" />
     <param argument="--pvd-file" type="data" optional="false" label="pvd file" help="Input (.pvd) file" format="vtkxml" />
   </inputs>
   <outputs>

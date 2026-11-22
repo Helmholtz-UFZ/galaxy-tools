@@ -9,13 +9,13 @@
   <expand macro="creator" />
   <version_command><![CDATA[NodeReordering --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input_mesh' '$input_mesh.vtu';
+ln -sf '$input_mesh' '${input_mesh}.vtu';
 NodeReordering
     $no_volume_check
 #if str($method)
     --method '$method'
 #end if
-    --input_mesh '$input_mesh.vtu'
+    --input_mesh '${input_mesh}.vtu'
     --output_mesh output_1.vtu
 ]]></command>
   <inputs>

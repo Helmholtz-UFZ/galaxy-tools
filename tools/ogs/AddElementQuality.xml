@@ -9,16 +9,14 @@
   <expand macro="creator" />
   <version_command><![CDATA[AddElementQuality --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input_mesh_file' '$input_mesh_file.vtu';
+ln -sf '$input_mesh_file' '${input_mesh_file}.vtu';
 AddElementQuality
-#if str($quality_criterion)
     --quality_criterion '$quality_criterion'
-#end if
-    --input_mesh_file '$input_mesh_file.vtu'
+    --input_mesh_file '${input_mesh_file}.vtu'
     --output_mesh_file output_1.vtu
 ]]></command>
   <inputs>
-    <param argument="--quality_criterion" type="select" optional="true" label="quality criterion" help="quality criterion" multiple="false">
+    <param argument="--quality_criterion" type="select" optional="false" label="quality criterion" help="quality criterion" multiple="false">
       <option value="ElementSize">ElementSize</option>
       <option value="EdgeRatio">EdgeRatio</option>
       <option value="EquiAngleSkew">EquiAngleSkew</option>

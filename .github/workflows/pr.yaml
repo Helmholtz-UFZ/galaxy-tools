@@ -310,6 +310,8 @@ jobs:
     - uses: actions/setup-python@v7
       with:
         python-version: '3.11'
+    - name: Install generator dependencies
+      run: pip install -r scripts/ogs_autowrap/requirements.txt
     - name: Resolve pinned OGS commit
       id: ogs
       run: |

@@ -9,11 +9,11 @@
   <expand macro="creator" />
   <version_command><![CDATA[TecPlotTools --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input_file' '$input_file.plt';
+ln -sf '$input_file' '${input_file}.plt';
 TecPlotTools
     $split
     $convert
-    --input-file '$input_file.plt'
+    --input-file '${input_file}.plt'
     --output-file output_1.vtu
 ]]></command>
   <inputs>

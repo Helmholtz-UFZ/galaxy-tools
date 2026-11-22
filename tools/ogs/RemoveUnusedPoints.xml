@@ -9,9 +9,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[RemoveUnusedPoints --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '$input.gml';
+ln -sf '$input' '${input}.gml';
 RemoveUnusedPoints
-    --input '$input.gml'
+    --input '${input}.gml'
     --output output_1.gml
 ]]></command>
   <inputs>

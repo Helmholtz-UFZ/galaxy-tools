@@ -9,12 +9,12 @@
   <expand macro="creator" />
   <version_command><![CDATA[editMaterialID --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh_input_file' '$mesh_input_file.vtu';
+ln -sf '$mesh_input_file' '${mesh_input_file}.vtu';
 editMaterialID
     $replace
     $condense
     $specify
-    --mesh-input-file '$mesh_input_file.vtu'
+    --mesh-input-file '${mesh_input_file}.vtu'
 #if str($current_material_id)
     --current-material-id '$current_material_id'
 #end if

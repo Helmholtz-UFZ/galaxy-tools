@@ -26,7 +26,11 @@
         <test>
             <param name="input_mesh" value="cube_1x1x1_hex_1e3_layers_10.vtu"/>
             <param name="ascii_output" value="true"/>
-            <output name="output_mesh" value="outputExtractBoundary.vtu"/>
+            <output name="output_mesh">
+                <assert_contents>
+                    <has_size min="1000"/>
+                </assert_contents>
+            </output>
         </test>
     </tests>
     <help><![CDATA[

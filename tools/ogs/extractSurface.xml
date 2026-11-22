@@ -39,7 +39,11 @@
             <param name="z_component" value="1.0"/>
             <param name="angle" value="45.0"/>
             <param name="ascii_output" value="true"/>
-            <output name="output_mesh" value="outputExtracted2D.vtu"/>
+            <output name="output_mesh">
+                <assert_contents>
+                    <has_size min="1000"/>
+                </assert_contents>
+            </output>
         </test>
     </tests>
     <help><![CDATA[

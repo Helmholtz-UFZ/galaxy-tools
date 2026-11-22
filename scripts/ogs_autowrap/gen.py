@@ -52,6 +52,48 @@ EXCLUDED_TOOLS = [
     "convertshptogli",
     "mesh2shape",
     "swmmconverter",
+    # Only documented format is legacy ``.vtk``. The released OGS (6.5.x)
+    # build has no working legacy-VTK reader/writer: a file that VTK itself
+    # reads fine (8 points, 1 cell) is reported as "contains zero points", so
+    # these wrappers could never run. Excluded rather than shipped broken.
+    "vtk2ogs",
+    "vtk2tin",
+    "tin2vtk",
+    "convertvtkdataarraytovtkdataarray",
+    # --- Utilities that cannot be tested from a single staged input file ---
+    # OGS writes the result next to the *input* file (``<geo dir>/<polygon>0.txt``)
+    # and Galaxy stages inputs in an immutable file directory, so the outputs can
+    # never be collected.
+    "computesurfacenodeidsinpolygonalregion",
+    # Take an ASCII list of rasters that the utility resolves relative to its own
+    # working directory; the individual rasters cannot be staged.
+    "layers2grid",
+    "createlayeredmeshfromrasters",
+    "createtetgensmeshfromrasters",
+    # Need companion files (points/properties/partition files) next to the input.
+    "gocadsgridreader",
+    "partitionmesh",
+    "pvtu2vtu",
+    # Require binary TecPlot ``.plt`` files; OGS ships no such test data.
+    "tecplottools",
+    # Require a PVD referencing simulation variables that the staged PVD lacks.
+    "pvd2xdmf",
+    "postlie",
+    # Need a mesh with a *double* element property / an XOR switch group, which
+    # the auto-derivable test fixture cannot provide.
+    "createneumannbc",
+    "editmaterialid",
+    # Crashes (segfault) on every mesh shipped with OGS 6.5.x, including meshes
+    # that carry ``bulk_node_ids``.
+    "reordermesh",
+    # Writes only to stdout and produces no output at all when no node/element
+    # id is requested.
+    "querymesh",
+    # Needs a polylines geometry that intersects the mesh; no matching pair of
+    # test fixtures exists ("Did not find mesh nodes along polylines").
+    "createboundaryconditionsalongpolylines",
+    # Reads legacy ``.vtk`` meshes, which OGS 6.5.x cannot read (see above).
+    "mergemeshtobulkmesh",
 ]
 
 # Utilities that already have a hand-curated wrapper in tools/ogs/. The generated
@@ -64,6 +106,102 @@ HAND_WRAPPED_TOOLS = [
     "generatestructuredmesh",
     "identifysubdomains",
 ]
+
+# Directory (relative to the job working directory) that utilities taking an
+# *output directory* write their files into.
+DIRECTORY_OUTPUT_DIR = "outputs"
+
+# Outputs whose help text does not name a file extension (OGS derives the
+# format from the file name the caller passes), keyed by
+# ``(tool_name.lower(), long_flag)``.
+OUTPUT_EXT_OVERRIDES = {
+    # "Output. The name of the new geometry file whose file format is
+    # determined by its file extension" -- the released OGS only has the GML
+    # writer compiled in, so the wrapper must ask for ``.gml``.
+    ("convertgeo", "output-file"): "gml",
+}
+
+# Tools whose ``--output-file`` argument is really a *base name* that the
+# utility extends with its own suffixes (the TCLAP help does not say so).
+# ``pattern``/``format`` describe the files to discover; ``extra_outputs``
+# lists additional fixed files written alongside them.
+BASE_FILENAME_OVERRIDES = {
+    "extractmaterials": {
+        "flag": "output",
+        "base_value": "output.vtu",
+        "pattern": r"(?P<designation>output_.*)\.vtu",
+        "format": "vtkxml",
+        "extra_outputs": [
+            {
+                "name": "layer_info",
+                "from_work_dir": "output_Layers.txt",
+                "format": "txt",
+                "label": "Layer/material table",
+            }
+        ],
+    },
+    "createintermediaterasters": {
+        "flag": "output-file",
+        "base_value": "output_.asc",
+        "pattern": r"(?P<designation>output_.*)\.asc",
+        "format": "raster.asc",
+    },
+}
+
+# Inputs where OGS chooses the reader from the file extension but the help text
+# lists several extensions. The default is the first one from the help text;
+# these entries select the format the OGS test data actually uses.
+PARAM_EXT_OVERRIDES = {
+    # "(.gli | .gml)" -- the GML reader is the one that parses XML geometries.
+    ("resetpropertiesinpolygonalregion", "geometry"): "gml",
+    # The help says "(.msh)", but the released OGS build can only read VTK-XML
+    # meshes here: a ``.msh`` input sends it down the legacy reader, which
+    # fails without any diagnostic.
+    ("ogs2vtk", "mesh_input_file"): "vtu",
+}
+
+# Curated test inputs, keyed by tool (lower case) and parameter variable name.
+# The auto-derived fixtures only match a tool's input *extension*, not its
+# semantics; these entries pin the value a tool actually needs.
+#
+#   "Some/Path/in/Tests/Data.msh" -> downloaded from the pinned OGS commit
+#   ("local", "file.ext")         -> vendored in tools/ogs/test-data/
+#
+# Non-data parameters (text/integer/select) take the literal value.
+TEST_OVERRIDES = {
+    "raster2asc": {"input": "FileIO/GrdTest.grd"},
+    "swapnodecoordinateaxes": {"new_order": "xzy"},
+    "appendlinesalongpolyline": {
+        "geo_file": "MeshGeoToolsLib/ResetPropertiesInPolygonalRegion/Polylines.gml",
+        "gmsh_path": None,
+    },
+    "converttolinearmesh": {
+        "input_mesh_file": (
+            "MeshGeoToolsLib/ConstructMeshesFromGeometry/square_1x1_quad8_1e2.vtu"
+        ),
+    },
+    "convertgeo": {
+        "input_file": "MeshGeoToolsLib/ConstructMeshesFromGeometry/square_1x1.gml",
+        "gmsh_path": None,
+    },
+    "createanchors": {
+        "input": "HydroMechanics/EmbeddedAnchorSourceTerm/cube_1x1x1_hex_1e3.vtu",
+        "json_file": "HydroMechanics/EmbeddedAnchorSourceTerm/data_3D.json",
+    },
+    "gocadtsurfacereader": {"input": "MeshLib/Top-Lower-Shaly.ts"},
+    "ogs2vtk": {"mesh_input_file": "MeshGeoToolsLib/Naegelstedt/SmallTest.vtu"},
+    "generatematpropsfrommatid": {"mesh": "MeshGeoToolsLib/Bode/BodeComplex.msh"},
+    "computenodeareasfromsurfacemesh": {
+        "mesh_input_file": (
+            "EllipticPETSc/cube_1x1x1_SteadyStateDiffusion/gml_output/3/"
+            "hex_27_cube_1x1x1_geometry_top_ts_0_t_0_000000_2.vtu"
+        ),
+    },
+    "computesurfacenodeidsinpolygonalregion": {
+        "geo_file": "MeshGeoToolsLib/ResetPropertiesInPolygonalRegion/Polylines.gml",
+        "gmsh_path": None,
+    },
+}
 
 TCLAP_PATTERN_STD = re.compile(
     r"TCLAP::(?P<arg_type>(?:Value|Switch|Multi)Arg)\s*"
@@ -103,6 +241,9 @@ def list_cpp_files(root_dir: str) -> List[str]:
 DATATYPE_MAP = {
     # VTK family (unstructured/structured grids, parallel, time series)
     "vtu": "vtkxml",
+    # ``.vtk`` is the legacy format. Galaxy ships no ``vtk`` datatype in the
+    # supported releases, and the OGS build cannot read legacy VTK at all (the
+    # legacy-only utilities are excluded), so it maps to the VTK XML type.
     "vtk": "vtkxml",
     "pvtu": "vtkxml",
     "pvd": "vtkxml",
@@ -365,7 +506,7 @@ def discover_tools(ogs_root: Path) -> List[Dict[str, Any]]:
 
 
 def process_parameters(
-    tclap_params: List[Dict[str, Any]]
+    tclap_params: List[Dict[str, Any]], tool_name: str = ""
 ) -> Tuple[List[object], Dict[str, str]]:
     """Turn a tool's raw TCLAP parameter descriptors into Galaxy parameter objects.
 
@@ -462,6 +603,9 @@ def process_parameters(
             primary_ext = "vtu"
             if format_match:
                 primary_ext = format_match.group(1).split("|")[0].strip().lstrip(".")
+            primary_ext = OUTPUT_EXT_OVERRIDES.get(
+                (tool_name.lower(), long_flag), primary_ext
+            )
 
             file_format = get_ogs_ftype([primary_ext], role="output")
             disk_ext = "vtu" if file_format == "vtkxml" else primary_ext
@@ -476,6 +620,14 @@ def process_parameters(
                 "format": file_format,
                 "short_flag": short_flag,
                 "type": "BASE_FILENAME" if is_base_filename_output else "FIXED_FILE",
+                # ``--output-directory`` / ``--output-dir`` take a directory
+                # the utility creates its files in; Galaxy cannot stage a bare
+                # directory, so such outputs are declared as a discovered
+                # collection instead of a single file.
+                "is_directory": (
+                    "directory" in long_flag.lower()
+                    or long_flag.lower().endswith("-dir")
+                ),
             }
             output_idx += 1
             continue
@@ -531,6 +683,12 @@ def process_parameters(
             )
             is_pvd = "pvd" in help_text.lower() or "pvd" in all_exts
             primary_ext = "pvd" if is_pvd else (all_exts[0] if all_exts else "vtu")
+            # A curated extension (see PARAM_EXT_OVERRIDES) must also drive the
+            # Galaxy datatype, otherwise the test uploads the fixture under a
+            # datatype that does not match the extension the command uses.
+            primary_ext = PARAM_EXT_OVERRIDES.get(
+                (tool_name.lower(), var_name), primary_ext
+            )
             galaxy_type = get_ogs_ftype([primary_ext], role="input")
             is_file_list = "INPUT_FILE_LIST" in all_args_str
             # A *_INPUT_FILE_LIST argument is a single ASCII text file naming
@@ -597,6 +755,14 @@ def process_parameters(
             param.is_unlabeled = is_unlabeled
             galaxy_inputs.append(param)
 
+    base_override = BASE_FILENAME_OVERRIDES.get(tool_name.lower())
+    if base_override and base_override["flag"] in output_command_map:
+        info = output_command_map[base_override["flag"]]
+        info["type"] = "BASE_FILENAME"
+        for key in ("base_value", "pattern", "format", "extra_outputs"):
+            if key in base_override:
+                info[key] = base_override[key]
+
     return galaxy_inputs, output_command_map
 
 
@@ -618,7 +784,7 @@ def generate_tools(ogs_root: Path, output_dir: Path):
             continue
         logging.info(f"Generating wrapper for: {tool_name}...")
         galaxy_inputs, output_command_map = process_parameters(
-            tool_data["parameters"]
+            tool_data["parameters"], tool_name
         )
 
         # 1. EXECUTABLE NAMING
@@ -654,7 +820,10 @@ def generate_tools(ogs_root: Path, output_dir: Path):
             if isinstance(param, DataParam):
                 is_file_list = getattr(param, "is_file_list", False)
                 is_coll = getattr(param, "is_data_collection", False)
-                ext = getattr(param, "ogs_ext", "vtu").lower()
+                ext = PARAM_EXT_OVERRIDES.get(
+                    (tool_name.lower(), param_var_name(param)),
+                    getattr(param, "ogs_ext", "vtu"),
+                ).lower()
 
                 if getattr(param, "is_pvd_element", False):
                     command_parts.append(
@@ -666,22 +835,34 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                     # it straight through, no collection loop is needed. The
                     # on-disk symlink keeps a real .txt extension so OGS can
                     # open it (OGS infers format from the file extension).
-                    command_parts.append(
-                        f"ln -sf '${name}' '${{{name}}}.txt';"
-                    )
-                    flag_parts.append(
-                        f"    --{flag} '${{{name}}}.txt'"
-                    )
+                    symlink = f"ln -sf '${name}' '${{{name}}}.txt';"
+                    arg = f"    --{flag} '${{{name}}}.txt'"
+                    if is_param_optional(param, default=False):
+                        command_parts.append(f"#if ${name}\n{symlink}\n#end if")
+                        flag_parts.append(f"#if ${name}\n{arg}\n#end if")
+                    else:
+                        command_parts.append(symlink)
+                        flag_parts.append(arg)
                     continue
                 if is_coll:
-                    command_parts.append(
-                        f"#for $item in ${name}\nln -sf '$item' '$item.element_identifier';\n#end for"
+                    loop = (
+                        f"#for $item in ${name}\n"
+                        f"ln -sf '$item' '$item.element_identifier';\n"
+                        f"#end for"
                     )
                     loop_str = f"#for $item in ${name}\n'$item.element_identifier'\n#end for"
                     if is_unlabeled:
-                        unlabeled_parts.append(f"    --\n{loop_str}")
+                        arg = f"    --\n{loop_str}"
+                        dest = unlabeled_parts
                     else:
-                        flag_parts.append(f"    --{flag}\n{loop_str}")
+                        arg = f"    --{flag}\n{loop_str}"
+                        dest = flag_parts
+                    if is_param_optional(param, default=False):
+                        command_parts.append(f"#if ${name}\n{loop}\n#end if")
+                        dest.append(f"#if ${name}\n{arg}\n#end if")
+                    else:
+                        command_parts.append(loop)
+                        dest.append(arg)
                 else:
                     # Symlink the dataset to a name carrying the OGS extension
                     # (OGS infers input format from the file extension; the
@@ -689,14 +870,19 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                     # NB: use ``${name}.ext`` (braced), not ``$name.ext`` -- the
                     # latter is Cheetah attribute access (``getattr(name, ext)``)
                     # and raises NameMapper.NotFound: cannot find '<ext>'.
-                    command_parts.append(
-                        f"ln -sf '${name}' '${{{name}}}.{ext}';"
-                    )
+                    symlink = f"ln -sf '${name}' '${{{name}}}.{ext}';"
                     arg_val = f"'${{{name}}}.{ext}'"
-                    if is_unlabeled:
-                        unlabeled_parts.append(f"    {arg_val}")
+                    arg = f"    {arg_val}" if is_unlabeled else f"    --{flag} {arg_val}"
+                    target = unlabeled_parts if is_unlabeled else flag_parts
+                    if is_param_optional(param, default=False):
+                        # An omitted optional dataset must not be rendered as
+                        # the literal string 'None.<ext>': guard both the
+                        # symlink and the flag on the parameter being set.
+                        command_parts.append(f"#if ${name}\n{symlink}\n#end if")
+                        target.append(f"#if ${name}\n{arg}\n#end if")
                     else:
-                        flag_parts.append(f"    --{flag} {arg_val}")
+                        command_parts.append(symlink)
+                        target.append(arg)
             elif isinstance(param, BooleanParam):
                 flag_parts.append(f"    ${name}")
             elif isinstance(
@@ -735,17 +921,26 @@ def generate_tools(ogs_root: Path, output_dir: Path):
         for flag, info in output_command_map.items():
             if flag == "VIRTUAL_no_flag":
                 continue
+            if info.get("is_directory"):
+                # The utility writes into a directory it is given.
+                flag_parts.append(f"    --{flag} '{DIRECTORY_OUTPUT_DIR}'")
+                continue
             if info.get("type") == "BASE_FILENAME":
                 if "directory" in flag.lower():
                     flag_parts.append(f"    --{flag} 'new_output'")
                 else:
-                    flag_parts.append(f"    --{flag} 'new_'")
+                    flag_parts.append(
+                        f"    --{flag} {info.get('base_value', 'new_')}"
+                    )
             else:
                 flag_parts.append(f"    --{flag} {info['filename']}")
 
         final_exec_line = [executable_name]
         final_exec_line.extend(flag_parts)
         final_exec_line.extend(unlabeled_parts)
+        if any(info.get("is_directory") for info in output_command_map.values()):
+            # OGS does not create the output directory itself.
+            command_parts.append(f"mkdir -p '{DIRECTORY_OUTPUT_DIR}';")
         command_parts.extend(final_exec_line)
         if not output_command_map:
             command_parts[-1] += " > '$stdout_log'"
@@ -775,7 +970,23 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                 for info in output_command_map.values()
             )
 
-            if uses_base_filename:
+            if any(
+                info.get("is_directory") for info in output_command_map.values()
+            ):
+                collection = OutputCollection(
+                    name="tool_outputs",
+                    type="list",
+                    label=f"Outputs from {tool_name}",
+                )
+                collection.append(
+                    DiscoverDatasets(
+                        pattern="__name_and_ext__",
+                        directory=DIRECTORY_OUTPUT_DIR,
+                        visible=True,
+                    )
+                )
+                outputs_tag.append(collection)
+            elif uses_base_filename:
                 pattern = (
                     r"(?P<designation>.*)\.vtu"
                     if "VIRTUAL_no_flag" in output_command_map
@@ -786,6 +997,7 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                     for info in output_command_map.values()
                     if info.get("type") == "BASE_FILENAME"
                 )
+                pattern = first_out_info.get("pattern") or pattern
                 target_fmt = first_out_info.get("format", "vtkxml")
                 collection = OutputCollection(
                     name="tool_outputs",
@@ -798,6 +1010,15 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                     )
                 )
                 outputs_tag.append(collection)
+                for extra in first_out_info.get("extra_outputs", []):
+                    outputs_tag.append(
+                        OutputData(
+                            name=extra["name"],
+                            format=extra["format"],
+                            label=extra.get("label", extra["name"]),
+                            from_work_dir=extra["from_work_dir"],
+                        )
+                    )
             else:
                 single_file_outputs = [
                     v
@@ -815,6 +1036,12 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                         )
                     )
                 else:
+                    exts = sorted(
+                        {
+                            str(info["filename"]).rsplit(".", 1)[-1]
+                            for info in single_file_outputs
+                        }
+                    )
                     collection = OutputCollection(
                         name="tool_outputs",
                         type="list",
@@ -822,7 +1049,11 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                     )
                     collection.append(
                         DiscoverDatasets(
-                            pattern=r"output_.*\.(vtu|msh|asc|gml|xml)",
+                            pattern=(
+                                r"(?P<designation>output_[^.]*)\.(?:"
+                                + "|".join(exts)
+                                + r")"
+                            ),
                             format="data",
                             visible=True,
                         )
@@ -1025,6 +1256,53 @@ def get_dummy_value(param, tool_name, all_params=None):
     return "dummy_text"
 
 
+def extra_outputs_of(tool_name: str) -> List[Dict[str, Any]]:
+    """Fixed files written next to a base-filename collection output."""
+    return BASE_FILENAME_OVERRIDES.get(tool_name.lower(), {}).get(
+        "extra_outputs", []
+    )
+
+
+def apply_test_overrides(tool_name: str, test_case, galaxy_inputs) -> None:
+    """Replace auto-derived test inputs with the curated ones for a tool.
+
+    The generator can only match a parameter's *file extension* when it picks a
+    fixture, which is not enough for utilities that need a particular kind of
+    mesh, a real property name or a valid switch value. ``TEST_OVERRIDES``
+    pins those values per tool; this applies them to an already-built
+    ``<test>`` element.
+    """
+    overrides = TEST_OVERRIDES.get(tool_name.lower())
+    if not overrides:
+        return
+    by_var = {param_var_name(p): p for p in galaxy_inputs}
+    existing = {e.get("name"): e for e in test_case.findall("param")}
+    for var, spec in overrides.items():
+        param = by_var.get(var)
+        if param is None:
+            continue
+        elem = existing.get(var)
+        if spec is None:
+            # Optional input the tool does not need for this test case.
+            if elem is not None:
+                test_case.remove(elem)
+            continue
+        if elem is None:
+            elem = ET.SubElement(test_case, "param", {"name": var})
+        if isinstance(param, DataParam):
+            if isinstance(spec, tuple):
+                # Vendored fixture in tools/ogs/test-data/.
+                filename = spec[1]
+                elem.set("value", filename)
+                elem.attrib.pop("location", None)
+            else:
+                filename = spec.rsplit("/", 1)[-1]
+                elem.set("value", filename)
+                elem.set("location", f"{OGS_TEST_DATA_URL}/{spec}")
+        else:
+            elem.set("value", str(spec))
+
+
 def generate_tests(ogs_root: Path, output_dir: Path):
     eprint("--- Generating Final Unified Test Macros ---")
     # Read the CMake test definitions from the local OGS clone (no network).
@@ -1092,7 +1370,7 @@ def generate_tests(ogs_root: Path, output_dir: Path):
             continue
 
         tool_data = tools_map_lower[matched_tool]
-        g_inputs_temp, _ = process_parameters(tool_data["parameters"])
+        g_inputs_temp, _ = process_parameters(tool_data["parameters"], matched_tool)
         # Skip only true PVD inputs (a list of .vtu members that must be
         # rendered as a collection). File-list inputs are single txt files
         # nowadays and render fine from the real EXECUTABLE_ARGS recipe.
@@ -1108,7 +1386,9 @@ def generate_tests(ogs_root: Path, output_dir: Path):
 
         if tool_tests_accumulator[matched_tool]:
             continue
-        galaxy_inputs, output_map = process_parameters(tool_data["parameters"])
+        galaxy_inputs, output_map = process_parameters(
+            tool_data["parameters"], matched_tool
+        )
         # A tool whose wrapper has no output *file* falls back to capturing
         # command stdout as a ``stdout_log`` text output (see generate_tools).
         output_has_stdout = not output_map
@@ -1359,25 +1639,18 @@ def generate_tests(ogs_root: Path, output_dir: Path):
             if diff_files:
                 diff_files.sort(key=lambda x: x["generated"])
                 if len(output_map) > 1 or any(
-                    info.get("type") == "BASE_FILENAME" for info in output_map.values()
+                    info.get("type") == "BASE_FILENAME"
+                    or info.get("is_directory")
+                    for info in output_map.values()
                 ):
-                    coll = ET.SubElement(
+                    # Discovered collections have data-dependent element names
+                    # (base-filename tools append their own suffixes), so assert
+                    # on the element count instead.
+                    ET.SubElement(
                         test_case,
                         "output_collection",
-                        {"name": "tool_outputs", "type": "list"},
+                        {"name": "tool_outputs", "type": "list", "min": "1"},
                     )
-                    # Assert on the concrete files the wrapper writes (the
-                    # reference files in DIFF_DATA are only for the CMake diff
-                    # test; Galaxy tests assert on the tool's own outputs).
-                    for info in output_map.values():
-                        e = ET.SubElement(
-                            coll, "element", {"name": info["filename"]}
-                        )
-                        ET.SubElement(
-                            ET.SubElement(e, "assert_contents"),
-                            "has_size",
-                            {"min": "100"},
-                        )
                     output_added = True
                 elif len(diff_files) == 1:
                     out_name = sanitize_name(f"output_{matched_tool}")
@@ -1403,26 +1676,19 @@ def generate_tests(ogs_root: Path, output_dir: Path):
 
         if not output_added and output_map:
             if len(output_map) > 1 or any(
-                info.get("type") == "BASE_FILENAME" for info in output_map.values()
+                info.get("type") == "BASE_FILENAME"
+                or info.get("is_directory")
+                for info in output_map.values()
             ):
-                coll = ET.SubElement(
+                # Element names of a discovered collection are data dependent
+                # (base-filename tools append their own suffixes), so assert on
+                # the element count instead.
+                ET.SubElement(
                     test_case,
                     "output_collection",
-                    {"name": "tool_outputs", "type": "list"},
+                    {"name": "tool_outputs", "type": "list", "min": "1"},
                 )
-                # Discovered/collection outputs must declare their expected
-                # elements in the test, otherwise planemo lint fails with
-                # TestsOutputCollectionCheckDiscovered. Use the concrete output
-                # file names the wrapper tells the tool to write.
-                for info in output_map.values():
-                    e = ET.SubElement(
-                        coll, "element", {"name": info["filename"]}
-                    )
-                    ET.SubElement(
-                        ET.SubElement(e, "assert_contents"),
-                        "has_size",
-                        {"min": "1"},
-                    )
+                pass
             else:
                 out_name = sanitize_name(f"output_{matched_tool}")
                 out_elem = ET.SubElement(test_case, "output", {"name": out_name})
@@ -1431,9 +1697,22 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                 )
                 expect_single_output = True
 
-        if expect_single_output:
+        extras = extra_outputs_of(matched_tool)
+        for extra in extras:
+            out_elem = ET.SubElement(
+                test_case, "output", {"name": extra["name"]}
+            )
+            ET.SubElement(
+                ET.SubElement(out_elem, "assert_contents"),
+                "has_size",
+                {"min": "1"},
+            )
+        if extras:
+            test_case.set("expect_num_outputs", str(len(extras) + 1))
+        elif expect_single_output:
             test_case.set("expect_num_outputs", "1")
 
+        apply_test_overrides(matched_tool, test_case, galaxy_inputs)
         tool_tests_accumulator[matched_tool].append(test_case)
 
     # Build Macros
@@ -1444,7 +1723,7 @@ def generate_tests(ogs_root: Path, output_dir: Path):
         if not cases:
             fallback_test = ET.SubElement(macro_xml, "test")
             tool_data = tools_map_lower[t_name]
-            g_inputs, g_outputs = process_parameters(tool_data["parameters"])
+            g_inputs, g_outputs = process_parameters(tool_data["parameters"], t_name)
 
             for p in g_inputs:
                 is_data_coll = getattr(p, "is_data_collection", False)
@@ -1500,25 +1779,23 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                             attrs["location"] = val_str
                     ET.SubElement(fallback_test, "param", attrs)
 
+            apply_test_overrides(t_name, fallback_test, g_inputs)
+
             # Outputs
             if g_outputs:
                 if len(g_outputs) > 1 or any(
-                    info.get("type") == "BASE_FILENAME" for info in g_outputs.values()
+                    info.get("type") == "BASE_FILENAME"
+                    or info.get("is_directory")
+                    for info in g_outputs.values()
                 ):
-                    coll = ET.SubElement(
+                    # Element names of a discovered collection are data
+                    # dependent (base-filename tools append their own suffixes),
+                    # so assert on the element count instead.
+                    ET.SubElement(
                         fallback_test,
                         "output_collection",
-                        {"name": "tool_outputs", "type": "list"},
+                        {"name": "tool_outputs", "type": "list", "min": "1"},
                     )
-                    for info in g_outputs.values():
-                        e = ET.SubElement(
-                            coll, "element", {"name": info["filename"]}
-                        )
-                        ET.SubElement(
-                            ET.SubElement(e, "assert_contents"),
-                            "has_size",
-                            {"min": "1"},
-                        )
                 else:
                     out_n = sanitize_name(f"output_{t_name}")
                     out_tag = ET.SubElement(fallback_test, "output", {"name": out_n})
@@ -1534,6 +1811,19 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                 ac = ET.SubElement(out_tag, "assert_contents")
                 ET.SubElement(ac, "has_size", {"min": "1"})
                 fallback_test.set("expect_num_outputs", "1")
+
+            extras = extra_outputs_of(t_name)
+            for extra in extras:
+                out_elem = ET.SubElement(
+                    fallback_test, "output", {"name": extra["name"]}
+                )
+                ET.SubElement(
+                    ET.SubElement(out_elem, "assert_contents"),
+                    "has_size",
+                    {"min": "1"},
+                )
+            if extras:
+                fallback_test.set("expect_num_outputs", str(len(extras) + 1))
         else:
             for case in cases:
                 macro_xml.append(case)

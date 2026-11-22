@@ -9,9 +9,13 @@
   <expand macro="creator" />
   <version_command><![CDATA[generateMatPropsFromMatID --version]]></version_command>
   <command><![CDATA[
+#if $mesh
 ln -sf '$mesh' '${mesh}.msh';
+#end if
 generateMatPropsFromMatID
+#if $mesh
     --mesh '${mesh}.msh'
+#end if
 ]]></command>
   <inputs>
     <param argument="--mesh" type="data" optional="true" label="mesh" help="Input (.msh). The mesh to open from a file" format="gmsh.msh" />

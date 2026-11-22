@@ -9,14 +9,14 @@
   <expand macro="creator" />
   <version_command><![CDATA[OGS2VTK --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh_input_file' '${mesh_input_file}.msh';
+ln -sf '$mesh_input_file' '${mesh_input_file}.vtu';
 OGS2VTK
-    --mesh-input-file '${mesh_input_file}.msh'
+    --mesh-input-file '${mesh_input_file}.vtu'
     $ascii_output
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>
-    <param argument="--mesh-input-file" type="data" optional="false" label="mesh input file" help="Input (.msh). The name of the file containing the input mesh" format="gmsh.msh" />
+    <param argument="--mesh-input-file" type="data" optional="false" label="mesh input file" help="Input (.msh). The name of the file containing the input mesh" format="vtkxml" />
     <param argument="--ascii_output" type="boolean" label="ascii output" help="Write VTU output in ASCII file. Due to possible rounding the ascii output could result in lower accuracy" checked="false" truevalue="--ascii_output" falsevalue="" />
   </inputs>
   <outputs>

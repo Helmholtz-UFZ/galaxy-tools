@@ -9,8 +9,12 @@
   <expand macro="creator" />
   <version_command><![CDATA[MeshMapping --version]]></version_command>
   <command><![CDATA[
+#if $mesh
 ln -sf '$mesh' '${mesh}.vtu';
+#end if
+#if $raster
 ln -sf '$raster' '${raster}.asc';
+#end if
 ln -sf '$input' '${input}.vtu';
 MeshMapping
     $lowpass
@@ -20,8 +24,12 @@ MeshMapping
 #if str($distance)
     --distance '$distance'
 #end if
+#if $mesh
     --mesh '${mesh}.vtu'
+#end if
+#if $raster
     --raster '${raster}.asc'
+#end if
     --input '${input}.vtu'
     --output output_1.vtu
 ]]></command>

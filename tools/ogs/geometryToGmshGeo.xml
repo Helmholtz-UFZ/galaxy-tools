@@ -43,7 +43,7 @@ geometryToGmshGeo
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from geometryToGmshGeo">
-      <discover_datasets pattern="output_.*\.(vtu|msh|asc|gml|xml)" format="data" visible="true" />
+      <discover_datasets pattern="(?P&lt;designation&gt;output_[^.]*)\.(?:geo|gml)" format="data" visible="true" />
     </collection>
   </outputs>
   <tests>

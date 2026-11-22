@@ -11,11 +11,15 @@
   <command><![CDATA[
 ln -sf '$mesh_input_file' '${mesh_input_file}.vtu';
 ln -sf '$geo_file' '${geo_file}.gml';
+#if $gmsh_path
 ln -sf '$gmsh_path' '${gmsh_path}.msh';
+#end if
 appendLinesAlongPolyline
     --mesh-input-file '${mesh_input_file}.vtu'
     --geo-file '${geo_file}.gml'
+#if $gmsh_path
     --gmsh-path '${gmsh_path}.msh'
+#end if
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>

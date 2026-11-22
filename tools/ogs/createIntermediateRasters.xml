@@ -17,7 +17,7 @@ createIntermediateRasters
 #end if
     --file2 '${file2}.asc'
     --file1 '${file1}.asc'
-    --output-file output_1.asc
+    --output-file output_.asc
 ]]></command>
   <inputs>
     <param argument="--number" type="integer" optional="true" label="number" help="number of rasters to be calculated, (min = 0)" />
@@ -25,7 +25,9 @@ createIntermediateRasters
     <param argument="--file1" type="data" optional="false" label="file1" help="Input (.asc) First DEM-raster input file" format="raster.asc" />
   </inputs>
   <outputs>
-    <data name="output_createintermediaterasters" format="raster.asc" label="Output from createIntermediateRasters" from_work_dir="output_1.asc" hidden="false" />
+    <collection name="tool_outputs" type="list" label="Outputs from createIntermediateRasters">
+      <discover_datasets pattern="(?P&lt;designation&gt;output_.*)\.asc" format="raster.asc" visible="true" />
+    </collection>
   </outputs>
   <tests>
     <expand macro="createintermediaterasters_test" />

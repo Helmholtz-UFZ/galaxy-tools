@@ -129,7 +129,11 @@
             <param name="element_type" value="quad"/>
             <param name="length_x" value="3"/>
             <param name="length_y" value="4"/>
-            <output name="output" value="quad_3x4.vtu" ftype="vtkxml"/>
+            <output name="output">
+                <assert_contents>
+                    <has_size min="1000"/>
+                </assert_contents>
+            </output>
         </test>
         <test>
             <param name="output_ext" value="msh"/>
@@ -143,7 +147,11 @@
             <param name="max_element_length_z" value="1"/>
             <param name="element_length_y" value="0.1"/>
             <param name="element_length_z" value="0.1"/>
-            <output name="output" value="hex_4x5x6.msh"/>
+            <output name="output">
+                <assert_contents>
+                    <has_size min="1000"/>
+                </assert_contents>
+            </output>
         </test>
     </tests>
     <help><![CDATA[

@@ -15,7 +15,7 @@ ComputeNodeAreasFromSurfaceMesh
 #if str($id_prop_name)
     --id-prop-name '$id_prop_name'
 #end if
-    --output-base-name 'new_'
+    --output-base-name new_
 ]]></command>
   <inputs>
     <param argument="--mesh-input-file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" />

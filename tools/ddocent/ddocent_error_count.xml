@@ -1,0 +1,58 @@
+<tool id="ddocent_error_count" name="dDocent Error Count" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@" license="MIT">
+    <description>estimate the genotyping error rate of a dDocent VCF</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements"/>
+    <expand macro="stdio"/>
+    <expand macro="version_command"/>
+    <command detect_errors="exit_code"><![CDATA[
+export LC_ALL=C;
+
+## ErrorCount.sh only reads the VCF and writes a report to stdout.
+ErrorCount.sh '$vcf' > '$report'
+    ]]></command>
+    <inputs>
+        <param name="vcf" type="data" format="vcf" label="VCF file from dDocent" help="Any of the VCF files produced by the dDocent pipeline (TotalRawSNPs.vcf or Final.recode.vcf), or the filtered output of the dDocent Filters tool."/>
+    </inputs>
+    <outputs>
+        <data name="report" format="txt" label="${tool.name} on ${on_string}: genotyping error report"/>
+    </outputs>
+    <tests>
+        <test expect_num_outputs="1">
+            <param name="vcf" value="Final.recode.vcf" ftype="vcf"/>
+            <output name="report">
+                <assert_contents>
+                    <has_text text="Potential genotyping errors from genotypes from only 1 read"/>
+                    <has_text text="number of individuals and 100 equals 800 total genotypes"/>
+                    <has_text text="The total SCORCHED EARTH error rate is"/>
+                    <has_n_lines n="13" delta="0"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+What it does
+------------
+
+``ErrorCount.sh`` estimates how many genotypes in a dDocent VCF are likely to be
+wrong because they rest on very few reads.  For genotypes supported by one, two,
+three, four or five reads it counts the heterozygous and homozygous calls and
+reports the range of possible errors, assuming a 50% (low estimate) and a 25%
+(high estimate) chance of seeing the second allele of a heterozygote in a single
+read.
+
+The report ends with the total number of genotypes, the overall error rate range and
+the "scorched earth" rate, i.e. the error rate that would result if every
+low-depth homozygous call were wrong.
+
+Output
+------
+
+A plain text report.  Use it to decide whether the depth filters of the
+dDocent Filters tool tool are strict enough: an error rate above
+a few percent calls for more stringent depth cutoffs or for removing the
+individuals with the lowest coverage.
+    ]]></help>
+    <expand macro="citations"/>
+</tool>

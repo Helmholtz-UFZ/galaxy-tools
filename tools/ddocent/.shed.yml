@@ -1,0 +1,27 @@
+owner: ufz
+categories:
+- Variant Analysis
+- Assembly
+description: dDocent is a RAD-seq variant calling pipeline for non-model organisms
+long_description: |
+  dDocent is an interactive bash wrapper that chains established tools into a
+  reproducible RAD-seq pipeline. It trims reads with fastp, builds a de novo
+  reference by assembling the reads with Rainbow and clustering them with CD-HIT,
+  maps the reads with BWA, and calls variants with FreeBayes. A reference genome
+  can be supplied instead of building one de novo.
+
+  The suite also wraps the post-processing scripts distributed with dDocent:
+  dDocent_filters applies the recommended hard filters to the called VCF,
+  ErrorCount.sh estimates the genotyping error rate, and remake_reference.sh
+  rebuilds the de novo reference from already-trimmed reads.
+
+  https://www.ddocent.com/
+homepage_url: https://www.ddocent.com/
+remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/ddocent
+type: unrestricted
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: "{{ tool_name }} (from the dDocent tool suite)"
+suite:
+  name: "suite_ddocent"
+  description: dDocent tools for RAD-seq reference assembly and variant calling

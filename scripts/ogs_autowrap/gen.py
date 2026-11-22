@@ -933,6 +933,9 @@ def generate_tests(ogs_root: Path, output_dir: Path):
         if tool_tests_accumulator[matched_tool]:
             continue
         galaxy_inputs, output_map = process_parameters(tool_data["parameters"])
+        # A tool whose wrapper has no output *file* falls back to capturing
+        # command stdout as a ``stdout_log`` text output (see generate_tools).
+        output_has_stdout = not output_map
         all_inputs_map = {param_var_name(p): p for p in galaxy_inputs}
 
         flag_map = {}
@@ -1204,6 +1207,15 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                     output_added = True
 
         # Fallback
+        if not output_added and not output_map and output_has_stdout:
+            # Tool captures command stdout as a ``stdout_log`` text output
+            # (the wrapper has no real output file). Assert it exists.
+            out_elem = ET.SubElement(test_case, "output", {"name": "stdout_log"})
+            ET.SubElement(
+                ET.SubElement(out_elem, "assert_contents"), "has_size", {"min": "1"}
+            )
+            output_added = True
+
         if not output_added and output_map:
             if len(output_map) > 1 or any(
                 info.get("type") == "BASE_FILENAME" for info in output_map.values()

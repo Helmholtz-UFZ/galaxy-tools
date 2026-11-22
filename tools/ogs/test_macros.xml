@@ -432,6 +432,11 @@
         <test>
             <param name="print_properties" value="true" />
             <param name="mesh_file" value="TaskB_mesh.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/LIE/HydroMechanics/TaskB_mesh.vtu" ftype="vtkxml" />
+            <output name="stdout_log">
+                <assert_contents>
+                    <has_size min="1" />
+                </assert_contents>
+            </output>
         </test>
     </xml>
     <xml name="computesurfacenodeidsinpolygonalregion_test">

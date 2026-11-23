@@ -20,7 +20,7 @@ from __future__ import annotations
 import inspect
 import logging
 import sys
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, replace
 from types import ModuleType
 from typing import (
     Any,
@@ -45,7 +45,6 @@ from .typespec import (
     TEXT,
     TypeSpec,
     annotation_to_string,
-    friendly_name,
     parse_annotation,
     split_union,
 )
@@ -54,12 +53,39 @@ __all__ = [
     "HIDDEN_PARAMETERS",
     "Introspection",
     "ParamPlan",
+    "RESERVED_INPUT_NAMES",
+    "saqc_parameter_name",
     "TYPE_OVERRIDES",
     "annotation_to_string",
     "discover_aliases",
 ]
 
 logger = logging.getLogger(__name__)
+
+#: names of the inputs the tool defines itself, a SaQC parameter cannot use them
+RESERVED_INPUT_NAMES = frozenset(
+    {
+        "data",
+        "method_cond",
+        "method_select",
+        "methods_repeat",
+        "module_cond",
+        "module_select",
+        "param_conf",
+        "run_test_mode",
+    }
+)
+
+#: appended to a parameter name that would shadow one of those inputs
+RESERVED_INPUT_SUFFIX = "_value"
+
+
+def saqc_parameter_name(input_name: str) -> str:
+    """The SaQC parameter name of a Galaxy input name."""
+    if input_name.endswith(RESERVED_INPUT_SUFFIX):
+        return input_name[: -len(RESERVED_INPUT_SUFFIX)]
+    return input_name
+
 
 #: parameters that are never user configurable
 HIDDEN_PARAMETERS = frozenset({"self", "kwargs", "reduce_func", "metric"})
@@ -135,6 +161,20 @@ class ParamPlan:
     @property
     def has_type_selection(self) -> bool:
         return len(self.specs) > 1
+
+    @property
+    def input_name(self) -> str:
+        """The name of the Galaxy input(s) of this parameter.
+
+        A SaQC parameter cannot be named like one of the inputs of the tool
+        itself: Galaxy keeps all inputs in one namespace and fails with
+        "The selected case is unavailable/invalid" when a parameter shadows
+        an input (SaQC 2.10 has ``setFlags(data=...)`` and the tool has an
+        input ``data``).
+        """
+        if self.name in RESERVED_INPUT_NAMES:
+            return f"{self.name}{RESERVED_INPUT_SUFFIX}"
+        return self.name
 
 
 class Introspection:
@@ -213,7 +253,6 @@ class Introspection:
     # -- parameters --------------------------------------------------------
     def parameters(self, method: Callable, module: ModuleType) -> List[ParamPlan]:
         """The Galaxy input plans for one SaQC method."""
-        module_name = module.__name__
         cached = self._plans.get(id(method))
         if cached is not None:
             return cached
@@ -392,7 +431,7 @@ class Introspection:
                 name,
                 method.__name__,
             )
-        known = _dedupe_by_name(known, f"{module.__name__}|{method.__name__}|{name}")
+        known = _dedupe_inputs(known, f"{module.__name__}|{method.__name__}|{name}")
         if _is_any_scalar(known):
             # e.g. ``EXTERNAL_FLAG``: a text field accepts both the name of a
             # flag (``BAD``) and its numeric value, so a type selection would
@@ -428,28 +467,44 @@ def _expand_aliases(
     return expanded
 
 
-def _dedupe_by_name(specs: List[TypeSpec], where: str) -> List[TypeSpec]:
+def _dedupe_inputs(specs: List[TypeSpec], where: str) -> List[TypeSpec]:
     """Drop the inputs that a user cannot tell apart.
 
-    ``list`` and ``ArrayLike`` for example are both presented as a free text
-    field for several values, and Galaxy rejects a selection with two options
-    of the same label.
+    ``list``, ``ArrayLike`` and ``pd.Series`` for example are all presented as
+    the same free text field, and Galaxy rejects a selection with two options
+    of the same label.  Two specs are the same input if everything that ends up
+    in the generated field is the same (only the name of the type differs).
     """
-    seen: Dict[str, None] = {}
+    seen: Dict[tuple, str] = {}
     kept: List[TypeSpec] = []
     for spec in specs:
-        name = friendly_name(spec)
-        if name in seen:
+        key = _widget_key(spec)
+        if key in seen:
             logger.info(
                 "(%s): ignoring type '%s', it is entered like '%s'",
                 where,
                 spec.text,
-                name,
+                seen[key],
             )
             continue
-        seen[name] = None
+        seen[key] = spec.text
         kept.append(spec)
     return kept
+
+
+def _widget_key(spec: TypeSpec) -> tuple:
+    """Everything of a spec that changes the generated input field."""
+    return (
+        spec.kind,
+        spec.inner,
+        spec.options,
+        spec.option_labels,
+        spec.minimum,
+        spec.maximum,
+        spec.multiple,
+        spec.validator,
+        spec.plain_value,
+    )
 
 
 def _is_any_scalar(specs: List[TypeSpec]) -> bool:

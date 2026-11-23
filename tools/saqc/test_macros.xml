@@ -620,48 +620,18 @@
           <conditional name="method_cond">
             <param name="method_select" value="setFlags" />
             <param name="field" value="1" />
+            <param name="data_value" value="a_string" />
             <param name="override" value="true" />
             <param name="flag" value="255.0" />
-            <conditional name="data_cond">
-              <param name="data_selector" value="type_0" />
-              <param name="data" value="a_string" />
-            </conditional>
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="setFlags" />
+          <has_text text="data=" />
           <has_text text="override=" />
           <has_text text="flag=" />
-          <has_text text="data=" />
-        </assert_contents>
-      </output>
-    </test>
-    <test expect_num_outputs="2">
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="flagtools" />
-          <conditional name="method_cond">
-            <param name="method_select" value="setFlags" />
-            <param name="field" value="1" />
-            <param name="override" value="true" />
-            <param name="flag" value="255.0" />
-            <conditional name="data_cond">
-              <param name="data_selector" value="type_1" />
-              <param name="data" value="a_string" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="setFlags" />
-          <has_text text="override=" />
-          <has_text text="flag=" />
-          <has_text text="data=" />
         </assert_contents>
       </output>
     </test>

@@ -7,7 +7,6 @@ function and one entry in :data:`_BUILDERS`.
 
 from __future__ import annotations
 
-import re
 from typing import Callable, Dict, Optional
 
 from galaxyxml.tool.parameters import (
@@ -86,7 +85,12 @@ def build(plan: ParamPlan) -> object:
     if plan.from_default:
         return _from_default_value(plan)
 
-    args: Dict[str, object] = {"label": plan.label, "help": plan.help}
+    args: Dict[str, object] = {
+        "name": plan.input_name,
+        "argument": plan.name,
+        "label": plan.label,
+        "help": plan.help,
+    }
     if plan.optional:
         args["optional"] = True
     if plan.default is not None:
@@ -98,7 +102,7 @@ def build(plan: ParamPlan) -> object:
         args.pop("value", None)
         return _type_selection(plan, args)
     return _widget(
-        plan.specs[0], plan.name, args, plan.optional, plan.default_value
+        plan.specs[0], plan.input_name, args, plan.optional, plan.default_value
     )
 
 
@@ -133,10 +137,10 @@ def _widget(
 
 def _type_selection(plan: ParamPlan, args: Dict[str, object]) -> Conditional:
     """A selector plus one ``when`` block per accepted input format."""
-    conditional = Conditional(name=f"{plan.name}_cond")
+    conditional = Conditional(name=f"{plan.input_name}_cond")
     conditional.append(
         SelectParam(
-            name=f"{plan.name}_selector",
+            name=f"{plan.input_name}_selector",
             label=f"Choose type for '{plan.label}'",
             help=TYPE_SELECTOR_HELP,
             options={
@@ -148,10 +152,28 @@ def _type_selection(plan: ParamPlan, args: Dict[str, object]) -> Conditional:
     for index, spec in enumerate(plan.specs):
         when = When(value=f"type_{index}")
         when.append(
-            _widget(spec, plan.name, dict(args), plan.optional, plan.default_value)
+            _widget(
+                spec, plan.input_name, dict(args), plan.optional, plan.default_value
+            )
         )
         conditional.append(when)
     return conditional
+
+
+def _arguments(name: str, args: Dict[str, object]) -> Dict[str, object]:
+    """The keyword arguments of a single input.
+
+    ``name`` is the name of the Galaxy input, the SaQC argument is stored in
+    ``args``.  A parameter whose names agree is written as ``argument`` only,
+    Galaxy derives the name of such an input from its argument.
+    """
+    args = dict(args)
+    argument = args.pop("argument", None) or name
+    args.pop("name", None)
+    if argument != name:
+        args["name"] = name
+    args["argument"] = argument
+    return args
 
 
 def _text(spec: TypeSpec, name: str, args: Dict[str, object], optional: bool):
@@ -162,9 +184,9 @@ def _text(spec: TypeSpec, name: str, args: Dict[str, object], optional: bool):
         args["help"] = (str(args.get("help", "")) + _TEXT_HELP[spec.validator]).strip()
 
     if spec.multiple:
-        return TextParam(argument=name, multiple=True, **args)
+        return TextParam(multiple=True, **_arguments(name, args))
 
-    param = TextParam(argument=name, **args)
+    param = TextParam(**_arguments(name, args))
     if spec.validator in _VALIDATORS:
         pattern, message = _VALIDATORS[spec.validator]
         param.append(_regex_validator(pattern, message))
@@ -187,7 +209,7 @@ def _number(constructor, spec: TypeSpec, name: str, args: Dict[str, object]):
         args["min"] = spec.minimum
     if spec.maximum is not None:
         args["max"] = spec.maximum
-    return constructor(argument=name, **args)
+    return constructor(**_arguments(name, args))
 
 
 def _boolean(spec: TypeSpec, name: str, args: Dict[str, object], optional: bool):
@@ -196,7 +218,7 @@ def _boolean(spec: TypeSpec, name: str, args: Dict[str, object], optional: bool)
     args.pop("multiple", None)
     args.pop("optional", None)
     checked = bool(args.pop("checked", False))
-    param = BooleanParam(argument=name, checked=checked, **args)
+    param = BooleanParam(checked=checked, **_arguments(name, args))
     _drop_attribute(param, "truevalue")
     _drop_attribute(param, "falsevalue")
     return param
@@ -208,19 +230,22 @@ def _select(spec: TypeSpec, name: str, args: Dict[str, object], optional: bool):
     if default is not None:
         args["default"] = default
     options = dict(spec.option_labels) or {option: option for option in spec.options}
-    return SelectParam(argument=name, options=options, **args)
+    return SelectParam(options=options, **_arguments(name, args))
 
 
 def _fields(spec: TypeSpec, name: str, args: Dict[str, object], optional: bool):
     args = dict(args)
     args.pop("value", None)
     args.update(type="data_column", data_ref="data", multiple=spec.multiple)
-    return SelectParam(argument=name, **args)
+    return SelectParam(**_arguments(name, args))
 
 
 def _files(spec: TypeSpec, name: str, args: Dict[str, object], optional: bool):
     args = dict(args)
     args.pop("value", None)
+    # a dataset input has no command line argument of its own
+    args.pop("argument", None)
+    args.pop("name", None)
     return DataParam(name=name, format="csv", multiple=True, **args)
 
 
@@ -259,6 +284,7 @@ def _tuple(spec: TypeSpec, name: str, args: Dict[str, object], optional: bool):
     for index, inner in enumerate(elements):
         element_name = f"{name}_pos{index}"
         element_args: Dict[str, object] = {
+            "name": element_name,
             "label": element_name,
             "help": f"{_ORDINALS[index]} element (index {index}) of the {name} tuple.",
         }
@@ -271,7 +297,7 @@ def _tuple(spec: TypeSpec, name: str, args: Dict[str, object], optional: bool):
 def _output_path(spec: TypeSpec, name: str, args: Dict[str, object], optional: bool):
     args = dict(args)
     args.pop("optional", None)
-    param = TextParam(argument=name, **args)
+    param = TextParam(**_arguments(name, args))
     param.append(ValidatorParam(type="regex", text=_PATH_PATTERN))
     param.append(_empty_field_validator())
     return param
@@ -280,21 +306,26 @@ def _output_path(spec: TypeSpec, name: str, args: Dict[str, object], optional: b
 def _from_default_value(plan: ParamPlan):
     """Input for an unannotated parameter, derived from its default value."""
     value = plan.default_value
-    args: Dict[str, object] = {"label": plan.label, "help": plan.help}
+    args: Dict[str, object] = {
+        "name": plan.input_name,
+        "argument": plan.name,
+        "label": plan.label,
+        "help": plan.help,
+    }
 
     if isinstance(value, bool):
-        param = BooleanParam(argument=plan.name, checked=value, **args)
+        param = BooleanParam(checked=value, **_arguments(plan.input_name, args))
         _drop_attribute(param, "truevalue")
         _drop_attribute(param, "falsevalue")
         return param
 
     args["value"] = str(value)
     if isinstance(value, int):
-        return IntegerParam(argument=plan.name, **args)
+        return IntegerParam(**_arguments(plan.input_name, args))
     if isinstance(value, float):
-        return FloatParam(argument=plan.name, **args)
+        return FloatParam(**_arguments(plan.input_name, args))
     if isinstance(value, str):
-        return TextParam(argument=plan.name, **args)
+        return TextParam(**_arguments(plan.input_name, args))
     raise ValueError(
         f"cannot derive an input for parameter '{plan.name}' from {value!r}"
     )

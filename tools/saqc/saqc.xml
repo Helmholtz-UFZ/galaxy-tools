@@ -364,22 +364,9 @@
             </when>
             <when value="setFlags">
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <conditional name="data_cond">
-                <param name="data_selector" type="select" label="Choose type for 'Flags schedule'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">List</option>
-                  <option value="type_1">pd.Series</option>
-                </param>
-                <when value="type_0">
-                  <param argument="data" type="text" label="Flags schedule" help="Determines which timestamps to set flags at. Depending on the passed type:  * 1-d `array` or `List` of timestamps or `pandas.Index`: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]` * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * str: use the variable timeseries `f_data` as flagging template * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * 1-d `array` or `List` of timestamps: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]`">
-                    <validator type="empty_field"/>
-                  </param>
-                </when>
-                <when value="type_1">
-                  <param argument="data" type="text" label="Flags schedule" help="Determines which timestamps to set flags at. Depending on the passed type:  * 1-d `array` or `List` of timestamps or `pandas.Index`: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]` * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * str: use the variable timeseries `f_data` as flagging template * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * 1-d `array` or `List` of timestamps: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]`">
-                    <validator type="empty_field"/>
-                  </param>
-                </when>
-              </conditional>
+              <param name="data_value" argument="data" type="text" label="Flags schedule" help="Determines which timestamps to set flags at. Depending on the passed type:  * 1-d `array` or `List` of timestamps or `pandas.Index`: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]` * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * str: use the variable timeseries `f_data` as flagging template * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * 1-d `array` or `List` of timestamps: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]`">
+                <validator type="empty_field"/>
+              </param>
               <param argument="override" type="boolean" label="Override existing flags" help="Determines if flags shall be assigned although the value in question already has a flag assigned" checked="true"/>
               <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
                 <validator type="empty_field"/>

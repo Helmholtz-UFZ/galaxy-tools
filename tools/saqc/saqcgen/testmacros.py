@@ -14,7 +14,7 @@ from typing import Any, Dict, Iterator, List
 from xml.etree import ElementTree as ET
 
 from . import samples
-from .introspect import Introspection, ParamPlan
+from .introspect import Introspection, ParamPlan, saqc_parameter_name
 
 __all__ = ["generate_test_macros"]
 
@@ -123,7 +123,7 @@ def _asserted_parameters(parameters: Dict[str, Any]) -> List[str]:
 
     collect(parameters)
     return [
-        name
+        saqc_parameter_name(name)
         for name in names
         if name not in _UNASSERTED_PARAMETERS
         and not any(suffix in name for suffix in _NESTED_SUFFIXES)
@@ -149,29 +149,29 @@ def _variants(
             continue
         _set_value(
             defaults,
-            plan.name,
-            samples.sample_values(plan.specs[0], plan.name, plan.default),
+            plan.input_name,
+            samples.sample_values(plan.specs[0], plan.input_name, plan.default),
         )
 
     for plan in selections:
-        defaults[f"{plan.name}_cond"] = _selected(plan, 0)
+        defaults[f"{plan.input_name}_cond"] = _selected(plan, 0)
 
     variants = [defaults]
     for plan in selections:
         for index in range(1, len(plan.specs)):
             variant = dict(defaults)
-            variant[f"{plan.name}_cond"] = _selected(plan, index)
+            variant[f"{plan.input_name}_cond"] = _selected(plan, index)
             variants.append(variant)
     return variants
 
 
 def _selected(plan: ParamPlan, index: int) -> Dict[str, Any]:
     """The parameters of one ``when`` block of a type selection."""
-    values: Dict[str, Any] = {f"{plan.name}_selector": f"type_{index}"}
+    values: Dict[str, Any] = {f"{plan.input_name}_selector": f"type_{index}"}
     _set_value(
         values,
-        plan.name,
-        samples.sample_values(plan.specs[index], plan.name, plan.default),
+        plan.input_name,
+        samples.sample_values(plan.specs[index], plan.input_name, plan.default),
     )
     return values
 

@@ -108,6 +108,20 @@ def process_main_column(
     return field_str, params_to_process
 
 
+def saqc_parameter_name(input_name: str) -> str:
+    """
+    The SaQC parameter name of a Galaxy input name.
+
+    A SaQC parameter cannot be named like an input of the tool itself (Galaxy
+    keeps all inputs of a tool in one namespace), so the generator appends
+    ``_value`` to such a name, e.g. ``setFlags(data=...)`` is entered as
+    ``data_value``.
+    """
+    if input_name.endswith("_value"):
+        return input_name[: -len("_value")]
+    return input_name
+
+
 def process_parameters(
     params_to_process: Dict[str, Any], primary_input_file: str
 ) -> Dict[str, Any]:
@@ -121,30 +135,33 @@ def process_parameters(
         if param_key.endswith("_selector"):
             continue
 
-        actual_param_name_for_saqc = param_key
+        actual_param_name_for_saqc = saqc_parameter_name(param_key)
         current_value_for_saqc = param_value_json
 
         # Resolve conditionals (e.g., `param_cond`)
         if isinstance(param_value_json, dict) and param_key.endswith("_cond"):
-            actual_param_name_for_saqc = param_key[:-5]
+            # the inputs nested in a conditional are named after the
+            # conditional, not after the SaQC argument
+            nested_name = param_key[: -len("_cond")]
+            actual_param_name_for_saqc = saqc_parameter_name(nested_name)
             inner_params = param_value_json.copy()
-            inner_params.pop(f"{actual_param_name_for_saqc}_selector", None)
+            inner_params.pop(f"{nested_name}_selector", None)
 
             if len(inner_params) == 1:
                 current_value_for_saqc = list(inner_params.values())[0]
             else:
                 # Handle special tuples/slices
-                if f"{actual_param_name_for_saqc}_start" in inner_params:
-                    start = inner_params.get(f"{actual_param_name_for_saqc}_start")
-                    end = inner_params.get(f"{actual_param_name_for_saqc}_end")
+                if f"{nested_name}_start" in inner_params:
+                    start = inner_params.get(f"{nested_name}_start")
+                    end = inner_params.get(f"{nested_name}_end")
                     current_value_for_saqc = (
                         f"slice({start}, {end})"
                         if start is not None or end is not None
                         else None
                     )
-                elif f"{actual_param_name_for_saqc}_min" in inner_params:
-                    min_val = inner_params.get(f"{actual_param_name_for_saqc}_min")
-                    max_val = inner_params.get(f"{actual_param_name_for_saqc}_max")
+                elif f"{nested_name}_min" in inner_params:
+                    min_val = inner_params.get(f"{nested_name}_min")
+                    max_val = inner_params.get(f"{nested_name}_max")
                     current_value_for_saqc = (
                         f"({min_val}, {max_val})"
                         if min_val is not None or max_val is not None

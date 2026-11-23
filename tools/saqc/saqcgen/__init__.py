@@ -9,4 +9,13 @@ reStructuredText docstring.  This package turns that documentation into
 Run it with ``python gen.py --help``.
 """
 
-__all__ = ["cli", "docs", "introspect", "params", "samples", "testmacros", "tool", "typespec"]
+__all__ = [
+    "cli",
+    "docs",
+    "introspect",
+    "params",
+    "samples",
+    "testmacros",
+    "tool",
+    "typespec",
+]

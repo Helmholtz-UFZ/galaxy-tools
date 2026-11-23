@@ -18,7 +18,7 @@ from __future__ import annotations
 import inspect
 import re
 from dataclasses import dataclass
-from typing import Any, ForwardRef, Mapping, Optional, Sequence, Tuple, get_origin
+from typing import Any, ForwardRef, Mapping, Optional, Tuple, get_origin
 
 __all__ = [
     "BOOLEAN",
@@ -161,7 +161,7 @@ def split_union(type_string: str) -> list[str]:
     """
     text = type_string.strip()
     if text.startswith("Union[") and text.endswith("]"):
-        text = text[len("Union[") : -1]
+        text = text[len("Union[") : -1]  # noqa: E203
 
     members: list[str] = []
     current = ""

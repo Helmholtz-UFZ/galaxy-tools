@@ -483,6 +483,17 @@
             </output>
         </test>
     </xml>
+    <xml name="postlie_test">
+        <test expect_num_outputs="1">
+            <param name="input_file" value="single_joint_3D_ts_1_t_1.000000.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/LIE/PostProcessing/single_joint_3D_ts_1_t_1.000000.vtu" ftype="vtkxml" />
+            <output name="output_postlie">
+                <assert_contents>
+                    <has_size min="100" />
+                </assert_contents>
+            </output>
+            <param name="no_overwrite" value="False" />
+        </test>
+    </xml>
     <xml name="removemeshelements_test">
         <test expect_num_outputs="1">
             <param name="mesh_input_file" value="AREHS_Layer17.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer17.vtu" ftype="vtkxml" />

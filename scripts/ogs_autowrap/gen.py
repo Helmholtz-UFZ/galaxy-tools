@@ -43,56 +43,68 @@ OGS_TEST_DATA_URL = f"{OGS_GITLAB_RAW}/{OGS_PINNED_COMMIT}/{TEST_DATA_PATH}"
 
 # Tools with broken executable commands (the conda ``ogs`` package does not ship a
 # working binary for these, so a wrapper would fail at runtime).
+# Utilities that are *not* wrapped. Every entry is justified by something a
+# wrapper cannot work around -- see scripts/ogs_autowrap/README.md for the
+# long form. Do not add a tool here because writing its test is inconvenient.
 EXCLUDED_TOOLS = [
-    "netcdfconverter",
-    "binarytopvtu",
+    # --- Not part of the released OGS build -------------------------------
+    # OGS compiles these only with a build option the release does not enable,
+    # so there is simply no command to wrap. Required option in brackets.
+    "netcdfconverter",  # [OGS_USE_NETCDF]
+    "binarytopvtu",  # [OGS_USE_MPI]
+    "swmmconverter",  # [OGS_BUILD_SWMM]
+    "raster2pointcloud",  # [OGS_BUILD_GUI]
+    "verticalslicefromlayers",  # [OGS_BUILD_GUI]
+    "convertshptogli",  # [OGS_BUILD_GUI]
+    "mesh2shape",  # [OGS_BUILD_GUI]
+    # Qt desktop application (file dialogs, no usable command line at all).
     "ogsfileconverter",
-    "raster2pointcloud",
-    "verticalslicefromlayers",
-    "convertshptogli",
-    "mesh2shape",
-    "swmmconverter",
-    # Only documented format is legacy ``.vtk``. The released OGS (6.5.x)
-    # build has no working legacy-VTK reader/writer: a file that VTK itself
-    # reads fine (8 points, 1 cell) is reported as "contains zero points", so
-    # these wrappers could never run. Excluded rather than shipped broken.
+    # --- Only work with legacy ``.vtk`` meshes ----------------------------
+    # The released build has no working legacy-VTK reader: a 4-point/1-cell
+    # file that VTK itself reads fine is reported as "contains zero points".
     "vtk2ogs",
     "vtk2tin",
     "tin2vtk",
     "convertvtkdataarraytovtkdataarray",
-    # --- Utilities that cannot be tested from a single staged input file ---
-    # OGS writes the result next to the *input* file (``<geo dir>/<polygon>0.txt``)
-    # and Galaxy stages inputs in an immutable file directory, so the outputs can
-    # never be collected.
-    # Take an ASCII list of rasters that the utility resolves relative to its own
-    # working directory; the individual rasters cannot be staged.
+    "mergemeshtobulkmesh",
+    # --- Need input a single Galaxy dataset cannot provide ----------------
+    # An ASCII file listing rasters whose paths are resolved relative to the
+    # working directory; the rasters themselves cannot be staged from that one
+    # dataset (the wrapper would have to build the list from a collection).
     "layers2grid",
     "createlayeredmeshfromrasters",
     "createtetgensmeshfromrasters",
-    # Need companion files (points/properties/partition files) next to the input.
+    # ``.sg`` / ``.pvd`` / ``.pvtu`` files reference companion files by name
+    # (property files without any directory prefix, time series, partition
+    # members). Missing members make the utilities abort.
     "gocadsgridreader",
-    "partitionmesh",
-    "pvtu2vtu",
-    # Require binary TecPlot ``.plt`` files; OGS ships no such test data.
-    "tecplottools",
-    # Require a PVD referencing simulation variables that the staged PVD lacks.
     "pvd2xdmf",
-    "postlie",
-    # Need a mesh with a *double* element property / an XOR switch group, which
-    # the auto-derivable test fixture cannot provide.
-    "createneumannbc",
+    "pvtu2vtu",
+    # Needs the METIS partition files ``<base>.mesh.npart.N`` / ``.epart.N``
+    # next to the input; without them -- or an external ``mpmetis``, which the
+    # release does not ship -- it aborts.
+    "partitionmesh",
+    # Reads binary TecPlot ``.plt`` files; OGS ships no such file to test with.
+    "tecplottools",
+    # --- Command line a wrapper cannot express (yet) ----------------------
+    # Requires exactly one of ``-c/-r/-s``: TCLAP's required *XOR* group is not
+    # modelled by the generator. (The utility itself works, e.g. with ``-r``.)
     "editmaterialid",
-    # Crashes (segfault) on every mesh shipped with OGS 6.5.x, including meshes
-    # that carry ``bulk_node_ids``.
-    "reordermesh",
-    # Writes only to stdout and produces no output at all when no node/element
-    # id is requested.
+    # Needs a surface mesh carrying both ``bulk_node_ids`` and a *double*
+    # element property; no mesh under ``Tests/Data`` has a double element
+    # property and OGS has no test for the utility to copy a setup from.
+    "createneumannbc",
+    # Positional mesh argument and stdout-only output (it writes no file), so
+    # a Galaxy wrapper could not produce a dataset.
     "querymesh",
-    # Needs a polylines geometry that intersects the mesh; no matching pair of
-    # test fixtures exists ("Did not find mesh nodes along polylines").
+    # Aborts on meshes without ``bulk_node_ids`` and segfaults on the ones
+    # that have it (exit 139).
+    "reordermesh",
+    # Always writes its node geometry as legacy ``.gli``, which the released
+    # build cannot write ("not possible to determine the required format from
+    # file extension"); the ``.bc`` it does write would always be accompanied
+    # by a missing geometry output.
     "createboundaryconditionsalongpolylines",
-    # Reads legacy ``.vtk`` meshes, which OGS 6.5.x cannot read (see above).
-    "mergemeshtobulkmesh",
 ]
 
 # NOTE: there is deliberately no list of hand-maintained wrappers here. Every
@@ -200,6 +212,13 @@ PARAM_EXT_OVERRIDES = {
     ("ogs2vtk", "mesh_input_file"): "vtu",
 }
 
+# ``-i/--input-file`` arguments that accept either a ``.pvd`` or a single mesh.
+# They are exposed as the single-mesh variant: a PVD would additionally need
+# the member files it references, which the wrapper cannot stage.
+NON_PVD_INPUTS = {
+    ("postlie", "input_file"),
+}
+
 # Curated test inputs, keyed by tool (lower case) and parameter variable name.
 # The auto-derived fixtures only match a tool's input *extension*, not its
 # semantics; these entries pin the value a tool actually needs.
@@ -254,6 +273,11 @@ TEST_OVERRIDES = {
         "ny": "4",
     },
     "addlayer": {"layer_tickness": "1"},
+    "postlie": {
+        "input_file": "LIE/PostProcessing/single_joint_3D_ts_1_t_1.000000.vtu",
+        "output_file": "post_processed.vtu",
+        "no_overwrite": False,
+    },
 }
 
 TCLAP_PATTERN_STD = re.compile(
@@ -862,7 +886,12 @@ def process_parameters(
                 if format_match
                 else []
             )
-            is_pvd = "pvd" in help_text.lower() or "pvd" in all_exts
+            # Arguments that accept a ``.pvd`` *or* a single ``.vtu`` are
+            # exposed as the single-file variant: writing a sidecar XDMF/PVD
+            # from a pvd would need the member files it references.
+            is_pvd = (
+                "pvd" in help_text.lower() or "pvd" in all_exts
+            ) and (tool_name.lower(), var_name) not in NON_PVD_INPUTS
             primary_ext = "pvd" if is_pvd else (all_exts[0] if all_exts else "vtu")
             # A curated extension (see PARAM_EXT_OVERRIDES) must also drive the
             # Galaxy datatype, otherwise the test uploads the fixture under a

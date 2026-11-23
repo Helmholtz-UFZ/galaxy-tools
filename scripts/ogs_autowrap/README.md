@@ -27,6 +27,28 @@ python scripts/ogs_autowrap/gen.py --ogs-root ogs-src --output-dir tools/ogs --c
 
 `--check-target <tool>` does the same for a single wrapper while developing.
 
+Every run first audits the curated tables (`TEST_OVERRIDES`,
+`PARAM_EXT_OVERRIDES`, `MANIFEST_INPUTS`, `EXCLUDED_TOOLS`, …) against the OGS
+sources: they are consulted with `dict.get` all over the generator, so a key
+that names a tool or parameter that does not exist -- a typo, or a rename
+upstream -- would otherwise be ignored without a word, silently dropping the
+override or degrading a test to the dummy recipe. A key that resolves to
+nothing is reported with a suggestion and the run stops with exit code 2
+(`--check` exits 1 on a wrapper that is out of sync, so scripts can tell the
+two apart):
+
+```
+curated tables do not match the OGS tree (2 problem(s)):
+  TEST_OVERRIDES['gocadtsurfacereader']['input']: not a parameter of that wrapper (did you mean 'input_file'?)
+  OUTPUT_EXT_OVERRIDES[('convertgeo', 'output_file')]: no such output argument (did you mean 'output-file'?)
+```
+
+The audit itself is unit-tested against synthetic tables (no OGS tree needed):
+
+```bash
+python -m unittest discover -s scripts/ogs_autowrap -p 'test_*.py'
+```
+
 ## What is derived from where
 
 | Wrapper element | Source in OGS |

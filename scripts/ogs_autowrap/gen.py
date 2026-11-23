@@ -1,4 +1,5 @@
 import argparse
+import difflib
 import logging
 import re
 import shlex
@@ -288,7 +289,7 @@ TEST_OVERRIDES = {
         "input": "HydroMechanics/EmbeddedAnchorSourceTerm/cube_1x1x1_hex_1e3.vtu",
         "json_file": "HydroMechanics/EmbeddedAnchorSourceTerm/data_3D.json",
     },
-    "gocadtsurfacereader": {"input": "MeshLib/Top-Lower-Shaly.ts"},
+    "gocadtsurfacereader": {"input_file": "MeshLib/Top-Lower-Shaly.ts"},
     "ogs2vtk": {"mesh_input_file": "MeshGeoToolsLib/Naegelstedt/SmallTest.vtu"},
     "generatematpropsfrommatid": {"mesh": "MeshGeoToolsLib/Bode/BodeComplex.msh"},
     "computenodeareasfromsurfacemesh": {
@@ -391,7 +392,6 @@ TEST_OVERRIDES = {
     },
     "postlie": {
         "input_file": "LIE/PostProcessing/single_joint_3D_ts_1_t_1.000000.vtu",
-        "output_file": "post_processed.vtu",
         "no_overwrite": False,
     },
 }
@@ -2488,18 +2488,208 @@ def generate_tests(ogs_root: Path, output_dir: Path):
     eprint(f"Wrote {out_path}")
 
 
+def _closest_match(key, universe) -> str:
+    """Return a " (did you mean ...?)" hint for an unresolvable table key."""
+    hits = difflib.get_close_matches(str(key), sorted(str(u) for u in universe), n=1)
+    return f" (did you mean {hits[0]!r}?)" if hits else ""
+
+
+def _audit_curated_tables(
+    discovered: set,
+    param_names: Dict[str, set],
+    long_flags: Dict[str, set],
+    virtual_names: Dict[str, set],
+) -> List[str]:
+    """Compare every curated table against the parameters the generator emits.
+
+    Pure function so it can be unit-tested without an OGS source tree; the key
+    conventions differ per table and are therefore checked explicitly:
+
+      * ``TEST_OVERRIDES``, ``MANIFEST_INPUTS``, ``NON_PVD_INPUTS`` and
+        ``PARAM_EXT_OVERRIDES`` are looked up by *parameter variable name*,
+      * ``OUTPUT_EXT_OVERRIDES`` and ``BASE_FILENAME_OVERRIDES[*]['flag']`` by
+        *long flag* (output arguments never become Galaxy parameters),
+      * ``IMPLICIT_OUTPUTS`` and ``BASE_FILENAME_OVERRIDES`` by tool only.
+    """
+    problems: List[str] = []
+    wrapped = set(param_names)
+
+    for tool, overrides in TEST_OVERRIDES.items():
+        if tool in EXCLUDED_TOOLS:
+            problems.append(
+                f"TEST_OVERRIDES[{tool!r}]: the tool is in EXCLUDED_TOOLS, "
+                "so no wrapper is generated"
+            )
+            continue
+        if tool not in wrapped:
+            problems.append(
+                f"TEST_OVERRIDES[{tool!r}]: no such generated tool"
+                f"{_closest_match(tool, wrapped)}"
+            )
+            continue
+        known = param_names[tool] | virtual_names[tool]
+        for key in overrides:
+            if key not in known:
+                problems.append(
+                    f"TEST_OVERRIDES[{tool!r}][{key!r}]: not a parameter of that wrapper"
+                    f"{_closest_match(key, known)}"
+                )
+
+    # A collection input without a ``__members`` fixture silently degrades the
+    # tool's test to the dummy recipe, i.e. the input is never exercised.
+    for tool, keys in virtual_names.items():
+        if tool not in TEST_OVERRIDES:
+            for key in keys:
+                problems.append(
+                    f"TEST_OVERRIDES[{tool!r}]: missing {key!r}, so the collection "
+                    "input of this wrapper would only get a dummy test"
+                )
+        else:
+            for key in keys - set(TEST_OVERRIDES[tool]):
+                problems.append(
+                    f"TEST_OVERRIDES[{tool!r}]: missing {key!r}, so the collection "
+                    "input of this wrapper would only get a dummy test"
+                )
+
+    for tool, var in PARAM_EXT_OVERRIDES:
+        if tool not in wrapped:
+            problems.append(
+                f"PARAM_EXT_OVERRIDES[({tool!r}, {var!r})]: no such generated tool"
+                f"{_closest_match(tool, wrapped)}"
+            )
+        elif var not in param_names[tool]:
+            problems.append(
+                f"PARAM_EXT_OVERRIDES[({tool!r}, {var!r})]: no such parameter"
+                f"{_closest_match(var, param_names[tool])}"
+            )
+
+    for tool, flag in OUTPUT_EXT_OVERRIDES:
+        if tool not in wrapped:
+            problems.append(
+                f"OUTPUT_EXT_OVERRIDES[({tool!r}, {flag!r})]: no such generated tool"
+                f"{_closest_match(tool, wrapped)}"
+            )
+        elif flag not in long_flags[tool]:
+            problems.append(
+                f"OUTPUT_EXT_OVERRIDES[({tool!r}, {flag!r})]: no such output argument"
+                f"{_closest_match(flag, long_flags[tool])}"
+            )
+
+    for table_name, table in (
+        ("MANIFEST_INPUTS", MANIFEST_INPUTS),
+        ("NON_PVD_INPUTS", NON_PVD_INPUTS),
+    ):
+        for tool, var in table:
+            if tool not in wrapped:
+                problems.append(
+                    f"{table_name}[({tool!r}, {var!r})]: no such generated tool"
+                    f"{_closest_match(tool, wrapped)}"
+                )
+            elif var not in param_names[tool]:
+                problems.append(
+                    f"{table_name}[({tool!r}, {var!r})]: no such parameter"
+                    f"{_closest_match(var, param_names[tool])}"
+                )
+
+    for tool, spec in MANIFEST_INPUTS.items():
+        if spec.get("kind") not in ("file_list", "companion_names"):
+            problems.append(
+                f"MANIFEST_INPUTS[{tool!r}]['kind']: unknown kind {spec.get('kind')!r} "
+                "(expected 'file_list' or 'companion_names')"
+            )
+
+    for table_name, table in (
+        ("IMPLICIT_OUTPUTS", IMPLICIT_OUTPUTS),
+        ("BASE_FILENAME_OVERRIDES", BASE_FILENAME_OVERRIDES),
+    ):
+        for tool in table:
+            if tool not in wrapped:
+                problems.append(
+                    f"{table_name}[{tool!r}]: no such generated tool"
+                    f"{_closest_match(tool, wrapped)}"
+                )
+
+    for tool, spec in BASE_FILENAME_OVERRIDES.items():
+        flag = spec.get("flag")
+        if tool in wrapped and flag and flag not in long_flags[tool]:
+            problems.append(
+                f"BASE_FILENAME_OVERRIDES[{tool!r}]['flag']: no such output argument "
+                f"{flag!r}{_closest_match(flag, long_flags[tool])}"
+            )
+
+    for tool in EXCLUDED_TOOLS:
+        if tool not in discovered:
+            problems.append(
+                f"EXCLUDED_TOOLS: {tool!r} is not a utility in this OGS tree"
+                f"{_closest_match(tool, discovered)}"
+            )
+
+    return problems
+
+
+def validate_curated_tables(ogs_root: Path) -> List[str]:
+    """Report every curated-table key that resolves to nothing.
+
+    The tables near the top of this file are consulted with ``dict.get`` all
+    over the generator, so a key that names a tool or parameter that does not
+    exist (a typo, or a rename upstream) is silently ignored: the wrapper is
+    generated without its override, or a test quietly falls back to the dummy
+    recipe. This runs the same discovery the generators run -- discarding the
+    parameter objects, because ``process_parameters`` attaches state to them --
+    and returns one message per unresolvable key.
+    """
+    param_names: Dict[str, set] = {}
+    long_flags: Dict[str, set] = {}
+    virtual_names: Dict[str, set] = {}
+    discovered: set = set()
+
+    for tool_data in discover_tools(ogs_root):
+        key = tool_data["name"].lower()
+        discovered.add(key)
+        if key in EXCLUDED_TOOLS:
+            continue
+        params, output_command_map = process_parameters(
+            tool_data["parameters"], tool_data["name"]
+        )
+        param_names[key] = {param_var_name(p) for p in params}
+        long_flags[key] = (
+            {getattr(p, "original_long_flag", "") for p in params}
+            | set(output_command_map)
+        ) - {"", None}
+        virtual_names[key] = {
+            p.members_override_key
+            for p in params
+            if getattr(p, "members_override_key", None)
+        } | {
+            # A ``.pvd`` input builds its collection members from
+            # ``<var>__members`` (see the PVD branch of generate_tests).
+            f"{param_var_name(p)}__members"
+            for p in params
+            if getattr(p, "is_pvd", False)
+        }
+
+    return _audit_curated_tables(discovered, param_names, long_flags, virtual_names)
+
+
 def _check_outputs(ogs_root: Path, target: Path) -> int:
     """Regenerate every tool wrapper and the test macros and verify they match.
 
     Wrappers must be produced by the generator (no hand-edits), so CI can
     assert that the committed ``tools/ogs/`` outputs are reproducible. Each
-    file the generator produces (61 tool XMLs + ``test_macros.xml``) is
+    file the generator produces (54 tool XMLs + ``test_macros.xml``) is
     regenerated into a throw-away directory and compared byte-for-byte with
     its counterpart under ``target`` (normally ``tools/ogs/``).
 
     Returns 0 if everything matches (plain string-files also byte matches),
     else returns the number of mismatches (and prints each one).
     """
+    problem_count = 0
+    for problem in validate_curated_tables(ogs_root):
+        eprint(f"CHECK FAILED: {problem}")
+        problem_count += 1
+    if problem_count:
+        return problem_count
+
     with tempfile.TemporaryDirectory(prefix="ogs_autowrap_ck_") as tmp:
         out = Path(tmp)
         # --check always regenerates the full, canonical output set.
@@ -2574,6 +2764,19 @@ def main():
 
     global VERIFY_URLS
     VERIFY_URLS = args.verify_urls
+
+    # The curated tables are looked up with ``dict.get`` throughout, so a key
+    # that resolves to nothing is silently ignored: the override is dropped or
+    # a test degrades to the dummy recipe. Fail loudly instead -- exit code 2
+    # means "the tables are wrong", 1 means "the outputs have drifted".
+    problems = validate_curated_tables(args.ogs_root)
+    if problems:
+        eprint(
+            f"curated tables do not match the OGS tree " f"({len(problems)} problem(s)):"
+        )
+        for problem in problems:
+            eprint(f"  {problem}")
+        sys.exit(2)
 
     if args.check:
         sys.exit(1 if _check_outputs(args.ogs_root, args.check_target) else 0)

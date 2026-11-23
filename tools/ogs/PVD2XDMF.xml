@@ -1,0 +1,34 @@
+<tool name="OGS: PVD2XDMF" id="ogs_pvd2xdmf" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+  <description>Converts a time series from PVD to XDMF format.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <expand macro="creator" />
+  <version_command><![CDATA[PVD2XDMF --version]]></version_command>
+  <command><![CDATA[
+#for $item in $pvd_file_pvd_data
+    ln -sf '$item' '$item.element_identifier';
+  #end for
+ln -sf '$pvd_file' 'pvd_file.pvd';
+mkdir -p 'outputs';
+PVD2XDMF
+    --output-directory 'outputs'
+    'pvd_file.pvd'
+]]></command>
+  <inputs>
+    <param name="pvd_file_pvd_data" type="data_collection" optional="true" label="pvd_file PVD Data Elements" help="VTU Member Collection" format="vtkxml" collection_type="list" />
+    <param argument="--pvd-file" type="data" optional="false" label="pvd file" help="Input (.pvd) file" format="vtkxml" />
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from PVD2XDMF">
+      <discover_datasets pattern="__name_and_ext__" directory="outputs" visible="true" />
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="pvd2xdmf_test" />
+  </tests>
+  <help>Converts a time series from PVD to XDMF format.</help>
+  <expand macro="citations" />
+</tool>

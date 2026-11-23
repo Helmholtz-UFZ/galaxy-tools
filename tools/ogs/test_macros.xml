@@ -226,6 +226,18 @@
             </output>
         </test>
     </xml>
+    <xml name="pvd2xdmf_test">
+        <test>
+            <param name="pvd_file_pvd_data">
+                <collection type="list">
+                    <element name="single_joint_ts_0_t_0.000000.vtu" value="single_joint_ts_0_t_0.000000.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/LIE/PostProcessing/single_joint_ts_0_t_0.000000.vtu" ftype="vtkxml" />
+                    <element name="single_joint_ts_1_t_1.000000.vtu" value="single_joint_ts_1_t_1.000000.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/LIE/PostProcessing/single_joint_ts_1_t_1.000000.vtu" ftype="vtkxml" />
+                </collection>
+            </param>
+            <param name="pvd_file" value="single_joint.pvd" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/LIE/PostProcessing/single_joint.pvd" ftype="vtkxml" />
+            <output_collection name="tool_outputs" type="list" min="1" />
+        </test>
+    </xml>
     <xml name="raster2asc_test">
         <test expect_num_outputs="1">
             <param name="input" value="GrdTest.grd" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/GrdTest.grd" ftype="raster.asc" />

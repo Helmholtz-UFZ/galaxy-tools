@@ -78,7 +78,6 @@ EXCLUDED_TOOLS = [
     # (property files without any directory prefix, time series, partition
     # members). Missing members make the utilities abort.
     "gocadsgridreader",
-    "pvd2xdmf",
     "pvtu2vtu",
     # Needs the METIS partition files ``<base>.mesh.npart.N`` / ``.epart.N``
     # next to the input; without them -- or an external ``mpmetis``, which the
@@ -273,6 +272,16 @@ TEST_OVERRIDES = {
         "ny": "4",
     },
     "addlayer": {"layer_tickness": "1"},
+    # ``<param>__members`` lists the companion files a ``.pvd``/``.pvtu``
+    # references (one dataset each); they are staged under the names the file
+    # contains, so they must match it exactly.
+    "pvd2xdmf": {
+        "pvd_file": "LIE/PostProcessing/single_joint.pvd",
+        "pvd_file__members": (
+            "LIE/PostProcessing/single_joint_ts_0_t_0.000000.vtu,"
+            "LIE/PostProcessing/single_joint_ts_1_t_1.000000.vtu"
+        ),
+    },
     "postlie": {
         "input_file": "LIE/PostProcessing/single_joint_3D_ts_1_t_1.000000.vtu",
         "output_file": "post_processed.vtu",
@@ -1729,8 +1738,15 @@ def generate_tests(ogs_root: Path, output_dir: Path):
         # Skip only true PVD inputs (a list of .vtu members that must be
         # rendered as a collection). File-list inputs are single txt files
         # nowadays and render fine from the real EXECUTABLE_ARGS recipe.
+        # A PVD input needs its member files staged as a collection; that is
+        # only possible when ``<param>__members`` pins them (see
+        # TEST_OVERRIDES), otherwise the tool keeps the fallback dummy test.
+        pvd_params = [p for p in g_inputs_temp if getattr(p, "is_pvd", False)]
         has_complex_input = any(
-            getattr(p, "is_pvd", False) for p in g_inputs_temp
+            f"{param_var_name(p)}__members" not in TEST_OVERRIDES.get(
+                matched_tool.lower(), {}
+            )
+            for p in pvd_params
         )
 
         if has_complex_input:
@@ -1876,30 +1892,60 @@ def generate_tests(ogs_root: Path, output_dir: Path):
 
             # PVD
             if getattr(p_obj, "is_pvd", False):
-                pvd_members = [
-                    v
-                    for v in re.findall(r"([^\s/]+\.vt[ui])", test_block)
-                    if not v.endswith(".pvd")
-                ]
-                if pvd_members:
+                # A ``.pvd``/``.pvtu`` names its companion files, so they have to
+                # be staged under exactly those names. The default list is what
+                # the utility's OGS test block references, which can point into a
+                # different data directory than the fixture pinned here, so
+                # ``<param>__members`` overrides it with explicit paths.
+                members_spec = TEST_OVERRIDES.get(matched_tool.lower(), {}).get(
+                    f"{p_name}__members"
+                )
+                if members_spec:
+                    members = [
+                        (_fixture_url(m, wd_sub), m.strip().split("/")[-1])
+                        for m in str(members_spec).split(",")
+                        if m.strip()
+                    ]
+                else:
+                    members = [
+                        (
+                            f"{OGS_TEST_DATA_URL}/{wd_sub}/{v}"
+                            if wd_sub
+                            else f"{OGS_TEST_DATA_URL}/{v}",
+                            v,
+                        )
+                        for v in sorted(
+                            set(
+                                v
+                                for v in re.findall(
+                                    r"([^\s/]+\.vt[ui])", test_block
+                                )
+                                if not v.endswith(".pvd")
+                            )
+                        )
+                    ]
+                if members:
                     p_pvd_name = f"{p_name}_pvd_data"
                     coll_param = ET.Element("param", {"name": p_pvd_name})
                     coll_wrapper = ET.SubElement(
                         coll_param, "collection", {"type": "list"}
                     )
-
-                    for v in sorted(set(pvd_members)):
-                        url = (
-                            f"{OGS_TEST_DATA_URL}/{wd_sub}/{v}"
-                            if wd_sub
-                            else f"{OGS_TEST_DATA_URL}/{v}"
-                        )
+                    for url, name in members:
+                        if not url_exists(url):
+                            test_is_valid = False
+                            break
                         ET.SubElement(
                             coll_wrapper,
                             "element",
-                            {"name": v, "value": v, "location": url, "ftype": "vtkxml"},
+                            {
+                                "name": name,
+                                "value": name,
+                                "location": url,
+                                "ftype": "vtkxml",
+                            },
                         )
-                    test_params_xml.append(coll_param)
+                    if test_is_valid:
+                        test_params_xml.append(coll_param)
 
             # Collections / INPUT_FILE_LIST
             if getattr(p_obj, "is_data_collection", False):

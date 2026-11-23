@@ -1,0 +1,63 @@
+<tool name="OGS: editMaterialID" id="ogs_editmaterialid" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+  <description>Edit material IDs of mesh elements.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <expand macro="creator" />
+  <version_command><![CDATA[editMaterialID --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$mesh_input_file' 'mesh_input_file.vtu';
+editMaterialID
+#if str($mode.mode) == "replace"
+    --replace
+    --current-material-id '$mode.current_material_id'
+    --new-material-id '$mode.new_material_id'
+#elif str($mode.mode) == "condense"
+    --condense
+#elif str($mode.mode) == "specify"
+    --specify
+    --element-type '$mode.element_type'
+    --new-material-id '$mode.new_material_id'
+#end if
+    --mesh-input-file 'mesh_input_file.vtu'
+    --mesh-output-file output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--mesh-input-file" type="data" optional="false" label="mesh input file" help="Input (.vtu | .msh). The name of the file containing the input mesh" format="vtkxml" />
+    <conditional name="mode">
+      <param name="mode" type="select" optional="false" label="editing mode" help="OGS requires exactly one of --replace, --condense and --specify; each mode takes different arguments.">
+        <option value="replace">replace material IDs</option>
+        <option value="condense">condense material IDs</option>
+        <option value="specify">specify material ID of elements of one type</option>
+      </param>
+      <when value="replace">
+        <param argument="--current-material-id" type="integer" optional="false" label="current material id" help="current material id to be replaced (may be repeated; the wrapper passes one value)" />
+        <param argument="--new-material-id" type="integer" optional="false" label="new material id" help="new material id" />
+      </when>
+      <when value="condense" />
+      <when value="specify">
+        <param argument="--element-type" type="select" optional="false" label="element type" help="element type" multiple="false">
+          <option value="point">point</option>
+          <option value="line">line</option>
+          <option value="quad">quad</option>
+          <option value="hex">hex</option>
+          <option value="tri">tri</option>
+          <option value="tet">tet</option>
+          <option value="pris">pris</option>
+          <option value="pyra">pyra</option>
+        </param>
+        <param argument="--new-material-id" type="integer" optional="false" label="new material id" help="new material id" />
+      </when>
+    </conditional>
+  </inputs>
+  <outputs>
+    <data name="output_editmaterialid" format="vtkxml" label="Output from editMaterialID" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="editmaterialid_test" />
+  </tests>
+  <help>Edit material IDs of mesh elements.</help>
+  <expand macro="citations" />
+</tool>

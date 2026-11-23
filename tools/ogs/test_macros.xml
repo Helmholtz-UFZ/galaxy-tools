@@ -540,6 +540,21 @@
             </output>
         </test>
     </xml>
+    <xml name="editmaterialid_test">
+        <test expect_num_outputs="1">
+            <param name="mesh_input_file" value="Cube.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/ResetPropertiesInPolygonalRegion/Cube.vtu" />
+            <conditional name="mode">
+                <param name="mode" value="replace" />
+                <param name="current_material_id" value="0" />
+                <param name="new_material_id" value="1" />
+            </conditional>
+            <output name="output_editmaterialid">
+                <assert_contents>
+                    <has_size min="1" />
+                </assert_contents>
+            </output>
+        </test>
+    </xml>
     <xml name="generategeometry_test">
         <test expect_num_outputs="1">
             <param name="x0" value="0" />
@@ -620,6 +635,18 @@
                 </assert_contents>
             </output>
             <param name="no_overwrite" value="False" />
+        </test>
+    </xml>
+    <xml name="querymesh_test">
+        <test expect_num_outputs="1">
+            <param name="mesh_file" value="Cube.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/ResetPropertiesInPolygonalRegion/Cube.vtu" />
+            <param name="element_id" value="0" />
+            <param name="node_id" value="0" />
+            <output name="stdout_log">
+                <assert_contents>
+                    <has_size min="1" />
+                </assert_contents>
+            </output>
         </test>
     </xml>
     <xml name="removemeshelements_test">

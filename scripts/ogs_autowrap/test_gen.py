@@ -45,6 +45,7 @@ class CuratedTableAuditTest(unittest.TestCase):
             "IMPLICIT_OUTPUTS": {},
             "BASE_FILENAME_OVERRIDES": {},
             "EXCLUDED_TOOLS": [],
+            "EXCLUSIVE_MODES": {},
         }
         defaults.update(tables)
         with patch.multiple(gen, **defaults):
@@ -121,6 +122,80 @@ class CuratedTableAuditTest(unittest.TestCase):
     def test_excluded_tool_must_exist_in_the_tree(self):
         problems = self.audit(EXCLUDED_TOOLS=["querymesh"])
         self.assertIn("is not a utility in this OGS tree", problems[0])
+
+
+class ExclusiveModeAuditTest(unittest.TestCase):
+    """``EXCLUSIVE_MODES`` is the newest table, so it gets its own checks."""
+
+    def audit(self, modes, **tables):
+        defaults = {
+            "TEST_OVERRIDES": {},
+            "PARAM_EXT_OVERRIDES": {},
+            "OUTPUT_EXT_OVERRIDES": {},
+            "MANIFEST_INPUTS": {},
+            "NON_PVD_INPUTS": set(),
+            "IMPLICIT_OUTPUTS": {},
+            "BASE_FILENAME_OVERRIDES": {},
+            "EXCLUDED_TOOLS": [],
+            "EXCLUSIVE_MODES": modes,
+        }
+        defaults.update(tables)
+        with patch.multiple(gen, **defaults):
+            return gen._audit_curated_tables(set(DISCOVERED), PARAMS, FLAGS, VIRTUAL)
+
+    @staticmethod
+    def mode(flag, params=()):
+        return {"flag": flag, "label": flag, "params": list(params)}
+
+    def test_consistent_group_reports_nothing(self):
+        problems = self.audit(
+            {
+                "sometool": {
+                    "name": "mode",
+                    "label": "mode",
+                    "help": "",
+                    "modes": {
+                        "one": self.mode("threshold", ["input_file"]),
+                        "two": self.mode("input-file"),
+                    },
+                }
+            }
+        )
+        self.assertEqual(problems, [])
+
+    def test_unknown_mode_flag_is_reported_with_suggestion(self):
+        problems = self.audit(
+            {"sometool": {"name": "mode", "modes": {"one": self.mode("treshold")}}}
+        )
+        self.assertEqual(len(problems), 1)
+        self.assertIn("EXCLUSIVE_MODES['sometool']['modes']['one']", problems[0])
+        self.assertIn("did you mean 'threshold'?", problems[0])
+
+    def test_unknown_mode_parameter_is_reported_with_suggestion(self):
+        problems = self.audit(
+            {
+                "sometool": {
+                    "name": "mode",
+                    "modes": {"one": self.mode("threshold", ["input_fil"])},
+                }
+            }
+        )
+        self.assertEqual(len(problems), 1)
+        self.assertIn("no such parameter 'input_fil'", problems[0])
+        self.assertIn("did you mean 'input_file'?", problems[0])
+
+    def test_group_for_an_excluded_tool_is_reported(self):
+        problems = self.audit(
+            {"queried": {"name": "mode", "modes": {"one": self.mode("input")}}},
+            EXCLUDED_TOOLS=["queried"],
+        )
+        self.assertIn("EXCLUDED_TOOLS", problems[0])
+
+    def test_group_for_an_unknown_tool_is_reported(self):
+        problems = self.audit(
+            {"sometol": {"name": "mode", "modes": {"one": self.mode("threshold")}}}
+        )
+        self.assertIn("no such generated tool", problems[0])
 
 
 class ClosestMatchTest(unittest.TestCase):

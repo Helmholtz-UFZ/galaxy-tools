@@ -1,4 +1,5 @@
 import argparse
+import copy
 import difflib
 import logging
 import re
@@ -13,6 +14,7 @@ from typing import Any, Dict, List, Tuple
 from galaxyxml.tool import Tool
 from galaxyxml.tool.parameters import (
     BooleanParam,
+    Conditional,
     DataParam,
     DiscoverDatasets,
     Expand,
@@ -25,6 +27,7 @@ from galaxyxml.tool.parameters import (
     SelectParam,
     Tests,
     TextParam,
+    When,
 )
 
 # --- CONFIGURATION ---
@@ -68,30 +71,19 @@ EXCLUDED_TOOLS = [
     "tin2vtk",
     "convertvtkdataarraytovtkdataarray",
     "mergemeshtobulkmesh",
-    # --- Need input a single Galaxy dataset cannot provide ----------------
-    # An ASCII file listing rasters whose paths are resolved relative to the
-    # working directory; the rasters themselves cannot be staged from that one
-    # dataset (the wrapper would have to build the list from a collection).
-    # ``.sg`` / ``.pvd`` / ``.pvtu`` files reference companion files by name
-    # (property files without any directory prefix, time series, partition
-    # members). Missing members make the utilities abort.
+    # --- Input no single Galaxy dataset can provide (1) -------------------
     # Needs the METIS partition files ``<base>.mesh.npart.N`` / ``.epart.N``
-    # next to the input; without them -- or an external ``mpmetis``, which the
-    # release does not ship -- it aborts.
+    # next to a mesh they are named after; without them -- or an external
+    # ``mpmetis``, which the release does not ship -- it aborts. (The other
+    # manifest-style inputs -- raster lists, ``.sg``, ``.pvtu`` -- were blocked
+    # for the same reason and *are* wrapped now, see MANIFEST_INPUTS.)
     "partitionmesh",
-    # Reads binary TecPlot ``.plt`` files; OGS ships no such file to test with.
-    "tecplottools",
-    # --- Command line a wrapper cannot express (yet) ----------------------
-    # Requires exactly one of ``-c/-r/-s``: TCLAP's required *XOR* group is not
-    # modelled by the generator. (The utility itself works, e.g. with ``-r``.)
-    "editmaterialid",
+    # --- Command line a wrapper cannot express (yet) (1) ------------------
     # Needs a surface mesh carrying both ``bulk_node_ids`` and a *double*
     # element property; no mesh under ``Tests/Data`` has a double element
     # property and OGS has no test for the utility to copy a setup from.
     "createneumannbc",
-    # Positional mesh argument and stdout-only output (it writes no file), so
-    # a Galaxy wrapper could not produce a dataset.
-    "querymesh",
+    # --- Broken upstream (3) ----------------------------------------------
     # Aborts on meshes without ``bulk_node_ids`` and segfaults on the ones
     # that have it (exit 139).
     "reordermesh",
@@ -100,6 +92,8 @@ EXCLUDED_TOOLS = [
     # file extension"); the ``.bc`` it does write would always be accompanied
     # by a missing geometry output.
     "createboundaryconditionsalongpolylines",
+    # Reads binary TecPlot ``.plt`` files; OGS ships no such file to test with.
+    "tecplottools",
 ]
 
 # NOTE: there is deliberately no list of hand-maintained wrappers here. Every
@@ -261,6 +255,46 @@ MANIFEST_INPUTS = {
     },
 }
 
+# Required XOR groups (TCLAP ``xorAdd``). OGS accepts *exactly one* of several
+# switches, and each switch comes with its own required arguments, so the three
+# switches cannot be plain Galaxy booleans: nothing stops a user from ticking
+# two of them, and the utility then aborts (or silently does nothing). The
+# group becomes a ``<conditional>`` whose branches carry only the parameters
+# that mode needs.
+#
+#   flag   -- the switch this mode passes
+#   label  -- the option text shown in the select
+#   params -- parameters that belong to the mode (they are moved *into* the
+#             ``<when>`` and become required there, as OGS demands; a parameter
+#             listed in more than one mode is repeated in each branch)
+EXCLUSIVE_MODES = {
+    "editmaterialid": {
+        "name": "mode",
+        "label": "editing mode",
+        "help": (
+            "OGS requires exactly one of --replace, --condense and --specify; "
+            "each mode takes different arguments."
+        ),
+        "modes": {
+            "replace": {
+                "flag": "replace",
+                "label": "replace material IDs",
+                "params": ["current_material_id", "new_material_id"],
+            },
+            "condense": {
+                "flag": "condense",
+                "label": "condense material IDs",
+                "params": [],
+            },
+            "specify": {
+                "flag": "specify",
+                "label": "specify material ID of elements of one type",
+                "params": ["element_type", "new_material_id"],
+            },
+        },
+    },
+}
+
 # Curated test inputs, keyed by tool (lower case) and parameter variable name.
 # The auto-derived fixtures only match a tool's input *extension*, not its
 # semantics; these entries pin the value a tool actually needs.
@@ -290,6 +324,21 @@ TEST_OVERRIDES = {
         "json_file": "HydroMechanics/EmbeddedAnchorSourceTerm/data_3D.json",
     },
     "gocadtsurfacereader": {"input_file": "MeshLib/Top-Lower-Shaly.ts"},
+    # editMaterialID requires exactly one mode; the test replaces material 0
+    # (the only material of ``Cube.vtu``) with 1.
+    "editmaterialid": {
+        "mode": "replace",
+        "mesh_input_file": "MeshGeoToolsLib/ResetPropertiesInPolygonalRegion/Cube.vtu",
+        "current_material_id": "0",
+        "new_material_id": "1",
+    },
+    # queryMesh prints to stdout only; -e/-n select what to print, so the test
+    # asks for one element and one node to get deterministic output.
+    "querymesh": {
+        "mesh_file": "MeshGeoToolsLib/ResetPropertiesInPolygonalRegion/Cube.vtu",
+        "element_id": "0",
+        "node_id": "0",
+    },
     "ogs2vtk": {"mesh_input_file": "MeshGeoToolsLib/Naegelstedt/SmallTest.vtu"},
     "generatematpropsfrommatid": {"mesh": "MeshGeoToolsLib/Bode/BodeComplex.msh"},
     "computenodeareasfromsurfacemesh": {
@@ -1108,6 +1157,21 @@ def process_parameters(
             )
 
         if param:
+            # TCLAP ``MultiArg``/``UnlabeledMultiArg``: the flag may be given
+            # more than once. Galaxy has no list type for numeric parameters
+            # (``multiple`` only exists for select/data/upload parameters), so a
+            # repeated numeric argument is passed once -- and the help says so.
+            # Data parameters become collections instead (see above).
+            is_multi_value = "MultiArg" in param_info.get("arg_type", "")
+            param.is_multi_value = is_multi_value
+            if (
+                is_multi_value
+                and not isinstance(param, (DataParam, SelectParam))
+            ):
+                help_attr = param.node.attrib.get("help", "").rstrip()
+                param.node.attrib["help"] = (
+                    f"{help_attr} (may be repeated; the wrapper passes one value)"
+                )
             param.original_long_flag = long_flag
             param.original_short_flag = short_flag
             param.is_unlabeled = is_unlabeled
@@ -1178,6 +1242,104 @@ def _discover_pattern(pattern: str, link_names: set) -> str:
     return pattern.replace("(?P<designation>", lookahead + "(?P<designation>", 1)
 
 
+def exclusive_mode_layout(tool_name: str, galaxy_inputs: list):
+    """Split the inputs of a TCLAP ``xorAdd()`` group off the flat list.
+
+    Returns ``(spec, hidden, by_mode)``: ``hidden`` holds the variable names
+    that the ``<conditional>`` renders (the mode switches and every
+    mode-specific parameter), ``by_mode`` maps a mode value to the parameters
+    of that mode. Tools without a spec return ``(None, set(), {})``.
+    """
+    spec = EXCLUSIVE_MODES.get(tool_name.lower())
+    if spec is None:
+        return None, set(), {}
+    by_var = {param_var_name(param): param for param in galaxy_inputs}
+    hidden: set = set()
+    by_mode: Dict[str, list] = {}
+    for value, mode in spec["modes"].items():
+        switch = sanitize_name(mode["flag"])
+        if switch in by_var:
+            hidden.add(switch)
+        params = []
+        for var in mode["params"]:
+            if var in by_var:
+                params.append(by_var[var])
+                hidden.add(var)
+        by_mode[value] = params
+    return spec, hidden, by_mode
+
+
+def exclusive_mode_command(spec: Dict[str, Any], by_mode: Dict[str, list]) -> str:
+    """Render the mako block that passes the selected mode's arguments."""
+    path = f"${spec['name']}.{spec['name']}"
+    lines = []
+    for index, (value, mode) in enumerate(spec["modes"].items()):
+        keyword = "#if" if index == 0 else "#elif"
+        lines.append(f'{keyword} str({path}) == "{value}"')
+        lines.append(f"    --{mode['flag']}")
+        for param in by_mode[value]:
+            var = f"${spec['name']}.{param_var_name(param)}"
+            lines.append(f"    --{param.original_long_flag} '{var}'")
+    lines.append("#end if")
+    return "\n".join(lines)
+
+
+def build_mode_conditional(spec: Dict[str, Any], by_mode: Dict[str, list]):
+    """Build the ``<conditional>`` that carries the modes of an XOR group."""
+    conditional = Conditional(name=spec["name"])
+    conditional.append(
+        SelectParam(
+            name=spec["name"],
+            label=spec["label"],
+            help=spec["help"],
+            options={v: m["label"] for v, m in spec["modes"].items()},
+            optional=False,
+        )
+    )
+    for value in spec["modes"]:
+        when = When(value=value)
+        for param in by_mode[value]:
+            # A parameter can belong to several modes (``--new-material-id``
+            # does), so every branch gets its own copy of the node.
+            node = copy.deepcopy(param.node)
+            # Within its own mode the argument is required by the utility.
+            node.set("optional", "false")
+            when.node.append(node)
+        conditional.append(when)
+    return conditional
+
+
+def nest_mode_conditional(test_case, tool_name: str) -> None:
+    """Move a test's mode parameters into the ``<conditional>`` they live in."""
+    spec = EXCLUSIVE_MODES.get(tool_name.lower())
+    if spec is None:
+        return
+    mode_name = spec["name"]
+    by_name = {p.get("name"): p for p in test_case.findall("param")}
+    select = by_name.get(mode_name)
+    if select is None:
+        return
+    conditional = ET.SubElement(test_case, "conditional", {"name": mode_name})
+    selected = spec["modes"].get(by_name[mode_name].get("value"), {})
+    kept = set(selected.get("params", []))
+    # Only the selected mode's parameters may be set: a value for another
+    # mode's parameter would be ignored at best and rejected at worst. The
+    # switches themselves are no Galaxy inputs any more, so drop them too.
+    stale = {
+        var for mode in spec["modes"].values() for var in mode.get("params", [])
+    } - kept
+    stale |= {sanitize_name(mode["flag"]) for mode in spec["modes"].values()}
+    # ElementTree ``append`` does not detach from the old parent, so the moved
+    # parameters have to be removed from the test explicitly.
+    for elem in list(test_case.findall("param")):
+        name = elem.get("name")
+        if name == mode_name or name in kept:
+            test_case.remove(elem)
+            conditional.append(elem)
+        elif name in stale:
+            test_case.remove(elem)
+
+
 def generate_tools(ogs_root: Path, output_dir: Path):
     output_dir.mkdir(parents=True, exist_ok=True)
     all_tools_data = discover_tools(ogs_root)
@@ -1219,9 +1381,22 @@ def generate_tools(ogs_root: Path, output_dir: Path):
         # discovery patterns must not pick them up as outputs.
         input_link_names: set = set()
 
+        # TCLAP xor groups are rendered as one <conditional>; their parameters
+        # are skipped below and emitted by the mako block of the group instead.
+        mode_spec, mode_hidden, mode_params = exclusive_mode_layout(
+            tool_name, galaxy_inputs
+        )
+        mode_block_emitted = False
+
         # 2. SYMLINKS & ARGUMENT MAPPING
         for param in galaxy_inputs:
             is_unlabeled = getattr(param, "is_unlabeled", False)
+
+            if param_var_name(param) in mode_hidden:
+                if not mode_block_emitted:
+                    flag_parts.append(exclusive_mode_command(mode_spec, mode_params))
+                    mode_block_emitted = True
+                continue
 
             flag = getattr(param, "original_long_flag", None)
             if flag:
@@ -1411,7 +1586,11 @@ def generate_tools(ogs_root: Path, output_dir: Path):
 
         inputs_tag = tool.inputs = Inputs()
         for param in galaxy_inputs:
+            if param_var_name(param) in mode_hidden:
+                continue
             inputs_tag.append(param)
+        if mode_spec is not None:
+            inputs_tag.append(build_mode_conditional(mode_spec, mode_params))
 
         if output_command_map:
             outputs_tag = tool.outputs = Outputs()
@@ -1800,12 +1979,20 @@ def apply_test_overrides(tool_name: str, test_case, galaxy_inputs) -> None:
         return
     by_var = {param_var_name(p): p for p in galaxy_inputs}
     existing = {e.get("name"): e for e in test_case.findall("param")}
-    for var, spec in overrides.items():
+    spec = EXCLUSIVE_MODES.get(tool_name.lower())
+    if spec is not None and spec["name"] in overrides:
+        # The mode select is created by the generator, not derived from TCLAP,
+        # so it is not in ``by_var`` and needs the value set here.
+        elem = existing.get(spec["name"])
+        if elem is None:
+            elem = ET.SubElement(test_case, "param", {"name": spec["name"]})
+        elem.set("value", str(overrides[spec["name"]]))
+    for var, value in overrides.items():
         param = by_var.get(var)
         if param is None:
             continue
         elem = existing.get(var)
-        if spec is None:
+        if value is None:
             # Optional input the tool does not need for this test case.
             if elem is not None:
                 test_case.remove(elem)
@@ -1813,17 +2000,17 @@ def apply_test_overrides(tool_name: str, test_case, galaxy_inputs) -> None:
         if elem is None:
             elem = ET.SubElement(test_case, "param", {"name": var})
         if isinstance(param, DataParam):
-            if isinstance(spec, tuple):
+            if isinstance(value, tuple):
                 # Vendored fixture in tools/ogs/test-data/.
-                filename = spec[1]
+                filename = value[1]
                 elem.set("value", filename)
                 elem.attrib.pop("location", None)
             else:
-                filename = spec.rsplit("/", 1)[-1]
+                filename = value.rsplit("/", 1)[-1]
                 elem.set("value", filename)
-                elem.set("location", f"{OGS_TEST_DATA_URL}/{spec}")
+                elem.set("location", f"{OGS_TEST_DATA_URL}/{value}")
         else:
-            elem.set("value", str(spec))
+            elem.set("value", str(value))
 
 
 def generate_tests(ogs_root: Path, output_dir: Path):
@@ -2336,6 +2523,7 @@ def generate_tests(ogs_root: Path, output_dir: Path):
             test_case.set("expect_num_outputs", "1")
 
         apply_test_overrides(matched_tool, test_case, galaxy_inputs)
+        nest_mode_conditional(test_case, matched_tool)
         tool_tests_accumulator[matched_tool].append(test_case)
 
     # Build Macros
@@ -2413,6 +2601,7 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                     ET.SubElement(fallback_test, "param", attrs)
 
             apply_test_overrides(t_name, fallback_test, g_inputs)
+            nest_mode_conditional(fallback_test, t_name)
 
             # Outputs
             if g_outputs:
@@ -2509,7 +2698,9 @@ def _audit_curated_tables(
         ``PARAM_EXT_OVERRIDES`` are looked up by *parameter variable name*,
       * ``OUTPUT_EXT_OVERRIDES`` and ``BASE_FILENAME_OVERRIDES[*]['flag']`` by
         *long flag* (output arguments never become Galaxy parameters),
-      * ``IMPLICIT_OUTPUTS`` and ``BASE_FILENAME_OVERRIDES`` by tool only.
+      * ``IMPLICIT_OUTPUTS`` and ``BASE_FILENAME_OVERRIDES`` by tool only,
+      * ``EXCLUSIVE_MODES`` by tool: the mode switches are looked up in the
+        long flags, the mode parameters by variable name.
     """
     problems: List[str] = []
     wrapped = set(param_names)
@@ -2624,6 +2815,34 @@ def _audit_curated_tables(
                 f"{_closest_match(tool, discovered)}"
             )
 
+    for tool, spec in EXCLUSIVE_MODES.items():
+        if tool in EXCLUDED_TOOLS:
+            problems.append(
+                f"EXCLUSIVE_MODES[{tool!r}]: the tool is in EXCLUDED_TOOLS, "
+                "so the group is never rendered"
+            )
+            continue
+        if tool not in wrapped:
+            problems.append(
+                f"EXCLUSIVE_MODES[{tool!r}]: no such generated tool"
+                f"{_closest_match(tool, wrapped)}"
+            )
+            continue
+        for value, mode in spec["modes"].items():
+            where = f"EXCLUSIVE_MODES[{tool!r}]['modes'][{value!r}]"
+            if mode.get("flag") not in long_flags[tool]:
+                problems.append(
+                    f"{where}['flag']: no such argument "
+                    f"{mode.get('flag')!r}"
+                    f"{_closest_match(mode.get('flag'), long_flags[tool])}"
+                )
+            for var in mode.get("params", []):
+                if var not in param_names[tool]:
+                    problems.append(
+                        f"{where}['params']: no such parameter {var!r}"
+                        f"{_closest_match(var, param_names[tool])}"
+                    )
+
     return problems
 
 
@@ -2667,6 +2886,10 @@ def validate_curated_tables(ogs_root: Path) -> List[str]:
             for p in params
             if getattr(p, "is_pvd", False)
         }
+        if key in EXCLUSIVE_MODES:
+            # The mode select is not a TCLAP argument: the generator creates it
+            # from EXCLUSIVE_MODES, so the tree knows nothing about the name.
+            param_names[key].add(EXCLUSIVE_MODES[key]["name"])
 
     return _audit_curated_tables(discovered, param_names, long_flags, virtual_names)
 

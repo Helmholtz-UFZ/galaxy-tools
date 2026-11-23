@@ -72,7 +72,7 @@ removeMeshElements
     <param argument="--property-name" type="text" optional="true" label="property name" help="name of property in the mesh">
       <sanitizer sanitize="false" />
     </param>
-    <param argument="--property-value" type="integer" optional="true" label="property value" help="value of selected property to be removed" />
+    <param argument="--property-value" type="integer" optional="true" label="property value" help="value of selected property to be removed (may be repeated; the wrapper passes one value)" />
     <param argument="--min-value" type="float" optional="true" label="min value" help="minimum value of range for selected property" />
     <param argument="--max-value" type="float" optional="true" label="max value" help="maximum value of range for selected property" />
     <param argument="--outside" type="boolean" label="outside" help="remove all elements outside the given property range" checked="false" truevalue="--outside" falsevalue="" />

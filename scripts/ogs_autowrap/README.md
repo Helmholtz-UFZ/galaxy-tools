@@ -28,7 +28,8 @@ python scripts/ogs_autowrap/gen.py --ogs-root ogs-src --output-dir tools/ogs --c
 `--check-target <tool>` does the same for a single wrapper while developing.
 
 Every run first audits the curated tables (`TEST_OVERRIDES`,
-`PARAM_EXT_OVERRIDES`, `MANIFEST_INPUTS`, `EXCLUDED_TOOLS`, …) against the OGS
+`PARAM_EXT_OVERRIDES`, `MANIFEST_INPUTS`, `EXCLUSIVE_MODES`, `EXCLUDED_TOOLS`,
+…) against the OGS
 sources: they are consulted with `dict.get` all over the generator, so a key
 that names a tool or parameter that does not exist -- a typo, or a rename
 upstream -- would otherwise be ignored without a word, silently dropping the
@@ -131,9 +132,53 @@ In both cases the collection elements keep the names they were uploaded with,
 so the names inside the manifest keep matching. `TEST_OVERRIDES` supplies the
 collection contents through `<param>__members`.
 
+## Mutually exclusive switches
+
+TCLAP `xorAdd()` groups accept *exactly one* of several switches, and each
+switch brings its own arguments — `editMaterialID` is the case in point:
+
+```
+editMaterialID {-c|-r|-s} [-e <point|line|quad|hex|tri|tet|pris|pyra>]
+               [-m <id> ...] [-n <id>] -i <in> -o <out>
+```
+
+Three independent booleans would let a user tick none of them (the utility then
+prints its usage and writes no output) or several (`PARSE ERROR: Required
+argument missing`). `EXCLUSIVE_MODES` instead declares a `<conditional>`:
+
+* the switches are removed from the flat input list and become the options of a
+  `select` (`optional="false"`, so one is always set),
+* the parameters a mode needs move into that mode's `<when>` and are *required*
+  there (a parameter used by several modes, like `--new-material-id`, is
+  repeated in each branch),
+* the command renders the branches with Mako:
+
+  ```
+  #if str($mode.mode) == "replace"
+      --replace
+      --current-material-id '$mode.current_material_id'
+      --new-material-id '$mode.new_material_id'
+  #elif str($mode.mode) == "condense"
+      --condense
+  #elif str($mode.mode) == "specify"
+      --specify
+      --element-type '$mode.element_type'
+      --new-material-id '$mode.new_material_id'
+  #end if
+  ```
+
+A tool whose utility writes no file at all gets a `stdout_log` dataset instead
+(`checkMesh`, `queryMesh`): the command captures stdout, which for these
+two is the actual result rather than logging.
+
+One limitation: a `MultiArg` *numeric* argument (`-e <id> ...`) is passed once.
+Galaxy has no list type for numeric parameters (`multiple` exists for
+`select`/`data` only), so the generated help text says so instead of silently
+accepting one value.
+
 ## Why some utilities are not wrapped
 
-`EXCLUDED_TOOLS` in `gen.py` lists 20 of the ~74 utilities, each for a concrete
+`EXCLUDED_TOOLS` in `gen.py` lists 18 of the ~74 utilities, each for a concrete
 reason. The rule is that an entry must be blocked by something a wrapper cannot
 work around — "the test is inconvenient to write" is not a reason.
 
@@ -182,23 +227,7 @@ usable input is a pre-partitioned mesh that the caller has to prepare elsewhere.
 The manifest-style inputs (raster lists, `.sg`, `.pvtu`) are *not* in this list
 any more — see "Manifest inputs" for how they are wrapped.
 
-### Command line a wrapper cannot express yet (3)
-
-**`editMaterialID`** — the mode is a *required XOR group*:
-
-```
-editMaterialID {-c|-r|-s} [-e <point|line|quad|hex|tri|tet|pris|pyra>]
-               [-m <id> ...] [-n <id>] -i <in> -o <out>
-```
-
-TCLAP enforces "exactly one of `--condense/--replace/--specify`"; without it the
-run dies with `PARSE ERROR: Required argument missing: {replace | condense |
-specify}`. The generator maps one TCLAP argument to one Galaxy parameter and has
-no notion of a mutually exclusive group, so it would emit three independent
-booleans, all optional, and every run would fail at parse time. The utility
-itself is fine — with `-r` it runs and writes the output mesh — so the fix is in
-the generator: a `select` for XOR groups (option labels from the
-group's help texts) that maps to one switch.
+### Command line a wrapper cannot express yet (1)
 
 **`createNeumannBc`** — needs a *2D surface mesh* (`Given mesh is no surface
 mesh (dimension != 2).`), a node property `bulk_node_ids` to map back onto the
@@ -210,15 +239,6 @@ utility, so there is no reference setup to derive a fixture from — every attem
 ended in `A PropertyVector with name 'bulk_node_ids' does not exist in the
 mesh.` and no output. Wrappable after vendoring a small surface mesh with
 `bulk_node_ids` plus one double cell property and pinning the property names.
-
-**`queryMesh`** — `queryMesh [--show-node-with-max-elements] [-e <id> ...]
-[-n <id> ...] mesh-file`: the mesh is a positional argument and the utility
-writes *no file at all*, everything goes to stdout (that is its purpose:
-interactive inspection). A wrapper would therefore consist of a `stdout_log`
-dataset containing a human-readable dump, and the user would have to type node
-and element ids as free text. The auto-derived test cannot even call it: passing
-`-i mesh.vtu` gives `PARSE ERROR: Argument: mesh.vtu / Couldn't find match for
-argument`, because the mesh is the unlabeled argument.
 
 ### Broken upstream (3)
 

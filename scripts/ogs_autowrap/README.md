@@ -50,10 +50,12 @@ does not state, all keyed by tool and parameter so they are easy to audit:
   output argument at all.
 * `NON_PVD_INPUTS` – inputs that accept a `.pvd` *or* a single mesh; the
   wrapper exposes the single-mesh variant.
+* `MANIFEST_INPUTS` – arguments that name further files instead of carrying
+  data; the files are exposed as a collection (see "Manifest inputs").
 * `TEST_OVERRIDES` – the fixture and parameter values each test needs. A
-  `<param>__members` entry lists the companion files a `.pvd` input references:
-  they are staged as a collection under exactly the names the `.pvd` contains,
-  which is also what makes a test for such a tool possible at all.
+  `<param>__members` entry lists the files of a collection input: they are
+  staged under exactly the names the manifest (or `.pvd`) contains, which is
+  also what makes a test for such a tool possible at all.
 
 ## Tests
 
@@ -66,9 +68,50 @@ planemo lint --fail_level warn tools/ogs
 planemo test tools/ogs
 ```
 
+## Manifest inputs
+
+Several utilities do not read the data they are given: they read a file that
+*names* further files, and resolve those names against their working directory.
+A Galaxy dataset for the manifest alone is therefore useless. For those
+arguments `MANIFEST_INPUTS` declares what the manifest refers to, and the
+wrapper exposes the referenced files themselves as a collection:
+
+* `file_list` – the argument is an ASCII file listing the inputs
+  (`readStringListFromFile`). The collection *is* the input; the command links
+  every element under its own name and writes the list file on the fly, so its
+  order is the collection's order:
+
+  ```
+  : > 'raster_list.txt';
+  #for $item in $raster_list
+  ln -sf '$item' '$item.element_identifier';
+  echo '$item.element_identifier' >> 'raster_list.txt';
+  #end for
+  ```
+
+  Used by `Layers2Grid`, `createLayeredMeshFromRasters`,
+  `createTetgenSmeshFromRasters` (order = top layer first).
+
+* `companion_names` – the argument is a header that references its data by its
+  exact file name (`.sg` → `POINTS_FILE …__points@@`, `.pvtu` →
+  `<Piece Source="…_0.vtu"/>`). The dataset stays a normal input and the
+  collection members are staged under their own names:
+
+  ```
+  #for $item in $input_members
+  ln -sf '$item' '$item.element_identifier';
+  #end for
+  ```
+
+  Used by `GocadSGridReader` and `pvtu2vtu`.
+
+In both cases the collection elements keep the names they were uploaded with,
+so the names inside the manifest keep matching. `TEST_OVERRIDES` supplies the
+collection contents through `<param>__members`.
+
 ## Why some utilities are not wrapped
 
-`EXCLUDED_TOOLS` in `gen.py` lists 25 of the ~74 utilities, each for a concrete
+`EXCLUDED_TOOLS` in `gen.py` lists 20 of the ~74 utilities, each for a concrete
 reason. The rule is that an entry must be blocked by something a wrapper cannot
 work around — "the test is inconvenient to write" is not a reason.
 
@@ -103,59 +146,19 @@ error: Mesh 'tiny.vtk' contains zero points.
 A wrapper around them would fail for every input that can be provided from
 Galaxy, so they are excluded instead of shipped broken.
 
-### Need input that one Galaxy dataset cannot provide (6)
+### Takes a partition *base name* rather than files (1)
 
-**`Layers2Grid`, `createLayeredMeshFromRasters`, `createTetgenSmeshFromRasters`**
-— "an ascii-file containing a list of input raster files". All three read that
-file with `BaseLib::IO::readStringListFromFile()` (one path per line, trimmed,
-blank lines skipped) and then hand the paths verbatim to
-`readMeshFromFile()`/`FileIO::readRasters()`, i.e. they are resolved against the
-*working directory*, not against the list file. Galaxy can stage *a* text file
-but it would have to already contain the names the wrapper gave the raster
-datasets — and the raster datasets themselves are exactly what is missing from
-the single input the generator models (the generated wrapper symlinks the list
-as `raster_list.txt`, and the run dies on its first line with
-`error: Input layer 'layer1.asc' not found. Aborting...`). What would work is an
-ordered collection of rasters (order = layer order, top DEM first) plus a
-generated list file — a "derived text file from a collection" step the
-generator does not have.
+**`PartitionMesh` (`partmesh`)** — `-x/--metis-mesh-input-file` is not a file but
+a base name: the tool opens `<base>.mesh.npart.<np>` and `<base>.mesh.epart.<np>`,
+where `<np>` is the `-n` value. With those two files present it works (verified:
+2 partitions, binary output files in the `-o` directory), but they have to be
+named after the mesh *and* contain the partition count the user picks, which no
+staging scheme can guarantee. Creating them is the point of `mpmetis`, which the
+released OGS does not ship (`-m/--exe_metis` shells out to it), so the only
+usable input is a pre-partitioned mesh that the caller has to prepare elsewhere.
 
-**`GocadSGridReader`** — the `.sg` file is a manifest, not the data:
-
-```
-name: flow_simulation_grid_stair-stepped
-POINTS_FILE SGrid_Testflow_simulation_grid_stair-stepped__points@@
-FLAGS_FILE  SGrid_Testflow_simulation_grid_stair-stepped__flags@@
-PROPERTY 1 CELL_VOLUME_CORRECTION_FACTOR
-```
-
-The companion names are the *file stem* plus the grid name from inside the file,
-with no directory separator, and they are opened relative to the working
-directory. Uploading the `.sg` alone always ends in
-`error: Could not open points file '…__points@@'`, and a user cannot name a
-second dataset `SGrid_Testflow_simulation_grid_stair-stepped__points@@` in a way
-that also follows whatever stem the `.sg` ends up with. A wrapper would have to
-parse the `.sg` inside the job and symlink the companions of a collection onto
-the names it declares — runtime logic well outside the generator.
-
-**`pvtu2vtu`** — same shape one level up: the `.pvtu` is a manifest
-(`<Piece Source="x_0.vtu"/>`) and the parts are read relative to the working
-directory, so a staged `.pvtu` alone gives `error: File 'x_0.vtu' does not
-exist.` and no output. In addition OGS ships no `.pvtu` fixture at all (they are
-produced at test time by `partmesh`/`binaryToPVTU`, the latter needing
-`OGS_USE_MPI`). The `.pvd` member mechanism that now makes `PVD2XDMF` testable
-could be extended to `.pvtu`, but it would also need a vendored
-`.pvtu` + member fixture.
-
-**`PartitionMesh` (`partmesh`)** — `-x/--metis-mesh-input-file` is not a file
-but a *base name*: the tool opens `<base>.mesh.npart.<np>` and
-`<base>.mesh.epart.<np>`, where `<np>` is the `-n` value. With those two files
-present it works (verified: 2 partitions, binary output files in the `-o`
-directory), so the blocker is purely staging: a wrapper has to rename two
-companion datasets so that they match both the base name of the mesh symlink and
-a partition count the user picks. The generator has no "rename this input using
-another parameter" step. The alternative `-m/--exe_metis` shells out to
-`mpmetis`, which the released OGS does not ship.
+The manifest-style inputs (raster lists, `.sg`, `.pvtu`) are *not* in this list
+any more — see "Manifest inputs" for how they are wrapped.
 
 ### Command line a wrapper cannot express yet (3)
 

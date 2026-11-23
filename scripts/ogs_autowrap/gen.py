@@ -71,14 +71,9 @@ EXCLUDED_TOOLS = [
     # An ASCII file listing rasters whose paths are resolved relative to the
     # working directory; the rasters themselves cannot be staged from that one
     # dataset (the wrapper would have to build the list from a collection).
-    "layers2grid",
-    "createlayeredmeshfromrasters",
-    "createtetgensmeshfromrasters",
     # ``.sg`` / ``.pvd`` / ``.pvtu`` files reference companion files by name
     # (property files without any directory prefix, time series, partition
     # members). Missing members make the utilities abort.
-    "gocadsgridreader",
-    "pvtu2vtu",
     # Needs the METIS partition files ``<base>.mesh.npart.N`` / ``.epart.N``
     # next to the input; without them -- or an external ``mpmetis``, which the
     # release does not ship -- it aborts.
@@ -218,6 +213,53 @@ NON_PVD_INPUTS = {
     ("postlie", "input_file"),
 }
 
+# Arguments that do not carry data: they name further files that the utility
+# resolves against its working directory (a *manifest* input). A Galaxy dataset
+# for the manifest alone is useless, so the files it names are exposed as a
+# collection instead:
+#
+#   "file_list"        the argument is an ASCII file listing the inputs
+#                      (``readStringListFromFile``); the collection *is* the
+#                      input and the list file is written in the command.
+#   "companion_names"  the argument is a header that references its companions
+#                      by their exact file names; the collection holds those
+#                      companions and they are staged under their own names.
+#
+# ``<param>__members`` in TEST_OVERRIDES supplies the collection's contents.
+MANIFEST_INPUTS = {
+    ("layers2grid", "input"): {
+        "kind": "file_list",
+        "format": "vtkxml",
+        "help": "Mesh layers, ordered from top to bottom.",
+    },
+    ("createlayeredmeshfromrasters", "raster_list"): {
+        "kind": "file_list",
+        "format": "raster.asc",
+        "help": "Raster files, ordered from the top surface downwards.",
+    },
+    ("createtetgensmeshfromrasters", "raster_list"): {
+        "kind": "file_list",
+        "format": "raster.asc",
+        "help": "Raster files, ordered from the top surface downwards.",
+    },
+    ("gocadsgridreader", "sg"): {
+        "kind": "companion_names",
+        "format": "data",
+        "help": (
+            "Data files referenced by the .sg header (points, flags and "
+            "properties). Their names must match the entries in the .sg file."
+        ),
+    },
+    ("pvtu2vtu", "input"): {
+        "kind": "companion_names",
+        "format": "vtkxml",
+        "help": (
+            "Partitioned mesh parts referenced by the .pvtu header. Their "
+            "names must match the <Piece Source=...> entries."
+        ),
+    },
+}
+
 # Curated test inputs, keyed by tool (lower case) and parameter variable name.
 # The auto-derived fixtures only match a tool's input *extension*, not its
 # semantics; these entries pin the value a tool actually needs.
@@ -280,6 +322,71 @@ TEST_OVERRIDES = {
         "pvd_file__members": (
             "LIE/PostProcessing/single_joint_ts_0_t_0.000000.vtu,"
             "LIE/PostProcessing/single_joint_ts_1_t_1.000000.vtu"
+        ),
+    },
+    "pvtu2vtu": {
+        "input": "Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000.pvtu",
+        "input__members": (
+            "Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000_0.vtu,"
+            "Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000_1.vtu,"
+            "Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000_2.vtu,"
+            "Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000_3.vtu"
+        ),
+    },
+    "gocadsgridreader": {
+        "sg": "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Test.sg",
+        "sg__members": (
+            "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/"
+            "SGrid_Testflow_simulation_grid_stair-stepped__points@@,"
+            "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/"
+            "SGrid_Testflow_simulation_grid_stair-stepped__flags@@,"
+            "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/"
+            "SGrid_Testflow_simulation_grid_stair-stepped__region_flags@@,"
+            "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/"
+            "SGrid_Testflow_simulation_grid_stair-stepped_FSG_CELL_VOLUME_CORRECTION_FACTOR@@,"
+            "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/"
+            "SGrid_Testflow_simulation_grid_stair-stepped_FSG_GEOLOGIC_K@@,"
+            "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/"
+            "SGrid_Testflow_simulation_grid_stair-stepped_FSG_UNIT@@,"
+            "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/"
+            "SGrid_Testflow_simulation_grid_stair-stepped_FSG_VISIBLE_TETRA_RECORD_ID@@,"
+            "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/"
+            "SGrid_Testflow_simulation_grid_stair-stepped_FSG_fault_blocks@@"
+        ),
+    },
+    "layers2grid": {
+        "input__members": (
+            "Utils/VoxelGridFromLayers/AREHS_Layer9.vtu,"
+            "Utils/VoxelGridFromLayers/AREHS_Layer0.vtu,"
+            "Utils/VoxelGridFromLayers/AREHS_Layer15.vtu,"
+            "Utils/VoxelGridFromLayers/AREHS_Layer17.vtu"
+        ),
+        "cellsize_x": "100",
+    },
+    "createlayeredmeshfromrasters": {
+        "raster_list__members": (
+            "Utils/createLayeredMeshFromRasters/dem.asc,"
+            "Utils/createLayeredMeshFromRasters/bottom.asc"
+        ),
+        "input_mesh_file": (
+            "Utils/createLayeredMeshFromRasters/rectangular_tris_with_materials.vtu"
+        ),
+        "thickness": "0.1",
+        "keep_surface_material_ids": True,
+    },
+    "createtetgensmeshfromrasters": {
+        "raster_list__members": (
+            "Utils/createTetgenSmeshFromRasters/DEM.asc,"
+            "Utils/createTetgenSmeshFromRasters/m0.asc,"
+            "Utils/createTetgenSmeshFromRasters/m1.asc,"
+            "Utils/createTetgenSmeshFromRasters/m2.asc,"
+            "Utils/createTetgenSmeshFromRasters/m3.asc,"
+            "Utils/createTetgenSmeshFromRasters/m4.asc,"
+            "Utils/createTetgenSmeshFromRasters/m5.asc,"
+            "Utils/createTetgenSmeshFromRasters/m6.asc"
+        ),
+        "input_mesh_file": (
+            "Utils/createTetgenSmeshFromRasters/sfc_mesh_9k.vtu"
         ),
     },
     "postlie": {
@@ -943,6 +1050,33 @@ def process_parameters(
                 pvd_data.is_collection = True
                 galaxy_inputs.append(pvd_data)
 
+            manifest = MANIFEST_INPUTS.get((tool_name.lower(), var_name))
+            if manifest:
+                param.members_override_key = f"{var_name}__members"
+                if manifest["kind"] == "file_list":
+                    # The dataset is the *list* of inputs; the files themselves
+                    # are the real input, so expose them as an ordered
+                    # collection and write the list file in the command.
+                    # ``format`` lives in the XML attributes (XMLParam.__getattr__),
+                    # so it has to be set on the node, not on the object.
+                    param.node.attrib["format"] = manifest["format"]
+                    param.is_manifest_list = True
+                    param.is_data_collection = True
+                    param.is_collection = True
+                else:
+                    companions = DataParam(
+                        name=f"{var_name}_members",
+                        label=f"{var_name.replace('_', ' ')} referenced files",
+                        help=manifest["help"],
+                        format=manifest["format"],
+                        optional=False,
+                    )
+                    companions.is_companion = True
+                    companions.is_data_collection = True
+                    companions.is_collection = True
+                    companions.members_override_key = f"{var_name}__members"
+                    galaxy_inputs.append(companions)
+
         elif "Switch" in param_info.get("arg_type", ""):
             param = BooleanParam(
                 argument=argument,
@@ -1103,10 +1237,30 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                     getattr(param, "ogs_ext", "vtu"),
                 ).lower()
 
-                if getattr(param, "is_pvd_element", False):
+                if getattr(param, "is_pvd_element", False) or getattr(
+                    param, "is_companion", False
+                ):
+                    # Files the dataset references by name: stage them under
+                    # exactly those names, pass nothing on the command line.
                     command_parts.append(
                         f"  #for $item in ${param.name}\n    ln -sf '$item' '$item.element_identifier';\n  #end for"
                     )
+                    continue
+                if getattr(param, "is_manifest_list", False):
+                    # The list file is generated from the collection: one line
+                    # per element, naming the staged file. OGS resolves those
+                    # names against its working directory, so the files are
+                    # linked there as well.
+                    local = f"{name}.txt"
+                    input_link_names.add(local)
+                    command_parts.append(
+                        f": > '{local}';\n"
+                        f"#for $item in ${name}\n"
+                        f"ln -sf '$item' '$item.element_identifier';\n"
+                        f"echo '$item.element_identifier' >> '{local}';\n"
+                        f"#end for"
+                    )
+                    flag_parts.append(f"    --{flag} '{local}'")
                     continue
                 if is_file_list:
                     # Single ASCII list file (OGS readStringListFromFile); pass
@@ -1876,9 +2030,46 @@ def generate_tests(ogs_root: Path, output_dir: Path):
         test_is_valid = True
         test_params_xml = []
 
+        # A manifest input does not name its files in the ctest arguments; the
+        # collection is supplied by ``<param>__members`` instead.
+        members_params: set = set()
+        for p_obj in galaxy_inputs:
+            m_key = getattr(p_obj, "members_override_key", None)
+            members = (
+                TEST_OVERRIDES.get(matched_tool.lower(), {}).get(m_key)
+                if m_key
+                else None
+            )
+            if not members:
+                continue
+            m_name = param_var_name(p_obj)
+            m_coll = ET.Element("param", {"name": m_name})
+            m_list = ET.SubElement(m_coll, "collection", {"type": "list"})
+            m_ok = True
+            for m_path in [x.strip() for x in str(members).split(",") if x.strip()]:
+                m_url = _fixture_url(m_path, wd_sub)
+                if not url_exists(m_url):
+                    test_is_valid = False
+                    m_ok = False
+                    break
+                m_file = m_path.split("/")[-1]
+                ET.SubElement(
+                    m_list,
+                    "element",
+                    {
+                        "name": m_file,
+                        "value": m_file,
+                        "location": m_url,
+                        "ftype": p_obj.format.split(",")[0],
+                    },
+                )
+            if m_ok:
+                test_params_xml.append(m_coll)
+                members_params.add(m_name)
+
         for p_name, p_val in params_in_test.items():
             p_obj = all_inputs_map.get(p_name)
-            if not p_obj:
+            if not p_obj or p_name in members_params:
                 continue
 
             val_clean = (
@@ -2158,10 +2349,20 @@ def generate_tests(ogs_root: Path, output_dir: Path):
             g_inputs, g_outputs = process_parameters(tool_data["parameters"], t_name)
 
             for p in g_inputs:
-                is_data_coll = getattr(p, "is_data_collection", False)
+                m_key = getattr(p, "members_override_key", None)
+                m_spec = TEST_OVERRIDES.get(t_name, {}).get(m_key) if m_key else None
+                is_data_coll = getattr(p, "is_data_collection", False) or bool(
+                    m_spec
+                )
 
                 if is_data_coll:
-                    if getattr(p, "is_pvd_element", False):
+                    if m_spec:
+                        urls = [
+                            _fixture_url(m.strip(), "")
+                            for m in str(m_spec).split(",")
+                            if m.strip()
+                        ]
+                    elif getattr(p, "is_pvd_element", False):
                         urls = [
                             f"{OGS_TEST_DATA_URL}/HydroMechanics/IdealGas/flow_pressure_boundary/flow_pressure_boundary_ts_0_t_0.000000.vtu",
                             f"{OGS_TEST_DATA_URL}/HydroMechanics/IdealGas/flow_pressure_boundary/flow_pressure_boundary_ts_100_t_4000.000000.vtu",

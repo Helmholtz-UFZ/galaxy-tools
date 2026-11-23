@@ -130,6 +130,39 @@
             </output>
         </test>
     </xml>
+    <xml name="gocadsgridreader_test">
+        <test expect_num_outputs="1">
+            <param name="sg_members">
+                <collection type="list">
+                    <element name="SGrid_Testflow_simulation_grid_stair-stepped__points@@" value="SGrid_Testflow_simulation_grid_stair-stepped__points@@" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Testflow_simulation_grid_stair-stepped__points@@" ftype="data" />
+                    <element name="SGrid_Testflow_simulation_grid_stair-stepped__flags@@" value="SGrid_Testflow_simulation_grid_stair-stepped__flags@@" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Testflow_simulation_grid_stair-stepped__flags@@" ftype="data" />
+                    <element name="SGrid_Testflow_simulation_grid_stair-stepped__region_flags@@" value="SGrid_Testflow_simulation_grid_stair-stepped__region_flags@@" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Testflow_simulation_grid_stair-stepped__region_flags@@" ftype="data" />
+                    <element name="SGrid_Testflow_simulation_grid_stair-stepped_FSG_CELL_VOLUME_CORRECTION_FACTOR@@" value="SGrid_Testflow_simulation_grid_stair-stepped_FSG_CELL_VOLUME_CORRECTION_FACTOR@@" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Testflow_simulation_grid_stair-stepped_FSG_CELL_VOLUME_CORRECTION_FACTOR@@" ftype="data" />
+                    <element name="SGrid_Testflow_simulation_grid_stair-stepped_FSG_GEOLOGIC_K@@" value="SGrid_Testflow_simulation_grid_stair-stepped_FSG_GEOLOGIC_K@@" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Testflow_simulation_grid_stair-stepped_FSG_GEOLOGIC_K@@" ftype="data" />
+                    <element name="SGrid_Testflow_simulation_grid_stair-stepped_FSG_UNIT@@" value="SGrid_Testflow_simulation_grid_stair-stepped_FSG_UNIT@@" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Testflow_simulation_grid_stair-stepped_FSG_UNIT@@" ftype="data" />
+                    <element name="SGrid_Testflow_simulation_grid_stair-stepped_FSG_VISIBLE_TETRA_RECORD_ID@@" value="SGrid_Testflow_simulation_grid_stair-stepped_FSG_VISIBLE_TETRA_RECORD_ID@@" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Testflow_simulation_grid_stair-stepped_FSG_VISIBLE_TETRA_RECORD_ID@@" ftype="data" />
+                    <element name="SGrid_Testflow_simulation_grid_stair-stepped_FSG_fault_blocks@@" value="SGrid_Testflow_simulation_grid_stair-stepped_FSG_fault_blocks@@" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Testflow_simulation_grid_stair-stepped_FSG_fault_blocks@@" ftype="data" />
+                </collection>
+            </param>
+            <param name="sg" value="SGrid_Test.sg" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Test.sg">
+                <collection type="list">
+                    <element name="SGrid_Testflow_simulation_grid_stair-stepped__points@@" value="SGrid_Testflow_simulation_grid_stair-stepped__points@@" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Testflow_simulation_grid_stair-stepped__points@@" ftype="gocad.sg" />
+                    <element name="SGrid_Testflow_simulation_grid_stair-stepped__flags@@" value="SGrid_Testflow_simulation_grid_stair-stepped__flags@@" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Testflow_simulation_grid_stair-stepped__flags@@" ftype="gocad.sg" />
+                    <element name="SGrid_Testflow_simulation_grid_stair-stepped__region_flags@@" value="SGrid_Testflow_simulation_grid_stair-stepped__region_flags@@" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Testflow_simulation_grid_stair-stepped__region_flags@@" ftype="gocad.sg" />
+                    <element name="SGrid_Testflow_simulation_grid_stair-stepped_FSG_CELL_VOLUME_CORRECTION_FACTOR@@" value="SGrid_Testflow_simulation_grid_stair-stepped_FSG_CELL_VOLUME_CORRECTION_FACTOR@@" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Testflow_simulation_grid_stair-stepped_FSG_CELL_VOLUME_CORRECTION_FACTOR@@" ftype="gocad.sg" />
+                    <element name="SGrid_Testflow_simulation_grid_stair-stepped_FSG_GEOLOGIC_K@@" value="SGrid_Testflow_simulation_grid_stair-stepped_FSG_GEOLOGIC_K@@" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Testflow_simulation_grid_stair-stepped_FSG_GEOLOGIC_K@@" ftype="gocad.sg" />
+                    <element name="SGrid_Testflow_simulation_grid_stair-stepped_FSG_UNIT@@" value="SGrid_Testflow_simulation_grid_stair-stepped_FSG_UNIT@@" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Testflow_simulation_grid_stair-stepped_FSG_UNIT@@" ftype="gocad.sg" />
+                    <element name="SGrid_Testflow_simulation_grid_stair-stepped_FSG_VISIBLE_TETRA_RECORD_ID@@" value="SGrid_Testflow_simulation_grid_stair-stepped_FSG_VISIBLE_TETRA_RECORD_ID@@" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Testflow_simulation_grid_stair-stepped_FSG_VISIBLE_TETRA_RECORD_ID@@" ftype="gocad.sg" />
+                    <element name="SGrid_Testflow_simulation_grid_stair-stepped_FSG_fault_blocks@@" value="SGrid_Testflow_simulation_grid_stair-stepped_FSG_fault_blocks@@" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Testflow_simulation_grid_stair-stepped_FSG_fault_blocks@@" ftype="gocad.sg" />
+                </collection>
+            </param>
+            <output name="output_gocadsgridreader">
+                <assert_contents>
+                    <has_size min="100" />
+                </assert_contents>
+            </output>
+        </test>
+    </xml>
     <xml name="gocadtsurfacereader_test">
         <test>
             <param name="input_file" value="Top-Lower-Shaly.ts" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshLib/Top-Lower-Shaly.ts" ftype="xml" />
@@ -144,6 +177,24 @@
             <param name="min_id" value="4" />
             <param name="max_id" value="8" />
             <output name="output_integrateboreholesintomesh">
+                <assert_contents>
+                    <has_size min="1" />
+                </assert_contents>
+            </output>
+        </test>
+    </xml>
+    <xml name="layers2grid_test">
+        <test expect_num_outputs="1">
+            <param name="cellsize_x" value="100" />
+            <param name="input">
+                <collection type="list">
+                    <element name="AREHS_Layer9.vtu" value="AREHS_Layer9.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer9.vtu" ftype="vtkxml" />
+                    <element name="AREHS_Layer0.vtu" value="AREHS_Layer0.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer0.vtu" ftype="vtkxml" />
+                    <element name="AREHS_Layer15.vtu" value="AREHS_Layer15.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer15.vtu" ftype="vtkxml" />
+                    <element name="AREHS_Layer17.vtu" value="AREHS_Layer17.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_Layer17.vtu" ftype="vtkxml" />
+                </collection>
+            </param>
+            <output name="output_layers2grid">
                 <assert_contents>
                     <has_size min="1" />
                 </assert_contents>
@@ -236,6 +287,31 @@
             </param>
             <param name="pvd_file" value="single_joint.pvd" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/LIE/PostProcessing/single_joint.pvd" ftype="vtkxml" />
             <output_collection name="tool_outputs" type="list" min="1" />
+        </test>
+    </xml>
+    <xml name="pvtu2vtu_test">
+        <test expect_num_outputs="1">
+            <param name="input_members">
+                <collection type="list">
+                    <element name="quad_tri_THM_MPI_t_86400_000000_0.vtu" value="quad_tri_THM_MPI_t_86400_000000_0.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000_0.vtu" ftype="vtkxml" />
+                    <element name="quad_tri_THM_MPI_t_86400_000000_1.vtu" value="quad_tri_THM_MPI_t_86400_000000_1.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000_1.vtu" ftype="vtkxml" />
+                    <element name="quad_tri_THM_MPI_t_86400_000000_2.vtu" value="quad_tri_THM_MPI_t_86400_000000_2.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000_2.vtu" ftype="vtkxml" />
+                    <element name="quad_tri_THM_MPI_t_86400_000000_3.vtu" value="quad_tri_THM_MPI_t_86400_000000_3.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000_3.vtu" ftype="vtkxml" />
+                </collection>
+            </param>
+            <param name="input" value="quad_tri_THM_MPI_t_86400_000000.pvtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000.pvtu">
+                <collection type="list">
+                    <element name="quad_tri_THM_MPI_t_86400_000000_0.vtu" value="quad_tri_THM_MPI_t_86400_000000_0.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000_0.vtu" ftype="vtkxml" />
+                    <element name="quad_tri_THM_MPI_t_86400_000000_1.vtu" value="quad_tri_THM_MPI_t_86400_000000_1.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000_1.vtu" ftype="vtkxml" />
+                    <element name="quad_tri_THM_MPI_t_86400_000000_2.vtu" value="quad_tri_THM_MPI_t_86400_000000_2.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000_2.vtu" ftype="vtkxml" />
+                    <element name="quad_tri_THM_MPI_t_86400_000000_3.vtu" value="quad_tri_THM_MPI_t_86400_000000_3.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000_3.vtu" ftype="vtkxml" />
+                </collection>
+            </param>
+            <output name="output_pvtu2vtu">
+                <assert_contents>
+                    <has_size min="100" />
+                </assert_contents>
+            </output>
         </test>
     </xml>
     <xml name="raster2asc_test">
@@ -388,6 +464,24 @@
             <output_collection name="tool_outputs" type="list" min="1" />
         </test>
     </xml>
+    <xml name="createlayeredmeshfromrasters_test">
+        <test expect_num_outputs="1">
+            <param name="raster_list">
+                <collection type="list">
+                    <element name="dem.asc" value="dem.asc" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createLayeredMeshFromRasters/dem.asc" ftype="raster.asc" />
+                    <element name="bottom.asc" value="bottom.asc" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createLayeredMeshFromRasters/bottom.asc" ftype="raster.asc" />
+                </collection>
+            </param>
+            <param name="input_mesh_file" value="rectangular_tris_with_materials.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createLayeredMeshFromRasters/rectangular_tris_with_materials.vtu" ftype="vtkxml" />
+            <param name="thickness" value="0.1" />
+            <param name="keep_surface_material_ids" value="True" />
+            <output name="output_createlayeredmeshfromrasters">
+                <assert_contents>
+                    <has_size min="100" />
+                </assert_contents>
+            </output>
+        </test>
+    </xml>
     <xml name="createmeshelempropertiesfromascraster_test">
         <test expect_num_outputs="1">
             <param name="raster_file" value="test.asc" ftype="raster.asc" />
@@ -420,6 +514,28 @@
             <output name="output_createraster">
                 <assert_contents>
                     <has_size min="100" />
+                </assert_contents>
+            </output>
+        </test>
+    </xml>
+    <xml name="createtetgensmeshfromrasters_test">
+        <test expect_num_outputs="1">
+            <param name="raster_list">
+                <collection type="list">
+                    <element name="DEM.asc" value="DEM.asc" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createTetgenSmeshFromRasters/DEM.asc" ftype="raster.asc" />
+                    <element name="m0.asc" value="m0.asc" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createTetgenSmeshFromRasters/m0.asc" ftype="raster.asc" />
+                    <element name="m1.asc" value="m1.asc" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createTetgenSmeshFromRasters/m1.asc" ftype="raster.asc" />
+                    <element name="m2.asc" value="m2.asc" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createTetgenSmeshFromRasters/m2.asc" ftype="raster.asc" />
+                    <element name="m3.asc" value="m3.asc" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createTetgenSmeshFromRasters/m3.asc" ftype="raster.asc" />
+                    <element name="m4.asc" value="m4.asc" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createTetgenSmeshFromRasters/m4.asc" ftype="raster.asc" />
+                    <element name="m5.asc" value="m5.asc" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createTetgenSmeshFromRasters/m5.asc" ftype="raster.asc" />
+                    <element name="m6.asc" value="m6.asc" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createTetgenSmeshFromRasters/m6.asc" ftype="raster.asc" />
+                </collection>
+            </param>
+            <param name="input_mesh_file" value="sfc_mesh_9k.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/createTetgenSmeshFromRasters/sfc_mesh_9k.vtu" ftype="vtkxml" />
+            <output name="output_createtetgensmeshfromrasters">
+                <assert_contents>
+                    <has_size min="1" />
                 </assert_contents>
             </output>
         </test>

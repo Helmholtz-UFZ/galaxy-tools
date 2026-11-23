@@ -1,11 +1,12 @@
 """Command line interface of the SaQC tool generator.
 
-Usage::
+Run it from the tool directory, so the package is importable::
 
-    python gen.py --generate-tool > saqc.xml
-    python gen.py --generate-tests > test_macros.xml
-    python gen.py --write     # update both files in place
-    python gen.py --check     # fail if the committed files are out of date
+    cd tools/saqc
+    python -m saqcgen --generate-tool > saqc.xml
+    python -m saqcgen --generate-tests > test_macros.xml
+    python -m saqcgen --write   # update both files in place
+    python -m saqcgen --check   # fail if the committed files are out of date
 """
 
 from __future__ import annotations
@@ -34,7 +35,8 @@ _VERSION = re.compile(r'<token name="@TOOL_VERSION@">\s*([^\s<]+)\s*</token>')
 
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Generate the Galaxy tool XML and its test macros for SaQC."
+        prog="saqcgen",
+        description="Generate the Galaxy tool XML and its test macros for SaQC.",
     )
     parser.add_argument(
         "--generate-tool",
@@ -126,7 +128,7 @@ def _check(documents: Dict[str, str], directory: Path) -> int:
     for name in outdated:
         print(
             f"ERROR: {directory / name} does not match the generator, "
-            "run `python gen.py --write`.",
+            "run `python -m saqcgen --write`.",
             file=sys.stderr,
         )
     return 1

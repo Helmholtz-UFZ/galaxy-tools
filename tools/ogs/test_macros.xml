@@ -334,6 +334,14 @@
             </output>
         </test>
     </xml>
+    <xml name="computesurfacenodeidsinpolygonalregion_test">
+        <test expect_num_outputs="2">
+            <param name="mesh_input_file" value="Cube.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/ResetPropertiesInPolygonalRegion/Cube.vtu" />
+            <param name="geo_file" value="Polylines.gml" ftype="xml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/ResetPropertiesInPolygonalRegion/Polylines.gml" />
+            <output_collection name="node_ids_txt" type="list" min="1" />
+            <output_collection name="node_ids_csv" type="list" min="1" />
+        </test>
+    </xml>
     <xml name="constructmeshesfromgeometry_test">
         <test>
             <param name="mesh" value="square_1x1_quad8_1e2.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/ConstructMeshesFromGeometry/square_1x1_quad8_1e2.vtu" ftype="vtkxml" />

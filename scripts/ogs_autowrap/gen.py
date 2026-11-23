@@ -64,7 +64,6 @@ EXCLUDED_TOOLS = [
     # OGS writes the result next to the *input* file (``<geo dir>/<polygon>0.txt``)
     # and Galaxy stages inputs in an immutable file directory, so the outputs can
     # never be collected.
-    "computesurfacenodeidsinpolygonalregion",
     # Take an ASCII list of rasters that the utility resolves relative to its own
     # working directory; the individual rasters cannot be staged.
     "layers2grid",
@@ -115,6 +114,28 @@ OUTPUT_EXT_OVERRIDES = {
     # determined by its file extension" -- the released OGS only has the GML
     # writer compiled in, so the wrapper must ask for ``.gml``.
     ("convertgeo", "output-file"): "gml",
+}
+
+# Utilities that write their results *next to the input geometry* without
+# taking an output argument at all: the output name is built from the polygon
+# names inside the GML. The inputs are symlinked into the job working
+# directory, so the files land there and can be discovered; each entry is one
+# list collection of discovered datasets.
+IMPLICIT_OUTPUTS = {
+    "computesurfacenodeidsinpolygonalregion": [
+        {
+            "name": "node_ids_txt",
+            "pattern": r"(?P<designation>.*)\.txt",
+            "format": "txt",
+            "label": "Node ids and areas (plain text)",
+        },
+        {
+            "name": "node_ids_csv",
+            "pattern": r"(?P<designation>.*)\.csv",
+            "format": "csv",
+            "label": "Node ids and areas (CSV)",
+        },
+    ],
 }
 
 # Tools whose ``--output-file`` argument is really a *base name* that the
@@ -217,6 +238,9 @@ TEST_OVERRIDES = {
         ),
     },
     "computesurfacenodeidsinpolygonalregion": {
+        "mesh_input_file": (
+            "MeshGeoToolsLib/ResetPropertiesInPolygonalRegion/Cube.vtu"
+        ),
         "geo_file": "MeshGeoToolsLib/ResetPropertiesInPolygonalRegion/Polylines.gml",
         "gmsh_path": None,
     },
@@ -1167,7 +1191,10 @@ def generate_tools(ogs_root: Path, output_dir: Path):
             # OGS does not create the output directory itself.
             command_parts.append(f"mkdir -p '{DIRECTORY_OUTPUT_DIR}';")
         command_parts.extend(final_exec_line)
-        if not output_command_map:
+        if (
+            not output_command_map
+            and tool_name.lower() not in IMPLICIT_OUTPUTS
+        ):
             command_parts[-1] += " > '$stdout_log'"
         command_str = "\n".join(command_parts)
 
@@ -1309,6 +1336,24 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                         )
                     )
                     outputs_tag.append(collection)
+        elif tool_name.lower() in IMPLICIT_OUTPUTS:
+            outputs_tag = tool.outputs = Outputs()
+            for spec in IMPLICIT_OUTPUTS[tool_name.lower()]:
+                collection = OutputCollection(
+                    name=spec["name"],
+                    type="list",
+                    label=spec["label"],
+                )
+                collection.append(
+                    DiscoverDatasets(
+                        pattern=_discover_pattern(
+                            spec["pattern"], input_link_names
+                        ),
+                        format=spec["format"],
+                        visible=True,
+                    )
+                )
+                outputs_tag.append(collection)
         else:
             outputs_tag = tool.outputs = Outputs()
             outputs_tag.append(
@@ -1660,7 +1705,9 @@ def generate_tests(ogs_root: Path, output_dir: Path):
         )
         # A tool whose wrapper has no output *file* falls back to capturing
         # command stdout as a ``stdout_log`` text output (see generate_tools).
-        output_has_stdout = not output_map
+        output_has_stdout = (
+            not output_map and matched_tool.lower() not in IMPLICIT_OUTPUTS
+        )
         all_inputs_map = {param_var_name(p): p for p in galaxy_inputs}
 
         flag_map = {}
@@ -1940,6 +1987,17 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                     expect_single_output = True
 
         # Fallback
+        # Utilities in ``IMPLICIT_OUTPUTS`` write their files without an output
+        # flag; each declared collection is asserted to be non-empty.
+        if not output_added and matched_tool.lower() in IMPLICIT_OUTPUTS:
+            for spec in IMPLICIT_OUTPUTS[matched_tool.lower()]:
+                ET.SubElement(
+                    test_case,
+                    "output_collection",
+                    {"name": spec["name"], "type": "list", "min": "1"},
+                )
+                output_added = True
+
         if not output_added and not output_map and output_has_stdout:
             # Tool captures command stdout as a ``stdout_log`` text output
             # (the wrapper has no real output file). Assert it exists.
@@ -1986,7 +2044,12 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                 "has_size",
                 {"min": "1"},
             )
-        if fixed_outputs_of(matched_tool):
+        if matched_tool.lower() in IMPLICIT_OUTPUTS:
+            # Only the implicit collections above; no ``stdout_log``.
+            test_case.set(
+                "expect_num_outputs", str(len(IMPLICIT_OUTPUTS[matched_tool.lower()]))
+            )
+        elif fixed_outputs_of(matched_tool):
             # Every output is declared explicitly; there is no collection.
             test_case.set("expect_num_outputs", str(len(extras)))
         elif extras:
@@ -2090,6 +2153,18 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                         {"min": "1"},
                     )
                     fallback_test.set("expect_num_outputs", "1")
+
+            elif t_name.lower() in IMPLICIT_OUTPUTS:
+                # Files written next to the input geometry, no output flag.
+                for spec in IMPLICIT_OUTPUTS[t_name.lower()]:
+                    ET.SubElement(
+                        fallback_test,
+                        "output_collection",
+                        {"name": spec["name"], "type": "list", "min": "1"},
+                    )
+                fallback_test.set(
+                    "expect_num_outputs", str(len(IMPLICIT_OUTPUTS[t_name.lower()]))
+                )
 
             else:
                 out_tag = ET.SubElement(fallback_test, "output", {"name": "stdout_log"})

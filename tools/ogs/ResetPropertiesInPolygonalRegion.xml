@@ -39,7 +39,7 @@ ResetPropertiesInPolygonalRegion
       <sanitizer sanitize="false" />
       <validator type="empty_field" />
     </param>
-    <param argument="--geometry" type="data" optional="false" label="geometry" help="Input (.gli | .gml). The name of the file containing the input geometry" format="xml" />
+    <param argument="--geometry" type="data" optional="false" label="geometry" help="Input (.gli | .gml). The name of the file containing the input geometry (the wrapper accepts .gml only)" format="xml" />
     <param argument="--any_of" type="boolean" label="any of" help="all nodes of an element has to be inside the polygon (default behaviour without switch) or any node of an element has to be inside (switch is given)" checked="false" truevalue="--any_of" falsevalue="" />
     <param argument="--char-property-value" type="text" optional="true" label="char property value" help="new property value (data type char)">
       <sanitizer sanitize="false" />

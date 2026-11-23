@@ -20,7 +20,7 @@ convertGEO
     --output-file output_1.gml
 ]]></command>
   <inputs>
-    <param argument="--input-file" type="data" optional="false" label="input file" help="Input (.gml|.gli). The name of the geometry file to be converted" format="xml" />
+    <param argument="--input-file" type="data" optional="false" label="input file" help="Input (.gml|.gli). The name of the geometry file to be converted (the wrapper accepts .gml only)" format="xml" />
     <param argument="--gmsh-path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the gmsh binary file" format="gmsh.msh" />
   </inputs>
   <outputs>

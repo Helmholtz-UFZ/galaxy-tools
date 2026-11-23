@@ -8,10 +8,18 @@
   <expand macro="creator" />
   <version_command><![CDATA[pvtu2vtu --version]]></version_command>
   <command><![CDATA[
-#for $item in $input_members
-    ln -sf '$item' '$item.element_identifier';
-  #end for
+#import re
 ln -sf '$input' 'input.pvtu';
+#set $safe_names = [re.sub(r'[^\w\-.@]', '_', str($item.element_identifier)) for $item in $input_members]
+#if len($safe_names) != len(set($safe_names))
+    #set $joined = ', '.join($safe_names)
+    echo 'error: the element identifiers map to the same file name after characters outside [A-Za-z0-9_.@-] are replaced by _: $joined' >&2;
+    exit 1;
+#end if
+  #for $item in $input_members
+    #set $safe_name = re.sub(r'[^\w\-.@]', '_', str($item.element_identifier))
+    ln -sf '$item' '$safe_name';
+  #end for
 pvtu2vtu
     --input 'input.pvtu'
 #if str($original_mesh)
@@ -21,8 +29,8 @@ pvtu2vtu
     --output output_1.vtu
 ]]></command>
   <inputs>
-    <param name="input_members" type="data_collection" optional="false" label="input referenced files" help="Partitioned mesh parts referenced by the .pvtu header. Their names must match the &lt;Piece Source=...&gt; entries." format="vtkxml" collection_type="list" />
     <param argument="--input" type="data" optional="false" label="input" help="Input (.pvtu). The partitioned input mesh file" format="vtkxml" />
+    <param name="input_members" type="data_collection" optional="false" label="input referenced files" help="Partitioned mesh parts referenced by the .pvtu header. Their names must match the &lt;Piece Source=...&gt; entries." format="vtkxml" collection_type="list" />
     <param argument="--original_mesh" type="text" optional="true" label="original mesh" help="optional, the original unpartitioned input mesh (*.vtu)">
       <sanitizer sanitize="false" />
     </param>

@@ -75,6 +75,8 @@ does not state, all keyed by tool and parameter so they are easy to audit:
   wrapper exposes the single-mesh variant.
 * `MANIFEST_INPUTS` – arguments that name further files instead of carrying
   data; the files are exposed as a collection (see "Manifest inputs").
+* `DATATYPE_MAP` – the Galaxy datatype of every OGS file extension (see
+  "Datatypes").
 * `TEST_OVERRIDES` – the fixture and parameter values each test needs. A
   `<param>__members` entry lists the files of a collection input: they are
   staged under exactly the names the manifest (or `.pvd`) contains, which is
@@ -107,8 +109,8 @@ wrapper exposes the referenced files themselves as a collection:
   ```
   : > 'raster_list.txt';
   #for $item in $raster_list
-  ln -sf '$item' '$item.element_identifier';
-  echo '$item.element_identifier' >> 'raster_list.txt';
+  ln -sf '$item' '$safe_name';
+  echo '$safe_name' >> 'raster_list.txt';
   #end for
   ```
 
@@ -122,15 +124,66 @@ wrapper exposes the referenced files themselves as a collection:
 
   ```
   #for $item in $input_members
-  ln -sf '$item' '$item.element_identifier';
+  ln -sf '$item' '$safe_name';
   #end for
   ```
 
   Used by `GocadSGridReader` and `pvtu2vtu`.
 
-In both cases the collection elements keep the names they were uploaded with,
-so the names inside the manifest keep matching. `TEST_OVERRIDES` supplies the
-collection contents through `<param>__members`.
+In both cases the collection elements are staged under the names they were
+uploaded with, so the names inside the manifest keep matching.
+`TEST_OVERRIDES` supplies the collection contents through `<param>__members`.
+
+The element identifier is user-controlled, so it is sanitized before it is used
+as a file name (the `logs` of a tool that does not do this end up with a
+half-linked directory):
+
+```
+#import re
+#set $safe_names = [re.sub(r'[^\w\-.@]', '_', str($item.element_identifier)) for $item in $input]
+#if len($safe_names) != len(set($safe_names))
+    echo 'error: the element identifiers map to the same file name ...' >&2;
+    exit 1;
+#end if
+```
+
+`@` is kept on purpose: OGS Gocad SGrid data files are called
+`…_points@@`, and the `.sg` header references them by that name. The collision
+check exists because replacing characters can map two identifiers onto one file
+name, which would silently feed the same file twice; the job fails instead.
+
+## Datatypes
+
+`DATATYPE_MAP` maps every OGS extension to a Galaxy datatype, and the wrapper
+takes its `format` from there -- never from the free help text. Only formats
+Galaxy actually ships are used, so an uploaded file is validated, displayed and
+accepted by the next wrapper without conversion:
+
+| OGS extension | Galaxy datatype | note |
+| --- | --- | --- |
+| `.vtu`, `.vtk`, `.pvtu`, `.pvd` | `vtkxml` | the OGS build reads VTK XML only |
+| `.msh` | `gmsh.msh` as input, `data` as output | Gmsh mesh in, legacy OGS-5 mesh out |
+| `.gml`, `.xml`, `.prj`, `.xdmf` | `xml` | Galaxy's `prj` is an *Athena* project file, not an OGS one |
+| `.sg` | `gocad.sg` | |
+| `.fem` | `feflow.fem` | |
+| `.asc`, `.grd` | `raster.asc` | |
+| `.ts`, `.pl`, `.mx` | `txt` | Gocad surfaces/lines/meshes are ASCII, not XML |
+| `.gli`, `.smesh`, `.geo`, `.plt`, `.tin`, `.bin`, `.mesh` | `txt` | ASCII, no dedicated Galaxy type |
+| `.csv`, `.json`, `.nc`, `.h5` | `csv`, `json`, `netcdf`, `h5` | |
+| anything else | `data` | generation warns, so the gap is visible |
+
+Galaxy cannot split one input into several types, and OGS picks its reader from
+the *file extension*. Where an argument documents several extensions
+(`Input (.gli | .gml)`), the wrapper accepts the first one and the help says so:
+
+```
+<param argument="--geometry" help="Input (.gli | .gml). … (the wrapper accepts .gml only)" format="xml"/>
+```
+
+`GMSH2OGS` deserves a note: its `--out` is a file name whose extension selects
+the *writer*, and `.msh` would produce the legacy OGS-5 format. The wrapper asks
+for `.vtu` (what the OGS test suite checks) so the mesh can be used by every
+other utility.
 
 ## Mutually exclusive switches
 

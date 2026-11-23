@@ -198,6 +198,70 @@ class ExclusiveModeAuditTest(unittest.TestCase):
         self.assertIn("no such generated tool", problems[0])
 
 
+class DatatypeMapTest(unittest.TestCase):
+    def test_mapped_datatype_returns_none_for_unknown_extension(self):
+        self.assertIsNone(gen.mapped_datatype("xyz"))
+        self.assertEqual(gen.get_ogs_ftype(["xyz"]), "data")
+
+    def test_msh_depends_on_role(self):
+        self.assertEqual(gen.mapped_datatype("msh", role="input"), "gmsh.msh")
+        self.assertEqual(gen.mapped_datatype("msh", role="output"), "data")
+
+    def test_ascii_gocad_surfaces_are_not_xml(self):
+        for ext in ("ts", "pl", "mx"):
+            self.assertEqual(gen.mapped_datatype(ext), "txt", ext)
+
+    def test_every_mapped_datatype_is_a_galaxy_type(self):
+        # No OGS-specific custom datatypes are shipped, so the wrappers may only
+        # use formats Galaxy defines itself.
+        galaxy_types = {
+            "vtkxml",
+            "gmsh.msh",
+            "gocad.sg",
+            "feflow.fem",
+            "xml",
+            "raster.asc",
+            "csv",
+            "json",
+            "txt",
+            "data",
+            "netcdf",
+            "h5",
+        }
+        self.assertLessEqual(set(gen.DATATYPE_MAP.values()), galaxy_types)
+
+
+class IdentifierSanitizationTest(unittest.TestCase):
+    """The element identifier becomes a file name in the generated command."""
+
+    def sanitize(self, name):
+        import re
+
+        return re.sub(gen.IDENTIFIER_UNSAFE, "_", name)
+
+    def test_shell_metacharacters_are_replaced(self):
+        self.assertEqual(self.sanitize("a b.vtu"), "a_b.vtu")
+        self.assertEqual(self.sanitize("a'b;rm -rf x.vtu"), "a_b_rm_-rf_x.vtu")
+        self.assertEqual(self.sanitize("$(whoami).vtu"), "__whoami_.vtu")
+
+    def test_name_the_manifest_refers_to_is_kept(self):
+        # OGS Gocad SGrid data files really are called ``..._points@@``.
+        self.assertEqual(
+            self.sanitize("SGrid_Testflow_x__points@@"), "SGrid_Testflow_x__points@@"
+        )
+
+    def test_staging_block_checks_for_collisions(self):
+        block = gen.identifier_staging("layers")
+        self.assertIn("#set $safe_names = [re.sub(", block)
+        self.assertIn("for $item in $layers]", block)
+        self.assertIn("if len($safe_names) != len(set($safe_names))", block)
+        self.assertIn("exit 1", block)
+
+    def test_single_element_block_and_staging_use_the_same_pattern(self):
+        self.assertIn(gen.IDENTIFIER_UNSAFE, gen.SANITIZE_IDENTIFIER)
+        self.assertIn(gen.IDENTIFIER_UNSAFE, gen.identifier_staging("x"))
+
+
 class ClosestMatchTest(unittest.TestCase):
     def test_no_hint_for_unrelated_key(self):
         self.assertEqual(gen._closest_match("zzz", {"input_file"}), "")

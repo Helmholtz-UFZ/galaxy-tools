@@ -115,6 +115,9 @@ OUTPUT_EXT_OVERRIDES = {
     # determined by its file extension" -- the released OGS only has the GML
     # writer compiled in, so the wrapper must ask for ``.gml``.
     ("convertgeo", "output-file"): "gml",
+    # "--out <file>": ".msh" asks for the *legacy OGS-5* mesh format, ".vtu" for
+    # the VTK XML mesh every other utility (and the OGS test suite) uses.
+    ("gmsh2ogs", "out"): "vtu",
 }
 
 # Utilities that write their results *next to the input geometry* without
@@ -225,16 +228,19 @@ MANIFEST_INPUTS = {
     ("layers2grid", "input"): {
         "kind": "file_list",
         "format": "vtkxml",
+        "label": "mesh layers",
         "help": "Mesh layers, ordered from top to bottom.",
     },
     ("createlayeredmeshfromrasters", "raster_list"): {
         "kind": "file_list",
         "format": "raster.asc",
+        "label": "raster files",
         "help": "Raster files, ordered from the top surface downwards.",
     },
     ("createtetgensmeshfromrasters", "raster_list"): {
         "kind": "file_list",
         "format": "raster.asc",
+        "label": "raster files",
         "help": "Raster files, ordered from the top surface downwards.",
     },
     ("gocadsgridreader", "sg"): {
@@ -492,10 +498,18 @@ DATATYPE_MAP = {
     # OGS / FEFLOW / Gocad project and geometry files
     "sg": "gocad.sg",
     "fem": "feflow.fem",
+    # GML is XML, and Galaxy's ``xml`` type is what a GML file is validated and
+    # displayed as. Galaxy's ``prj`` datatype, on the other hand, is the *Athena
+    # project* file -- an OGS ``.prj`` (an XML project file) must not use it.
     "gml": "xml",
     "prj": "xml",
     "xml": "xml",
-    "ts": "xml",
+    # Gocad surfaces (``.ts``), points/lines (``.pl``) and meshes (``.mx``) are
+    # ASCII, not XML -- they were mapped to ``xml`` and would have been rejected
+    # for every upload Galaxy sniffs as text.
+    "ts": "txt",
+    "pl": "txt",
+    "mx": "txt",
     # Rasters and NetCDF
     "asc": "raster.asc",
     "grd": "raster.asc",
@@ -512,9 +526,11 @@ DATATYPE_MAP = {
     "smesh": "txt",
     "bin": "txt",
     "mesh": "txt",
-    # Binary without a dedicated Galaxy datatype -> generic
-    "xdmf": "data",
-    "h5": "data",
+    # XDMF *is* XML (the data lives in the paired HDF5 file).
+    "xdmf": "xml",
+    # Galaxy ships an ``h5`` datatype.
+    "h5": "h5",
+    "hdf5": "h5",
 }
 
 # ``.msh`` is ambiguous: it is both the *Gmsh* mesh format (an input to GMSH2OGS)
@@ -526,6 +542,18 @@ MESH_OUTPUT_DATATYPE = "data"
 # Extensions already warned about, so the unmapped-datatype warning is not
 # repeated once per wrapped utility.
 _UNMAPPED_EXT_WARNED: set = set()
+
+
+def mapped_datatype(ext: str, role: str = "output"):
+    """Return the Galaxy datatype for one OGS extension, or ``None``.
+
+    Unlike :func:`get_ogs_ftype` this does not fall back to ``data`` -- callers
+    need to distinguish "has no dedicated datatype" from "is typed as data".
+    """
+    ext = ext.lower().lstrip(".")
+    if ext == "msh":
+        return MESH_INPUT_DATATYPE if role == "input" else MESH_OUTPUT_DATATYPE
+    return DATATYPE_MAP.get(ext)
 
 
 def get_ogs_ftype(extensions: List[str], role: str = "output") -> str:
@@ -541,9 +569,7 @@ def get_ogs_ftype(extensions: List[str], role: str = "output") -> str:
         return "vtkxml"
 
     ext = extensions[0].lower().lstrip(".")
-    if ext == "msh":
-        return MESH_INPUT_DATATYPE if role == "input" else MESH_OUTPUT_DATATYPE
-    fmt = DATATYPE_MAP.get(ext)
+    fmt = mapped_datatype(ext, role)
     if fmt is None:
         if ext not in _UNMAPPED_EXT_WARNED:
             _UNMAPPED_EXT_WARNED.add(ext)
@@ -1065,6 +1091,18 @@ def process_parameters(
                 (tool_name.lower(), var_name), primary_ext
             )
             galaxy_type = get_ogs_ftype([primary_ext], role="input")
+            # OGS picks the reader from the file *extension*, and the wrapper
+            # links every input under one fixed name, so only one of several
+            # documented extensions can be accepted. Say which one instead of
+            # silently rejecting the others with an incompatible datatype.
+            other_formats = {
+                mapped_datatype(ext, role="input")
+                for ext in all_exts
+                if ext not in ("msh", primary_ext)
+            }
+            other_formats.discard(None)
+            if other_formats - {galaxy_type}:
+                help_text += f" (the wrapper accepts .{primary_ext} only)"
             is_file_list = "INPUT_FILE_LIST" in all_args_str
             # A *_INPUT_FILE_LIST argument is a single ASCII text file naming
             # the input files (OGS reads it with readStringListFromFile), NOT a
@@ -1109,6 +1147,10 @@ def process_parameters(
                     # ``format`` lives in the XML attributes (XMLParam.__getattr__),
                     # so it has to be set on the node, not on the object.
                     param.node.attrib["format"] = manifest["format"]
+                    if manifest.get("help"):
+                        param.node.attrib["help"] = manifest["help"]
+                    if manifest.get("label"):
+                        param.node.attrib["label"] = manifest["label"]
                     param.is_manifest_list = True
                     param.is_data_collection = True
                     param.is_collection = True
@@ -1124,7 +1166,9 @@ def process_parameters(
                     companions.is_data_collection = True
                     companions.is_collection = True
                     companions.members_override_key = f"{var_name}__members"
-                    galaxy_inputs.append(companions)
+                    # Appended after the header parameter below: the dataset
+                    # that names its companions has to come first in the form.
+                    param.companion_param = companions
 
         elif "Switch" in param_info.get("arg_type", ""):
             param = BooleanParam(
@@ -1176,6 +1220,9 @@ def process_parameters(
             param.original_short_flag = short_flag
             param.is_unlabeled = is_unlabeled
             galaxy_inputs.append(param)
+            companion = getattr(param, "companion_param", None)
+            if companion is not None:
+                galaxy_inputs.append(companion)
 
     base_override = BASE_FILENAME_OVERRIDES.get(tool_name.lower())
     if base_override and base_override["flag"] in output_command_map:
@@ -1240,6 +1287,44 @@ def _discover_pattern(pattern: str, link_names: set) -> str:
     names = "|".join(re.escape(n) for n in sorted(link_names))
     lookahead = f"(?!(?:{names})$)"
     return pattern.replace("(?P<designation>", lookahead + "(?P<designation>", 1)
+
+
+# Collection elements are staged under their ``element_identifier`` because the
+# utilities resolve exactly those names (a list file, a ``.sg`` header, a
+# ``.pvtu`` source attribute). The identifier is user-controlled, so it is
+# reduced to shell-safe characters first -- ``ogs_simulation`` has always done
+# that. ``#import re`` has to precede the first use; the wrapper command gets it
+# once, whenever a collection is staged.
+IDENTIFIER_UNSAFE = r"[^\w\-.@]"
+# ``@`` is kept: real OGS Gocad SGrid data files are named like
+# ``SGrid_Testflow_..._points@@`` and the ``.sg`` header references them by that
+# name, so replacing it would make them unfindable. Everything that is not a
+# word character, ``.``, ``-`` or ``@`` is replaced, which covers the shell
+# metacharacters (space, quotes, ``$``, backtick, ``;``, ``&``, ``|``, ``*`` ...).
+SANITIZE_IDENTIFIER = (
+    "#set $safe_name = re.sub(r'" + IDENTIFIER_UNSAFE + "', '_', "
+    "str($item.element_identifier))"
+)
+
+
+def identifier_staging(names: str) -> str:
+    """Cheetah block that turns a collection into collision-free file names.
+
+    Replacing characters can map two distinct identifiers onto the same name
+    (``a b.vtu`` and ``a_b.vtu``); the list file built from those names would
+    then silently contain the same file twice and the analysis would be wrong.
+    The guard turns that into a visible failure instead.
+    """
+    return (
+        "#set $safe_names = [re.sub(r'" + IDENTIFIER_UNSAFE + "', '_', "
+        f"str($item.element_identifier)) for $item in ${names}]\n"
+        f"#if len($safe_names) != len(set($safe_names))\n"
+        f"    #set $joined = ', '.join($safe_names)\n"
+        f"    echo 'error: the element identifiers map to the same file name "
+        f"after characters outside [A-Za-z0-9_.@-] are replaced by _: $joined' >&2;\n"
+        f"    exit 1;\n"
+        f"#end if"
+    )
 
 
 def exclusive_mode_layout(tool_name: str, galaxy_inputs: list):
@@ -1377,6 +1462,9 @@ def generate_tools(ogs_root: Path, output_dir: Path):
         command_parts = []
         flag_parts = []
         unlabeled_parts = []
+        # Collections are staged under sanitized element identifiers, which
+        # needs ``re`` in the Cheetah template (see ``SANITIZE_IDENTIFIER``).
+        needs_regex_import = False
         # Names of the symlinks created in the job working directory; the
         # discovery patterns must not pick them up as outputs.
         input_link_names: set = set()
@@ -1418,8 +1506,13 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                     # Files the dataset references by name: stage them under
                     # exactly those names, pass nothing on the command line.
                     command_parts.append(
-                        f"  #for $item in ${param.name}\n    ln -sf '$item' '$item.element_identifier';\n  #end for"
+                        identifier_staging(param.name)
+                        + f"\n  #for $item in ${param.name}\n"
+                        f"    {SANITIZE_IDENTIFIER}\n"
+                        f"    ln -sf '$item' '$safe_name';\n"
+                        f"  #end for"
                     )
+                    needs_regex_import = True
                     continue
                 if getattr(param, "is_manifest_list", False):
                     # The list file is generated from the collection: one line
@@ -1430,11 +1523,14 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                     input_link_names.add(local)
                     command_parts.append(
                         f": > '{local}';\n"
-                        f"#for $item in ${name}\n"
-                        f"ln -sf '$item' '$item.element_identifier';\n"
-                        f"echo '$item.element_identifier' >> '{local}';\n"
+                        + identifier_staging(name)
+                        + f"\n#for $item in ${name}\n"
+                        f"{SANITIZE_IDENTIFIER}\n"
+                        f"ln -sf '$item' '$safe_name';\n"
+                        f"echo '$safe_name' >> '{local}';\n"
                         f"#end for"
                     )
+                    needs_regex_import = True
                     flag_parts.append(f"    --{flag} '{local}'")
                     continue
                 if is_file_list:
@@ -1458,11 +1554,19 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                     continue
                 if is_coll:
                     loop = (
-                        f"#for $item in ${name}\n"
-                        f"ln -sf '$item' '$item.element_identifier';\n"
+                        identifier_staging(name)
+                        + f"\n#for $item in ${name}\n"
+                        f"{SANITIZE_IDENTIFIER}\n"
+                        f"ln -sf '$item' '$safe_name';\n"
                         f"#end for"
                     )
-                    loop_str = f"#for $item in ${name}\n'$item.element_identifier'\n#end for"
+                    loop_str = (
+                        f"#for $item in ${name}\n"
+                        f"{SANITIZE_IDENTIFIER}\n"
+                        f"'$safe_name'\n"
+                        f"#end for"
+                    )
+                    needs_regex_import = True
                     if is_unlabeled:
                         arg = f"    --\n{loop_str}"
                         dest = unlabeled_parts
@@ -1563,6 +1667,8 @@ def generate_tools(ogs_root: Path, output_dir: Path):
             and tool_name.lower() not in IMPLICIT_OUTPUTS
         ):
             command_parts[-1] += " > '$stdout_log'"
+        if needs_regex_import:
+            command_parts.insert(0, "#import re")
         command_str = "\n".join(command_parts)
 
         # 4. Tool object

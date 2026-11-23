@@ -8,10 +8,18 @@
   <expand macro="creator" />
   <version_command><![CDATA[GocadSGridReader --version]]></version_command>
   <command><![CDATA[
-#for $item in $sg_members
-    ln -sf '$item' '$item.element_identifier';
-  #end for
+#import re
 ln -sf '$sg' 'sg.sg';
+#set $safe_names = [re.sub(r'[^\w\-.@]', '_', str($item.element_identifier)) for $item in $sg_members]
+#if len($safe_names) != len(set($safe_names))
+    #set $joined = ', '.join($safe_names)
+    echo 'error: the element identifiers map to the same file name after characters outside [A-Za-z0-9_.@-] are replaced by _: $joined' >&2;
+    exit 1;
+#end if
+  #for $item in $sg_members
+    #set $safe_name = re.sub(r'[^\w\-.@]', '_', str($item.element_identifier))
+    ln -sf '$item' '$safe_name';
+  #end for
 GocadSGridReader
     $generate_face_sets
     --sg 'sg.sg'
@@ -19,8 +27,8 @@ GocadSGridReader
 ]]></command>
   <inputs>
     <param argument="--generate-face-sets" type="boolean" label="generate face sets" help="Generate face sets." checked="false" truevalue="--generate-face-sets" falsevalue="" />
-    <param name="sg_members" type="data_collection" optional="false" label="sg referenced files" help="Data files referenced by the .sg header (points, flags and properties). Their names must match the entries in the .sg file." format="data" collection_type="list" />
     <param argument="--sg" type="data" optional="false" label="sg" help="Input (.sg). Gocad stratigraphic grid filename" format="gocad.sg" />
+    <param name="sg_members" type="data_collection" optional="false" label="sg referenced files" help="Data files referenced by the .sg header (points, flags and properties). Their names must match the entries in the .sg file." format="data" collection_type="list" />
   </inputs>
   <outputs>
     <data name="output_gocadsgridreader" format="vtkxml" label="Output from GocadSGridReader" from_work_dir="output_1.vtu" hidden="false" />

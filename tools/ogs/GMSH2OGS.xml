@@ -14,7 +14,7 @@ GMSH2OGS
     $boundaries
     $exclude_lines
     $gmsh2_physical_id
-    --out output_1.msh
+    --out output_1.vtu
 ]]></command>
   <inputs>
     <param argument="--in" type="data" optional="false" label="in" help="Input (.msh) file" format="gmsh.msh" />
@@ -24,7 +24,7 @@ GMSH2OGS
     <param argument="--gmsh2_physical_id" type="boolean" label="gmsh2 physical id" help="" checked="false" truevalue="--gmsh2_physical_id" falsevalue="" />
   </inputs>
   <outputs>
-    <data name="output_gmsh2ogs" format="data" label="Output from GMSH2OGS" from_work_dir="output_1.msh" hidden="false" />
+    <data name="output_gmsh2ogs" format="vtkxml" label="Output from GMSH2OGS" from_work_dir="output_1.vtu" hidden="false" />
   </outputs>
   <tests>
     <expand macro="gmsh2ogs_test" />

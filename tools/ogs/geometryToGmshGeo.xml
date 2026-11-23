@@ -8,13 +8,22 @@
   <expand macro="creator" />
   <version_command><![CDATA[geometryToGmshGeo --version]]></version_command>
   <command><![CDATA[
+#import re
+#set $safe_names = [re.sub(r'[^\w\-.@]', '_', str($item.element_identifier)) for $item in $input]
+#if len($safe_names) != len(set($safe_names))
+    #set $joined = ', '.join($safe_names)
+    echo 'error: the element identifiers map to the same file name after characters outside [A-Za-z0-9_.@-] are replaced by _: $joined' >&2;
+    exit 1;
+#end if
 #for $item in $input
-ln -sf '$item' '$item.element_identifier';
+#set $safe_name = re.sub(r'[^\w\-.@]', '_', str($item.element_identifier))
+ln -sf '$item' '$safe_name';
 #end for
 geometryToGmshGeo
     --input
 #for $item in $input
-'$item.element_identifier'
+#set $safe_name = re.sub(r'[^\w\-.@]', '_', str($item.element_identifier))
+'$safe_name'
 #end for
 #if str($max_points_in_quadtree_leaf)
     --max_points_in_quadtree_leaf '$max_points_in_quadtree_leaf'

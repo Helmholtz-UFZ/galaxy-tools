@@ -1,5 +1,5 @@
 <macros>
-    <token name="@TOOL_VERSION@">2.7.0</token>
+    <token name="@TOOL_VERSION@">2.10.0</token>
     <token name="@VERSION_SUFFIX@">0</token>
 
     <xml name="requirements">
@@ -70,10 +70,7 @@
                             <param name="history_selector" value="type_0"/>
                             <param name="history" value="valid"/>
                         </conditional>
-                        <conditional name="mode_cond">
-                             <param name="mode_selector" value="type_0"/>
-                             <param name="mode" value="oneplot"/>
-                        </conditional>
+                        <param name="mode" value="oneplot"/>
                         <param name="dfilter" value="inf"/>
                     </conditional>
                 </conditional>

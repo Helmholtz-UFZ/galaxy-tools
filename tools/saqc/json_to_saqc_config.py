@@ -214,6 +214,24 @@ def process_parameters(
     return saqc_args_dict
 
 
+def format_flag_value(value: str) -> Optional[str]:
+    """
+    Writes the ``flag`` parameter the way SaQC expects it.
+
+    A flag is either the name of a flag of the flagging scheme (``BAD``) or a
+    numeric value (``255``). The tool asks for it as text, so a numeric flag
+    arrives as a string, but SaQC rejects ``flag="255.0"`` -- a string is only
+    accepted if it names a known flag. Returns ``None`` for a flag name.
+    """
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    if math.isnan(number) or math.isinf(number):
+        return None
+    return str(int(number)) if number.is_integer() else repr(number)
+
+
 def format_saqc_value(v_saqc_raw: Any, k_saqc: str) -> Optional[str]:
     """
     Formats a Python value into a SaQC-compatible string.
@@ -248,7 +266,10 @@ def format_saqc_value(v_saqc_raw: Any, k_saqc: str) -> Optional[str]:
 
     elif isinstance(v_saqc_raw, str):
         val_lower = v_saqc_raw.lower()
-        if val_lower == "inf":
+        numeric_flag = format_flag_value(v_saqc_raw) if k_saqc == "flag" else None
+        if numeric_flag is not None:
+            v_str_repr = numeric_flag
+        elif val_lower == "inf":
             v_str_repr = "float('inf')"
         elif val_lower == "-inf":
             v_str_repr = "float('-inf')"

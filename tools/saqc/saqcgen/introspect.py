@@ -22,10 +22,33 @@ import logging
 import sys
 from dataclasses import dataclass, field, replace
 from types import ModuleType
-from typing import Any, Callable, Dict, ForwardRef, List, Mapping, Optional, Tuple
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Literal,
+    Mapping,
+    Optional,
+    Tuple,
+    get_origin,
+)
 
 from . import docs
-from .typespec import FIELDS, FILES, SELECT, TypeSpec, parse_annotation, split_union
+from .typespec import (
+    BOOLEAN,
+    FIELDS,
+    FILES,
+    FLOAT,
+    INTEGER,
+    SELECT,
+    TEXT,
+    TypeSpec,
+    annotation_to_string,
+    friendly_name,
+    parse_annotation,
+    split_union,
+)
 
 __all__ = [
     "HIDDEN_PARAMETERS",
@@ -33,7 +56,7 @@ __all__ = [
     "ParamPlan",
     "TYPE_OVERRIDES",
     "annotation_to_string",
-    "discover_literals",
+    "discover_aliases",
 ]
 
 logger = logging.getLogger(__name__)
@@ -66,28 +89,15 @@ _UNSUPPORTED_MEMBERS = {"dict", "slice", "none", "mpl.axes.axes"}
 _FIELD_PARAMETERS = ("target", "reference")
 
 
-def annotation_to_string(annotation: Any) -> str:
-    """Normalise a type hint (which may be a string, a class or a ForwardRef)."""
-    if isinstance(annotation, ForwardRef):
-        return annotation.__forward_arg__.strip("'")
-    if isinstance(annotation, str):
-        return annotation.strip("'")
-    if annotation is inspect.Parameter.empty:
-        return ""
-    name = getattr(annotation, "__name__", None)
-    if name:
-        return name
-    return str(annotation).replace("typing.", "")
+def discover_aliases(*modules: Optional[ModuleType]) -> Dict[str, Any]:
+    """Collect the module level type aliases of SaQC.
 
-
-def discover_literals(*modules: Optional[ModuleType]) -> Dict[str, Any]:
-    """Collect module level ``Literal`` aliases (e.g. ``FILL_METHODS``).
-
-    SaQC sometimes annotates a parameter with the name of a module level
-    ``Literal`` alias instead of spelling out the allowed values.  The returned
-    mapping allows the type parser to resolve those names.
+    SaQC annotates many parameters with the name of a module level alias
+    instead of spelling out the type, e.g. ``FILL_METHODS`` (a ``Literal``) or
+    ``EXTERNAL_FLAG`` (a ``Union``).  The returned mapping lets the type parser
+    resolve those names.
     """
-    literals: Dict[str, Any] = {}
+    aliases: Dict[str, Any] = {}
     for module in modules:
         if module is None:
             continue
@@ -98,12 +108,11 @@ def discover_literals(*modules: Optional[ModuleType]) -> Dict[str, Any]:
                 value = getattr(module, name)
             except Exception:  # pragma: no cover - defensive
                 continue
-            if getattr(value, "__origin__", None) is not None and "Literal" in str(
-                value
-            ):
-                logger.debug("discovered Literal '%s' in '%s'", name, module.__name__)
-                literals[name] = value
-    return literals
+            if get_origin(value) is None:
+                continue
+            logger.debug("discovered alias '%s' in '%s'", name, module.__name__)
+            aliases[name] = value
+    return aliases
 
 
 @dataclass(frozen=True)
@@ -131,9 +140,16 @@ class ParamPlan:
 class Introspection:
     """Cached queries against the SaQC package."""
 
-    def __init__(self, package: ModuleType, literals: Optional[Mapping[str, Any]] = None):
+    def __init__(
+        self, package: ModuleType, aliases: Optional[Mapping[str, Any]] = None
+    ):
         self.package = package
-        self.literals = dict(literals or {})
+        #: name -> typing object of the module level type aliases of SaQC
+        self.aliases = dict(aliases or {})
+        #: the aliases that stand for a fixed set of values
+        self.selection_aliases = frozenset(
+            name for name, value in self.aliases.items() if get_origin(value) is Literal
+        )
         self._modules: Optional[List[Tuple[str, ModuleType]]] = None
         self._methods: Dict[int, List[Callable]] = {}
         self._plans: Dict[int, List[ParamPlan]] = {}
@@ -182,7 +198,7 @@ class Introspection:
             )
             if not looks_like_function:
                 continue
-            if "Literal[" in annotation or annotation in self.literals:
+            if "Literal[" in annotation or annotation in self.selection_aliases:
                 continue
             if parameter.default is not inspect.Parameter.empty:
                 continue
@@ -321,7 +337,7 @@ class Introspection:
     def _has_literal_option(self, annotation: str) -> bool:
         """True if a parameter also accepts one of a fixed set of values."""
         return any(
-            "Literal[" in member or member in self.literals
+            "Literal[" in member or member in self.selection_aliases
             for member in split_union(annotation)
         )
 
@@ -334,6 +350,7 @@ class Introspection:
     ) -> List[TypeSpec]:
         """Parse and clean the union members of a parameter annotation."""
         members = split_union(annotation) if annotation else []
+        members = _expand_aliases(members, self.aliases)
         members = _drop_unsupported_members(
             members, f"{module.__name__}|{method.__name__}|{name}"
         )
@@ -346,7 +363,8 @@ class Introspection:
             members = ["SaQCFields"]
 
         if len(members) > 1 and any(
-            "Literal[" in member or member in self.literals for member in members
+            "Literal[" in member or member in self.selection_aliases
+            for member in members
         ):
             without_functions = [
                 member
@@ -363,7 +381,7 @@ class Introspection:
                 )
             members = without_functions
 
-        specs = [parse_annotation(member, self.literals) for member in members]
+        specs = [parse_annotation(member) for member in members]
         known = [spec for spec in specs if spec is not None]
         unknown = [m for m, spec in zip(members, specs) if spec is None]
         for member in unknown:
@@ -374,7 +392,78 @@ class Introspection:
                 name,
                 method.__name__,
             )
+        known = _dedupe_by_name(known, f"{module.__name__}|{method.__name__}|{name}")
+        if _is_any_scalar(known):
+            # e.g. ``EXTERNAL_FLAG``: a text field accepts both the name of a
+            # flag (``BAD``) and its numeric value, so a type selection would
+            # only be in the way
+            return [TypeSpec(TEXT, annotation, plain_value=True)]
         return known
+
+
+#: the kinds of input that SaQC reads from a plain field
+_SCALAR_KINDS = frozenset({TEXT, INTEGER, FLOAT, BOOLEAN})
+
+#: the builtin types that make a union a plain value union
+_BASIC_SCALARS = frozenset({"str", "string", "any", "int", "float", "bool"})
+
+
+def _expand_aliases(
+    members: List[str],
+    aliases: Mapping[str, Any],
+    seen: Tuple[str, ...] = (),
+) -> List[str]:
+    """Replace module level type aliases by the types they stand for."""
+    expanded: List[str] = []
+    for member in members:
+        alias = aliases.get(member)
+        if alias is None or member in seen:
+            expanded.append(member)
+            continue
+        expanded.extend(
+            _expand_aliases(
+                split_union(annotation_to_string(alias)), aliases, seen + (member,)
+            )
+        )
+    return expanded
+
+
+def _dedupe_by_name(specs: List[TypeSpec], where: str) -> List[TypeSpec]:
+    """Drop the inputs that a user cannot tell apart.
+
+    ``list`` and ``ArrayLike`` for example are both presented as a free text
+    field for several values, and Galaxy rejects a selection with two options
+    of the same label.
+    """
+    seen: Dict[str, None] = {}
+    kept: List[TypeSpec] = []
+    for spec in specs:
+        name = friendly_name(spec)
+        if name in seen:
+            logger.info(
+                "(%s): ignoring type '%s', it is entered like '%s'",
+                where,
+                spec.text,
+                name,
+            )
+            continue
+        seen[name] = None
+        kept.append(spec)
+    return kept
+
+
+def _is_any_scalar(specs: List[TypeSpec]) -> bool:
+    """True for a union of plain values that includes a free text option.
+
+    ``EXTERNAL_FLAG`` (``Union[str, float, int]``) is such a union: a text
+    field accepts both the name of a flag (``BAD``) and its numeric value.
+    Unions that combine a plain type with a formatted one (e.g. an offset
+    string next to an integer) keep their type selection.
+    """
+    kinds = {spec.kind for spec in specs}
+    if len(specs) < 2 or not kinds <= _SCALAR_KINDS or TEXT not in kinds:
+        return False
+    return all(spec.text.strip().lower() in _BASIC_SCALARS for spec in specs)
 
 
 def _is_function_parameter(name: str, annotation: str) -> bool:

@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from . import testmacros, tool
-from .introspect import Introspection, configure_logging, discover_literals
+from .introspect import Introspection, configure_logging, discover_aliases
 
 __all__ = ["main"]
 
@@ -137,10 +137,10 @@ def load_introspection() -> Introspection:
     import saqc
     from saqc.lib import types as saqc_types
 
-    literals = discover_literals(saqc_types)
+    aliases = discover_aliases(saqc_types)
     for _, module in inspect.getmembers(saqc.funcs, inspect.ismodule):
-        literals.update(discover_literals(module))
-    return Introspection(saqc, literals)
+        aliases.update(discover_aliases(module))
+    return Introspection(saqc, aliases)
 
 
 def warn_about_version(package) -> None:

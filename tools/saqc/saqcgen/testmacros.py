@@ -147,7 +147,11 @@ def _variants(
         if plan.has_type_selection:
             selections.append(plan)
             continue
-        _set_value(defaults, plan.name, samples.sample_values(plan.specs[0], plan.name))
+        _set_value(
+            defaults,
+            plan.name,
+            samples.sample_values(plan.specs[0], plan.name, plan.default),
+        )
 
     for plan in selections:
         defaults[f"{plan.name}_cond"] = _selected(plan, 0)
@@ -164,7 +168,11 @@ def _variants(
 def _selected(plan: ParamPlan, index: int) -> Dict[str, Any]:
     """The parameters of one ``when`` block of a type selection."""
     values: Dict[str, Any] = {f"{plan.name}_selector": f"type_{index}"}
-    _set_value(values, plan.name, samples.sample_values(plan.specs[index], plan.name))
+    _set_value(
+        values,
+        plan.name,
+        samples.sample_values(plan.specs[index], plan.name, plan.default),
+    )
     return values
 
 

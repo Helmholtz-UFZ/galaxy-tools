@@ -26,13 +26,21 @@ OFFSET = "1D"
 TIMEDELTA = "1d"
 
 
-def sample_values(spec: TypeSpec, name: str) -> Union[Dict[str, Any], List[Any], Any]:
+def sample_values(
+    spec: TypeSpec, name: str, default: Any = None
+) -> Union[Dict[str, Any], List[Any], Any]:
     """Galaxy test parameters for the input of ``spec``.
 
     A returned ``dict`` is merged into the surrounding parameters (the input is
     a set of sibling fields), a returned ``list`` describes a ``repeat`` block
     and anything else is the value of the input named ``name``.
+
+    ``default`` is the default value of the parameter; a free text input for a
+    union of plain values (e.g. a flag) uses it, because only a value that SaQC
+    knows about makes the configuration valid.
     """
+    if spec.plain_value and default is not None:
+        return default
     if spec.kind == typespec.FIELDS:
         return 1
     if spec.kind == typespec.FILES:

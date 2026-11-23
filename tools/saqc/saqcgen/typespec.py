@@ -15,9 +15,10 @@ from the spec, so the knowledge about a SaQC type lives in exactly one place.
 
 from __future__ import annotations
 
+import inspect
 import re
 from dataclasses import dataclass
-from typing import Any, Mapping, Optional, Sequence, Tuple
+from typing import Any, ForwardRef, Mapping, Optional, Sequence, Tuple, get_origin
 
 __all__ = [
     "BOOLEAN",
@@ -36,6 +37,7 @@ __all__ = [
     "TIMEDELTA",
     "TUPLE",
     "TypeSpec",
+    "annotation_to_string",
     "friendly_name",
     "parse_annotation",
     "split_union",
@@ -128,6 +130,27 @@ class TypeSpec:
     #: True if several values of this type are accepted (a list)
     multiple: bool = False
     validator: Optional[str] = None
+    #: True for a union of plain values, which is entered as free text
+    #: (e.g. ``EXTERNAL_FLAG``: a flag name or a flag value)
+    plain_value: bool = False
+
+
+def annotation_to_string(annotation: Any) -> str:
+    """Normalise a type hint (a string, a class, a ``ForwardRef`` or ``empty``)."""
+    if isinstance(annotation, ForwardRef):
+        return annotation.__forward_arg__.strip("'")
+    if isinstance(annotation, str):
+        return annotation.strip("'")
+    if annotation is inspect.Parameter.empty:
+        return ""
+    if get_origin(annotation) is not None:
+        # a parameterised type (``Literal[...]``, ``Union[...]``, ``list[...]``)
+        # has no usable ``__name__``, only its string form keeps the details
+        return str(annotation).replace("typing.", "")
+    name = getattr(annotation, "__name__", None)
+    if name:
+        return name
+    return str(annotation).replace("typing.", "")
 
 
 def split_union(type_string: str) -> list[str]:
@@ -160,7 +183,7 @@ def split_union(type_string: str) -> list[str]:
 
 
 def parse_annotation(
-    type_string: str, literals: Optional[Mapping[str, Any]] = None
+    type_string: str, aliases: Optional[Mapping[str, Any]] = None
 ) -> Optional[TypeSpec]:
     """Translate one (union free) SaQC type hint into a :class:`TypeSpec`.
 
@@ -168,11 +191,11 @@ def parse_annotation(
     field (those parameters are skipped by the generator).
     """
     text = type_string.strip()
-    literals = literals or {}
+    aliases = aliases or {}
 
-    # a module level alias of a Literal, e.g. ``FILL_METHODS``
-    if text in literals:
-        return parse_annotation(str(literals[text]).replace("typing.", ""), literals)
+    # a module level type alias, e.g. ``FILL_METHODS``
+    if text in aliases:
+        return parse_annotation(annotation_to_string(aliases[text]), aliases)
 
     if text in ("SaQCFields", "NewSaQCFields"):
         return TypeSpec(FIELDS, text, multiple=True)
@@ -194,7 +217,7 @@ def parse_annotation(
             # a bare ``tuple`` is filled with two free text elements
             return TypeSpec(TUPLE, text)
         members = [m for m in split_union(inner_string) if m]
-        specs = [parse_annotation(m, literals) for m in members]
+        specs = [parse_annotation(m, aliases) for m in members]
         specs = [spec for spec in specs if spec is not None]
         if not specs:
             specs = [TypeSpec(TEXT, "str")]

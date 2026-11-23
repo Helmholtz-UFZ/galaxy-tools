@@ -55,10 +55,10 @@ generateGeometry
     <param argument="--nz" type="integer" optional="true" label="nz" help="number of subdivisions in z direction" />
     <param argument="--nz1" type="integer" optional="true" label="nz1" help="number of subdivisions in z direction" />
     <param argument="--geometry_name" type="text" optional="true" label="geometry name" help="name of the generated geometry">
-      <sanitizer sanitize="false" />
+      <validator type="regex" message="only letters, digits, spaces and the characters = - _ . ( ) / + * ^ , : ? ! are allowed">^[A-Za-z0-9 =\-_.()/+*^,:?!]+$</validator>
     </param>
     <param argument="--polyline_name" type="text" optional="true" label="polyline name" help="name of the generated polyline">
-      <sanitizer sanitize="false" />
+      <validator type="regex" message="only letters, digits, spaces and the characters = - _ . ( ) / + * ^ , : ? ! are allowed">^[A-Za-z0-9 =\-_.()/+*^,:?!]+$</validator>
     </param>
   </inputs>
   <outputs>

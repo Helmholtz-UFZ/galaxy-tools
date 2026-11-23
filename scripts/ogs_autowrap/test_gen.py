@@ -5,9 +5,13 @@ Run with::
     python -m unittest discover -s scripts/ogs_autowrap -p 'test_*.py'
 """
 
+import re
+import string
 import sys
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -46,6 +50,7 @@ class CuratedTableAuditTest(unittest.TestCase):
             "BASE_FILENAME_OVERRIDES": {},
             "EXCLUDED_TOOLS": [],
             "EXCLUSIVE_MODES": {},
+            "TEXT_VALIDATORS": {},
         }
         defaults.update(tables)
         with patch.multiple(gen, **defaults):
@@ -138,6 +143,7 @@ class ExclusiveModeAuditTest(unittest.TestCase):
             "BASE_FILENAME_OVERRIDES": {},
             "EXCLUDED_TOOLS": [],
             "EXCLUSIVE_MODES": modes,
+            "TEXT_VALIDATORS": {},
         }
         defaults.update(tables)
         with patch.multiple(gen, **defaults):
@@ -260,6 +266,134 @@ class IdentifierSanitizationTest(unittest.TestCase):
     def test_single_element_block_and_staging_use_the_same_pattern(self):
         self.assertIn(gen.IDENTIFIER_UNSAFE, gen.SANITIZE_IDENTIFIER)
         self.assertIn(gen.IDENTIFIER_UNSAFE, gen.identifier_staging("x"))
+
+
+class TextParameterValidationTest(unittest.TestCase):
+    """Text parameters reach the shell, so they are validated instead of unfiltered.
+
+    A value interpolated into ``'$param'`` that contains a single quote ends the
+    quoting and can run arbitrary commands, which is why the wrappers used to
+    set ``<sanitizer sanitize="false"/>``. They must not: Galaxy's default
+    sanitiser is what keeps the quote out.
+    """
+
+    # galaxy.util.valid_chars -- what Galaxy passes through unchanged. Every
+    # other printable character is either escaped (mapped) or replaced by "X".
+    GALAXY_VERBATIM = set(string.ascii_letters + string.digits + " -=_.()/+*^,:?!")
+
+    def allowed(self, pattern):
+        return {
+            chr(code)
+            for code in range(32, 127)
+            if re.match(pattern, "v" + chr(code) + "v")
+        }
+
+    def test_generic_pattern_allows_exactly_the_verbatim_characters(self):
+        self.assertEqual(self.allowed(gen.TEXT_VALUE_PATTERN), self.GALAXY_VERBATIM)
+
+    def test_generic_pattern_rejects_the_shell_metacharacters(self):
+        for bad in ("'", '"', "`", "$", "\\", ";", "&", "|", "<", ">", "\n", "\t"):
+            self.assertIsNone(
+                re.match(gen.TEXT_VALUE_PATTERN, "a" + bad + "b"),
+                f"{bad!r} must not be accepted",
+            )
+
+    def test_generic_pattern_rejects_injection_attempts(self):
+        for bad in ("'; rm -rf /", "$(whoami)", "`id`", "x' | nc host 1", "';'", "a\nb"):
+            self.assertIsNone(re.match(gen.TEXT_VALUE_PATTERN, bad), bad)
+
+    def test_generic_pattern_accepts_property_and_geometry_names(self):
+        for good in ("bulk_node_ids", "Material IDs", "2nd layer", "T/x", "a,b", "x-y.z"):
+            self.assertIsNotNone(re.match(gen.TEXT_VALUE_PATTERN, good), good)
+
+    def test_generic_pattern_requires_a_value(self):
+        # ``optional`` fields skip validators when empty, so the pattern itself
+        # does not have to allow the empty string.
+        self.assertIsNone(re.match(gen.TEXT_VALUE_PATTERN, ""))
+
+    def test_text_validator_prefers_the_ogs_derived_pattern(self):
+        pattern, message = gen.text_validator("swapnodecoordinateaxes", "new_order")
+        self.assertEqual(pattern, r"^[xyz]{3}$")
+        self.assertIn("x, y and z", message)
+        self.assertIsNotNone(re.match(pattern, "xzy"))
+
+    def test_new_order_pattern_matches_the_ogs_check(self):
+        # parseNewOrder() in swapNodeCoordinateAxes.cpp: three characters, each
+        # x, y or z. It additionally rejects repetitions, which a regex cannot
+        # express -- OGS reports that case itself.
+        pattern = gen.text_validator("swapnodecoordinateaxes", "new_order")[0]
+        for good in ("xyz", "xzy", "zyx"):
+            self.assertIsNotNone(re.match(pattern, good), good)
+        for bad in ("xy", "xyzz", "XY Z", "xyZ", "x y", ""):
+            self.assertIsNone(re.match(pattern, bad), bad)
+
+    def test_char_property_value_is_a_single_character(self):
+        # --char-property-value is a TCLAP ValueArg<char>.
+        pattern = gen.text_validator(
+            "resetpropertiesinpolygonalregion", "char_property_value"
+        )[0]
+        for good in ("A", "7", ".", " "):
+            self.assertIsNotNone(re.match(pattern, good), good)
+        for bad in ("", "AB", "a'b", "\\'"):
+            self.assertIsNone(re.match(pattern, bad), bad)
+
+    def test_unknown_parameter_falls_back_to_the_generic_pattern(self):
+        self.assertEqual(
+            gen.text_validator("sometool", "some_param"),
+            (gen.TEXT_VALUE_PATTERN, gen.TEXT_VALUE_MESSAGE),
+        )
+
+    def test_every_curated_pattern_compiles_and_is_stricter(self):
+        generic = self.allowed(gen.TEXT_VALUE_PATTERN)
+        for key, spec in gen.TEXT_VALIDATORS.items():
+            with self.subTest(key=key):
+                re.compile(spec["pattern"])
+                self.assertTrue(spec["message"])
+                # A curated pattern must not be a superset of the generic one:
+                # it either restricts further or stays within it.
+                stricter = {
+                    chr(code)
+                    for code in range(32, 127)
+                    if re.match(spec["pattern"], "v" + chr(code) + "v")
+                }
+                self.assertTrue(
+                    stricter <= generic,
+                    f"{sorted(stricter - generic)} escapes the generic pattern",
+                )
+
+    def test_generated_text_parameters_are_not_left_unsanitised(self):
+        """The emitted wrappers must not switch the sanitiser off."""
+        for path in Path(__file__).parent.parent.parent.glob("tools/ogs/*.xml"):
+            with self.subTest(tool=path.name):
+                self.assertNotIn('sanitize="false"', path.read_text())
+
+    def test_generated_text_parameters_carry_a_regex_validator(self):
+        text_param = re.compile(
+            r'<param [^>]*type="text"[^>]*>(.*?)</param>', re.DOTALL
+        )
+        regex_validator = re.compile(
+            r'<validator type="regex" message="[^"]+">([^<]+)</validator>'
+        )
+        checked = 0
+        for path in Path(__file__).parent.parent.parent.glob("tools/ogs/*.xml"):
+            for body in text_param.findall(path.read_text()):
+                checked += 1
+                match = regex_validator.search(body)
+                self.assertIsNotNone(
+                    match, f"{path.name}: text parameter without a regex validator"
+                )
+                re.compile(match.group(1))
+        self.assertGreater(checked, 0, "no text parameters found to check")
+
+    def test_parameter_attribute_reads_objects_and_xml_nodes(self):
+        """_derive_param_constraints_ works on exported ElementTree nodes."""
+        node = ET.fromstring('<param argument="--new-order" type="text" />')
+        self.assertEqual(gen.param_var_name(node), "new_order")
+        self.assertEqual(gen.parameter_attribute(node, "argument"), "--new-order")
+        self.assertIsNone(gen.parameter_attribute(node, "missing"))
+        # A galaxyxml parameter exposes the same values as Python attributes.
+        galaxyxml_param = SimpleNamespace(argument="--input-file", name=None)
+        self.assertEqual(gen.param_var_name(galaxyxml_param), "input_file")
 
 
 class ClosestMatchTest(unittest.TestCase):

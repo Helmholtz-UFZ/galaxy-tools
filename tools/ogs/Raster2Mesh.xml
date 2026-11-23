@@ -20,7 +20,7 @@ Raster2Mesh
 ]]></command>
   <inputs>
     <param argument="--arrayname" type="text" optional="true" label="arrayname" help="Name of the scalar array. Only required if assigning pixel values to cell data has been selected (default name is 'Values').">
-      <sanitizer sanitize="false" />
+      <validator type="regex" message="only letters, digits, spaces and the characters = - _ . ( ) / + * ^ , : ? ! are allowed">^[A-Za-z0-9 =\-_.()/+*^,:?!]+$</validator>
     </param>
     <param argument="--pixel-type" type="select" optional="false" label="pixel type" help="The choice how pixel values should be interpreted by the software: 'elevation' adjusts z-coordinates; 'materials' sets (integer) material IDs; 'scalar' creates a (floating-point) array associated. with mesh elements." multiple="false">
       <option value="elevation">elevation</option>

@@ -70,7 +70,7 @@ removeMeshElements
       <option value="pyramid">pyramid</option>
     </param>
     <param argument="--property-name" type="text" optional="true" label="property name" help="name of property in the mesh">
-      <sanitizer sanitize="false" />
+      <validator type="regex" message="only letters, digits, spaces and the characters = - _ . ( ) / + * ^ , : ? ! are allowed">^[A-Za-z0-9 =\-_.()/+*^,:?!]+$</validator>
     </param>
     <param argument="--property-value" type="integer" optional="true" label="property value" help="value of selected property to be removed (may be repeated; the wrapper passes one value)" />
     <param argument="--min-value" type="float" optional="true" label="min value" help="minimum value of range for selected property" />

@@ -36,17 +36,17 @@ ResetPropertiesInPolygonalRegion
 ]]></command>
   <inputs>
     <param argument="--polygon-name" type="text" optional="false" label="polygon name" help="name of polygon in the geometry">
-      <sanitizer sanitize="false" />
       <validator type="empty_field" />
+      <validator type="regex" message="only letters, digits, spaces and the characters = - _ . ( ) / + * ^ , : ? ! are allowed">^[A-Za-z0-9 =\-_.()/+*^,:?!]+$</validator>
     </param>
     <param argument="--geometry" type="data" optional="false" label="geometry" help="Input (.gli | .gml). The name of the file containing the input geometry (the wrapper accepts .gml only)" format="xml" />
     <param argument="--any_of" type="boolean" label="any of" help="all nodes of an element has to be inside the polygon (default behaviour without switch) or any node of an element has to be inside (switch is given)" checked="false" truevalue="--any_of" falsevalue="" />
     <param argument="--char-property-value" type="text" optional="true" label="char property value" help="new property value (data type char)">
-      <sanitizer sanitize="false" />
+      <validator type="regex" message="OGS reads this value as a single character, so exactly one letter, digit or one of = _ . , : ? ! ( ) / + * ^ - is expected">^[A-Za-z0-9 =_.,:?!()/+*^\-]$</validator>
     </param>
     <param argument="--int-property-value" type="integer" optional="true" label="int property value" help="new property value (data type int)" />
     <param argument="--property-name" type="text" optional="true" label="property name" help="name of property in the mesh">
-      <sanitizer sanitize="false" />
+      <validator type="regex" message="only letters, digits, spaces and the characters = - _ . ( ) / + * ^ , : ? ! are allowed">^[A-Za-z0-9 =\-_.()/+*^,:?!]+$</validator>
     </param>
     <param argument="--restrict-to-MaterialID" type="integer" optional="true" label="restrict to MaterialID" help="Restrict resetting the property to the material id" />
     <param argument="--mesh-input-file" type="data" optional="false" label="mesh input file" help="Input (.vtu | .vtk | .msh). The name of the file containing the input mesh" format="vtkxml" />

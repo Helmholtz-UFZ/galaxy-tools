@@ -32,7 +32,7 @@ pvtu2vtu
     <param argument="--input" type="data" optional="false" label="input" help="Input (.pvtu). The partitioned input mesh file" format="vtkxml" />
     <param name="input_members" type="data_collection" optional="false" label="input referenced files" help="Partitioned mesh parts referenced by the .pvtu header. Their names must match the &lt;Piece Source=...&gt; entries." format="vtkxml" collection_type="list" />
     <param argument="--original_mesh" type="text" optional="true" label="original mesh" help="optional, the original unpartitioned input mesh (*.vtu)">
-      <sanitizer sanitize="false" />
+      <validator type="regex" message="only letters, digits, spaces and the characters = - _ . ( ) / + * ^ , : ? ! are allowed">^[A-Za-z0-9 =\-_.()/+*^,:?!]+$</validator>
     </param>
     <param argument="--compress" type="boolean" label="compress" help="Compress the output (vtu file)." checked="false" truevalue="--compress" falsevalue="" />
   </inputs>

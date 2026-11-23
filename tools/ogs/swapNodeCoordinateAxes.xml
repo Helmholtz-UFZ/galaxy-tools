@@ -17,8 +17,8 @@ swapNodeCoordinateAxes
   <inputs>
     <param argument="--input-mesh-file" type="data" optional="false" label="input mesh file" help="Input (.vtu) mesh file" format="vtkxml" />
     <param argument="--new-order" type="text" optional="false" label="new order" help="the new order of swapped coordinate values (e.g. 'xzy' for converting XYZ values to XZY values)">
-      <sanitizer sanitize="false" />
       <validator type="empty_field" />
+      <validator type="regex" message="the new order must consist of the three characters x, y and z (e.g. xzy)">^[xyz]{3}$</validator>
     </param>
   </inputs>
   <outputs>

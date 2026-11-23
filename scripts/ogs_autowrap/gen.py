@@ -301,6 +301,45 @@ EXCLUSIVE_MODES = {
     },
 }
 
+# Text parameters (array names, geometry names, ids) are interpolated into the
+# command line in single quotes. A value containing a single quote would end
+# that quoting and allow arbitrary commands, so the wrappers never switch
+# Galaxy's sanitiser off: the default one lets no quote and no other shell
+# metacharacter through. It *mangles* the characters it cannot pass on, though
+# (``'`` becomes ``__sq__``, ``;`` becomes ``X``), so every text parameter also
+# gets an explicit validator. TEXT_VALUE_PATTERN is exactly the set of
+# characters Galaxy hands to OGS unchanged (``galaxy.util.valid_chars``), so a
+# value the user is allowed to enter always arrives verbatim.
+TEXT_VALUE_PATTERN = r"^[A-Za-z0-9 =\-_.()/+*^,:?!]+$"
+TEXT_VALUE_MESSAGE = (
+    "only letters, digits, spaces and the characters = - _ . ( ) / + * ^ , : ? ! "
+    "are allowed"
+)
+
+# Patterns the OGS source imposes itself, keyed by tool (lower case) and
+# parameter variable name. They are stricter than TEXT_VALUE_PATTERN and their
+# message states the constraint in OGS's own terms.
+TEXT_VALIDATORS = {
+    # Applications/Utils/MeshEdit/swapNodeCoordinateAxes.cpp: parseNewOrder()
+    # requires exactly three characters, each of them x, y or z.
+    ("swapnodecoordinateaxes", "new_order"): {
+        "pattern": r"^[xyz]{3}$",
+        "message": (
+            "the new order must consist of the three characters x, y and z "
+            "(e.g. xzy)"
+        ),
+    },
+    # Applications/Utils/MeshEdit/ResetPropertiesInPolygonalRegion.cpp:
+    # --char-property-value is a TCLAP ValueArg<char>, i.e. one character.
+    ("resetpropertiesinpolygonalregion", "char_property_value"): {
+        "pattern": r"^[A-Za-z0-9 =_.,:?!()/+*^\-]$",
+        "message": (
+            "OGS reads this value as a single character, so exactly one letter, "
+            "digit or one of = _ . , : ? ! ( ) / + * ^ - is expected"
+        ),
+    },
+}
+
 # Curated test inputs, keyed by tool (lower case) and parameter variable name.
 # The auto-derived fixtures only match a tool's input *extension*, not its
 # semantics; these entries pin the value a tool actually needs.
@@ -611,6 +650,20 @@ def sanitize_name(name: str) -> str:
     return re.sub(r"[^a-zA-Z0-9_]+", "_", name)
 
 
+def parameter_attribute(param, key):
+    """Read ``key`` from a galaxyxml parameter *or* an emitted ``<param>`` node.
+
+    The same conventions are needed on both sides: ``process_parameters`` works
+    with galaxyxml objects (``param.argument``), while post-processing an
+    exported tool walks ``ElementTree`` nodes, where the same value lives in
+    ``param.attrib``.
+    """
+    value = getattr(param, key, None)
+    if value is None and hasattr(param, "attrib"):
+        value = param.attrib.get(key)
+    return value
+
+
 def param_var_name(param) -> str:
     """Return the Galaxy command-line variable name for a parameter.
 
@@ -621,17 +674,15 @@ def param_var_name(param) -> str:
     this derivation (they set ``argument`` only), so the test macros must use
     the same name to reference the variable.
     """
-    name = None
-    try:
-        name = param.name
-    except AttributeError:
-        name = None
+    name = parameter_attribute(param, "name")
     if name:
         return name
-    argument = getattr(param, "argument", None) or ""
+    argument = parameter_attribute(param, "argument") or ""
     if argument:
         return sanitize_name(argument.lstrip("-"))
-    return sanitize_name(getattr(param, "original_long_flag", "") or "param")
+    return sanitize_name(
+        parameter_attribute(param, "original_long_flag") or "param"
+    )
 
 
 # Test fixtures always live under the immutable pinned commit and are taken
@@ -1241,15 +1292,33 @@ def process_parameters(
     return galaxy_inputs, output_command_map
 
 
-def _derive_param_constraints(inputs_node) -> None:
+def text_validator(tool_key: str, var: str):
+    """Return the ``(pattern, message)`` for a text parameter.
+
+    OGS-derived patterns from ``TEXT_VALIDATORS`` win; everything else gets the
+    generic pattern of the characters Galaxy passes through unchanged. Keys are
+    tool (lower case) and parameter variable name, the convention the other
+    curated tables use.
+    """
+    spec = TEXT_VALIDATORS.get((tool_key, var))
+    if spec:
+        return spec["pattern"], spec["message"]
+    return TEXT_VALUE_PATTERN, TEXT_VALUE_MESSAGE
+
+
+def _derive_param_constraints(inputs_node, tool_key: str = "") -> None:
     """Turn OGS help-string details into real Galaxy parameter attributes.
 
     * numeric parameters: ``(min = 0)``/``(max = ...)`` in the OGS help text is
       a constraint of the utility, so it becomes the ``min``/``max`` attribute
       (and is removed from the prose).
-    * text parameters: the value is passed to OGS verbatim (flag values, array
-      names, ids), hence an explicit ``<sanitizer sanitize="false"/>`` -- and a
-      required text field gets an ``<empty_field/>`` validator, because
+    * text parameters: the value is passed on to OGS as a flag value (array
+      names, geometry names, ids). The sanitiser is deliberately *not* switched
+      off -- see ``TEXT_VALUE_PATTERN`` -- and every text field is restricted by
+      an explicit ``<validator type="regex">``, because Galaxy's default
+      sanitiser silently rewrites the characters it cannot pass on (a quote
+      becomes ``__sq__``, a semicolon becomes ``X``). A required text field
+      additionally gets an ``<empty_field/>`` validator, because
       ``optional="false"`` alone does not stop an empty string from being
       passed on.
     """
@@ -1265,11 +1334,21 @@ def _derive_param_constraints(inputs_node) -> None:
                     param.set(key, value)
 
         elif ptype == "text":
-            if param.find("sanitizer") is None:
-                ET.SubElement(param, "sanitizer", {"sanitize": "false"})
+            # Rely on Galaxy's default sanitiser -- it never lets a single quote
+            # (or any other shell metacharacter) through, so the quoted value
+            # cannot escape into the command line.
+            if param.find("sanitizer") is not None:
+                param.remove(param.find("sanitizer"))
             required_text = param.get("optional") != "true"
             if required_text and param.find("validator") is None:
                 ET.SubElement(param, "validator", {"type": "empty_field"})
+            pattern, message = text_validator(tool_key, param_var_name(param))
+            if not any(
+                v.get("type") == "regex" for v in param.findall("validator")
+            ):
+                ET.SubElement(
+                    param, "validator", {"type": "regex", "message": message}
+                ).text = pattern
 
 
 def _discover_pattern(pattern: str, link_names: set) -> str:
@@ -1906,7 +1985,7 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                             del p_node.attrib["multiple"]
 
         if inputs_node is not None:
-            _derive_param_constraints(inputs_node)
+            _derive_param_constraints(inputs_node, tool_name.lower())
 
         output_file_path = output_dir / f"{tool_name}.xml"
         ET.indent(tool_xml_root, space="  ")
@@ -2875,6 +2954,7 @@ def _audit_curated_tables(
     for table_name, table in (
         ("MANIFEST_INPUTS", MANIFEST_INPUTS),
         ("NON_PVD_INPUTS", NON_PVD_INPUTS),
+        ("TEXT_VALIDATORS", TEXT_VALIDATORS),
     ):
         for tool, var in table:
             if tool not in wrapped:
@@ -2887,6 +2967,20 @@ def _audit_curated_tables(
                     f"{table_name}[({tool!r}, {var!r})]: no such parameter"
                     f"{_closest_match(var, param_names[tool])}"
                 )
+
+    for tool, var in TEXT_VALIDATORS:
+        spec = TEXT_VALIDATORS[(tool, var)]
+        try:
+            re.compile(spec["pattern"])
+        except re.error as exc:
+            problems.append(
+                f"TEXT_VALIDATORS[({tool!r}, {var!r})]['pattern']: "
+                f"{spec['pattern']!r} is not a valid regular expression ({exc})"
+            )
+        if not spec.get("message"):
+            problems.append(
+                f"TEXT_VALIDATORS[({tool!r}, {var!r})]['message']: missing"
+            )
 
     for tool, spec in MANIFEST_INPUTS.items():
         if spec.get("kind") not in ("file_list", "companion_names"):

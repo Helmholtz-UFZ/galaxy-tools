@@ -28,9 +28,8 @@ python scripts/ogs_autowrap/gen.py --ogs-root ogs-src --output-dir tools/ogs --c
 `--check-target <tool>` does the same for a single wrapper while developing.
 
 Every run first audits the curated tables (`TEST_OVERRIDES`,
-`PARAM_EXT_OVERRIDES`, `MANIFEST_INPUTS`, `EXCLUSIVE_MODES`, `EXCLUDED_TOOLS`,
-…) against the OGS
-sources: they are consulted with `dict.get` all over the generator, so a key
+`PARAM_EXT_OVERRIDES`, `MANIFEST_INPUTS`, `EXCLUSIVE_MODES`, `TEXT_VALIDATORS`,
+`EXCLUDED_TOOLS`, …) against the OGS sources: they are consulted with `dict.get` all over the generator, so a key
 that names a tool or parameter that does not exist -- a typo, or a rename
 upstream -- would otherwise be ignored without a word, silently dropping the
 override or degrading a test to the dummy recipe. A key that resolves to
@@ -151,6 +150,49 @@ half-linked directory):
 `…_points@@`, and the `.sg` header references them by that name. The collision
 check exists because replacing characters can map two identifiers onto one file
 name, which would silently feed the same file twice; the job fails instead.
+
+## Text parameters
+
+Names, ids and array names are passed as flag values, i.e. the command renders
+them as `--property-name '$property_name'`. An unvalidated text field that
+reaches that command can therefore end the quoting and run arbitrary commands,
+so the wrappers do **not** set `<sanitizer sanitize="false"/>`:
+
+```
+'; rm -rf ~         ->  --property-name ''; rm -rf ~'
+```
+
+Galaxy's default sanitiser is what stops that: it lets no `'`, `"`, `` ` ``,
+`\`, `$`, `;` or any other shell metacharacter through. It does not reject
+them silently either — it *rewrites* them (`'` becomes `__sq__`, `;` becomes
+`X`), which would hand OGS a different name than the user asked for. So every
+text parameter additionally gets an explicit validator covering exactly the
+characters Galaxy passes through unchanged (`galaxy.util.valid_chars`):
+
+```xml
+<param argument="--property-name" type="text" optional="false" label="property name" help="name of property in the mesh">
+  <validator type="empty_field" />
+  <validator type="regex" message="only letters, digits, spaces and the characters = - _ . ( ) / + * ^ , : ? ! are allowed">^[A-Za-z0-9 =\-_.()/+*^,:?!]+$</validator>
+</param>
+```
+
+A value outside that set is now rejected with a readable message instead of
+being passed on mangled, and nothing that could terminate the single-quoted
+shell word is ever accepted. The pattern does not have to allow the empty
+string: Galaxy skips validators for an empty *optional* value, and a required
+field hits `<validator type="empty_field"/>` first.
+
+Where the OGS source constrains the value itself, `TEXT_VALIDATORS` replaces the
+generic pattern and states the constraint in OGS's words:
+
+| tool | parameter | pattern | source |
+| --- | --- | --- | --- |
+| `swapNodeCoordinateAxes` | `--new-order` | `^[xyz]{3}$` | `parseNewOrder()` requires three characters, each `x`, `y` or `z` (it also rejects repetitions; a regex cannot express that, OGS reports it) |
+| `ResetPropertiesInPolygonalRegion` | `--char-property-value` | a single character | the argument is a TCLAP `ValueArg<char>` |
+
+To add one, key `TEXT_VALIDATORS` by `(tool name in lower case, parameter
+variable name)`; the curated-table audit checks that the key names a real
+parameter, that the pattern compiles and that a message is given.
 
 ## Datatypes
 

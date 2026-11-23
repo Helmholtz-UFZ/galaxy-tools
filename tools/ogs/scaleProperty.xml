@@ -17,8 +17,8 @@ scaleProperty
 ]]></command>
   <inputs>
     <param argument="--property-name" type="text" optional="false" label="property name" help="the name of the property the values are stored for">
-      <sanitizer sanitize="false" />
       <validator type="empty_field" />
+      <validator type="regex" message="only letters, digits, spaces and the characters = - _ . ( ) / + * ^ , : ? ! are allowed">^[A-Za-z0-9 =\-_.()/+*^,:?!]+$</validator>
     </param>
     <param argument="--mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The input mesh is read from this file" format="vtkxml" />
     <param argument="--input-unit" type="select" optional="false" label="input unit" help="input unit of the data" multiple="false">

@@ -18,7 +18,7 @@ from __future__ import annotations
 import inspect
 import re
 from dataclasses import dataclass
-from typing import Any, ForwardRef, Mapping, Optional, Tuple, get_origin
+from typing import Any, ForwardRef, get_origin, Mapping, Optional, Tuple
 
 __all__ = [
     "BOOLEAN",
@@ -65,6 +65,8 @@ OFFSET = "offset"
 TIMEDELTA = "timedelta"
 OFFSET_OR_TIMEDELTA = "offset_or_timedelta"
 FILENAME = "filename"
+#: a flag name or a numeric flag value (``EXTERNAL_FLAG``)
+FLAG = "flag"
 
 #: type strings that are rendered as plain text inputs
 _TEXT_TYPES = {
@@ -82,11 +84,14 @@ _TEXT_TYPES = {
 #: text types that are presented as a plain string
 _PLAIN_TEXT_TYPES = {"str", "string", "any"}
 
-#: text types that need a validator restricting the accepted input
+#: text types that need a validator restricting the accepted input.  A
+#: ``FreqStr`` is validated by SaQC with ``pd.Timedelta`` (``checkFreqStr``),
+#: not with ``pd.tseries.frequencies.to_offset`` (``checkOffsetStr``), so it
+#: belongs to the timdelta family.
 _TEXT_VALIDATORS = {
     "pd.timedelta": TIMEDELTA,
     "offsetstr": OFFSET,
-    "freqstr": OFFSET,
+    "freqstr": TIMEDELTA,
 }
 
 #: values of a tuple type are described by their index, not by their name

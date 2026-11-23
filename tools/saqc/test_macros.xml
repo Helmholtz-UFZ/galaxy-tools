@@ -204,7 +204,7 @@
             <param name="fill_method" value="linear" />
             <conditional name="cutoff_cond">
               <param name="cutoff_selector" value="type_1" />
-              <param name="cutoff" value="1D" />
+              <param name="cutoff" value="1d" />
             </conditional>
           </conditional>
         </conditional>
@@ -389,7 +389,7 @@
             <param name="method_select" value="flagDriftFromReference" />
             <param name="field" value="1" />
             <param name="reference" value="1" />
-            <param name="freq" value="1D" />
+            <param name="freq" value="1d" />
             <param name="thresh" value="1" />
             <param name="flag" value="255.0" />
           </conditional>
@@ -732,7 +732,7 @@
             <param name="overwrite" value="true" />
             <conditional name="freq_cond">
               <param name="freq_selector" value="type_0" />
-              <param name="freq" value="1D" />
+              <param name="freq" value="1d" />
             </conditional>
             <conditional name="tolerance_cond">
               <param name="tolerance_selector" value="type_0" />
@@ -800,7 +800,7 @@
             <param name="overwrite" value="true" />
             <conditional name="freq_cond">
               <param name="freq_selector" value="type_0" />
-              <param name="freq" value="1D" />
+              <param name="freq" value="1d" />
             </conditional>
             <conditional name="tolerance_cond">
               <param name="tolerance_selector" value="type_1" />
@@ -1208,7 +1208,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="flagOffset" />
             <param name="field" value="1" />
-            <param name="window" value="1D" />
+            <param name="window" value="1d" />
             <param name="tolerance" value="1" />
             <param name="thresh" value="1" />
             <param name="flag" value="255.0" />
@@ -1242,7 +1242,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="flagOffset" />
             <param name="field" value="1" />
-            <param name="window" value="1D" />
+            <param name="window" value="1d" />
             <param name="tolerance" value="1" />
             <param name="thresh" value="1" />
             <param name="flag" value="255.0" />
@@ -1502,7 +1502,7 @@
             <param name="flag" value="255.0" />
             <conditional name="window_cond">
               <param name="window_selector" value="type_0" />
-              <param name="window" value="1D" />
+              <param name="window" value="1d" />
             </conditional>
           </conditional>
         </conditional>
@@ -1718,12 +1718,9 @@
             <param name="target" value="1" />
             <param name="method" value="fagg" />
             <param name="invert" value="true" />
+            <param name="freq" value="1d" />
             <param name="drop" value="true" />
             <param name="override" value="true" />
-            <conditional name="freq_cond">
-              <param name="freq_selector" value="type_0" />
-              <param name="freq" value="1D" />
-            </conditional>
             <conditional name="squeeze_cond">
               <param name="squeeze_selector" value="type_0" />
               <param name="squeeze" value="1" />
@@ -1736,9 +1733,9 @@
           <has_text text="concatFlags" />
           <has_text text="method=" />
           <has_text text="invert=" />
+          <has_text text="freq=" />
           <has_text text="drop=" />
           <has_text text="override=" />
-          <has_text text="freq=" />
           <has_text text="squeeze=" />
         </assert_contents>
       </output>
@@ -1755,49 +1752,9 @@
             <param name="target" value="1" />
             <param name="method" value="fagg" />
             <param name="invert" value="true" />
+            <param name="freq" value="1d" />
             <param name="drop" value="true" />
             <param name="override" value="true" />
-            <conditional name="freq_cond">
-              <param name="freq_selector" value="type_1" />
-              <param name="freq" value="1d" />
-            </conditional>
-            <conditional name="squeeze_cond">
-              <param name="squeeze_selector" value="type_0" />
-              <param name="squeeze" value="1" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="concatFlags" />
-          <has_text text="method=" />
-          <has_text text="invert=" />
-          <has_text text="drop=" />
-          <has_text text="override=" />
-          <has_text text="freq=" />
-          <has_text text="squeeze=" />
-        </assert_contents>
-      </output>
-    </test>
-    <test expect_num_outputs="2">
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="resampling" />
-          <conditional name="method_cond">
-            <param name="method_select" value="concatFlags" />
-            <param name="field" value="1" />
-            <param name="target" value="1" />
-            <param name="method" value="fagg" />
-            <param name="invert" value="true" />
-            <param name="drop" value="true" />
-            <param name="override" value="true" />
-            <conditional name="freq_cond">
-              <param name="freq_selector" value="type_0" />
-              <param name="freq" value="1D" />
-            </conditional>
             <conditional name="squeeze_cond">
               <param name="squeeze_selector" value="type_1" />
               <param name="squeeze" value="true" />
@@ -1810,9 +1767,9 @@
           <has_text text="concatFlags" />
           <has_text text="method=" />
           <has_text text="invert=" />
+          <has_text text="freq=" />
           <has_text text="drop=" />
           <has_text text="override=" />
-          <has_text text="freq=" />
           <has_text text="squeeze=" />
         </assert_contents>
       </output>
@@ -1832,7 +1789,7 @@
             <param name="override" value="true" />
             <conditional name="index_cond">
               <param name="index_selector" value="type_0" />
-              <param name="index" value="1D" />
+              <param name="index" value="1d" />
             </conditional>
             <conditional name="tolerance_cond">
               <param name="tolerance_selector" value="type_0" />
@@ -1971,7 +1928,7 @@
             <param name="override" value="true" />
             <conditional name="index_cond">
               <param name="index_selector" value="type_0" />
-              <param name="index" value="1D" />
+              <param name="index" value="1d" />
             </conditional>
             <conditional name="tolerance_cond">
               <param name="tolerance_selector" value="type_1" />
@@ -2017,7 +1974,7 @@
             <param name="override" value="true" />
             <conditional name="index_cond">
               <param name="index_selector" value="type_0" />
-              <param name="index" value="1D" />
+              <param name="index" value="1d" />
             </conditional>
             <conditional name="tolerance_cond">
               <param name="tolerance_selector" value="type_0" />
@@ -2063,7 +2020,7 @@
             <param name="override" value="true" />
             <conditional name="index_cond">
               <param name="index_selector" value="type_0" />
-              <param name="index" value="1D" />
+              <param name="index" value="1d" />
             </conditional>
             <conditional name="tolerance_cond">
               <param name="tolerance_selector" value="type_0" />
@@ -2103,56 +2060,22 @@
           <conditional name="method_cond">
             <param name="method_select" value="resample" />
             <param name="field" value="1" />
+            <param name="freq" value="1d" />
             <param name="method" value="fagg" />
             <param name="maxna" value="1" />
             <param name="maxna_group" value="1" />
             <param name="squeeze" value="true" />
-            <conditional name="freq_cond">
-              <param name="freq_selector" value="type_0" />
-              <param name="freq" value="1D" />
-            </conditional>
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="resample" />
+          <has_text text="freq=" />
           <has_text text="method=" />
           <has_text text="maxna=" />
           <has_text text="maxna_group=" />
           <has_text text="squeeze=" />
-          <has_text text="freq=" />
-        </assert_contents>
-      </output>
-    </test>
-    <test expect_num_outputs="2">
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="resampling" />
-          <conditional name="method_cond">
-            <param name="method_select" value="resample" />
-            <param name="field" value="1" />
-            <param name="method" value="fagg" />
-            <param name="maxna" value="1" />
-            <param name="maxna_group" value="1" />
-            <param name="squeeze" value="true" />
-            <conditional name="freq_cond">
-              <param name="freq_selector" value="type_1" />
-              <param name="freq" value="1d" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="resample" />
-          <has_text text="method=" />
-          <has_text text="maxna=" />
-          <has_text text="maxna_group=" />
-          <has_text text="squeeze=" />
-          <has_text text="freq=" />
         </assert_contents>
       </output>
     </test>
@@ -2319,7 +2242,7 @@
             <param name="p" value="1" />
             <conditional name="freq_cond">
               <param name="freq_selector" value="type_1" />
-              <param name="freq" value="1D" />
+              <param name="freq" value="1d" />
             </conditional>
           </conditional>
         </conditional>
@@ -2384,7 +2307,7 @@
             <param name="p" value="1" />
             <conditional name="freq_cond">
               <param name="freq_selector" value="type_1" />
-              <param name="freq" value="1D" />
+              <param name="freq" value="1d" />
             </conditional>
           </conditional>
         </conditional>

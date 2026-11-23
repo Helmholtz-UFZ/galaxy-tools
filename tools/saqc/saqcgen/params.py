@@ -37,45 +37,102 @@ TYPE_SELECTOR_HELP = (
 #: appended to the help text of text parameters with a format restriction
 _TEXT_HELP = {
     typespec.TIMEDELTA: (
-        " Format: Fixed time duration (no calendar logic). "
-        "Examples: '1d', '2.5h', '30min'. (No 'M' or 'Y')."
+        " Format: a fixed time duration (no calendar logic), as understood by "
+        "pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', "
+        "'1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y')."
     ),
     typespec.OFFSET_OR_TIMEDELTA: (
-        " Format: Time object. Accepts Pandas Frequencies (e.g. '1M', 'W-MON') "
-        "OR Timedeltas (e.g. '3 days', '1.5h')."
+        " Format: a time offset, either a calendar based pandas offset alias "
+        "(e.g. '1D', 'ME' (month end), 'W-MON') or a fixed duration "
+        "(e.g. '3 days', '1h30min')."
     ),
     typespec.OFFSET: (
-        " Format: Calendar frequency/offset. "
-        "Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon)."
+        " Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' "
+        "(month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', "
+        "'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', "
+        "'ms', 'us' and 'ns' instead."
+    ),
+    typespec.FLAG: (
+        " Format: a flag name of the active flagging scheme (e.g. 'BAD', "
+        "'DOUBTFUL') or a numeric flag value (e.g. '255')."
     ),
 }
 
-#: patterns accepted by the text parameters that describe a time span
-_OFFSET_PATTERN = r"\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*"
-_TIMEDELTA_PATTERN = (
-    r"-?(\d+(\.\d*)?|\.\d+)\s*"
-    r"(W|D|days?|d|H|hours?|hr|h|T|minutes?|min|m|S|seconds?|sec|s"
-    r"|L|milliseconds?|ms|U|microseconds?|us|N|nanoseconds?|ns)\s*"
+#: a number with an optional decimal part, e.g. ``1`` or ``2.5``
+_NUMBER = r"[0-9]+(?:\.[0-9]+)?"
+
+#: an offset alias with an optional weekday suffix, e.g. ``D`` or ``W-MON``
+_UNIT = r"[A-Za-z]+(?:-[A-Za-z]{3})?"
+
+#: The patterns below are *shape* checks, not a re-implementation of the pandas
+#: grammar: pandas owns its aliases and changes them between releases (pandas 3
+#: dropped ``1M``, ``1H``, ``1T`` and friends and added multi unit offsets such
+#: as ``1h30min``), so a fixed vocabulary would block valid input sooner or
+#: later.  They are anchored and case insensitive, and reject anything that is
+#: not even shaped like a duration -- the actual validation is done by SaQC,
+#: which reports the precise pandas error.  ``(^$)`` lets an optional parameter
+#: stay empty.
+#:
+#: Galaxy validates with ``re.match``, i.e. the pattern has to anchor its end
+#: itself; ``$`` (not ``\Z``) is used on purpose, it also matches in front of a
+#: trailing newline, which pandas tolerates.
+_OFFSET_BODY = (
+    rf"^\s*[+-]?\s*(?:{_NUMBER}\s*)?{_UNIT}\s*(?:{_NUMBER}\s*{_UNIT}\s*)*$"
+)
+_TIMEDELTA_BODY = (
+    r"^\s*[+-]?\s*(?:"
+    rf"{_NUMBER}\s*[A-Za-z]+\s*,?\s*"  # 1d, 2.5 hours
+    rf"|{_NUMBER}\s*,?\s*"  # a bare number means nanoseconds
+    r"|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?"  # 00:00:30
+    r"|P[0-9A-Za-z.]*"  # ISO 8601, e.g. P1DT2H
+    r")+$"
+)
+_OFFSET_PATTERN = rf"(?i:(^$)|({_OFFSET_BODY}))"
+_TIMEDELTA_PATTERN = rf"(?i:(^$)|({_TIMEDELTA_BODY}))"
+_OFFSET_OR_TIMEDELTA_PATTERN = (
+    rf"(?i:(^$)|({_OFFSET_BODY})|({_TIMEDELTA_BODY}))"
 )
 
-#: SaQC writes plots to a path, which must be a plain file name
-_PATH_PATTERN = r"[\w -\.]+"
+#: SaQC writes plots into the working directory, where Galaxy discovers them by
+#: ``*.png``, so the name has to be a single file name and not a path.  An
+#: anchored pattern is essential here, otherwise a prefix match would let
+#: ``../plot`` or ``plot.png; rm -rf /`` through.
+_PATH_PATTERN = r"^[\w][\w .\-]*$"
+
+#: a flag is either the name of a flag of the active flagging scheme or its
+#: numeric value (``EXTERNAL_FLAG`` is ``Union[str, float, int]``)
+_FLAG_PATTERN = r"(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))"
+
+#: free text parameters have no format to check, but the value ends up on a
+#: single line of the generated configuration, so line breaks have to go.  The
+#: pattern also rejects a value that only consists of white space; ``.*`` does
+#: not match a line break, so an embedded one never reaches the ``$``.
+_FREE_TEXT_PATTERN = r"^\s*\S.*$"
+_FREE_TEXT_MESSAGE = "Must not be empty and must not contain a line break."
 
 _VALIDATORS = {
     typespec.TIMEDELTA: (
-        f"(^$)|(^{_TIMEDELTA_PATTERN}$)",
-        "Must be a valid Pandas Timedelta string (e.g., '1d', '2.5h', '30min'). "
-        "Month (M) or Year (Y) are NOT allowed.",
+        _TIMEDELTA_PATTERN,
+        "Must be a fixed time duration as understood by pandas.Timedelta "
+        "(e.g. '1d', '2.5h', '30min', '1h30min', '00:00:30'). Month (M) or "
+        "Year (Y) are NOT allowed.",
     ),
     typespec.OFFSET_OR_TIMEDELTA: (
-        f"(^$)|({_OFFSET_PATTERN})|(^{_TIMEDELTA_PATTERN}$)",
-        "Accepts both Pandas Frequencies (e.g. '1M', 'W-SAT') AND Timedeltas "
-        "(e.g. '3 days', '1.5h').",
+        _OFFSET_OR_TIMEDELTA_PATTERN,
+        "Accepts a pandas calendar offset (e.g. '1D', 'W-SAT', 'ME') as well "
+        "as a fixed duration (e.g. '3 days', '1h30min').",
     ),
     typespec.OFFSET: (
-        f"(^$)|({_OFFSET_PATTERN})",
-        "Must be a valid Pandas offset/frequency string "
-        "(e.g., '1D', '1M', 'min', 'W-MON').",
+        _OFFSET_PATTERN,
+        "Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. "
+        "The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no "
+        "longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or "
+        "'ns'.",
+    ),
+    typespec.FLAG: (
+        _FLAG_PATTERN,
+        "Must be the name of a flag of the flagging scheme in use (e.g. "
+        "'BAD') or a numeric flag value (e.g. '255').",
     ),
 }
 
@@ -201,14 +258,27 @@ def _text(spec: TypeSpec, name: str, args: Dict[str, object], optional: bool):
     if spec.validator in _TEXT_HELP:
         args["help"] = (str(args.get("help", "")) + _TEXT_HELP[spec.validator]).strip()
 
+    # a ``multiple`` text parameter holds a list of values and Galaxy applies
+    # the validators to every element separately, so they work either way
+    text_args = dict(_arguments(name, args))
     if spec.multiple:
-        return TextParam(multiple=True, **_arguments(name, args))
-
-    param = TextParam(**_arguments(name, args))
+        text_args["multiple"] = True
+    param = TextParam(**text_args)
     if spec.validator in _VALIDATORS:
-        pattern, message = _VALIDATORS[spec.validator]
-        param.append(_regex_validator(pattern, message))
-    if not optional:
+        param.append(_regex_validator(*_VALIDATORS[spec.validator]))
+    if spec.multiple:
+        # every entry has to be a value of its own
+        param.append(_regex_validator(_FREE_TEXT_PATTERN, _FREE_TEXT_MESSAGE))
+    elif spec.validator not in _VALIDATORS:
+        param.append(
+            _regex_validator(
+                rf"(^$)|({_FREE_TEXT_PATTERN})" if optional else _FREE_TEXT_PATTERN,
+                _FREE_TEXT_MESSAGE,
+            )
+        )
+    if not optional and not spec.multiple:
+        # ``empty_field`` compares the value to '' and therefore never fails
+        # for a list, a ``multiple`` parameter is validated per element instead
         param.append(_empty_field_validator())
     return param
 
@@ -316,7 +386,13 @@ def _output_path(spec: TypeSpec, name: str, args: Dict[str, object], optional: b
     args = dict(args)
     args.pop("optional", None)
     param = TextParam(**_arguments(name, args))
-    param.append(ValidatorParam(type="regex", text=_PATH_PATTERN))
+    param.append(
+        _regex_validator(
+            _PATH_PATTERN,
+            "Must be a plain file name within the working directory: letters, "
+            "digits, spaces, '.', '-' and '_' (no directories).",
+        )
+    )
     param.append(_empty_field_validator())
     return param
 

@@ -26,27 +26,28 @@ from typing import (
     Any,
     Callable,
     Dict,
+    get_origin,
     List,
     Literal,
     Mapping,
     Optional,
     Tuple,
-    get_origin,
 )
 
 from . import docs
 from .typespec import (
+    annotation_to_string,
     BOOLEAN,
     FIELDS,
     FILES,
+    FLAG,
     FLOAT,
     INTEGER,
+    parse_annotation,
     SELECT,
+    split_union,
     TEXT,
     TypeSpec,
-    annotation_to_string,
-    parse_annotation,
-    split_union,
 )
 
 __all__ = [
@@ -445,7 +446,14 @@ class Introspection:
             # e.g. ``EXTERNAL_FLAG``: a text field accepts both the name of a
             # flag (``BAD``) and its numeric value, so a type selection would
             # only be in the way
-            return [TypeSpec(TEXT, annotation, plain_value=True)]
+            return [
+                TypeSpec(
+                    TEXT,
+                    annotation,
+                    plain_value=True,
+                    validator=FLAG if annotation.strip() == "EXTERNAL_FLAG" else None,
+                )
+            ]
         return known
 
 

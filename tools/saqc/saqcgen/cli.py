@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from . import testmacros, tool
-from .introspect import Introspection, configure_logging, discover_aliases
+from .introspect import configure_logging, discover_aliases, Introspection
 
 __all__ = ["main"]
 

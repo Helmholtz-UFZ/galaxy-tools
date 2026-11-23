@@ -97,3 +97,21 @@ Galaxy keeps the inputs of a tool and of its conditionals in one namespace, whic
 is why a SaQC parameter that would shadow a tool input is renamed (`setFlags`
 `data` → `data_value`) and a column selection is suffixed (`_column`); both are
 stripped again by `json_to_saqc_config.py`.
+
+## Validators of the text inputs
+
+Every text parameter carries at least one `regex` validator; where a parameter
+is required an additional `empty_field` check rejects an empty form.  Galaxy
+applies a validator with `re.match`, i.e. *a pattern has to anchor its own end*,
+and it applies it to every element of a `multiple` text parameter separately —
+which is why `empty_field` (that compares the value to `''`) is useless for
+lists and a per-element pattern is used instead.
+
+The patterns for time spans (`params._VALIDATORS`) are deliberately *shape*
+checks and not a re-implementation of the pandas grammar: pandas owns its alias
+vocabulary and changes it between releases (pandas 3 dropped `1M`, `1H`, `1T` …
+and added multi-unit offsets such as `1h30min`), so a fixed vocabulary would
+block valid input sooner or later.  They are anchored and case insensitive and
+let SaQC report the precise pandas error.  Note that `FreqStr` is validated by
+SaQC with `pd.Timedelta` and not with `to_offset`, so it uses the timedelta
+pattern, unlike `OffsetStr`.

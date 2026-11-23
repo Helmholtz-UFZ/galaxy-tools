@@ -52,34 +52,37 @@
             </param>
             <when value="flagIsolated">
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="gap_window" type="text" label="Minimum missing data extension that qualifies a gap" help="Minimum gap size required before and after a data group to consider it isolated. See conditions (2) and (3) below Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+              <param argument="gap_window" type="text" label="Minimum missing data extension that qualifies a gap" help="Minimum gap size required before and after a data group to consider it isolated. See conditions (2) and (3) below Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                 <validator type="empty_field"/>
               </param>
-              <param argument="group_window" type="text" label="Maximum data extension that qualifies an isolated group" help="Maximum size of a data chunk to consider it a candidate for an isolated group. Data chunks larger than this are ignored. This does not include the possible gaps surrounding it. See condition (1) below Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+              <param argument="group_window" type="text" label="Maximum data extension that qualifies an isolated group" help="Maximum size of a data chunk to consider it a candidate for an isolated group. Data chunks larger than this are ignored. This does not include the possible gaps surrounding it. See condition (1) below Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                 <validator type="empty_field"/>
               </param>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
             <when value="flagJumps">
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <param argument="thresh" type="float" label="Threshold for value change, to qualify as jump/drop" help="The Threshold by which the mean of data must differ in two adjacent windows to trigger flagging" min="0"/>
-              <param argument="window" type="text" label="Context size for value level mean" help="Determines the number of timestamps used for calculating the mean in each window. Windows should be chosen large enough to obtain a reliable mean. But not too large as well, since the window size implies a lower bound for the detection resolution. Jumps exceeding `thresh` but being apart from each other by less than 3/4 of the window size may not be detected reliably Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+              <param argument="window" type="text" label="Context size for value level mean" help="Determines the number of timestamps used for calculating the mean in each window. Windows should be chosen large enough to obtain a reliable mean. But not too large as well, since the window size implies a lower bound for the detection resolution. Jumps exceeding `thresh` but being apart from each other by less than 3/4 of the window size may not be detected reliably Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="min_periods" type="integer" value="0" label="Minimum population size required in every window" help="Minimum number of timestamps in `window` required to calculate a valid mean. If no valid mean for the window can be calculated, flagging wont be triggered for the associated change point" min="0"/>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="dfilter" type="float" value="-inf" label="Defines which observations are masked based on their existing flags" help="Any data point with a flag value greater than or equal to this threshold is passed to the function as ``numpy.nan``. Defaults to the ``DFILTER_DEFAULT`` value of the active flagging scheme"/>
             </when>
             <when value="flagNAN">
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="dfilter" type="float" value="-inf" label="Defines which observations are masked based on their existing flags" help="Any data point with a flag value greater than or equal to this threshold is passed to the function as ``numpy.nan``. Defaults to the ``DFILTER_DEFAULT`` value of the active flagging scheme"/>
@@ -94,14 +97,15 @@
             </param>
             <when value="flagByVariance">
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="window" type="text" label="Size of the context window for variance" help="This is the number of observations used for calculating the variance. Each window will be a fixed size. If its an offset then this will be the time period of each window. Each window will be sized, based on the number of observations included in the time-period Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+              <param argument="window" type="text" label="Size of the context window for variance" help="This is the number of observations used for calculating the variance. Each window will be a fixed size. If its an offset then this will be the time period of each window. Each window will be sized, based on the number of observations included in the time-period Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="thresh" type="float" label="Maximum total variance allowed per window" help="" min="0"/>
               <param argument="maxna" type="integer" optional="true" label="Maximum number of NaNs allowed in `window`" help="If more NaNs are present, the window is underpopulated and wont trigger any flagging" min="0"/>
               <param argument="maxna_group" type="integer" optional="true" label="Maximum number of consecutive NaNs allowed in `window`" help="If more consecutive NaNs are present, the window is underpopulated and wont trigger any flagging" min="0"/>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
@@ -113,8 +117,8 @@
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" label="Size of the rolling window" help="If an integer is passed, it represents the number of timestamps per window. If an offset string is passed, it represents the windows total temporal extent Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="window" type="text" label="Size of the rolling window" help="If an integer is passed, it represents the number of timestamps per window. If an offset string is passed, it represents the windows total temporal extent Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                    <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -124,7 +128,8 @@
               </conditional>
               <param argument="thresh" type="float" value="0" label="Maximum total change allowed per window" help="" min="0"/>
               <param argument="min_periods" type="integer" value="2" label="Minimum number of valid timestamps that are necessary to be present in any window, in order to trigger condition testing for this window" help="Windows with fewer timestamps are skipped. Must be &gt;= 2, because a single value is always considered constant" min="0"/>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
@@ -141,14 +146,14 @@
               <conditional name="cutoff_cond">
                 <param name="cutoff_selector" type="select" label="Choose type for 'The cutoff-frequency'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Float</option>
-                  <option value="type_1">OffsetStr (Pandas Frequency)</option>
+                  <option value="type_1">pd.Timedelta</option>
                 </param>
                 <when value="type_0">
                   <param argument="cutoff" type="float" label="The cutoff-frequency" help="Has to be either an offset freq string, or be expressed in multiples of the sampling rate" min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="cutoff" type="text" label="The cutoff-frequency" help="Has to be either an offset freq string, or be expressed in multiples of the sampling rate Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="cutoff" type="text" label="The cutoff-frequency" help="Has to be either an offset freq string, or be expressed in multiples of the sampling rate Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
+                    <validator type="regex" message="Must be a fixed time duration as understood by pandas.Timedelta (e.g. '1d', '2.5h', '30min', '1h30min', '00:00:30'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+\s*,?\s*|[0-9]+(?:\.[0-9]+)?\s*,?\s*|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?|P[0-9A-Za-z.]*)+$))]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -175,8 +180,8 @@
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" label="Extension of the fitting window" help="If an integer is passed, it represents the number of timestamps in each window. If an offset string is passed, it represents the window's temporal extent. The window is centered around the timestamp being fitted. For uniformly sampled data, an odd number of timestamps is always used to constitute a window (subtracted by 1, if the total is even) Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="window" type="text" label="Extension of the fitting window" help="If an integer is passed, it represents the number of timestamps in each window. If an offset string is passed, it represents the window's temporal extent. The window is centered around the timestamp being fitted. For uniformly sampled data, an odd number of timestamps is always used to constitute a window (subtracted by 1, if the total is even) Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                    <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -227,19 +232,19 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <param argument="max_jump" type="float" label="Separating threshold for offsets" help="When searching for changepoints in mean - this is the threshold a mean difference in the sliding window search must exceed to trigger changepoint detection" min="0"/>
               <param argument="spread" type="float" label="Divergence threshold for offsets" help="threshold denoting the maximum, regimes are allowed to abolutely differ in their means to form the &quot;normal group&quot; of values" min="0"/>
-              <param argument="window" type="text" label="Context size for mean value levels" help="Size of the adjacent windows that are used to search for the mean changepoints Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+              <param argument="window" type="text" label="Context size for mean value levels" help="Size of the adjacent windows that are used to search for the mean changepoints Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="min_periods" type="integer" label="Minimum population size for windows" help="Minimum number of periods a search window has to contain, for the result of the changepoint detection to be considered valid" min="0"/>
-              <param argument="tolerance" type="text" label="Neglected data chunks at window bounds" help="If an offset string is passed, a data chunk of length `offset` right from the start and right before the end of any regime is ignored when calculating a regimes mean for data correcture. This is to account for the unrelyability of data near the changepoints of regimes Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+              <param argument="tolerance" type="text" label="Neglected data chunks at window bounds" help="If an offset string is passed, a data chunk of length `offset` right from the start and right before the end of any regime is ignored when calculating a regimes mean for data correcture. This is to account for the unrelyability of data near the changepoints of regimes Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
               </param>
             </when>
             <when value="flagDriftFromNorm">
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="window" type="text" label="Chunk size" help="The data will be broken up into chunks of size `window` and separately, on any of those chunks, the flagging statistics will be calculated Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+              <param argument="window" type="text" label="Chunk size" help="The data will be broken up into chunks of size `window` and separately, on any of those chunks, the flagging statistics will be calculated Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="spread" type="float" label="Expected spreading maximum" help="Given a set of timeseries representing the same variable, this determines the maximum spreading expected from those. See Notes section for more details" min="0"/>
@@ -253,19 +258,21 @@
                 <option value="median">median</option>
                 <option value="ward">ward</option>
               </param>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
             <when value="flagDriftFromReference">
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <param argument="reference" type="data_column" label="Reference variable" help="Deviation is calculated as deviation/distance from the timeseries registered under `reference` to the `saqc` object" data_ref="data" multiple="false"/>
-              <param argument="freq" type="text" label="Chunk size" help="Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+              <param argument="freq" type="text" label="Chunk size" help="Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
+                <validator type="regex" message="Must be a fixed time duration as understood by pandas.Timedelta (e.g. '1d', '2.5h', '30min', '1h30min', '00:00:30'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+\s*,?\s*|[0-9]+(?:\.[0-9]+)?\s*,?\s*|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?|P[0-9A-Za-z.]*)+$))]]></validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="thresh" type="float" label="Maximum distance from reference" help="Data with distance to `reference`, that exceeds `thresh` according to `metric`, is flagged" min="0"/>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
@@ -283,7 +290,8 @@
                 <option value="ward">ward</option>
               </param>
               <param argument="frac" type="float" value="0.5" label="Minimum variable portion for normal groups" help="The minimum percentage of samples, the &quot;normal&quot; group has to comprise to actually be the normal group. Must be in the closed interval `[0,1]`, otherwise a ValueError is raised" min="0" max="1"/>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
@@ -306,7 +314,8 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <param name="group" type="data" optional="true" label="AND operands" help="A collection of ``SaQC`` objects. Flag checks are performed on all ``SaQC`` objects based on the variables specified in ``field``. Whenever all monitored variables are flagged, the associated timestamps will receive a flag" format="csv" multiple="true"/>
               <param argument="target" type="data_column" optional="true" label="Name of the variable to which the results are written" help="If the variable does not exist, it will be created. Defaults to ``field``" data_ref="data" multiple="false"/>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
@@ -318,13 +327,15 @@
             </when>
             <when value="flagUnflagged">
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
             <when value="forceFlags">
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
@@ -332,7 +343,8 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <param name="group" type="data" optional="true" label="OR operands" help="A collection of ``SaQC`` objects. Flag checks are performed on all ``SaQC`` objects based on the variables specified in `field`. Whenever any of monitored variables is flagged, the associated timestamps will receive a flag" format="csv" multiple="true"/>
               <param argument="target" type="data_column" optional="true" label="Name of the variable to which the results are written" help="If the variable does not exist, it will be created. Defaults to ``field``" data_ref="data" multiple="false"/>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
@@ -344,8 +356,8 @@
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" label="Extension of the propagation" help="An integer defines the exact number of periods to propagate, while a string is interpreted as a time offset Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="window" type="text" label="Extension of the propagation" help="An integer defines the exact number of periods to propagate, while a string is interpreted as a time offset Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                    <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -357,7 +369,8 @@
                 <option selected="true" value="ffill">ffill</option>
                 <option value="bfill">bfill</option>
               </param>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="dfilter" type="float" value="-inf" label="Defines which observations are masked based on their existing flags" help="Any data point with a flag value greater than or equal to this threshold is passed to the function as ``numpy.nan``. Defaults to the ``DFILTER_DEFAULT`` value of the active flagging scheme"/>
@@ -374,12 +387,14 @@
                 </when>
                 <when value="type_1">
                   <param name="data_value" argument="data" type="text" label="Flags schedule" help="Determines which timestamps to set flags at. Depending on the passed type:  * 1-d `array` or `List` of timestamps or `pandas.Index`: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]` * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * str: use the variable timeseries `f_data` as flagging template * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * 1-d `array` or `List` of timestamps: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]`">
+                    <validator type="regex" message="Must not be empty and must not contain a line break."><![CDATA[^\s*\S.*$]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
               </conditional>
               <param argument="override" type="boolean" label="Override existing flags" help="Determines if flags shall be assigned although the value in question already has a flag assigned" checked="true"/>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
@@ -412,12 +427,12 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <conditional name="freq_cond">
                 <param name="freq_selector" type="select" label="Choose type for 'New sampling rate'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">OffsetStr (Pandas Frequency)</option>
+                  <option value="type_0">pd.Timedelta</option>
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="freq" type="text" label="New sampling rate" help="The sampling frequency data is transformed to align with. If a list of fields is passed, all the fields will be aligned to the same index Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="freq" type="text" label="New sampling rate" help="The sampling frequency data is transformed to align with. If a list of fields is passed, all the fields will be aligned to the same index Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
+                    <validator type="regex" message="Must be a fixed time duration as understood by pandas.Timedelta (e.g. '1d', '2.5h', '30min', '1h30min', '00:00:30'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+\s*,?\s*|[0-9]+(?:\.[0-9]+)?\s*,?\s*|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?|P[0-9A-Za-z.]*)+$))]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -440,13 +455,13 @@
                   <option value="type_1">Time Object (Offset/Timedelta)</option>
                 </param>
                 <when value="type_0">
-                  <param argument="tolerance" type="text" label="Extends window width of interval validation by `tolerance`" help="* only of effect when interpolating (`'time'`, `'linear'`). * extends the length of the window for the preceeding/succeeding pillar value check Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="tolerance" type="text" label="Extends window width of interval validation by `tolerance`" help="* only of effect when interpolating (`'time'`, `'linear'`). * extends the length of the window for the preceeding/succeeding pillar value check Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                    <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="tolerance" type="text" label="Extends window width of interval validation by `tolerance`" help="* only of effect when interpolating (`'time'`, `'linear'`). * extends the length of the window for the preceeding/succeeding pillar value check Format: Time object. Accepts Pandas Frequencies (e.g. '1M', 'W-MON') OR Timedeltas (e.g. '3 days', '1.5h').">
-                    <validator type="regex" message="Accepts both Pandas Frequencies (e.g. '1M', 'W-SAT') AND Timedeltas (e.g. '3 days', '1.5h')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)|(^-?(\d+(\.\d*)?|\.\d+)\s*(W|D|days?|d|H|hours?|hr|h|T|minutes?|min|m|S|seconds?|sec|s|L|milliseconds?|ms|U|microseconds?|us|N|nanoseconds?|ns)\s*$)]]></validator>
+                  <param argument="tolerance" type="text" label="Extends window width of interval validation by `tolerance`" help="* only of effect when interpolating (`'time'`, `'linear'`). * extends the length of the window for the preceeding/succeeding pillar value check Format: a time offset, either a calendar based pandas offset alias (e.g. '1D', 'ME' (month end), 'W-MON') or a fixed duration (e.g. '3 days', '1h30min').">
+                    <validator type="regex" message="Accepts a pandas calendar offset (e.g. '1D', 'W-SAT', 'ME') as well as a fixed duration (e.g. '3 days', '1h30min')."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+\s*,?\s*|[0-9]+(?:\.[0-9]+)?\s*,?\s*|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?|P[0-9A-Za-z.]*)+$))]]></validator>
                   </param>
                 </when>
               </conditional>
@@ -460,8 +475,8 @@
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" label="Rolling window size" help="The size of the window, the aggregation is computed from. An integer define the number of periods to be used, a string is interpreted as an offset. ( see `pandas.rolling` for more information). Integer windows may result in screwed aggregations if called on none-harmonized or irregular data Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="window" type="text" label="Rolling window size" help="The size of the window, the aggregation is computed from. An integer define the number of periods to be used, a string is interpreted as an offset. ( see `pandas.rolling` for more information). Integer windows may result in screwed aggregations if called on none-harmonized or irregular data Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                    <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -503,14 +518,14 @@
                   <option value="type_1">pd.Timedelta</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" label="Scatter context size" help="The extension of the window, the scattering (usually variance) will be computed from, for each period Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="window" type="text" label="Scatter context size" help="The extension of the window, the scattering (usually variance) will be computed from, for each period Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                    <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="window" type="text" label="Scatter context size" help="The extension of the window, the scattering (usually variance) will be computed from, for each period Format: Fixed time duration (no calendar logic). Examples: '1d', '2.5h', '30min'. (No 'M' or 'Y').">
-                    <validator type="regex" message="Must be a valid Pandas Timedelta string (e.g., '1d', '2.5h', '30min'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(^$)|(^-?(\d+(\.\d*)?|\.\d+)\s*(W|D|days?|d|H|hours?|hr|h|T|minutes?|min|m|S|seconds?|sec|s|L|milliseconds?|ms|U|microseconds?|us|N|nanoseconds?|ns)\s*$)]]></validator>
+                  <param argument="window" type="text" label="Scatter context size" help="The extension of the window, the scattering (usually variance) will be computed from, for each period Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
+                    <validator type="regex" message="Must be a fixed time duration as understood by pandas.Timedelta (e.g. '1d', '2.5h', '30min', '1h30min', '00:00:30'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+\s*,?\s*|[0-9]+(?:\.[0-9]+)?\s*,?\s*|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?|P[0-9A-Za-z.]*)+$))]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -527,19 +542,20 @@
                   <option value="type_1">pd.Timedelta</option>
                 </param>
                 <when value="type_0">
-                  <param argument="sub_window" type="text" label="Size of partitions of the scatter context" help="The window determining the context for the scatter statistics calculation is divided up into disjoint sub windows of size ``sub_window``, where the scattering is tested to exceed `sub_thresh`, in order to finally trigger flagging Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="sub_window" type="text" label="Size of partitions of the scatter context" help="The window determining the context for the scatter statistics calculation is divided up into disjoint sub windows of size ``sub_window``, where the scattering is tested to exceed `sub_thresh`, in order to finally trigger flagging Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                    <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="sub_window" type="text" label="Size of partitions of the scatter context" help="The window determining the context for the scatter statistics calculation is divided up into disjoint sub windows of size ``sub_window``, where the scattering is tested to exceed `sub_thresh`, in order to finally trigger flagging Format: Fixed time duration (no calendar logic). Examples: '1d', '2.5h', '30min'. (No 'M' or 'Y').">
-                    <validator type="regex" message="Must be a valid Pandas Timedelta string (e.g., '1d', '2.5h', '30min'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(^$)|(^-?(\d+(\.\d*)?|\.\d+)\s*(W|D|days?|d|H|hours?|hr|h|T|minutes?|min|m|S|seconds?|sec|s|L|milliseconds?|ms|U|microseconds?|us|N|nanoseconds?|ns)\s*$)]]></validator>
+                  <param argument="sub_window" type="text" label="Size of partitions of the scatter context" help="The window determining the context for the scatter statistics calculation is divided up into disjoint sub windows of size ``sub_window``, where the scattering is tested to exceed `sub_thresh`, in order to finally trigger flagging Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
+                    <validator type="regex" message="Must be a fixed time duration as understood by pandas.Timedelta (e.g. '1d', '2.5h', '30min', '1h30min', '00:00:30'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+\s*,?\s*|[0-9]+(?:\.[0-9]+)?\s*,?\s*|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?|P[0-9A-Za-z.]*)+$))]]></validator>
                   </param>
                 </when>
               </conditional>
               <param argument="sub_thresh" type="float" optional="true" label="Scattering upper bound on sub window" help="Threshold, the statistic on every sub chunk is checked against. ``func(sub_chunk) &gt; sub_thresh``" min="0"/>
               <param argument="min_periods" type="integer" optional="true" label="Minimum window population" help="Ignored if ``window`` is an integer" min="0"/>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
@@ -552,9 +568,15 @@
             </param>
             <when value="calibratePipeline">
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="problems" type="text" label="Problem Statement of the Pipeline" help="Definition of the pipeline in terms of a list of (possibly merged) Problems" multiple="true"/>
-              <param argument="name" type="text" label="Name of the Pipeline Sets the name, the resulting Pipeline is accessible through" help="as a new SaQC method"/>
-              <param argument="problem_labels" type="text" label="Target (column) Labels for the Pipeline" help="If None (default): all flags get squashed to a merged target (possibly to be iterated over by sequential pipeline) If []: fallback to supervision. If a list of length thats matching the length of the problems list, problems will be optimised against it sequentially If length of labels list is exactly 1 (or None), all problems will be fit against this single label sequencially. If a label is listed, thats not present in the history, GUI assignment is initialised" multiple="true"/>
+              <param argument="problems" type="text" label="Problem Statement of the Pipeline" help="Definition of the pipeline in terms of a list of (possibly merged) Problems" multiple="true">
+                <validator type="regex" message="Must not be empty and must not contain a line break."><![CDATA[^\s*\S.*$]]></validator>
+              </param>
+              <param argument="name" type="text" label="Name of the Pipeline Sets the name, the resulting Pipeline is accessible through" help="as a new SaQC method">
+                <validator type="regex" message="Must not be empty and must not contain a line break."><![CDATA[(^$)|(^\s*\S.*$)]]></validator>
+              </param>
+              <param argument="problem_labels" type="text" label="Target (column) Labels for the Pipeline" help="If None (default): all flags get squashed to a merged target (possibly to be iterated over by sequential pipeline) If []: fallback to supervision. If a list of length thats matching the length of the problems list, problems will be optimised against it sequentially If length of labels list is exactly 1 (or None), all problems will be fit against this single label sequencially. If a label is listed, thats not present in the history, GUI assignment is initialised" multiple="true">
+                <validator type="regex" message="Must not be empty and must not contain a line break."><![CDATA[^\s*\S.*$]]></validator>
+              </param>
               <param argument="pop_size" type="integer" value="100" label="Population Size to optimize with" help=""/>
               <conditional name="termination_cond">
                 <param name="termination_selector" type="select" label="Choose type for 'Determine Termination for the Optimisations'" help="The parameter supports different input formats, you can choose which one suites your application.">
@@ -563,8 +585,12 @@
                 </param>
                 <when value="type_0">
                   <repeat name="termination" title="Determine Termination for the Optimisations" help="If ``None`` (default) - fall back to pymoo defaults (computationally exhaustive, but most likely not terminating too early). If an integer, will be interpreted simply as the maximal number of evaluations">
-                    <param argument="termination_pos0" type="text" label="termination_pos0" help="First element (index 0) of the termination tuple."/>
-                    <param argument="termination_pos1" type="text" label="termination_pos1" help="Second element (index 1) of the termination tuple."/>
+                    <param argument="termination_pos0" type="text" label="termination_pos0" help="First element (index 0) of the termination tuple.">
+                      <validator type="regex" message="Must not be empty and must not contain a line break."><![CDATA[(^$)|(^\s*\S.*$)]]></validator>
+                    </param>
+                    <param argument="termination_pos1" type="text" label="termination_pos1" help="Second element (index 1) of the termination tuple.">
+                      <validator type="regex" message="Must not be empty and must not contain a line break."><![CDATA[(^$)|(^\s*\S.*$)]]></validator>
+                    </param>
                   </repeat>
                 </when>
                 <when value="type_1">
@@ -573,7 +599,9 @@
               </conditional>
               <param argument="log_pop" type="boolean" label="Weather to log the whole population generated during training to ``log_path``" help="Defaults to `True` as long as valid ``log_path`` is given" checked="false"/>
               <param argument="log_config" type="boolean" label="Weather to log the optimized parameterset as a config file to ``log_path``" help="Defaults to `True` as long as valid ``log_path`` is given" checked="false"/>
-              <param argument="log_path" type="text" label="Path to the Logs" help="(folder path), If not given (None) logging wont happen. If path already exists, content will be overridden"/>
+              <param argument="log_path" type="text" label="Path to the Logs" help="(folder path), If not given (None) logging wont happen. If path already exists, content will be overridden">
+                <validator type="regex" message="Must not be empty and must not contain a line break."><![CDATA[(^$)|(^\s*\S.*$)]]></validator>
+              </param>
               <param argument="verbose" type="boolean" label="Logging verbosity" help="Wanna see whats happening while waiting for Results?" checked="true"/>
             </when>
           </conditional>
@@ -596,8 +624,8 @@
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" label="Window size for STRAY" help="Determines the segmentation of the data into partitions, the STRAY algorithm is applied onto individually.  * ``None``: Apply Scoring on whole data set at once * ``int``: Apply scoring on successive data chunks of periods with the given length. Must be greater than 0. * offset String : Apply scoring on successive partitions of temporal extension matching the passed offset string Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="window" type="text" label="Window size for STRAY" help="Determines the segmentation of the data into partitions, the STRAY algorithm is applied onto individually.  * ``None``: Apply Scoring on whole data set at once * ``int``: Apply scoring on successive data chunks of periods with the given length. Must be greater than 0. * offset String : Apply scoring on successive partitions of temporal extension matching the passed offset string Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                    <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                   </param>
                 </when>
                 <when value="type_1">
@@ -607,7 +635,8 @@
               <param argument="min_periods" type="integer" value="11" label="Minimum population per window" help="Minimum number of periods per partition that have to be present for a valid outlier detection to be made in this partition" min="1"/>
               <param argument="iter_start" type="float" value="0.5" label="Portion of normal data" help="Determines which percentage of data is considered &quot;normal&quot;. ``0.5`` results in the stray algorithm to search only the upper 50% of the scores for the cut off point. (See reference section for more information)" min="0" max="1"/>
               <param argument="alpha" type="float" value="0.05" label="Significance level" help="Level of significance by which it is tested, if a score might be drawn from another distribution than the majority of the data" min="0" max="1"/>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
@@ -635,14 +664,15 @@
                 <option value="auto">auto</option>
               </param>
               <param argument="p" type="integer" value="1" label="Minkowski degree" help="Degree of the metric (&quot;Minkowski&quot;), according to which the distance to neighbors is determined. Most important values are:  * ``1`` - Manhattan Metric * ``2`` - Euclidian Metric" min="0"/>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
             <when value="flagOffset">
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="window" type="text" label="Offset group size (maximum)" help="Maximum temporal length allowed for an offset sequence to trigger flagging (condition 5). Integer-defined windows are only allowed for regularly sampled timestamps Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+              <param argument="window" type="text" label="Offset group size (maximum)" help="Maximum temporal length allowed for an offset sequence to trigger flagging (condition 5). Integer-defined windows are only allowed for regularly sampled timestamps Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
+                <validator type="regex" message="Must be a fixed time duration as understood by pandas.Timedelta (e.g. '1d', '2.5h', '30min', '1h30min', '00:00:30'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+\s*,?\s*|[0-9]+(?:\.[0-9]+)?\s*,?\s*|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?|P[0-9A-Za-z.]*)+$))]]></validator>
                 <validator type="empty_field"/>
               </param>
               <param argument="tolerance" type="float" optional="true" label="Maximum difference between offset footpoints" help="Maximum allowed difference between the value preceding and succeeding an offset sequence to trigger flagging (condition 4)" min="0"/>
@@ -654,15 +684,20 @@
                 </param>
                 <when value="type_0">
                   <repeat name="thresh_relative" title="Relative offsetting threshold" help="Minimum relative change between a value and its successors to consider the successors a possible anomalous offset sequence (conditions 2 and 3). If None, this condition is ignored. The parameter constrains the detection to either upwards (positive value passed) or downwards (negative values passed) offsets. To assign detection of offsets bigger than `a`, positive as well as negative, pass the tuple `(a,-a)`. Differing positive and negative threshold values are possible as well. See condition (2). If ``None``, condition (2) is not tested">
-                    <param argument="thresh_relative_pos0" type="text" label="thresh_relative_pos0" help="First element (index 0) of the thresh_relative tuple."/>
-                    <param argument="thresh_relative_pos1" type="text" label="thresh_relative_pos1" help="Second element (index 1) of the thresh_relative tuple."/>
+                    <param argument="thresh_relative_pos0" type="text" label="thresh_relative_pos0" help="First element (index 0) of the thresh_relative tuple.">
+                      <validator type="regex" message="Must not be empty and must not contain a line break."><![CDATA[(^$)|(^\s*\S.*$)]]></validator>
+                    </param>
+                    <param argument="thresh_relative_pos1" type="text" label="thresh_relative_pos1" help="Second element (index 1) of the thresh_relative tuple.">
+                      <validator type="regex" message="Must not be empty and must not contain a line break."><![CDATA[(^$)|(^\s*\S.*$)]]></validator>
+                    </param>
                   </repeat>
                 </when>
                 <when value="type_1">
                   <param argument="thresh_relative" type="float" optional="true" label="Relative offsetting threshold" help="Minimum relative change between a value and its successors to consider the successors a possible anomalous offset sequence (conditions 2 and 3). If None, this condition is ignored. The parameter constrains the detection to either upwards (positive value passed) or downwards (negative values passed) offsets. To assign detection of offsets bigger than `a`, positive as well as negative, pass the tuple `(a,-a)`. Differing positive and negative threshold values are possible as well. See condition (2). If ``None``, condition (2) is not tested"/>
                 </when>
               </conditional>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
@@ -670,7 +705,8 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <param argument="min" type="float" optional="true" label="Lower bound" help=""/>
               <param argument="max" type="float" optional="true" label="Upper bound" help=""/>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
@@ -728,7 +764,8 @@
               <param argument="fill_na" type="boolean" label="Impute NaN values" help="If ``True``, fill NaNs by linear interpolation before LOF calculation" checked="true"/>
               <param argument="slope_correct" type="boolean" label="Correction for high derivative regimes" help="If ``True``, suppress flagging of groups of points, that seem to correspond to steep value slopes rather than to actual outliers" checked="true"/>
               <param argument="min_offset" type="float" optional="true" label="Isolation threshold for outlier clusters" help="Minimum jump in values before and after an outlier cluster, needed to be registered in order for the cluster to be flagged" min="0"/>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
@@ -740,12 +777,12 @@
               </param>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Size of the scoring window'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">OffsetStr (Pandas Frequency)</option>
+                  <option value="type_0">pd.Timedelta</option>
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" label="Size of the scoring window" help="Either an integer (number of periods) or an offset string (time span). If ``None`` (default), all data share a single window Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="window" type="text" label="Size of the scoring window" help="Either an integer (number of periods) or an offset string (time span). If ``None`` (default), all data share a single window Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
+                    <validator type="regex" message="Must be a fixed time duration as understood by pandas.Timedelta (e.g. '1d', '2.5h', '30min', '1h30min', '00:00:30'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+\s*,?\s*|[0-9]+(?:\.[0-9]+)?\s*,?\s*|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?|P[0-9A-Za-z.]*)+$))]]></validator>
                   </param>
                 </when>
                 <when value="type_1">
@@ -757,7 +794,8 @@
               <param argument="min_periods" type="integer" optional="true" label="Minimum Population per window" help="Minimum number of valid observations that is required to be contained in a values context window, in order for the Z scoring test to be applied" min="0"/>
               <param argument="center" type="boolean" label="Center windows around scored values" help="If ``True`` (default), the tested value is centered in its context window; otherwise, it is the window’s last value" checked="true"/>
               <param argument="axis" type="integer" value="0" label="Axis along which to compute scores" help="* ``0`` (default) — compute along the time axis only (separate windows for all fields). * ``1`` — compute along time and data axis (windows are 2 dimensional and span over all fields)" min="0" max="1"/>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
@@ -779,8 +817,8 @@
                   <param argument="min_length" type="integer" label="Size threshold for offseted groups" help="Minimum temporal extension of a value course to qualify as a plateau" min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="min_length" type="text" label="Size threshold for offseted groups" help="Minimum temporal extension of a value course to qualify as a plateau Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="min_length" type="text" label="Size threshold for offseted groups" help="Minimum temporal extension of a value course to qualify as a plateau Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                    <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -794,8 +832,8 @@
                   <param argument="max_length" type="integer" optional="true" label="Size limit for offsetted groups" help="Maximum temporal extension of a value course to qualify as a plateau (upper detection limit). If None, a detection limit based on the data length is used" min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="max_length" type="text" label="Size limit for offsetted groups" help="Maximum temporal extension of a value course to qualify as a plateau (upper detection limit). If None, a detection limit based on the data length is used Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="max_length" type="text" label="Size limit for offsetted groups" help="Maximum temporal extension of a value course to qualify as a plateau (upper detection limit). If None, a detection limit based on the data length is used Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                    <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                   </param>
                 </when>
               </conditional>
@@ -809,12 +847,13 @@
                   <param argument="granularity" type="integer" optional="true" label="Search precision" help="Smaller values increase precision but also computational cost. If None, defaults to 5" min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="granularity" type="text" label="Search precision" help="Smaller values increase precision but also computational cost. If None, defaults to 5 Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="granularity" type="text" label="Search precision" help="Smaller values increase precision but also computational cost. If None, defaults to 5 Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                    <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                   </param>
                 </when>
               </conditional>
-              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme">
+              <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
+                <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
@@ -845,22 +884,9 @@
                 <option value="pad">pad</option>
               </param>
               <param argument="invert" type="boolean" label="Apply inverse of selected method" help="If True, not the actual method is applied, but its inversion-method" checked="true"/>
-              <conditional name="freq_cond">
-                <param name="freq_selector" type="select" label="Choose type for 'Reindexing scope'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">OffsetStr (Pandas Frequency)</option>
-                  <option value="type_1">pd.Timedelta</option>
-                </param>
-                <when value="type_0">
-                  <param argument="freq" type="text" label="Reindexing scope" help="Projection range. If ``None`` the sampling frequency of `field` is used Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
-                  </param>
-                </when>
-                <when value="type_1">
-                  <param argument="freq" type="text" label="Reindexing scope" help="Projection range. If ``None`` the sampling frequency of `field` is used Format: Fixed time duration (no calendar logic). Examples: '1d', '2.5h', '30min'. (No 'M' or 'Y').">
-                    <validator type="regex" message="Must be a valid Pandas Timedelta string (e.g., '1d', '2.5h', '30min'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(^$)|(^-?(\d+(\.\d*)?|\.\d+)\s*(W|D|days?|d|H|hours?|hr|h|T|minutes?|min|m|S|seconds?|sec|s|L|milliseconds?|ms|U|microseconds?|us|N|nanoseconds?|ns)\s*$)]]></validator>
-                  </param>
-                </when>
-              </conditional>
+              <param argument="freq" type="text" label="Reindexing scope" help="Projection range. If ``None`` the sampling frequency of `field` is used Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
+                <validator type="regex" message="Must be a fixed time duration as understood by pandas.Timedelta (e.g. '1d', '2.5h', '30min', '1h30min', '00:00:30'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+\s*,?\s*|[0-9]+(?:\.[0-9]+)?\s*,?\s*|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?|P[0-9A-Za-z.]*)+$))]]></validator>
+              </param>
               <param argument="drop" type="boolean" label="Drop `field`" help="Remove `field` if ``True``" checked="false"/>
               <conditional name="squeeze_cond">
                 <param name="squeeze_selector" type="select" label="Choose type for 'Squash history'" help="The parameter supports different input formats, you can choose which one suites your application.">
@@ -880,18 +906,19 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <conditional name="index_cond">
                 <param name="index_selector" type="select" label="Choose type for 'New index'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">OffsetStr (Pandas Frequency)</option>
+                  <option value="type_0">pd.Timedelta</option>
                   <option value="type_1">pd.DatetimeIndex</option>
                   <option value="type_2">Column Selection</option>
                 </param>
                 <when value="type_0">
-                  <param argument="index" type="text" label="New index" help="* If an `offset` string: new index will range from start to end of the original index of `field`, exhibting a uniform sampling rate of `idx` * If a `str` that matches a field present in the `SaQC` object, that fields index will be used as new index of `field` * If an `pandas.index` object is passed, that will be the new index of `field` Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="index" type="text" label="New index" help="* If an `offset` string: new index will range from start to end of the original index of `field`, exhibting a uniform sampling rate of `idx` * If a `str` that matches a field present in the `SaQC` object, that fields index will be used as new index of `field` * If an `pandas.index` object is passed, that will be the new index of `field` Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
+                    <validator type="regex" message="Must be a fixed time duration as understood by pandas.Timedelta (e.g. '1d', '2.5h', '30min', '1h30min', '00:00:30'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+\s*,?\s*|[0-9]+(?:\.[0-9]+)?\s*,?\s*|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?|P[0-9A-Za-z.]*)+$))]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
                 <when value="type_1">
                   <param argument="index" type="text" label="New index" help="* If an `offset` string: new index will range from start to end of the original index of `field`, exhibting a uniform sampling rate of `idx` * If a `str` that matches a field present in the `SaQC` object, that fields index will be used as new index of `field` * If an `pandas.index` object is passed, that will be the new index of `field`">
+                    <validator type="regex" message="Must not be empty and must not contain a line break."><![CDATA[^\s*\S.*$]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -920,13 +947,13 @@
                   <option value="type_1">Time Object (Offset/Timedelta)</option>
                 </param>
                 <when value="type_0">
-                  <param argument="tolerance" type="text" label="Reindexing scope" help="Limiting the distance, values can be shifted or comprised into aggregation Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="tolerance" type="text" label="Reindexing scope" help="Limiting the distance, values can be shifted or comprised into aggregation Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                    <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="tolerance" type="text" label="Reindexing scope" help="Limiting the distance, values can be shifted or comprised into aggregation Format: Time object. Accepts Pandas Frequencies (e.g. '1M', 'W-MON') OR Timedeltas (e.g. '3 days', '1.5h').">
-                    <validator type="regex" message="Accepts both Pandas Frequencies (e.g. '1M', 'W-SAT') AND Timedeltas (e.g. '3 days', '1.5h')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)|(^-?(\d+(\.\d*)?|\.\d+)\s*(W|D|days?|d|H|hours?|hr|h|T|minutes?|min|m|S|seconds?|sec|s|L|milliseconds?|ms|U|microseconds?|us|N|nanoseconds?|ns)\s*$)]]></validator>
+                  <param argument="tolerance" type="text" label="Reindexing scope" help="Limiting the distance, values can be shifted or comprised into aggregation Format: a time offset, either a calendar based pandas offset alias (e.g. '1D', 'ME' (month end), 'W-MON') or a fixed duration (e.g. '3 days', '1h30min').">
+                    <validator type="regex" message="Accepts a pandas calendar offset (e.g. '1D', 'W-SAT', 'ME') as well as a fixed duration (e.g. '3 days', '1h30min')."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+\s*,?\s*|[0-9]+(?:\.[0-9]+)?\s*,?\s*|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?|P[0-9A-Za-z.]*)+$))]]></validator>
                   </param>
                 </when>
               </conditional>
@@ -988,24 +1015,10 @@
             </when>
             <when value="resample">
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <conditional name="freq_cond">
-                <param name="freq_selector" type="select" label="Choose type for 'New sampling rate'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">OffsetStr (Pandas Frequency)</option>
-                  <option value="type_1">pd.Timedelta</option>
-                </param>
-                <when value="type_0">
-                  <param argument="freq" type="text" label="New sampling rate" help="Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
-                    <validator type="empty_field"/>
-                  </param>
-                </when>
-                <when value="type_1">
-                  <param argument="freq" type="text" label="New sampling rate" help="Format: Fixed time duration (no calendar logic). Examples: '1d', '2.5h', '30min'. (No 'M' or 'Y').">
-                    <validator type="regex" message="Must be a valid Pandas Timedelta string (e.g., '1d', '2.5h', '30min'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(^$)|(^-?(\d+(\.\d*)?|\.\d+)\s*(W|D|days?|d|H|hours?|hr|h|T|minutes?|min|m|S|seconds?|sec|s|L|milliseconds?|ms|U|microseconds?|us|N|nanoseconds?|ns)\s*$)]]></validator>
-                    <validator type="empty_field"/>
-                  </param>
-                </when>
-              </conditional>
+              <param argument="freq" type="text" label="New sampling rate" help="Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
+                <validator type="regex" message="Must be a fixed time duration as understood by pandas.Timedelta (e.g. '1d', '2.5h', '30min', '1h30min', '00:00:30'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+\s*,?\s*|[0-9]+(?:\.[0-9]+)?\s*,?\s*|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?|P[0-9A-Za-z.]*)+$))]]></validator>
+                <validator type="empty_field"/>
+              </param>
               <param argument="method" type="select" label="Resampling intervals" help="Specifies which intervals to be aggregated for a certain timestamp. (preceding, succeeding or &quot;surrounding&quot; interval). See description above for more details">
                 <option value="fagg">fagg</option>
                 <option selected="true" value="bagg">bagg</option>
@@ -1031,8 +1044,8 @@
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" label="Extension of the fitting window" help="The size of the window you want to use for fitting. If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. The window will be centered around the vaule-to-be-fitted. For regularly sampled timeseries the period number will be casted down to an odd number if even Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="window" type="text" label="Extension of the fitting window" help="The size of the window you want to use for fitting. If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. The window will be centered around the vaule-to-be-fitted. For regularly sampled timeseries the period number will be casted down to an odd number if even Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                    <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -1051,8 +1064,8 @@
                   <option value="type_1">Integer</option>
                 </param>
                 <when value="type_0">
-                  <param argument="window" type="text" label="Rolling window size" help="If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. For regularly sampled timeseries, the period number will be casted down to an odd number if ``center=True`` Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="window" type="text" label="Rolling window size" help="If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. For regularly sampled timeseries, the period number will be casted down to an odd number if ``center=True`` Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                    <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -1110,14 +1123,14 @@
               <conditional name="freq_cond">
                 <param name="freq_selector" type="select" label="Choose type for 'Data partitioning size'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Float</option>
-                  <option value="type_1">OffsetStr (Pandas Frequency)</option>
+                  <option value="type_1">pd.Timedelta</option>
                 </param>
                 <when value="type_0">
                   <param argument="freq" type="float" label="Data partitioning size" help="Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually.  * ``numpy.inf``: Apply Scoring on whole data set at once * ``x`` &gt; 0 : Apply scoring on successive data chunks of periods length ``x`` * Offset String : Apply scoring on successive partitions of temporal extension matching the passed offset string" min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="freq" type="text" label="Data partitioning size" help="Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually.  * ``numpy.inf``: Apply Scoring on whole data set at once * ``x`` &gt; 0 : Apply scoring on successive data chunks of periods length ``x`` * Offset String : Apply scoring on successive partitions of temporal extension matching the passed offset string Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="freq" type="text" label="Data partitioning size" help="Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually.  * ``numpy.inf``: Apply Scoring on whole data set at once * ``x`` &gt; 0 : Apply scoring on successive data chunks of periods length ``x`` * Offset String : Apply scoring on successive partitions of temporal extension matching the passed offset string Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
+                    <validator type="regex" message="Must be a fixed time duration as understood by pandas.Timedelta (e.g. '1d', '2.5h', '30min', '1h30min', '00:00:30'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+\s*,?\s*|[0-9]+(?:\.[0-9]+)?\s*,?\s*|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?|P[0-9A-Za-z.]*)+$))]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -1138,14 +1151,14 @@
               <conditional name="freq_cond">
                 <param name="freq_selector" type="select" label="Choose type for 'Data partitioning frequency'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Float</option>
-                  <option value="type_1">OffsetStr (Pandas Frequency)</option>
+                  <option value="type_1">pd.Timedelta</option>
                 </param>
                 <when value="type_0">
                   <param argument="freq" type="float" label="Data partitioning frequency" help="Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually" min="0"/>
                 </when>
                 <when value="type_1">
-                  <param argument="freq" type="text" label="Data partitioning frequency" help="Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                    <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+                  <param argument="freq" type="text" label="Data partitioning frequency" help="Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
+                    <validator type="regex" message="Must be a fixed time duration as understood by pandas.Timedelta (e.g. '1d', '2.5h', '30min', '1h30min', '00:00:30'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+\s*,?\s*|[0-9]+(?:\.[0-9]+)?\s*,?\s*|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?|P[0-9A-Za-z.]*)+$))]]></validator>
                     <validator type="empty_field"/>
                   </param>
                 </when>
@@ -1188,8 +1201,8 @@
             </when>
             <when value="assignZScore">
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="window" type="text" label="Scoring window size" help="If `None` (default), All data points share the same scoring window, which than equals the whole data Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+              <param argument="window" type="text" label="Scoring window size" help="If `None` (default), All data points share the same scoring window, which than equals the whole data Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
               </param>
               <param argument="norm_func" type="select" label="Scaling function" help="Function to calculate the scaling for every window">
                 <option value="sum">sum</option>
@@ -1245,11 +1258,11 @@
             <when value="plot">
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <param argument="path" type="text" label="Path to store plot to" help="If ``None`` is passed, interactive mode is entered; plots are shown immediatly and a user need to close them manually before execution continues. If a filepath is passed instead, store-mode is entered and the plot is stored unter the passed location">
-                <validator type="regex"><![CDATA[[\w -\.]+]]></validator>
+                <validator type="regex" message="Must be a plain file name within the working directory: letters, digits, spaces, '.', '-' and '_' (no directories)."><![CDATA[^[\w][\w .\-]*$]]></validator>
                 <validator type="empty_field"/>
               </param>
-              <param argument="max_gap" type="text" label="Limit of plotted gaps" help="If ``None``, all data points will be connected, resulting in long linear lines, in case of large data gaps. ``NaN`` values will be removed before plotting. If an offset string is passed, only points that have a distance below ``max_gap`` are connected via the plotting line Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+              <param argument="max_gap" type="text" label="Limit of plotted gaps" help="If ``None``, all data points will be connected, resulting in long linear lines, in case of large data gaps. ``NaN`` values will be removed before plotting. If an offset string is passed, only points that have a distance below ``max_gap`` are connected via the plotting line Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
               </param>
               <param argument="mode" type="select" label="Plotting mode" help="How to process multiple variables to be plotted:  * `&quot;oneplot&quot;` : plot all variables with their flags in one axis (default) * `&quot;subplots&quot;` : generate subplot grid where each axis contains one variable plot with associated flags * `&quot;biplot&quot;` : plotting first and second variable in field against each other in a scatter plot  (point cloud)">
                 <option value="subplots">subplots: generate subplot grid where each axis contains one variable plot with associated flags</option>
@@ -1268,11 +1281,13 @@
                   </param>
                 </when>
                 <when value="type_1">
-                  <param argument="history" type="text" label="Plot flagging history" help="Discriminate the plotted flags with respect to the tests they originate from.  * ``&quot;valid&quot;``: Only plot flags, that are not overwritten by subsequent tests. Only list tests in the legend, that actually contributed flags to the overall result. * ``None``: Just plot the resulting flags for one variable, without any historical and/or meta information. * list of strings: List of tests. Plot flags from the given tests, only. * ``complete`` (not recommended, deprecated): Plot all the flags set by any test, independently from them being removed or modified by subsequent modifications. (this means: plotted flags do not necessarily match with flags ultimately assigned to the data)" multiple="true"/>
+                  <param argument="history" type="text" label="Plot flagging history" help="Discriminate the plotted flags with respect to the tests they originate from.  * ``&quot;valid&quot;``: Only plot flags, that are not overwritten by subsequent tests. Only list tests in the legend, that actually contributed flags to the overall result. * ``None``: Just plot the resulting flags for one variable, without any historical and/or meta information. * list of strings: List of tests. Plot flags from the given tests, only. * ``complete`` (not recommended, deprecated): Plot all the flags set by any test, independently from them being removed or modified by subsequent modifications. (this means: plotted flags do not necessarily match with flags ultimately assigned to the data)" multiple="true">
+                    <validator type="regex" message="Must not be empty and must not contain a line break."><![CDATA[^\s*\S.*$]]></validator>
+                  </param>
                 </when>
               </conditional>
-              <param argument="xscope" type="text" label="X axis limits" help="Determine a chunk of the data to be plotted. ``xscope`` can be anything, that is a valid argument to the ``pandas.Series.__getitem__`` method Format: Calendar frequency/offset. Examples: '1D', '1M' (Month), 'W-MON' (Weekly Mon).">
-                <validator type="regex" message="Must be a valid Pandas offset/frequency string (e.g., '1D', '1M', 'min', 'W-MON')."><![CDATA[(^$)|(\s*(\d+(\.\d+)?)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)]]></validator>
+              <param argument="xscope" type="text" label="X axis limits" help="Determine a chunk of the data to be plotted. ``xscope`` can be anything, that is a valid argument to the ``pandas.Series.__getitem__`` method Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
+                <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
               </param>
               <repeat name="yscope" title="Y axis limits" help="Either a tuple of 2 scalars that determines all plots' y-view limits, or a list of those tuples, determining the different variables y-view limits (must match number of variables) or a dictionary with variables as keys and the y-view tuple as values">
                 <param name="yscope_min" type="float" label="yscope_min"/>

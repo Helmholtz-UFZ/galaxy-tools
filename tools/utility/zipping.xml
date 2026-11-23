@@ -1,0 +1,97 @@
+<tool id="zip_files" name="Zip files" version="0.1.0" profile="25.0">
+    <description>matching a name pattern or extension</description>
+    <requirements>
+        <requirement type="package" version="3.0">zip</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+		set -o pipefail &&
+        mkdir zip_folder &&
+        #for $f in $inputs
+	        #if $file_filter.filter == "all_files" or $file_filter.pattern == $f.ext
+                ln -s '$f' 'zip_folder/${f.element_identifier}.${f.ext}' &&
+            #end if
+        #end for
+        cd zip_folder &&
+        find . -print | zip archive --names-stdin
+        && cd .. && mv zip_folder/archive.zip '$output'
+    ]]></command>
+    <inputs>
+        <param name="inputs" type="data_collection" collection_type="list" format="data"
+            label="Input collection"
+            help="Select the collection whose elements you want to zip" /> 
+        <conditional name = "file_filter">
+            <param name="filter" type="select" optional="false" label="Select which files add to archieve">
+                <option value="all_files">All files in the collection</option>
+                <option value="data_type">Filter by data type</option>
+            </param>
+            <when value="all_files">
+                <param name="pattern" value="" type="hidden"/>
+            </when>
+            <when value="data_type">
+                <param name="pattern" type="select" label="Files extension patterns"
+               help="Select datatype according to the supported Galaxy data types">
+                <options from_url="https://usegalaxy.org/api/datatypes">
+                <postprocess_expression><![CDATA[${
+                    return Object.values(inputs).map((v) => [v, v])
+                    }]]></postprocess_expression>
+                </options>
+                </param>
+            </when>
+        </conditional>
+    </inputs>
+    <outputs>
+        <data name="output" format="zip" label="Zipped output for ${on_string}" />
+    </outputs>
+    <tests>
+        <test>
+         <param name="inputs">
+            <collection type="list">
+                <element name="file1.txt" value="file1.txt" ftype="txt" />
+                <element name="file2.txt" value="file2.txt" ftype="txt"/>
+                <element name="file3.pdf" value="file3.pdf" ftype="pdf"/>
+            </collection>
+         </param>
+         <conditional name="file_filter">
+                <param name="filter" value="all_files"/>
+                <param name="pattern" value=""/>
+            </conditional>
+         <output name="output" file="archive1.zip" compare="sim_size" delta="500" />
+        </test>
+                <test>
+         <param name="inputs">
+            <collection type="list">
+                <element name="file1.txt" value="file1.txt" ftype="txt" />
+                <element name="file2.txt" value="file2.txt" ftype="txt"/>
+                <element name="file3.pdf" value="file3.pdf" ftype="pdf"/>
+            </collection>
+         </param>
+            <conditional name="file_filter">
+                <param name="filter" value="data_type"/>
+                <param name="pattern" value="pdf"/>
+            </conditional>
+         <output name="output" file="archive2.zip" compare="sim_size" delta="500" />
+        </test>
+    </tests>
+    <help><![CDATA[
+**What it does**
+
+Create a ZIP file from a collection input.
+
+**File selection options**
+
+1) *All files in the collection*: ZIP all files in the collection creating a single bundle
+2) *Filter by data type*: ZIP just files a specific extension
+
+    ]]></help>
+    <citations>
+        <citation type="bibtex">@software{infozip_zip_3_0,
+  author       = {{Info-ZIP}},
+  title        = {Zip 3.0},
+  version      = {3.0},
+  year         = {2008},
+  publisher    = {Info-ZIP},
+  url          = {https://infozip.sourceforge.net/Zip.html},
+  note         = {Command-line ZIP archiver for Unix and other operating systems}
+}</citation>
+    </citations>
+</tool>

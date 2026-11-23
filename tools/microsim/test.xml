@@ -1,0 +1,120 @@
+<tool id="microsim" name="microsim" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="20.01" license="MIT">
+    <description>pore-scale pseudo-3D Stokes flow simulation from a PGM geometry</description>
+    <macros>
+        <token name="@TOOL_VERSION@">0.1.0</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+        <!-- built from ../docker (see docker/README.md) - "for use as a Galaxy tool container".
+             Pinned to a real tag (not :latest) so job runs stay reproducible - bump this and
+             re-push when the image changes. -->
+        <token name="@DUMUX_PATH@">/opt/install/dumux/pseudo3D_stokes/build-cmake/appl</token>
+    </macros>
+    <creator>
+        <person givenName="Felix" familyName="Weinhardt" identifier="0000-0002-1758-9427" url="https://www.ufz.de/index.php?en=51780"/>
+        <organization name="Helmholtz Centre for Environmental Research - UFZ, Department of Technical Biogeochemistry" url ="https://www.ufz.de/index.php?en=34235"/>
+    </creator> 
+    <!-- No EDAM topic/operation annotation: checked the EDAM ontology directly (edamontology.org/EDAM.obo)
+         and it has no fluid-dynamics/porous-media/physical-simulation terms - it's scoped to
+         bioinformatics, and the closest candidate (EDAM_operation:2426, "Modelling and simulation")
+         is explicitly defined as biological-entity-only, so it would misrepresent this tool.
+         Likewise no bio.tools xref - this isn't a bioinformatics tool. -->
+    <requirements>
+        <container type="docker">registry.hzdr.de/felix.weinhardt/microsim:@TOOL_VERSION@</container>
+    </requirements>
+    <!-- Runs runStokesGeneric.py (see ../docker/templates/runSim_template_local_docker.py, which
+         does the same thing via a manual "docker run") inside the @TOOL_CONTAINER@ image. The
+         image's default working directory already has the generic .input template and the
+         compiled solver, so only the geometry and the three physical parameters need to come
+         from the user. The uploaded .pgm is always renamed to geometry.pgm, so output filenames
+         (which runStokesGeneric.py derives from the .pgm basename) are predictable regardless of
+         what the user named their upload. -->
+    <command detect_errors="exit_code"><![CDATA[
+#set $pixelsize_x_m = float($sim_params.pixelsize_x_um) * 1e-6
+#set $pixelsize_y_m = float($sim_params.pixelsize_y_um) * 1e-6
+#set $height_m = float($sim_params.height_um) * 1e-6
+mkdir -p case_input case_output &&
+cp '$pgm_file' 'case_input/geometry.pgm' &&
+python3 '@DUMUX_PATH@/runStokesGeneric.py' -dir case_input -outdir case_output -input '@DUMUX_PATH@/genericInput.input' -vs_x $pixelsize_x_m -vs_y $pixelsize_y_m -height $height_m -dumux '@DUMUX_PATH@' -exec pseudo3D_stokes -govEq brinkman -no_lambda -heightAveraged -get_phi -vtu
+]]></command>
+    <inputs>
+        <param name="pgm_file" type="data" format="pgm" label="PGM geometry">
+        </param>
+        <section name="sim_params" title="Simulation parameters" expanded="true">
+            <param name="pixelsize_x_um" type="float" value="1" min="0" label="Pixel size in x [µm]"/>
+            <param name="pixelsize_y_um" type="float" value="1" min="0" label="Pixel size in y [µm]"/>
+            <param name="height_um" type="float" value="36" min="0" label="Channel height [µm]"/>
+        </section>
+    </inputs>
+    <outputs>
+        <data name="output_vtu"
+            format="vtkxml"
+            from_work_dir="case_output/geometry-00001.vtu"
+            label="${pgm_file.element_identifier.rsplit('.', 1)[0]}"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="pgm_file" value="hx_singlePrecipitate_full.pgm" ftype="pgm"/>
+            <param name="sim_params|pixelsize_x_um" value="1"/>
+            <param name="sim_params|pixelsize_y_um" value="1"/>
+            <param name="sim_params|height_um" value="36"/>
+            <!-- bit-identical across repeated runs given the same input (verified by
+                 diffing two independent runs), so this compares exactly against a
+                 committed reference. -->
+            <output name="output_vtu" ftype="vtkxml">
+                <assert_contents>
+                    <has_size min="1600000"/>
+                    <has_text text='&lt;VTKFile type="UnstructuredGrid"'/>
+                </assert_contents>
+            </output>
+        </test>
+
+        <!-- Hint: You can use [ctrl+alt+t] after defining the inputs/outputs to auto-scaffold some basic test cases. -->
+    </tests>
+    <help><![CDATA[
+
+.. class:: infomark
+
+**What it does**
+
+This tool runs the **Pseudo-3D-Stokes module for varying apertures**, a DuMux-based simulation module developed to help plan, improve, and interpret microfluidic experiments through numerical simulation of Stokes/Brinkman flow.
+
+The pore geometry is given as an 8-bit grayscale PGM image, where each pixel encodes the local aperture of the microfluidic cell at that point: 0 is fully closed, 255 is fully open (the channel height you set below), and intermediate values represent partially open apertures. It then solves for the flow field on this pseudo-3D channel, driven by a fixed pressure difference between inlet and outlet.
+
+**How to use it**
+
+1. Upload or select a PGM geometry image as **PGM geometry**.
+2. Under **Simulation parameters**, set the physical size a single pixel represents (**Pixel size in x/y**) and the **Channel height** - all in micrometers (µm).
+3. Click **Run Tool**.
+4. Once the job finishes, the output VTU file (named after your uploaded geometry) contains the converged pressure/velocity field and can be downloaded or opened with a VTK-aware viewer such as `ParaView <https://www.paraview.org/>`_.
+
+**Input**
+
+- **PGM geometry**: an 8-bit grayscale PGM pore/aperture geometry image.
+- **Pixel size in x / Pixel size in y**: physical size of one pixel, in µm.
+- **Channel height**: height of the pseudo-3D channel, in µm.
+
+**Output**
+
+A single VTU file holding the final (converged) timestep of the simulation (pressure and velocity fields).
+
+**Publication**
+
+If you use this tool in scientific work, please cite:
+
+    Krach D, Weinhardt F, Wang M, Schneider M, Class H, Steeb H. *A novel geometry-informed drag term formulation for pseudo-3D Stokes simulations with varying apertures.* Advances in Water Resources, 195 (2025). doi: `10.1016/j.advwatres.2024.104860 <https://doi.org/10.1016/j.advwatres.2024.104860>`_
+
+Source code: `git.iws.uni-stuttgart.de/krachdd/pseudo3D_stokes <https://git.iws.uni-stuttgart.de/krachdd/pseudo3D_stokes>`_
+
+**Contact / support**
+
+- `Felix Weinhardt <mailto:felix.weinhardt@ufz.de>`_
+
+**Note**
+
+In this current version, the boundary conditions are fixed: the pressure difference between inlet and outlet is hard-coded to **1.4x10^-3 Pa (0.0014 Pa)**, and the resulting velocity field is whatever this fixed pressure difference produces for your geometry - it is not itself a free parameter. In upcoming versions, the pressure difference (and/or a target flow rate) are planned to be exposed as adjustable inputs.
+
+
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1016/j.advwatres.2024.104860</citation>
+    </citations>
+</tool>

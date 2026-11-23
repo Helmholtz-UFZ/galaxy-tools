@@ -1,0 +1,149 @@
+<tool id="recap_prok_module3_interpretation" name="RECAP-PROK CDS Interpretation" version="0.1.0" profile="23.0">
+    <description>CDS extension, truncation, locus-shift interpretation and summary figures</description>
+    <creator>
+        <person givenName="Asaad" familyName="Ataa" identifier="https://orcid.org/0000-0002-0399-0615"/>
+        <organization name="Department Computational Biology and Chemistry (COMPBC), Helmholtz Centre for Environmental Research (UFZ)"/>
+    </creator>
+    <requirements>
+        <requirement type="package" version="3.11">python</requirement>
+        <requirement type="package" version="2.3.3">pandas</requirement>
+        <requirement type="package" version="3.10.5">matplotlib-base</requirement>
+        <requirement type="package" version="9.5">coreutils</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+set -euo pipefail &&
+mkdir -p interpretation_out &&
+printf 'path\tlabel\tsequence_type\n' > manifest.tsv &&
+
+#for $dataset in $bacterial_pairs
+printf '%s\t%s\tbacteria\n' '$dataset' '$dataset.element_identifier' >> manifest.tsv &&
+#end for
+
+#for $dataset in $plasmid_pairs
+printf '%s\t%s\tplasmid\n' '$dataset' '$dataset.element_identifier' >> manifest.tsv &&
+#end for
+
+python '$__tool_directory__/pairs_classified_inter.py' --manifest manifest.tsv --output-table interpretation_out/CDS_mapping_summary_NCBI_reference_vs_Prodigal_reannotation.tsv --legend interpretation_out/module3_legend.txt --output-dir interpretation_out &&
+
+test -s interpretation_out/CDS_mapping_summary_NCBI_reference_vs_Prodigal_reannotation.tsv &&
+test -s interpretation_out/module3_legend.txt &&
+
+cp interpretation_out/CDS_mapping_summary_NCBI_reference_vs_Prodigal_reannotation.tsv '$summary_table' &&
+cp interpretation_out/module3_legend.txt '$legend' &&
+
+#if $bacterial_pairs
+test -s interpretation_out/Figure_1A_bacterial_chromosomes_NCBI_vs_Prodigal_CDS_mapping.png &&
+test -s interpretation_out/Figure_2A_bacterial_chromosomes_mean_CDS_length_change.png &&
+cp interpretation_out/Figure_1A_bacterial_chromosomes_NCBI_vs_Prodigal_CDS_mapping.png '$fig_bac_mapping' &&
+cp interpretation_out/Figure_2A_bacterial_chromosomes_mean_CDS_length_change.png '$fig_bac_length' &&
+#end if
+
+#if $plasmid_pairs
+test -s interpretation_out/Figure_1B_plasmids_NCBI_vs_Prodigal_CDS_mapping.png &&
+test -s interpretation_out/Figure_2B_plasmids_mean_CDS_length_change.png &&
+cp interpretation_out/Figure_1B_plasmids_NCBI_vs_Prodigal_CDS_mapping.png '$fig_pls_mapping' &&
+cp interpretation_out/Figure_2B_plasmids_mean_CDS_length_change.png '$fig_pls_length'
+#end if
+]]></command>
+    <inputs>
+        <param name="bacterial_pairs" type="data" multiple="true" optional="true" format="tabular" label="Bacterial classified CDS-pair tables" help="One or more pairs_classified.tsv outputs from RECAP-PROK CDS comparison."/>
+        <param name="plasmid_pairs" type="data" multiple="true" optional="true" format="tabular" label="Plasmid classified CDS-pair tables" help="One or more plasmid pairs_classified.tsv outputs from RECAP-PROK CDS comparison."/>
+    </inputs>
+    <outputs>
+        <data name="summary_table" format="tabular" label="${tool.name} on ${on_string}: CDS mapping summary"/>
+        <data name="legend" format="txt" label="${tool.name} on ${on_string}: legend"/>
+        <data name="fig_bac_mapping" format="png" label="${tool.name} on ${on_string}: bacterial CDS mapping">
+            <filter>bacterial_pairs</filter>
+        </data>
+        <data name="fig_pls_mapping" format="png" label="${tool.name} on ${on_string}: plasmid CDS mapping">
+            <filter>plasmid_pairs</filter>
+        </data>
+        <data name="fig_bac_length" format="png" label="${tool.name} on ${on_string}: bacterial mean CDS length change">
+            <filter>bacterial_pairs</filter>
+        </data>
+        <data name="fig_pls_length" format="png" label="${tool.name} on ${on_string}: plasmid mean CDS length change">
+            <filter>plasmid_pairs</filter>
+        </data>
+    </outputs>
+    <tests>
+        <test expect_num_outputs="6">
+            <param name="bacterial_pairs" value="pairs_bac_05.tsv,pairs_bac_08.tsv" ftype="tabular"/>
+            <param name="plasmid_pairs" value="pairs_pls_02.tsv,pairs_pls_031.tsv" ftype="tabular"/>
+            <output name="summary_table">
+                <assert_contents>
+                    <has_n_lines n="5"/>
+                    <has_text text="Genome"/>
+                    <has_text text="EM_{b}"/>
+                    <has_text text="EXT_{d}"/>
+                    <has_text text="TRUNC_{f}"/>
+                    <has_text text="Mean_∆CDS_(bp)_{i}"/>
+                </assert_contents>
+            </output>
+            <output name="legend">
+                <assert_contents>
+                    <has_text text="Definitions of column acronyms"/>
+                    <has_text text="ST_{a}"/>
+                    <has_text text="EM_{b}"/>
+                    <has_text text="EXT_{d}"/>
+                    <has_text text="TRUNC_{f}"/>
+                    <has_text text="LS_{h}"/>
+                </assert_contents>
+            </output>
+            <output name="fig_bac_mapping">
+                <assert_contents>
+                    <has_size min="1000"/>
+                </assert_contents>
+            </output>
+            <output name="fig_pls_mapping">
+                <assert_contents>
+                    <has_size min="1000"/>
+                </assert_contents>
+            </output>
+            <output name="fig_bac_length">
+                <assert_contents>
+                    <has_size min="1000"/>
+                </assert_contents>
+            </output>
+            <output name="fig_pls_length">
+                <assert_contents>
+                    <has_size min="1000"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+RECAP-PROK CDS Interpretation
+=============================
+
+This tool summarizes classified CDS pairs generated by the RECAP-PROK CDS
+Comparison step.
+
+The analysis includes:
+
+- exact CDS matches
+- Prodigal CDS extensions relative to the mapped NCBI reference
+- Prodigal CDS truncations relative to the mapped NCBI reference
+- locus shifts
+- mean CDS length changes
+- bacterial and plasmid summary figures
+
+The tool accepts multiple bacterial and plasmid input tables and does not depend
+on fixed genome identifiers or predefined file names.
+
+Each input must be a ``pairs_classified.tsv`` output generated for the
+corresponding bacterial chromosome or plasmid.
+
+The extension and truncation interpretation follows the RECAP-PROK CDS
+comparison logic.
+]]></help>
+    <citations>
+        <citation type="bibtex"><![CDATA[
+@software{recap_prok,
+  author = {Ataa, Asaad},
+  title = {RECAP-PROK},
+  url = {https://github.com/AboJoan/RECAP-PROK},
+  year = {2026}
+}
+    ]]></citation>
+    </citations>
+</tool>

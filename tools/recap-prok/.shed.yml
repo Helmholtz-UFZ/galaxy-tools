@@ -1,0 +1,24 @@
+name: suite_recap_prok
+owner: ufz
+description: A suite of tools for RECAP-PROK prokaryotic genome re-annotation.
+long_description: |
+     A suite of Galaxy tools from the RECAP-PROK framework for prokaryotic
+     genome re-annotation, including CDS comparison, classification and
+     interpretation, functional re-annotation, GenBank reconstruction,
+     and comparison.
+categories:
+- Sequence Analysis
+remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/recap-prok
+homepage_url: https://github.com/AboJoan/RECAP-PROK
+type: unrestricted
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: "Galaxy wrapper for {{ tool_name }}."
+suite:
+  name: suite_recap_prok
+  description: A suite of tools for RECAP-PROK prokaryotic genome re-annotation.
+  long_description: |
+      A suite of Galaxy tools from the RECAP-PROK framework for prokaryotic
+      genome re-annotation, including CDS comparison, classification and
+      interpretation, functional re-annotation, GenBank reconstruction,
+      and comparison.

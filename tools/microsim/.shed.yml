@@ -1,0 +1,18 @@
+# Repository name is "microsim" (matches the parent git repo,
+# codebase.helmholtz.cloud/felix.weinhardt/microsim). The tool it wraps is
+# dumux_pseudo3d_stokes (see test.xml's <tool id="dumux_pseudo3D">).
+name: microsim
+owner: ufz
+description: Pseudo-3D Stokes flow simulation on PGM pore-geometry images (DuMux-based)
+long_description: |
+  Runs the Pseudo-3D-Stokes module for varying apertures (a DuMux-based
+  simulation module) on an uploaded PGM pore/aperture geometry image, solving
+  for the Stokes flow field driven by a fixed pressure difference
+  between inlet and outlet, and returning the converged result as a VTU file.
+homepage_url: https://git.iws.uni-stuttgart.de/krachdd/pseudo3D_stokes
+remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/microsim
+type: unrestricted
+categories:
+  - Imaging
+  - Geo Science
+  - Structural Materials Analysis

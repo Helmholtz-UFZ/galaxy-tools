@@ -1,0 +1,55 @@
+<tool id="gene_ontology_download" name="Gene Ontology" tool_type="manage_data" version="1.0.0" profile="23.0">
+    <description>download versioned Gene Ontology reference files</description>
+    <requirements>
+        <requirement type="package" version="3.12">python</requirement>
+    </requirements>
+    <required_files>
+        <include path="download_go.py"/>
+    </required_files>
+    <command detect_errors="exit_code"><![CDATA[
+#if str($test) == "true"
+python '$__tool_directory__/download_go.py' '$out_file.extra_files_path' '$out_file' 'file://$__tool_directory__/../test-data/go-fixtures'
+#else
+python '$__tool_directory__/download_go.py' '$out_file.extra_files_path' '$out_file'
+#end if
+    ]]></command>
+    <inputs>
+        <param name="test" type="hidden"/>
+    </inputs>
+    <outputs>
+        <data name="out_file" format="data_manager_json"/>
+    </outputs>
+    <tests>
+        <test expect_num_outputs="1">
+            <param name="test" value="true"/>
+            <output name="out_file">
+                <assert_contents>
+                    <has_text text="gene_ontology"/>
+                    <has_text text="go-basic.obo"/>
+                    <has_text text="go-basic.owl"/>
+                    <has_text text="go-basic.json"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+
+    <help><![CDATA[
+Downloads nine official Gene Ontology reference files in OBO, OWL,
+JSON, and OFN formats.
+
+The release version is extracted from the downloaded ``go-basic.obo`` file.
+The data table contains one entry per downloaded Gene Ontology file,
+including its release version and filename.
+
+Each entry's ``path`` column resolves to the corresponding file.
+RECAP-PROK Module 4 Functional Comparison uses ``go-basic.obo``.
+    ]]></help>
+    <citations>
+        <citation type="bibtex"><![CDATA[
+@misc{gene_ontology,
+  title = {Gene Ontology},
+  url = {https://geneontology.org/}
+}
+        ]]></citation>
+    </citations>
+</tool>

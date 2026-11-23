@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: generateMatPropsFromMatID" id="ogs_generatematpropsfrommatid" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'generateMatPropsFromMatID'.</description>
+  <description>Creates a new file for material properties and sets the material ids in the msh-file to 0</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -10,11 +9,11 @@
   <version_command><![CDATA[generateMatPropsFromMatID --version]]></version_command>
   <command><![CDATA[
 #if $mesh
-ln -sf '$mesh' '${mesh}.msh';
+ln -sf '$mesh' 'mesh.msh';
 #end if
 generateMatPropsFromMatID
 #if $mesh
-    --mesh '${mesh}.msh'
+    --mesh 'mesh.msh'
 #end if
 ]]></command>
   <inputs>
@@ -22,12 +21,12 @@ generateMatPropsFromMatID
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from generateMatPropsFromMatID">
-      <discover_datasets pattern="(?P&lt;designation&gt;.*)\.vtu" format="vtkxml" visible="true" />
+      <discover_datasets pattern="(?!(?:mesh\.msh)$)(?P&lt;designation&gt;.*)\.vtu" format="vtkxml" visible="true" />
     </collection>
   </outputs>
   <tests>
     <expand macro="generatematpropsfrommatid_test" />
   </tests>
-  <help>This tool runs the **generateMatPropsFromMatID** utility from the OpenGeoSys suite.</help>
+  <help>Creates a new file for material properties and sets the material ids in the msh-file to 0</help>
   <expand macro="citations" />
 </tool>

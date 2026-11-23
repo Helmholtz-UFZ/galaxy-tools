@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: Raster2ASC" id="ogs_raster2asc" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'Raster2ASC'.</description>
+  <description>Converts ascii raster files (e.g. Surfer *.grd files or *.xyz files) into ASC raster files.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -9,9 +8,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[Raster2ASC --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '${input}.grd';
+ln -sf '$input' 'input.grd';
 Raster2ASC
-    --input '${input}.grd'
+    --input 'input.grd'
     --output output_1.asc
 ]]></command>
   <inputs>
@@ -23,6 +22,6 @@ Raster2ASC
   <tests>
     <expand macro="raster2asc_test" />
   </tests>
-  <help>This tool runs the **Raster2ASC** utility from the OpenGeoSys suite.</help>
+  <help>Converts ascii raster files (e.g. Surfer \*.grd files or \*.xyz files) into ASC raster files.</help>
   <expand macro="citations" />
 </tool>

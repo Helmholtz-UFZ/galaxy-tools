@@ -22,6 +22,19 @@
             </output>
         </test>
     </xml>
+    <xml name="addlayer_test">
+        <test expect_num_outputs="1">
+            <param name="input_mesh_file" value="SmallTest.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/Naegelstedt/SmallTest.vtu" ftype="vtkxml" />
+            <param name="add_layer_on_bottom" value="true" />
+            <param name="set_material_id" value="10" />
+            <output name="output_addlayer">
+                <assert_contents>
+                    <has_size min="1" />
+                </assert_contents>
+            </output>
+            <param name="layer_tickness" value="1" />
+        </test>
+    </xml>
     <xml name="assignrasterdatatomesh_test">
         <test expect_num_outputs="1">
             <param name="input" value="Ammer-Homogen100m-Final-TopSurface.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/Ammer/Ammer-Homogen100m-Final-TopSurface.vtu" ftype="vtkxml" />
@@ -36,10 +49,19 @@
         </test>
     </xml>
     <xml name="computenodeareasfromsurfacemesh_test">
-        <test>
+        <test expect_num_outputs="2">
             <param name="mesh_input_file" value="hex_27_cube_1x1x1_geometry_top_ts_0_t_0_000000_2.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/EllipticPETSc/cube_1x1x1_SteadyStateDiffusion/gml_output/3/hex_27_cube_1x1x1_geometry_top_ts_0_t_0_000000_2.vtu" />
             <param name="id_prop_name" value="bulk_node_ids" />
-            <output_collection name="tool_outputs" type="list" min="1" />
+            <output name="node_areas_csv">
+                <assert_contents>
+                    <has_size min="1" />
+                </assert_contents>
+            </output>
+            <output name="node_areas_txt">
+                <assert_contents>
+                    <has_size min="1" />
+                </assert_contents>
+            </output>
         </test>
     </xml>
     <xml name="createanchors_test">
@@ -53,6 +75,16 @@
             </output>
         </test>
     </xml>
+    <xml name="extractboundary_test">
+        <test expect_num_outputs="1">
+            <param name="mesh_input_file" value="AREHS_test.vtu" ftype="vtkxml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/Utils/VoxelGridFromLayers/AREHS_test.vtu" />
+            <output name="output_extractboundary">
+                <assert_contents>
+                    <has_size min="1" />
+                </assert_contents>
+            </output>
+        </test>
+    </xml>
     <xml name="extractmaterials_test">
         <test expect_num_outputs="2">
             <param name="input" value="SmallTest.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/Naegelstedt/SmallTest.vtu" ftype="vtkxml" />
@@ -60,6 +92,20 @@
             <output name="layer_info">
                 <assert_contents>
                     <has_size min="1" />
+                </assert_contents>
+            </output>
+        </test>
+    </xml>
+    <xml name="extractsurface_test">
+        <test expect_num_outputs="1">
+            <param name="mesh_input_file" value="cube_1x1x1_hex_1e3_layers_10.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshLib/cube_1x1x1_hex_1e3_layers_10.vtu" ftype="vtkxml" />
+            <param name="x_component" value="1" />
+            <param name="y_component" value="0" />
+            <param name="z_component" value="0" />
+            <param name="angle" value="25" />
+            <output name="output_extractsurface">
+                <assert_contents>
+                    <has_size min="100" />
                 </assert_contents>
             </output>
         </test>
@@ -383,11 +429,37 @@
             <output_collection name="tool_outputs" type="list" min="1" />
         </test>
     </xml>
+    <xml name="generatestructuredmesh_test">
+        <test expect_num_outputs="1">
+            <param name="element_type" value="quad" />
+            <param name="lx" value="3" />
+            <param name="ly" value="4" />
+            <param name="nx" value="3" />
+            <param name="ny" value="4" />
+            <output name="output_generatestructuredmesh">
+                <assert_contents>
+                    <has_size min="1" />
+                </assert_contents>
+            </output>
+        </test>
+    </xml>
     <xml name="geometrytogmshgeo_test">
         <test>
             <param name="input">
                 <collection type="list">
                     <element name="square_1x1.gml" value="square_1x1.gml" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/geometryToGmshGeo/square_1x1.gml" ftype="xml" />
+                </collection>
+            </param>
+            <output_collection name="tool_outputs" type="list" min="1" />
+        </test>
+    </xml>
+    <xml name="identifysubdomains_test">
+        <test>
+            <param name="mesh" value="2D_mesh.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/IdentifySubdomains/2D_mesh.vtu" ftype="vtkxml" />
+            <param name="subdomain_meshes_filenames">
+                <collection type="list">
+                    <element name="2D_mesh_top_boundary.vtu" value="2D_mesh_top_boundary.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/IdentifySubdomains/2D_mesh_top_boundary.vtu" ftype="vtkxml" />
+                    <element name="2D_mesh_bottom_boundary.vtu" value="2D_mesh_bottom_boundary.vtu" location="https://gitlab.opengeosys.org/ogs/ogs/-/raw/8ffec079b9ce8764ab565c6470839b34033bc718/Tests/Data/MeshGeoToolsLib/IdentifySubdomains/2D_mesh_bottom_boundary.vtu" ftype="vtkxml" />
                 </collection>
             </param>
             <output_collection name="tool_outputs" type="list" min="1" />

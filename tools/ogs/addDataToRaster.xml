@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: addDataToRaster" id="ogs_adddatatoraster" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'addDataToRaster'.</description>
+  <description>Add values to raster.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -9,7 +8,7 @@
   <expand macro="creator" />
   <version_command><![CDATA[addDataToRaster --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '${input}.asc';
+ln -sf '$input' 'input.asc';
 addDataToRaster
 #if str($scaling_value)
     --scaling_value '$scaling_value'
@@ -30,7 +29,7 @@ addDataToRaster
     --ur_y '$ur_y'
 #end if
     --function '$function'
-    --input '${input}.asc'
+    --input 'input.asc'
     --output_raster output_1.asc
 ]]></command>
   <inputs>
@@ -53,6 +52,6 @@ addDataToRaster
   <tests>
     <expand macro="adddatatoraster_test" />
   </tests>
-  <help>This tool runs the **addDataToRaster** utility from the OpenGeoSys suite.</help>
+  <help>Add values to raster.</help>
   <expand macro="citations" />
 </tool>

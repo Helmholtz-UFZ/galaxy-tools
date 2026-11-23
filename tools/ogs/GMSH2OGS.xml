@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: GMSH2OGS" id="ogs_gmsh2ogs" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'GMSH2OGS'.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -9,9 +7,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[GMSH2OGS --version]]></version_command>
   <command><![CDATA[
-ln -sf '$in' '${in}.msh';
+ln -sf '$in' 'in.msh';
 GMSH2OGS
-    --in '${in}.msh'
+    --in 'in.msh'
     $validation
     $boundaries
     $exclude_lines
@@ -31,6 +29,6 @@ GMSH2OGS
   <tests>
     <expand macro="gmsh2ogs_test" />
   </tests>
-  <help>This tool runs the **GMSH2OGS** utility from the OpenGeoSys suite.</help>
+  <help>Converting meshes in gmsh file format (ASCII, version 2.2) to a vtk unstructured grid file (new OGS file format) or to the old OGS file format - see options.</help>
   <expand macro="citations" />
 </tool>

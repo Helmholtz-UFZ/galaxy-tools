@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: removeMeshElements" id="ogs_removemeshelements" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'removeMeshElements'.</description>
+  <description>Removes mesh elements based on element type, element volume, scalar arrays, or bounding box.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -9,7 +8,7 @@
   <expand macro="creator" />
   <version_command><![CDATA[removeMeshElements --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh_input_file' '${mesh_input_file}.vtu';
+ln -sf '$mesh_input_file' 'mesh_input_file.vtu';
 removeMeshElements
     $invert
 #if str($z_max)
@@ -48,7 +47,7 @@ removeMeshElements
 #end if
     $outside
     $inside
-    --mesh-input-file '${mesh_input_file}.vtu'
+    --mesh-input-file 'mesh_input_file.vtu'
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>
@@ -70,7 +69,9 @@ removeMeshElements
       <option value="tet">tet</option>
       <option value="pyramid">pyramid</option>
     </param>
-    <param argument="--property-name" type="text" optional="true" label="property name" help="name of property in the mesh" />
+    <param argument="--property-name" type="text" optional="true" label="property name" help="name of property in the mesh">
+      <sanitizer sanitize="false" />
+    </param>
     <param argument="--property-value" type="integer" optional="true" label="property value" help="value of selected property to be removed" />
     <param argument="--min-value" type="float" optional="true" label="min value" help="minimum value of range for selected property" />
     <param argument="--max-value" type="float" optional="true" label="max value" help="maximum value of range for selected property" />
@@ -84,6 +85,6 @@ removeMeshElements
   <tests>
     <expand macro="removemeshelements_test" />
   </tests>
-  <help>This tool runs the **removeMeshElements** utility from the OpenGeoSys suite.</help>
+  <help>Removes mesh elements based on element type, element volume, scalar arrays, or bounding box. The documentation is available at https://docs.opengeosys.org/docs/tools/meshing/remove-mesh-elements.</help>
   <expand macro="citations" />
 </tool>

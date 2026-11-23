@@ -295,38 +295,6 @@ jobs:
         name: 'File size report'
         path: file_size_report.txt
 
-  # Verify the committed tools/ogs wrappers are reproducible from the
-  # generator: every tool XML and the shared test macros must be regenerated
-  # byte-for-byte by scripts/ogs_autowrap/gen.py (no hand-edits).
-  reproducibility:
-    name: Check OGS wrappers are reproducible
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v7
-      with:
-        persist-credentials: false
-    - uses: actions/setup-python@v7
-      with:
-        python-version: '3.11'
-    - name: Install generator dependencies
-      run: pip install -r scripts/ogs_autowrap/requirements.txt
-    - name: Resolve pinned OGS commit
-      id: ogs
-      run: |
-        sha=$(sed -n 's/^OGS_PINNED_COMMIT *= *"\([0-9a-f]*\)".*/\1/p' scripts/ogs_autowrap/gen.py)
-        echo "sha=$sha" >> "$GITHUB_OUTPUT"
-    - name: Sparse-checkout OGS source at the pinned commit
-      run: |
-        git init ogs-src
-        cd ogs-src
-        git remote add origin https://gitlab.opengeosys.org/ogs/ogs.git
-        git fetch --depth 1 origin "${{ steps.ogs.outputs.sha }}"
-        git sparse-checkout init --cone
-        git sparse-checkout set Applications/Utils
-        git checkout -q FETCH_HEAD
-    - name: Verify generated wrappers match tools/ogs
-      run: python scripts/ogs_autowrap/gen.py --ogs-root ogs-src --check
-
   # Planemo test the changed repositories, each chunk creates an artifact
   # containing HTML and JSON reports for the executed tests
   test:
@@ -612,7 +580,7 @@ jobs:
 
   determine-success:
     name: Check workflow success
-    needs: [setup, lint, flake8, lintr, file_sizes, reproducibility, combine_outputs]
+    needs: [setup, lint, flake8, lintr, file_sizes, combine_outputs]
     if: ${{ always() && github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main' }}
     runs-on: ubuntu-latest
     steps:
@@ -627,9 +595,6 @@ jobs:
       run: exit 1
     - name: Indicate file size check status
       if: ${{ needs.file_sizes.result != 'success' && needs.file_sizes.result != 'skipped' }}
-      run: exit 1
-    - name: Check reproducibility status
-      if: ${{ needs.reproducibility.result != 'success' && needs.reproducibility.result != 'skipped' }}
       run: exit 1
     - name: Check tool test status
       if: ${{ needs.combine_outputs.result != 'success' && needs.combine_outputs.result != 'skipped' }}

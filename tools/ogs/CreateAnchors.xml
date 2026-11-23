@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: CreateAnchors" id="ogs_createanchors" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'CreateAnchors'.</description>
+  <description>Computes natual coordinates from given real coordinates</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -9,11 +8,11 @@
   <expand macro="creator" />
   <version_command><![CDATA[CreateAnchors --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '${input}.vtu';
-ln -sf '$json_file' '${json_file}.json';
+ln -sf '$input' 'input.vtu';
+ln -sf '$json_file' 'json_file.json';
 CreateAnchors
-    --input '${input}.vtu'
-    --json-file '${json_file}.json'
+    --input 'input.vtu'
+    --json-file 'json_file.json'
 #if str($tolerance)
     --tolerance '$tolerance'
 #end if
@@ -26,7 +25,7 @@ CreateAnchors
     <param argument="--input" type="data" optional="false" label="input" help="Input (.vtu) bulk mesh file" format="vtkxml" />
     <param argument="--json-file" type="data" optional="false" label="json file" help="Input (.json) JSON file containing anchor start and end points" format="json" />
     <param argument="--tolerance" type="float" optional="true" label="tolerance" help="Tolerance/Search length" />
-    <param argument="--max-iter" type="text" optional="true" label="max iter" help="maximum number of iterations of the internal root-finding algorithm, (min = 0)" />
+    <param argument="--max-iter" type="integer" optional="true" label="max iter" help="maximum number of iterations of the internal root-finding algorithm" min="0" />
   </inputs>
   <outputs>
     <data name="output_createanchors" format="vtkxml" label="Output from CreateAnchors" from_work_dir="output_1.vtu" hidden="false" />
@@ -34,6 +33,6 @@ CreateAnchors
   <tests>
     <expand macro="createanchors_test" />
   </tests>
-  <help>This tool runs the **CreateAnchors** utility from the OpenGeoSys suite.</help>
+  <help>Computes natual coordinates from given real coordinates</help>
   <expand macro="citations" />
 </tool>

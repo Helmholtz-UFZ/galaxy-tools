@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: MapGeometryToMeshSurface" id="ogs_mapgeometrytomeshsurface" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'MapGeometryToMeshSurface'.</description>
+  <description>Maps geometric objects to the surface of a given mesh.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -9,11 +8,11 @@
   <expand macro="creator" />
   <version_command><![CDATA[MapGeometryToMeshSurface --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh_file' '${mesh_file}.vtu';
-ln -sf '$input_geometry' '${input_geometry}.gml';
+ln -sf '$mesh_file' 'mesh_file.vtu';
+ln -sf '$input_geometry' 'input_geometry.gml';
 MapGeometryToMeshSurface
-    --mesh-file '${mesh_file}.vtu'
-    --input-geometry '${input_geometry}.gml'
+    --mesh-file 'mesh_file.vtu'
+    --input-geometry 'input_geometry.gml'
     $additional_insert_mapping
     --output-geometry output_1.gml
 ]]></command>
@@ -28,6 +27,6 @@ MapGeometryToMeshSurface
   <tests>
     <expand macro="mapgeometrytomeshsurface_test" />
   </tests>
-  <help>This tool runs the **MapGeometryToMeshSurface** utility from the OpenGeoSys suite.</help>
+  <help>Maps geometric objects to the surface of a given mesh. The documentation is available at https://docs.opengeosys.org/docs/tools/model-preparation/map-geometric-object-to-the-surface-of-a-mesh.</help>
   <expand macro="citations" />
 </tool>

@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: RemoveGhostData" id="ogs_removeghostdata" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'RemoveGhostData'.</description>
+  <description>Reads a VTK partitioned unstructured grid (*.pvtu), cleans the ghost information and saves the data as as a regular, connected mesh file.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -9,9 +8,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[RemoveGhostData --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '${input}.pvtu';
+ln -sf '$input' 'input.pvtu';
 RemoveGhostData
-    --input '${input}.pvtu'
+    --input 'input.pvtu'
     --output output_1.vtu
 ]]></command>
   <inputs>
@@ -23,6 +22,6 @@ RemoveGhostData
   <tests>
     <expand macro="removeghostdata_test" />
   </tests>
-  <help>This tool runs the **RemoveGhostData** utility from the OpenGeoSys suite.</help>
+  <help>Reads a VTK partitioned unstructured grid (\*.pvtu), cleans the ghost information and saves the data as as a regular, connected mesh file.</help>
   <expand macro="citations" />
 </tool>

@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: GocadTSurfaceReader" id="ogs_gocadtsurfacereader" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'GocadTSurfaceReader'.</description>
+  <description>Reads Gocad ascii files (*.ts, *.pl, *.mx) and writes TSurf- and PLinedata into one or more VTU unstructured grids.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -9,13 +8,13 @@
   <expand macro="creator" />
   <version_command><![CDATA[GocadTSurfaceReader --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input_file' '${input_file}.ts';
+ln -sf '$input_file' 'input_file.ts';
 mkdir -p 'outputs';
 GocadTSurfaceReader
     $write_binary
     $surfaces_only
     $lines_only
-    --input-file '${input_file}.ts'
+    --input-file 'input_file.ts'
     --output-dir 'outputs'
 ]]></command>
   <inputs>
@@ -32,6 +31,6 @@ GocadTSurfaceReader
   <tests>
     <expand macro="gocadtsurfacereader_test" />
   </tests>
-  <help>This tool runs the **GocadTSurfaceReader** utility from the OpenGeoSys suite.</help>
+  <help>Reads Gocad ascii files (\*.ts, \*.pl, \*.mx) and writes TSurf- and PLinedata into one or more VTU unstructured grids.</help>
   <expand macro="citations" />
 </tool>

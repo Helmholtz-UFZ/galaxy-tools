@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: geometryToGmshGeo" id="ogs_geometrytogmshgeo" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'geometryToGmshGeo'.</description>
+  <description>Tool to create gmsh geometry (geo-file) out of a gml geometry.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -35,10 +34,10 @@ geometryToGmshGeo
 ]]></command>
   <inputs>
     <param argument="--input" type="data_collection" optional="false" label="input" help="Input (.gml) geometry file" format="xml" collection_type="list" />
-    <param argument="--max_points_in_quadtree_leaf" type="text" optional="true" label="max points in quadtree leaf" help="positive number/ (min = 0)" />
-    <param argument="--mesh_density_scaling_at_points" type="float" optional="true" label="mesh density scaling at points" help="positive floating point number, (min = 0)" />
-    <param argument="--mesh_density_scaling_at_stations" type="float" optional="true" label="mesh density scaling at stations" help="positive floating point number, (min = 0)" />
-    <param argument="--average_point_density" type="float" optional="true" label="average point density" help="average point density / average edge length as a positive floating point number, (min = 0)" />
+    <param argument="--max_points_in_quadtree_leaf" type="integer" optional="true" label="max points in quadtree leaf" help="positive number" min="0" />
+    <param argument="--mesh_density_scaling_at_points" type="float" optional="true" label="mesh density scaling at points" help="positive floating point number" min="0" />
+    <param argument="--mesh_density_scaling_at_stations" type="float" optional="true" label="mesh density scaling at stations" help="positive floating point number" min="0" />
+    <param argument="--average_point_density" type="float" optional="true" label="average point density" help="average point density / average edge length as a positive floating point number" min="0" />
     <param argument="--homogeneous" type="boolean" label="homogeneous" help="Use Gmsh homogeneous meshing method." checked="false" truevalue="--homogeneous" falsevalue="" />
   </inputs>
   <outputs>
@@ -49,6 +48,6 @@ geometryToGmshGeo
   <tests>
     <expand macro="geometrytogmshgeo_test" />
   </tests>
-  <help>This tool runs the **geometryToGmshGeo** utility from the OpenGeoSys suite.</help>
+  <help>Tool to create gmsh geometry (geo-file) out of a gml geometry.</help>
   <expand macro="citations" />
 </tool>

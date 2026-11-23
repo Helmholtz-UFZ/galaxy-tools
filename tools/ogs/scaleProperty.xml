@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: scaleProperty" id="ogs_scaleproperty" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'scaleProperty'.</description>
+  <description>Scales a property of a mesh.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -9,15 +8,18 @@
   <expand macro="creator" />
   <version_command><![CDATA[scaleProperty --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh' '${mesh}.vtu';
+ln -sf '$mesh' 'mesh.vtu';
 scaleProperty
     --property-name '$property_name'
-    --mesh '${mesh}.vtu'
+    --mesh 'mesh.vtu'
     --input-unit '$input_unit'
     --out-mesh output_1.vtu
 ]]></command>
   <inputs>
-    <param argument="--property-name" type="text" optional="false" label="property name" help="the name of the property the values are stored for" />
+    <param argument="--property-name" type="text" optional="false" label="property name" help="the name of the property the values are stored for">
+      <sanitizer sanitize="false" />
+      <validator type="empty_field" />
+    </param>
     <param argument="--mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The input mesh is read from this file" format="vtkxml" />
     <param argument="--input-unit" type="select" optional="false" label="input unit" help="input unit of the data" multiple="false">
       <option value="mm/a">mm/a</option>
@@ -31,6 +33,6 @@ scaleProperty
   <tests>
     <expand macro="scaleproperty_test" />
   </tests>
-  <help>This tool runs the **scaleProperty** utility from the OpenGeoSys suite.</help>
+  <help>Scales a property of a mesh.</help>
   <expand macro="citations" />
 </tool>

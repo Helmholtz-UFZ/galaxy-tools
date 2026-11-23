@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: Vtu2Grid" id="ogs_vtu2grid" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'Vtu2Grid'.</description>
+  <description>Reads a 3D unstructured mesh and samples it onto a structured grid of the same extent.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -9,7 +8,7 @@
   <expand macro="creator" />
   <version_command><![CDATA[Vtu2Grid --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '${input}.vtu';
+ln -sf '$input' 'input.vtu';
 Vtu2Grid
 #if str($cellsize_z)
     --cellsize-z '$cellsize_z'
@@ -18,13 +17,13 @@ Vtu2Grid
     --cellsize-y '$cellsize_y'
 #end if
     --cellsize-x '$cellsize_x'
-    --input '${input}.vtu'
+    --input 'input.vtu'
     --output output_1.vtu
 ]]></command>
   <inputs>
-    <param argument="--cellsize-z" type="float" optional="true" label="cellsize z" help="edge length of cubes in z-direction (depth), (min = 0)" />
-    <param argument="--cellsize-y" type="float" optional="true" label="cellsize y" help="edge length of cubes in y-direction (latitude), (min = 0)" />
-    <param argument="--cellsize-x" type="float" optional="false" label="cellsize x" help="edge length of cubes in x-direction (longitude) or all directions, if y and z are not set, (min = 0)" />
+    <param argument="--cellsize-z" type="float" optional="true" label="cellsize z" help="edge length of cubes in z-direction (depth)" min="0" />
+    <param argument="--cellsize-y" type="float" optional="true" label="cellsize y" help="edge length of cubes in y-direction (latitude)" min="0" />
+    <param argument="--cellsize-x" type="float" optional="false" label="cellsize x" help="edge length of cubes in x-direction (longitude) or all directions, if y and z are not set" min="0" />
     <param argument="--input" type="data" optional="false" label="input" help="Input (.vtu | .msh). The 3D input mesh file" format="vtkxml" />
   </inputs>
   <outputs>
@@ -33,6 +32,6 @@ Vtu2Grid
   <tests>
     <expand macro="vtu2grid_test" />
   </tests>
-  <help>This tool runs the **Vtu2Grid** utility from the OpenGeoSys suite.</help>
+  <help>Reads a 3D unstructured mesh and samples it onto a structured grid of the same extent. Cell properties are mapped onto the grid (sampled at the centre-points of each cube), node properties are ignored. Note, that a large cube size may result in an undersampling of the original mesh structure. Cube sizes are defines by x/y/z-parameters. For equilateral cubes, only the x-parameter needs to be set.</help>
   <expand macro="citations" />
 </tool>

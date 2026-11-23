@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: generateGeometry" id="ogs_generategeometry" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'generateGeometry'.</description>
+  <description>Generate point, axis parallel polyline or axis parallel quad geometry.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -55,8 +54,12 @@ generateGeometry
     <param argument="--ny1" type="integer" optional="true" label="ny1" help="number of subdivisions in y direction" />
     <param argument="--nz" type="integer" optional="true" label="nz" help="number of subdivisions in z direction" />
     <param argument="--nz1" type="integer" optional="true" label="nz1" help="number of subdivisions in z direction" />
-    <param argument="--geometry_name" type="text" optional="true" label="geometry name" help="name of the generated geometry" />
-    <param argument="--polyline_name" type="text" optional="true" label="polyline name" help="name of the generated polyline" />
+    <param argument="--geometry_name" type="text" optional="true" label="geometry name" help="name of the generated geometry">
+      <sanitizer sanitize="false" />
+    </param>
+    <param argument="--polyline_name" type="text" optional="true" label="polyline name" help="name of the generated polyline">
+      <sanitizer sanitize="false" />
+    </param>
   </inputs>
   <outputs>
     <data name="output_generategeometry" format="xml" label="Output from generateGeometry" from_work_dir="output_1.gml" hidden="false" />
@@ -64,6 +67,6 @@ generateGeometry
   <tests>
     <expand macro="generategeometry_test" />
   </tests>
-  <help>This tool runs the **generateGeometry** utility from the OpenGeoSys suite.</help>
+  <help>Generate point, axis parallel polyline or axis parallel quad geometry.</help>
   <expand macro="citations" />
 </tool>

@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: RemoveUnusedPoints" id="ogs_removeunusedpoints" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'RemoveUnusedPoints'.</description>
+  <description>Remove points from geometry that are not used in any polyline nor surface.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -9,9 +8,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[RemoveUnusedPoints --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input' '${input}.gml';
+ln -sf '$input' 'input.gml';
 RemoveUnusedPoints
-    --input '${input}.gml'
+    --input 'input.gml'
     --output output_1.gml
 ]]></command>
   <inputs>
@@ -23,6 +22,6 @@ RemoveUnusedPoints
   <tests>
     <expand macro="removeunusedpoints_test" />
   </tests>
-  <help>This tool runs the **RemoveUnusedPoints** utility from the OpenGeoSys suite.</help>
+  <help>Remove points from geometry that are not used in any polyline nor surface. Attention: Names of points are not handled correctly in every case.</help>
   <expand macro="citations" />
 </tool>

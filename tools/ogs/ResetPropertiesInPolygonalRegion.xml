@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: ResetPropertiesInPolygonalRegion" id="ogs_resetpropertiesinpolygonalregion" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'ResetPropertiesInPolygonalRegion'.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -9,14 +7,14 @@
   <expand macro="creator" />
   <version_command><![CDATA[ResetPropertiesInPolygonalRegion --version]]></version_command>
   <command><![CDATA[
-ln -sf '$geometry' '${geometry}.gml';
-ln -sf '$mesh_input_file' '${mesh_input_file}.vtu';
+ln -sf '$geometry' 'geometry.gml';
+ln -sf '$mesh_input_file' 'mesh_input_file.vtu';
 #if $gmsh_path
-ln -sf '$gmsh_path' '${gmsh_path}.msh';
+ln -sf '$gmsh_path' 'gmsh_path.msh';
 #end if
 ResetPropertiesInPolygonalRegion
     --polygon-name '$polygon_name'
-    --geometry '${geometry}.gml'
+    --geometry 'geometry.gml'
     $any_of
 #if str($char_property_value)
     --char-property-value '$char_property_value'
@@ -30,19 +28,26 @@ ResetPropertiesInPolygonalRegion
 #if str($restrict_to_MaterialID)
     --restrict-to-MaterialID '$restrict_to_MaterialID'
 #end if
-    --mesh-input-file '${mesh_input_file}.vtu'
+    --mesh-input-file 'mesh_input_file.vtu'
 #if $gmsh_path
-    --gmsh-path '${gmsh_path}.msh'
+    --gmsh-path 'gmsh_path.msh'
 #end if
     --mesh-output-file output_1.vtu
 ]]></command>
   <inputs>
-    <param argument="--polygon-name" type="text" optional="false" label="polygon name" help="name of polygon in the geometry" />
+    <param argument="--polygon-name" type="text" optional="false" label="polygon name" help="name of polygon in the geometry">
+      <sanitizer sanitize="false" />
+      <validator type="empty_field" />
+    </param>
     <param argument="--geometry" type="data" optional="false" label="geometry" help="Input (.gli | .gml). The name of the file containing the input geometry" format="xml" />
     <param argument="--any_of" type="boolean" label="any of" help="all nodes of an element has to be inside the polygon (default behaviour without switch) or any node of an element has to be inside (switch is given)" checked="false" truevalue="--any_of" falsevalue="" />
-    <param argument="--char-property-value" type="text" optional="true" label="char property value" help="new property value (data type char)" />
+    <param argument="--char-property-value" type="text" optional="true" label="char property value" help="new property value (data type char)">
+      <sanitizer sanitize="false" />
+    </param>
     <param argument="--int-property-value" type="integer" optional="true" label="int property value" help="new property value (data type int)" />
-    <param argument="--property-name" type="text" optional="true" label="property name" help="name of property in the mesh" />
+    <param argument="--property-name" type="text" optional="true" label="property name" help="name of property in the mesh">
+      <sanitizer sanitize="false" />
+    </param>
     <param argument="--restrict-to-MaterialID" type="integer" optional="true" label="restrict to MaterialID" help="Restrict resetting the property to the material id" />
     <param argument="--mesh-input-file" type="data" optional="false" label="mesh input file" help="Input (.vtu | .vtk | .msh). The name of the file containing the input mesh" format="vtkxml" />
     <param argument="--gmsh-path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input binary" format="gmsh.msh" />
@@ -53,6 +58,6 @@ ResetPropertiesInPolygonalRegion
   <tests>
     <expand macro="resetpropertiesinpolygonalregion_test" />
   </tests>
-  <help>This tool runs the **ResetPropertiesInPolygonalRegion** utility from the OpenGeoSys suite.</help>
+  <help>Sets the property value of a mesh element to a given new value iff at least one node of the element is within a polygonal region that is given by a polygon. The documentation is available at https://docs.opengeosys.org/docs/tools/model-preparation/set-properties-in-polygonal-region.</help>
   <expand macro="citations" />
 </tool>

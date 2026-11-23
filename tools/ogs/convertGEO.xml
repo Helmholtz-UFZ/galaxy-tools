@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: convertGEO" id="ogs_convertgeo" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'convertGEO'.</description>
+  <description>Converts OGS geometry file into another file format.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -9,14 +8,14 @@
   <expand macro="creator" />
   <version_command><![CDATA[convertGEO --version]]></version_command>
   <command><![CDATA[
-ln -sf '$input_file' '${input_file}.gml';
+ln -sf '$input_file' 'input_file.gml';
 #if $gmsh_path
-ln -sf '$gmsh_path' '${gmsh_path}.msh';
+ln -sf '$gmsh_path' 'gmsh_path.msh';
 #end if
 convertGEO
-    --input-file '${input_file}.gml'
+    --input-file 'input_file.gml'
 #if $gmsh_path
-    --gmsh-path '${gmsh_path}.msh'
+    --gmsh-path 'gmsh_path.msh'
 #end if
     --output-file output_1.gml
 ]]></command>
@@ -30,6 +29,6 @@ convertGEO
   <tests>
     <expand macro="convertgeo_test" />
   </tests>
-  <help>This tool runs the **convertGEO** utility from the OpenGeoSys suite.</help>
+  <help>Converts OGS geometry file into another file format. Currently \*.gml (OGS6 XML-based format) and \*.gli (OGS5 format) formats are supported.</help>
   <expand macro="citations" />
 </tool>

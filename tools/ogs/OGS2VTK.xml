@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: OGS2VTK" id="ogs_ogs2vtk" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'OGS2VTK'.</description>
+  <description>Converts OGS mesh into VTK mesh.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -9,9 +8,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[OGS2VTK --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh_input_file' '${mesh_input_file}.vtu';
+ln -sf '$mesh_input_file' 'mesh_input_file.vtu';
 OGS2VTK
-    --mesh-input-file '${mesh_input_file}.vtu'
+    --mesh-input-file 'mesh_input_file.vtu'
     $ascii_output
     --mesh-output-file output_1.vtu
 ]]></command>
@@ -25,6 +24,6 @@ OGS2VTK
   <tests>
     <expand macro="ogs2vtk_test" />
   </tests>
-  <help>This tool runs the **OGS2VTK** utility from the OpenGeoSys suite.</help>
+  <help>Converts OGS mesh into VTK mesh.</help>
   <expand macro="citations" />
 </tool>

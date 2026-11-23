@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: Feflow2Mesh" id="ogs_feflow2mesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'Feflow2Mesh'.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -9,9 +7,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[Feflow2Mesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$in' '${in}.fem';
+ln -sf '$in' 'in.fem';
 Feflow2Mesh
-    --in '${in}.fem'
+    --in 'in.fem'
     --out output_1.vtu
 ]]></command>
   <inputs>
@@ -23,6 +21,6 @@ Feflow2Mesh
   <tests>
     <expand macro="feflow2mesh_test" />
   </tests>
-  <help>This tool runs the **Feflow2Mesh** utility from the OpenGeoSys suite.</help>
+  <help>Converting a mesh in FEFLOW file format (ASCII, version 5.4) to a vtk unstructured grid file (new OGS file format) or to the old OGS file format - see options.</help>
   <expand macro="citations" />
 </tool>

@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: MeshMapping" id="ogs_meshmapping" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'MeshMapping'.</description>
+  <description>Changes the elevation of 2D mesh nodes based on either raster data or another 2D mesh.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -10,12 +9,12 @@
   <version_command><![CDATA[MeshMapping --version]]></version_command>
   <command><![CDATA[
 #if $mesh
-ln -sf '$mesh' '${mesh}.vtu';
+ln -sf '$mesh' 'mesh.vtu';
 #end if
 #if $raster
-ln -sf '$raster' '${raster}.asc';
+ln -sf '$raster' 'raster.asc';
 #end if
-ln -sf '$input' '${input}.vtu';
+ln -sf '$input' 'input.vtu';
 MeshMapping
     $lowpass
 #if str($static)
@@ -25,18 +24,18 @@ MeshMapping
     --distance '$distance'
 #end if
 #if $mesh
-    --mesh '${mesh}.vtu'
+    --mesh 'mesh.vtu'
 #end if
 #if $raster
-    --raster '${raster}.asc'
+    --raster 'raster.asc'
 #end if
-    --input '${input}.vtu'
+    --input 'input.vtu'
     --output output_1.vtu
 ]]></command>
   <inputs>
     <param argument="--lowpass" type="boolean" label="lowpass" help="Applies a lowpass filter to elevation over connected nodes." checked="false" truevalue="--lowpass" falsevalue="" />
     <param argument="--static" type="float" optional="true" label="static" help="Static elevation to map the input file to. This can be combined with mapping based on rasters or other meshes to deal with locations where no corresponding data exists." />
-    <param argument="--distance" type="float" optional="true" label="distance" help="Maximum distance to search for mesh nodes if there is no corresponding data for input mesh nodes on the mesh it should be mapped on. (min = 0)" />
+    <param argument="--distance" type="float" optional="true" label="distance" help="Maximum distance to search for mesh nodes if there is no corresponding data for input mesh nodes on the mesh it should be mapped on." min="0" />
     <param argument="--mesh" type="data" optional="true" label="mesh" help="Input (.vtu). 2D mesh file to map the input file on" format="vtkxml" />
     <param argument="--raster" type="data" optional="true" label="raster" help="Input (.asc | .grd | .xyz) Raster file to map the input file on" format="raster.asc" />
     <param argument="--input" type="data" optional="false" label="input" help="Input (.vtu | .msh) mesh file" format="vtkxml" />
@@ -47,6 +46,6 @@ MeshMapping
   <tests>
     <expand macro="meshmapping_test" />
   </tests>
-  <help>This tool runs the **MeshMapping** utility from the OpenGeoSys suite.</help>
+  <help>Changes the elevation of 2D mesh nodes based on either raster data or another 2D mesh. In addition, a low pass filter can be applied to node elevation based connected nodes.</help>
   <expand macro="citations" />
 </tool>

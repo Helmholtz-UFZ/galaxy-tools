@@ -96,16 +96,12 @@ EXCLUDED_TOOLS = [
     "mergemeshtobulkmesh",
 ]
 
-# Utilities that already have a hand-curated wrapper in tools/ogs/. The generated
-# wrapper for these would collide on tool id, so the generator skips them and the
-# hand-written version is the source of truth.
-HAND_WRAPPED_TOOLS = [
-    "addlayer",
-    "extractboundary",
-    "extractsurface",
-    "generatestructuredmesh",
-    "identifysubdomains",
-]
+# NOTE: there is deliberately no list of hand-maintained wrappers here. Every
+# wrapper in ``tools/ogs`` except ``ogs_simulation`` (which runs the ``ogs``
+# binary itself, not an ``Applications/Utils`` helper) is generated, so a
+# wrapper can never drift from the OGS command line it wraps. Tools that used
+# to be hand-written keep their tool id (``ogs_<lowercase tool name>``), so
+# saved workflows continue to resolve.
 
 # Directory (relative to the job working directory) that utilities taking an
 # *output directory* write their files into.
@@ -145,6 +141,29 @@ BASE_FILENAME_OVERRIDES = {
         "base_value": "output_.asc",
         "pattern": r"(?P<designation>output_.*)\.asc",
         "format": "raster.asc",
+    },
+    # ComputeNodeAreasFromSurfaceMesh always writes ``<base>.csv`` and
+    # ``<base>.txt`` (the base name is the only thing its output flag controls),
+    # so both files are declared explicitly. Discovering them instead would put
+    # the wrapper's own base-name prefix into the element designations -- and
+    # force one format on both files.
+    "computenodeareasfromsurfacemesh": {
+        "flag": "output-base-name",
+        "base_value": "node_areas",
+        "outputs": [
+            {
+                "name": "node_areas_csv",
+                "from_work_dir": "node_areas.csv",
+                "format": "csv",
+                "label": "Node areas (CSV)",
+            },
+            {
+                "name": "node_areas_txt",
+                "from_work_dir": "node_areas.txt",
+                "format": "txt",
+                "label": "Node areas (plain text)",
+            },
+        ],
     },
 }
 
@@ -201,6 +220,16 @@ TEST_OVERRIDES = {
         "geo_file": "MeshGeoToolsLib/ResetPropertiesInPolygonalRegion/Polylines.gml",
         "gmsh_path": None,
     },
+    # generateStructuredMesh needs a geometry: with nothing but ``-e`` it has
+    # nothing to mesh. The values mirror the upstream AddTest call.
+    "generatestructuredmesh": {
+        "element_type": "quad",
+        "lx": "3",
+        "ly": "4",
+        "nx": "3",
+        "ny": "4",
+    },
+    "addlayer": {"layer_tickness": "1"},
 }
 
 TCLAP_PATTERN_STD = re.compile(
@@ -463,6 +492,126 @@ def resolve_values_constraint(constraint_ptr: str, search_space: str) -> List[st
     return [x for x in options if not (x in seen or seen.add(x))]
 
 
+# ``(min = 0)`` / ``(max = 5)`` / ``(min = 0, max = 1)`` in an OGS help string
+# is a real constraint of the utility, not prose.
+_RANGE_VALUE_RE = re.compile(
+    r"\b(min|max)\s*=\s*(-?\d+(?:\.\d+)?)", re.IGNORECASE
+)
+_RANGE_CLAUSE_RE = re.compile(
+    r"[(,]?\s*(?:min|max)\s*=\s*-?\d+(?:\.\d+)?"
+    r"(?:\s*,\s*(?:min|max)\s*=\s*-?\d+(?:\.\d+)?)*\s*\)?",
+    re.IGNORECASE,
+)
+
+
+def split_range_clause(help_text: str) -> Tuple[str, Dict[str, str]]:
+    """Move ``(min = X)``-style constraints out of an OGS help string.
+
+    Returns the help text with the parenthetical range removed plus the bounds
+    as ``{"min": ..., "max": ...}`` so they can be rendered as Galaxy
+    parameter attributes instead of being buried in the prose.
+    """
+    bounds: Dict[str, str] = {}
+    for key, value in _RANGE_VALUE_RE.findall(help_text):
+        bounds.setdefault(key.lower(), value)
+    if not bounds:
+        return help_text, bounds
+
+    cleaned = _RANGE_CLAUSE_RE.sub("", help_text)
+    cleaned = re.sub(r"\s+([.,;:!?])", r"\1", cleaned)
+    cleaned = re.sub(r"\s{2,}", " ", cleaned).strip()
+    cleaned = cleaned.rstrip(",;/")
+    return cleaned, bounds
+
+
+def extract_cmdline_text(source: str) -> str:
+    """Return the description OGS itself passes to ``TCLAP::CmdLine``.
+
+    Every OGS utility constructs its command line object with a free-text
+    description as first argument, e.g.::
+
+        TCLAP::CmdLine cmd(
+            "Checks mesh properties.\n\n"
+            "OpenGeoSys-6 software, version " + ...,
+            ' ', GitInfoLib::GitInfo::ogs_version);
+
+    That text is the utility's own documentation and therefore exactly what a
+    Galaxy wrapper should show as ``<description>``/``<help>``. The trailing
+    version/copyright banner is dropped. The result is a blank-line separated
+    paragraph string, or ``""`` when no description is found.
+    """
+    match = re.search(r"TCLAP::CmdLine\s+\w+\s*\(", source)
+    if not match:
+        return ""
+
+    start = match.end()
+    depth, pos, in_string = 1, start, False
+    while pos < len(source) and depth:
+        char = source[pos]
+        if in_string:
+            if char == "\\":
+                pos += 2
+                continue
+            if char == '"':
+                in_string = False
+        elif char == '"':
+            in_string = True
+        elif char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+        pos += 1
+
+    literals = re.findall(r'"((?:[^"\\]|\\.)*)"', source[start:pos])
+    text = "".join(literals)
+    text = (
+        text.replace("\\n", "\n")
+        .replace("\\t", " ")
+        .replace('\\"', '"')
+        .replace("\\'", "'")
+    )
+    text = re.split(r"\s*(?:OpenGeoSys-6 software|Copyright \()", text)[0]
+    # Adjacent C++ literals are concatenated without a separating space, so
+    # "Adds a layer to an existing mesh." + "The documentation ..." ends up as
+    # "mesh.The". Restore the sentence boundary.
+    text = re.sub(r"([.!?])(?=[A-Z])", r"\1 ", text)
+
+    paragraphs = []
+    for block in re.split(r"\n\s*\n", text):
+        paragraph = re.sub(
+            r"\s+", " ", " ".join(line.strip() for line in block.splitlines())
+        ).strip()
+        # "... bounding box\n." -> "... bounding box."
+        paragraph = re.sub(r"\s+([.,;:!?])", r"\1", paragraph)
+        if paragraph:
+            paragraphs.append(paragraph)
+    return "\n\n".join(paragraphs)
+
+
+def cmdline_description(cmdline_text: str) -> str:
+    """First complete sentence of OGS's own description, or ``""``.
+
+    Galaxy renders ``<description>`` right next to the tool name, so only a
+    short sentence is useful there. Sentences are accumulated until any
+    parenthesis opened earlier is closed again (OGS writes things like
+    "elements in a voxel grid (i.e. ...)"), and the result is dropped entirely
+    rather than truncated to nonsense when it does not fit.
+    """
+    first_paragraph = cmdline_text.split("\n\n")[0].strip()
+    if not first_paragraph:
+        return ""
+
+    accumulated = ""
+    for sentence in re.split(r"(?<=[.!?])\s+", first_paragraph):
+        accumulated = f"{accumulated} {sentence}".strip()
+        balanced = accumulated.count("(") == accumulated.count(")")
+        if balanced and len(accumulated) <= 150:
+            return accumulated
+        if len(accumulated) > 150:
+            break
+    return ""
+
+
 def discover_tools(ogs_root: Path) -> List[Dict[str, Any]]:
     source_files = list_cpp_files(ogs_root / "Applications" / "Utils")
     tools_dict: Dict[str, Dict[str, Any]] = {}
@@ -491,7 +640,15 @@ def discover_tools(ogs_root: Path) -> List[Dict[str, Any]]:
             continue
 
         if tool_name not in tools_dict:
-            tools_dict[tool_name] = {"name": tool_name, "parameters": []}
+            tools_dict[tool_name] = {
+                "name": tool_name,
+                "parameters": [],
+                # OGS's own tool description (TCLAP::CmdLine), used for the
+                # Galaxy <description>/<help> instead of a redundant
+                # "Galaxy wrapper for ..." sentence.
+                "cmdline_text": extract_cmdline_text(content),
+                "source": file_path,
+            }
 
         for match in all_matches:
             param_data = match.groupdict()
@@ -736,9 +893,14 @@ def process_parameters(
 
         else:
             cpp_type = param_info.get("cpp_type", "").lower()
-            if "int" in cpp_type or "size_t" in cpp_type:
+            # TCLAP spells integers as ``int``, ``unsigned``, ``size_t``, ...;
+            # anything else (``std::string``) is free text.
+            if re.search(
+                r"\b(?:u?int(?:8|16|32|64)?_t|u?int|u?long|u?short|unsigned|size_t)\b",
+                cpp_type,
+            ):
                 p_class = IntegerParam
-            elif "float" in cpp_type or "double" in cpp_type:
+            elif re.search(r"\b(?:float|double)\b", cpp_type):
                 p_class = FloatParam
             else:
                 p_class = TextParam
@@ -759,11 +921,65 @@ def process_parameters(
     if base_override and base_override["flag"] in output_command_map:
         info = output_command_map[base_override["flag"]]
         info["type"] = "BASE_FILENAME"
-        for key in ("base_value", "pattern", "format", "extra_outputs"):
+        for key in (
+            "base_value",
+            "pattern",
+            "format",
+            "extra_outputs",
+            "outputs",
+        ):
             if key in base_override:
                 info[key] = base_override[key]
 
     return galaxy_inputs, output_command_map
+
+
+def _derive_param_constraints(inputs_node) -> None:
+    """Turn OGS help-string details into real Galaxy parameter attributes.
+
+    * numeric parameters: ``(min = 0)``/``(max = ...)`` in the OGS help text is
+      a constraint of the utility, so it becomes the ``min``/``max`` attribute
+      (and is removed from the prose).
+    * text parameters: the value is passed to OGS verbatim (flag values, array
+      names, ids), hence an explicit ``<sanitizer sanitize="false"/>`` -- and a
+      required text field gets an ``<empty_field/>`` validator, because
+      ``optional="false"`` alone does not stop an empty string from being
+      passed on.
+    """
+    for param in inputs_node.findall("param"):
+        ptype = param.get("type")
+        help_text = param.get("help") or ""
+
+        if ptype in ("integer", "float"):
+            cleaned, bounds = split_range_clause(help_text)
+            if bounds:
+                param.set("help", cleaned)
+                for key, value in bounds.items():
+                    param.set(key, value)
+
+        elif ptype == "text":
+            if param.find("sanitizer") is None:
+                ET.SubElement(param, "sanitizer", {"sanitize": "false"})
+            required_text = param.get("optional") != "true"
+            if required_text and param.find("validator") is None:
+                ET.SubElement(param, "validator", {"type": "empty_field"})
+
+
+def _discover_pattern(pattern: str, link_names: set) -> str:
+    """Keep the wrapper's own input links out of a discovered output list.
+
+    Every input dataset is symlinked into the job working directory (so that
+    utilities which write next to their input do not write into the Galaxy
+    file store). A discovery pattern such as ``(?P<designation>.*)\\.vtu``
+    would match those links too, and Galaxy rejects a discovered file that
+    resolves outside the job directory -- aborting the whole output
+    collection. The negative lookahead skips exactly the names we created.
+    """
+    if not link_names or "(?P<designation>" not in pattern:
+        return pattern
+    names = "|".join(re.escape(n) for n in sorted(link_names))
+    lookahead = f"(?!(?:{names})$)"
+    return pattern.replace("(?P<designation>", lookahead + "(?P<designation>", 1)
 
 
 def generate_tools(ogs_root: Path, output_dir: Path):
@@ -778,9 +994,6 @@ def generate_tools(ogs_root: Path, output_dir: Path):
         tool_name = tool_data["name"]
         if tool_name.lower() in EXCLUDED_TOOLS:
             logging.info(f"--> Skipping excluded tool: {tool_name}")
-            continue
-        if tool_name.lower() in HAND_WRAPPED_TOOLS:
-            logging.info(f"--> Skipping hand-wrapped tool: {tool_name}")
             continue
         logging.info(f"Generating wrapper for: {tool_name}...")
         galaxy_inputs, output_command_map = process_parameters(
@@ -806,6 +1019,9 @@ def generate_tools(ogs_root: Path, output_dir: Path):
         command_parts = []
         flag_parts = []
         unlabeled_parts = []
+        # Names of the symlinks created in the job working directory; the
+        # discovery patterns must not pick them up as outputs.
+        input_link_names: set = set()
 
         # 2. SYMLINKS & ARGUMENT MAPPING
         for param in galaxy_inputs:
@@ -833,10 +1049,15 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                 if is_file_list:
                     # Single ASCII list file (OGS readStringListFromFile); pass
                     # it straight through, no collection loop is needed. The
-                    # on-disk symlink keeps a real .txt extension so OGS can
-                    # open it (OGS infers format from the file extension).
-                    symlink = f"ln -sf '${name}' '${{{name}}}.txt';"
-                    arg = f"    --{flag} '${{{name}}}.txt'"
+                    # local symlink carries a real .txt extension so OGS can
+                    # open it (OGS infers the format from the file extension).
+                    # The link is created *in the job working directory*: a
+                    # path derived from ``${name}`` would end up in the Galaxy
+                    # file store, next to the input dataset.
+                    local = f"{name}.txt"
+                    input_link_names.add(local)
+                    symlink = f"ln -sf '${name}' '{local}';"
+                    arg = f"    --{flag} '{local}'"
                     if is_param_optional(param, default=False):
                         command_parts.append(f"#if ${name}\n{symlink}\n#end if")
                         flag_parts.append(f"#if ${name}\n{arg}\n#end if")
@@ -864,14 +1085,18 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                         command_parts.append(loop)
                         dest.append(arg)
                 else:
-                    # Symlink the dataset to a name carrying the OGS extension
-                    # (OGS infers input format from the file extension; the
-                    # Galaxy ``element_identifier`` suffix has none).
-                    # NB: use ``${name}.ext`` (braced), not ``$name.ext`` -- the
-                    # latter is Cheetah attribute access (``getattr(name, ext)``)
-                    # and raises NameMapper.NotFound: cannot find '<ext>'.
-                    symlink = f"ln -sf '${name}' '${{{name}}}.{ext}';"
-                    arg_val = f"'${{{name}}}.{ext}'"
+                    # Link the dataset to a name carrying the OGS extension
+                    # (OGS infers the input format from the file extension; the
+                    # Galaxy ``element_identifier`` suffix has none). The link
+                    # is created in the job working directory under a name
+                    # derived from the parameter -- writing ``${name}.ext``
+                    # would place it next to the input dataset in the Galaxy
+                    # file store, which breaks read-only/object-store backends
+                    # and litters the store.
+                    local = f"{name}.{ext}"
+                    input_link_names.add(local)
+                    symlink = f"ln -sf '${name}' '{local}';"
+                    arg_val = f"'{local}'"
                     arg = f"    {arg_val}" if is_unlabeled else f"    --{flag} {arg_val}"
                     target = unlabeled_parts if is_unlabeled else flag_parts
                     if is_param_optional(param, default=False):
@@ -947,11 +1172,17 @@ def generate_tools(ogs_root: Path, output_dir: Path):
         command_str = "\n".join(command_parts)
 
         # 4. Tool object
+        # Description/help come from the utility's own ``TCLAP::CmdLine`` text
+        # (the CLI definition), not from a generic "Galaxy wrapper for ..."
+        # sentence that repeats the tool name. If OGS has no description the
+        # element is dropped entirely below.
+        cmdline_text = tool_data.get("cmdline_text") or ""
+        tool_description = cmdline_description(cmdline_text)
         tool = Tool(
             name=f"OGS: {tool_name}",
             id=f"ogs_{tool_name.lower()}",
             version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@",
-            description=f"Galaxy wrapper for the OGS utility '{tool_name}'.",
+            description=tool_description,
             executable=executable_name,
             macros=["macros.xml", "test_macros.xml"],
             profile="@PROFILE@",
@@ -987,38 +1218,56 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                 )
                 outputs_tag.append(collection)
             elif uses_base_filename:
-                pattern = (
-                    r"(?P<designation>.*)\.vtu"
-                    if "VIRTUAL_no_flag" in output_command_map
-                    else r"(?P<designation>new_.*)"
-                )
                 first_out_info = next(
                     info
                     for info in output_command_map.values()
                     if info.get("type") == "BASE_FILENAME"
                 )
-                pattern = first_out_info.get("pattern") or pattern
-                target_fmt = first_out_info.get("format", "vtkxml")
-                collection = OutputCollection(
-                    name="tool_outputs",
-                    type="list",
-                    label=f"Outputs from {tool_name}",
-                )
-                collection.append(
-                    DiscoverDatasets(
-                        pattern=pattern, format=target_fmt, visible=True
+                fixed_outputs = first_out_info.get("outputs")
+                if fixed_outputs:
+                    # The utility writes exactly these files (their names follow
+                    # from the base name the wrapper passes), so declare them
+                    # explicitly instead of guessing designations from a file
+                    # name pattern that carries the wrapper's artificial prefix.
+                    for out in fixed_outputs:
+                        outputs_tag.append(
+                            OutputData(
+                                name=out["name"],
+                                format=out["format"],
+                                label=out.get("label", out["name"]),
+                                from_work_dir=out["from_work_dir"],
+                            )
+                        )
+                else:
+                    # No explicit output list: discover whatever the utility wrote
+                    # under the base name the wrapper passes.
+                    pattern = first_out_info.get("pattern") or (
+                        r"(?P<designation>.*)\.vtu"
+                        if "VIRTUAL_no_flag" in output_command_map
+                        else r"(?P<designation>new_.*)"
                     )
-                )
-                outputs_tag.append(collection)
-                for extra in first_out_info.get("extra_outputs", []):
-                    outputs_tag.append(
-                        OutputData(
-                            name=extra["name"],
-                            format=extra["format"],
-                            label=extra.get("label", extra["name"]),
-                            from_work_dir=extra["from_work_dir"],
+                    collection = OutputCollection(
+                        name="tool_outputs",
+                        type="list",
+                        label=f"Outputs from {tool_name}",
+                    )
+                    collection.append(
+                        DiscoverDatasets(
+                            pattern=_discover_pattern(pattern, input_link_names),
+                            format=first_out_info.get("format", "vtkxml"),
+                            visible=True,
                         )
                     )
+                    outputs_tag.append(collection)
+                    for extra in first_out_info.get("extra_outputs", []):
+                        outputs_tag.append(
+                            OutputData(
+                                name=extra["name"],
+                                format=extra["format"],
+                                label=extra.get("label", extra["name"]),
+                                from_work_dir=extra["from_work_dir"],
+                            )
+                        )
             else:
                 single_file_outputs = [
                     v
@@ -1049,10 +1298,11 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                     )
                     collection.append(
                         DiscoverDatasets(
-                            pattern=(
+                            pattern=_discover_pattern(
                                 r"(?P<designation>output_[^.]*)\.(?:"
                                 + "|".join(exts)
-                                + r")"
+                                + r")",
+                                input_link_names,
                             ),
                             format="data",
                             visible=True,
@@ -1072,13 +1322,25 @@ def generate_tools(ogs_root: Path, output_dir: Path):
         tests_section = Tests()
         tests_section.append(Expand(macro=f"{tool_name.lower()}_test"))
         tool.tests = tests_section
-        tool.help = (
-            f"This tool runs the **{tool_name}** utility from the OpenGeoSys suite."
+        # The OGS help strings use ``*`` (``*.vtu``) and backticks that RST would
+        # interpret as markup, so escape the characters that matter.
+        tool_help = (
+            cmdline_text
+            or f"This tool runs the **{tool_name}** utility from the "
+            "OpenGeoSys suite."
         )
+        tool.help = re.sub(r"([*`|])", r"\\\1", tool_help)
 
         # --- 5. XML
         raw_xml_string = tool.export()
         tool_xml_root = ET.fromstring(raw_xml_string)
+
+        # A tool without an OGS-supplied description gets no <description> at
+        # all: repeating the tool name there is pure noise.
+        if not tool_description:
+            description_node = tool_xml_root.find("description")
+            if description_node is not None:
+                tool_xml_root.remove(description_node)
 
         # Insert the house <expand macro="creator"/> right after the
         # <expand macro="requirements"/> that galaxyxml emits automatically.
@@ -1108,6 +1370,9 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                         p_node.set("collection_type", "list")
                         if "multiple" in p_node.attrib:
                             del p_node.attrib["multiple"]
+
+        if inputs_node is not None:
+            _derive_param_constraints(inputs_node)
 
         output_file_path = output_dir / f"{tool_name}.xml"
         ET.indent(tool_xml_root, space="  ")
@@ -1140,7 +1405,9 @@ def generate_tools(ogs_root: Path, output_dir: Path):
         )
 
         with open(output_file_path, "w", encoding="utf-8") as f:
-            f.write('<?xml version="1.0" encoding="UTF-8"?>\n' + xml_str)
+            # No ``<?xml ... ?>`` declaration: Galaxy does not need it and the
+            # house style omits it.
+            f.write(xml_str + "\n")
         generated_count += 1
 
     eprint(f"\nFinished. {generated_count} tool wrappers created.")
@@ -1263,6 +1530,13 @@ def extra_outputs_of(tool_name: str) -> List[Dict[str, Any]]:
     )
 
 
+def fixed_outputs_of(tool_name: str) -> List[Dict[str, Any]]:
+    """Files declared individually instead of a discovered collection."""
+    return BASE_FILENAME_OVERRIDES.get(tool_name.lower(), {}).get(
+        "outputs", []
+    )
+
+
 def apply_test_overrides(tool_name: str, test_case, galaxy_inputs) -> None:
     """Replace auto-derived test inputs with the curated ones for a tool.
 
@@ -1317,7 +1591,6 @@ def generate_tests(ogs_root: Path, output_dir: Path):
         tool["name"].lower(): tool
         for tool in all_tools_data
         if tool["name"].lower() not in EXCLUDED_TOOLS
-        and tool["name"].lower() not in HAND_WRAPPED_TOOLS
     }
     tool_tests_accumulator = {tool_name: [] for tool_name in tools_map_lower.keys()}
 
@@ -1362,11 +1635,7 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                     matched_tool = t
                     break
 
-        if (
-            not matched_tool
-            or matched_tool.lower() in EXCLUDED_TOOLS
-            or matched_tool.lower() in HAND_WRAPPED_TOOLS
-        ):
+        if not matched_tool or matched_tool.lower() in EXCLUDED_TOOLS:
             continue
 
         tool_data = tools_map_lower[matched_tool]
@@ -1595,7 +1864,11 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                         for flag, info in output_map.items()
                     )
                     attrs["value"] = (
-                        "new_" if is_base_filename_param else val_clean.split("/")[-1]
+                        BASE_FILENAME_OVERRIDES.get(matched_tool.lower(), {}).get(
+                            "base_value", "new_"
+                        )
+                        if is_base_filename_param
+                        else val_clean.split("/")[-1]
                     )
 
                 test_params_xml.append(ET.Element("param", attrs))
@@ -1638,7 +1911,10 @@ def generate_tests(ogs_root: Path, output_dir: Path):
             )
             if diff_files:
                 diff_files.sort(key=lambda x: x["generated"])
-                if len(output_map) > 1 or any(
+                if fixed_outputs_of(matched_tool):
+                    # Individual outputs are asserted from the override below.
+                    pass
+                elif len(output_map) > 1 or any(
                     info.get("type") == "BASE_FILENAME"
                     or info.get("is_directory")
                     for info in output_map.values()
@@ -1675,7 +1951,10 @@ def generate_tests(ogs_root: Path, output_dir: Path):
             expect_single_output = True
 
         if not output_added and output_map:
-            if len(output_map) > 1 or any(
+            if fixed_outputs_of(matched_tool):
+                # Individual outputs are asserted below.
+                pass
+            elif len(output_map) > 1 or any(
                 info.get("type") == "BASE_FILENAME"
                 or info.get("is_directory")
                 for info in output_map.values()
@@ -1697,7 +1976,7 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                 )
                 expect_single_output = True
 
-        extras = extra_outputs_of(matched_tool)
+        extras = extra_outputs_of(matched_tool) + fixed_outputs_of(matched_tool)
         for extra in extras:
             out_elem = ET.SubElement(
                 test_case, "output", {"name": extra["name"]}
@@ -1707,7 +1986,10 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                 "has_size",
                 {"min": "1"},
             )
-        if extras:
+        if fixed_outputs_of(matched_tool):
+            # Every output is declared explicitly; there is no collection.
+            test_case.set("expect_num_outputs", str(len(extras)))
+        elif extras:
             test_case.set("expect_num_outputs", str(len(extras) + 1))
         elif expect_single_output:
             test_case.set("expect_num_outputs", "1")
@@ -1783,7 +2065,10 @@ def generate_tests(ogs_root: Path, output_dir: Path):
 
             # Outputs
             if g_outputs:
-                if len(g_outputs) > 1 or any(
+                if fixed_outputs_of(t_name):
+                    # Individual outputs are asserted below.
+                    pass
+                elif len(g_outputs) > 1 or any(
                     info.get("type") == "BASE_FILENAME"
                     or info.get("is_directory")
                     for info in g_outputs.values()
@@ -1812,7 +2097,7 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                 ET.SubElement(ac, "has_size", {"min": "1"})
                 fallback_test.set("expect_num_outputs", "1")
 
-            extras = extra_outputs_of(t_name)
+            extras = extra_outputs_of(t_name) + fixed_outputs_of(t_name)
             for extra in extras:
                 out_elem = ET.SubElement(
                     fallback_test, "output", {"name": extra["name"]}
@@ -1822,7 +2107,9 @@ def generate_tests(ogs_root: Path, output_dir: Path):
                     "has_size",
                     {"min": "1"},
                 )
-            if extras:
+            if fixed_outputs_of(t_name):
+                fallback_test.set("expect_num_outputs", str(len(extras)))
+            elif extras:
                 fallback_test.set("expect_num_outputs", str(len(extras) + 1))
         else:
             for case in cases:

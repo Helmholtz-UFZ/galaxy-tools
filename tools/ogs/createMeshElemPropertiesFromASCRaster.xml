@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: createMeshElemPropertiesFromASCRaster" id="ogs_createmeshelempropertiesfromascraster" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'createMeshElemPropertiesFromASCRaster'.</description>
+  <description>Generates properties for mesh elements of an input mesh deploying a ASC raster file.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -9,23 +8,26 @@
   <expand macro="creator" />
   <version_command><![CDATA[createMeshElemPropertiesFromASCRaster --version]]></version_command>
   <command><![CDATA[
-ln -sf '$raster_file' '${raster_file}.asc';
-ln -sf '$mesh' '${mesh}.vtu';
+ln -sf '$raster_file' 'raster_file.asc';
+ln -sf '$mesh' 'mesh.vtu';
 createMeshElemPropertiesFromASCRaster
     $output_refined_raster
 #if str($refine)
     --refine '$refine'
 #end if
-    --raster-file '${raster_file}.asc'
+    --raster-file 'raster_file.asc'
     --property-name '$property_name'
-    --mesh '${mesh}.vtu'
+    --mesh 'mesh.vtu'
     --out-mesh output_1.vtu
 ]]></command>
   <inputs>
     <param argument="--output-refined-raster" type="boolean" label="output refined raster" help="Write refined raster to an additional, new ASC file." checked="false" truevalue="--output-refined-raster" falsevalue="" />
-    <param argument="--refine" type="text" optional="true" label="refine" help="refinement factor that raises the resolution of the raster data" />
+    <param argument="--refine" type="integer" optional="true" label="refine" help="refinement factor that raises the resolution of the raster data" />
     <param argument="--raster-file" type="data" optional="false" label="raster file" help="Input (.asc). The name of the input ASC raster file" format="raster.asc" />
-    <param argument="--property-name" type="text" optional="false" label="property name" help="the name of the property the values are stored for" />
+    <param argument="--property-name" type="text" optional="false" label="property name" help="the name of the property the values are stored for">
+      <sanitizer sanitize="false" />
+      <validator type="empty_field" />
+    </param>
     <param argument="--mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The input mesh is read from this file" format="vtkxml" />
   </inputs>
   <outputs>
@@ -34,6 +36,6 @@ createMeshElemPropertiesFromASCRaster
   <tests>
     <expand macro="createmeshelempropertiesfromascraster_test" />
   </tests>
-  <help>This tool runs the **createMeshElemPropertiesFromASCRaster** utility from the OpenGeoSys suite.</help>
+  <help>Generates properties for mesh elements of an input mesh deploying a ASC raster file.</help>
   <expand macro="citations" />
 </tool>

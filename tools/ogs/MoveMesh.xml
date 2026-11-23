@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <tool name="OGS: MoveMesh" id="ogs_movemesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
-  <description>Galaxy wrapper for the OGS utility 'MoveMesh'.</description>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
@@ -9,9 +7,9 @@
   <expand macro="creator" />
   <version_command><![CDATA[MoveMesh --version]]></version_command>
   <command><![CDATA[
-ln -sf '$mesh' '${mesh}.vtu';
+ln -sf '$mesh' 'mesh.vtu';
 MoveMesh
-    --mesh '${mesh}.vtu'
+    --mesh 'mesh.vtu'
 #if str($x)
     --x '$x'
 #end if
@@ -35,6 +33,6 @@ MoveMesh
   <tests>
     <expand macro="movemesh_test" />
   </tests>
-  <help>This tool runs the **MoveMesh** utility from the OpenGeoSys suite.</help>
+  <help>Moves the mesh nodes using the given displacement vector or if no displacement vector is given, moves the mesh nodes such that the centroid of the given mesh is in the origin.</help>
   <expand macro="citations" />
 </tool>

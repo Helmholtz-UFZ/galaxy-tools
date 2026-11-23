@@ -620,18 +620,49 @@
           <conditional name="method_cond">
             <param name="method_select" value="setFlags" />
             <param name="field" value="1" />
-            <param name="data_value" value="a_string" />
             <param name="override" value="true" />
             <param name="flag" value="255.0" />
+            <conditional name="data_value_cond">
+              <param name="data_value_selector" value="type_0" />
+              <param name="data_column" value="1" />
+            </conditional>
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="setFlags" />
-          <has_text text="data=" />
           <has_text text="override=" />
           <has_text text="flag=" />
+          <has_text text="data=" />
+          <has_text text="data=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="flagtools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="setFlags" />
+            <param name="field" value="1" />
+            <param name="override" value="true" />
+            <param name="flag" value="255.0" />
+            <conditional name="data_value_cond">
+              <param name="data_value_selector" value="type_1" />
+              <param name="data_value" value="a_string" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="setFlags" />
+          <has_text text="override=" />
+          <has_text text="flag=" />
+          <has_text text="data=" />
         </assert_contents>
       </output>
     </test>
@@ -1871,6 +1902,53 @@
           <has_text text="broadcast=" />
           <has_text text="squeeze=" />
           <has_text text="override=" />
+          <has_text text="index=" />
+          <has_text text="tolerance=" />
+          <has_text text="data_aggregation=" />
+          <has_text text="flags_aggregation=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="reindex" />
+            <param name="field" value="1" />
+            <param name="method" value="fagg" />
+            <param name="broadcast" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+            <conditional name="index_cond">
+              <param name="index_selector" value="type_2" />
+              <param name="index_column" value="1" />
+            </conditional>
+            <conditional name="tolerance_cond">
+              <param name="tolerance_selector" value="type_0" />
+              <param name="tolerance" value="1D" />
+            </conditional>
+            <conditional name="data_aggregation_cond">
+              <param name="data_aggregation_selector" value="type_0" />
+              <param name="data_aggregation" value="sum" />
+            </conditional>
+            <conditional name="flags_aggregation_cond">
+              <param name="flags_aggregation_selector" value="type_0" />
+              <param name="flags_aggregation" value="sum" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="reindex" />
+          <has_text text="method=" />
+          <has_text text="broadcast=" />
+          <has_text text="squeeze=" />
+          <has_text text="override=" />
+          <has_text text="index=" />
           <has_text text="index=" />
           <has_text text="tolerance=" />
           <has_text text="data_aggregation=" />

@@ -108,17 +108,26 @@ def process_main_column(
     return field_str, params_to_process
 
 
+#: suffix of the input of a column selection of a type selection
+COLUMN_SUFFIX = "_column"
+
+
 def saqc_parameter_name(input_name: str) -> str:
     """
     The SaQC parameter name of a Galaxy input name.
 
-    A SaQC parameter cannot be named like an input of the tool itself (Galaxy
-    keeps all inputs of a tool in one namespace), so the generator appends
-    ``_value`` to such a name, e.g. ``setFlags(data=...)`` is entered as
-    ``data_value``.
+    A Galaxy input is not always named after the SaQC argument:
+
+    * a SaQC parameter cannot be named like an input of the tool itself (Galaxy
+      keeps the inputs of a tool and its conditionals in one namespace), so the
+      generator appends ``_value``, e.g. ``setFlags(data=...)`` is entered as
+      ``data_value``;
+    * the column selection of a type selection is named ``<name>_column``, so a
+      column of the input table can be told apart from a plain value.
     """
-    if input_name.endswith("_value"):
-        return input_name[: -len("_value")]
+    for suffix in (COLUMN_SUFFIX, "_value"):
+        if input_name.endswith(suffix):
+            return input_name[: -len(suffix)]
     return input_name
 
 
@@ -137,6 +146,8 @@ def process_parameters(
 
         actual_param_name_for_saqc = saqc_parameter_name(param_key)
         current_value_for_saqc = param_value_json
+        # whether the value is the index of a column of the input table
+        is_column_selection = param_key.endswith(COLUMN_SUFFIX)
 
         # Resolve conditionals (e.g., `param_cond`)
         if isinstance(param_value_json, dict) and param_key.endswith("_cond"):
@@ -148,9 +159,11 @@ def process_parameters(
             inner_params.pop(f"{nested_name}_selector", None)
 
             if len(inner_params) == 1:
-                current_value_for_saqc = list(inner_params.values())[0]
+                inner_name, current_value_for_saqc = next(iter(inner_params.items()))
+                is_column_selection = inner_name.endswith(COLUMN_SUFFIX)
             else:
                 # Handle special tuples/slices
+                is_column_selection = False
                 if f"{nested_name}_start" in inner_params:
                     start = inner_params.get(f"{nested_name}_start")
                     end = inner_params.get(f"{nested_name}_end")
@@ -194,7 +207,8 @@ def process_parameters(
 
         # Translate secondary column params
         elif (
-            "field" in actual_param_name_for_saqc.lower()
+            is_column_selection
+            or "field" in actual_param_name_for_saqc.lower()
             or actual_param_name_for_saqc in ["target", "reference"]
         ):
             try:

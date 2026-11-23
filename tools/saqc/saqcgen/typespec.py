@@ -200,6 +200,10 @@ def parse_annotation(
     if text in ("SaQCFields", "NewSaQCFields"):
         return TypeSpec(FIELDS, text, multiple=True)
 
+    # a column name of the input table, used as a single variable
+    if text == "SaQCColumns":
+        return TypeSpec(FIELDS, text)
+
     if _STRING_LIST.fullmatch(text):
         return TypeSpec(TEXT, text, multiple=True)
 

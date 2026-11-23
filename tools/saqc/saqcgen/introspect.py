@@ -79,11 +79,20 @@ RESERVED_INPUT_NAMES = frozenset(
 #: appended to a parameter name that would shadow one of those inputs
 RESERVED_INPUT_SUFFIX = "_value"
 
+#: appended to the input of a column selection of a type selection
+COLUMN_SUFFIX = "_column"
+
 
 def saqc_parameter_name(input_name: str) -> str:
-    """The SaQC parameter name of a Galaxy input name."""
-    if input_name.endswith(RESERVED_INPUT_SUFFIX):
-        return input_name[: -len(RESERVED_INPUT_SUFFIX)]
+    """The SaQC parameter name of a Galaxy input name.
+
+    Input names carry a suffix where the input differs from the SaQC argument:
+    ``_value`` for a parameter that would shadow an input of the tool and
+    ``_column`` for the column selection of a type selection.
+    """
+    for suffix in (COLUMN_SUFFIX, RESERVED_INPUT_SUFFIX):
+        if input_name.endswith(suffix):
+            return input_name[: -len(suffix)]
     return input_name
 
 

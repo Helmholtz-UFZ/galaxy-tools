@@ -13,7 +13,7 @@ from types import ModuleType
 from typing import Any, Dict, Iterator, List
 from xml.etree import ElementTree as ET
 
-from . import samples
+from . import params, samples
 from .introspect import Introspection, ParamPlan, saqc_parameter_name
 
 __all__ = ["generate_test_macros"]
@@ -168,10 +168,11 @@ def _variants(
 def _selected(plan: ParamPlan, index: int) -> Dict[str, Any]:
     """The parameters of one ``when`` block of a type selection."""
     values: Dict[str, Any] = {f"{plan.input_name}_selector": f"type_{index}"}
+    input_name = params.input_name_for(plan, plan.specs[index])
     _set_value(
         values,
-        plan.input_name,
-        samples.sample_values(plan.specs[index], plan.input_name, plan.default),
+        input_name,
+        samples.sample_values(plan.specs[index], input_name, plan.default),
     )
     return values
 

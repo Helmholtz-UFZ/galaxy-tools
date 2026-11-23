@@ -23,10 +23,10 @@ from galaxyxml.tool.parameters import (
 )
 
 from . import typespec
-from .introspect import ParamPlan
+from .introspect import COLUMN_SUFFIX, ParamPlan
 from .typespec import TypeSpec
 
-__all__ = ["build", "select_widget"]
+__all__ = ["build", "input_name_for", "select_widget"]
 
 #: description of the "choose the input format" selector
 TYPE_SELECTOR_HELP = (
@@ -106,6 +106,20 @@ def build(plan: ParamPlan) -> object:
     )
 
 
+def input_name_for(plan: ParamPlan, spec: TypeSpec) -> str:
+    """The Galaxy input name for one accepted input format of ``plan``.
+
+    The input of a column selection is named separately, so the script that
+    writes the configuration can tell an index of the input table (which has to
+    be translated to a column name) from a plain value.  SaQC has no type
+    selection with more than one column format, the formats are otherwise
+    deduplicated by their widget, so the name is unambiguous.
+    """
+    if plan.has_type_selection and spec.kind == typespec.FIELDS:
+        return f"{plan.name}{COLUMN_SUFFIX}"
+    return plan.input_name
+
+
 def select_widget(name: str, label: str, options: Dict[str, str]) -> SelectParam:
     """A dropdown input (also used for the module and method selection)."""
     widget = SelectParam(name=name, label=label, options=options)
@@ -153,7 +167,11 @@ def _type_selection(plan: ParamPlan, args: Dict[str, object]) -> Conditional:
         when = When(value=f"type_{index}")
         when.append(
             _widget(
-                spec, plan.input_name, dict(args), plan.optional, plan.default_value
+                spec,
+                input_name_for(plan, spec),
+                dict(args),
+                plan.optional,
+                plan.default_value,
             )
         )
         conditional.append(when)

@@ -1297,11 +1297,23 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                 else:
                     # No explicit output list: discover whatever the utility wrote
                     # under the base name the wrapper passes.
-                    pattern = first_out_info.get("pattern") or (
-                        r"(?P<designation>.*)\.vtu"
-                        if "VIRTUAL_no_flag" in output_command_map
-                        else r"(?P<designation>new_.*)"
-                    )
+                    if first_out_info.get("pattern"):
+                        pattern = first_out_info["pattern"]
+                    elif "VIRTUAL_no_flag" in output_command_map:
+                        # The utility names its output files itself.
+                        pattern = r"(?P<designation>.*)\.vtu"
+                    else:
+                        # Base-name output: the wrapper chooses the prefix, so
+                        # strip it (and the extension) again -- the element
+                        # designation must not depend on the wrapper's prefix.
+                        base = first_out_info.get("base_value", "new_")
+                        ext = (first_out_info.get("filename") or "x.vtu").rsplit(
+                            ".", 1
+                        )[-1]
+                        pattern = (
+                            rf"{re.escape(base)}(?P<designation>.*)\."
+                            rf"{re.escape(ext)}"
+                        )
                     collection = OutputCollection(
                         name="tool_outputs",
                         type="list",

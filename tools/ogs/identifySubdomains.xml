@@ -32,7 +32,7 @@ identifySubdomains
   </inputs>
   <outputs>
     <collection name="tool_outputs" type="list" label="Outputs from identifySubdomains">
-      <discover_datasets pattern="(?!(?:mesh\.vtu)$)(?P&lt;designation&gt;new_.*)" format="vtkxml" visible="true" />
+      <discover_datasets pattern="new_(?!(?:mesh\.vtu)$)(?P&lt;designation&gt;.*)\.vtu" format="vtkxml" visible="true" />
     </collection>
   </outputs>
   <tests>

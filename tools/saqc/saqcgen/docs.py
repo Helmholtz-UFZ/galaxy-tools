@@ -8,10 +8,18 @@ per parameter plus an optional ``help`` text, so this module implements:
 * ``parameter_docs``      -- the per-parameter descriptions of a method
 * ``label_and_help``      -- cut a description into label + help text
 * ``option_help``         -- short descriptions for ``Literal`` option values
+
+Galaxy renders the ``help`` attribute of a parameter as HTML (that is the
+``default`` profile of its ``v-sanitize-html`` directive, ``FormElement.vue``),
+while ReStructuredText is only understood in the ``help`` element of the tool
+itself.  The help texts are therefore converted to a small subset of HTML -- the
+inline literals, the bullet lists and the paragraph breaks -- instead of being
+flattened into one line.
 """
 
 from __future__ import annotations
 
+import html
 import re
 from collections import OrderedDict
 from typing import Dict, List, Mapping, Optional, Sequence, Tuple
@@ -58,6 +66,18 @@ _PARAMETER_ENTRY = re.compile(r"^(?P<name>[a-zA-Z_][a-zA-Z0-9_]*)\s*(?::.*)?$")
 #: an option description as used inside a parameter description, e.g.
 #: ``* ``"standard"``: mean as expectation``
 _OPTION_ENTRY = re.compile(r"[-*] [\"'`]+{option}[\"'`]+\s*:\s*([^.(]*)")
+
+#: a bullet list item at the start of a docstring line, e.g. ``* ``ffill`` ...``
+_BULLET_ITEM = re.compile(r"^[-*]\s+(?P<item>.+)$")
+
+#: an inline literal, in both of the spellings SaQC uses: ``literal`` and `x`
+_DOUBLE_LITERAL = re.compile(r"``(?P<text>.+?)``")
+_SINGLE_LITERAL = re.compile(r"`(?P<text>[^`]+)`")
+
+#: an RST footnote reference such as ``[1]``; the footnote itself lives in the
+#: ``References`` section of the method, which is part of the tool help and not
+#: of the description of a single parameter.  Indices such as ``t[k][0]`` stay.
+_FOOTNOTE_REFERENCE = re.compile(r"(?<![\w\]\)])\[\d+\](?![\w\[\(])")
 
 
 def strip_rst_roles(text: Optional[str]) -> str:
@@ -205,7 +225,7 @@ def option_help(
         for line in lines:
             match = pattern.search(line)
             if match:
-                descriptions[option] = f"{option}: {match.group(1).strip()}"
+                descriptions[option] = f"{option}: {_plain(match.group(1))}"
                 break
     return descriptions
 
@@ -259,14 +279,70 @@ def label_and_help(param_name: str, docs: Mapping[str, str]) -> Tuple[str, str]:
     return _finish_label(label), _finish_help(help_text)
 
 
+def _plain(text: str) -> str:
+    """Strip the inline markup of a text that Galaxy shows as plain text."""
+    text = _FOOTNOTE_REFERENCE.sub("", text)
+    text = _DOUBLE_LITERAL.sub(r"\g<text>", text)
+    text = _SINGLE_LITERAL.sub(r"\g<text>", text)
+    return re.sub(r"\s{2,}", " ", text).strip()
+
+
+def _inline(text: str) -> str:
+    """Escape a text and mark up the inline literals it contains."""
+    text = html.escape(_FOOTNOTE_REFERENCE.sub("", text), quote=False)
+    text = _DOUBLE_LITERAL.sub(r"<code>\g<text></code>", text)
+    text = _SINGLE_LITERAL.sub(r"<code>\g<text></code>", text)
+    return re.sub(r"\s{2,}", " ", text).strip()
+
+
+def _help_html(help_text: str) -> str:
+    """Render a help text as the HTML that Galaxy displays below a field.
+
+    Blank lines separate blocks, a block of ``*``/``-`` lines becomes a list and
+    everything else a paragraph whose lines are joined (the docstrings are hard
+    wrapped, so a line break inside a paragraph is not meaningful).
+    """
+    segments: List[Tuple[str, List[str]]] = []
+    kind = "text"
+    lines: List[str] = []
+    for raw in help_text.splitlines():
+        line = raw.strip()
+        if not line:
+            if lines:
+                segments.append((kind, lines))
+                kind, lines = "text", []
+            continue
+        item = _BULLET_ITEM.match(line)
+        if item:
+            if kind != "list":
+                if lines:
+                    segments.append((kind, lines))
+                kind, lines = "list", []
+            lines.append(item.group("item"))
+        elif kind == "list":
+            lines[-1] = f"{lines[-1]} {line}"
+        else:
+            lines.append(line)
+    if lines:
+        segments.append((kind, lines))
+
+    rendered: List[str] = []
+    for kind, lines in segments:
+        if kind == "list":
+            items = "".join(f"<li>{_inline(item)}</li>" for item in lines)
+            rendered.append(f"<ul>{items}</ul>")
+        else:
+            rendered.append(_inline(" ".join(lines)))
+    return "<br>".join(block for block in rendered if block)
+
+
 def _finish_label(label: str) -> str:
-    return label.strip(" .")
+    return _plain(label).strip(" .")
 
 
 def _finish_help(help_text: str) -> str:
-    help_text = " ".join(help_text.split("\n")).strip()
-    help_text = re.sub(r"^[,.:;-]+\s*", "", help_text).strip()
-    return help_text.rstrip(".")
+    help_text = re.sub(r"^[,.:;-]+\s*", "", help_text.strip())
+    return _help_html(help_text.rstrip().rstrip("."))
 
 
 def see_also_list(text: str) -> str:

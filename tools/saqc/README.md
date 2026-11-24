@@ -89,7 +89,7 @@ saqc -c config.txt -d data.csv maint.csv -o out.csv   # check the tool command
 | `typespec.py` | one `TypeSpec` per accepted parameter type; drives widget, type label and test value |
 | `params.py` | Galaxy input widgets (text, select, boolean, column, repeat, type-selection conditionals) |
 | `samples.py` | example value for a `TypeSpec` (used by the generated tests) |
-| `docs.py` | docstring cleanup so the help text is valid reStructuredText |
+| `docs.py` | docstring cleanup and conversion of the parameter help to HTML |
 | `tool.py` | assembles the tool XML (module/method repeat, root inputs) |
 | `testmacros.py` | generates the planemo tests and their assertions |
 
@@ -132,6 +132,27 @@ the tool's `data` input holds several tables (`multiple="true"`), so Galaxy fall
 back to `Column: 3`.  The attribute is inert in that case -- it costs nothing and
 starts working as soon as the picker refers to a single table (a Galaxy fix for
 the list case would be enough, the option values stay the same).
+
+## Help texts
+
+Galaxy renders the `help` attribute of a parameter as **HTML** (the `default`
+profile of its `v-sanitize-html` directive, `FormElement.vue`); the
+`restructuredtext`/`markdown` formats are only honoured for the `help` element
+of the tool itself.  (A `help_format` attribute on a `param` is read by
+`ToolParameter` but is not part of `galaxy.xsd`, so it does not pass the schema
+check of the ToolShed.)
+
+The SaQC docstrings are reStructuredText, so `docs.py` converts the part that
+Galaxy would otherwise show as source: inline literals (``literal`` as well as
+the single-backtick spelling `literal` SaQC uses) become `<code>`, bullet lists
+become `<ul>`/`<li>` and the blocks of a description are separated by `<br>`.
+Labels and option texts are rendered as plain text, so they get the markup
+stripped instead.
+
+Dangling footnote references (`See [1] for details`) are dropped from a
+parameter help: the footnotes themselves are defined in the `References`
+section of the method, which is part of the tool help, not of the description of
+a single parameter.  Array indices such as `t[k][0]` are left alone.
 
 ## Labels of the type selection
 

@@ -56,6 +56,7 @@ __all__ = [
     "ParamPlan",
     "saqc_parameter_name",
     "TYPE_OVERRIDES",
+    "WRAPPER_PARAMETERS",
     "annotation_to_string",
     "discover_aliases",
 ]
@@ -91,6 +92,19 @@ SKIP_METHODS = frozenset(
     {
         # https://git.ufz.de/rdm-software/saqc/-/issues/512
         "saqc.funcs.tools|flagByClick",
+    }
+)
+
+#: parameters that are not asked for, because the wrapper supplies the value,
+#: keyed by ``(module, method, parameter)``.  Only for arguments that are
+#: plumbing rather than analysis input -- a file name in the working directory of
+#: the job, for instance.
+WRAPPER_PARAMETERS: frozenset = frozenset(
+    {
+        # tools.plot() switches between an interactive window and saving a figure
+        # depending on whether 'path' is set; the wrapper always saves and names
+        # the file after the position of the plot step (see json_to_saqc_config.py)
+        ("saqc.funcs.tools", "plot", "path"),
     }
 )
 
@@ -242,6 +256,14 @@ class Introspection:
         plans: List[ParamPlan] = []
         for name, parameter in inspect.signature(method).parameters.items():
             if name in HIDDEN_PARAMETERS or "kwarg" in name.lower():
+                continue
+            if (module.__name__, method.__name__, name) in WRAPPER_PARAMETERS:
+                logger.info(
+                    "(%s): parameter '%s' of '%s' is set by the wrapper, not offered",
+                    module.__name__,
+                    name,
+                    method.__name__,
+                )
                 continue
             if _is_documented_as_deprecated(parameter_docs, name):
                 logger.info(

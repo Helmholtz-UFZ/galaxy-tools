@@ -1257,10 +1257,6 @@
             </when>
             <when value="plot">
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
-              <param argument="path" type="text" label="Path to store plot to" help="If &lt;code&gt;None&lt;/code&gt; is passed, interactive mode is entered; plots are shown immediatly and a user need to close them manually before execution continues. If a filepath is passed instead, store-mode is entered and the plot is stored unter the passed location">
-                <validator type="regex" message="Must be a plain file name within the working directory: letters, digits, spaces, '.', '-' and '_' (no directories)."><![CDATA[^[\w][\w .\-]*$]]></validator>
-                <validator type="empty_field"/>
-              </param>
               <param argument="max_gap" type="text" label="Limit of plotted gaps" help="If &lt;code&gt;None&lt;/code&gt;, all data points will be connected, resulting in long linear lines, in case of large data gaps. &lt;code&gt;NaN&lt;/code&gt; values will be removed before plotting. If an offset string is passed, only points that have a distance below &lt;code&gt;max_gap&lt;/code&gt; are connected via the plotting line Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
                 <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
               </param>

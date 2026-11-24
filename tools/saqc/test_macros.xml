@@ -2465,7 +2465,6 @@
           <conditional name="method_cond">
             <param name="method_select" value="plot" />
             <param name="field" value="1" />
-            <param name="path" value="a_string" />
             <param name="max_gap" value="1D" />
             <param name="mode" value="subplots" />
             <param name="xscope" value="1D" />
@@ -2484,7 +2483,6 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="plot" />
-          <has_text text="path=" />
           <has_text text="max_gap=" />
           <has_text text="mode=" />
           <has_text text="xscope=" />
@@ -2503,7 +2501,6 @@
           <conditional name="method_cond">
             <param name="method_select" value="plot" />
             <param name="field" value="1" />
-            <param name="path" value="a_string" />
             <param name="max_gap" value="1D" />
             <param name="mode" value="subplots" />
             <param name="xscope" value="1D" />
@@ -2522,7 +2519,6 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="plot" />
-          <has_text text="path=" />
           <has_text text="max_gap=" />
           <has_text text="mode=" />
           <has_text text="xscope=" />

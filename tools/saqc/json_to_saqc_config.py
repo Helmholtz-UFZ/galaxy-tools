@@ -111,6 +111,11 @@ def process_main_column(
 #: suffix of the input of a column selection of a type selection
 COLUMN_SUFFIX = "_column"
 
+#: prefix of the file a plot step writes, the number of the plot step is appended.
+#: ``SaQC.plot`` saves the figure to the ``path`` it is given, so the tool does not
+#: ask for that name: every plot step gets its own file, nothing is overwritten.
+PLOT_PATH_PREFIX = "plot"
+
 
 def saqc_parameter_name(input_name: str) -> str:
     """
@@ -370,6 +375,8 @@ def main():
 
     sys.stderr.write(f"INFO: Use data path as column name: {primary_input_file}\n")
 
+    plot_count = 0
+
     for r_method_set in params_from_galaxy.get("methods_repeat", []):
         method_str_for_error = "unknown_method_in_repeat"
         field_str_for_error = "unknown_field_in_repeat"
@@ -388,6 +395,10 @@ def main():
             params_to_process = method_cond_params.copy()
             method = params_to_process.pop("method_select", "unknown_method")
             method_str_for_error = method
+
+            if method == "plot":
+                plot_count += 1
+                params_to_process["path"] = f"{PLOT_PATH_PREFIX}_{plot_count}"
 
             # Process the main column
             field_str, params_to_process = process_main_column(

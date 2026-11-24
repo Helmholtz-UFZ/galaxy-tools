@@ -133,6 +133,20 @@ back to `Column: 3`.  The attribute is inert in that case -- it costs nothing an
 starts working as soon as the picker refers to a single table (a Galaxy fix for
 the list case would be enough, the option values stay the same).
 
+## Plots
+
+A `tools.plot` step saves a figure into the working directory of the job, which
+the `plots` output collection then picks up (`discover_datasets` on `*.png`).
+The file name is *not* asked for: `path` is what `SaQC.plot` uses to switch
+between an interactive window (`path=None`, useless without a display) and
+saving a figure, so it is plumbing, not an analysis parameter.
+
+`json_to_saqc_config.py` therefore writes `path="plot_<n>"` for the n-th plot
+step (`saqcgen/introspect.py` lists `path` in `WRAPPER_PARAMETERS`, so the input
+is not rendered at all).  Every plot step gets its own file, so two steps cannot
+overwrite each other -- the collection holds `plot_1`, `plot_2`, ...; rename the
+datasets in the history if you want telling names.
+
 ## Help texts
 
 Galaxy renders the `help` attribute of a parameter as **HTML** (the `default`

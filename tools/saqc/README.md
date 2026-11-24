@@ -119,6 +119,20 @@ let SaQC report the precise pandas error.  Note that `FreqStr` is validated by
 SaQC with `pd.Timedelta` and not with `to_offset`, so it uses the timedelta
 pattern, unlike `OffsetStr`.
 
+## Column pickers
+
+A SaQC parameter that names a column (`SaQCFields`, `SaQCColumns`) becomes a
+Galaxy `data_column` input with `data_ref="data"` and `use_header_names="true"`,
+so Galaxy labels the choices with the header of the input table (`c3: level_raw`)
+instead of the bare index.  Galaxy submits the index either way (`c3` -> `3`), so
+nothing else changes.
+
+Galaxy only reads the header of a *single* dataset (or of a dataset collection):
+the tool's `data` input holds several tables (`multiple="true"`), so Galaxy falls
+back to `Column: 3`.  The attribute is inert in that case -- it costs nothing and
+starts working as soon as the picker refers to a single table (a Galaxy fix for
+the list case would be enough, the option values stay the same).
+
 ## Labels of the type selection
 
 A SaQC parameter that accepts several input formats is entered as a

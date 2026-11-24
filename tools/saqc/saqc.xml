@@ -51,7 +51,7 @@
               <option value="flagNAN">flagNAN: Flag NaNs in data</option>
             </param>
             <when value="flagIsolated">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="gap_window" type="text" label="Minimum missing data extension that qualifies a gap" help="Minimum gap size required before and after a data group to consider it isolated. See conditions (2) and (3) below Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
                 <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                 <validator type="empty_field"/>
@@ -66,7 +66,7 @@
               </param>
             </when>
             <when value="flagJumps">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="thresh" type="float" label="Threshold for value change, to qualify as jump/drop" help="The Threshold by which the mean of data must differ in two adjacent windows to trigger flagging" min="0"/>
               <param argument="window" type="text" label="Context size for value level mean" help="Determines the number of timestamps used for calculating the mean in each window. Windows should be chosen large enough to obtain a reliable mean. But not too large as well, since the window size implies a lower bound for the detection resolution. Jumps exceeding `thresh` but being apart from each other by less than 3/4 of the window size may not be detected reliably Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
                 <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
@@ -80,7 +80,7 @@
               <param argument="dfilter" type="float" value="-inf" label="Defines which observations are masked based on their existing flags" help="Any data point with a flag value greater than or equal to this threshold is passed to the function as ``numpy.nan``. Defaults to the ``DFILTER_DEFAULT`` value of the active flagging scheme"/>
             </when>
             <when value="flagNAN">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
                 <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
@@ -96,7 +96,7 @@
               <option value="flagConstants">flagConstants: Flag constant data values</option>
             </param>
             <when value="flagByVariance">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="window" type="text" label="Size of the context window for variance" help="This is the number of observations used for calculating the variance. Each window will be a fixed size. If its an offset then this will be the time period of each window. Each window will be sized, based on the number of observations included in the time-period Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
                 <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                 <validator type="empty_field"/>
@@ -110,7 +110,7 @@
               </param>
             </when>
             <when value="flagConstants">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Size of the rolling window'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Sampling Frequency (OffsetStr)</option>
@@ -142,7 +142,7 @@
               <option value="fitPolynomial">fitPolynomial: Fit a polynomial model to the data</option>
             </param>
             <when value="fitLowpassFilter">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <conditional name="cutoff_cond">
                 <param name="cutoff_selector" type="select" label="Choose type for 'The cutoff-frequency'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Decimal Number (float)</option>
@@ -173,7 +173,7 @@
               </param>
             </when>
             <when value="fitPolynomial">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Extension of the fitting window'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Sampling Frequency (OffsetStr)</option>
@@ -205,8 +205,8 @@
               <option value="flagRegimeAnomaly">flagRegimeAnomaly: Flags anomalous regimes regarding to modelling regimes of ``field``</option>
             </param>
             <when value="assignRegimeAnomaly">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="cluster_field" type="data_column" label="Cluster labels variable" help="Column in data, holding the cluster labels for the samples in field. (has to be indexed equal to field)" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
+              <param argument="cluster_field" type="data_column" label="Cluster labels variable" help="Column in data, holding the cluster labels for the samples in field. (has to be indexed equal to field)" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="spread" type="float" label="Agglomeration supremum" help="A threshold denoting the value level, up to wich clusters are agglomerated" min="0"/>
               <param argument="method" type="select" label="Linkage method used" help="The linkage method for hierarchical (agglomerative) clustering of the variables">
                 <option selected="true" value="single">single</option>
@@ -220,8 +220,8 @@
               <param argument="frac" type="float" value="0.5" label="Minimum variable portion for normal groups" help="The minimum percentage of samples, the &quot;normal&quot; group has to comprise to actually be the normal group. Must be in the closed interval `[0,1]`, otherwise a ValueError is raised" min="0" max="1"/>
             </when>
             <when value="correctDrift">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="maintenance_field" type="data_column" label="Support-points variable" help="The data is expected to have the following form: The index of the series represents the beginning of a maintenance event, wheras the values represent its endings" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
+              <param argument="maintenance_field" type="data_column" label="Support-points variable" help="The data is expected to have the following form: The index of the series represents the beginning of a maintenance event, wheras the values represent its endings" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="model" type="select" label="Correction model" help="A model function describing the drift behavior, that is to be corrected. Either use built-in exponential or linear drift model by passing a string, or pass a custom callable. The model function must always contain the keyword parameters 'origin' and 'target'. The starting parameter must always be the parameter, by wich the data is passed to the model. After the data parameter, there can occure an arbitrary number of model calibration arguments in the signature. See the Notes section for an extensive description">
                 <option value="linear">linear</option>
                 <option value="exponential">exponential</option>
@@ -229,7 +229,7 @@
               <param argument="cal_range" type="integer" value="5" label="Calibration range" help="Number of values to calculate the mean of, for obtaining the value level directly after and directly before a maintenance event. Needed for shift calibration" min="0"/>
             </when>
             <when value="correctOffset">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="max_jump" type="float" label="Separating threshold for offsets" help="When searching for changepoints in mean - this is the threshold a mean difference in the sliding window search must exceed to trigger changepoint detection" min="0"/>
               <param argument="spread" type="float" label="Divergence threshold for offsets" help="threshold denoting the maximum, regimes are allowed to abolutely differ in their means to form the &quot;normal group&quot; of values" min="0"/>
               <param argument="window" type="text" label="Context size for mean value levels" help="Size of the adjacent windows that are used to search for the mean changepoints Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
@@ -242,7 +242,7 @@
               </param>
             </when>
             <when value="flagDriftFromNorm">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="window" type="text" label="Chunk size" help="The data will be broken up into chunks of size `window` and separately, on any of those chunks, the flagging statistics will be calculated Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
                 <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
                 <validator type="empty_field"/>
@@ -264,8 +264,8 @@
               </param>
             </when>
             <when value="flagDriftFromReference">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="reference" type="data_column" label="Reference variable" help="Deviation is calculated as deviation/distance from the timeseries registered under `reference` to the `saqc` object" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
+              <param argument="reference" type="data_column" label="Reference variable" help="Deviation is calculated as deviation/distance from the timeseries registered under `reference` to the `saqc` object" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="freq" type="text" label="Chunk size" help="Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
                 <validator type="regex" message="Must be a fixed time duration as understood by pandas.Timedelta (e.g. '1d', '2.5h', '30min', '1h30min', '00:00:30'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+\s*,?\s*|[0-9]+(?:\.[0-9]+)?\s*,?\s*|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?|P[0-9A-Za-z.]*)+$))]]></validator>
                 <validator type="empty_field"/>
@@ -277,8 +277,8 @@
               </param>
             </when>
             <when value="flagRegimeAnomaly">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="cluster_field" type="data_column" label="Cluster labels variable" help="Column in data, holding the cluster labels for the samples in field. (has to be indexed equal to field)" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
+              <param argument="cluster_field" type="data_column" label="Cluster labels variable" help="Column in data, holding the cluster labels for the samples in field. (has to be indexed equal to field)" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="spread" type="float" label="Agglomeration supremum" help="A threshold denoting the value level, up to wich clusters are agglomerated" min="0"/>
               <param argument="method" type="select" label="Linkage method used" help="The linkage method for hierarchical (agglomerative) clustering of the variables">
                 <option selected="true" value="single">single</option>
@@ -311,45 +311,45 @@
               <option value="transferFlags">transferFlags: Transfer flags between variables</option>
             </param>
             <when value="andGroup">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param name="group" type="data" optional="true" label="AND operands" help="A collection of ``SaQC`` objects. Flag checks are performed on all ``SaQC`` objects based on the variables specified in ``field``. Whenever all monitored variables are flagged, the associated timestamps will receive a flag" format="csv" multiple="true"/>
-              <param argument="target" type="data_column" optional="true" label="Name of the variable to which the results are written" help="If the variable does not exist, it will be created. Defaults to ``field``" data_ref="data" multiple="false"/>
+              <param argument="target" type="data_column" optional="true" label="Name of the variable to which the results are written" help="If the variable does not exist, it will be created. Defaults to ``field``" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
                 <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
             <when value="clearFlags">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
             </when>
             <when value="flagDummy">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
             </when>
             <when value="flagUnflagged">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
                 <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
             <when value="forceFlags">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
                 <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
             <when value="orGroup">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param name="group" type="data" optional="true" label="OR operands" help="A collection of ``SaQC`` objects. Flag checks are performed on all ``SaQC`` objects based on the variables specified in `field`. Whenever any of monitored variables is flagged, the associated timestamps will receive a flag" format="csv" multiple="true"/>
-              <param argument="target" type="data_column" optional="true" label="Name of the variable to which the results are written" help="If the variable does not exist, it will be created. Defaults to ``field``" data_ref="data" multiple="false"/>
+              <param argument="target" type="data_column" optional="true" label="Name of the variable to which the results are written" help="If the variable does not exist, it will be created. Defaults to ``field``" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
                 <validator type="regex" message="Must be the name of a flag of the flagging scheme in use (e.g. 'BAD') or a numeric flag value (e.g. '255')."><![CDATA[(?i:(^$)|(^(?:[A-Za-z_][A-Za-z0-9_.+\-]*|[+-]?[0-9]+(?:\.[0-9]+)?)$))]]></validator>
                 <validator type="empty_field"/>
               </param>
             </when>
             <when value="propagateFlags">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Extension of the propagation'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Sampling Frequency (OffsetStr)</option>
@@ -376,14 +376,14 @@
               <param argument="dfilter" type="float" value="-inf" label="Defines which observations are masked based on their existing flags" help="Any data point with a flag value greater than or equal to this threshold is passed to the function as ``numpy.nan``. Defaults to the ``DFILTER_DEFAULT`` value of the active flagging scheme"/>
             </when>
             <when value="setFlags">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <conditional name="data_cond">
                 <param name="data_selector" type="select" label="Choose type for 'Flags schedule'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Column Selection (SaQCColumns)</option>
                   <option value="type_1">Plain Text List (list)</option>
                 </param>
                 <when value="type_0">
-                  <param name="data_column" argument="data" type="data_column" label="Flags schedule" help="Determines which timestamps to set flags at. Depending on the passed type:  * 1-d `array` or `List` of timestamps or `pandas.Index`: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]` * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * str: use the variable timeseries `f_data` as flagging template * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * 1-d `array` or `List` of timestamps: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]`" data_ref="data" multiple="false"/>
+                  <param name="data_column" argument="data" type="data_column" label="Flags schedule" help="Determines which timestamps to set flags at. Depending on the passed type:  * 1-d `array` or `List` of timestamps or `pandas.Index`: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]` * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * str: use the variable timeseries `f_data` as flagging template * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * 1-d `array` or `List` of timestamps: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]`" data_ref="data" multiple="false" use_header_names="true"/>
                 </when>
                 <when value="type_1">
                   <param argument="data" type="text" label="Flags schedule" help="Determines which timestamps to set flags at. Depending on the passed type:  * 1-d `array` or `List` of timestamps or `pandas.Index`: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]` * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * str: use the variable timeseries `f_data` as flagging template * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * 1-d `array` or `List` of timestamps: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]`">
@@ -399,8 +399,8 @@
               </param>
             </when>
             <when value="transferFlags">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="target" type="data_column" label="Name of the variable to which the results are written" help="If the variable does not exist, it will be created. Defaults to ``field``" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
+              <param argument="target" type="data_column" label="Name of the variable to which the results are written" help="If the variable does not exist, it will be created. Defaults to ``field``" data_ref="data" multiple="false" use_header_names="true"/>
               <conditional name="squeeze_cond">
                 <param name="squeeze_selector" type="select" label="Choose type for 'Append history or aggregation'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Whole Number (int)</option>
@@ -424,7 +424,7 @@
               <option value="interpolateByRolling">interpolateByRolling: Impute NAN with aggregation of context</option>
             </param>
             <when value="align">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <conditional name="freq_cond">
                 <param name="freq_selector" type="select" label="Choose type for 'New sampling rate'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Time Duration (FreqStr)</option>
@@ -468,7 +468,7 @@
               <param argument="overwrite" type="boolean" label="Overwrite existing flags" help="If ``True``, existing flags will be cleared" checked="false"/>
             </when>
             <when value="interpolateByRolling">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Rolling window size'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Sampling Frequency (OffsetStr)</option>
@@ -511,7 +511,7 @@
               <option value="flagByScatterLowpass">flagByScatterLowpass: Flag data noisy data</option>
             </param>
             <when value="flagByScatterLowpass">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Scatter context size'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Sampling Frequency (OffsetStr)</option>
@@ -567,7 +567,7 @@
               <option value="calibratePipeline">calibratePipeline: Optimize problem pipeline against supervised field</option>
             </param>
             <when value="calibratePipeline">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="problems" type="text" label="Problem Statement of the Pipeline" help="Definition of the pipeline in terms of a list of (possibly merged) Problems" multiple="true">
                 <validator type="regex" message="Must not be empty and must not contain a line break."><![CDATA[^\s*\S.*$]]></validator>
               </param>
@@ -617,7 +617,7 @@
               <option value="flagZScore">flagZScore: Scattering (ZScoring) based outlier detection</option>
             </param>
             <when value="flagByStray">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Window size for STRAY'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Sampling Frequency (OffsetStr)</option>
@@ -641,7 +641,7 @@
               </param>
             </when>
             <when value="flagLOF">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="n" type="integer" value="20" label="Nearest neighbors number" help="Number of nearest neighbors to be included into the LOF calculation. Defaults to ``20``, which is a value found to be suitable in the literature.  * `n` determines the &quot;locality&quot; of an observation (its `n` nearest neighbors) and sets the upper limit to the number of values in outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than `n`/2 may not be detected reliably. * The larger `n`, the lesser the algorithm's sensitivity to local outliers and small or singleton outliers points. Higher values greatly increase numerical costs" min="0"/>
               <conditional name="thresh_cond">
                 <param name="thresh_selector" type="select" label="Choose type for 'Cutoff threshold'" help="The parameter supports different input formats, you can choose which one suites your application.">
@@ -670,7 +670,7 @@
               </param>
             </when>
             <when value="flagOffset">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="window" type="text" label="Offset group size (maximum)" help="Maximum temporal length allowed for an offset sequence to trigger flagging (condition 5). Integer-defined windows are only allowed for regularly sampled timestamps Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
                 <validator type="regex" message="Must be a fixed time duration as understood by pandas.Timedelta (e.g. '1d', '2.5h', '30min', '1h30min', '00:00:30'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+\s*,?\s*|[0-9]+(?:\.[0-9]+)?\s*,?\s*|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?|P[0-9A-Za-z.]*)+$))]]></validator>
                 <validator type="empty_field"/>
@@ -702,7 +702,7 @@
               </param>
             </when>
             <when value="flagRange">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="min" type="float" optional="true" label="Lower bound" help=""/>
               <param argument="max" type="float" optional="true" label="Upper bound" help=""/>
               <param argument="flag" type="text" value="255.0" label="Flag value used to annotate detected observations" help="Defaults to the ``BAD`` value of the active flagging scheme Format: a flag name of the active flagging scheme (e.g. 'BAD', 'DOUBTFUL') or a numeric flag value (e.g. '255').">
@@ -711,7 +711,7 @@
               </param>
             </when>
             <when value="flagUniLOF">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="n" type="integer" value="20" label="Neighborhood extension" help="Number of samples to include in the LOF neighborhood (the ``n`` nearest neighbors)" min="0"/>
               <conditional name="thresh_cond">
                 <param name="thresh_selector" type="select" label="Choose type for 'Outlier-factor cutoff'" help="The parameter supports different input formats, you can choose which one suites your application.">
@@ -770,7 +770,7 @@
               </param>
             </when>
             <when value="flagZScore">
-              <param argument="field" type="data_column" label="List of variables names to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="List of variables names to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="method" type="select" label="Which scoring method to use" help="* ``&quot;standard&quot;`` — mean as expectation, standard deviation as scaling factor. * ``&quot;modified&quot;`` — median as expectation, median absolute deviation (MAD) as scaling factor">
                 <option selected="true" value="standard">standard</option>
                 <option value="modified">modified</option>
@@ -807,7 +807,7 @@
               <option value="flagPlateau">flagPlateau: Flag ofsetted groups of data</option>
             </param>
             <when value="flagPlateau">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <conditional name="min_length_cond">
                 <param name="min_length_selector" type="select" label="Choose type for 'Size threshold for offseted groups'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Whole Number (int)</option>
@@ -867,8 +867,8 @@
               <option value="resample">resample: Sample data at uniform sampling rate</option>
             </param>
             <when value="concatFlags">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="target" type="data_column" optional="true" label="Name of the variable to which the results are written" help="If the variable does not exist, it will be created. Defaults to ``field``" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
+              <param argument="target" type="data_column" optional="true" label="Name of the variable to which the results are written" help="If the variable does not exist, it will be created. Defaults to ``field``" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="method" type="select" label="Aggregation method" help="Method to project the flags of `field` to the flags to `target`:  * ``'auto'``: invert the last alignment/resampling operation (that is not already inverted) * ``'nagg'``: project a flag of `field` to all timestamps of `target` within the range +/- `freq`/2. * ``'bagg'``: project a flag of `field` to all preceeding timestamps of `target` within the range `freq` * ``'fagg'``: project a flag of `field` to all succeeding timestamps of `target` within the range `freq` * ``'interpolation'`` - project a flag of `field` to all timestamps of `target` within the range +/- `freq` * ``'sshift'`` - same as interpolation * ``'nshift'`` - project a flag of `field` to the neaerest timestamps in `target` within the range +/- `freq`/2 * ``'bshift'`` - project a flag of `field` to nearest preceeding timestamps in `target` * ``'nshift'`` - project a flag of `field` to nearest succeeding timestamps in `target` * ``'match'`` - project a flag of `field` to all identical timestamps `target`">
                 <option value="fagg">fagg: project a flag of `field` to all succeeding timestamps</option>
                 <option value="bagg">bagg: project a flag of `field` to all preceeding timestamps</option>
@@ -903,7 +903,7 @@
               <param argument="override" type="boolean" label="Override existing flags" help="" checked="false"/>
             </when>
             <when value="reindex">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <conditional name="index_cond">
                 <param name="index_selector" type="select" label="Choose type for 'New index'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Time Duration (FreqStr)</option>
@@ -923,7 +923,7 @@
                   </param>
                 </when>
                 <when value="type_2">
-                  <param name="index_column" argument="index" type="data_column" label="New index" help="* If an `offset` string: new index will range from start to end of the original index of `field`, exhibting a uniform sampling rate of `idx` * If a `str` that matches a field present in the `SaQC` object, that fields index will be used as new index of `field` * If an `pandas.index` object is passed, that will be the new index of `field`" data_ref="data" multiple="false"/>
+                  <param name="index_column" argument="index" type="data_column" label="New index" help="* If an `offset` string: new index will range from start to end of the original index of `field`, exhibting a uniform sampling rate of `idx` * If a `str` that matches a field present in the `SaQC` object, that fields index will be used as new index of `field` * If an `pandas.index` object is passed, that will be the new index of `field`" data_ref="data" multiple="false" use_header_names="true"/>
                 </when>
               </conditional>
               <param argument="method" type="select" label="Reindexing method" help="Determines which of the origins indexes periods to comprise into the calculation of a new flag and a new data value at any period of the new index.  * Aggregations Reindexer. Aggregations are data and flags independent, (pure) index selection methods: * `'bagg'`/`'fagg'`: &quot;backwards/forwards aggregation&quot;. Any new index period gets assigned an aggregation of the values at periods in the original index, that lie between itself and its successor/predecessor. * `'nagg'`: &quot;nearest aggregation&quot;: Any new index period gets assigned an aggregation of the values at periods in the original index between its direct predecessor and successor, it is the nearest neighbor to. * Rolling reindexer. Rolling reindexers are equal to aggregations, when projecting between regular and irregular sampling grids forth and back. But due to there simple rolling window construction, they are easier to comprehend, predict and parametrize. On the downside, they are much more expensive computationally and Also, periods can get included in the aggregation to multpiple target periods, (when rolling windows overlap). * `'broll'`/`'froll'`: Any new index period gets assigned an aggregation of all the values at periods of the original index, that fall into a directly preceeding/succeeding window of size `reindex_window`. * Shifts. Shifting methods are shortcuts for aggregation reindex methods, combined with selecting 'last' or 'first' as the `data_aggregation` method. Therefor, both, the `flags_aggregation` and the `data_aggregation` are ignored when using a `shift` reindexer. Also, periods where the data evaluates to `NaN` are dropped before shift index selection. * `'bshift'`/`fshift`: &quot;backwards/forwards shift&quot;. Any new index period gets assigned the first/last valid (not a data NaN) value it succeeds/preceeds * `'nshift'`: &quot;nearest shift&quot;: Any new index period gets assigned the value of its closest neighbor in the original index. * Pillar point Mappings. Index selection method designed to select indices suitable for linearly interpolating index values from surrounding pillar points in the original index, or inverting such a selection. Periods where the data evaluates to `NaN`, are dropped from consideration. * `'mshift'`: &quot;Merge&quot; predecessors and successors. Any new index period gets assigned an aggregation/interpolation comprising the last and the next valid period in the original index. * `'sshift'`: &quot;Split&quot;-map values onto predecessors and successors. Same as `mshift`, but with a correction that prevents missing value flags from being mapped to continuous data chunk bounds. * Inversion of last method: try to select the method, that * `'invert``">
@@ -1014,7 +1014,7 @@
               <param argument="override" type="boolean" label="override" help="" checked="false"/>
             </when>
             <when value="resample">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="freq" type="text" label="New sampling rate" help="Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
                 <validator type="regex" message="Must be a fixed time duration as understood by pandas.Timedelta (e.g. '1d', '2.5h', '30min', '1h30min', '00:00:30'). Month (M) or Year (Y) are NOT allowed."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+\s*,?\s*|[0-9]+(?:\.[0-9]+)?\s*,?\s*|[0-9]+:[0-9]+(?::[0-9]+(?:\.[0-9]+)?)?|P[0-9A-Za-z.]*)+$))]]></validator>
                 <validator type="empty_field"/>
@@ -1037,7 +1037,7 @@
               <option value="calculateRollingResiduals">calculateRollingResiduals: Residuals from sliding window fit</option>
             </param>
             <when value="calculatePolynomialResiduals">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Extension of the fitting window'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Sampling Frequency (OffsetStr)</option>
@@ -1057,7 +1057,7 @@
               <param argument="min_periods" type="integer" value="0" label="Minimum population for fitting windows" help="The minimum number of periods, that has to be available in every values fitting surrounding for the polynomial fit to be performed. If there are not enough values, numpy.nan gets assigned. Default (0) results in fitting regardless of the number of values present (results in overfitting for too sparse intervals). To automatically set the minimum number of periods to the number of values in an offset defined window size, pass numpy.nan"/>
             </when>
             <when value="calculateRollingResiduals">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Rolling window size'" help="The parameter supports different input formats, you can choose which one suites your application.">
                   <option value="type_0">Sampling Frequency (OffsetStr)</option>
@@ -1102,8 +1102,8 @@
               <option value="assignZScore">assignZScore: Calculate (rolling) Zscores</option>
             </param>
             <when value="assignKNNScore">
-              <param argument="field" type="data_column" label="List of variables names to process" help="" data_ref="data" multiple="false"/>
-              <param argument="target" type="data_column" label="Name of the variable to which the results are written" help="If the variable does not exist, it will be created. Defaults to ``field``" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="List of variables names to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
+              <param argument="target" type="data_column" label="Name of the variable to which the results are written" help="If the variable does not exist, it will be created. Defaults to ``field``" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="n" type="integer" value="10" label="The number of nearest neighbors" help="The number of nearest neighbors comprised in every datapoints scoring calculation" min="0"/>
               <param argument="func" type="select" label="Distance aggregation" help="A function that assigns a score to every one dimensional array, containing the distances to every datapoints `n` nearest neighbors">
                 <option selected="true" value="sum">sum</option>
@@ -1145,8 +1145,8 @@
               <param argument="p" type="integer" value="2" label="Metrics (minkowski) degree" help="The grade of the metrice specified by parameter `metric`. The keyword just gets passed on to the underlying sklearn method. See reference [1] for more information on the algorithm" min="0"/>
             </when>
             <when value="assignLOF">
-              <param argument="field" type="data_column" label="List of variables names to process" help="" data_ref="data" multiple="false"/>
-              <param argument="target" type="data_column" label="Name of the variable to which the results are written" help="If the variable does not exist, it will be created. Defaults to ``field``" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="List of variables names to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
+              <param argument="target" type="data_column" label="Name of the variable to which the results are written" help="If the variable does not exist, it will be created. Defaults to ``field``" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="n" type="integer" value="20" label="Number of nearest neighbors" help="Number of periods to be included into the LOF calculation. Defaults to `20`, which is a value found to be suitable in the literature" min="0"/>
               <conditional name="freq_cond">
                 <param name="freq_selector" type="select" label="Choose type for 'Data partitioning frequency'" help="The parameter supports different input formats, you can choose which one suites your application.">
@@ -1173,7 +1173,7 @@
               <param argument="p" type="integer" value="2" label="Distance metric degree" help="Degree of the metric (&quot;Minkowski&quot;), according to wich distance to neighbors is determined. Most important values are:  * `1` - Manhatten Metric * `2` - Euclidian Metric" min="0"/>
             </when>
             <when value="assignUniLOF">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="n" type="integer" value="20" label="Neighborhood size" help="Number of periods to be included into the LOF calculation. Defaults to `20`, which is a value found to be suitable in the literature.  * `n` determines the &quot;locality&quot; of an observation (its `n` nearest neighbors) and sets the upper limit of values of an outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than `n/2` may not be detected reliably. * The larger `n`, the lesser the algorithm's sensitivity to local outliers and small or singleton outliers points. Higher values greatly increase numerical costs" min="0"/>
               <param argument="algorithm" type="select" label="Nearest-neighbors search algorithm" help="Algorithm used for calculating the `n`-nearest neighbors needed for LOF calculation">
                 <option selected="true" value="ball_tree">ball_tree</option>
@@ -1200,7 +1200,7 @@
               <param argument="statistical_extent" type="float" value="1" label="Probability of Membership" help="Controls the fuzzy-nes of a outlier clusters" min="0" max="1"/>
             </when>
             <when value="assignZScore">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="window" type="text" label="Scoring window size" help="If `None` (default), All data points share the same scoring window, which than equals the whole data Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
                 <validator type="regex" message="Must be a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME'. The legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N' are no longer supported, use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' or 'ns'."><![CDATA[(?i:(^$)|(^\s*[+-]?\s*(?:[0-9]+(?:\.[0-9]+)?\s*)?[A-Za-z]+(?:-[A-Za-z]{3})?\s*(?:[0-9]+(?:\.[0-9]+)?\s*[A-Za-z]+(?:-[A-Za-z]{3})?\s*)*$))]]></validator>
               </param>
@@ -1248,15 +1248,15 @@
               <option value="renameField">renameField: Rename field</option>
             </param>
             <when value="copyField">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="target" type="data_column" label="Name of the variable to which the results are written" help="If the variable does not exist, it will be created. Defaults to ``field``" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
+              <param argument="target" type="data_column" label="Name of the variable to which the results are written" help="If the variable does not exist, it will be created. Defaults to ``field``" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="overwrite" type="boolean" label="Overwrite ``target``" help="" checked="false"/>
             </when>
             <when value="dropField">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
             </when>
             <when value="plot">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
               <param argument="path" type="text" label="Path to store plot to" help="If ``None`` is passed, interactive mode is entered; plots are shown immediatly and a user need to close them manually before execution continues. If a filepath is passed instead, store-mode is entered and the plot is stored unter the passed location">
                 <validator type="regex" message="Must be a plain file name within the working directory: letters, digits, spaces, '.', '-' and '_' (no directories)."><![CDATA[^[\w][\w .\-]*$]]></validator>
                 <validator type="empty_field"/>
@@ -1296,8 +1296,8 @@
               <param argument="dfilter" type="float" value="inf" label="Defines which observations are masked based on their existing flags" help="Any data point with a flag value greater than or equal to this threshold is passed to the function as ``numpy.nan``. Defaults to the ``DFILTER_DEFAULT`` value of the active flagging scheme"/>
             </when>
             <when value="renameField">
-              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <param argument="new_name" type="data_column" label="New name for the field" help="" data_ref="data" multiple="true"/>
+              <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false" use_header_names="true"/>
+              <param argument="new_name" type="data_column" label="New name for the field" help="" data_ref="data" multiple="true" use_header_names="true"/>
             </when>
           </conditional>
         </when>

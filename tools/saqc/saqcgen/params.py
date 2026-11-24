@@ -332,7 +332,13 @@ def _select(spec: TypeSpec, name: str, args: Dict[str, object], optional: bool):
 def _fields(spec: TypeSpec, name: str, args: Dict[str, object], optional: bool):
     args = dict(args)
     args.pop("value", None)
-    args.update(type="data_column", data_ref="data", multiple=spec.multiple)
+    # a SaQC column is an index, but a user reads the header of their table
+    args.update(
+        type="data_column",
+        data_ref="data",
+        multiple=spec.multiple,
+        use_header_names=True,
+    )
     return SelectParam(**_arguments(name, args))
 
 

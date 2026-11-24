@@ -996,7 +996,7 @@
         </assert_contents>
       </output>
     </test>
-    <test expect_num_outputs="2">
+    <test expect_num_outputs="3">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1005,13 +1005,10 @@
           <conditional name="method_cond">
             <param name="method_select" value="calibratePipeline" />
             <param name="field" value="1" />
-            <param name="problems" value="a_string" />
+            <param name="problems" value="[&quot;a_string&quot;]" />
             <param name="name" value="a_string" />
-            <param name="problem_labels" value="a_string" />
+            <param name="problem_labels" value="[&quot;a_string&quot;]" />
             <param name="pop_size" value="1" />
-            <param name="log_pop" value="true" />
-            <param name="log_config" value="true" />
-            <param name="log_path" value="a_string" />
             <param name="verbose" value="true" />
             <conditional name="termination_cond">
               <param name="termination_selector" value="type_0" />
@@ -1030,15 +1027,12 @@
           <has_text text="name=" />
           <has_text text="problem_labels=" />
           <has_text text="pop_size=" />
-          <has_text text="log_pop=" />
-          <has_text text="log_config=" />
-          <has_text text="log_path=" />
           <has_text text="verbose=" />
           <has_text text="termination=" />
         </assert_contents>
       </output>
     </test>
-    <test expect_num_outputs="2">
+    <test expect_num_outputs="3">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
@@ -1047,13 +1041,10 @@
           <conditional name="method_cond">
             <param name="method_select" value="calibratePipeline" />
             <param name="field" value="1" />
-            <param name="problems" value="a_string" />
+            <param name="problems" value="[&quot;a_string&quot;]" />
             <param name="name" value="a_string" />
-            <param name="problem_labels" value="a_string" />
+            <param name="problem_labels" value="[&quot;a_string&quot;]" />
             <param name="pop_size" value="1" />
-            <param name="log_pop" value="true" />
-            <param name="log_config" value="true" />
-            <param name="log_path" value="a_string" />
             <param name="verbose" value="true" />
             <conditional name="termination_cond">
               <param name="termination_selector" value="type_1" />
@@ -1069,9 +1060,6 @@
           <has_text text="name=" />
           <has_text text="problem_labels=" />
           <has_text text="pop_size=" />
-          <has_text text="log_pop=" />
-          <has_text text="log_config=" />
-          <has_text text="log_path=" />
           <has_text text="verbose=" />
           <has_text text="termination=" />
         </assert_contents>
@@ -2511,7 +2499,7 @@
             <param name="dfilter" value="1" />
             <conditional name="history_cond">
               <param name="history_selector" value="type_1" />
-              <param name="history" value="a_string" />
+              <param name="history" value="[&quot;a_string&quot;]" />
             </conditional>
           </conditional>
         </conditional>

@@ -73,6 +73,9 @@ def _text_value(spec: TypeSpec) -> str:
         return TIMEDELTA
     if spec.validator in (typespec.OFFSET, typespec.OFFSET_OR_TIMEDELTA):
         return OFFSET
+    if spec.multiple:
+        # a list valued text input asks for the SaQC syntax
+        return f'["{TEXT}"]'
     return TEXT
 
 

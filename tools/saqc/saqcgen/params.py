@@ -266,16 +266,25 @@ def _text(spec: TypeSpec, name: str, args: Dict[str, object], optional: bool):
     if spec.validator in _TEXT_HELP:
         args["help"] = (str(args.get("help", "")) + _TEXT_HELP[spec.validator]).strip()
 
-    # a ``multiple`` text parameter holds a list of values and Galaxy applies
-    # the validators to every element separately, so they work either way
-    text_args = dict(_arguments(name, args))
     if spec.multiple:
-        text_args["multiple"] = True
-    param = TextParam(**text_args)
+        # Galaxy has no multi value text input: ``multiple="true"`` is ignored
+        # for ``type="text"`` and the value arrives as a single string (checked
+        # against Galaxy 26.1).  So the parameter asks for a list in the syntax
+        # of the SaQC configuration file, which is what
+        # json_to_saqc_config.py passes through unchanged
+        existing = str(args.get("help", "")).rstrip()
+        if existing and not existing.endswith((".", "!", "?", ":")):
+            existing += "."
+        args["help"] = existing + (
+            " Format: a list in the syntax of the SaQC configuration file, "
+            'e.g. <code>["filter", "spikes"]</code>.'
+        )
+
+    param = TextParam(**_arguments(name, args))
     if spec.validator in _VALIDATORS:
         param.append(_regex_validator(*_VALIDATORS[spec.validator]))
     if spec.multiple:
-        # every entry has to be a value of its own
+        # one line, so the generated configuration stays parseable
         param.append(_regex_validator(_FREE_TEXT_PATTERN, _FREE_TEXT_MESSAGE))
     elif spec.validator not in _VALIDATORS:
         param.append(
@@ -286,7 +295,7 @@ def _text(spec: TypeSpec, name: str, args: Dict[str, object], optional: bool):
         )
     if not optional and not spec.multiple:
         # ``empty_field`` compares the value to '' and therefore never fails
-        # for a list, a ``multiple`` parameter is validated per element instead
+        # for a list, a list valued text input is validated by the regex above
         param.append(_empty_field_validator())
     return param
 

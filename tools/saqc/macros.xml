@@ -94,6 +94,50 @@
                 </element>
             </output_collection>
         </test>
+        <test expect_num_outputs="3">
+            <param name="data" value="test1/data.csv" ftype="csv"/>
+            <repeat name="methods_repeat">
+                <conditional name="module_cond">
+                    <param name="module_select" value="outliers"/>
+                    <conditional name="method_cond">
+                        <param name="method_select" value="flagRange"/>
+                        <param name="field" value="1"/>
+                        <param name="max" value="200.0"/>
+                        <param name="min" value="10.0"/>
+                    </conditional>
+                </conditional>
+            </repeat>
+            <repeat name="methods_repeat">
+                <conditional name="module_cond">
+                    <param name="module_select" value="optisaqc"/>
+                    <conditional name="method_cond">
+                        <param name="method_select" value="calibratePipeline"/>
+                        <param name="field" value="1"/>
+                        <param name="problems" value="[&quot;filter&quot;]"/>
+                        <param name="problem_labels" value="[&quot;flagRange&quot;]"/>
+                        <param name="pop_size" value="4"/>
+                        <param name="verbose" value="false"/>
+                        <conditional name="termination_cond">
+                            <param name="termination_selector" value="type_1"/>
+                            <param name="termination" value="10"/>
+                        </conditional>
+                    </conditional>
+                </conditional>
+            </repeat>
+            <output name="config_out" ftype="txt">
+                <assert_contents>
+                    <has_text_matching expression='calibratePipeline.*log_config=True.*log_path="optisaqc_1".*log_pop=False'/>
+                </assert_contents>
+            </output>
+            <output_collection name="optimized_configs" type="list">
+                <element name="optisaqc_1" ftype="csv">
+                    <assert_contents>
+                        <has_text_matching expression="fitLowpassFilter"/>
+                        <has_text_matching expression="dropField"/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+        </test>
         <test expect_num_outputs="2">
             <param name="data" value="test2/data.csv" ftype="csv" />
             <repeat name="methods_repeat">

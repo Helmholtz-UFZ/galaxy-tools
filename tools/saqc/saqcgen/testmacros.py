@@ -24,8 +24,9 @@ _UNASSERTED_PARAMETERS = frozenset({"field", "target", "group", "method_select"}
 #: names of the elements of a nested input, they are not configuration keys
 _NESTED_SUFFIXES = ("_pos0", "_pos1", "_min", "_max", "_start", "_end")
 
-#: modules/methods that additionally produce the plot collection
-_PLOT_METHOD = ("tools", "plot")
+#: modules/methods that additionally produce a collection output, the set of
+#: outputs is the one of a normal test plus the collection
+_COLLECTION_METHODS = frozenset({("tools", "plot"), ("optisaqc", "calibratePipeline")})
 
 
 def generate_test_macros(introspection: Introspection) -> str:
@@ -53,7 +54,8 @@ def _tests(introspection: Introspection) -> Iterator[ET.Element]:
 
 def _test(module_name: str, method_name: str, parameters: Dict[str, Any]) -> ET.Element:
     """One ``<test>`` running a single method."""
-    expect_num_outputs = "3" if (module_name, method_name) == _PLOT_METHOD else "2"
+    has_collection = (module_name, method_name) in _COLLECTION_METHODS
+    expect_num_outputs = "3" if has_collection else "2"
     test = ET.Element("test", {"expect_num_outputs": expect_num_outputs})
     ET.SubElement(
         test, "param", {"name": "data", "value": "test1/data.csv", "ftype": "csv"}

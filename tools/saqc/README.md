@@ -105,10 +105,19 @@ report.
 
 Every text parameter carries at least one `regex` validator; where a parameter
 is required an additional `empty_field` check rejects an empty form.  Galaxy
-applies a validator with `re.match`, i.e. *a pattern has to anchor its own end*,
-and it applies it to every element of a `multiple` text parameter separately —
-which is why `empty_field` (that compares the value to `''`) is useless for
-lists and a per-element pattern is used instead.
+applies a validator with `re.match`, i.e. *a pattern has to anchor its own end*.
+`empty_field` compares the value to `''` and takes no options, so a parameter
+that is allowed to stay empty gets a pattern with an `(^$)|(...)` alternative
+instead.
+
+Galaxy has no multi-value `text` input: `multiple="true"` is silently ignored
+for `type="text"` and the value arrives as one string (measured against Galaxy
+26.1).  The three parameters that SaQC declares as `list[str]`
+(`calibratePipeline.problems`, `calibratePipeline.problem_labels` and
+`tools.plot.history`) are therefore plain text fields that ask for a list in the
+syntax of the SaQC configuration file, e.g. `["filter", "spikes"]` —
+`json_to_saqc_config.py` passes a value that starts with `[` through unchanged.
+`tools.plot.history` also accepts a single string (`valid`).
 
 The patterns for time spans (`params._VALIDATORS`) are deliberately *shape*
 checks and not a re-implementation of the pandas grammar: pandas owns its alias
@@ -118,6 +127,22 @@ block valid input sooner or later.  They are anchored and case insensitive and
 let SaQC report the precise pandas error.  Note that `FreqStr` is validated by
 SaQC with `pd.Timedelta` and not with `to_offset`, so it uses the timedelta
 pattern, unlike `OffsetStr`.
+
+## Special characters in the parameters
+
+The tool writes its parameters into the JSON of `<configfiles>`, so they never
+reach the command line.  Galaxy does not care and replaces the characters it
+cannot put on a command line in *every* value of the tool state (see
+`lib/galaxy/security/object_wrapper.py`): `["filter"]` arrives as
+`__ob____dq__filter__dq____cb__`, `#` as `__pd__`, a line break as `__cn__`,
+and every character it does not know as `X`.  `json_to_saqc_config.py` would
+have to decode all of that, and the `X` replacement cannot be undone.
+
+`saqcgen/tool.py` therefore emits `<options sanitize="false"/>`, which turns the
+encoding off for this tool.  It is safe here: the command interpolates only
+dataset paths and the name of the parameter file, everything else is read from
+the JSON.  A tool that interpolates free text into its command line must not do
+this.
 
 ## Column pickers
 
@@ -146,6 +171,39 @@ step (`saqcgen/introspect.py` lists `path` in `WRAPPER_PARAMETERS`, so the input
 is not rendered at all).  Every plot step gets its own file, so two steps cannot
 overwrite each other -- the collection holds `plot_1`, `plot_2`, ...; rename the
 datasets in the history if you want telling names.
+
+## calibratePipeline
+
+`optisaqc.calibratePipeline` optimizes a pipeline of problems against a
+supervised field.  It has two ways of handing the result back: it registers the
+optimized pipeline as a new method of the in-memory `SaQC` object under `name`
+(which no later step of a Galaxy run can call), and it dumps it as a config file
+below `log_path` when `log_config` is set.  Only the second one is visible after
+the job, so the wrapper always takes it:
+
+* `log_path`, `log_config` and `log_pop` are in `WRAPPER_PARAMETERS`, so they are
+  not rendered, and `json_to_saqc_config.py` writes `log_config=True`,
+  `log_pop=False` and `log_path="optisaqc_<n>"` for the n-th calibrating step.
+  SaQC needs a *folder* to log into, so the number keeps two steps apart.
+* The `optimized_configs` output collection discovers
+  `optisaqc_\d+/config.csv` below the working directory (`recurse="true"` plus
+  `match_relative_path="true"`, because the pattern has to see the folder).  Its
+  filter only creates it when a `calibratePipeline` step is configured, so the
+  other tests keep counting two outputs.
+
+`log_pop` is deliberately off: it writes a population dump per problem into the
+same folder, and nothing collects those files.
+
+Note that SaQC 2.10 aborts this method for several problem classes with
+`ValueError: cannot reshape array of size 0 into shape (1,)` (the score line of a
+generation without a single feasible individual) or
+`AttributeError: 'NaTType' object has no attribute 'resolution_string'` (a problem
+that scales a frequency parameter); `problems=["filter"]` is the one the test in
+`macros.xml` uses.  `problem_labels` takes the *labels* of earlier flagging
+steps, and SaQC labels a call after the method name unless a `label` is given,
+so `["flagRange"]` refers to a preceding `flagRange` step.  Both parameters are
+single line text fields that take a list in the syntax of the SaQC configuration
+file (see *Validators of the text inputs*).
 
 ## Help texts
 

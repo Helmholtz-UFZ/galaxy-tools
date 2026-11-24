@@ -29,6 +29,7 @@ from galaxyxml.tool.parameters import (
     TextParam,
     When,
 )
+from lxml import etree
 
 from . import docs, params
 from .introspect import COLUMN_SUFFIX, Introspection
@@ -151,7 +152,26 @@ def generate_tool(introspection: Introspection) -> str:
 
     _warn_about_input_names(introspection, modules)
     _add_outputs(tool)
+    _allow_special_characters(tool)
     return tool.export()
+
+
+def _allow_special_characters(tool: Tool) -> None:
+    """Turn Galaxy's command line sanitization off for this tool.
+
+    Galaxy replaces the characters it cannot put on a command line with
+    ``__dq__``, ``__ob__``, ``__cn__`` and friends (and anything it does not
+    know with ``X``) in *every* value of the tool state -- including the values
+    written into the ``<configfiles>`` JSON, which is the only place where the
+    parameters of this tool end up.  Without this, a parameter value such as
+    ``[\"filter\"]`` reaches the configuration file as
+    ``__ob____dq__filter__dq____cb__`` and SaQC gets a string where it needs a
+    list.
+
+    Nothing of the sort can reach the command line of this tool: it only
+    interpolates the dataset paths and the name of the parameter file.
+    """
+    tool.append(etree.Element("options", sanitize="false"))
 
 
 def _warn_about_input_names(
@@ -283,6 +303,37 @@ def _add_outputs(tool: Tool) -> None:
         )
     )
     outputs.append(plots)
+
+    optimized_configs = OutputCollection(
+        name="optimized_configs",
+        type="list",
+        label=(
+            "${tool.name} on ${on_string}: Optimized Configurations "
+            "(if any calibratePipeline step generated one)"
+        ),
+    )
+    # calibratePipeline writes its logs into the folder it is given (the wrapper
+    # passes optisaqc_<n>), so the configs have to be picked up with a recursive
+    # walk; match_relative_path makes the pattern see the folder as well
+    optimized_configs.append(
+        DiscoverDatasets(
+            pattern=r"(?P<name>optisaqc_\d+)/config\.csv",
+            ext="csv",
+            recurse="true",
+            match_relative_path="true",
+            visible=True,
+        )
+    )
+    optimized_configs.append(
+        OutputFilter(
+            text=(
+                "any( r['module_cond']['module_select'] == 'optisaqc' and "
+                "r['module_cond']['method_cond']['method_select'] == "
+                "'calibratePipeline' for r in methods_repeat)"
+            )
+        )
+    )
+    outputs.append(optimized_configs)
     outputs.append(
         OutputData(
             name="config_out",

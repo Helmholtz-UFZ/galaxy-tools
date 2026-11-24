@@ -116,6 +116,12 @@ COLUMN_SUFFIX = "_column"
 #: ask for that name: every plot step gets its own file, nothing is overwritten.
 PLOT_PATH_PREFIX = "plot"
 
+#: prefix of the folder a calibratePipeline step writes its logs into, the number of
+#: the step is appended.  ``SaQC.calibratePipeline`` insists on a *folder* to write
+#: to and dumps the optimized pipeline as ``config.csv`` into it; the folder is what
+#: the ``optimized_configs`` output collects, so no step can overwrite another.
+OPTIMIZED_CONFIG_PREFIX = "optisaqc"
+
 
 def saqc_parameter_name(input_name: str) -> str:
     """
@@ -376,6 +382,7 @@ def main():
     sys.stderr.write(f"INFO: Use data path as column name: {primary_input_file}\n")
 
     plot_count = 0
+    calibrated_count = 0
 
     for r_method_set in params_from_galaxy.get("methods_repeat", []):
         method_str_for_error = "unknown_method_in_repeat"
@@ -399,6 +406,17 @@ def main():
             if method == "plot":
                 plot_count += 1
                 params_to_process["path"] = f"{PLOT_PATH_PREFIX}_{plot_count}"
+
+            if method == "calibratePipeline":
+                calibrated_count += 1
+                # log_config writes the optimized pipeline as a config file, which
+                # is the only way the result can leave a Galaxy run; log_pop would
+                # add a population dump per problem that nothing collects
+                params_to_process["log_config"] = True
+                params_to_process["log_pop"] = False
+                params_to_process["log_path"] = (
+                    f"{OPTIMIZED_CONFIG_PREFIX}_{calibrated_count}"
+                )
 
             # Process the main column
             field_str, params_to_process = process_main_column(

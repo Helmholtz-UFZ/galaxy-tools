@@ -105,6 +105,16 @@ WRAPPER_PARAMETERS: frozenset = frozenset(
         # depending on whether 'path' is set; the wrapper always saves and names
         # the file after the position of the plot step (see json_to_saqc_config.py)
         ("saqc.funcs.tools", "plot", "path"),
+        # optisaqc.calibratePipeline() registers the optimized pipeline as a new
+        # method of the SaQC object, which a Galaxy run can never call, and can
+        # dump it as a config file below 'log_path' instead.  Without 'log_path'
+        # SaQC switches both logging flags off and insists on 'name' being set,
+        # so the wrapper always logs the config and never the population, into a
+        # numbered folder that the 'optimized_configs' output collects (see
+        # json_to_saqc_config.py)
+        ("saqc.funcs.optisaqc", "calibratePipeline", "log_path"),
+        ("saqc.funcs.optisaqc", "calibratePipeline", "log_config"),
+        ("saqc.funcs.optisaqc", "calibratePipeline", "log_pop"),
     }
 )
 

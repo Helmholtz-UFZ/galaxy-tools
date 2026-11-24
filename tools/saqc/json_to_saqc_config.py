@@ -116,18 +116,12 @@ def saqc_parameter_name(input_name: str) -> str:
     """
     The SaQC parameter name of a Galaxy input name.
 
-    A Galaxy input is not always named after the SaQC argument:
-
-    * a SaQC parameter cannot be named like an input of the tool itself (Galaxy
-      keeps the inputs of a tool and its conditionals in one namespace), so the
-      generator appends ``_value``, e.g. ``setFlags(data=...)`` is entered as
-      ``data_value``;
-    * the column selection of a type selection is named ``<name>_column``, so a
-      column of the input table can be told apart from a plain value.
+    Almost every input is named after the SaQC argument it sets.  The exception
+    is the column selection of a type selection: it is named ``<name>_column``,
+    so a column of the input table can be told apart from a plain value.
     """
-    for suffix in (COLUMN_SUFFIX, "_value"):
-        if input_name.endswith(suffix):
-            return input_name[: -len(suffix)]
+    if input_name.endswith(COLUMN_SUFFIX):
+        return input_name[: -len(COLUMN_SUFFIX)]
     return input_name
 
 

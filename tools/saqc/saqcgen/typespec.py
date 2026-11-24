@@ -81,9 +81,6 @@ _TEXT_TYPES = {
     "any",
 }
 
-#: text types that are presented as a plain string
-_PLAIN_TEXT_TYPES = {"str", "string", "any"}
-
 #: text types that need a validator restricting the accepted input.  A
 #: ``FreqStr`` is validated by SaQC with ``pd.Timedelta`` (``checkFreqStr``),
 #: not with ``pd.tseries.frequencies.to_offset`` (``checkOffsetStr``), so it
@@ -113,8 +110,20 @@ _NUMERIC_LOWER_BOUND = re.compile(
 )
 _GENERIC_LIST = re.compile(r"^(?:list|sequence|array(?:like)?)(?:\[(?P<inner>.*)\])?$", re.I)
 
-#: pluralisation exceptions for the "list of ..." type names
-_NO_PLURAL = {"Integer", "Float", "String", "Boolean", "pd.Timedelta"}
+
+#: a SaQC type hint is spelled with the abbreviation ``pd``, the labels of the
+#: type selection expand it, so a user does not need to know it
+_ABBREVIATIONS = {"pd.": "pandas."}
+
+#: short terms of the text types that are more than "plain text"
+_KNOWN_TEXT_TERMS = {
+    "pd.series": "Time Series",
+    "pd.dataframe": "Data Table",
+    "pd.datetimeindex": "Timestamps",
+}
+
+#: the name of the Python type of the numeric kinds
+_PYTHON_NAMES = {INTEGER: "int", FLOAT: "float", BOOLEAN: "bool"}
 
 
 @dataclass(frozen=True)
@@ -284,58 +293,81 @@ def parse_annotation(
 
 
 def friendly_name(spec: TypeSpec) -> str:
-    """Human readable name of a type, used in the "choose the type" dropdown."""
+    """Human readable name of a type, used in the "choose the type" dropdown.
+
+    The label is a short, non technical term followed by the original SaQC type
+    hint in parentheses, so a user picks by meaning ("Time Duration") while the
+    type stays recognisable for someone who reads the SaQC documentation
+    (``pandas.Timedelta``).
+    """
+    term = _term(spec)
+    original = _original(spec)
+    if not original or original == term:
+        return term
+    return f"{term} ({original})"
+
+
+def _term(spec: TypeSpec) -> str:
+    """The short, non technical part of the label (at most three words)."""
     if spec.kind == FIELDS:
         return "Column Selection"
-    if spec.kind == SELECT:
-        return "Selection"
-    if spec.kind == INTEGER:
-        return "Integer"
-    if spec.kind == FLOAT:
-        return "Float"
-    if spec.kind == BOOLEAN:
-        return "Boolean"
-    if spec.kind == MAPPING:
-        return "Dictionary"
     if spec.kind == FILES:
-        return "Input Table(s)"
+        return "Input Table"
+    if spec.kind == SELECT:
+        return "Choice"
+    if spec.kind == INTEGER:
+        return "Whole Number"
+    if spec.kind == FLOAT:
+        return "Decimal Number"
+    if spec.kind == BOOLEAN:
+        return "Yes/No"
+    if spec.kind == MAPPING:
+        return "Mapping"
     if spec.kind == RANGES:
-        return "List of Tuples (Float, Float)"
+        return "List of Ranges"
     if spec.kind == TUPLE:
-        return _tuple_name(spec)
-    if spec.validator == TIMEDELTA:
-        return "pd.Timedelta"
-    if spec.validator == OFFSET_OR_TIMEDELTA:
-        return "Time Object (Offset/Timedelta)"
-    if spec.validator == OFFSET:
-        return "OffsetStr (Pandas Frequency)"
+        return "Two Numbers" if _is_number_tuple(spec) else "Two Values"
     if spec.kind == OUTPUT_PATH:
-        return "OutputPath"
-    return _text_name(spec)
+        return "Output File Name"
+    if spec.validator == TIMEDELTA:
+        return "Time Duration"
+    if spec.validator == OFFSET:
+        return "Sampling Frequency"
+    if spec.validator == OFFSET_OR_TIMEDELTA:
+        return "Any Time Span"
+    if spec.validator == FLAG or spec.plain_value:
+        return "Flag"
+    return _text_term(spec)
 
 
-def _tuple_name(spec: TypeSpec) -> str:
-    if spec.inner and all(inner.kind == FLOAT for inner in spec.inner[:2]):
-        return "Tuple (Float, Float)"
-    if spec.inner:
-        names = ", ".join(friendly_name(inner) for inner in spec.inner)
-        return f"Tuple ({names})"
-    return "Tuple"
-
-
-def _text_name(spec: TypeSpec) -> str:
+def _text_term(spec: TypeSpec) -> str:
     list_match = _GENERIC_LIST.match(spec.text.strip())
     if list_match is None:
-        # a plain string is called "String", anything else keeps the name of
-        # the type hint (e.g. "pd.DatetimeIndex", which is parsed as text)
-        return (
-            "String" if spec.text.strip().lower() in _PLAIN_TEXT_TYPES
-            else spec.text.strip()
-        )
+        return _KNOWN_TEXT_TERMS.get(spec.text.strip().lower(), "Plain Text")
     inner = list_match.group("inner")
     if not inner:
-        return "List"
-    inner_name = friendly_name(parse_annotation(inner) or TypeSpec(TEXT, inner))
-    if not inner_name.endswith("s") and inner_name not in _NO_PLURAL:
-        return f"List of {inner_name}s"
-    return f"List of {inner_name}"
+        return "Plain Text List"
+    return f"{_term(parse_annotation(inner) or TypeSpec(TEXT, inner))} List"
+
+
+def _is_number_tuple(spec: TypeSpec) -> bool:
+    return len(spec.inner) == 2 and all(inner.kind == FLOAT for inner in spec.inner)
+
+
+def _original(spec: TypeSpec) -> str:
+    """The type hint of the spec as it appears in the SaQC documentation."""
+    if spec.kind == SELECT:
+        # the members of the ``Literal`` are the options of the input
+        return "Literal"
+    if spec.kind == MAPPING:
+        return "dict"
+    if spec.kind in (INTEGER, FLOAT, BOOLEAN):
+        # a constrained number, e.g. "(Int >= 1)", is restricted by the input
+        # itself, the label does not need to repeat the bounds
+        return _PYTHON_NAMES[spec.kind]
+    text = spec.text.strip()
+    if text.startswith("(") and text.endswith(")"):
+        text = text[1:-1].strip()
+    for abbreviation, expansion in _ABBREVIATIONS.items():
+        text = text.replace(abbreviation, expansion)
+    return text

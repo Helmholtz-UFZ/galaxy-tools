@@ -54,7 +54,6 @@ __all__ = [
     "HIDDEN_PARAMETERS",
     "Introspection",
     "ParamPlan",
-    "RESERVED_INPUT_NAMES",
     "saqc_parameter_name",
     "TYPE_OVERRIDES",
     "annotation_to_string",
@@ -63,37 +62,21 @@ __all__ = [
 
 logger = logging.getLogger(__name__)
 
-#: names of the inputs the tool defines itself, a SaQC parameter cannot use them
-RESERVED_INPUT_NAMES = frozenset(
-    {
-        "data",
-        "method_cond",
-        "method_select",
-        "methods_repeat",
-        "module_cond",
-        "module_select",
-        "param_conf",
-        "run_test_mode",
-    }
-)
-
-#: appended to a parameter name that would shadow one of those inputs
-RESERVED_INPUT_SUFFIX = "_value"
-
-#: appended to the input of a column selection of a type selection
+#: appended to the input of a column selection of a type selection.  The script
+#: that writes the configuration has to translate such an input (an index of
+#: the input table) to a column name, and no other input can be told apart by
+#: its value alone, so the name carries the information.
 COLUMN_SUFFIX = "_column"
 
 
 def saqc_parameter_name(input_name: str) -> str:
     """The SaQC parameter name of a Galaxy input name.
 
-    Input names carry a suffix where the input differs from the SaQC argument:
-    ``_value`` for a parameter that would shadow an input of the tool and
-    ``_column`` for the column selection of a type selection.
+    Only the column selection of a type selection is named differently, all
+    other inputs are named like the SaQC argument.
     """
-    for suffix in (COLUMN_SUFFIX, RESERVED_INPUT_SUFFIX):
-        if input_name.endswith(suffix):
-            return input_name[: -len(suffix)]
+    if input_name.endswith(COLUMN_SUFFIX):
+        return input_name[: -len(COLUMN_SUFFIX)]
     return input_name
 
 
@@ -171,20 +154,6 @@ class ParamPlan:
     @property
     def has_type_selection(self) -> bool:
         return len(self.specs) > 1
-
-    @property
-    def input_name(self) -> str:
-        """The name of the Galaxy input(s) of this parameter.
-
-        A SaQC parameter cannot be named like one of the inputs of the tool
-        itself: Galaxy keeps all inputs in one namespace and fails with
-        "The selected case is unavailable/invalid" when a parameter shadows
-        an input (SaQC 2.10 has ``setFlags(data=...)`` and the tool has an
-        input ``data``).
-        """
-        if self.name in RESERVED_INPUT_NAMES:
-            return f"{self.name}{RESERVED_INPUT_SUFFIX}"
-        return self.name
 
 
 class Introspection:

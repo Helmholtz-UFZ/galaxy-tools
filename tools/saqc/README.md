@@ -86,17 +86,20 @@ saqc -c config.txt -d data.csv maint.csv -o out.csv   # check the tool command
 | --- | --- |
 | `cli.py` | argument parsing, `--write`/`--check`, version warning |
 | `introspect.py` | imports `saqc.funcs`, reads signatures and annotations, decides which parameters become inputs |
-| `typespec.py` | one `TypeSpec` per accepted parameter type; drives widget, label and test value |
+| `typespec.py` | one `TypeSpec` per accepted parameter type; drives widget, type label and test value |
 | `params.py` | Galaxy input widgets (text, select, boolean, column, repeat, type-selection conditionals) |
 | `samples.py` | example value for a `TypeSpec` (used by the generated tests) |
 | `docs.py` | docstring cleanup so the help text is valid reStructuredText |
 | `tool.py` | assembles the tool XML (module/method repeat, root inputs) |
 | `testmacros.py` | generates the planemo tests and their assertions |
 
-Galaxy keeps the inputs of a tool and of its conditionals in one namespace, which
-is why a SaQC parameter that would shadow a tool input is renamed (`setFlags`
-`data` → `data_value`) and a column selection is suffixed (`_column`); both are
-stripped again by `json_to_saqc_config.py`.
+Galaxy keeps the inputs of a tool and of its conditionals apart, so a SaQC
+parameter keeps its name; only a column selection is suffixed (`_column`), so
+`json_to_saqc_config.py` can tell a column of the input table (which it has to
+translate to a column name) from a plain value.  A parameter that is named like
+an input of the tool (`setFlags(data=...)` next to the `data` dataset) is
+reported by the generator, because the two are hard to tell apart in a bug
+report.
 
 ## Validators of the text inputs
 
@@ -115,3 +118,14 @@ block valid input sooner or later.  They are anchored and case insensitive and
 let SaQC report the precise pandas error.  Note that `FreqStr` is validated by
 SaQC with `pd.Timedelta` and not with `to_offset`, so it uses the timedelta
 pattern, unlike `OffsetStr`.
+
+## Labels of the type selection
+
+A SaQC parameter that accepts several input formats is entered as a
+conditional with one option per format.  The option text is built by
+`typespec.friendly_name`: a short, non technical term followed by the SaQC type
+hint in parentheses, e.g. `Sampling Frequency (OffsetStr)` or
+`Time Duration (pandas.Timedelta)`.  The term never exceeds three words, so the
+dropdown stays readable, and the hint keeps the label findable for someone
+reading the SaQC documentation (`pd.` is expanded, a constrained number such as
+`(Int >= 1)` is reduced to `int`, because the bounds are enforced by the input).

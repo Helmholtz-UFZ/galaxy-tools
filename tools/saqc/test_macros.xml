@@ -622,8 +622,8 @@
             <param name="field" value="1" />
             <param name="override" value="true" />
             <param name="flag" value="255.0" />
-            <conditional name="data_value_cond">
-              <param name="data_value_selector" value="type_0" />
+            <conditional name="data_cond">
+              <param name="data_selector" value="type_0" />
               <param name="data_column" value="1" />
             </conditional>
           </conditional>
@@ -650,9 +650,9 @@
             <param name="field" value="1" />
             <param name="override" value="true" />
             <param name="flag" value="255.0" />
-            <conditional name="data_value_cond">
-              <param name="data_value_selector" value="type_1" />
-              <param name="data_value" value="a_string" />
+            <conditional name="data_cond">
+              <param name="data_selector" value="type_1" />
+              <param name="data" value="a_string" />
             </conditional>
           </conditional>
         </conditional>

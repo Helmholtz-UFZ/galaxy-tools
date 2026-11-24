@@ -147,27 +147,34 @@ def _variants(
         if plan.has_type_selection:
             selections.append(plan)
             continue
+        name = params.input_name_for(plan)
         _set_value(
             defaults,
-            plan.input_name,
-            samples.sample_values(plan.specs[0], plan.input_name, plan.default),
+            name,
+            samples.sample_values(plan.specs[0], name, plan.default),
         )
 
     for plan in selections:
-        defaults[f"{plan.input_name}_cond"] = _selected(plan, 0)
+        defaults[_conditional_name(plan)] = _selected(plan, 0)
 
     variants = [defaults]
     for plan in selections:
         for index in range(1, len(plan.specs)):
             variant = dict(defaults)
-            variant[f"{plan.input_name}_cond"] = _selected(plan, index)
+            variant[_conditional_name(plan)] = _selected(plan, index)
             variants.append(variant)
     return variants
 
 
+def _conditional_name(plan: ParamPlan) -> str:
+    return f"{params.input_name_for(plan)}_cond"
+
+
 def _selected(plan: ParamPlan, index: int) -> Dict[str, Any]:
     """The parameters of one ``when`` block of a type selection."""
-    values: Dict[str, Any] = {f"{plan.input_name}_selector": f"type_{index}"}
+    values: Dict[str, Any] = {
+        f"{params.input_name_for(plan)}_selector": f"type_{index}"
+    }
     input_name = params.input_name_for(plan, plan.specs[index])
     _set_value(
         values,

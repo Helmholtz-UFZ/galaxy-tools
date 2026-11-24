@@ -113,8 +113,8 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Size of the rolling window'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">OffsetStr (Pandas Frequency)</option>
-                  <option value="type_1">Integer</option>
+                  <option value="type_0">Sampling Frequency (OffsetStr)</option>
+                  <option value="type_1">Whole Number (int)</option>
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Size of the rolling window" help="If an integer is passed, it represents the number of timestamps per window. If an offset string is passed, it represents the windows total temporal extent Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
@@ -145,8 +145,8 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <conditional name="cutoff_cond">
                 <param name="cutoff_selector" type="select" label="Choose type for 'The cutoff-frequency'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Float</option>
-                  <option value="type_1">pd.Timedelta</option>
+                  <option value="type_0">Decimal Number (float)</option>
+                  <option value="type_1">Time Duration (FreqStr)</option>
                 </param>
                 <when value="type_0">
                   <param argument="cutoff" type="float" label="The cutoff-frequency" help="Has to be either an offset freq string, or be expressed in multiples of the sampling rate" min="0"/>
@@ -176,8 +176,8 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Extension of the fitting window'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">OffsetStr (Pandas Frequency)</option>
-                  <option value="type_1">Integer</option>
+                  <option value="type_0">Sampling Frequency (OffsetStr)</option>
+                  <option value="type_1">Whole Number (int)</option>
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Extension of the fitting window" help="If an integer is passed, it represents the number of timestamps in each window. If an offset string is passed, it represents the window's temporal extent. The window is centered around the timestamp being fitted. For uniformly sampled data, an odd number of timestamps is always used to constitute a window (subtracted by 1, if the total is even) Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
@@ -352,8 +352,8 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Extension of the propagation'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">OffsetStr (Pandas Frequency)</option>
-                  <option value="type_1">Integer</option>
+                  <option value="type_0">Sampling Frequency (OffsetStr)</option>
+                  <option value="type_1">Whole Number (int)</option>
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Extension of the propagation" help="An integer defines the exact number of periods to propagate, while a string is interpreted as a time offset Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
@@ -377,16 +377,16 @@
             </when>
             <when value="setFlags">
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
-              <conditional name="data_value_cond">
-                <param name="data_value_selector" type="select" label="Choose type for 'Flags schedule'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Column Selection</option>
-                  <option value="type_1">List</option>
+              <conditional name="data_cond">
+                <param name="data_selector" type="select" label="Choose type for 'Flags schedule'" help="The parameter supports different input formats, you can choose which one suites your application.">
+                  <option value="type_0">Column Selection (SaQCColumns)</option>
+                  <option value="type_1">Plain Text List (list)</option>
                 </param>
                 <when value="type_0">
                   <param name="data_column" argument="data" type="data_column" label="Flags schedule" help="Determines which timestamps to set flags at. Depending on the passed type:  * 1-d `array` or `List` of timestamps or `pandas.Index`: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]` * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * str: use the variable timeseries `f_data` as flagging template * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * 1-d `array` or `List` of timestamps: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]`" data_ref="data" multiple="false"/>
                 </when>
                 <when value="type_1">
-                  <param name="data_value" argument="data" type="text" label="Flags schedule" help="Determines which timestamps to set flags at. Depending on the passed type:  * 1-d `array` or `List` of timestamps or `pandas.Index`: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]` * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * str: use the variable timeseries `f_data` as flagging template * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * 1-d `array` or `List` of timestamps: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]`">
+                  <param argument="data" type="text" label="Flags schedule" help="Determines which timestamps to set flags at. Depending on the passed type:  * 1-d `array` or `List` of timestamps or `pandas.Index`: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]` * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * str: use the variable timeseries `f_data` as flagging template * pandas.Series: flag `field` with `flag` in between any index and data value of the passed series * 1-d `array` or `List` of timestamps: flag `field` with `flag` at every timestamp in `f_data` * 2-d `array` or List of tuples: for all elements `t[k]` out of f_data: flag `field` with `flag` at every timestamp in between `t[k][0]` and `t[k][1]`">
                     <validator type="regex" message="Must not be empty and must not contain a line break."><![CDATA[^\s*\S.*$]]></validator>
                     <validator type="empty_field"/>
                   </param>
@@ -403,8 +403,8 @@
               <param argument="target" type="data_column" label="Name of the variable to which the results are written" help="If the variable does not exist, it will be created. Defaults to ``field``" data_ref="data" multiple="false"/>
               <conditional name="squeeze_cond">
                 <param name="squeeze_selector" type="select" label="Choose type for 'Append history or aggregation'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Integer</option>
-                  <option value="type_1">Boolean</option>
+                  <option value="type_0">Whole Number (int)</option>
+                  <option value="type_1">Yes/No (bool)</option>
                 </param>
                 <when value="type_0">
                   <param argument="squeeze" type="integer" label="Append history or aggregation" help="If True, flagging history of `field` is compressed and function-specific flag information is lost, before it gets appended to `target`. If False, flagging history of `field` is appended to `target`"/>
@@ -427,8 +427,8 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <conditional name="freq_cond">
                 <param name="freq_selector" type="select" label="Choose type for 'New sampling rate'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">pd.Timedelta</option>
-                  <option value="type_1">Integer</option>
+                  <option value="type_0">Time Duration (FreqStr)</option>
+                  <option value="type_1">Whole Number (int)</option>
                 </param>
                 <when value="type_0">
                   <param argument="freq" type="text" label="New sampling rate" help="The sampling frequency data is transformed to align with. If a list of fields is passed, all the fields will be aligned to the same index Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
@@ -451,8 +451,8 @@
               <param argument="order" type="integer" value="2" label="Method order" help="Some methods need an order or degree specified additionally. (e.g., polynomial, spline). Ignored otherwise" min="0"/>
               <conditional name="tolerance_cond">
                 <param name="tolerance_selector" type="select" label="Choose type for 'Extends window width of interval validation by `tolerance`'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">OffsetStr (Pandas Frequency)</option>
-                  <option value="type_1">Time Object (Offset/Timedelta)</option>
+                  <option value="type_0">Sampling Frequency (OffsetStr)</option>
+                  <option value="type_1">Any Time Span (OffsetLike)</option>
                 </param>
                 <when value="type_0">
                   <param argument="tolerance" type="text" label="Extends window width of interval validation by `tolerance`" help="* only of effect when interpolating (`'time'`, `'linear'`). * extends the length of the window for the preceeding/succeeding pillar value check Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
@@ -471,8 +471,8 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Rolling window size'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">OffsetStr (Pandas Frequency)</option>
-                  <option value="type_1">Integer</option>
+                  <option value="type_0">Sampling Frequency (OffsetStr)</option>
+                  <option value="type_1">Whole Number (int)</option>
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Rolling window size" help="The size of the window, the aggregation is computed from. An integer define the number of periods to be used, a string is interpreted as an offset. ( see `pandas.rolling` for more information). Integer windows may result in screwed aggregations if called on none-harmonized or irregular data Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
@@ -514,8 +514,8 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Scatter context size'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">OffsetStr (Pandas Frequency)</option>
-                  <option value="type_1">pd.Timedelta</option>
+                  <option value="type_0">Sampling Frequency (OffsetStr)</option>
+                  <option value="type_1">Time Duration (pandas.Timedelta)</option>
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Scatter context size" help="The extension of the window, the scattering (usually variance) will be computed from, for each period Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
@@ -538,8 +538,8 @@
               </param>
               <conditional name="sub_window_cond">
                 <param name="sub_window_selector" type="select" label="Choose type for 'Size of partitions of the scatter context'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">OffsetStr (Pandas Frequency)</option>
-                  <option value="type_1">pd.Timedelta</option>
+                  <option value="type_0">Sampling Frequency (OffsetStr)</option>
+                  <option value="type_1">Time Duration (pandas.Timedelta)</option>
                 </param>
                 <when value="type_0">
                   <param argument="sub_window" type="text" label="Size of partitions of the scatter context" help="The window determining the context for the scatter statistics calculation is divided up into disjoint sub windows of size ``sub_window``, where the scattering is tested to exceed `sub_thresh`, in order to finally trigger flagging Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
@@ -580,8 +580,8 @@
               <param argument="pop_size" type="integer" value="100" label="Population Size to optimize with" help=""/>
               <conditional name="termination_cond">
                 <param name="termination_selector" type="select" label="Choose type for 'Determine Termination for the Optimisations'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Tuple</option>
-                  <option value="type_1">Integer</option>
+                  <option value="type_0">Two Values (tuple)</option>
+                  <option value="type_1">Whole Number (int)</option>
                 </param>
                 <when value="type_0">
                   <repeat name="termination" title="Determine Termination for the Optimisations" help="If ``None`` (default) - fall back to pymoo defaults (computationally exhaustive, but most likely not terminating too early). If an integer, will be interpreted simply as the maximal number of evaluations">
@@ -620,8 +620,8 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Window size for STRAY'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">OffsetStr (Pandas Frequency)</option>
-                  <option value="type_1">Integer</option>
+                  <option value="type_0">Sampling Frequency (OffsetStr)</option>
+                  <option value="type_1">Whole Number (int)</option>
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Window size for STRAY" help="Determines the segmentation of the data into partitions, the STRAY algorithm is applied onto individually.  * ``None``: Apply Scoring on whole data set at once * ``int``: Apply scoring on successive data chunks of periods with the given length. Must be greater than 0. * offset String : Apply scoring on successive partitions of temporal extension matching the passed offset string Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
@@ -645,8 +645,8 @@
               <param argument="n" type="integer" value="20" label="Nearest neighbors number" help="Number of nearest neighbors to be included into the LOF calculation. Defaults to ``20``, which is a value found to be suitable in the literature.  * `n` determines the &quot;locality&quot; of an observation (its `n` nearest neighbors) and sets the upper limit to the number of values in outlier clusters (i.e. consecutive outliers). Outlier clusters of size greater than `n`/2 may not be detected reliably. * The larger `n`, the lesser the algorithm's sensitivity to local outliers and small or singleton outliers points. Higher values greatly increase numerical costs" min="0"/>
               <conditional name="thresh_cond">
                 <param name="thresh_selector" type="select" label="Choose type for 'Cutoff threshold'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Selection</option>
-                  <option value="type_1">Float</option>
+                  <option value="type_0">Choice (Literal)</option>
+                  <option value="type_1">Decimal Number (float)</option>
                 </param>
                 <when value="type_0">
                   <param argument="thresh" type="select" label="Cutoff threshold" help="The threshold for flagging the calculated LOF. A LOF of around ``1`` is considered normal and most likely corresponds to inlier points.  * The &quot;automatic&quot; threshing introduced with the publication of the algorithm defaults to ``1.5``. * In this implementation, `thresh` defaults (``'auto'``) to flagging the scores with a modified 3-sigma rule">
@@ -679,8 +679,8 @@
               <param argument="thresh" type="float" optional="true" label="Offsetting threshold" help="Minimum absolute difference between a value and its successors to consider the successors a possible anomalous offset sequence (condition 1). If None, this condition is ignored" min="0"/>
               <conditional name="thresh_relative_cond">
                 <param name="thresh_relative_selector" type="select" label="Choose type for 'Relative offsetting threshold'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Tuple</option>
-                  <option value="type_1">Float</option>
+                  <option value="type_0">Two Values (tuple)</option>
+                  <option value="type_1">Decimal Number (float)</option>
                 </param>
                 <when value="type_0">
                   <repeat name="thresh_relative" title="Relative offsetting threshold" help="Minimum relative change between a value and its successors to consider the successors a possible anomalous offset sequence (conditions 2 and 3). If None, this condition is ignored. The parameter constrains the detection to either upwards (positive value passed) or downwards (negative values passed) offsets. To assign detection of offsets bigger than `a`, positive as well as negative, pass the tuple `(a,-a)`. Differing positive and negative threshold values are possible as well. See condition (2). If ``None``, condition (2) is not tested">
@@ -715,8 +715,8 @@
               <param argument="n" type="integer" value="20" label="Neighborhood extension" help="Number of samples to include in the LOF neighborhood (the ``n`` nearest neighbors)" min="0"/>
               <conditional name="thresh_cond">
                 <param name="thresh_selector" type="select" label="Choose type for 'Outlier-factor cutoff'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Selection</option>
-                  <option value="type_1">Float</option>
+                  <option value="type_0">Choice (Literal)</option>
+                  <option value="type_1">Decimal Number (float)</option>
                 </param>
                 <when value="type_0">
                   <param argument="thresh" type="select" optional="true" label="Outlier-factor cutoff" help="Values with LOF scores greater than this threshold are flagged">
@@ -730,8 +730,8 @@
               <param argument="probability" type="float" optional="true" label="Outlier-probability cutoff" help="Values with probabilities greater than this threshold are flagged" min="0" max="1"/>
               <conditional name="corruption_cond">
                 <param name="corruption_selector" type="select" label="Choose type for 'Maximum portion of anomalous data'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Float</option>
-                  <option value="type_1">Integer</option>
+                  <option value="type_0">Decimal Number (float)</option>
+                  <option value="type_1">Whole Number (int)</option>
                 </param>
                 <when value="type_0">
                   <param argument="corruption" type="float" optional="true" label="Maximum portion of anomalous data" help="Either as a fraction in ``[0, 1]`` or as an integer specifying the number of anomalous samples" min="0" max="1"/>
@@ -749,8 +749,8 @@
               <param argument="p" type="integer" value="1" label="Minkowski degree for NN metric" help="Degree of the Minkowski metric used for neighbor distance calculation (e.g., ``1`` Manhattan, ``2`` Euclidean)" min="0"/>
               <conditional name="density_cond">
                 <param name="density_selector" type="select" label="Choose type for 'Time-axis differential form'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Selection</option>
-                  <option value="type_1">Float</option>
+                  <option value="type_0">Choice (Literal)</option>
+                  <option value="type_1">Decimal Number (float)</option>
                 </param>
                 <when value="type_0">
                   <param argument="density" type="select" label="Time-axis differential form" help="How to derive temporal density. ``'auto'`` uses the median absolute step size, while passing a `float` sets a fixed increment">
@@ -777,8 +777,8 @@
               </param>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Size of the scoring window'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">pd.Timedelta</option>
-                  <option value="type_1">Integer</option>
+                  <option value="type_0">Time Duration (FreqStr)</option>
+                  <option value="type_1">Whole Number (int)</option>
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Size of the scoring window" help="Either an integer (number of periods) or an offset string (time span). If ``None`` (default), all data share a single window Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
@@ -810,8 +810,8 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <conditional name="min_length_cond">
                 <param name="min_length_selector" type="select" label="Choose type for 'Size threshold for offseted groups'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Integer</option>
-                  <option value="type_1">OffsetStr (Pandas Frequency)</option>
+                  <option value="type_0">Whole Number (int)</option>
+                  <option value="type_1">Sampling Frequency (OffsetStr)</option>
                 </param>
                 <when value="type_0">
                   <param argument="min_length" type="integer" label="Size threshold for offseted groups" help="Minimum temporal extension of a value course to qualify as a plateau" min="0"/>
@@ -825,8 +825,8 @@
               </conditional>
               <conditional name="max_length_cond">
                 <param name="max_length_selector" type="select" label="Choose type for 'Size limit for offsetted groups'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Integer</option>
-                  <option value="type_1">OffsetStr (Pandas Frequency)</option>
+                  <option value="type_0">Whole Number (int)</option>
+                  <option value="type_1">Sampling Frequency (OffsetStr)</option>
                 </param>
                 <when value="type_0">
                   <param argument="max_length" type="integer" optional="true" label="Size limit for offsetted groups" help="Maximum temporal extension of a value course to qualify as a plateau (upper detection limit). If None, a detection limit based on the data length is used" min="0"/>
@@ -840,8 +840,8 @@
               <param argument="min_jump" type="float" optional="true" label="Offset (jump) threshold" help="Minimum difference a plateau must have from directly preceding and succeeding periods. If None, the minimum jump threshold is derived automatically from the median of local absolute differences in the vicinity of potential anomalies" min="0"/>
               <conditional name="granularity_cond">
                 <param name="granularity_selector" type="select" label="Choose type for 'Search precision'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Integer</option>
-                  <option value="type_1">OffsetStr (Pandas Frequency)</option>
+                  <option value="type_0">Whole Number (int)</option>
+                  <option value="type_1">Sampling Frequency (OffsetStr)</option>
                 </param>
                 <when value="type_0">
                   <param argument="granularity" type="integer" optional="true" label="Search precision" help="Smaller values increase precision but also computational cost. If None, defaults to 5" min="0"/>
@@ -890,8 +890,8 @@
               <param argument="drop" type="boolean" label="Drop `field`" help="Remove `field` if ``True``" checked="false"/>
               <conditional name="squeeze_cond">
                 <param name="squeeze_selector" type="select" label="Choose type for 'Squash history'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Integer</option>
-                  <option value="type_1">Boolean</option>
+                  <option value="type_0">Whole Number (int)</option>
+                  <option value="type_1">Yes/No (bool)</option>
                 </param>
                 <when value="type_0">
                   <param argument="squeeze" type="integer" label="Squash history" help="Squeeze the history into a single column if ``True``, function specific flag information is lost"/>
@@ -906,9 +906,9 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <conditional name="index_cond">
                 <param name="index_selector" type="select" label="Choose type for 'New index'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">pd.Timedelta</option>
-                  <option value="type_1">pd.DatetimeIndex</option>
-                  <option value="type_2">Column Selection</option>
+                  <option value="type_0">Time Duration (FreqStr)</option>
+                  <option value="type_1">Timestamps (pandas.DatetimeIndex)</option>
+                  <option value="type_2">Column Selection (SaQCColumns)</option>
                 </param>
                 <when value="type_0">
                   <param argument="index" type="text" label="New index" help="* If an `offset` string: new index will range from start to end of the original index of `field`, exhibting a uniform sampling rate of `idx` * If a `str` that matches a field present in the `SaQC` object, that fields index will be used as new index of `field` * If an `pandas.index` object is passed, that will be the new index of `field` Format: a fixed time duration (no calendar logic), as understood by pandas.Timedelta. Examples: '1d', '2.5h', '30min', '1h30min', '1 day 2 hours', '00:00:30', 'P1D'. (No 'M' or 'Y').">
@@ -943,8 +943,8 @@
               </param>
               <conditional name="tolerance_cond">
                 <param name="tolerance_selector" type="select" label="Choose type for 'Reindexing scope'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">OffsetStr (Pandas Frequency)</option>
-                  <option value="type_1">Time Object (Offset/Timedelta)</option>
+                  <option value="type_0">Sampling Frequency (OffsetStr)</option>
+                  <option value="type_1">Any Time Span (OffsetLike)</option>
                 </param>
                 <when value="type_0">
                   <param argument="tolerance" type="text" label="Reindexing scope" help="Limiting the distance, values can be shifted or comprised into aggregation Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
@@ -959,8 +959,8 @@
               </conditional>
               <conditional name="data_aggregation_cond">
                 <param name="data_aggregation_selector" type="select" label="Choose type for 'Data aggregation function'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Selection</option>
-                  <option value="type_1">Float</option>
+                  <option value="type_0">Choice (Literal)</option>
+                  <option value="type_1">Decimal Number (float)</option>
                 </param>
                 <when value="type_0">
                   <param argument="data_aggregation" type="select" optional="true" label="Data aggregation function" help="Function string or custom Function, determining how to aggregate new data values from the values at the periods selected according to the `index_selection_method`. If a scalar value is passed, the new data series will just evaluate to that scalar at any new index">
@@ -985,8 +985,8 @@
               </conditional>
               <conditional name="flags_aggregation_cond">
                 <param name="flags_aggregation_selector" type="select" label="Choose type for 'Flags Aggregation function'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Selection</option>
-                  <option value="type_1">Float</option>
+                  <option value="type_0">Choice (Literal)</option>
+                  <option value="type_1">Decimal Number (float)</option>
                 </param>
                 <when value="type_0">
                   <param argument="flags_aggregation" type="select" optional="true" label="Flags Aggregation function" help="Function string or custom Function, determining how to aggregate new flags values from the values at the periods selected according to the `index_selection_method`. If a scalar value is passed, the new flags series will just evaluate to that scalar at any new index">
@@ -1040,8 +1040,8 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Extension of the fitting window'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">OffsetStr (Pandas Frequency)</option>
-                  <option value="type_1">Integer</option>
+                  <option value="type_0">Sampling Frequency (OffsetStr)</option>
+                  <option value="type_1">Whole Number (int)</option>
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Extension of the fitting window" help="The size of the window you want to use for fitting. If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. The window will be centered around the vaule-to-be-fitted. For regularly sampled timeseries the period number will be casted down to an odd number if even Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
@@ -1060,8 +1060,8 @@
               <param argument="field" type="data_column" label="Name of the input variable to process" help="" data_ref="data" multiple="false"/>
               <conditional name="window_cond">
                 <param name="window_selector" type="select" label="Choose type for 'Rolling window size'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">OffsetStr (Pandas Frequency)</option>
-                  <option value="type_1">Integer</option>
+                  <option value="type_0">Sampling Frequency (OffsetStr)</option>
+                  <option value="type_1">Whole Number (int)</option>
                 </param>
                 <when value="type_0">
                   <param argument="window" type="text" label="Rolling window size" help="If an integer is passed, the size refers to the number of periods for every fitting window. If an offset string is passed, the size refers to the total temporal extension. For regularly sampled timeseries, the period number will be casted down to an odd number if ``center=True`` Format: a pandas offset alias, e.g. '1D', '15min', 'W-MON' or 'ME' (month end). Note that pandas 3 removed the legacy aliases 'M', 'Y', 'H', 'T', 'S', 'L', 'U' and 'N': use 'ME', 'YE', 'h', 'min', 's', 'ms', 'us' and 'ns' instead.">
@@ -1122,8 +1122,8 @@
               </param>
               <conditional name="freq_cond">
                 <param name="freq_selector" type="select" label="Choose type for 'Data partitioning size'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Float</option>
-                  <option value="type_1">pd.Timedelta</option>
+                  <option value="type_0">Decimal Number (float)</option>
+                  <option value="type_1">Time Duration (FreqStr)</option>
                 </param>
                 <when value="type_0">
                   <param argument="freq" type="float" label="Data partitioning size" help="Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually.  * ``numpy.inf``: Apply Scoring on whole data set at once * ``x`` &gt; 0 : Apply scoring on successive data chunks of periods length ``x`` * Offset String : Apply scoring on successive partitions of temporal extension matching the passed offset string" min="0"/>
@@ -1150,8 +1150,8 @@
               <param argument="n" type="integer" value="20" label="Number of nearest neighbors" help="Number of periods to be included into the LOF calculation. Defaults to `20`, which is a value found to be suitable in the literature" min="0"/>
               <conditional name="freq_cond">
                 <param name="freq_selector" type="select" label="Choose type for 'Data partitioning frequency'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Float</option>
-                  <option value="type_1">pd.Timedelta</option>
+                  <option value="type_0">Decimal Number (float)</option>
+                  <option value="type_1">Time Duration (FreqStr)</option>
                 </param>
                 <when value="type_0">
                   <param argument="freq" type="float" label="Data partitioning frequency" help="Determines the segmentation of the data into partitions, the kNN algorithm is applied onto individually" min="0"/>
@@ -1184,8 +1184,8 @@
               <param argument="p" type="integer" value="1" label="Distance metric degree" help="Degree of the metric (&quot;Minkowski&quot;), according to which distance to neighbors is determined. Most important values are:  * `1` - Manhatten Metric * `2` - Euclidian Metric" min="0"/>
               <conditional name="density_cond">
                 <param name="density_selector" type="select" label="Choose type for 'Time-axis differential form'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Selection</option>
-                  <option value="type_1">Float</option>
+                  <option value="type_0">Choice (Literal)</option>
+                  <option value="type_1">Decimal Number (float)</option>
                 </param>
                 <when value="type_0">
                   <param argument="density" type="select" label="Time-axis differential form" help="How to calculate the temporal distance/density for the variable-to-be-flagged.  * float - introduces linear density with an increment equal to `density` * Callable - calculates the density by applying the function passed onto the variable to be flagged (passed as Series)">
@@ -1271,8 +1271,8 @@
               </param>
               <conditional name="history_cond">
                 <param name="history_selector" type="select" label="Choose type for 'Plot flagging history'" help="The parameter supports different input formats, you can choose which one suites your application.">
-                  <option value="type_0">Selection</option>
-                  <option value="type_1">List of String</option>
+                  <option value="type_0">Choice (Literal)</option>
+                  <option value="type_1">Plain Text List (list[str])</option>
                 </param>
                 <when value="type_0">
                   <param argument="history" type="select" optional="true" label="Plot flagging history" help="Discriminate the plotted flags with respect to the tests they originate from.  * ``&quot;valid&quot;``: Only plot flags, that are not overwritten by subsequent tests. Only list tests in the legend, that actually contributed flags to the overall result. * ``None``: Just plot the resulting flags for one variable, without any historical and/or meta information. * list of strings: List of tests. Plot flags from the given tests, only. * ``complete`` (not recommended, deprecated): Plot all the flags set by any test, independently from them being removed or modified by subsequent modifications. (this means: plotted flags do not necessarily match with flags ultimately assigned to the data)">

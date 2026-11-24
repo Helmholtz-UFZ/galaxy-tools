@@ -143,7 +143,7 @@ def build(plan: ParamPlan) -> object:
         return _from_default_value(plan)
 
     args: Dict[str, object] = {
-        "name": plan.input_name,
+        "name": input_name_for(plan),
         "argument": plan.name,
         "label": plan.label,
         "help": plan.help,
@@ -159,22 +159,29 @@ def build(plan: ParamPlan) -> object:
         args.pop("value", None)
         return _type_selection(plan, args)
     return _widget(
-        plan.specs[0], plan.input_name, args, plan.optional, plan.default_value
+        plan.specs[0],
+        input_name_for(plan, plan.specs[0]),
+        args,
+        plan.optional,
+        plan.default_value,
     )
 
 
-def input_name_for(plan: ParamPlan, spec: TypeSpec) -> str:
-    """The Galaxy input name for one accepted input format of ``plan``.
+def input_name_for(plan: ParamPlan, spec: Optional[TypeSpec] = None) -> str:
+    """The name of the Galaxy input of ``plan``, resp. of one of its formats.
 
     The input of a column selection is named separately, so the script that
     writes the configuration can tell an index of the input table (which has to
-    be translated to a column name) from a plain value.  SaQC has no type
-    selection with more than one column format, the formats are otherwise
-    deduplicated by their widget, so the name is unambiguous.
+    be translated to a column name) from a plain value: SaQC accepts a
+    timestamp such as ``"1"`` for some of the sibling formats.  SaQC has no
+    type selection with more than one column format and the formats are
+    otherwise deduplicated by their widget, so the name is unambiguous.
+
+    Everything else is named like the SaQC argument.
     """
-    if plan.has_type_selection and spec.kind == typespec.FIELDS:
+    if spec is not None and plan.has_type_selection and spec.kind == typespec.FIELDS:
         return f"{plan.name}{COLUMN_SUFFIX}"
-    return plan.input_name
+    return plan.name
 
 
 def select_widget(name: str, label: str, options: Dict[str, str]) -> SelectParam:
@@ -208,10 +215,11 @@ def _widget(
 
 def _type_selection(plan: ParamPlan, args: Dict[str, object]) -> Conditional:
     """A selector plus one ``when`` block per accepted input format."""
-    conditional = Conditional(name=f"{plan.input_name}_cond")
+    base_name = input_name_for(plan)
+    conditional = Conditional(name=f"{base_name}_cond")
     conditional.append(
         SelectParam(
-            name=f"{plan.input_name}_selector",
+            name=f"{base_name}_selector",
             label=f"Choose type for '{plan.label}'",
             help=TYPE_SELECTOR_HELP,
             options={
@@ -400,26 +408,27 @@ def _output_path(spec: TypeSpec, name: str, args: Dict[str, object], optional: b
 def _from_default_value(plan: ParamPlan):
     """Input for an unannotated parameter, derived from its default value."""
     value = plan.default_value
+    name = input_name_for(plan)
     args: Dict[str, object] = {
-        "name": plan.input_name,
+        "name": name,
         "argument": plan.name,
         "label": plan.label,
         "help": plan.help,
     }
 
     if isinstance(value, bool):
-        param = BooleanParam(checked=value, **_arguments(plan.input_name, args))
+        param = BooleanParam(checked=value, **_arguments(name, args))
         _drop_attribute(param, "truevalue")
         _drop_attribute(param, "falsevalue")
         return param
 
     args["value"] = str(value)
     if isinstance(value, int):
-        return IntegerParam(**_arguments(plan.input_name, args))
+        return IntegerParam(**_arguments(name, args))
     if isinstance(value, float):
-        return FloatParam(**_arguments(plan.input_name, args))
+        return FloatParam(**_arguments(name, args))
     if isinstance(value, str):
-        return TextParam(**_arguments(plan.input_name, args))
+        return TextParam(**_arguments(name, args))
     raise ValueError(
         f"cannot derive an input for parameter '{plan.name}' from {value!r}"
     )

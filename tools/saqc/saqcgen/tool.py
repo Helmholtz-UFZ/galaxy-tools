@@ -8,6 +8,7 @@ and the tool turns that selection into a SaQC configuration file (see
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
@@ -30,9 +31,29 @@ from galaxyxml.tool.parameters import (
 )
 
 from . import docs, params
-from .introspect import Introspection
+from .introspect import COLUMN_SUFFIX, Introspection
 
 __all__ = ["generate_tool"]
+
+logger = logging.getLogger(__name__)
+
+#: names of the inputs this module defines itself.  A method parameter may use
+#: the same name (Galaxy keeps the inputs of nested conditionals apart from the
+#: inputs of the tool), but the two are hard to tell apart in a bug report, so
+#: the generator reports it.
+TOOL_INPUT_NAMES = frozenset(
+    {
+        "data",
+        "method_cond",
+        "method_select",
+        "methods_repeat",
+        "module_cond",
+        "module_select",
+        "no_modules_found",
+        "param_conf",
+        "run_test_mode",
+    }
+)
 
 #: the shell command of the tool
 COMMAND = """
@@ -128,8 +149,43 @@ def generate_tool(introspection: Introspection) -> str:
     tool.help = docs.strip_rst_roles(tool.help)
     tool.help = tool.help.replace("SaQC", "SaQC [#saqcurl]_", 1) + "\n@SAQCLINKS@"
 
+    _warn_about_input_names(introspection, modules)
     _add_outputs(tool)
     return tool.export()
+
+
+def _warn_about_input_names(
+    introspection: Introspection, modules: List[_Module]
+) -> None:
+    """Report parameter names that are easy to confuse with a tool input.
+
+    Two names cannot be represented faithfully: one that ends like the suffix of
+    a column selection (``json_to_saqc_config.py`` strips it) and one that is
+    the name of an input of the tool itself (a legal tool, but the two inputs
+    are hard to tell apart in a bug report).
+    """
+    shadowed = set()
+    suffixed = set()
+    for module in modules:
+        for method in module.methods:
+            for plan in introspection.parameters(method, module.obj):
+                name = params.input_name_for(plan)
+                if name.endswith(COLUMN_SUFFIX):
+                    suffixed.add(f"{module.name}.{method.__name__}({plan.name}=...)")
+                if name in TOOL_INPUT_NAMES:
+                    shadowed.add(f"{module.name}.{method.__name__}({plan.name}=...)")
+    if shadowed:
+        logger.warning(
+            "these SaQC parameters are named like an input of the tool: %s",
+            ", ".join(sorted(shadowed)),
+        )
+    if suffixed:
+        logger.warning(
+            "these SaQC parameters end with '%s', which the configuration "
+            "script reads as a column selection: %s",
+            COLUMN_SUFFIX,
+            ", ".join(sorted(suffixed)),
+        )
 
 
 def _modules(introspection: Introspection) -> List[_Module]:

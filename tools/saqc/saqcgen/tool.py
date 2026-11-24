@@ -29,7 +29,6 @@ from galaxyxml.tool.parameters import (
     TextParam,
     When,
 )
-from lxml import etree
 
 from . import docs, params
 from .introspect import COLUMN_SUFFIX, Introspection
@@ -152,11 +151,10 @@ def generate_tool(introspection: Introspection) -> str:
 
     _warn_about_input_names(introspection, modules)
     _add_outputs(tool)
-    _allow_special_characters(tool)
-    return tool.export()
+    return _allow_special_characters(tool.export())
 
 
-def _allow_special_characters(tool: Tool) -> None:
+def _allow_special_characters(xml: str) -> str:
     """Turn Galaxy's command line sanitization off for this tool.
 
     Galaxy replaces the characters it cannot put on a command line with
@@ -164,14 +162,22 @@ def _allow_special_characters(tool: Tool) -> None:
     know with ``X``) in *every* value of the tool state -- including the values
     written into the ``<configfiles>`` JSON, which is the only place where the
     parameters of this tool end up.  Without this, a parameter value such as
-    ``[\"filter\"]`` reaches the configuration file as
+    ``["filter"]`` reaches the configuration file as
     ``__ob____dq__filter__dq____cb__`` and SaQC gets a string where it needs a
     list.
 
     Nothing of the sort can reach the command line of this tool: it only
     interpolates the dataset paths and the name of the parameter file.
+
+    The element is inserted after ``</macros>`` because galaxyxml has no hook
+    for the tool level ``<options>``: it would put an element appended to the
+    root in front of the macros, which is the wrong block for the XML order
+    linter (``options`` belongs after ``macros``, before ``requirements``).
     """
-    tool.append(etree.Element("options", sanitize="false"))
+    anchor = "  </macros>\n"
+    if xml.count(anchor) != 1:  # pragma: no cover - the generator always emits it
+        raise ValueError("cannot place <options> without a single <macros> block")
+    return xml.replace(anchor, anchor + '  <options sanitize="false"/>\n')
 
 
 def _warn_about_input_names(

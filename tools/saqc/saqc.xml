@@ -1,10 +1,10 @@
 <tool name="SaQC" id="saqc" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="22.01">
   <description>quality control pipelines for environmental sensor data</description>
-  <options sanitize="false"/>
   <macros>
     <import>macros.xml</import>
     <import>test_macros.xml</import>
   </macros>
+  <options sanitize="false"/>
   <expand macro="requirements"/>
   <version_command><![CDATA[python -c 'import saqc; print(saqc.__version__)']]></version_command>
   <command><![CDATA[#set $first_data_file = $data[0]

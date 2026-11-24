@@ -38,12 +38,20 @@ UTILS_PATH = "Applications/Utils"
 TEST_DATA_PATH = "Tests/Data"
 
 # Test fixtures are referenced from the *official* OGS repository, pinned to a
-# specific commit. The generator never points at a personal fork. When the local
-# OGS clone is generated from, its HEAD commit is stamped here so the pinned URL
-# and the source of the wrappers always agree.
+# specific commit. The generator never points at a personal fork. The two pins
+# are separate on purpose:
+#
+#   ``OGS_PINNED_COMMIT``      the commit the wrappers were generated from
+#   ``OGS_TEST_DATA_COMMIT``   a *published* commit the fixtures are fetched from
+#
+# They are the same commit unless a wrapper depends on an OGS fix that is not on
+# ``master`` yet (the ``.pvtu`` companion annotation): test data must stay
+# fetchable, so it keeps pointing at the last published commit until the fix is
+# merged, at which point both constants collapse back into one.
 OGS_GITLAB_RAW = "https://gitlab.opengeosys.org/ogs/ogs/-/raw"
-OGS_PINNED_COMMIT = "8ffec079b9ce8764ab565c6470839b34033bc718"
-OGS_TEST_DATA_URL = f"{OGS_GITLAB_RAW}/{OGS_PINNED_COMMIT}/{TEST_DATA_PATH}"
+OGS_PINNED_COMMIT = "7fbe216b56b9309f89f95a6d8fc49e1716cf79cf"
+OGS_TEST_DATA_COMMIT = "8ffec079b9ce8764ab565c6470839b34033bc718"
+OGS_TEST_DATA_URL = f"{OGS_GITLAB_RAW}/{OGS_TEST_DATA_COMMIT}/{TEST_DATA_PATH}"
 
 # Tools with broken executable commands (the conda ``ogs`` package does not ship a
 # working binary for these, so a wrapper would fail at runtime).
@@ -245,7 +253,9 @@ MANIFEST_INPUTS = {
     },
     ("gocadsgridreader", "sg"): {
         "kind": "companion_names",
-        "format": "data",
+        # The Gocad SGrid companions (``*__points@@``, ``*__flags@@``, ...) are
+        # binary dumps, not text.
+        "format": "binary",
         "help": (
             "Data files referenced by the .sg header (points, flags and "
             "properties). Their names must match the entries in the .sg file."
@@ -346,6 +356,8 @@ TEXT_VALIDATORS = {
 #
 #   "Some/Path/in/Tests/Data.msh" -> downloaded from the pinned OGS commit
 #   ("local", "file.ext")         -> vendored in tools/ogs/test-data/
+#   "<var>__members": "a.vtu,b.vtu" -> the elements of a collection input,
+#                                     ``local:a.vtu`` for a vendored fixture
 #
 # Non-data parameters (text/integer/select) take the literal value.
 TEST_OVERRIDES = {
@@ -490,6 +502,43 @@ TEST_OVERRIDES = {
     },
 }
 
+# Additional ``<test>`` cases for a wrapped tool, keyed by tool (lower case).
+# The generated case mirrors the upstream ctest entry, so it can only cover a
+# code path OGS itself tests; entries here cover a second path the wrapper
+# exposes but upstream does not exercise.
+#
+#   "overrides"  a ``TEST_OVERRIDES``-shaped mapping applied on top of the
+#                generated case (see ``apply_override_dict``)
+#   "assertions" ``{output name: [(tag, attributes), ...]}``, *added* to the
+#                assertions of the generated case
+EXTRA_TESTS = {
+    # Without ``--original_mesh`` the tool merges the partitions in whatever
+    # order the .pvtu lists them; with it, the subdomain data is transferred to
+    # the original mesh through ``global_node_ids``/``global_element_ids``.
+    # Upstream only tests the former, and its test data has no global ids, so
+    # the little mesh in ``test-data`` is used here: before the option was
+    # honoured the tool aborted with "The data array 'global_node_ids' is
+    # required ... but it doesn't exist".
+    "pvtu2vtu": [
+        {
+            "overrides": {
+                "input": ("local", "pvtu2vtu_input.pvtu"),
+                "input__members": (
+                    "local:pvtu2vtu_part_0.vtu,local:pvtu2vtu_part_1.vtu"
+                ),
+                "original_mesh": ("local", "pvtu2vtu_original_mesh.vtu"),
+            },
+            "assertions": {
+                "output_pvtu2vtu": [
+                    # Written by both partitions and absent from the original
+                    # mesh, so its presence proves the transfer happened.
+                    ("has_text", {"text": "part_temperature"}),
+                ]
+            },
+        }
+    ],
+}
+
 TCLAP_PATTERN_STD = re.compile(
     r"TCLAP::(?P<arg_type>(?:Value|Switch|Multi)Arg)\s*"
     r"(?:<(?P<cpp_type>.*?)>)?\s*(?P<tclap_var_name>\w+)\s*"
@@ -559,12 +608,15 @@ DATATYPE_MAP = {
     "txt": "txt",
     # ASCII text-ish formats (no dedicated Galaxy datatype)
     "gli": "txt",
-    "plt": "txt",
     "tin": "txt",
     "geo": "txt",
     "smesh": "txt",
-    "bin": "txt",
     "mesh": "txt",
+    # Both are opaque byte streams: ``.plt`` is *binary* TecPlot (the ASCII
+    # variant is ``.dat``) and ``.bin`` is a raw binary dump. ``txt`` would
+    # send them through text sanitising and mangle them.
+    "plt": "binary",
+    "bin": "binary",
     # XDMF *is* XML (the data lives in the paired HDF5 file).
     "xdmf": "xml",
     # Galaxy ships an ``h5`` datatype.
@@ -576,7 +628,8 @@ DATATYPE_MAP = {
 # and the legacy OGS-5 mesh format (an output of several utilities). Disambiguate
 # by role rather than by a single static mapping.
 MESH_INPUT_DATATYPE = "gmsh.msh"
-MESH_OUTPUT_DATATYPE = "data"
+# A legacy OGS-5 ``.msh`` written by the wrapped utilities is ASCII.
+MESH_OUTPUT_DATATYPE = "txt"
 
 # Extensions already warned about, so the unmapped-datatype warning is not
 # repeated once per wrapped utility.
@@ -1190,8 +1243,9 @@ def process_parameters(
 
             manifest = MANIFEST_INPUTS.get((tool_name.lower(), var_name))
             if manifest:
-                param.members_override_key = f"{var_name}__members"
                 if manifest["kind"] == "file_list":
+                    # The dataset itself *is* the collection.
+                    param.members_override_key = f"{var_name}__members"
                     # The dataset is the *list* of inputs; the files themselves
                     # are the real input, so expose them as an ordered
                     # collection and write the list file in the command.
@@ -1216,6 +1270,10 @@ def process_parameters(
                     companions.is_companion = True
                     companions.is_data_collection = True
                     companions.is_collection = True
+                    # Only the companions are a collection; the header dataset
+                    # that names them stays a single file, so it must not get
+                    # the members override (that would emit a second
+                    # collection under its own name).
                     companions.members_override_key = f"{var_name}__members"
                     # Appended after the header parameter below: the dataset
                     # that names its companions has to come first in the form.
@@ -1899,7 +1957,9 @@ def generate_tools(ogs_root: Path, output_dir: Path):
                                 + r")",
                                 input_link_names,
                             ),
-                            format="data",
+                            # The mixed-extension fallback: every utility that
+                            # gets here writes text (``.geo``, ``.gml``, ...).
+                            format="txt",
                             visible=True,
                         )
                     )
@@ -2150,7 +2210,47 @@ def fixed_outputs_of(tool_name: str) -> List[Dict[str, Any]]:
     )
 
 
-def apply_test_overrides(tool_name: str, test_case, galaxy_inputs) -> None:
+# Prefix marking a test fixture that is vendored in ``tools/ogs/test-data``
+# instead of downloaded from the pinned OGS commit.
+LOCAL_FIXTURE_PREFIX = "local:"
+
+
+def members_param(p_obj, members: str, wd_sub: str, output_dir: Path):
+    """Build the ``<param>`` that carries the elements of a collection input.
+
+    ``members`` is the ``<var>__members`` entry of ``TEST_OVERRIDES``: a comma
+    separated list of OGS test-data paths, each optionally prefixed with
+    ``local:`` to name a fixture vendored in ``test-data`` (which Galaxy copies
+    from ``--test_data``, so it has no ``location``). Returns ``None`` if a
+    fixture cannot be resolved, so the caller can skip the test case.
+    """
+    m_coll = ET.Element("param", {"name": param_var_name(p_obj)})
+    m_list = ET.SubElement(m_coll, "collection", {"type": "list"})
+    ftype = p_obj.format.split(",")[0]
+    for member_spec in [x.strip() for x in str(members).split(",") if x.strip()]:
+        local = member_spec.startswith(LOCAL_FIXTURE_PREFIX)
+        m_path = member_spec[len(LOCAL_FIXTURE_PREFIX):] if local else member_spec
+        m_file = m_path.split("/")[-1]
+        attribs = {"name": m_file, "value": m_file, "ftype": ftype}
+        if local:
+            fixture = Path(output_dir) / "test-data" / m_file
+            if not fixture.is_file() and fixture.parent.is_dir():
+                eprint(
+                    f"WARNING: {m_file} is used as a local test fixture but is "
+                    "not in test-data"
+                )
+                return None
+        else:
+            attribs["location"] = _fixture_url(m_path, wd_sub)
+            if not url_exists(attribs["location"]):
+                return None
+        ET.SubElement(m_list, "element", attribs)
+    return m_coll
+
+
+def apply_test_overrides(
+    tool_name: str, test_case, galaxy_inputs, output_dir=None
+) -> None:
     """Replace auto-derived test inputs with the curated ones for a tool.
 
     The generator can only match a parameter's *file extension* when it picks a
@@ -2162,6 +2262,17 @@ def apply_test_overrides(tool_name: str, test_case, galaxy_inputs) -> None:
     overrides = TEST_OVERRIDES.get(tool_name.lower())
     if not overrides:
         return
+    apply_override_dict(overrides, test_case, galaxy_inputs, tool_name, output_dir)
+
+
+def apply_override_dict(
+    overrides: Dict[str, Any],
+    test_case,
+    galaxy_inputs,
+    tool_name: str = "",
+    output_dir=None,
+) -> None:
+    """Apply one ``TEST_OVERRIDES``-shaped mapping to a ``<test>`` element."""
     by_var = {param_var_name(p): p for p in galaxy_inputs}
     existing = {e.get("name"): e for e in test_case.findall("param")}
     spec = EXCLUSIVE_MODES.get(tool_name.lower())
@@ -2175,6 +2286,24 @@ def apply_test_overrides(tool_name: str, test_case, galaxy_inputs) -> None:
     for var, value in overrides.items():
         param = by_var.get(var)
         if param is None:
+            # ``<var>__members``: the elements of a collection input.
+            member_owner = next(
+                (
+                    p
+                    for p in galaxy_inputs
+                    if getattr(p, "members_override_key", None) == var
+                ),
+                None,
+            )
+            if member_owner is None or value is None:
+                continue
+            name = param_var_name(member_owner)
+            for elem in list(test_case.findall("param")):
+                if elem.get("name") == name:
+                    test_case.remove(elem)
+            rebuilt = members_param(member_owner, value, "", output_dir or ".")
+            if rebuilt is not None:
+                test_case.append(rebuilt)
             continue
         elem = existing.get(var)
         if value is None:
@@ -2415,29 +2544,12 @@ def generate_tests(ogs_root: Path, output_dir: Path):
             if not members:
                 continue
             m_name = param_var_name(p_obj)
-            m_coll = ET.Element("param", {"name": m_name})
-            m_list = ET.SubElement(m_coll, "collection", {"type": "list"})
-            m_ok = True
-            for m_path in [x.strip() for x in str(members).split(",") if x.strip()]:
-                m_url = _fixture_url(m_path, wd_sub)
-                if not url_exists(m_url):
-                    test_is_valid = False
-                    m_ok = False
-                    break
-                m_file = m_path.split("/")[-1]
-                ET.SubElement(
-                    m_list,
-                    "element",
-                    {
-                        "name": m_file,
-                        "value": m_file,
-                        "location": m_url,
-                        "ftype": p_obj.format.split(",")[0],
-                    },
-                )
-            if m_ok:
-                test_params_xml.append(m_coll)
-                members_params.add(m_name)
+            m_coll = members_param(p_obj, members, wd_sub, output_dir)
+            if m_coll is None:
+                test_is_valid = False
+                continue
+            test_params_xml.append(m_coll)
+            members_params.add(m_name)
 
         for p_name, p_val in params_in_test.items():
             p_obj = all_inputs_map.get(p_name)
@@ -2707,9 +2819,30 @@ def generate_tests(ogs_root: Path, output_dir: Path):
         elif expect_single_output:
             test_case.set("expect_num_outputs", "1")
 
-        apply_test_overrides(matched_tool, test_case, galaxy_inputs)
+        apply_test_overrides(
+            matched_tool, test_case, galaxy_inputs, output_dir=output_dir
+        )
         nest_mode_conditional(test_case, matched_tool)
         tool_tests_accumulator[matched_tool].append(test_case)
+        for extra in EXTRA_TESTS.get(matched_tool.lower(), []):
+            extra_case = copy.deepcopy(test_case)
+            apply_override_dict(
+                extra["overrides"],
+                extra_case,
+                galaxy_inputs,
+                matched_tool,
+                output_dir=output_dir,
+            )
+            for out_name, checks in extra.get("assertions", {}).items():
+                for out_elem in extra_case.findall("output"):
+                    if out_elem.get("name") != out_name:
+                        continue
+                    contents = out_elem.find("assert_contents")
+                    if contents is None:
+                        contents = ET.SubElement(out_elem, "assert_contents")
+                    for tag, attribs in checks:
+                        ET.SubElement(contents, tag, attribs)
+            tool_tests_accumulator[matched_tool].append(extra_case)
 
     # Build Macros
     macros_root = ET.Element("macros")
@@ -2873,6 +3006,7 @@ def _audit_curated_tables(
     param_names: Dict[str, set],
     long_flags: Dict[str, set],
     virtual_names: Dict[str, set],
+    test_data_dir: Path = None,
 ) -> List[str]:
     """Compare every curated table against the parameters the generator emits.
 
@@ -3043,10 +3177,86 @@ def _audit_curated_tables(
                         f"{_closest_match(var, param_names[tool])}"
                     )
 
+    for tool, cases in EXTRA_TESTS.items():
+        if tool in EXCLUDED_TOOLS:
+            problems.append(
+                f"EXTRA_TESTS[{tool!r}]: the tool is in EXCLUDED_TOOLS, "
+                "so no wrapper is generated"
+            )
+            continue
+        if tool not in wrapped:
+            problems.append(
+                f"EXTRA_TESTS[{tool!r}]: no such generated tool"
+                f"{_closest_match(tool, wrapped)}"
+            )
+            continue
+        known = param_names[tool] | virtual_names[tool]
+        for i, case in enumerate(cases):
+            where = f"EXTRA_TESTS[{tool!r}][{i}]"
+            for key in case.get("overrides", {}):
+                if key not in known:
+                    problems.append(
+                        f"{where}['overrides'][{key!r}]: not a parameter of that "
+                        f"wrapper{_closest_match(key, known)}"
+                    )
+            for out_name in case.get("assertions", {}):
+                allowed = {f"output_{tool}"} | {
+                    spec["name"] for spec in IMPLICIT_OUTPUTS.get(tool, [])
+                }
+                if out_name not in allowed:
+                    problems.append(
+                        f"{where}['assertions'][{out_name!r}]: no such output"
+                        f"{_closest_match(out_name, allowed)}"
+                    )
+
+    # A vendored fixture that is not in ``test-data`` only shows up as a
+    # failing Galaxy test, so check the files exist up front. A scratch output
+    # directory has no ``test-data`` at all; there is nothing to compare then.
+    if test_data_dir is not None and Path(test_data_dir).is_dir():
+        local_specs: List[tuple] = []
+        for tool, overrides in TEST_OVERRIDES.items():
+            for key, value in overrides.items():
+                if isinstance(value, tuple):
+                    local_specs.append((f"TEST_OVERRIDES[{tool!r}][{key!r}]", value[1]))
+                elif key.endswith("__members") and isinstance(value, str):
+                    for member in value.split(","):
+                        member = member.strip()
+                        if member.startswith(LOCAL_FIXTURE_PREFIX):
+                            local_specs.append(
+                                (
+                                    f"TEST_OVERRIDES[{tool!r}][{key!r}]",
+                                    member[len(LOCAL_FIXTURE_PREFIX):].strip(),
+                                )
+                            )
+        for tool, cases in EXTRA_TESTS.items():
+            for i, case in enumerate(cases):
+                for key, value in case.get("overrides", {}).items():
+                    where = f"EXTRA_TESTS[{tool!r}][{i}]['overrides'][{key!r}]"
+                    if isinstance(value, tuple):
+                        local_specs.append((where, value[1]))
+                    elif isinstance(value, str) and key.endswith("__members"):
+                        for member in value.split(","):
+                            member = member.strip()
+                            if member.startswith(LOCAL_FIXTURE_PREFIX):
+                                local_specs.append(
+                                    (
+                                        where,
+                                        member[len(LOCAL_FIXTURE_PREFIX):].strip(),
+                                    )
+                                )
+        for where, filename in local_specs:
+            if not (Path(test_data_dir) / filename.split("/")[-1]).is_file():
+                problems.append(
+                    f"{where}: {filename!r} is a vendored fixture, but "
+                    f"test-data/{filename} does not exist"
+                )
+
     return problems
 
 
-def validate_curated_tables(ogs_root: Path) -> List[str]:
+def validate_curated_tables(
+    ogs_root: Path, test_data_dir: Path = None
+) -> List[str]:
     """Report every curated-table key that resolves to nothing.
 
     The tables near the top of this file are consulted with ``dict.get`` all
@@ -3091,7 +3301,9 @@ def validate_curated_tables(ogs_root: Path) -> List[str]:
             # from EXCLUSIVE_MODES, so the tree knows nothing about the name.
             param_names[key].add(EXCLUSIVE_MODES[key]["name"])
 
-    return _audit_curated_tables(discovered, param_names, long_flags, virtual_names)
+    return _audit_curated_tables(
+        discovered, param_names, long_flags, virtual_names, test_data_dir
+    )
 
 
 def _check_outputs(ogs_root: Path, target: Path) -> int:
@@ -3107,7 +3319,7 @@ def _check_outputs(ogs_root: Path, target: Path) -> int:
     else returns the number of mismatches (and prints each one).
     """
     problem_count = 0
-    for problem in validate_curated_tables(ogs_root):
+    for problem in validate_curated_tables(ogs_root, target / "test-data"):
         eprint(f"CHECK FAILED: {problem}")
         problem_count += 1
     if problem_count:
@@ -3192,7 +3404,9 @@ def main():
     # that resolves to nothing is silently ignored: the override is dropped or
     # a test degrades to the dummy recipe. Fail loudly instead -- exit code 2
     # means "the tables are wrong", 1 means "the outputs have drifted".
-    problems = validate_curated_tables(args.ogs_root)
+    problems = validate_curated_tables(
+        args.ogs_root, Path(args.output_dir) / "test-data"
+    )
     if problems:
         eprint(
             f"curated tables do not match the OGS tree " f"({len(problems)} problem(s)):"

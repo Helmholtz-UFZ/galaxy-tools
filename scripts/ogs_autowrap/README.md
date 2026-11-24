@@ -58,7 +58,7 @@ python -m unittest discover -s scripts/ogs_autowrap -p 'test_*.py'
 | parameter types, `min`/`max` | the `TCLAP` argument types and the ranges stated in the help |
 | input formats | the extensions listed in the argument help (`(.vtu \| .msh)`) |
 | `<version>` | `macros.xml` (`@TOOL_VERSION@`, kept in sync with the OGS release) |
-| tests | the fixtures named by `TEST_OVERRIDES`, downloaded from `OGS_PINNED_COMMIT` |
+| tests | the fixtures named by `TEST_OVERRIDES`, downloaded from `OGS_TEST_DATA_COMMIT` |
 
 Curated tables near the top of `gen.py` record the few things the command line
 does not state, all keyed by tool and parameter so they are easy to audit:
@@ -80,12 +80,37 @@ does not state, all keyed by tool and parameter so they are easy to audit:
   `<param>__members` entry lists the files of a collection input: they are
   staged under exactly the names the manifest (or `.pvd`) contains, which is
   also what makes a test for such a tool possible at all.
+* `EXTRA_TESTS` – further test cases for code paths the upstream ctest entry
+  does not reach (see "Tests").
 
 ## Tests
 
 The generated tests are minimal by design: they check that the utility runs and
 produces non-empty output (or a collection with at least one element). They are
 not meant to validate the numerics of OGS.
+
+Each wrapped tool gets the test the upstream `AddTest` entry describes. Where
+the wrapper exposes something OGS itself does not test, `EXTRA_TESTS` adds a
+second `<test>` on top of it: it starts from the generated case, applies its own
+overrides and *adds* assertions. The one entry currently needed is
+`pvtu2vtu --original_mesh`, the option that transfers the subdomain data onto
+the unpartitioned mesh through `global_node_ids` — upstream's `.pvtu` fixtures
+have no such array, so the failure it guards against ("The data array
+'global_node_ids' is required … but it doesn't exist") only shows up with a
+vendored mesh.
+
+Fixtures come from two places, both spelled out in the curated tables:
+
+* a path inside OGS's `Tests/Data`, downloaded from `OGS_TEST_DATA_COMMIT`
+  (a *published* commit — the test-data pin is separate from
+  `OGS_PINNED_COMMIT` so a wrapper may depend on a fix that is not on `master`
+  yet while its test data stays fetchable),
+* `("local", "file.vtu")` or `local:file.vtu` for a file vendored in
+  `tools/ogs/test-data`; Galaxy copies it from `--test_data`, so the `<param>`
+  or `<element>` carries no `location`.
+
+The curated-table audit fails when a vendored fixture it names is not in
+`test-data`, which is how the unused files were pruned.
 
 ```bash
 planemo lint --fail_level warn tools/ogs
@@ -204,13 +229,14 @@ accepted by the next wrapper without conversion:
 | OGS extension | Galaxy datatype | note |
 | --- | --- | --- |
 | `.vtu`, `.vtk`, `.pvtu`, `.pvd` | `vtkxml` | the OGS build reads VTK XML only |
-| `.msh` | `gmsh.msh` as input, `data` as output | Gmsh mesh in, legacy OGS-5 mesh out |
+| `.msh` | `gmsh.msh` as input, `txt` as output | Gmsh mesh in, legacy OGS-5 mesh out (ASCII) |
 | `.gml`, `.xml`, `.prj`, `.xdmf` | `xml` | Galaxy's `prj` is an *Athena* project file, not an OGS one |
 | `.sg` | `gocad.sg` | |
 | `.fem` | `feflow.fem` | |
 | `.asc`, `.grd` | `raster.asc` | |
 | `.ts`, `.pl`, `.mx` | `txt` | Gocad surfaces/lines/meshes are ASCII, not XML |
-| `.gli`, `.smesh`, `.geo`, `.plt`, `.tin`, `.bin`, `.mesh` | `txt` | ASCII, no dedicated Galaxy type |
+| `.gli`, `.smesh`, `.geo`, `.tin`, `.mesh` | `txt` | ASCII, no dedicated Galaxy type |
+| `.plt`, `.bin` | `binary` | *not* text: binary TecPlot, raw dumps |
 | `.csv`, `.json`, `.nc`, `.h5` | `csv`, `json`, `netcdf`, `h5` | |
 | anything else | `data` | generation warns, so the gap is visible |
 
@@ -226,6 +252,20 @@ the *file extension*. Where an argument documents several extensions
 the *writer*, and `.msh` would produce the legacy OGS-5 format. The wrapper asks
 for `.vtu` (what the OGS test suite checks) so the mesh can be used by every
 other utility.
+
+There is no generic "OGS" datatype and no `datatypes_conf.xml` in this
+repository: every format above is one Galaxy ships itself, so a user does not
+have to install our definitions to open a result. Galaxy's own definitions live
+in `lib/galaxy/config/sample/datatypes_conf.xml.sample` and
+`lib/galaxy/datatypes/`; `binary` is `data` with the text conversion disabled,
+which is why it is the right choice for `.plt`/`.bin` (a `txt` input is run
+through the text sanitiser, a `binary` one is passed through byte for byte).
+
+One wrapper still declares the generic `data`: `ogs_simulation` takes the whole
+project *bundle* (`.prj`, `.xml`, `.gbc`, `.gli`, `.vtu`, …) as a collection, so
+no single existing type describes its members. The generated wrappers only use
+`data` for an extension `DATATYPE_MAP` does not know, and warn when that
+happens.
 
 ## Mutually exclusive switches
 

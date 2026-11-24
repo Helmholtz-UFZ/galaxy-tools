@@ -20,10 +20,13 @@ ln -sf '$input' 'input.pvtu';
     #set $safe_name = re.sub(r'[^\w\-.@]', '_', str($item.element_identifier))
     ln -sf '$item' '$safe_name';
   #end for
+#if $original_mesh
+ln -sf '$original_mesh' 'original_mesh.vtu';
+#end if
 pvtu2vtu
     --input 'input.pvtu'
-#if str($original_mesh)
-    --original_mesh '$original_mesh'
+#if $original_mesh
+    --original_mesh 'original_mesh.vtu'
 #end if
     $compress
     --output output_1.vtu
@@ -31,9 +34,7 @@ pvtu2vtu
   <inputs>
     <param argument="--input" type="data" optional="false" label="input" help="Input (.pvtu). The partitioned input mesh file" format="vtkxml" />
     <param name="input_members" type="data_collection" optional="false" label="input referenced files" help="Partitioned mesh parts referenced by the .pvtu header. Their names must match the &lt;Piece Source=...&gt; entries." format="vtkxml" collection_type="list" />
-    <param argument="--original_mesh" type="text" optional="true" label="original mesh" help="optional, the original unpartitioned input mesh (*.vtu)">
-      <validator type="regex" message="only letters, digits, spaces and the characters = - _ . ( ) / + * ^ , : ? ! are allowed">^[A-Za-z0-9 =\-_.()/+*^,:?!]+$</validator>
-    </param>
+    <param argument="--original_mesh" type="data" optional="true" label="original mesh" help="Input (.vtu). The original unpartitioned input mesh (optional)" format="vtkxml" />
     <param argument="--compress" type="boolean" label="compress" help="Compress the output (vtu file)." checked="false" truevalue="--compress" falsevalue="" />
   </inputs>
   <outputs>

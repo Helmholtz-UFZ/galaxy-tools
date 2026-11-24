@@ -8,6 +8,7 @@ Run with::
 import re
 import string
 import sys
+import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -51,6 +52,7 @@ class CuratedTableAuditTest(unittest.TestCase):
             "EXCLUDED_TOOLS": [],
             "EXCLUSIVE_MODES": {},
             "TEXT_VALIDATORS": {},
+            "EXTRA_TESTS": {},
         }
         defaults.update(tables)
         with patch.multiple(gen, **defaults):
@@ -144,6 +146,7 @@ class ExclusiveModeAuditTest(unittest.TestCase):
             "EXCLUDED_TOOLS": [],
             "EXCLUSIVE_MODES": modes,
             "TEXT_VALIDATORS": {},
+            "EXTRA_TESTS": {},
         }
         defaults.update(tables)
         with patch.multiple(gen, **defaults):
@@ -211,7 +214,14 @@ class DatatypeMapTest(unittest.TestCase):
 
     def test_msh_depends_on_role(self):
         self.assertEqual(gen.mapped_datatype("msh", role="input"), "gmsh.msh")
-        self.assertEqual(gen.mapped_datatype("msh", role="output"), "data")
+        # A legacy OGS-5 ``.msh`` written by the utilities is ASCII.
+        self.assertEqual(gen.mapped_datatype("msh", role="output"), "txt")
+
+    def test_binary_formats_are_not_text(self):
+        # ``.plt`` is binary TecPlot and ``.bin`` a raw dump: as ``txt`` Galaxy
+        # would run them through text sanitising.
+        self.assertEqual(gen.mapped_datatype("plt"), "binary")
+        self.assertEqual(gen.mapped_datatype("bin"), "binary")
 
     def test_ascii_gocad_surfaces_are_not_xml(self):
         for ext in ("ts", "pl", "mx"):
@@ -230,6 +240,7 @@ class DatatypeMapTest(unittest.TestCase):
             "csv",
             "json",
             "txt",
+            "binary",
             "data",
             "netcdf",
             "h5",
@@ -402,6 +413,126 @@ class ClosestMatchTest(unittest.TestCase):
 
     def test_hint_for_near_miss(self):
         self.assertIn("input_file", gen._closest_match("input_fil", {"input_file"}))
+
+
+class MembersParamTest(unittest.TestCase):
+    """The collection elements of a manifest input, OGS fixture or vendored one."""
+
+    def param(self, fmt="vtkxml"):
+        return gen.DataParam(name="input_members", format=fmt)
+
+    def test_published_fixture_gets_a_location(self):
+        elem = gen.members_param(
+            self.param(), "Utils/PVTU2VTU/mesh_0.vtu", "", Path(".")
+        )
+        element = elem.find("collection").find("element")
+        self.assertEqual(element.get("name"), "mesh_0.vtu")
+        self.assertEqual(element.get("ftype"), "vtkxml")
+        self.assertEqual(
+            element.get("location"),
+            f"{gen.OGS_TEST_DATA_URL}/Utils/PVTU2VTU/mesh_0.vtu",
+        )
+
+    def test_vendored_fixture_has_no_location(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "test-data").mkdir()
+            (Path(tmp) / "test-data" / "part_0.vtu").write_text("x")
+            elem = gen.members_param(
+                self.param(), "local:part_0.vtu", "", Path(tmp)
+            )
+        element = elem.find("collection").find("element")
+        self.assertEqual(element.get("value"), "part_0.vtu")
+        # Galaxy takes the content from ``--test_data``.
+        self.assertIsNone(element.get("location"))
+
+    def test_missing_vendored_fixture_is_reported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "test-data").mkdir()
+            self.assertIsNone(
+                gen.members_param(self.param(), "local:gone.vtu", "", Path(tmp))
+            )
+
+
+class ExtraTestAuditTest(unittest.TestCase):
+    """``EXTRA_TESTS`` and the vendored fixtures are audited like the rest."""
+
+    def audit(self, test_data_dir=None, **tables):
+        defaults = {
+            "TEST_OVERRIDES": {},
+            "PARAM_EXT_OVERRIDES": {},
+            "OUTPUT_EXT_OVERRIDES": {},
+            "MANIFEST_INPUTS": {},
+            "NON_PVD_INPUTS": set(),
+            "IMPLICIT_OUTPUTS": {},
+            "BASE_FILENAME_OVERRIDES": {},
+            "EXCLUDED_TOOLS": [],
+            "EXCLUSIVE_MODES": {},
+            "TEXT_VALIDATORS": {},
+            "EXTRA_TESTS": {},
+        }
+        defaults.update(tables)
+        with patch.multiple(gen, **defaults):
+            return gen._audit_curated_tables(
+                set(DISCOVERED), PARAMS, FLAGS, VIRTUAL, test_data_dir
+            )
+
+    def case(self, **kwargs):
+        return {"overrides": {}, "assertions": {}, **kwargs}
+
+    def test_consistent_extra_test_reports_nothing(self):
+        problems = self.audit(
+            EXTRA_TESTS={
+                "sometool": [
+                    self.case(
+                        overrides={"input_file": ("local", "a.vtu"), "threshold": "1"},
+                        assertions={"output_sometool": [("has_text", {"text": "x"})]},
+                    )
+                ]
+            }
+        )
+        self.assertEqual(problems, [])
+
+    def test_unknown_tool_is_reported(self):
+        problems = self.audit(EXTRA_TESTS={"sometol": [self.case()]})
+        self.assertIn("no such generated tool", problems[0])
+
+    def test_unknown_override_is_reported_with_suggestion(self):
+        problems = self.audit(
+            EXTRA_TESTS={"sometool": [self.case(overrides={"treshold": "1"})]}
+        )
+        self.assertEqual(len(problems), 1)
+        self.assertIn("EXTRA_TESTS['sometool'][0]['overrides']['treshold']", problems[0])
+        self.assertIn("did you mean 'threshold'?", problems[0])
+
+    def test_unknown_output_name_is_reported(self):
+        problems = self.audit(
+            EXTRA_TESTS={
+                "sometool": [self.case(assertions={"tool_outputs": [("has_size", {})]})]
+            }
+        )
+        self.assertEqual(len(problems), 1)
+        self.assertIn("['assertions']['tool_outputs']", problems[0])
+
+    def test_missing_vendored_fixture_is_reported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "test-data").mkdir()
+            problems = self.audit(
+                test_data_dir=Path(tmp) / "test-data",
+                TEST_OVERRIDES={"sometool": {"input_file": ("local", "gone.vtu")}},
+            )
+        self.assertEqual(len(problems), 1)
+        self.assertIn("does not exist", problems[0])
+        self.assertIn("gone.vtu", problems[0])
+
+    def test_vendored_fixture_that_exists_is_not_reported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "test-data").mkdir()
+            (Path(tmp) / "test-data" / "here.vtu").write_text("x")
+            problems = self.audit(
+                test_data_dir=Path(tmp) / "test-data",
+                TEST_OVERRIDES={"sometool": {"input_file": ("local", "here.vtu")}},
+            )
+        self.assertEqual(problems, [])
 
 
 if __name__ == "__main__":

@@ -28,7 +28,7 @@ GocadSGridReader
   <inputs>
     <param argument="--generate-face-sets" type="boolean" label="generate face sets" help="Generate face sets." checked="false" truevalue="--generate-face-sets" falsevalue="" />
     <param argument="--sg" type="data" optional="false" label="sg" help="Input (.sg). Gocad stratigraphic grid filename" format="gocad.sg" />
-    <param name="sg_members" type="data_collection" optional="false" label="sg referenced files" help="Data files referenced by the .sg header (points, flags and properties). Their names must match the entries in the .sg file." format="data" collection_type="list" />
+    <param name="sg_members" type="data_collection" optional="false" label="sg referenced files" help="Data files referenced by the .sg header (points, flags and properties). Their names must match the entries in the .sg file." format="binary" collection_type="list" />
   </inputs>
   <outputs>
     <data name="output_gocadsgridreader" format="vtkxml" label="Output from GocadSGridReader" from_work_dir="output_1.vtu" hidden="false" />

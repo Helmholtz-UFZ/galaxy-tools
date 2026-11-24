@@ -415,6 +415,78 @@ class ClosestMatchTest(unittest.TestCase):
         self.assertIn("input_file", gen._closest_match("input_fil", {"input_file"}))
 
 
+class RepeatedArgumentTest(unittest.TestCase):
+    """How a repeated (``MultiArg``) argument is modelled.
+
+    Galaxy has no list type for numbers (``multiple`` exists for ``select`` and
+    ``data`` only), so a repeated *numeric* argument is passed once and its help
+    says so; a repeated *file* argument is a collection, because there the list
+    really is the input.
+    """
+
+    @staticmethod
+    def param(args, arg_type, cpp_type="int", var_name="element_ids_arg"):
+        return {
+            "arg_type": arg_type,
+            "all_args": args,
+            "cpp_type": cpp_type,
+            "tclap_var_name": var_name,
+        }
+
+    def test_numeric_multi_arg_is_one_value_with_honest_help(self):
+        inputs, _ = gen.process_parameters(
+            [
+                self.param(
+                    '"e","element-ids","element ID",false,"0"',
+                    "TCLAP::MultiArg<int>",
+                )
+            ],
+            "sometool",
+        )
+        self.assertEqual(len(inputs), 1)
+        param = inputs[0]
+        self.assertIsInstance(param, gen.IntegerParam)
+        self.assertIn("may be repeated", param.node.attrib["help"])
+        # No collection: a list of numbers cannot be expressed.
+        self.assertFalse(getattr(param, "is_data_collection", False))
+
+    def test_a_plain_value_arg_says_nothing_about_repetition(self):
+        inputs, _ = gen.process_parameters(
+            [self.param('"n","node-id","node ID",false,"0"', "TCLAP::ValueArg<int>")],
+            "sometool",
+        )
+        self.assertNotIn("may be repeated", inputs[0].node.attrib["help"])
+
+    def test_repeated_file_arg_becomes_a_collection(self):
+        inputs, _ = gen.process_parameters(
+            [
+                self.param(
+                    '"g","geometries","Input (.gml) filenames",true,""',
+                    "TCLAP::MultiArg<std::string>",
+                )
+            ],
+            "sometool",
+        )
+        self.assertTrue(inputs[0].is_data_collection)
+        # Data collections carry the list themselves, so no hint is added.
+        self.assertNotIn("may be repeated", inputs[0].node.attrib.get("help", ""))
+
+    def test_text_multi_arg_is_one_text_field(self):
+        inputs, _ = gen.process_parameters(
+            [
+                {
+                    "arg_type": "TCLAP::MultiArg<std::string>",
+                    "all_args": '"p","property-name","property name",false,""',
+                    "cpp_type": "std::string",
+                    "tclap_var_name": "property_name_arg",
+                }
+            ],
+            "sometool",
+        )
+        self.assertIsInstance(inputs[0], gen.TextParam)
+        self.assertIn("may be repeated", inputs[0].node.attrib["help"])
+
+
 class MembersParamTest(unittest.TestCase):
     """The collection elements of a manifest input, OGS fixture or vendored one."""
 

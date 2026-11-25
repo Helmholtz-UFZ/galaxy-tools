@@ -2,32 +2,25 @@
 import argparse
 import csv
 import json
-import re
 
 import matplotlib.pyplot as plt
 
 
-def extract_recorddata(path):
-    with open(path, encoding="utf-8", errors="replace") as fh:
-        txt = fh.read()
-
-    match = re.search(r"var\s+recordData\s*=\s*", txt)
-    if not match:
-        raise SystemExit("Could not find antiSMASH recordData in regions.js")
-
-    decoder = json.JSONDecoder()
-
+def extract_records(path):
     try:
-        data, _ = decoder.raw_decode(txt[match.end():].lstrip())
-    except json.JSONDecodeError as exc:
-        raise SystemExit(
-            f"Could not parse antiSMASH recordData in regions.js: {exc}"
-        )
+        with open(path, encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise SystemExit(f"Could not read antiSMASH JSON: {exc}") from exc
 
-    if not isinstance(data, list):
-        raise SystemExit("antiSMASH recordData is not a JSON array")
+    if not isinstance(data, dict) or not isinstance(data.get("records"), list):
+        raise SystemExit("antiSMASH JSON must contain a records array")
 
-    return data
+    for record in data["records"]:
+        if not isinstance(record, dict) or not isinstance(record.get("areas"), list):
+            raise SystemExit("Each antiSMASH record must contain an areas array")
+
+    return data["records"]
 
 
 def classify(prod):
@@ -51,15 +44,15 @@ def classify(prod):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--regions-js", required=True)
+    ap.add_argument("--antismash-json", required=True)
     ap.add_argument("--label", default="Re-annotated")
     ap.add_argument("--out", required=True)
     ap.add_argument("--out-pdf", required=True)
     args = ap.parse_args()
 
     counts = {}
-    for rec in extract_recorddata(args.regions_js):
-        for region in rec.get("regions", []):
+    for rec in extract_recorddata(args.antismash_json):
+        for region in rec["areas"]:
             products = region.get("products", []) or ["Other"]
             for prod in products:
                 cls = classify(prod)

@@ -1,5 +1,5 @@
 <tool id="recap_prok_module4_antismash_analysis" name="RECAP-PROK antiSMASH Result Analysis" version="0.1.0" profile="25.1">
-    <description>summarize antiSMASH BGC classes from regions.js</description>
+     <description>summarize BGC classes from antiSMASH JSON results</description>
     <macros>
         <import>macros_module4.xml</import>
     </macros>
@@ -9,13 +9,13 @@
     </required_files>
     <command detect_errors="exit_code"><![CDATA[
 python '$__tool_directory__/module4_antismash_analysis.py'
-  --regions-js '$regions_js'
+  --antismash-json '$antismash_json'
   --label '$dataset_label'
   --out '$summary'
   --out-pdf '$figure'
     ]]></command>
     <inputs>
-        <param name="regions_js" type="data" format="txt" label="antiSMASH regions.js from HTML report files"/>
+        <param name="antismash_json" type="data" format="json" label="antiSMASH JSON results"/>
         <param name="dataset_label" type="text" value="Re-annotated" label="Dataset label">
             <validator type="regex" message="Dataset label must contain at least one non-whitespace character.">.*\S.*</validator>
         </param>
@@ -26,7 +26,7 @@ python '$__tool_directory__/module4_antismash_analysis.py'
     </outputs>
     <tests>
         <test>
-            <param name="regions_js" value="regions.js"/>
+            <param name="antismash_json" value="antismash.json"/>
             <param name="dataset_label" value="Re-annotated"/>
             <output name="summary">
                 <assert_contents>
@@ -45,9 +45,9 @@ python '$__tool_directory__/module4_antismash_analysis.py'
         </test>
     </tests>
     <help><![CDATA[
-Summarizes biosynthetic gene-cluster classes from the ``regions.js`` file
-contained in the downloadable HTML report files produced by the Galaxy
-antiSMASH tool. This wrapper does not run antiSMASH itself.
+Summarizes biosynthetic gene-cluster classes from native antiSMASH JSON results.
+Provide the JSON output, not the HTML report or regions.js.
+This wrapper does not run antiSMASH itself.
 ]]></help>
     <expand macro="module4_citations"/>
 </tool>

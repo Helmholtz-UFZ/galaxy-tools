@@ -1,5 +1,5 @@
 <macros>
-    <token name="@TOOL_VERSION@">2.7.0</token>
+    <token name="@TOOL_VERSION@">2.10.0</token>
     <token name="@VERSION_SUFFIX@">0</token>
 
     <xml name="requirements">
@@ -16,7 +16,7 @@
 
     <xml name="citations">
         <citations>
-            <citation type="doi">https://doi.org/10.1016/j.envsoft.2023.105809</citation>
+            <citation type="doi">10.1016/j.envsoft.2023.105809</citation>
         </citations>
     </xml>
 
@@ -65,15 +65,11 @@
                     <conditional name="method_cond">
                         <param name="method_select" value="plot"/>
                         <param name="field" value="3"/>
-                        <param name="path" value="test"/>
                         <conditional name="history_cond">
                             <param name="history_selector" value="type_0"/>
                             <param name="history" value="valid"/>
                         </conditional>
-                        <conditional name="mode_cond">
-                             <param name="mode_selector" value="type_0"/>
-                             <param name="mode" value="oneplot"/>
-                        </conditional>
+                        <param name="mode" value="oneplot"/>
                         <param name="dfilter" value="inf"/>
                     </conditional>
                 </conditional>
@@ -86,14 +82,58 @@
                     <has_n_columns n="2" sep=";"/>
                     <has_text_matching expression="flagRange.*max=60.0.*min=10.0"/>
                     <has_text_matching expression='flagZScore.*method="modified".*thresh=3.5.*window="30D"'/>
-                    <has_text_matching expression='plot.*dfilter=float\(&apos;inf&apos;\).*history="valid".*path="test"'/>
+                    <has_text_matching expression='plot.*dfilter=float\(&apos;inf&apos;\).*history="valid".*path="plot_1"'/>
                 </assert_contents>
             </output>
             <output_collection name="plots" type="list">
-                <element name="test" ftype="png">
+                <element name="plot_1" ftype="png">
                     <assert_contents>
                         <has_text text="PNG"/>
                         <has_size value="120k" delta="10k"/>
+                    </assert_contents>
+                </element>
+            </output_collection>
+        </test>
+        <test expect_num_outputs="3">
+            <param name="data" value="test1/data.csv" ftype="csv"/>
+            <repeat name="methods_repeat">
+                <conditional name="module_cond">
+                    <param name="module_select" value="outliers"/>
+                    <conditional name="method_cond">
+                        <param name="method_select" value="flagRange"/>
+                        <param name="field" value="1"/>
+                        <param name="max" value="200.0"/>
+                        <param name="min" value="10.0"/>
+                    </conditional>
+                </conditional>
+            </repeat>
+            <repeat name="methods_repeat">
+                <conditional name="module_cond">
+                    <param name="module_select" value="optisaqc"/>
+                    <conditional name="method_cond">
+                        <param name="method_select" value="calibratePipeline"/>
+                        <param name="field" value="1"/>
+                        <param name="problems" value="[&quot;filter&quot;]"/>
+                        <param name="problem_labels" value="[&quot;flagRange&quot;]"/>
+                        <param name="pop_size" value="4"/>
+                        <param name="verbose" value="false"/>
+                        <conditional name="termination_cond">
+                            <param name="termination_selector" value="type_1"/>
+                            <param name="termination" value="10"/>
+                        </conditional>
+                    </conditional>
+                </conditional>
+            </repeat>
+            <output name="config_out" ftype="txt">
+                <assert_contents>
+                    <has_text_matching expression='calibratePipeline.*log_config=True.*log_path="optisaqc_1".*log_pop=False'/>
+                </assert_contents>
+            </output>
+            <output_collection name="optimized_configs" type="list">
+                <element name="optisaqc_1" ftype="csv">
+                    <assert_contents>
+                        <has_text_matching expression="fitLowpassFilter"/>
+                        <has_text_matching expression="dropField"/>
                     </assert_contents>
                 </element>
             </output_collection>

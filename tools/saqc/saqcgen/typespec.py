@@ -1,0 +1,373 @@
+"""Translation of SaQC type annotations into UI independent type specifications.
+
+SaQC annotates its method parameters with type hints (which are plain strings,
+because the SaQC modules use ``from __future__ import annotations``).  A type
+hint can be a union of several types and each member is rendered as its own
+input widget in Galaxy.
+
+``parse_annotation`` turns one member of a type hint into a :class:`TypeSpec`.
+A spec is a small, immutable description of "what the user has to provide", for
+example "a float", "a selection of these three strings" or "a tuple of two
+floats".  Everything that needs to know how a value looks (the Galaxy widget,
+the example value in the generated tests, the human readable name) is derived
+from the spec, so the knowledge about a SaQC type lives in exactly one place.
+"""
+
+from __future__ import annotations
+
+import inspect
+import re
+from dataclasses import dataclass
+from typing import Any, ForwardRef, get_origin, Mapping, Optional, Tuple
+
+__all__ = [
+    "BOOLEAN",
+    "FIELDS",
+    "FILES",
+    "FILENAME",
+    "FLOAT",
+    "INTEGER",
+    "MAPPING",
+    "OFFSET",
+    "OFFSET_OR_TIMEDELTA",
+    "OUTPUT_PATH",
+    "RANGES",
+    "SELECT",
+    "TEXT",
+    "TIMEDELTA",
+    "TUPLE",
+    "TypeSpec",
+    "annotation_to_string",
+    "friendly_name",
+    "parse_annotation",
+    "split_union",
+]
+
+# --------------------------------------------------------------------------
+# kinds of input widgets a SaQC type is mapped to
+# --------------------------------------------------------------------------
+FIELDS = "fields"
+FILES = "files"
+TEXT = "text"
+INTEGER = "integer"
+FLOAT = "float"
+BOOLEAN = "boolean"
+SELECT = "select"
+TUPLE = "tuple"
+RANGES = "ranges"
+MAPPING = "mapping"
+OUTPUT_PATH = "output_path"
+
+# --------------------------------------------------------------------------
+# additional validators for text parameters
+# --------------------------------------------------------------------------
+OFFSET = "offset"
+TIMEDELTA = "timedelta"
+OFFSET_OR_TIMEDELTA = "offset_or_timedelta"
+FILENAME = "filename"
+#: a flag name or a numeric flag value (``EXTERNAL_FLAG``)
+FLAG = "flag"
+
+#: type strings that are rendered as plain text inputs
+_TEXT_TYPES = {
+    "list",
+    "sequence",
+    "arraylike",
+    "pd.series",
+    "pd.dataframe",
+    "pd.datetimeindex",
+    "str",
+    "string",
+    "any",
+}
+
+#: text types that need a validator restricting the accepted input.  A
+#: ``FreqStr`` is validated by SaQC with ``pd.Timedelta`` (``checkFreqStr``),
+#: not with ``pd.tseries.frequencies.to_offset`` (``checkOffsetStr``), so it
+#: belongs to the timdelta family.
+_TEXT_VALIDATORS = {
+    "pd.timedelta": TIMEDELTA,
+    "offsetstr": OFFSET,
+    "freqstr": TIMEDELTA,
+}
+
+#: values of a tuple type are described by their index, not by their name
+_TUPLE_ELEMENT_LABELS = ("pos0", "pos1")
+
+_FLOAT_TUPLE = re.compile(r"tuple\[\s*float\s*,\s*float\s*\]", re.IGNORECASE)
+_FLOAT_TUPLE_LIST = re.compile(
+    r"list\[\s*tuple\[\s*float\s*,\s*float\s*\]\s*\]", re.IGNORECASE
+)
+_TUPLE = re.compile(r"tuple(?:\[\s*(?P<inner>.*)\s*\])?", re.IGNORECASE)
+_STRING_LIST = re.compile(r"(?:list|Sequence)\[\s*str\s*\]", re.IGNORECASE)
+_LITERAL = re.compile(r"Literal\[(?P<options>.*)\]", re.IGNORECASE)
+_NUMERIC_RANGE = re.compile(
+    r"(?P<type>Float|Int)\[\s*(?P<min>[0-9.-]+)\s*,\s*(?P<max>[0-9.-]+)\s*\]",
+    re.IGNORECASE,
+)
+_NUMERIC_LOWER_BOUND = re.compile(
+    r"\(?\s*(?P<type>Int|Float)\s*>=?\s*(?P<min>\d+(?:\.\d+)?)\s*\)?"
+)
+_GENERIC_LIST = re.compile(r"^(?:list|sequence|array(?:like)?)(?:\[(?P<inner>.*)\])?$", re.I)
+
+
+#: a SaQC type hint is spelled with the abbreviation ``pd``, the labels of the
+#: type selection expand it, so a user does not need to know it
+_ABBREVIATIONS = {"pd.": "pandas."}
+
+#: short terms of the text types that are more than "plain text"
+_KNOWN_TEXT_TERMS = {
+    "pd.series": "Time Series",
+    "pd.dataframe": "Data Table",
+    "pd.datetimeindex": "Timestamps",
+}
+
+#: the name of the Python type of the numeric kinds
+_PYTHON_NAMES = {INTEGER: "int", FLOAT: "float", BOOLEAN: "bool"}
+
+
+@dataclass(frozen=True)
+class TypeSpec:
+    """Everything the generators need to know about one accepted input type."""
+
+    kind: str
+    #: the type hint as written in the SaQC source, e.g. ``list[tuple[float, float]]``
+    text: str
+    #: element specs of a ``tuple``
+    inner: Tuple["TypeSpec", ...] = ()
+    #: allowed values of a ``select``
+    options: Tuple[str, ...] = ()
+    #: (value, label) pairs of a ``select``, taken from the parameter docs
+    option_labels: Tuple[Tuple[str, str], ...] = ()
+    minimum: Optional[str] = None
+    maximum: Optional[str] = None
+    #: True if several values of this type are accepted (a list)
+    multiple: bool = False
+    validator: Optional[str] = None
+    #: True for a union of plain values, which is entered as free text
+    #: (e.g. ``EXTERNAL_FLAG``: a flag name or a flag value)
+    plain_value: bool = False
+
+
+def annotation_to_string(annotation: Any) -> str:
+    """Normalise a type hint (a string, a class, a ``ForwardRef`` or ``empty``)."""
+    if isinstance(annotation, ForwardRef):
+        return annotation.__forward_arg__.strip("'")
+    if isinstance(annotation, str):
+        return annotation.strip("'")
+    if annotation is inspect.Parameter.empty:
+        return ""
+    if get_origin(annotation) is not None:
+        # a parameterised type (``Literal[...]``, ``Union[...]``, ``list[...]``)
+        # has no usable ``__name__``, only its string form keeps the details
+        return str(annotation).replace("typing.", "")
+    name = getattr(annotation, "__name__", None)
+    if name:
+        return name
+    return str(annotation).replace("typing.", "")
+
+
+def split_union(type_string: str) -> list[str]:
+    """Split a type hint into its union members.
+
+    Handles both ``Union[a, b]`` and ``a | b`` notation.  Bracketed parts are
+    kept together, so ``list[int | str]`` stays a single member.
+    """
+    text = type_string.strip()
+    if text.startswith("Union[") and text.endswith("]"):
+        text = text[len("Union[") : -1]  # noqa: E203
+
+    members: list[str] = []
+    current = ""
+    depth = 0
+    for char in text:
+        if char in "[(":
+            depth += 1
+        elif char in "])":
+            depth -= 1
+        if char in "|," and depth == 0:
+            if current.strip():
+                members.append(current.strip())
+            current = ""
+        else:
+            current += char
+    if current.strip():
+        members.append(current.strip())
+    return members
+
+
+def parse_annotation(
+    type_string: str, aliases: Optional[Mapping[str, Any]] = None
+) -> Optional[TypeSpec]:
+    """Translate one (union free) SaQC type hint into a :class:`TypeSpec`.
+
+    Returns ``None`` for types that cannot be represented by a Galaxy input
+    field (those parameters are skipped by the generator).
+    """
+    text = type_string.strip()
+    aliases = aliases or {}
+
+    # a module level type alias, e.g. ``FILL_METHODS``
+    if text in aliases:
+        return parse_annotation(annotation_to_string(aliases[text]), aliases)
+
+    if text in ("SaQCFields", "NewSaQCFields"):
+        return TypeSpec(FIELDS, text, multiple=True)
+
+    # a column name of the input table, used as a single variable
+    if text == "SaQCColumns":
+        return TypeSpec(FIELDS, text)
+
+    if _STRING_LIST.fullmatch(text):
+        return TypeSpec(TEXT, text, multiple=True)
+
+    if _FLOAT_TUPLE_LIST.fullmatch(text):
+        inner = (
+            TypeSpec(FLOAT, "float"),
+            TypeSpec(FLOAT, "float"),
+        )
+        return TypeSpec(RANGES, text, inner=inner)
+
+    tuple_match = _TUPLE.fullmatch(text)
+    if tuple_match:
+        inner_string = (tuple_match.group("inner") or "").replace("...", "").strip()
+        if not inner_string:
+            # a bare ``tuple`` is filled with two free text elements
+            return TypeSpec(TUPLE, text)
+        members = [m for m in split_union(inner_string) if m]
+        specs = [parse_annotation(m, aliases) for m in members]
+        specs = [spec for spec in specs if spec is not None]
+        if not specs:
+            specs = [TypeSpec(TEXT, "str")]
+        while len(specs) < 2:
+            specs.append(specs[0])
+        return TypeSpec(TUPLE, text, inner=tuple(specs[:2]))
+
+    lowered = text.lower()
+    if lowered in _TEXT_TYPES:
+        return TypeSpec(TEXT, text)
+
+    if lowered in _TEXT_VALIDATORS:
+        return TypeSpec(TEXT, text, validator=_TEXT_VALIDATORS[lowered])
+
+    if "offsetlike" in lowered:
+        return TypeSpec(TEXT, text, validator=OFFSET_OR_TIMEDELTA)
+
+    if lowered.startswith("dict"):
+        return TypeSpec(MAPPING, text)
+
+    literal_match = _LITERAL.fullmatch(text)
+    if literal_match:
+        options = tuple(
+            option.strip().strip("'\"")
+            for option in split_union(literal_match.group("options"))
+        )
+        if not options:
+            return None
+        return TypeSpec(SELECT, text, options=options)
+
+    range_match = _NUMERIC_RANGE.fullmatch(text)
+    if range_match:
+        kind = FLOAT if range_match.group("type").lower() == "float" else INTEGER
+        return TypeSpec(
+            kind, text, minimum=range_match.group("min"), maximum=range_match.group("max")
+        )
+
+    lower_bound_match = _NUMERIC_LOWER_BOUND.search(text)
+    if lower_bound_match:
+        kind = FLOAT if lower_bound_match.group("type").lower() == "float" else INTEGER
+        return TypeSpec(kind, text, minimum=lower_bound_match.group("min"))
+
+    if lowered == "int":
+        return TypeSpec(INTEGER, text)
+    if lowered == "float":
+        return TypeSpec(FLOAT, text)
+    if lowered == "bool":
+        return TypeSpec(BOOLEAN, text)
+    if text == "OutputPath":
+        # hardcoded path parameter of ``saqc.funcs.tools.plot``
+        # https://git.ufz.de/rdm-software/saqc/-/issues/511
+        return TypeSpec(OUTPUT_PATH, text, validator=FILENAME)
+
+    return None
+
+
+def friendly_name(spec: TypeSpec) -> str:
+    """Human readable name of a type, used in the "choose the type" dropdown.
+
+    The label is a short, non technical term followed by the original SaQC type
+    hint in parentheses, so a user picks by meaning ("Time Duration") while the
+    type stays recognisable for someone who reads the SaQC documentation
+    (``pandas.Timedelta``).
+    """
+    term = _term(spec)
+    original = _original(spec)
+    if not original or original == term:
+        return term
+    return f"{term} ({original})"
+
+
+def _term(spec: TypeSpec) -> str:
+    """The short, non technical part of the label (at most three words)."""
+    if spec.kind == FIELDS:
+        return "Column Selection"
+    if spec.kind == FILES:
+        return "Input Table"
+    if spec.kind == SELECT:
+        return "Choice"
+    if spec.kind == INTEGER:
+        return "Whole Number"
+    if spec.kind == FLOAT:
+        return "Decimal Number"
+    if spec.kind == BOOLEAN:
+        return "Yes/No"
+    if spec.kind == MAPPING:
+        return "Mapping"
+    if spec.kind == RANGES:
+        return "List of Ranges"
+    if spec.kind == TUPLE:
+        return "Two Numbers" if _is_number_tuple(spec) else "Two Values"
+    if spec.kind == OUTPUT_PATH:
+        return "Output File Name"
+    if spec.validator == TIMEDELTA:
+        return "Time Duration"
+    if spec.validator == OFFSET:
+        return "Sampling Frequency"
+    if spec.validator == OFFSET_OR_TIMEDELTA:
+        return "Any Time Span"
+    if spec.validator == FLAG or spec.plain_value:
+        return "Flag"
+    return _text_term(spec)
+
+
+def _text_term(spec: TypeSpec) -> str:
+    list_match = _GENERIC_LIST.match(spec.text.strip())
+    if list_match is None:
+        return _KNOWN_TEXT_TERMS.get(spec.text.strip().lower(), "Plain Text")
+    inner = list_match.group("inner")
+    if not inner:
+        return "Plain Text List"
+    return f"{_term(parse_annotation(inner) or TypeSpec(TEXT, inner))} List"
+
+
+def _is_number_tuple(spec: TypeSpec) -> bool:
+    return len(spec.inner) == 2 and all(inner.kind == FLOAT for inner in spec.inner)
+
+
+def _original(spec: TypeSpec) -> str:
+    """The type hint of the spec as it appears in the SaQC documentation."""
+    if spec.kind == SELECT:
+        # the members of the ``Literal`` are the options of the input
+        return "Literal"
+    if spec.kind == MAPPING:
+        return "dict"
+    if spec.kind in (INTEGER, FLOAT, BOOLEAN):
+        # a constrained number, e.g. "(Int >= 1)", is restricted by the input
+        # itself, the label does not need to repeat the bounds
+        return _PYTHON_NAMES[spec.kind]
+    text = spec.text.strip()
+    if text.startswith("(") and text.endswith(")"):
+        text = text[1:-1].strip()
+    for abbreviation, expansion in _ABBREVIATIONS.items():
+        text = text.replace(abbreviation, expansion)
+    return text

@@ -108,6 +108,34 @@ def process_main_column(
     return field_str, params_to_process
 
 
+#: suffix of the input of a column selection of a type selection
+COLUMN_SUFFIX = "_column"
+
+#: prefix of the file a plot step writes, the number of the plot step is appended.
+#: ``SaQC.plot`` saves the figure to the ``path`` it is given, so the tool does not
+#: ask for that name: every plot step gets its own file, nothing is overwritten.
+PLOT_PATH_PREFIX = "plot"
+
+#: prefix of the folder a calibratePipeline step writes its logs into, the number of
+#: the step is appended.  ``SaQC.calibratePipeline`` insists on a *folder* to write
+#: to and dumps the optimized pipeline as ``config.csv`` into it; the folder is what
+#: the ``optimized_configs`` output collects, so no step can overwrite another.
+OPTIMIZED_CONFIG_PREFIX = "optisaqc"
+
+
+def saqc_parameter_name(input_name: str) -> str:
+    """
+    The SaQC parameter name of a Galaxy input name.
+
+    Almost every input is named after the SaQC argument it sets.  The exception
+    is the column selection of a type selection: it is named ``<name>_column``,
+    so a column of the input table can be told apart from a plain value.
+    """
+    if input_name.endswith(COLUMN_SUFFIX):
+        return input_name[: -len(COLUMN_SUFFIX)]
+    return input_name
+
+
 def process_parameters(
     params_to_process: Dict[str, Any], primary_input_file: str
 ) -> Dict[str, Any]:
@@ -121,30 +149,37 @@ def process_parameters(
         if param_key.endswith("_selector"):
             continue
 
-        actual_param_name_for_saqc = param_key
+        actual_param_name_for_saqc = saqc_parameter_name(param_key)
         current_value_for_saqc = param_value_json
+        # whether the value is the index of a column of the input table
+        is_column_selection = param_key.endswith(COLUMN_SUFFIX)
 
         # Resolve conditionals (e.g., `param_cond`)
         if isinstance(param_value_json, dict) and param_key.endswith("_cond"):
-            actual_param_name_for_saqc = param_key[:-5]
+            # the inputs nested in a conditional are named after the
+            # conditional, not after the SaQC argument
+            nested_name = param_key[: -len("_cond")]
+            actual_param_name_for_saqc = saqc_parameter_name(nested_name)
             inner_params = param_value_json.copy()
-            inner_params.pop(f"{actual_param_name_for_saqc}_selector", None)
+            inner_params.pop(f"{nested_name}_selector", None)
 
             if len(inner_params) == 1:
-                current_value_for_saqc = list(inner_params.values())[0]
+                inner_name, current_value_for_saqc = next(iter(inner_params.items()))
+                is_column_selection = inner_name.endswith(COLUMN_SUFFIX)
             else:
                 # Handle special tuples/slices
-                if f"{actual_param_name_for_saqc}_start" in inner_params:
-                    start = inner_params.get(f"{actual_param_name_for_saqc}_start")
-                    end = inner_params.get(f"{actual_param_name_for_saqc}_end")
+                is_column_selection = False
+                if f"{nested_name}_start" in inner_params:
+                    start = inner_params.get(f"{nested_name}_start")
+                    end = inner_params.get(f"{nested_name}_end")
                     current_value_for_saqc = (
                         f"slice({start}, {end})"
                         if start is not None or end is not None
                         else None
                     )
-                elif f"{actual_param_name_for_saqc}_min" in inner_params:
-                    min_val = inner_params.get(f"{actual_param_name_for_saqc}_min")
-                    max_val = inner_params.get(f"{actual_param_name_for_saqc}_max")
+                elif f"{nested_name}_min" in inner_params:
+                    min_val = inner_params.get(f"{nested_name}_min")
+                    max_val = inner_params.get(f"{nested_name}_max")
                     current_value_for_saqc = (
                         f"({min_val}, {max_val})"
                         if min_val is not None or max_val is not None
@@ -177,7 +212,8 @@ def process_parameters(
 
         # Translate secondary column params
         elif (
-            "field" in actual_param_name_for_saqc.lower()
+            is_column_selection
+            or "field" in actual_param_name_for_saqc.lower()
             or actual_param_name_for_saqc in ["target", "reference"]
         ):
             try:
@@ -214,6 +250,24 @@ def process_parameters(
     return saqc_args_dict
 
 
+def format_flag_value(value: str) -> Optional[str]:
+    """
+    Writes the ``flag`` parameter the way SaQC expects it.
+
+    A flag is either the name of a flag of the flagging scheme (``BAD``) or a
+    numeric value (``255``). The tool asks for it as text, so a numeric flag
+    arrives as a string, but SaQC rejects ``flag="255.0"`` -- a string is only
+    accepted if it names a known flag. Returns ``None`` for a flag name.
+    """
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    if math.isnan(number) or math.isinf(number):
+        return None
+    return str(int(number)) if number.is_integer() else repr(number)
+
+
 def format_saqc_value(v_saqc_raw: Any, k_saqc: str) -> Optional[str]:
     """
     Formats a Python value into a SaQC-compatible string.
@@ -248,7 +302,10 @@ def format_saqc_value(v_saqc_raw: Any, k_saqc: str) -> Optional[str]:
 
     elif isinstance(v_saqc_raw, str):
         val_lower = v_saqc_raw.lower()
-        if val_lower == "inf":
+        numeric_flag = format_flag_value(v_saqc_raw) if k_saqc == "flag" else None
+        if numeric_flag is not None:
+            v_str_repr = numeric_flag
+        elif val_lower == "inf":
             v_str_repr = "float('inf')"
         elif val_lower == "-inf":
             v_str_repr = "float('-inf')"
@@ -324,6 +381,9 @@ def main():
 
     sys.stderr.write(f"INFO: Use data path as column name: {primary_input_file}\n")
 
+    plot_count = 0
+    calibrated_count = 0
+
     for r_method_set in params_from_galaxy.get("methods_repeat", []):
         method_str_for_error = "unknown_method_in_repeat"
         field_str_for_error = "unknown_field_in_repeat"
@@ -342,6 +402,21 @@ def main():
             params_to_process = method_cond_params.copy()
             method = params_to_process.pop("method_select", "unknown_method")
             method_str_for_error = method
+
+            if method == "plot":
+                plot_count += 1
+                params_to_process["path"] = f"{PLOT_PATH_PREFIX}_{plot_count}"
+
+            if method == "calibratePipeline":
+                calibrated_count += 1
+                # log_config writes the optimized pipeline as a config file, which
+                # is the only way the result can leave a Galaxy run; log_pop would
+                # add a population dump per problem that nothing collects
+                params_to_process["log_config"] = True
+                params_to_process["log_pop"] = False
+                params_to_process["log_path"] = (
+                    f"{OPTIMIZED_CONFIG_PREFIX}_{calibrated_count}"
+                )
 
             # Process the main column
             field_str, params_to_process = process_main_column(

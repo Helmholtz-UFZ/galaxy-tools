@@ -12,7 +12,7 @@
             <param name="field" value="1" />
             <param name="gap_window" value="1D" />
             <param name="group_window" value="1D" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
           </conditional>
         </conditional>
       </repeat>
@@ -37,7 +37,7 @@
             <param name="thresh" value="1" />
             <param name="window" value="1D" />
             <param name="min_periods" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <param name="dfilter" value="1" />
           </conditional>
         </conditional>
@@ -62,7 +62,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="flagNAN" />
             <param name="field" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <param name="dfilter" value="1" />
           </conditional>
         </conditional>
@@ -88,7 +88,7 @@
             <param name="thresh" value="1" />
             <param name="maxna" value="1" />
             <param name="maxna_group" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
           </conditional>
         </conditional>
       </repeat>
@@ -114,7 +114,7 @@
             <param name="field" value="1" />
             <param name="thresh" value="1" />
             <param name="min_periods" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="window_cond">
               <param name="window_selector" value="type_0" />
               <param name="window" value="1D" />
@@ -143,7 +143,7 @@
             <param name="field" value="1" />
             <param name="thresh" value="1" />
             <param name="min_periods" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="window_cond">
               <param name="window_selector" value="type_1" />
               <param name="window" value="1" />
@@ -204,7 +204,7 @@
             <param name="fill_method" value="linear" />
             <conditional name="cutoff_cond">
               <param name="cutoff_selector" value="type_1" />
-              <param name="cutoff" value="1D" />
+              <param name="cutoff" value="1d" />
             </conditional>
           </conditional>
         </conditional>
@@ -216,30 +216,6 @@
           <has_text text="filter_order=" />
           <has_text text="fill_method=" />
           <has_text text="cutoff=" />
-        </assert_contents>
-      </output>
-    </test>
-    <test expect_num_outputs="2">
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="curvefit" />
-          <conditional name="method_cond">
-            <param name="method_select" value="fitMomentFM" />
-            <param name="field" value="1" />
-            <param name="ratio" value="1" />
-            <param name="context" value="1" />
-            <param name="agg" value="center" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="fitMomentFM" />
-          <has_text text="ratio=" />
-          <has_text text="context=" />
-          <has_text text="agg=" />
         </assert_contents>
       </output>
     </test>
@@ -388,7 +364,7 @@
             <param name="spread" value="1" />
             <param name="frac" value="1" />
             <param name="method" value="single" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
           </conditional>
         </conditional>
       </repeat>
@@ -413,9 +389,9 @@
             <param name="method_select" value="flagDriftFromReference" />
             <param name="field" value="1" />
             <param name="reference" value="1" />
-            <param name="freq" value="1D" />
+            <param name="freq" value="1d" />
             <param name="thresh" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
           </conditional>
         </conditional>
       </repeat>
@@ -442,7 +418,7 @@
             <param name="spread" value="1" />
             <param name="method" value="single" />
             <param name="frac" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
           </conditional>
         </conditional>
       </repeat>
@@ -468,7 +444,7 @@
             <param name="field" value="1" />
             <param name="group" value="test1/data.csv" />
             <param name="target" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
           </conditional>
         </conditional>
       </repeat>
@@ -524,7 +500,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="flagUnflagged" />
             <param name="field" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
           </conditional>
         </conditional>
       </repeat>
@@ -544,7 +520,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="forceFlags" />
             <param name="field" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
           </conditional>
         </conditional>
       </repeat>
@@ -566,7 +542,7 @@
             <param name="field" value="1" />
             <param name="group" value="test1/data.csv" />
             <param name="target" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
           </conditional>
         </conditional>
       </repeat>
@@ -587,7 +563,7 @@
             <param name="method_select" value="propagateFlags" />
             <param name="field" value="1" />
             <param name="method" value="ffill" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <param name="dfilter" value="1" />
             <conditional name="window_cond">
               <param name="window_selector" value="type_0" />
@@ -616,7 +592,7 @@
             <param name="method_select" value="propagateFlags" />
             <param name="field" value="1" />
             <param name="method" value="ffill" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <param name="dfilter" value="1" />
             <conditional name="window_cond">
               <param name="window_selector" value="type_1" />
@@ -642,19 +618,103 @@
         <conditional name="module_cond">
           <param name="module_select" value="flagtools" />
           <conditional name="method_cond">
+            <param name="method_select" value="setFlags" />
+            <param name="field" value="1" />
+            <param name="override" value="true" />
+            <param name="flag" value="255.0" />
+            <conditional name="data_cond">
+              <param name="data_selector" value="type_0" />
+              <param name="data_column" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="setFlags" />
+          <has_text text="override=" />
+          <has_text text="flag=" />
+          <has_text text="data=" />
+          <has_text text="data=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="flagtools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="setFlags" />
+            <param name="field" value="1" />
+            <param name="override" value="true" />
+            <param name="flag" value="255.0" />
+            <conditional name="data_cond">
+              <param name="data_selector" value="type_1" />
+              <param name="data" value="a_string" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="setFlags" />
+          <has_text text="override=" />
+          <has_text text="flag=" />
+          <has_text text="data=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="flagtools" />
+          <conditional name="method_cond">
             <param name="method_select" value="transferFlags" />
             <param name="field" value="1" />
             <param name="target" value="1" />
-            <param name="squeeze" value="true" />
             <param name="overwrite" value="true" />
+            <conditional name="squeeze_cond">
+              <param name="squeeze_selector" value="type_0" />
+              <param name="squeeze" value="1" />
+            </conditional>
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="transferFlags" />
-          <has_text text="squeeze=" />
           <has_text text="overwrite=" />
+          <has_text text="squeeze=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="flagtools" />
+          <conditional name="method_cond">
+            <param name="method_select" value="transferFlags" />
+            <param name="field" value="1" />
+            <param name="target" value="1" />
+            <param name="overwrite" value="true" />
+            <conditional name="squeeze_cond">
+              <param name="squeeze_selector" value="type_1" />
+              <param name="squeeze" value="true" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="transferFlags" />
+          <has_text text="overwrite=" />
+          <has_text text="squeeze=" />
         </assert_contents>
       </output>
     </test>
@@ -667,12 +727,16 @@
           <conditional name="method_cond">
             <param name="method_select" value="align" />
             <param name="field" value="1" />
-            <param name="method" value="a_string" />
+            <param name="method" value="nshift" />
             <param name="order" value="1" />
             <param name="overwrite" value="true" />
             <conditional name="freq_cond">
               <param name="freq_selector" value="type_0" />
-              <param name="freq" value="1D" />
+              <param name="freq" value="1d" />
+            </conditional>
+            <conditional name="tolerance_cond">
+              <param name="tolerance_selector" value="type_0" />
+              <param name="tolerance" value="1D" />
             </conditional>
           </conditional>
         </conditional>
@@ -684,6 +748,7 @@
           <has_text text="order=" />
           <has_text text="overwrite=" />
           <has_text text="freq=" />
+          <has_text text="tolerance=" />
         </assert_contents>
       </output>
     </test>
@@ -696,13 +761,17 @@
           <conditional name="method_cond">
             <param name="method_select" value="align" />
             <param name="field" value="1" />
-            <param name="method" value="a_string" />
+            <param name="method" value="nshift" />
             <param name="order" value="1" />
             <param name="overwrite" value="true" />
             <conditional name="freq_cond">
               <param name="freq_selector" value="type_1" />
               <param name="freq" value="1" />
             </conditional>
+            <conditional name="tolerance_cond">
+              <param name="tolerance_selector" value="type_0" />
+              <param name="tolerance" value="1D" />
+            </conditional>
           </conditional>
         </conditional>
       </repeat>
@@ -713,6 +782,41 @@
           <has_text text="order=" />
           <has_text text="overwrite=" />
           <has_text text="freq=" />
+          <has_text text="tolerance=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="interpolation" />
+          <conditional name="method_cond">
+            <param name="method_select" value="align" />
+            <param name="field" value="1" />
+            <param name="method" value="nshift" />
+            <param name="order" value="1" />
+            <param name="overwrite" value="true" />
+            <conditional name="freq_cond">
+              <param name="freq_selector" value="type_0" />
+              <param name="freq" value="1d" />
+            </conditional>
+            <conditional name="tolerance_cond">
+              <param name="tolerance_selector" value="type_1" />
+              <param name="tolerance" value="1D" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="align" />
+          <has_text text="method=" />
+          <has_text text="order=" />
+          <has_text text="overwrite=" />
+          <has_text text="freq=" />
+          <has_text text="tolerance=" />
         </assert_contents>
       </output>
     </test>
@@ -725,6 +829,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="interpolateByRolling" />
             <param name="field" value="1" />
+            <param name="func" value="sum" />
             <param name="center" value="true" />
             <param name="min_periods" value="1" />
             <param name="flag" value="1" />
@@ -738,6 +843,7 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="interpolateByRolling" />
+          <has_text text="func=" />
           <has_text text="center=" />
           <has_text text="min_periods=" />
           <has_text text="flag=" />
@@ -754,6 +860,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="interpolateByRolling" />
             <param name="field" value="1" />
+            <param name="func" value="sum" />
             <param name="center" value="true" />
             <param name="min_periods" value="1" />
             <param name="flag" value="1" />
@@ -767,6 +874,7 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="interpolateByRolling" />
+          <has_text text="func=" />
           <has_text text="center=" />
           <has_text text="min_periods=" />
           <has_text text="flag=" />
@@ -787,7 +895,7 @@
             <param name="func" value="std" />
             <param name="sub_thresh" value="1" />
             <param name="min_periods" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="window_cond">
               <param name="window_selector" value="type_0" />
               <param name="window" value="1D" />
@@ -825,7 +933,7 @@
             <param name="func" value="std" />
             <param name="sub_thresh" value="1" />
             <param name="min_periods" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="window_cond">
               <param name="window_selector" value="type_1" />
               <param name="window" value="1d" />
@@ -863,7 +971,7 @@
             <param name="func" value="std" />
             <param name="sub_thresh" value="1" />
             <param name="min_periods" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="window_cond">
               <param name="window_selector" value="type_0" />
               <param name="window" value="1D" />
@@ -888,6 +996,75 @@
         </assert_contents>
       </output>
     </test>
+    <test expect_num_outputs="3">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="optisaqc" />
+          <conditional name="method_cond">
+            <param name="method_select" value="calibratePipeline" />
+            <param name="field" value="1" />
+            <param name="problems" value="[&quot;a_string&quot;]" />
+            <param name="name" value="a_string" />
+            <param name="problem_labels" value="[&quot;a_string&quot;]" />
+            <param name="pop_size" value="1" />
+            <param name="verbose" value="true" />
+            <conditional name="termination_cond">
+              <param name="termination_selector" value="type_0" />
+              <repeat name="termination">
+                <param name="termination_pos0" value="test_string" />
+                <param name="termination_pos1" value="test_string" />
+              </repeat>
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="calibratePipeline" />
+          <has_text text="problems=" />
+          <has_text text="name=" />
+          <has_text text="problem_labels=" />
+          <has_text text="pop_size=" />
+          <has_text text="verbose=" />
+          <has_text text="termination=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="3">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="optisaqc" />
+          <conditional name="method_cond">
+            <param name="method_select" value="calibratePipeline" />
+            <param name="field" value="1" />
+            <param name="problems" value="[&quot;a_string&quot;]" />
+            <param name="name" value="a_string" />
+            <param name="problem_labels" value="[&quot;a_string&quot;]" />
+            <param name="pop_size" value="1" />
+            <param name="verbose" value="true" />
+            <conditional name="termination_cond">
+              <param name="termination_selector" value="type_1" />
+              <param name="termination" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="calibratePipeline" />
+          <has_text text="problems=" />
+          <has_text text="name=" />
+          <has_text text="problem_labels=" />
+          <has_text text="pop_size=" />
+          <has_text text="verbose=" />
+          <has_text text="termination=" />
+        </assert_contents>
+      </output>
+    </test>
     <test expect_num_outputs="2">
       <param name="data" value="test1/data.csv" ftype="csv" />
       <param name="run_test_mode" value="true" />
@@ -900,7 +1077,7 @@
             <param name="min_periods" value="1" />
             <param name="iter_start" value="1" />
             <param name="alpha" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="window_cond">
               <param name="window_selector" value="type_0" />
               <param name="window" value="1D" />
@@ -930,7 +1107,7 @@
             <param name="min_periods" value="1" />
             <param name="iter_start" value="1" />
             <param name="alpha" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="window_cond">
               <param name="window_selector" value="type_1" />
               <param name="window" value="1" />
@@ -960,7 +1137,7 @@
             <param name="n" value="1" />
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="thresh_cond">
               <param name="thresh_selector" value="type_0" />
               <param name="thresh" value="auto" />
@@ -991,7 +1168,7 @@
             <param name="n" value="1" />
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="thresh_cond">
               <param name="thresh_selector" value="type_1" />
               <param name="thresh" value="1" />
@@ -1019,10 +1196,10 @@
           <conditional name="method_cond">
             <param name="method_select" value="flagOffset" />
             <param name="field" value="1" />
-            <param name="window" value="1D" />
+            <param name="window" value="1d" />
             <param name="tolerance" value="1" />
             <param name="thresh" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="thresh_relative_cond">
               <param name="thresh_relative_selector" value="type_0" />
               <repeat name="thresh_relative">
@@ -1053,10 +1230,10 @@
           <conditional name="method_cond">
             <param name="method_select" value="flagOffset" />
             <param name="field" value="1" />
-            <param name="window" value="1D" />
+            <param name="window" value="1d" />
             <param name="tolerance" value="1" />
             <param name="thresh" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="thresh_relative_cond">
               <param name="thresh_relative_selector" value="type_1" />
               <param name="thresh_relative" value="1" />
@@ -1086,7 +1263,7 @@
             <param name="field" value="1" />
             <param name="min" value="1" />
             <param name="max" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
           </conditional>
         </conditional>
       </repeat>
@@ -1115,7 +1292,7 @@
             <param name="fill_na" value="true" />
             <param name="slope_correct" value="true" />
             <param name="min_offset" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="thresh_cond">
               <param name="thresh_selector" value="type_0" />
               <param name="thresh" value="auto" />
@@ -1164,7 +1341,7 @@
             <param name="fill_na" value="true" />
             <param name="slope_correct" value="true" />
             <param name="min_offset" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="thresh_cond">
               <param name="thresh_selector" value="type_1" />
               <param name="thresh" value="1" />
@@ -1213,7 +1390,7 @@
             <param name="fill_na" value="true" />
             <param name="slope_correct" value="true" />
             <param name="min_offset" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="thresh_cond">
               <param name="thresh_selector" value="type_0" />
               <param name="thresh" value="auto" />
@@ -1262,7 +1439,7 @@
             <param name="fill_na" value="true" />
             <param name="slope_correct" value="true" />
             <param name="min_offset" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="thresh_cond">
               <param name="thresh_selector" value="type_0" />
               <param name="thresh" value="auto" />
@@ -1310,10 +1487,10 @@
             <param name="min_periods" value="1" />
             <param name="center" value="true" />
             <param name="axis" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="window_cond">
               <param name="window_selector" value="type_0" />
-              <param name="window" value="1D" />
+              <param name="window" value="1d" />
             </conditional>
           </conditional>
         </conditional>
@@ -1347,7 +1524,7 @@
             <param name="min_periods" value="1" />
             <param name="center" value="true" />
             <param name="axis" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="window_cond">
               <param name="window_selector" value="type_1" />
               <param name="window" value="1" />
@@ -1376,38 +1553,10 @@
         <conditional name="module_cond">
           <param name="module_select" value="pattern" />
           <conditional name="method_cond">
-            <param name="method_select" value="flagPatternByDTW" />
-            <param name="field" value="1" />
-            <param name="reference" value="1" />
-            <param name="max_distance" value="1" />
-            <param name="normalize" value="true" />
-            <param name="plot" value="true" />
-            <param name="flag" value="1" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="flagPatternByDTW" />
-          <has_text text="reference=" />
-          <has_text text="max_distance=" />
-          <has_text text="normalize=" />
-          <has_text text="plot=" />
-          <has_text text="flag=" />
-        </assert_contents>
-      </output>
-    </test>
-    <test expect_num_outputs="2">
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="pattern" />
-          <conditional name="method_cond">
             <param name="method_select" value="flagPlateau" />
             <param name="field" value="1" />
             <param name="min_jump" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="min_length_cond">
               <param name="min_length_selector" value="type_0" />
               <param name="min_length" value="1" />
@@ -1444,7 +1593,7 @@
             <param name="method_select" value="flagPlateau" />
             <param name="field" value="1" />
             <param name="min_jump" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="min_length_cond">
               <param name="min_length_selector" value="type_1" />
               <param name="min_length" value="1D" />
@@ -1481,7 +1630,7 @@
             <param name="method_select" value="flagPlateau" />
             <param name="field" value="1" />
             <param name="min_jump" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="min_length_cond">
               <param name="min_length_selector" value="type_0" />
               <param name="min_length" value="1" />
@@ -1518,7 +1667,7 @@
             <param name="method_select" value="flagPlateau" />
             <param name="field" value="1" />
             <param name="min_jump" value="1" />
-            <param name="flag" value="1" />
+            <param name="flag" value="255.0" />
             <conditional name="min_length_cond">
               <param name="min_length_selector" value="type_0" />
               <param name="min_length" value="1" />
@@ -1557,12 +1706,12 @@
             <param name="target" value="1" />
             <param name="method" value="fagg" />
             <param name="invert" value="true" />
+            <param name="freq" value="1d" />
             <param name="drop" value="true" />
-            <param name="squeeze" value="true" />
             <param name="override" value="true" />
-            <conditional name="freq_cond">
-              <param name="freq_selector" value="type_0" />
-              <param name="freq" value="1D" />
+            <conditional name="squeeze_cond">
+              <param name="squeeze_selector" value="type_0" />
+              <param name="squeeze" value="1" />
             </conditional>
           </conditional>
         </conditional>
@@ -1572,10 +1721,10 @@
           <has_text text="concatFlags" />
           <has_text text="method=" />
           <has_text text="invert=" />
-          <has_text text="drop=" />
-          <has_text text="squeeze=" />
-          <has_text text="override=" />
           <has_text text="freq=" />
+          <has_text text="drop=" />
+          <has_text text="override=" />
+          <has_text text="squeeze=" />
         </assert_contents>
       </output>
     </test>
@@ -1591,12 +1740,12 @@
             <param name="target" value="1" />
             <param name="method" value="fagg" />
             <param name="invert" value="true" />
+            <param name="freq" value="1d" />
             <param name="drop" value="true" />
-            <param name="squeeze" value="true" />
             <param name="override" value="true" />
-            <conditional name="freq_cond">
-              <param name="freq_selector" value="type_1" />
-              <param name="freq" value="1d" />
+            <conditional name="squeeze_cond">
+              <param name="squeeze_selector" value="type_1" />
+              <param name="squeeze" value="true" />
             </conditional>
           </conditional>
         </conditional>
@@ -1606,10 +1755,10 @@
           <has_text text="concatFlags" />
           <has_text text="method=" />
           <has_text text="invert=" />
-          <has_text text="drop=" />
-          <has_text text="squeeze=" />
-          <has_text text="override=" />
           <has_text text="freq=" />
+          <has_text text="drop=" />
+          <has_text text="override=" />
+          <has_text text="squeeze=" />
         </assert_contents>
       </output>
     </test>
@@ -1628,11 +1777,19 @@
             <param name="override" value="true" />
             <conditional name="index_cond">
               <param name="index_selector" value="type_0" />
-              <param name="index" value="1D" />
+              <param name="index" value="1d" />
             </conditional>
             <conditional name="tolerance_cond">
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="1D" />
+            </conditional>
+            <conditional name="data_aggregation_cond">
+              <param name="data_aggregation_selector" value="type_0" />
+              <param name="data_aggregation" value="sum" />
+            </conditional>
+            <conditional name="flags_aggregation_cond">
+              <param name="flags_aggregation_selector" value="type_0" />
+              <param name="flags_aggregation" value="sum" />
             </conditional>
           </conditional>
         </conditional>
@@ -1646,6 +1803,8 @@
           <has_text text="override=" />
           <has_text text="index=" />
           <has_text text="tolerance=" />
+          <has_text text="data_aggregation=" />
+          <has_text text="flags_aggregation=" />
         </assert_contents>
       </output>
     </test>
@@ -1670,6 +1829,14 @@
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="1D" />
             </conditional>
+            <conditional name="data_aggregation_cond">
+              <param name="data_aggregation_selector" value="type_0" />
+              <param name="data_aggregation" value="sum" />
+            </conditional>
+            <conditional name="flags_aggregation_cond">
+              <param name="flags_aggregation_selector" value="type_0" />
+              <param name="flags_aggregation" value="sum" />
+            </conditional>
           </conditional>
         </conditional>
       </repeat>
@@ -1682,6 +1849,8 @@
           <has_text text="override=" />
           <has_text text="index=" />
           <has_text text="tolerance=" />
+          <has_text text="data_aggregation=" />
+          <has_text text="flags_aggregation=" />
         </assert_contents>
       </output>
     </test>
@@ -1700,11 +1869,19 @@
             <param name="override" value="true" />
             <conditional name="index_cond">
               <param name="index_selector" value="type_2" />
-              <param name="index" value="a_string" />
+              <param name="index_column" value="1" />
             </conditional>
             <conditional name="tolerance_cond">
               <param name="tolerance_selector" value="type_0" />
               <param name="tolerance" value="1D" />
+            </conditional>
+            <conditional name="data_aggregation_cond">
+              <param name="data_aggregation_selector" value="type_0" />
+              <param name="data_aggregation" value="sum" />
+            </conditional>
+            <conditional name="flags_aggregation_cond">
+              <param name="flags_aggregation_selector" value="type_0" />
+              <param name="flags_aggregation" value="sum" />
             </conditional>
           </conditional>
         </conditional>
@@ -1717,7 +1894,10 @@
           <has_text text="squeeze=" />
           <has_text text="override=" />
           <has_text text="index=" />
+          <has_text text="index=" />
           <has_text text="tolerance=" />
+          <has_text text="data_aggregation=" />
+          <has_text text="flags_aggregation=" />
         </assert_contents>
       </output>
     </test>
@@ -1736,11 +1916,19 @@
             <param name="override" value="true" />
             <conditional name="index_cond">
               <param name="index_selector" value="type_0" />
-              <param name="index" value="1D" />
+              <param name="index" value="1d" />
             </conditional>
             <conditional name="tolerance_cond">
               <param name="tolerance_selector" value="type_1" />
               <param name="tolerance" value="1D" />
+            </conditional>
+            <conditional name="data_aggregation_cond">
+              <param name="data_aggregation_selector" value="type_0" />
+              <param name="data_aggregation" value="sum" />
+            </conditional>
+            <conditional name="flags_aggregation_cond">
+              <param name="flags_aggregation_selector" value="type_0" />
+              <param name="flags_aggregation" value="sum" />
             </conditional>
           </conditional>
         </conditional>
@@ -1754,6 +1942,100 @@
           <has_text text="override=" />
           <has_text text="index=" />
           <has_text text="tolerance=" />
+          <has_text text="data_aggregation=" />
+          <has_text text="flags_aggregation=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="reindex" />
+            <param name="field" value="1" />
+            <param name="method" value="fagg" />
+            <param name="broadcast" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+            <conditional name="index_cond">
+              <param name="index_selector" value="type_0" />
+              <param name="index" value="1d" />
+            </conditional>
+            <conditional name="tolerance_cond">
+              <param name="tolerance_selector" value="type_0" />
+              <param name="tolerance" value="1D" />
+            </conditional>
+            <conditional name="data_aggregation_cond">
+              <param name="data_aggregation_selector" value="type_1" />
+              <param name="data_aggregation" value="1" />
+            </conditional>
+            <conditional name="flags_aggregation_cond">
+              <param name="flags_aggregation_selector" value="type_0" />
+              <param name="flags_aggregation" value="sum" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="reindex" />
+          <has_text text="method=" />
+          <has_text text="broadcast=" />
+          <has_text text="squeeze=" />
+          <has_text text="override=" />
+          <has_text text="index=" />
+          <has_text text="tolerance=" />
+          <has_text text="data_aggregation=" />
+          <has_text text="flags_aggregation=" />
+        </assert_contents>
+      </output>
+    </test>
+    <test expect_num_outputs="2">
+      <param name="data" value="test1/data.csv" ftype="csv" />
+      <param name="run_test_mode" value="true" />
+      <repeat name="methods_repeat">
+        <conditional name="module_cond">
+          <param name="module_select" value="resampling" />
+          <conditional name="method_cond">
+            <param name="method_select" value="reindex" />
+            <param name="field" value="1" />
+            <param name="method" value="fagg" />
+            <param name="broadcast" value="true" />
+            <param name="squeeze" value="true" />
+            <param name="override" value="true" />
+            <conditional name="index_cond">
+              <param name="index_selector" value="type_0" />
+              <param name="index" value="1d" />
+            </conditional>
+            <conditional name="tolerance_cond">
+              <param name="tolerance_selector" value="type_0" />
+              <param name="tolerance" value="1D" />
+            </conditional>
+            <conditional name="data_aggregation_cond">
+              <param name="data_aggregation_selector" value="type_0" />
+              <param name="data_aggregation" value="sum" />
+            </conditional>
+            <conditional name="flags_aggregation_cond">
+              <param name="flags_aggregation_selector" value="type_1" />
+              <param name="flags_aggregation" value="1" />
+            </conditional>
+          </conditional>
+        </conditional>
+      </repeat>
+      <output name="config_out" ftype="txt">
+        <assert_contents>
+          <has_text text="reindex" />
+          <has_text text="method=" />
+          <has_text text="broadcast=" />
+          <has_text text="squeeze=" />
+          <has_text text="override=" />
+          <has_text text="index=" />
+          <has_text text="tolerance=" />
+          <has_text text="data_aggregation=" />
+          <has_text text="flags_aggregation=" />
         </assert_contents>
       </output>
     </test>
@@ -1766,56 +2048,22 @@
           <conditional name="method_cond">
             <param name="method_select" value="resample" />
             <param name="field" value="1" />
+            <param name="freq" value="1d" />
             <param name="method" value="fagg" />
             <param name="maxna" value="1" />
             <param name="maxna_group" value="1" />
             <param name="squeeze" value="true" />
-            <conditional name="freq_cond">
-              <param name="freq_selector" value="type_0" />
-              <param name="freq" value="1D" />
-            </conditional>
           </conditional>
         </conditional>
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="resample" />
+          <has_text text="freq=" />
           <has_text text="method=" />
           <has_text text="maxna=" />
           <has_text text="maxna_group=" />
           <has_text text="squeeze=" />
-          <has_text text="freq=" />
-        </assert_contents>
-      </output>
-    </test>
-    <test expect_num_outputs="2">
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="resampling" />
-          <conditional name="method_cond">
-            <param name="method_select" value="resample" />
-            <param name="field" value="1" />
-            <param name="method" value="fagg" />
-            <param name="maxna" value="1" />
-            <param name="maxna_group" value="1" />
-            <param name="squeeze" value="true" />
-            <conditional name="freq_cond">
-              <param name="freq_selector" value="type_1" />
-              <param name="freq" value="1d" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="resample" />
-          <has_text text="method=" />
-          <has_text text="maxna=" />
-          <has_text text="maxna_group=" />
-          <has_text text="squeeze=" />
-          <has_text text="freq=" />
         </assert_contents>
       </output>
     </test>
@@ -1882,61 +2130,6 @@
           <conditional name="method_cond">
             <param name="method_select" value="calculateRollingResiduals" />
             <param name="field" value="1" />
-            <param name="min_periods" value="1" />
-            <param name="center" value="true" />
-            <conditional name="window_cond">
-              <param name="window_selector" value="type_0" />
-              <param name="window" value="1D" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="calculateRollingResiduals" />
-          <has_text text="min_periods=" />
-          <has_text text="center=" />
-          <has_text text="window=" />
-        </assert_contents>
-      </output>
-    </test>
-    <test expect_num_outputs="2">
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="residuals" />
-          <conditional name="method_cond">
-            <param name="method_select" value="calculateRollingResiduals" />
-            <param name="field" value="1" />
-            <param name="min_periods" value="1" />
-            <param name="center" value="true" />
-            <conditional name="window_cond">
-              <param name="window_selector" value="type_1" />
-              <param name="window" value="1" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="calculateRollingResiduals" />
-          <has_text text="min_periods=" />
-          <has_text text="center=" />
-          <has_text text="window=" />
-        </assert_contents>
-      </output>
-    </test>
-    <test expect_num_outputs="2">
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="rolling" />
-          <conditional name="method_cond">
-            <param name="method_select" value="rolling" />
-            <param name="field" value="1" />
-            <param name="target" value="1" />
             <param name="func" value="sum" />
             <param name="min_periods" value="1" />
             <param name="center" value="true" />
@@ -1949,7 +2142,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text text="rolling" />
+          <has_text text="calculateRollingResiduals" />
           <has_text text="func=" />
           <has_text text="min_periods=" />
           <has_text text="center=" />
@@ -1962,11 +2155,10 @@
       <param name="run_test_mode" value="true" />
       <repeat name="methods_repeat">
         <conditional name="module_cond">
-          <param name="module_select" value="rolling" />
+          <param name="module_select" value="residuals" />
           <conditional name="method_cond">
-            <param name="method_select" value="rolling" />
+            <param name="method_select" value="calculateRollingResiduals" />
             <param name="field" value="1" />
-            <param name="target" value="1" />
             <param name="func" value="sum" />
             <param name="min_periods" value="1" />
             <param name="center" value="true" />
@@ -1979,7 +2171,7 @@
       </repeat>
       <output name="config_out" ftype="txt">
         <assert_contents>
-          <has_text text="rolling" />
+          <has_text text="calculateRollingResiduals" />
           <has_text text="func=" />
           <has_text text="min_periods=" />
           <has_text text="center=" />
@@ -1998,6 +2190,7 @@
             <param name="field" value="1" />
             <param name="target" value="1" />
             <param name="n" value="1" />
+            <param name="func" value="sum" />
             <param name="min_periods" value="1" />
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
@@ -2012,6 +2205,7 @@
         <assert_contents>
           <has_text text="assignKNNScore" />
           <has_text text="n=" />
+          <has_text text="func=" />
           <has_text text="min_periods=" />
           <has_text text="algorithm=" />
           <has_text text="p=" />
@@ -2030,12 +2224,13 @@
             <param name="field" value="1" />
             <param name="target" value="1" />
             <param name="n" value="1" />
+            <param name="func" value="sum" />
             <param name="min_periods" value="1" />
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
             <conditional name="freq_cond">
               <param name="freq_selector" value="type_1" />
-              <param name="freq" value="1D" />
+              <param name="freq" value="1d" />
             </conditional>
           </conditional>
         </conditional>
@@ -2044,6 +2239,7 @@
         <assert_contents>
           <has_text text="assignKNNScore" />
           <has_text text="n=" />
+          <has_text text="func=" />
           <has_text text="min_periods=" />
           <has_text text="algorithm=" />
           <has_text text="p=" />
@@ -2099,7 +2295,7 @@
             <param name="p" value="1" />
             <conditional name="freq_cond">
               <param name="freq_selector" value="type_1" />
-              <param name="freq" value="1D" />
+              <param name="freq" value="1d" />
             </conditional>
           </conditional>
         </conditional>
@@ -2128,6 +2324,7 @@
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
             <param name="fill_na" value="true" />
+            <param name="statistical_extent" value="1" />
             <conditional name="density_cond">
               <param name="density_selector" value="type_0" />
               <param name="density" value="auto" />
@@ -2142,6 +2339,7 @@
           <has_text text="algorithm=" />
           <has_text text="p=" />
           <has_text text="fill_na=" />
+          <has_text text="statistical_extent=" />
           <has_text text="density=" />
         </assert_contents>
       </output>
@@ -2159,6 +2357,7 @@
             <param name="algorithm" value="ball_tree" />
             <param name="p" value="1" />
             <param name="fill_na" value="true" />
+            <param name="statistical_extent" value="1" />
             <conditional name="density_cond">
               <param name="density_selector" value="type_1" />
               <param name="density" value="1" />
@@ -2173,6 +2372,7 @@
           <has_text text="algorithm=" />
           <has_text text="p=" />
           <has_text text="fill_na=" />
+          <has_text text="statistical_extent=" />
           <has_text text="density=" />
         </assert_contents>
       </output>
@@ -2187,6 +2387,8 @@
             <param name="method_select" value="assignZScore" />
             <param name="field" value="1" />
             <param name="window" value="1D" />
+            <param name="norm_func" value="sum" />
+            <param name="model_func" value="sum" />
             <param name="center" value="true" />
             <param name="min_periods" value="1" />
           </conditional>
@@ -2196,6 +2398,8 @@
         <assert_contents>
           <has_text text="assignZScore" />
           <has_text text="window=" />
+          <has_text text="norm_func=" />
+          <has_text text="model_func=" />
           <has_text text="center=" />
           <has_text text="min_periods=" />
         </assert_contents>
@@ -2249,24 +2453,17 @@
           <conditional name="method_cond">
             <param name="method_select" value="plot" />
             <param name="field" value="1" />
-            <param name="path" value="a_string" />
             <param name="max_gap" value="1D" />
+            <param name="mode" value="subplots" />
+            <param name="xscope" value="1D" />
             <repeat name="yscope">
               <param name="yscope_min" value="0.0" />
-              <param name="yscope_max" value="1.0" />
+              <param name="yscope_max" value="0.0" />
             </repeat>
             <param name="dfilter" value="1" />
-            <conditional name="mode_cond">
-              <param name="mode_selector" value="type_0" />
-              <param name="mode" value="subplots" />
-            </conditional>
             <conditional name="history_cond">
               <param name="history_selector" value="type_0" />
               <param name="history" value="valid" />
-            </conditional>
-            <conditional name="xscope_cond">
-              <param name="xscope_selector" value="type_0" />
-              <param name="xscope" value="1D" />
             </conditional>
           </conditional>
         </conditional>
@@ -2274,13 +2471,12 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="plot" />
-          <has_text text="path=" />
           <has_text text="max_gap=" />
+          <has_text text="mode=" />
+          <has_text text="xscope=" />
           <has_text text="yscope=" />
           <has_text text="dfilter=" />
-          <has_text text="mode=" />
           <has_text text="history=" />
-          <has_text text="xscope=" />
         </assert_contents>
       </output>
     </test>
@@ -2293,68 +2489,17 @@
           <conditional name="method_cond">
             <param name="method_select" value="plot" />
             <param name="field" value="1" />
-            <param name="path" value="a_string" />
             <param name="max_gap" value="1D" />
+            <param name="mode" value="subplots" />
+            <param name="xscope" value="1D" />
             <repeat name="yscope">
               <param name="yscope_min" value="0.0" />
-              <param name="yscope_max" value="1.0" />
+              <param name="yscope_max" value="0.0" />
             </repeat>
             <param name="dfilter" value="1" />
-            <conditional name="mode_cond">
-              <param name="mode_selector" value="type_1" />
-              <param name="mode" value="a_string" />
-            </conditional>
-            <conditional name="history_cond">
-              <param name="history_selector" value="type_0" />
-              <param name="history" value="valid" />
-            </conditional>
-            <conditional name="xscope_cond">
-              <param name="xscope_selector" value="type_0" />
-              <param name="xscope" value="1D" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="plot" />
-          <has_text text="path=" />
-          <has_text text="max_gap=" />
-          <has_text text="yscope=" />
-          <has_text text="dfilter=" />
-          <has_text text="mode=" />
-          <has_text text="history=" />
-          <has_text text="xscope=" />
-        </assert_contents>
-      </output>
-    </test>
-    <test expect_num_outputs="3">
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="tools" />
-          <conditional name="method_cond">
-            <param name="method_select" value="plot" />
-            <param name="field" value="1" />
-            <param name="path" value="a_string" />
-            <param name="max_gap" value="1D" />
-            <repeat name="yscope">
-              <param name="yscope_min" value="0.0" />
-              <param name="yscope_max" value="1.0" />
-            </repeat>
-            <param name="dfilter" value="1" />
-            <conditional name="mode_cond">
-              <param name="mode_selector" value="type_0" />
-              <param name="mode" value="subplots" />
-            </conditional>
             <conditional name="history_cond">
               <param name="history_selector" value="type_1" />
-              <param name="history" value="a_string" />
-            </conditional>
-            <conditional name="xscope_cond">
-              <param name="xscope_selector" value="type_0" />
-              <param name="xscope" value="1D" />
+              <param name="history" value="[&quot;a_string&quot;]" />
             </conditional>
           </conditional>
         </conditional>
@@ -2362,57 +2507,12 @@
       <output name="config_out" ftype="txt">
         <assert_contents>
           <has_text text="plot" />
-          <has_text text="path=" />
           <has_text text="max_gap=" />
+          <has_text text="mode=" />
+          <has_text text="xscope=" />
           <has_text text="yscope=" />
           <has_text text="dfilter=" />
-          <has_text text="mode=" />
           <has_text text="history=" />
-          <has_text text="xscope=" />
-        </assert_contents>
-      </output>
-    </test>
-    <test expect_num_outputs="3">
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="tools" />
-          <conditional name="method_cond">
-            <param name="method_select" value="plot" />
-            <param name="field" value="1" />
-            <param name="path" value="a_string" />
-            <param name="max_gap" value="1D" />
-            <repeat name="yscope">
-              <param name="yscope_min" value="0.0" />
-              <param name="yscope_max" value="1.0" />
-            </repeat>
-            <param name="dfilter" value="1" />
-            <conditional name="mode_cond">
-              <param name="mode_selector" value="type_0" />
-              <param name="mode" value="subplots" />
-            </conditional>
-            <conditional name="history_cond">
-              <param name="history_selector" value="type_0" />
-              <param name="history" value="valid" />
-            </conditional>
-            <conditional name="xscope_cond">
-              <param name="xscope_selector" value="type_1" />
-              <param name="xscope" value="a_string" />
-            </conditional>
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="plot" />
-          <has_text text="path=" />
-          <has_text text="max_gap=" />
-          <has_text text="yscope=" />
-          <has_text text="dfilter=" />
-          <has_text text="mode=" />
-          <has_text text="history=" />
-          <has_text text="xscope=" />
         </assert_contents>
       </output>
     </test>
@@ -2425,7 +2525,7 @@
           <conditional name="method_cond">
             <param name="method_select" value="renameField" />
             <param name="field" value="1" />
-            <param name="new_name" value="a_string" />
+            <param name="new_name" value="1" />
           </conditional>
         </conditional>
       </repeat>
@@ -2433,34 +2533,6 @@
         <assert_contents>
           <has_text text="renameField" />
           <has_text text="new_name=" />
-        </assert_contents>
-      </output>
-    </test>
-    <test expect_num_outputs="2">
-      <param name="data" value="test1/data.csv" ftype="csv" />
-      <param name="run_test_mode" value="true" />
-      <repeat name="methods_repeat">
-        <conditional name="module_cond">
-          <param name="module_select" value="tools" />
-          <conditional name="method_cond">
-            <param name="method_select" value="selectTime" />
-            <param name="field" value="1" />
-            <param name="mode" value="periodic" />
-            <param name="selection_field" value="1" />
-            <param name="start" value="a_string" />
-            <param name="end" value="a_string" />
-            <param name="closed" value="true" />
-          </conditional>
-        </conditional>
-      </repeat>
-      <output name="config_out" ftype="txt">
-        <assert_contents>
-          <has_text text="selectTime" />
-          <has_text text="mode=" />
-          <has_text text="selection_field=" />
-          <has_text text="start=" />
-          <has_text text="end=" />
-          <has_text text="closed=" />
         </assert_contents>
       </output>
     </test>

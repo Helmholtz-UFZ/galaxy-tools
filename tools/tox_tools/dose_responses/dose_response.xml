@@ -1,8 +1,8 @@
 <tool id="dr_curve" name="Dose Response Curve for Toxicological Risk Assessment" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="23.0">
     <description>for Toxicological Risk Assessment</description>
     <macros>
-        <token name="@TOOL_VERSION@">3.0.1</token>
-        <token name="@VERSION_SUFFIX@">4</token>
+        <token name="@TOOL_VERSION@">3.0_1</token>
+        <token name="@VERSION_SUFFIX@">0</token>
     </macros>
     <creator>
         <organization name="Helmholtz Centre for Environmental Research - UFZ, Department of Ecotoxicology"
@@ -11,7 +11,7 @@
     <requirements>
         <requirement type="package" version="@TOOL_VERSION@">r-drc</requirement>
         <requirement type="package" version="4.3.3">r-base</requirement>
-        <requirement type="package" version="3.5.1">r-ggplot2</requirement>
+        <requirement type="package" version="4.0.4">r-ggplot2</requirement>
     </requirements>
     <command detect_errors="aggressive">
         <![CDATA[

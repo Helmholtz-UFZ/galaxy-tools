@@ -46,8 +46,6 @@ python '$__tool_directory__/module4_antismash_analysis.py'
     </tests>
     <help><![CDATA[
 Summarizes biosynthetic gene-cluster classes from native antiSMASH JSON results.
-Provide the JSON output, not the HTML report or regions.js.
-This wrapper does not run antiSMASH itself.
 ]]></help>
     <expand macro="module4_citations"/>
 </tool>

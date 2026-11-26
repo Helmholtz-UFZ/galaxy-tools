@@ -1,4 +1,4 @@
-<tool id="recap_prok_module4_antismash_analysis" name="RECAP-PROK antiSMASH Result Analysis" version="0.1.0" profile="25.1">
+<tool id="recap_prok_module4_antismash_analysis" name="RECAP-PROK antiSMASH Result Analysis" version="0.2.0" profile="25.1">
      <description>summarize BGC classes from antiSMASH JSON results</description>
     <macros>
         <import>macros_module4.xml</import>

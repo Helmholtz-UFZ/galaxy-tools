@@ -44,8 +44,26 @@ python '$__tool_directory__/module4_antismash_analysis.py'
             </output>
         </test>
     </tests>
-    <help><![CDATA[
-Summarizes biosynthetic gene-cluster classes from native antiSMASH JSON results.
-]]></help>
+        <help><![CDATA[
+**What it does**
+
+This tool summarizes biosynthetic gene-cluster (BGC) classes from native antiSMASH JSON results.
+
+It extracts predicted BGC regions and their associated product types and groups them into canonical classes, including NRPS, PKS, RiPP, Terpene, Phosphonate, Auto-inducer, Deazapurine, and Other.
+
+**Inputs**
+
+- Native antiSMASH JSON output.
+- A user-defined dataset label.
+
+**Outputs**
+
+- A tabular summary of BGC classes and their counts.
+- A PDF figure showing the distribution of BGC classes.
+
+**Note**
+
+Regions associated with multiple product types may contribute multiple counts.
+    ]]></help>
     <expand macro="module4_citations"/>
 </tool>

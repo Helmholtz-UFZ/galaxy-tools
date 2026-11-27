@@ -4,6 +4,21 @@ categories:
 
 description: Metguild is a tool used to identify metabolic potential guilds from genome annotation matrices
 
+long_description: |
+  MetGuild is a genome-resolved computational workflow for
+  identifying metabolic potential guilds from functional
+  annotation matrices.
+
+  The workflow performs clustering, statistical screening,
+  correlation analysis, and network construction.
+
+  It supports binary and proportional annotation matrices,
+  optional taxonomic information, and user-defined clustering
+  parameters.
+
+  The Galaxy wrapper allows researchers to run MetGuild
+  without using the command line.
+
 name: metguild
 owner: ufz
 

@@ -1,207 +1,268 @@
 <tool id="metguild" name="MetGuild" version="0.1.0+galaxy0" profile="23.0">
-<description>identify metabolic potential guilds from genome annotation matrices</description>
-<requirements>
-<requirement type="package" version="0.1.0">metguild</requirement>
-</requirements>
-<command detect_errors="exit_code">
-<![CDATA[ 
-        metguild
-            '$matrix'
-            '$max_k'
-            --matrix-type '$matrix_type'
-            --input-format '$input_format'
-            '$run_mode'
-            --output-dir metguild_run
-            #if $taxonomy:
-                --taxonomy '$taxonomy'
-            #end if
-        &&
-        python -m zipfile -c '$archive' metguild_run
-     ]]>
-</command>
-<inputs>
-<param name="matrix" type="data" format="csv,tabular" label="Genome-by-feature annotation matrix" help="CSV or TSV file containing a Genomes column and numeric feature columns. The number of genomes can vary between datasets."/>
-<param name="input_format" type="select" label="Input delimiter">
-<option value="csv" selected="true">CSV (comma-separated)</option>
-<option value="tsv">TSV (tab-separated)</option>
-</param>
-<param name="matrix_type" type="select" label="Matrix type">
-<option value="binary" selected="true">Binary (presence/absence, 0 or 1)</option>
-<option value="proportion">Proportional (values from 0 to 1)</option>
-</param>
-<param name="max_k" type="integer" value="15" min="3" label="Maximum candidate k (MAX_K; exclusive)" help="Choose the upper bound for candidate cluster numbers based on your dataset and analysis goals. The default of 15 is editable, not fixed: MAX_K=15 considers k=2 through k=14; MAX_K=30 considers k=2 through k=29. MetGuild automatically restricts the evaluated range based on the number of genomes and distinct genome profiles. Larger values can increase computation time."/>
-<param name="taxonomy" type="data" format="csv,tabular" optional="true" label="Taxonomy table (optional)" help="CSV or TSV with Genomes and Phyla (or Phylum) columns. Genome IDs must match the annotation matrix."/>
-<param name="run_mode" type="select" label="Workflow extent">
-<option value="--full" selected="true">Complete workflow (Steps 1-9)</option>
-<option value="--through-step4">Stop after statistical screening (Steps 1-4)</option>
-<option value="--clustering-only">Stop after clustering (Steps 1-3)</option>
-<option value="--step1-only">Only preprocess and optimize k (Step 1)</option>
-</param>
-</inputs>
-<outputs>
-<data name="archive" format="zip" label="MetGuild complete results archive"/>
-<data name="manifest" format="json" from_work_dir="metguild_run/manifests/optimal_k_values.json" label="MetGuild candidate-k manifest"/>
-</outputs>
-<tests>
-<!--  Test 1: previously validated Step 1 binary smoke test, MAX_K=6.  -->
-<test expect_num_outputs="2">
-<param name="matrix" value="binary_matrix.csv" ftype="csv"/>
-<param name="input_format" value="csv"/>
-<param name="matrix_type" value="binary"/>
-<param name="max_k" value="6"/>
-<param name="run_mode" value="--step1-only"/>
-<output name="manifest" ftype="json">
-<assert_contents>
-<has_json_property_with_value property="requested_max_k" value="6"/>
-<has_json_property_with_value property="max_k_is_exclusive" value="true"/>
-<has_text text="unique_k_values"/>
-</assert_contents>
-</output>
-<output name="archive" ftype="zip">
-<assert_contents>
-<has_archive_member path="metguild_run/manifests/optimal_k_values\.json$"/>
-</assert_contents>
-</output>
-</test>
-<!--  Test 2: full binary workflow with taxonomy and standard MAX_K=15.  -->
-<test expect_num_outputs="2">
-<param name="matrix" value="binary_matrix.csv" ftype="csv"/>
-<param name="input_format" value="csv"/>
-<param name="matrix_type" value="binary"/>
-<param name="max_k" value="15"/>
-<param name="taxonomy" value="Example_taxonomy.csv" ftype="tabular"/>
-<param name="run_mode" value="--full"/>
-<output name="manifest" ftype="json">
-<assert_contents>
-<has_json_property_with_value property="requested_max_k" value="15"/>
-<has_json_property_with_value property="n_genomes" value="127"/>
-</assert_contents>
-</output>
-<output name="archive" ftype="zip">
-<assert_contents>
-<has_archive_member path="metguild_run/inputs/.+"/>
-<has_archive_member path="metguild_run/03_04_clustering/taxonomy/taxonomy_manifest\.json$"/>
-<has_archive_member path="metguild_run/05_stat_analysis/.+\.csv$"/>
-<has_archive_member path="metguild_run/06_correlation/.+\.csv$"/>
-<has_archive_member path="metguild_run/07_network_construction/network_construction_manifest\.json$"/>
-<has_archive_member path="metguild_run/07_network_construction/edge_lists/.+\.csv$"/>
-<has_archive_member path="metguild_run/07_network_construction/nodes_attributes/.+\.csv$"/>
-<has_archive_member path="metguild_run/08_workflow_provenance/[^/]+_workflow_provenance\.db$"/>
-<has_archive_member path="metguild_run/08_workflow_provenance/[^/]+_workflow_provenance\.sql$"/>
-<has_archive_member path="metguild_run/08_workflow_provenance/[^/]+_workflow_provenance\.html$"/>
-</assert_contents>
-</output>
-</test>
-<!--  Test 3: full proportional workflow with taxonomy.  -->
-<test expect_num_outputs="2">
-<param name="matrix" value="proportional_matrix.tsv" ftype="tabular"/>
-<param name="input_format" value="tsv"/>
-<param name="matrix_type" value="proportion"/>
-<param name="max_k" value="15"/>
-<!--  Upstream file has a .csv suffix but contains TSV data.  -->
-<param name="taxonomy" value="Example_taxonomy.csv" ftype="tabular"/>
-<param name="run_mode" value="--full"/>
-<output name="manifest" ftype="json">
-<assert_contents>
-<has_json_property_with_value property="requested_max_k" value="15"/>
-<has_json_property_with_value property="n_genomes" value="127"/>
-</assert_contents>
-</output>
-<output name="archive" ftype="zip">
-<assert_contents>
-<has_archive_member path="metguild_run/03_04_clustering/taxonomy/taxonomy_manifest\.json$"/>
-<has_archive_member path="metguild_run/05_stat_analysis/.+\.csv$"/>
-<has_archive_member path="metguild_run/06_correlation/.+\.csv$"/>
-<has_archive_member path="metguild_run/07_network_construction/network_construction_manifest\.json$"/>
-<has_archive_member path="metguild_run/07_network_construction/edge_lists/.+\.csv$"/>
-<has_archive_member path="metguild_run/07_network_construction/nodes_attributes/.+\.csv$"/>
-<has_archive_member path="metguild_run/08_workflow_provenance/[^/]+_workflow_provenance\.db$"/>
-<has_archive_member path="metguild_run/08_workflow_provenance/[^/]+_workflow_provenance\.sql$"/>
-<has_archive_member path="metguild_run/08_workflow_provenance/[^/]+_workflow_provenance\.html$"/>
-</assert_contents>
-</output>
-</test>
-<!--  Test 4: full binary workflow, deliberately omitting taxonomy.  -->
-<test expect_num_outputs="2">
-<param name="matrix" value="binary_matrix.csv" ftype="csv"/>
-<param name="input_format" value="csv"/>
-<param name="matrix_type" value="binary"/>
-<param name="max_k" value="15"/>
-<param name="run_mode" value="--full"/>
-<output name="manifest" ftype="json">
-<assert_contents>
-<has_json_property_with_value property="requested_max_k" value="15"/>
-</assert_contents>
-</output>
-<output name="archive" ftype="zip">
-<assert_contents>
-<has_archive_member path="metguild_run/inputs/" negate="true"/>
-<has_archive_member path="metguild_run/03_04_clustering/taxonomy/" negate="true"/>
-<has_archive_member path="metguild_run/07_network_construction/network_construction_manifest\.json$"/>
-<has_archive_member path="metguild_run/08_workflow_provenance/[^/]+_workflow_provenance\.db$"/>
-</assert_contents>
-</output>
-</test>
-<!--  Test 5: independent, user-selected MAX_K=20 (not fixed at 15).  -->
-<test expect_num_outputs="2">
-<param name="matrix" value="binary_matrix.csv" ftype="csv"/>
-<param name="input_format" value="csv"/>
-<param name="matrix_type" value="binary"/>
-<param name="max_k" value="20"/>
-<param name="run_mode" value="--step1-only"/>
-<output name="manifest" ftype="json">
-<assert_contents>
-<has_json_property_with_value property="requested_max_k" value="20"/>
-<has_json_property_with_value property="max_k_is_exclusive" value="true"/>
-</assert_contents>
-</output>
-<output name="archive" ftype="zip">
-<assert_contents>
-<has_archive_member path="metguild_run/manifests/optimal_k_values\.json$"/>
-</assert_contents>
-</output>
-</test>
-</tests>
-<help>
-<![CDATA[ 
+    <description>identify metabolic potential guilds from genome annotation matrices</description>
+    <requirements>
+        <requirement type="package" version="0.1.0">metguild</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+#if $matrix.ext == "csv":
+    #set input_format = "csv"
+#else:
+    #set input_format = "tsv"
+#end if
+metguild
+    '$matrix'
+    '$max_k'
+    --matrix-type '$matrix_type'
+    --input-format '$input_format'
+    '$run_mode'
+    --output-dir metguild_run
+    #if $taxonomy:
+        --taxonomy '$taxonomy'
+    #end if
+&&
+#if $run_mode == '--full':
+    cp metguild_run/08_workflow_provenance/*_workflow_provenance.html '$html_report' &&
+#end if
+python -m zipfile -c '$archive' metguild_run
+]]></command>
+    <inputs>
+        <param name="matrix" type="data" format="csv,tabular" label="Genome-by-feature annotation matrix" help="CSV or TSV file containing a Genomes column and numeric feature columns. The number of genomes can vary between datasets."/>
+        <param name="matrix_type" type="select" label="Matrix type">
+            <option value="binary" selected="true">Binary (presence/absence, 0 or 1)</option>
+            <option value="proportion">Proportional (values from 0 to 1)</option>
+        </param>
+        <param name="max_k" type="integer" value="15" min="3" label="Maximum candidate k (MAX_K; exclusive)" help="Choose the upper bound for candidate cluster numbers based on your dataset and analysis goals. The default of 15 is editable, not fixed: MAX_K=15 considers k=2 through k=14; MAX_K=30 considers k=2 through k=29. MetGuild automatically restricts the evaluated range based on the number of genomes and distinct genome profiles. Larger values can increase computation time."/>
+        <param name="taxonomy" type="data" format="csv,tabular" optional="true" label="Taxonomy table (optional)" help="CSV or TSV with Genomes and Phyla (or Phylum) columns. Genome IDs must match the annotation matrix."/>
+        <param name="run_mode" type="select" label="Workflow extent">
+            <option value="--full" selected="true">Complete workflow (Steps 1-9)</option>
+            <option value="--through-step4">Stop after statistical screening (Steps 1-4)</option>
+            <option value="--clustering-only">Stop after clustering (Steps 1-3)</option>
+            <option value="--step1-only">Only preprocess and optimize k (Step 1)</option>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="archive" format="zip" label="${tool.name} on ${on_string}: results archive"/>
+        <data name="manifest" format="json" from_work_dir="metguild_run/manifests/optimal_k_values.json"/>
+        <data name="html_report" format="html" from_work_dir="metguild_report.html" label="${tool.name} on ${on_string}: workflow provenance report">
+            <filter>run_mode == '--full'</filter>
+        </data>
+    </outputs>
+    <tests>
+        <!-- Test 1: previously validated Step 1 binary smoke test, MAX_K=6. -->
+        <test expect_num_outputs="2">
+            <param name="matrix" value="binary_matrix.csv" ftype="csv"/>
+            <param name="matrix_type" value="binary"/>
+            <param name="max_k" value="6"/>
+            <param name="run_mode" value="--step1-only"/>
+            <output name="manifest" ftype="json">
+                <assert_contents>
+                    <has_json_property_with_value property="requested_max_k" value="6"/>
+                    <has_json_property_with_value property="max_k_is_exclusive" value="true"/>
+                    <has_text text="unique_k_values"/>
+                </assert_contents>
+            </output>
+            <output name="archive" ftype="zip">
+                <assert_contents>
+                    <has_archive_member path="metguild_run/manifests/optimal_k_values\.json$"/>
+                </assert_contents>
+            </output>
+        </test>
+        <!-- Test 2: full binary workflow with taxonomy and standard MAX_K=15. -->
+        <test expect_num_outputs="3">
+            <param name="matrix" value="binary_matrix.csv" ftype="csv"/>
+            <param name="matrix_type" value="binary"/>
+            <param name="max_k" value="15"/>
+            <param name="taxonomy" value="Example_taxonomy.csv" ftype="tabular"/>
+            <param name="run_mode" value="--full"/>
+            <output name="manifest" ftype="json">
+                <assert_contents>
+                    <has_json_property_with_value property="requested_max_k" value="15"/>
+                    <has_json_property_with_value property="n_genomes" value="127"/>
+                </assert_contents>
+            </output>
+            <output name="archive" ftype="zip">
+                <assert_contents>
+                    <has_archive_member path="metguild_run/inputs/.+"/>
+                    <has_archive_member path="metguild_run/03_04_clustering/taxonomy/taxonomy_manifest\.json$"/>
+                    <has_archive_member path="metguild_run/05_stat_analysis/.+\.csv$"/>
+                    <has_archive_member path="metguild_run/06_correlation/.+\.csv$"/>
+                    <has_archive_member path="metguild_run/07_network_construction/network_construction_manifest\.json$"/>
+                    <has_archive_member path="metguild_run/07_network_construction/edge_lists/.+\.csv$"/>
+                    <has_archive_member path="metguild_run/07_network_construction/nodes_attributes/.+\.csv$"/>
+                    <has_archive_member path="metguild_run/08_workflow_provenance/[^/]+_workflow_provenance\.db$"/>
+                    <has_archive_member path="metguild_run/08_workflow_provenance/[^/]+_workflow_provenance\.sql$"/>
+                    <has_archive_member path="metguild_run/08_workflow_provenance/[^/]+_workflow_provenance\.html$"/>
+                </assert_contents>
+            </output>
+            <output name="html_report" ftype="html">
+                <assert_contents>
+                    <has_text text="MetGuild"/>
+                </assert_contents>
+            </output>
+        </test>
+        <!-- Test 3: full proportional workflow with taxonomy. -->
+        <test expect_num_outputs="3">
+            <param name="matrix" value="proportional_matrix.tsv" ftype="tabular"/>
+            <param name="matrix_type" value="proportion"/>
+            <param name="max_k" value="15"/>
+            <!-- Upstream file has a .csv suffix but contains TSV data. -->
+            <param name="taxonomy" value="Example_taxonomy.csv" ftype="tabular"/>
+            <param name="run_mode" value="--full"/>
+            <output name="manifest" ftype="json">
+                <assert_contents>
+                    <has_json_property_with_value property="requested_max_k" value="15"/>
+                    <has_json_property_with_value property="n_genomes" value="127"/>
+                </assert_contents>
+            </output>
+            <output name="archive" ftype="zip">
+                <assert_contents>
+                    <has_archive_member path="metguild_run/03_04_clustering/taxonomy/taxonomy_manifest\.json$"/>
+                    <has_archive_member path="metguild_run/05_stat_analysis/.+\.csv$"/>
+                    <has_archive_member path="metguild_run/06_correlation/.+\.csv$"/>
+                    <has_archive_member path="metguild_run/07_network_construction/network_construction_manifest\.json$"/>
+                    <has_archive_member path="metguild_run/07_network_construction/edge_lists/.+\.csv$"/>
+                    <has_archive_member path="metguild_run/07_network_construction/nodes_attributes/.+\.csv$"/>
+                    <has_archive_member path="metguild_run/08_workflow_provenance/[^/]+_workflow_provenance\.db$"/>
+                    <has_archive_member path="metguild_run/08_workflow_provenance/[^/]+_workflow_provenance\.sql$"/>
+                    <has_archive_member path="metguild_run/08_workflow_provenance/[^/]+_workflow_provenance\.html$"/>
+                </assert_contents>
+            </output>
+            <output name="html_report" ftype="html">
+                <assert_contents>
+                    <has_text text="MetGuild"/>
+                </assert_contents>
+            </output>
+        </test>
+        <!-- Test 4: full binary workflow, deliberately omitting taxonomy. -->
+        <test expect_num_outputs="3">
+            <param name="matrix" value="binary_matrix.csv" ftype="csv"/>
+            <param name="matrix_type" value="binary"/>
+            <param name="max_k" value="15"/>
+            <param name="run_mode" value="--full"/>
+            <output name="manifest" ftype="json">
+                <assert_contents>
+                    <has_json_property_with_value property="requested_max_k" value="15"/>
+                </assert_contents>
+            </output>
+            <output name="archive" ftype="zip">
+                <assert_contents>
+                    <has_archive_member path="metguild_run/inputs/" negate="true"/>
+                    <has_archive_member path="metguild_run/03_04_clustering/taxonomy/" negate="true"/>
+                    <has_archive_member path="metguild_run/07_network_construction/network_construction_manifest\.json$"/>
+                    <has_archive_member path="metguild_run/08_workflow_provenance/[^/]+_workflow_provenance\.db$"/>
+                </assert_contents>
+            </output>
+            <output name="html_report" ftype="html">
+                <assert_contents>
+                    <has_text text="MetGuild"/>
+                </assert_contents>
+            </output>
+        </test>
+        <!-- Test 5: independent, user-selected MAX_K=20 (not fixed at 15). -->
+        <test expect_num_outputs="2">
+            <param name="matrix" value="binary_matrix.csv" ftype="csv"/>
+            <param name="matrix_type" value="binary"/>
+            <param name="max_k" value="20"/>
+            <param name="run_mode" value="--step1-only"/>
+            <output name="manifest" ftype="json">
+                <assert_contents>
+                    <has_json_property_with_value property="requested_max_k" value="20"/>
+                    <has_json_property_with_value property="max_k_is_exclusive" value="true"/>
+                </assert_contents>
+            </output>
+            <output name="archive" ftype="zip">
+                <assert_contents>
+                    <has_archive_member path="metguild_run/manifests/optimal_k_values\.json$"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
 **MetGuild** identifies metabolic potential guilds from genome-resolved
-functional annotation matrices. Supply a CSV or TSV input with a ``Genomes``
+functional annotation matrices. Supply a CSV or TSV table with a ``Genomes``
 column and numeric feature columns. Taxonomy is optional.
+
+**Input matrix examples**
+
+A binary presence/absence matrix (comma-separated CSV)::
+
+    Genomes,gene_A,gene_B,pathway_C
+    MAG001,1,0,1
+    MAG002,1,1,0
+    MAG003,0,1,1
+    MAG004,0,0,1
+
+A proportional matrix (comma-separated CSV; values between 0 and 1)::
+
+    Genomes,pathway_A,pathway_B
+    MAG001,0.25,1.0
+    MAG002,0.50,0.0
+    MAG003,0.75,0.5
+    MAG004,0.00,1.0
+
+For tab-separated TSV input, use the same structure with tabs instead of
+commas. Set the uploaded dataset's Galaxy datatype to ``csv`` or ``tabular``
+(as appropriate); MetGuild automatically selects the corresponding delimiter.
+The sample tables above illustrate the format and are not complete-analysis
+test datasets. Provide enough distinct genome profiles for clustering.
+
+**Optional taxonomy table**
+
+Taxonomy is a separate table with matching genome identifiers and a
+``Phylum`` or ``Phyla`` column, for example::
+
+    Genomes,Phyla
+    MAG001,Bacteroidota
+    MAG002,Desulfobacterota
+    MAG003,Chloroflexota
+    MAG004,Hadarchaeota
+
+MetGuild accepts comma-separated or tab-separated taxonomy files.
+Taxonomic annotations are added after clustering; they do not affect
+cluster assignments.
 
 **Selecting MAX_K**
 
 The ``MAX_K`` field is user-configurable. The default of 15 is a starting
-value, not a limit imposed by the 127-genome demonstration dataset.
-MetGuild evaluates candidate cluster counts beginning at k=2 and strictly
-below MAX_K. For example:
+value, not a limit tied to the 127-genome example dataset. It is an
+exclusive upper bound: MetGuild evaluates candidate cluster counts from
+k=2 through k=MAX_K-1, subject to data-size and validity constraints.
 
 - MAX_K = 8: candidate k values 2-7
 - MAX_K = 15: candidate k values 2-14
 - MAX_K = 30: candidate k values 2-29
 
 The available range is automatically reduced when necessary according to
-the number of genomes and distinct input profiles. Not all k values are
-necessarily valid for the optimization metrics. Choose a search range
-appropriate for your data; larger ranges can increase runtime substantially.
+the number of genomes and distinct input profiles. Larger values can
+increase computation time.
 
-**Inputs and results**
+**Execution modes and output availability**
 
-Select the actual CSV or TSV format explicitly because Galaxy may store
-uploaded datasets with generic filenames. Taxonomy annotation does not
-influence clustering.
+The default ``Complete workflow`` mode runs Steps 1-9 and generates a
+ZIP results archive, candidate-k JSON manifest, and separate HTML workflow
+provenance report. The HTML report is created only at Step 9.
 
-The ZIP archive contains the full MetGuild results directory. For complete
-runs (Steps 1-9), extract the archive before opening the HTML provenance
-report: its table and figure links are relative to the results directory.
-Early-stop runs do not generate the full provenance report.
+When ``Step 1 only``, ``Clustering only`` or ``Statistical screening only``
+is selected, the workflow intentionally stops before Step 9. In these
+cases Galaxy produces the ZIP archive and candidate-k manifest, but no
+HTML provenance report; its absence is expected, not an error.
 
-MetGuild constructs metabolic association networks. Biological interpretation
-of network modules as metabolic guilds requires domain expertise.
-     ]]>
-</help>
-<citations>
-<citation type="bibtex">
-<![CDATA[ 
+If the full workflow fails before Step 9 completes, Galaxy reports a failed
+job rather than a successful run without provenance.
+
+The HTML workflow map is also contained in the ZIP archive, alongside its
+underlying result files. Its interactive content may be restricted by
+Galaxy's HTML security settings, and links from the separate HTML dataset
+to individual result files may not resolve. To use all report links,
+extract the ZIP archive and open the HTML report from its original folder:
+``08_workflow_provenance/``.
+
+MetGuild constructs metabolic association networks; expert-guided
+biological interpretation of the modules as metabolic guilds is a
+separate downstream analysis step.
+]]></help>
+    <citations>
+        <citation type="bibtex"><![CDATA[
 @software{oni2026metguild,
     author = {Oni, Faith I.},
     title = {MetGuild: A Genome-Resolved Workflow for Identifying Metabolic Potential Guilds},
@@ -210,7 +271,6 @@ of network modules as metabolic guilds requires domain expertise.
     url = {https://github.com/faithoni/MetGuild_workflow},
     note = {MetGuild v0.1.0, GitHub software repository}
 }
-         ]]>
-</citation>
-</citations>
+        ]]></citation>
+    </citations>
 </tool>

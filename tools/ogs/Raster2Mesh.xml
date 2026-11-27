@@ -1,0 +1,44 @@
+<tool name="OGS: Raster2Mesh" id="ogs_raster2mesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+  <description>Converts an ASCII raster file (*.asc) into a 2D triangle- or quad-mesh.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <expand macro="creator" />
+  <version_command><![CDATA[Raster2Mesh --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$input' 'input.asc';
+Raster2Mesh
+#if str($arrayname)
+    --arrayname '$arrayname'
+#end if
+    --pixel-type '$pixel_type'
+    --elem-type '$elem_type'
+    --input 'input.asc'
+    --output output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--arrayname" type="text" optional="true" label="arrayname" help="Name of the scalar array. Only required if assigning pixel values to cell data has been selected (default name is 'Values').">
+      <validator type="regex" message="only letters, digits, spaces and the characters = - _ . ( ) / + * ^ , : ? ! are allowed">^[A-Za-z0-9 =\-_.()/+*^,:?!]+$</validator>
+    </param>
+    <param argument="--pixel-type" type="select" optional="false" label="pixel type" help="The choice how pixel values should be interpreted by the software: 'elevation' adjusts z-coordinates; 'materials' sets (integer) material IDs; 'scalar' creates a (floating-point) array associated. with mesh elements." multiple="false">
+      <option value="elevation">elevation</option>
+      <option value="materials">materials</option>
+      <option value="scalar">scalar</option>
+    </param>
+    <param argument="--elem-type" type="select" optional="false" label="elem type" help="The element type used in the resulting OGS mesh" multiple="false">
+      <option value="tri">tri</option>
+      <option value="quad">quad</option>
+    </param>
+    <param argument="--input" type="data" optional="false" label="input" help="Input (.asc). Name of the input raster file" format="raster.asc" />
+  </inputs>
+  <outputs>
+    <data name="output_raster2mesh" format="vtkxml" label="Output from Raster2Mesh" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="raster2mesh_test" />
+  </tests>
+  <help>Converts an ASCII raster file (\*.asc) into a 2D triangle- or quad-mesh. Pixel values can be interpreted as elevation of mesh nodes or as scalar values for mesh elements. It is highly recommended to create triangle meshes when interpreting pixel values as elevation, as it is likely that the resulting mesh will otherwise contain deformed (i.e. non-planar) quad-elements.</help>
+  <expand macro="citations" />
+</tool>

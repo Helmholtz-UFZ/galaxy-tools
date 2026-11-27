@@ -1,0 +1,32 @@
+<tool name="OGS: swapNodeCoordinateAxes" id="ogs_swapnodecoordinateaxes" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+  <description>Swap node coordinate values.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <expand macro="creator" />
+  <version_command><![CDATA[swapNodeCoordinateAxes --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$input_mesh_file' 'input_mesh_file.vtu';
+swapNodeCoordinateAxes
+    --input-mesh-file 'input_mesh_file.vtu'
+    --new-order '$new_order'
+    --output-mesh-file output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--input-mesh-file" type="data" optional="false" label="input mesh file" help="Input (.vtu) mesh file" format="vtkxml" />
+    <param argument="--new-order" type="text" optional="false" label="new order" help="the new order of swapped coordinate values (e.g. 'xzy' for converting XYZ values to XZY values)">
+      <validator type="empty_field" />
+      <validator type="regex" message="the new order must consist of the three characters x, y and z (e.g. xzy)">^[xyz]{3}$</validator>
+    </param>
+  </inputs>
+  <outputs>
+    <data name="output_swapnodecoordinateaxes" format="vtkxml" label="Output from swapNodeCoordinateAxes" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="swapnodecoordinateaxes_test" />
+  </tests>
+  <help>Swap node coordinate values.</help>
+  <expand macro="citations" />
+</tool>

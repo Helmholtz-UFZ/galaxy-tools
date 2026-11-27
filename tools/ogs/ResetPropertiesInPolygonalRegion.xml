@@ -1,0 +1,63 @@
+<tool name="OGS: ResetPropertiesInPolygonalRegion" id="ogs_resetpropertiesinpolygonalregion" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <expand macro="creator" />
+  <version_command><![CDATA[ResetPropertiesInPolygonalRegion --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$geometry' 'geometry.gml';
+ln -sf '$mesh_input_file' 'mesh_input_file.vtu';
+#if $gmsh_path
+ln -sf '$gmsh_path' 'gmsh_path.msh';
+#end if
+ResetPropertiesInPolygonalRegion
+    --polygon-name '$polygon_name'
+    --geometry 'geometry.gml'
+    $any_of
+#if str($char_property_value)
+    --char-property-value '$char_property_value'
+#end if
+#if str($int_property_value)
+    --int-property-value '$int_property_value'
+#end if
+#if str($property_name)
+    --property-name '$property_name'
+#end if
+#if str($restrict_to_MaterialID)
+    --restrict-to-MaterialID '$restrict_to_MaterialID'
+#end if
+    --mesh-input-file 'mesh_input_file.vtu'
+#if $gmsh_path
+    --gmsh-path 'gmsh_path.msh'
+#end if
+    --mesh-output-file output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--polygon-name" type="text" optional="false" label="polygon name" help="name of polygon in the geometry">
+      <validator type="empty_field" />
+      <validator type="regex" message="only letters, digits, spaces and the characters = - _ . ( ) / + * ^ , : ? ! are allowed">^[A-Za-z0-9 =\-_.()/+*^,:?!]+$</validator>
+    </param>
+    <param argument="--geometry" type="data" optional="false" label="geometry" help="Input (.gli | .gml). The name of the file containing the input geometry (the wrapper accepts .gml only)" format="xml" />
+    <param argument="--any_of" type="boolean" label="any of" help="all nodes of an element has to be inside the polygon (default behaviour without switch) or any node of an element has to be inside (switch is given)" checked="false" truevalue="--any_of" falsevalue="" />
+    <param argument="--char-property-value" type="text" optional="true" label="char property value" help="new property value (data type char)">
+      <validator type="regex" message="OGS reads this value as a single character, so exactly one letter, digit or one of = _ . , : ? ! ( ) / + * ^ - is expected">^[A-Za-z0-9 =_.,:?!()/+*^\-]$</validator>
+    </param>
+    <param argument="--int-property-value" type="integer" optional="true" label="int property value" help="new property value (data type int)" />
+    <param argument="--property-name" type="text" optional="true" label="property name" help="name of property in the mesh">
+      <validator type="regex" message="only letters, digits, spaces and the characters = - _ . ( ) / + * ^ , : ? ! are allowed">^[A-Za-z0-9 =\-_.()/+*^,:?!]+$</validator>
+    </param>
+    <param argument="--restrict-to-MaterialID" type="integer" optional="true" label="restrict to MaterialID" help="Restrict resetting the property to the material id" />
+    <param argument="--mesh-input-file" type="data" optional="false" label="mesh input file" help="Input (.vtu | .vtk | .msh). The name of the file containing the input mesh" format="vtkxml" />
+    <param argument="--gmsh-path" type="data" optional="true" label="gmsh path" help="Input (.msh). The path to the input binary" format="gmsh.msh" />
+  </inputs>
+  <outputs>
+    <data name="output_resetpropertiesinpolygonalregion" format="vtkxml" label="Output from ResetPropertiesInPolygonalRegion" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="resetpropertiesinpolygonalregion_test" />
+  </tests>
+  <help>Sets the property value of a mesh element to a given new value iff at least one node of the element is within a polygonal region that is given by a polygon. The documentation is available at https://docs.opengeosys.org/docs/tools/model-preparation/set-properties-in-polygonal-region.</help>
+  <expand macro="citations" />
+</tool>

@@ -1,0 +1,50 @@
+<tool name="OGS: createLayeredMeshFromRasters" id="ogs_createlayeredmeshfromrasters" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+  <description>Creates a layered 3D OGS mesh from an existing 2D OGS mesh and a list of raster files representing subsurface layers.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <expand macro="creator" />
+  <version_command><![CDATA[createLayeredMeshFromRasters --version]]></version_command>
+  <command><![CDATA[
+#import re
+: > 'raster_list.txt';
+#set $safe_names = [re.sub(r'[^\w\-.@]', '_', str($item.element_identifier)) for $item in $raster_list]
+#if len($safe_names) != len(set($safe_names))
+    #set $joined = ', '.join($safe_names)
+    echo 'error: the element identifiers map to the same file name after characters outside [A-Za-z0-9_.@-] are replaced by _: $joined' >&2;
+    exit 1;
+#end if
+#for $item in $raster_list
+#set $safe_name = re.sub(r'[^\w\-.@]', '_', str($item.element_identifier))
+ln -sf '$item' '$safe_name';
+echo '$safe_name' >> 'raster_list.txt';
+#end for
+ln -sf '$input_mesh_file' 'input_mesh_file.vtu';
+createLayeredMeshFromRasters
+    $ascii_output
+#if str($thickness)
+    --thickness '$thickness'
+#end if
+    --raster-list 'raster_list.txt'
+    $keep_surface_material_ids
+    --input-mesh-file 'input_mesh_file.vtu'
+    --output-mesh-file output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--ascii_output" type="boolean" label="ascii output" help="Write VTU output in ASCII format." checked="false" truevalue="--ascii_output" falsevalue="" />
+    <param argument="--thickness" type="float" optional="true" label="thickness" help="The minimum thickness of a layer to be integrated at any given location" min="0" />
+    <param argument="--raster-list" type="data_collection" optional="false" label="raster files" help="Raster files, ordered from the top surface downwards." format="raster.asc" collection_type="list" />
+    <param argument="--keep-surface-material-ids" type="boolean" label="keep surface material ids" help="if the argument is present the materials defined in the surface mesh are used to set the material information for the subsurface cells" checked="false" truevalue="--keep-surface-material-ids" falsevalue="" />
+    <param argument="--input-mesh-file" type="data" optional="false" label="input mesh file" help="Input (.vtu). The file name of the 2D input mesh" format="vtkxml" />
+  </inputs>
+  <outputs>
+    <data name="output_createlayeredmeshfromrasters" format="vtkxml" label="Output from createLayeredMeshFromRasters" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="createlayeredmeshfromrasters_test" />
+  </tests>
+  <help>Creates a layered 3D OGS mesh from an existing 2D OGS mesh and a list of raster files representing subsurface layers. Supported raster formats are ArcGIS ascii rasters (\*.asc), Surfer Grids (\*.grd), or gridded XYZ rasters (\*.xyz). Only input meshes consisting of line and triangle elements are currently supported as mapping of quads might result in invalid mesh elements.</help>
+  <expand macro="citations" />
+</tool>

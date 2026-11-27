@@ -1,0 +1,62 @@
+<tool name="OGS: geometryToGmshGeo" id="ogs_geometrytogmshgeo" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+  <description>Tool to create gmsh geometry (geo-file) out of a gml geometry.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <expand macro="creator" />
+  <version_command><![CDATA[geometryToGmshGeo --version]]></version_command>
+  <command><![CDATA[
+#import re
+#set $safe_names = [re.sub(r'[^\w\-.@]', '_', str($item.element_identifier)) for $item in $input]
+#if len($safe_names) != len(set($safe_names))
+    #set $joined = ', '.join($safe_names)
+    echo 'error: the element identifiers map to the same file name after characters outside [A-Za-z0-9_.@-] are replaced by _: $joined' >&2;
+    exit 1;
+#end if
+#for $item in $input
+#set $safe_name = re.sub(r'[^\w\-.@]', '_', str($item.element_identifier))
+ln -sf '$item' '$safe_name';
+#end for
+geometryToGmshGeo
+    --input
+#for $item in $input
+#set $safe_name = re.sub(r'[^\w\-.@]', '_', str($item.element_identifier))
+'$safe_name'
+#end for
+#if str($max_points_in_quadtree_leaf)
+    --max_points_in_quadtree_leaf '$max_points_in_quadtree_leaf'
+#end if
+#if str($mesh_density_scaling_at_points)
+    --mesh_density_scaling_at_points '$mesh_density_scaling_at_points'
+#end if
+#if str($mesh_density_scaling_at_stations)
+    --mesh_density_scaling_at_stations '$mesh_density_scaling_at_stations'
+#end if
+#if str($average_point_density)
+    --average_point_density '$average_point_density'
+#end if
+    $homogeneous
+    --output output_1.geo
+    --write_merged_geometries output_2.gml
+]]></command>
+  <inputs>
+    <param argument="--input" type="data_collection" optional="false" label="input" help="Input (.gml) geometry file" format="xml" collection_type="list" />
+    <param argument="--max_points_in_quadtree_leaf" type="integer" optional="true" label="max points in quadtree leaf" help="positive number" min="0" />
+    <param argument="--mesh_density_scaling_at_points" type="float" optional="true" label="mesh density scaling at points" help="positive floating point number" min="0" />
+    <param argument="--mesh_density_scaling_at_stations" type="float" optional="true" label="mesh density scaling at stations" help="positive floating point number" min="0" />
+    <param argument="--average_point_density" type="float" optional="true" label="average point density" help="average point density / average edge length as a positive floating point number" min="0" />
+    <param argument="--homogeneous" type="boolean" label="homogeneous" help="Use Gmsh homogeneous meshing method." checked="false" truevalue="--homogeneous" falsevalue="" />
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from geometryToGmshGeo">
+      <discover_datasets pattern="(?P&lt;designation&gt;output_[^.]*)\.(?:geo|gml)" format="txt" visible="true" />
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="geometrytogmshgeo_test" />
+  </tests>
+  <help>Tool to create gmsh geometry (geo-file) out of a gml geometry.</help>
+  <expand macro="citations" />
+</tool>

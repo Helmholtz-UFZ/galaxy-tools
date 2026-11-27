@@ -1,0 +1,32 @@
+<tool name="OGS: generateMatPropsFromMatID" id="ogs_generatematpropsfrommatid" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+  <description>Creates a new file for material properties and sets the material ids in the msh-file to 0</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <expand macro="creator" />
+  <version_command><![CDATA[generateMatPropsFromMatID --version]]></version_command>
+  <command><![CDATA[
+#if $mesh
+ln -sf '$mesh' 'mesh.msh';
+#end if
+generateMatPropsFromMatID
+#if $mesh
+    --mesh 'mesh.msh'
+#end if
+]]></command>
+  <inputs>
+    <param argument="--mesh" type="data" optional="true" label="mesh" help="Input (.msh). The mesh to open from a file" format="gmsh.msh" />
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from generateMatPropsFromMatID">
+      <discover_datasets pattern="(?!(?:mesh\.msh)$)(?P&lt;designation&gt;.*)\.vtu" format="vtkxml" visible="true" />
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="generatematpropsfrommatid_test" />
+  </tests>
+  <help>Creates a new file for material properties and sets the material ids in the msh-file to 0</help>
+  <expand macro="citations" />
+</tool>

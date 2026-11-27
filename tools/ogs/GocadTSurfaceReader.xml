@@ -1,0 +1,36 @@
+<tool name="OGS: GocadTSurfaceReader" id="ogs_gocadtsurfacereader" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+  <description>Reads Gocad ascii files (*.ts, *.pl, *.mx) and writes TSurf- and PLinedata into one or more VTU unstructured grids.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <expand macro="creator" />
+  <version_command><![CDATA[GocadTSurfaceReader --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$input_file' 'input_file.ts';
+mkdir -p 'outputs';
+GocadTSurfaceReader
+    $write_binary
+    $surfaces_only
+    $lines_only
+    --input-file 'input_file.ts'
+    --output-dir 'outputs'
+]]></command>
+  <inputs>
+    <param argument="--write-binary" type="boolean" label="write binary" help="if set, OGS-Meshes will be written in binary format" checked="false" truevalue="--write-binary" falsevalue="" />
+    <param argument="--surfaces-only" type="boolean" label="surfaces only" help="if set, only TSurf datasets will be parsed from the input file" checked="false" truevalue="--surfaces-only" falsevalue="" />
+    <param argument="--lines-only" type="boolean" label="lines only" help="if set, only PLine datasets will be parsed from the input file" checked="false" truevalue="--lines-only" falsevalue="" />
+    <param argument="--input-file" type="data" optional="false" label="input file" help="Input (.ts | .pl | .mx). Gocad triangular surfaces file Provide a file with unix file endings under unix. Use dos2unix to convert." format="txt" />
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from GocadTSurfaceReader">
+      <discover_datasets pattern="__name_and_ext__" directory="outputs" visible="true" />
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="gocadtsurfacereader_test" />
+  </tests>
+  <help>Reads Gocad ascii files (\*.ts, \*.pl, \*.mx) and writes TSurf- and PLinedata into one or more VTU unstructured grids.</help>
+  <expand macro="citations" />
+</tool>

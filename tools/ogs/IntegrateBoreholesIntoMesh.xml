@@ -1,0 +1,46 @@
+<tool name="OGS: IntegrateBoreholesIntoMesh" id="ogs_integrateboreholesintomesh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+  <description>Integrates line elements representing boreholes into a pre-existing 3D mesh.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <expand macro="creator" />
+  <version_command><![CDATA[IntegrateBoreholesIntoMesh --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$geo' 'geo.gml';
+ln -sf '$input' 'input.vtu';
+IntegrateBoreholesIntoMesh
+#if str($max_elevation)
+    --max-elevation '$max_elevation'
+#end if
+#if str($min_elevation)
+    --min-elevation '$min_elevation'
+#end if
+#if str($max_id)
+    --max-id '$max_id'
+#end if
+#if str($min_id)
+    --min-id '$min_id'
+#end if
+    --geo 'geo.gml'
+    --input 'input.vtu'
+    --output output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--max-elevation" type="float" optional="true" label="max elevation" help="Maximum elevation for an integrated borehole" min="0" />
+    <param argument="--min-elevation" type="float" optional="true" label="min elevation" help="Minimum elevation for an integrated borehole" min="0" />
+    <param argument="--max-id" type="integer" optional="true" label="max id" help="Maximum MaterialID for an integrated borehole" />
+    <param argument="--min-id" type="integer" optional="true" label="min id" help="Minimum MaterialID for an integrated borehole" />
+    <param argument="--geo" type="data" optional="false" label="geo" help="Input (.gml). Name of the geometry file" format="xml" />
+    <param argument="--input" type="data" optional="false" label="input" help="Input (.vtu). Name of the mesh file" format="vtkxml" />
+  </inputs>
+  <outputs>
+    <data name="output_integrateboreholesintomesh" format="vtkxml" label="Output from IntegrateBoreholesIntoMesh" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="integrateboreholesintomesh_test" />
+  </tests>
+  <help>Integrates line elements representing boreholes into a pre-existing 3D mesh. Corresponding nodes matching the (x,y)-coordinates given in the gml-file are found in the mesh and connected from top to bottom via line elements. Each borehole (i.e. all points at a given (x,y)-location but at different depths) is assigned a unique material ID. Vertical limits of boreholes can be specified via Material IDs and/or elevation. Point not matching any mesh nodes or located outside the mesh are ignored.</help>
+  <expand macro="citations" />
+</tool>

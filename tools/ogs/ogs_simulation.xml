@@ -35,7 +35,7 @@
        -o output
     ]]></command>
     <inputs>
-        <param name="project_file" format="prj" type="data" label="Project File"/>
+        <param name="project_file" format="xml" type="data" label="Project File" help="OGS project file (XML). Galaxy's 'prj' datatype is an Athena project file, not an OGS one."/>
         <param name="project_files" format="data" type="data_collection" collection_type="list" label="Project Files"/>
         <param name="xml_patch_files" format="xml" type="data_collection" collection_type="list" label="XML Patch Files"/>
         <param name="log_level" type="select" label="Log Level" optional="true">

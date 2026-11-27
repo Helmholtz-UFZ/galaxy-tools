@@ -1,0 +1,38 @@
+<tool name="OGS: scaleProperty" id="ogs_scaleproperty" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+  <description>Scales a property of a mesh.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <expand macro="creator" />
+  <version_command><![CDATA[scaleProperty --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$mesh' 'mesh.vtu';
+scaleProperty
+    --property-name '$property_name'
+    --mesh 'mesh.vtu'
+    --input-unit '$input_unit'
+    --out-mesh output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--property-name" type="text" optional="false" label="property name" help="the name of the property the values are stored for">
+      <validator type="empty_field" />
+      <validator type="regex" message="only letters, digits, spaces and the characters = - _ . ( ) / + * ^ , : ? ! are allowed">^[A-Za-z0-9 =\-_.()/+*^,:?!]+$</validator>
+    </param>
+    <param argument="--mesh" type="data" optional="false" label="mesh" help="Input (.vtu). The input mesh is read from this file" format="vtkxml" />
+    <param argument="--input-unit" type="select" optional="false" label="input unit" help="input unit of the data" multiple="false">
+      <option value="mm/a">mm/a</option>
+      <option value="mm/month">mm/month</option>
+      <option value="m/s">m/s</option>
+    </param>
+  </inputs>
+  <outputs>
+    <data name="output_scaleproperty" format="vtkxml" label="Output from scaleProperty" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="scaleproperty_test" />
+  </tests>
+  <help>Scales a property of a mesh.</help>
+  <expand macro="citations" />
+</tool>

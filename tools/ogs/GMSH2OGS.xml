@@ -1,0 +1,34 @@
+<tool name="OGS: GMSH2OGS" id="ogs_gmsh2ogs" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <expand macro="creator" />
+  <version_command><![CDATA[GMSH2OGS --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$in' 'in.msh';
+GMSH2OGS
+    --in 'in.msh'
+    $validation
+    $boundaries
+    $exclude_lines
+    $gmsh2_physical_id
+    --out output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--in" type="data" optional="false" label="in" help="Input (.msh) file" format="gmsh.msh" />
+    <param argument="--validation" type="boolean" label="validation" help="validate the mesh" checked="false" truevalue="--validation" falsevalue="" />
+    <param argument="--boundaries" type="boolean" label="boundaries" help="if set, boundary meshes will be generated" checked="false" truevalue="--boundaries" falsevalue="" />
+    <param argument="--exclude-lines" type="boolean" label="exclude lines" help="if set, lines will not be written to the ogs mesh" checked="false" truevalue="--exclude-lines" falsevalue="" />
+    <param argument="--gmsh2_physical_id" type="boolean" label="gmsh2 physical id" help="" checked="false" truevalue="--gmsh2_physical_id" falsevalue="" />
+  </inputs>
+  <outputs>
+    <data name="output_gmsh2ogs" format="vtkxml" label="Output from GMSH2OGS" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="gmsh2ogs_test" />
+  </tests>
+  <help>Converting meshes in gmsh file format (ASCII, version 2.2) to a vtk unstructured grid file (new OGS file format) or to the old OGS file format - see options.</help>
+  <expand macro="citations" />
+</tool>

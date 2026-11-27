@@ -1,0 +1,3 @@
+# Runtime dependency of the OGS wrapper generator (gen.py).
+# gen.py imports galaxyxml to build the tool XML (Tool / *Param classes).
+galaxyxml==0.5.5

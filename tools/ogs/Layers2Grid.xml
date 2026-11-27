@@ -1,0 +1,51 @@
+<tool name="OGS: Layers2Grid" id="ogs_layers2grid" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+  <description>Reads a list of 2D unstructured mesh layers and samples them onto a structured grid of the same extent.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <expand macro="creator" />
+  <version_command><![CDATA[Layers2Grid --version]]></version_command>
+  <command><![CDATA[
+#import re
+: > 'input.txt';
+#set $safe_names = [re.sub(r'[^\w\-.@]', '_', str($item.element_identifier)) for $item in $input]
+#if len($safe_names) != len(set($safe_names))
+    #set $joined = ', '.join($safe_names)
+    echo 'error: the element identifiers map to the same file name after characters outside [A-Za-z0-9_.@-] are replaced by _: $joined' >&2;
+    exit 1;
+#end if
+#for $item in $input
+#set $safe_name = re.sub(r'[^\w\-.@]', '_', str($item.element_identifier))
+ln -sf '$item' '$safe_name';
+echo '$safe_name' >> 'input.txt';
+#end for
+Layers2Grid
+    $dilate
+#if str($cellsize_z)
+    --cellsize-z '$cellsize_z'
+#end if
+#if str($cellsize_y)
+    --cellsize-y '$cellsize_y'
+#end if
+    --cellsize-x '$cellsize_x'
+    --input 'input.txt'
+    --output output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--dilate" type="boolean" label="dilate" help="assign mat IDs based on single nodes instead of a majority of nodes, which can result in a slightly increased voxel grid extent" checked="false" truevalue="--dilate" falsevalue="" />
+    <param argument="--cellsize-z" type="float" optional="true" label="cellsize z" help="edge length of cubes in z-direction (depth)" min="0" />
+    <param argument="--cellsize-y" type="float" optional="true" label="cellsize y" help="edge length of cubes in y-direction (latitude)" min="0" />
+    <param argument="--cellsize-x" type="float" optional="false" label="cellsize x" help="edge length of cubes in x-direction (longitude) or all directions, if y and z are not set" min="0" />
+    <param argument="--input" type="data_collection" optional="false" label="mesh layers" help="Mesh layers, ordered from top to bottom." format="vtkxml" collection_type="list" />
+  </inputs>
+  <outputs>
+    <data name="output_layers2grid" format="vtkxml" label="Output from Layers2Grid" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="layers2grid_test" />
+  </tests>
+  <help>Reads a list of 2D unstructured mesh layers and samples them onto a structured grid of the same extent. Note, that a large cube size may result in an undersampling of the original structure. Cube sizes are defines by x/y/z-parameters. For equilateral cubes, only the x-parameter needs to be set.</help>
+  <expand macro="citations" />
+</tool>

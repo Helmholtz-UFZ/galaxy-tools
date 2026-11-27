@@ -1,0 +1,45 @@
+<tool name="OGS: ExtractSurface" id="ogs_extractsurface" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+  <description>Extracts a 2D surface from a 3D input mesh by specifying a normal vector and an angle.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <expand macro="creator" />
+  <version_command><![CDATA[ExtractSurface --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$mesh_input_file' 'mesh_input_file.vtu';
+ExtractSurface
+    $ascii_output
+#if str($angle)
+    --angle '$angle'
+#end if
+#if str($z_component)
+    --z-component '$z_component'
+#end if
+#if str($y_component)
+    --y-component '$y_component'
+#end if
+#if str($x_component)
+    --x-component '$x_component'
+#end if
+    --mesh-input-file 'mesh_input_file.vtu'
+    --mesh-output-file output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--ascii-output" type="boolean" label="ascii output" help="If the switch is set use ascii instead of binary format for data in the vtu output." checked="false" truevalue="--ascii-output" falsevalue="" />
+    <param argument="--angle" type="float" optional="true" label="angle" help="tolerated angle (in degrees) between given normal and element normal" min="0" max="360" />
+    <param argument="--z-component" type="float" optional="true" label="z component" help="z component of the normal" />
+    <param argument="--y-component" type="float" optional="true" label="y component" help="y component of the normal" />
+    <param argument="--x-component" type="float" optional="true" label="x component" help="x component of the normal" />
+    <param argument="--mesh-input-file" type="data" optional="false" label="mesh input file" help="Input (.vtu). The name of the file containing the input mesh" format="vtkxml" />
+  </inputs>
+  <outputs>
+    <data name="output_extractsurface" format="vtkxml" label="Output from ExtractSurface" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="extractsurface_test" />
+  </tests>
+  <help>Extracts a 2D surface from a 3D input mesh by specifying a normal vector and an angle. (The surface normal (0, 0, 0) will extract the complete outer boundary of the 3D mesh.) An extensive documentation can be found at https://docs.opengeosys.org/docs/tools/meshing-submeshes/extract-surface</help>
+  <expand macro="citations" />
+</tool>

@@ -1,0 +1,38 @@
+<tool name="OGS: NodeReordering" id="ogs_nodereordering" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+  <description>Reorders mesh nodes in elements to make old or incorrectly ordered meshes compatible with OGS6.</description>
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <expand macro="creator" />
+  <version_command><![CDATA[NodeReordering --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$input_mesh' 'input_mesh.vtu';
+NodeReordering
+    $no_volume_check
+#if str($method)
+    --method '$method'
+#end if
+    --input_mesh 'input_mesh.vtu'
+    --output_mesh output_1.vtu
+]]></command>
+  <inputs>
+    <param argument="--no_volume_check" type="boolean" label="no volume check" help="By default the volumes of original and reordered elements are compared if they are numerically equal, i.e., if the absolute difference or the relative volume difference is at most 100 machine epsilons. This switch disables the volume comparison." checked="false" truevalue="--no_volume_check" falsevalue="" />
+    <param argument="--method" type="select" optional="true" label="method" help="reordering method selection" multiple="false">
+      <option value="0">0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+    </param>
+    <param argument="--input_mesh" type="data" optional="false" label="input mesh" help="Input (.vtu | .vtk | .msh). The name of the input mesh file" format="vtkxml" />
+  </inputs>
+  <outputs>
+    <data name="output_nodereordering" format="vtkxml" label="Output from NodeReordering" from_work_dir="output_1.vtu" hidden="false" />
+  </outputs>
+  <tests>
+    <expand macro="nodereordering_test" />
+  </tests>
+  <help>Reorders mesh nodes in elements to make old or incorrectly ordered meshes compatible with OGS6. Four options are available: Method 0: As Method 1, but additionally verifying the Jacobian determinant of the reordered elements. Method 1: Reversing order of nodes unless it's perceived correct by OGS6 standards. This is the default selection. Method 2: Fixing node ordering issues between VTK and OGS6 (only applies to prism-elements) Method 3: Re-ordering of mesh node vector such that all base nodes are sorted before all nonlinear nodes.</help>
+  <expand macro="citations" />
+</tool>

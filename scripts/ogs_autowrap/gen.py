@@ -1,0 +1,3431 @@
+import argparse
+import copy
+import difflib
+import logging
+import re
+import shlex
+import sys
+import tempfile
+import urllib.request
+import xml.etree.ElementTree as ET
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
+
+from galaxyxml.tool import Tool
+from galaxyxml.tool.parameters import (
+    BooleanParam,
+    Conditional,
+    DataParam,
+    DiscoverDatasets,
+    Expand,
+    FloatParam,
+    Inputs,
+    IntegerParam,
+    OutputCollection,
+    OutputData,
+    Outputs,
+    SelectParam,
+    Tests,
+    TextParam,
+    When,
+)
+
+# --- CONFIGURATION ---
+# The generator works from a *local* clone of the OGS source tree (no network
+# required). The OGS root is supplied on the command line (see main()); the
+# directories below are resolved relative to it.
+UTILS_PATH = "Applications/Utils"
+TEST_DATA_PATH = "Tests/Data"
+
+# Test fixtures are referenced from the *official* OGS repository, pinned to a
+# specific commit. The generator never points at a personal fork. The two pins
+# are separate on purpose:
+#
+#   ``OGS_PINNED_COMMIT``      the commit the wrappers were generated from
+#   ``OGS_TEST_DATA_COMMIT``   a *published* commit the fixtures are fetched from
+#
+# They are the same commit unless a wrapper depends on an OGS fix that is not on
+# ``master`` yet (the ``.pvtu`` companion annotation): test data must stay
+# fetchable, so it keeps pointing at the last published commit until the fix is
+# merged, at which point both constants collapse back into one.
+OGS_GITLAB_RAW = "https://gitlab.opengeosys.org/ogs/ogs/-/raw"
+OGS_PINNED_COMMIT = "7fbe216b56b9309f89f95a6d8fc49e1716cf79cf"
+OGS_TEST_DATA_COMMIT = "8ffec079b9ce8764ab565c6470839b34033bc718"
+OGS_TEST_DATA_URL = f"{OGS_GITLAB_RAW}/{OGS_TEST_DATA_COMMIT}/{TEST_DATA_PATH}"
+
+# Tools with broken executable commands (the conda ``ogs`` package does not ship a
+# working binary for these, so a wrapper would fail at runtime).
+# Utilities that are *not* wrapped. Every entry is justified by something a
+# wrapper cannot work around -- see scripts/ogs_autowrap/README.md for the
+# long form. Do not add a tool here because writing its test is inconvenient.
+EXCLUDED_TOOLS = [
+    # --- Not part of the released OGS build -------------------------------
+    # OGS compiles these only with a build option the release does not enable,
+    # so there is simply no command to wrap. Required option in brackets.
+    "netcdfconverter",  # [OGS_USE_NETCDF]
+    "binarytopvtu",  # [OGS_USE_MPI]
+    "swmmconverter",  # [OGS_BUILD_SWMM]
+    "raster2pointcloud",  # [OGS_BUILD_GUI]
+    "verticalslicefromlayers",  # [OGS_BUILD_GUI]
+    "convertshptogli",  # [OGS_BUILD_GUI]
+    "mesh2shape",  # [OGS_BUILD_GUI]
+    # Qt desktop application (file dialogs, no usable command line at all).
+    "ogsfileconverter",
+    # --- Only work with legacy ``.vtk`` meshes ----------------------------
+    # The released build has no working legacy-VTK reader: a 4-point/1-cell
+    # file that VTK itself reads fine is reported as "contains zero points".
+    "vtk2ogs",
+    "vtk2tin",
+    "tin2vtk",
+    "convertvtkdataarraytovtkdataarray",
+    "mergemeshtobulkmesh",
+    # --- Input no single Galaxy dataset can provide (1) -------------------
+    # Needs the METIS partition files ``<base>.mesh.npart.N`` / ``.epart.N``
+    # next to a mesh they are named after; without them -- or an external
+    # ``mpmetis``, which the release does not ship -- it aborts. (The other
+    # manifest-style inputs -- raster lists, ``.sg``, ``.pvtu`` -- were blocked
+    # for the same reason and *are* wrapped now, see MANIFEST_INPUTS.)
+    "partitionmesh",
+    # --- Command line a wrapper cannot express (yet) (1) ------------------
+    # Needs a surface mesh carrying both ``bulk_node_ids`` and a *double*
+    # element property; no mesh under ``Tests/Data`` has a double element
+    # property and OGS has no test for the utility to copy a setup from.
+    "createneumannbc",
+    # --- Broken upstream (3) ----------------------------------------------
+    # Aborts on meshes without ``bulk_node_ids`` and segfaults on the ones
+    # that have it (exit 139).
+    "reordermesh",
+    # Always writes its node geometry as legacy ``.gli``, which the released
+    # build cannot write ("not possible to determine the required format from
+    # file extension"); the ``.bc`` it does write would always be accompanied
+    # by a missing geometry output.
+    "createboundaryconditionsalongpolylines",
+    # Reads binary TecPlot ``.plt`` files; OGS ships no such file to test with.
+    "tecplottools",
+]
+
+# NOTE: there is deliberately no list of hand-maintained wrappers here. Every
+# wrapper in ``tools/ogs`` except ``ogs_simulation`` (which runs the ``ogs``
+# binary itself, not an ``Applications/Utils`` helper) is generated, so a
+# wrapper can never drift from the OGS command line it wraps. Tools that used
+# to be hand-written keep their tool id (``ogs_<lowercase tool name>``), so
+# saved workflows continue to resolve.
+
+# Directory (relative to the job working directory) that utilities taking an
+# *output directory* write their files into.
+DIRECTORY_OUTPUT_DIR = "outputs"
+
+# Outputs whose help text does not name a file extension (OGS derives the
+# format from the file name the caller passes), keyed by
+# ``(tool_name.lower(), long_flag)``.
+OUTPUT_EXT_OVERRIDES = {
+    # "Output. The name of the new geometry file whose file format is
+    # determined by its file extension" -- the released OGS only has the GML
+    # writer compiled in, so the wrapper must ask for ``.gml``.
+    ("convertgeo", "output-file"): "gml",
+    # "--out <file>": ".msh" asks for the *legacy OGS-5* mesh format, ".vtu" for
+    # the VTK XML mesh every other utility (and the OGS test suite) uses.
+    ("gmsh2ogs", "out"): "vtu",
+}
+
+# Utilities that write their results *next to the input geometry* without
+# taking an output argument at all: the output name is built from the polygon
+# names inside the GML. The inputs are symlinked into the job working
+# directory, so the files land there and can be discovered; each entry is one
+# list collection of discovered datasets.
+IMPLICIT_OUTPUTS = {
+    "computesurfacenodeidsinpolygonalregion": [
+        {
+            "name": "node_ids_txt",
+            "pattern": r"(?P<designation>.*)\.txt",
+            "format": "txt",
+            "label": "Node ids and areas (plain text)",
+        },
+        {
+            "name": "node_ids_csv",
+            "pattern": r"(?P<designation>.*)\.csv",
+            "format": "csv",
+            "label": "Node ids and areas (CSV)",
+        },
+    ],
+}
+
+# Tools whose ``--output-file`` argument is really a *base name* that the
+# utility extends with its own suffixes (the TCLAP help does not say so).
+# ``pattern``/``format`` describe the files to discover; ``extra_outputs``
+# lists additional fixed files written alongside them.
+BASE_FILENAME_OVERRIDES = {
+    "extractmaterials": {
+        "flag": "output",
+        "base_value": "output.vtu",
+        "pattern": r"(?P<designation>output_.*)\.vtu",
+        "format": "vtkxml",
+        "extra_outputs": [
+            {
+                "name": "layer_info",
+                "from_work_dir": "output_Layers.txt",
+                "format": "txt",
+                "label": "Layer/material table",
+            }
+        ],
+    },
+    "createintermediaterasters": {
+        "flag": "output-file",
+        "base_value": "output_.asc",
+        "pattern": r"(?P<designation>output_.*)\.asc",
+        "format": "raster.asc",
+    },
+    # ComputeNodeAreasFromSurfaceMesh always writes ``<base>.csv`` and
+    # ``<base>.txt`` (the base name is the only thing its output flag controls),
+    # so both files are declared explicitly. Discovering them instead would put
+    # the wrapper's own base-name prefix into the element designations -- and
+    # force one format on both files.
+    "computenodeareasfromsurfacemesh": {
+        "flag": "output-base-name",
+        "base_value": "node_areas",
+        "outputs": [
+            {
+                "name": "node_areas_csv",
+                "from_work_dir": "node_areas.csv",
+                "format": "csv",
+                "label": "Node areas (CSV)",
+            },
+            {
+                "name": "node_areas_txt",
+                "from_work_dir": "node_areas.txt",
+                "format": "txt",
+                "label": "Node areas (plain text)",
+            },
+        ],
+    },
+}
+
+# Inputs where OGS chooses the reader from the file extension but the help text
+# lists several extensions. The default is the first one from the help text;
+# these entries select the format the OGS test data actually uses.
+PARAM_EXT_OVERRIDES = {
+    # "(.gli | .gml)" -- the GML reader is the one that parses XML geometries.
+    ("resetpropertiesinpolygonalregion", "geometry"): "gml",
+    # The help says "(.msh)", but the released OGS build can only read VTK-XML
+    # meshes here: a ``.msh`` input sends it down the legacy reader, which
+    # fails without any diagnostic.
+    ("ogs2vtk", "mesh_input_file"): "vtu",
+}
+
+# ``-i/--input-file`` arguments that accept either a ``.pvd`` or a single mesh.
+# They are exposed as the single-mesh variant: a PVD would additionally need
+# the member files it references, which the wrapper cannot stage.
+NON_PVD_INPUTS = {
+    ("postlie", "input_file"),
+}
+
+# Arguments that do not carry data: they name further files that the utility
+# resolves against its working directory (a *manifest* input). A Galaxy dataset
+# for the manifest alone is useless, so the files it names are exposed as a
+# collection instead:
+#
+#   "file_list"        the argument is an ASCII file listing the inputs
+#                      (``readStringListFromFile``); the collection *is* the
+#                      input and the list file is written in the command.
+#   "companion_names"  the argument is a header that references its companions
+#                      by their exact file names; the collection holds those
+#                      companions and they are staged under their own names.
+#
+# ``<param>__members`` in TEST_OVERRIDES supplies the collection's contents.
+MANIFEST_INPUTS = {
+    ("layers2grid", "input"): {
+        "kind": "file_list",
+        "format": "vtkxml",
+        "label": "mesh layers",
+        "help": "Mesh layers, ordered from top to bottom.",
+    },
+    ("createlayeredmeshfromrasters", "raster_list"): {
+        "kind": "file_list",
+        "format": "raster.asc",
+        "label": "raster files",
+        "help": "Raster files, ordered from the top surface downwards.",
+    },
+    ("createtetgensmeshfromrasters", "raster_list"): {
+        "kind": "file_list",
+        "format": "raster.asc",
+        "label": "raster files",
+        "help": "Raster files, ordered from the top surface downwards.",
+    },
+    ("gocadsgridreader", "sg"): {
+        "kind": "companion_names",
+        # The Gocad SGrid companions (``*__points@@``, ``*__flags@@``, ...) are
+        # binary dumps, not text.
+        "format": "binary",
+        "help": (
+            "Data files referenced by the .sg header (points, flags and "
+            "properties). Their names must match the entries in the .sg file."
+        ),
+    },
+    ("pvtu2vtu", "input"): {
+        "kind": "companion_names",
+        "format": "vtkxml",
+        "help": (
+            "Partitioned mesh parts referenced by the .pvtu header. Their "
+            "names must match the <Piece Source=...> entries."
+        ),
+    },
+}
+
+# Required XOR groups (TCLAP ``xorAdd``). OGS accepts *exactly one* of several
+# switches, and each switch comes with its own required arguments, so the three
+# switches cannot be plain Galaxy booleans: nothing stops a user from ticking
+# two of them, and the utility then aborts (or silently does nothing). The
+# group becomes a ``<conditional>`` whose branches carry only the parameters
+# that mode needs.
+#
+#   flag   -- the switch this mode passes
+#   label  -- the option text shown in the select
+#   params -- parameters that belong to the mode (they are moved *into* the
+#             ``<when>`` and become required there, as OGS demands; a parameter
+#             listed in more than one mode is repeated in each branch)
+EXCLUSIVE_MODES = {
+    "editmaterialid": {
+        "name": "mode",
+        "label": "editing mode",
+        "help": (
+            "OGS requires exactly one of --replace, --condense and --specify; "
+            "each mode takes different arguments."
+        ),
+        "modes": {
+            "replace": {
+                "flag": "replace",
+                "label": "replace material IDs",
+                "params": ["current_material_id", "new_material_id"],
+            },
+            "condense": {
+                "flag": "condense",
+                "label": "condense material IDs",
+                "params": [],
+            },
+            "specify": {
+                "flag": "specify",
+                "label": "specify material ID of elements of one type",
+                "params": ["element_type", "new_material_id"],
+            },
+        },
+    },
+}
+
+# Text parameters (array names, geometry names, ids) are interpolated into the
+# command line in single quotes. A value containing a single quote would end
+# that quoting and allow arbitrary commands, so the wrappers never switch
+# Galaxy's sanitiser off: the default one lets no quote and no other shell
+# metacharacter through. It *mangles* the characters it cannot pass on, though
+# (``'`` becomes ``__sq__``, ``;`` becomes ``X``), so every text parameter also
+# gets an explicit validator. TEXT_VALUE_PATTERN is exactly the set of
+# characters Galaxy hands to OGS unchanged (``galaxy.util.valid_chars``), so a
+# value the user is allowed to enter always arrives verbatim.
+TEXT_VALUE_PATTERN = r"^[A-Za-z0-9 =\-_.()/+*^,:?!]+$"
+TEXT_VALUE_MESSAGE = (
+    "only letters, digits, spaces and the characters = - _ . ( ) / + * ^ , : ? ! "
+    "are allowed"
+)
+
+# Patterns the OGS source imposes itself, keyed by tool (lower case) and
+# parameter variable name. They are stricter than TEXT_VALUE_PATTERN and their
+# message states the constraint in OGS's own terms.
+TEXT_VALIDATORS = {
+    # Applications/Utils/MeshEdit/swapNodeCoordinateAxes.cpp: parseNewOrder()
+    # requires exactly three characters, each of them x, y or z.
+    ("swapnodecoordinateaxes", "new_order"): {
+        "pattern": r"^[xyz]{3}$",
+        "message": (
+            "the new order must consist of the three characters x, y and z "
+            "(e.g. xzy)"
+        ),
+    },
+    # Applications/Utils/MeshEdit/ResetPropertiesInPolygonalRegion.cpp:
+    # --char-property-value is a TCLAP ValueArg<char>, i.e. one character.
+    ("resetpropertiesinpolygonalregion", "char_property_value"): {
+        "pattern": r"^[A-Za-z0-9 =_.,:?!()/+*^\-]$",
+        "message": (
+            "OGS reads this value as a single character, so exactly one letter, "
+            "digit or one of = _ . , : ? ! ( ) / + * ^ - is expected"
+        ),
+    },
+}
+
+# Curated test inputs, keyed by tool (lower case) and parameter variable name.
+# The auto-derived fixtures only match a tool's input *extension*, not its
+# semantics; these entries pin the value a tool actually needs.
+#
+#   "Some/Path/in/Tests/Data.msh" -> downloaded from the pinned OGS commit
+#   ("local", "file.ext")         -> vendored in tools/ogs/test-data/
+#   "<var>__members": "a.vtu,b.vtu" -> the elements of a collection input,
+#                                     ``local:a.vtu`` for a vendored fixture
+#
+# Non-data parameters (text/integer/select) take the literal value.
+TEST_OVERRIDES = {
+    "raster2asc": {"input": "FileIO/GrdTest.grd"},
+    "swapnodecoordinateaxes": {"new_order": "xzy"},
+    "appendlinesalongpolyline": {
+        "geo_file": "MeshGeoToolsLib/ResetPropertiesInPolygonalRegion/Polylines.gml",
+        "gmsh_path": None,
+    },
+    "converttolinearmesh": {
+        "input_mesh_file": (
+            "MeshGeoToolsLib/ConstructMeshesFromGeometry/square_1x1_quad8_1e2.vtu"
+        ),
+    },
+    "convertgeo": {
+        "input_file": "MeshGeoToolsLib/ConstructMeshesFromGeometry/square_1x1.gml",
+        "gmsh_path": None,
+    },
+    "createanchors": {
+        "input": "HydroMechanics/EmbeddedAnchorSourceTerm/cube_1x1x1_hex_1e3.vtu",
+        "json_file": "HydroMechanics/EmbeddedAnchorSourceTerm/data_3D.json",
+    },
+    "gocadtsurfacereader": {"input_file": "MeshLib/Top-Lower-Shaly.ts"},
+    # editMaterialID requires exactly one mode; the test replaces material 0
+    # (the only material of ``Cube.vtu``) with 1.
+    "editmaterialid": {
+        "mode": "replace",
+        "mesh_input_file": "MeshGeoToolsLib/ResetPropertiesInPolygonalRegion/Cube.vtu",
+        "current_material_id": "0",
+        "new_material_id": "1",
+    },
+    # queryMesh prints to stdout only; -e/-n select what to print, so the test
+    # asks for one element and one node to get deterministic output.
+    "querymesh": {
+        "mesh_file": "MeshGeoToolsLib/ResetPropertiesInPolygonalRegion/Cube.vtu",
+        "element_id": "0",
+        "node_id": "0",
+    },
+    "ogs2vtk": {"mesh_input_file": "MeshGeoToolsLib/Naegelstedt/SmallTest.vtu"},
+    "generatematpropsfrommatid": {"mesh": "MeshGeoToolsLib/Bode/BodeComplex.msh"},
+    "computenodeareasfromsurfacemesh": {
+        "mesh_input_file": (
+            "EllipticPETSc/cube_1x1x1_SteadyStateDiffusion/gml_output/3/"
+            "hex_27_cube_1x1x1_geometry_top_ts_0_t_0_000000_2.vtu"
+        ),
+    },
+    "computesurfacenodeidsinpolygonalregion": {
+        "mesh_input_file": (
+            "MeshGeoToolsLib/ResetPropertiesInPolygonalRegion/Cube.vtu"
+        ),
+        "geo_file": "MeshGeoToolsLib/ResetPropertiesInPolygonalRegion/Polylines.gml",
+        "gmsh_path": None,
+    },
+    # generateStructuredMesh needs a geometry: with nothing but ``-e`` it has
+    # nothing to mesh. The values mirror the upstream AddTest call.
+    "generatestructuredmesh": {
+        "element_type": "quad",
+        "lx": "3",
+        "ly": "4",
+        "nx": "3",
+        "ny": "4",
+    },
+    "addlayer": {"layer_tickness": "1"},
+    # ``<param>__members`` lists the companion files a ``.pvd``/``.pvtu``
+    # references (one dataset each); they are staged under the names the file
+    # contains, so they must match it exactly.
+    "pvd2xdmf": {
+        "pvd_file": "LIE/PostProcessing/single_joint.pvd",
+        "pvd_file__members": (
+            "LIE/PostProcessing/single_joint_ts_0_t_0.000000.vtu,"
+            "LIE/PostProcessing/single_joint_ts_1_t_1.000000.vtu"
+        ),
+    },
+    "pvtu2vtu": {
+        "input": "Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000.pvtu",
+        "input__members": (
+            "Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000_0.vtu,"
+            "Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000_1.vtu,"
+            "Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000_2.vtu,"
+            "Utils/PVTU2VTU/quad_tri_THM_MPI_t_86400_000000_3.vtu"
+        ),
+    },
+    "gocadsgridreader": {
+        "sg": "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/SGrid_Test.sg",
+        "sg__members": (
+            "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/"
+            "SGrid_Testflow_simulation_grid_stair-stepped__points@@,"
+            "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/"
+            "SGrid_Testflow_simulation_grid_stair-stepped__flags@@,"
+            "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/"
+            "SGrid_Testflow_simulation_grid_stair-stepped__region_flags@@,"
+            "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/"
+            "SGrid_Testflow_simulation_grid_stair-stepped_FSG_CELL_VOLUME_CORRECTION_FACTOR@@,"
+            "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/"
+            "SGrid_Testflow_simulation_grid_stair-stepped_FSG_GEOLOGIC_K@@,"
+            "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/"
+            "SGrid_Testflow_simulation_grid_stair-stepped_FSG_UNIT@@,"
+            "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/"
+            "SGrid_Testflow_simulation_grid_stair-stepped_FSG_VISIBLE_TETRA_RECORD_ID@@,"
+            "FileIO/Gocad/GocadSGridReader/SGrid2OGS_Test/"
+            "SGrid_Testflow_simulation_grid_stair-stepped_FSG_fault_blocks@@"
+        ),
+    },
+    "layers2grid": {
+        "input__members": (
+            "Utils/VoxelGridFromLayers/AREHS_Layer9.vtu,"
+            "Utils/VoxelGridFromLayers/AREHS_Layer0.vtu,"
+            "Utils/VoxelGridFromLayers/AREHS_Layer15.vtu,"
+            "Utils/VoxelGridFromLayers/AREHS_Layer17.vtu"
+        ),
+        "cellsize_x": "100",
+    },
+    "createlayeredmeshfromrasters": {
+        "raster_list__members": (
+            "Utils/createLayeredMeshFromRasters/dem.asc,"
+            "Utils/createLayeredMeshFromRasters/bottom.asc"
+        ),
+        "input_mesh_file": (
+            "Utils/createLayeredMeshFromRasters/rectangular_tris_with_materials.vtu"
+        ),
+        "thickness": "0.1",
+        "keep_surface_material_ids": True,
+    },
+    "createtetgensmeshfromrasters": {
+        "raster_list__members": (
+            "Utils/createTetgenSmeshFromRasters/DEM.asc,"
+            "Utils/createTetgenSmeshFromRasters/m0.asc,"
+            "Utils/createTetgenSmeshFromRasters/m1.asc,"
+            "Utils/createTetgenSmeshFromRasters/m2.asc,"
+            "Utils/createTetgenSmeshFromRasters/m3.asc,"
+            "Utils/createTetgenSmeshFromRasters/m4.asc,"
+            "Utils/createTetgenSmeshFromRasters/m5.asc,"
+            "Utils/createTetgenSmeshFromRasters/m6.asc"
+        ),
+        "input_mesh_file": (
+            "Utils/createTetgenSmeshFromRasters/sfc_mesh_9k.vtu"
+        ),
+    },
+    "postlie": {
+        "input_file": "LIE/PostProcessing/single_joint_3D_ts_1_t_1.000000.vtu",
+        "no_overwrite": False,
+    },
+}
+
+# Additional ``<test>`` cases for a wrapped tool, keyed by tool (lower case).
+# The generated case mirrors the upstream ctest entry, so it can only cover a
+# code path OGS itself tests; entries here cover a second path the wrapper
+# exposes but upstream does not exercise.
+#
+#   "overrides"  a ``TEST_OVERRIDES``-shaped mapping applied on top of the
+#                generated case (see ``apply_override_dict``)
+#   "assertions" ``{output name: [(tag, attributes), ...]}``, *added* to the
+#                assertions of the generated case
+EXTRA_TESTS = {
+    # Without ``--original_mesh`` the tool merges the partitions in whatever
+    # order the .pvtu lists them; with it, the subdomain data is transferred to
+    # the original mesh through ``global_node_ids``/``global_element_ids``.
+    # Upstream only tests the former, and its test data has no global ids, so
+    # the little mesh in ``test-data`` is used here: before the option was
+    # honoured the tool aborted with "The data array 'global_node_ids' is
+    # required ... but it doesn't exist".
+    "pvtu2vtu": [
+        {
+            "overrides": {
+                "input": ("local", "pvtu2vtu_input.pvtu"),
+                "input__members": (
+                    "local:pvtu2vtu_part_0.vtu,local:pvtu2vtu_part_1.vtu"
+                ),
+                "original_mesh": ("local", "pvtu2vtu_original_mesh.vtu"),
+            },
+            "assertions": {
+                "output_pvtu2vtu": [
+                    # Written by both partitions and absent from the original
+                    # mesh, so its presence proves the transfer happened.
+                    ("has_text", {"text": "part_temperature"}),
+                ]
+            },
+        }
+    ],
+}
+
+TCLAP_PATTERN_STD = re.compile(
+    r"TCLAP::(?P<arg_type>(?:Value|Switch|Multi)Arg)\s*"
+    r"(?:<(?P<cpp_type>.*?)>)?\s*(?P<tclap_var_name>\w+)\s*"
+    r"[\({]\s*(?P<all_args>.*?)\s*[\)}];",
+    re.DOTALL,
+)
+
+TCLAP_PATTERN_UNLABELED = re.compile(
+    r"TCLAP::(?P<arg_type>Unlabeled(?:Value|Multi)Arg)\s*"
+    r"(?:<(?P<cpp_type>.*?)>)?\s*(?P<tclap_var_name>\w+)\s*"
+    r"[\({]\s*(?P<all_args>.*?)\s*[\)}];",
+    re.DOTALL,
+)
+# Only match a parenthesised list of dot-prefixed extensions, e.g.
+# "(.fem)", "(.msh | .vtk)", "(.vtu | .gml | .asc)". The previous pattern
+# ``\\((.*?)\\)`` matched *anything* in parentheses, which let prose such as
+# "(if extension is msh, old OGS file format is written)" leak into file
+# names and datatypes.
+FILE_EXTENSION_PATTERN = re.compile(
+    r"\(\s*(\.[A-Za-z0-9]+(?:\s*\|\s*\.[A-Za-z0-9]+)*)\s*\)"
+)
+MIN_MAX_PATTERN = re.compile(r"\((min|max)\s*=\s*([^)]+)\)")
+
+
+def list_cpp_files(root_dir: str) -> List[str]:
+    """Return a sorted list of all *.cpp file paths under ``root_dir`` (recursive)."""
+    return sorted(str(p) for p in Path(root_dir).rglob("*.cpp"))
+
+
+# Curated OGS extension -> Galaxy datatype mapping.
+#
+# This table is authoritative: the generator must never derive a datatype from
+# free help text (that produced formats like "geometry (gli" in the original PR).
+# Every extension OGS utilities use is listed here; anything not present falls
+# back to the generic ``data`` type so a wrapper still loads instead of failing.
+DATATYPE_MAP = {
+    # VTK family (unstructured/structured grids, parallel, time series)
+    "vtu": "vtkxml",
+    # ``.vtk`` is the legacy format. Galaxy ships no ``vtk`` datatype in the
+    # supported releases, and the OGS build cannot read legacy VTK at all (the
+    # legacy-only utilities are excluded), so it maps to the VTK XML type.
+    "vtk": "vtkxml",
+    "pvtu": "vtkxml",
+    "pvd": "vtkxml",
+    # OGS / FEFLOW / Gocad project and geometry files
+    "sg": "gocad.sg",
+    "fem": "feflow.fem",
+    # GML is XML, and Galaxy's ``xml`` type is what a GML file is validated and
+    # displayed as. Galaxy's ``prj`` datatype, on the other hand, is the *Athena
+    # project* file -- an OGS ``.prj`` (an XML project file) must not use it.
+    "gml": "xml",
+    "prj": "xml",
+    "xml": "xml",
+    # Gocad surfaces (``.ts``), points/lines (``.pl``) and meshes (``.mx``) are
+    # ASCII, not XML -- they were mapped to ``xml`` and would have been rejected
+    # for every upload Galaxy sniffs as text.
+    "ts": "txt",
+    "pl": "txt",
+    "mx": "txt",
+    # Rasters and NetCDF
+    "asc": "raster.asc",
+    "grd": "raster.asc",
+    "nc": "netcdf",
+    # Tabular / structured text
+    "csv": "csv",
+    "json": "json",
+    "txt": "txt",
+    # ASCII text-ish formats (no dedicated Galaxy datatype)
+    "gli": "txt",
+    "tin": "txt",
+    "geo": "txt",
+    "smesh": "txt",
+    "mesh": "txt",
+    # Both are opaque byte streams: ``.plt`` is *binary* TecPlot (the ASCII
+    # variant is ``.dat``) and ``.bin`` is a raw binary dump. ``txt`` would
+    # send them through text sanitising and mangle them.
+    "plt": "binary",
+    "bin": "binary",
+    # XDMF *is* XML (the data lives in the paired HDF5 file).
+    "xdmf": "xml",
+    # Galaxy ships an ``h5`` datatype.
+    "h5": "h5",
+    "hdf5": "h5",
+}
+
+# ``.msh`` is ambiguous: it is both the *Gmsh* mesh format (an input to GMSH2OGS)
+# and the legacy OGS-5 mesh format (an output of several utilities). Disambiguate
+# by role rather than by a single static mapping.
+MESH_INPUT_DATATYPE = "gmsh.msh"
+# A legacy OGS-5 ``.msh`` written by the wrapped utilities is ASCII.
+MESH_OUTPUT_DATATYPE = "txt"
+
+# Extensions already warned about, so the unmapped-datatype warning is not
+# repeated once per wrapped utility.
+_UNMAPPED_EXT_WARNED: set = set()
+
+
+def mapped_datatype(ext: str, role: str = "output"):
+    """Return the Galaxy datatype for one OGS extension, or ``None``.
+
+    Unlike :func:`get_ogs_ftype` this does not fall back to ``data`` -- callers
+    need to distinguish "has no dedicated datatype" from "is typed as data".
+    """
+    ext = ext.lower().lstrip(".")
+    if ext == "msh":
+        return MESH_INPUT_DATATYPE if role == "input" else MESH_OUTPUT_DATATYPE
+    return DATATYPE_MAP.get(ext)
+
+
+def get_ogs_ftype(extensions: List[str], role: str = "output") -> str:
+    """Map OGS file extensions to a Galaxy datatype.
+
+    ``role`` is ``"input"`` or ``"output"`` and is only meaningful for the
+    ambiguous ``.msh`` extension (Gmsh input vs. legacy OGS-5 mesh output).
+    Extensions with no mapping fall back to the generic ``data`` type and a
+    one-time warning is emitted so gaps in :data:`DATATYPE_MAP` are visible
+    during generation instead of being silently mis-typed.
+    """
+    if not extensions:
+        return "vtkxml"
+
+    ext = extensions[0].lower().lstrip(".")
+    fmt = mapped_datatype(ext, role)
+    if fmt is None:
+        if ext not in _UNMAPPED_EXT_WARNED:
+            _UNMAPPED_EXT_WARNED.add(ext)
+            logging.warning(
+                "No Galaxy datatype mapped for OGS extension %r; falling back "
+                "to generic 'data'. Add it to DATATYPE_MAP if a real Galaxy "
+                "datatype exists.",
+                ext,
+            )
+        return "data"
+    return fmt
+
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
+
+def _node_attr_true(param, attr: str) -> bool:
+    """Return True when a galaxyxml parameter's XML attribute is ``"true"``."""
+    val = getattr(param, attr, None)
+    return str(val).strip().lower() == "true"
+
+
+def is_param_optional(param, default: bool = True) -> bool:
+    """Return whether a galaxyxml parameter is optional.
+
+    ``galaxyxml.XMLParam.__getattr__`` proxies attribute access to the lxml
+    ``node.attrib`` dict, so ``param.optional`` is the *string* ``"true"`` /
+    ``"false"`` (when set) and the string ``"false"`` is truthy. Read the
+    attribute explicitly instead of relying on truthiness.
+    """
+    val = getattr(param, "optional", None)
+    if val is None:
+        return default
+    return str(val).strip().lower() == "true"
+
+
+def sanitize_name(name: str) -> str:
+    return re.sub(r"[^a-zA-Z0-9_]+", "_", name)
+
+
+def parameter_attribute(param, key):
+    """Read ``key`` from a galaxyxml parameter *or* an emitted ``<param>`` node.
+
+    The same conventions are needed on both sides: ``process_parameters`` works
+    with galaxyxml objects (``param.argument``), while post-processing an
+    exported tool walks ``ElementTree`` nodes, where the same value lives in
+    ``param.attrib``.
+    """
+    value = getattr(param, key, None)
+    if value is None and hasattr(param, "attrib"):
+        value = param.attrib.get(key)
+    return value
+
+
+def param_var_name(param) -> str:
+    """Return the Galaxy command-line variable name for a parameter.
+
+    Mirrors Galaxy's own behaviour: a ``<param>`` with an explicit ``name``
+    uses it; otherwise the variable name is *derived* from ``argument`` (the
+    leading dashes are stripped and non-alphanumerics become underscores, e.g.
+    ``--input-geometry`` -> ``input_geometry``). The generated wrappers rely on
+    this derivation (they set ``argument`` only), so the test macros must use
+    the same name to reference the variable.
+    """
+    name = parameter_attribute(param, "name")
+    if name:
+        return name
+    argument = parameter_attribute(param, "argument") or ""
+    if argument:
+        return sanitize_name(argument.lstrip("-"))
+    return sanitize_name(
+        parameter_attribute(param, "original_long_flag") or "param"
+    )
+
+
+# Test fixtures always live under the immutable pinned commit and are taken
+# from OGS's own Tests.cmake at that same commit, i.e. they exist by
+# construction. A live HEAD request would make generation network-dependent
+# and non-deterministic (a flaky request silently swaps a real recipe for a
+# dummy fallback). So we trust pinned URLs by default and only hit the network
+# when --verify-urls is passed (for occasional maintenance).
+VERIFY_URLS = False
+_URL_EXISTS_CACHE: Dict[str, bool] = {}
+
+
+def url_exists(url: str) -> bool:
+    """Return True if ``url`` is a usable OGS test-data fixture.
+
+    By default this trusts the URL (the pinned commit is immutable, so a
+    fixture referenced by a passing AddTest exists). With ``VERIFY_URLS`` set
+    (``--verify-urls``) a cached HEAD request is made instead.
+    """
+    if not VERIFY_URLS or not url.startswith(OGS_TEST_DATA_URL):
+        return True
+    if url in _URL_EXISTS_CACHE:
+        return _URL_EXISTS_CACHE[url]
+    try:
+        req = urllib.request.Request(url, method="HEAD")
+        with urllib.request.urlopen(req, timeout=10) as response:
+            ok = response.status == 200
+    except Exception:
+        ok = False
+    _URL_EXISTS_CACHE[url] = ok
+    return ok
+
+
+def _fixture_url(path: str, wd_sub: str) -> str:
+    """Build the pinned test-data URL for a fixture referenced by a test.
+
+    ``path`` is the fixture path with any ``${Data_SOURCE_DIR}/`` already
+    stripped. If it already names a directory (e.g.
+    ``FileIO/FEFLOW/prism.fem``) that directory is authoritative; a bare
+    filename falls back to the test's working directory ``wd_sub``.
+    """
+    p = path.strip().lstrip("/")
+    if "/" in p:
+        rel = p
+    elif wd_sub:
+        rel = f"{wd_sub}/{p}"
+    else:
+        rel = p
+    return f"{OGS_TEST_DATA_URL}/{rel}"
+
+
+def resolve_values_constraint(constraint_ptr: str, search_space: str) -> List[str]:
+    var_name = constraint_ptr.lstrip("&")
+    vc_pattern = re.compile(
+        r"TCLAP::ValuesConstraint<.*?>\s+"
+        + re.escape(var_name)
+        + r"\s*[\({]\s*(\w+)\s*[\)}]",
+        re.DOTALL,
+    )
+    vc_match = vc_pattern.search(search_space)
+    if not vc_match:
+        return []
+
+    vector_var_name = vc_match.group(1)
+    options = []
+
+    vec_init_pattern = re.compile(
+        r"std::vector<.*?>\s+"
+        + re.escape(vector_var_name)
+        + r"\s*(?:=)?\s*[({]?\s*\{(.*?)\}\s*[)}]?;",
+        re.DOTALL,
+    )
+    vec_match = vec_init_pattern.search(search_space)
+    if vec_match:
+        content = vec_match.group(1)
+        string_options = re.findall(r'"(.*?)"', content)
+        if string_options:
+            options.extend(string_options)
+        else:
+            numeric_options = [
+                item.strip() for item in content.split(",") if item.strip()
+            ]
+            options.extend(numeric_options)
+
+    push_pattern = re.compile(
+        re.escape(vector_var_name)
+        + r"\.(?:emplace_back|push_back)\s*\(\s*([^)]+)\s*\)\s*;",
+        re.MULTILINE,
+    )
+    push_matches = push_pattern.findall(search_space)
+    if push_matches:
+        for val in push_matches:
+            clean_val = val.strip().strip('"')
+            options.append(clean_val)
+
+    seen = set()
+    return [x for x in options if not (x in seen or seen.add(x))]
+
+
+# ``(min = 0)`` / ``(max = 5)`` / ``(min = 0, max = 1)`` in an OGS help string
+# is a real constraint of the utility, not prose.
+_RANGE_VALUE_RE = re.compile(
+    r"\b(min|max)\s*=\s*(-?\d+(?:\.\d+)?)", re.IGNORECASE
+)
+_RANGE_CLAUSE_RE = re.compile(
+    r"[(,]?\s*(?:min|max)\s*=\s*-?\d+(?:\.\d+)?"
+    r"(?:\s*,\s*(?:min|max)\s*=\s*-?\d+(?:\.\d+)?)*\s*\)?",
+    re.IGNORECASE,
+)
+
+
+def split_range_clause(help_text: str) -> Tuple[str, Dict[str, str]]:
+    """Move ``(min = X)``-style constraints out of an OGS help string.
+
+    Returns the help text with the parenthetical range removed plus the bounds
+    as ``{"min": ..., "max": ...}`` so they can be rendered as Galaxy
+    parameter attributes instead of being buried in the prose.
+    """
+    bounds: Dict[str, str] = {}
+    for key, value in _RANGE_VALUE_RE.findall(help_text):
+        bounds.setdefault(key.lower(), value)
+    if not bounds:
+        return help_text, bounds
+
+    cleaned = _RANGE_CLAUSE_RE.sub("", help_text)
+    cleaned = re.sub(r"\s+([.,;:!?])", r"\1", cleaned)
+    cleaned = re.sub(r"\s{2,}", " ", cleaned).strip()
+    cleaned = cleaned.rstrip(",;/")
+    return cleaned, bounds
+
+
+def extract_cmdline_text(source: str) -> str:
+    """Return the description OGS itself passes to ``TCLAP::CmdLine``.
+
+    Every OGS utility constructs its command line object with a free-text
+    description as first argument, e.g.::
+
+        TCLAP::CmdLine cmd(
+            "Checks mesh properties.\n\n"
+            "OpenGeoSys-6 software, version " + ...,
+            ' ', GitInfoLib::GitInfo::ogs_version);
+
+    That text is the utility's own documentation and therefore exactly what a
+    Galaxy wrapper should show as ``<description>``/``<help>``. The trailing
+    version/copyright banner is dropped. The result is a blank-line separated
+    paragraph string, or ``""`` when no description is found.
+    """
+    match = re.search(r"TCLAP::CmdLine\s+\w+\s*\(", source)
+    if not match:
+        return ""
+
+    start = match.end()
+    depth, pos, in_string = 1, start, False
+    while pos < len(source) and depth:
+        char = source[pos]
+        if in_string:
+            if char == "\\":
+                pos += 2
+                continue
+            if char == '"':
+                in_string = False
+        elif char == '"':
+            in_string = True
+        elif char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+        pos += 1
+
+    literals = re.findall(r'"((?:[^"\\]|\\.)*)"', source[start:pos])
+    text = "".join(literals)
+    text = (
+        text.replace("\\n", "\n")
+        .replace("\\t", " ")
+        .replace('\\"', '"')
+        .replace("\\'", "'")
+    )
+    text = re.split(r"\s*(?:OpenGeoSys-6 software|Copyright \()", text)[0]
+    # Adjacent C++ literals are concatenated without a separating space, so
+    # "Adds a layer to an existing mesh." + "The documentation ..." ends up as
+    # "mesh.The". Restore the sentence boundary.
+    text = re.sub(r"([.!?])(?=[A-Z])", r"\1 ", text)
+
+    paragraphs = []
+    for block in re.split(r"\n\s*\n", text):
+        paragraph = re.sub(
+            r"\s+", " ", " ".join(line.strip() for line in block.splitlines())
+        ).strip()
+        # "... bounding box\n." -> "... bounding box."
+        paragraph = re.sub(r"\s+([.,;:!?])", r"\1", paragraph)
+        if paragraph:
+            paragraphs.append(paragraph)
+    return "\n\n".join(paragraphs)
+
+
+def cmdline_description(cmdline_text: str) -> str:
+    """First complete sentence of OGS's own description, or ``""``.
+
+    Galaxy renders ``<description>`` right next to the tool name, so only a
+    short sentence is useful there. Sentences are accumulated until any
+    parenthesis opened earlier is closed again (OGS writes things like
+    "elements in a voxel grid (i.e. ...)"), and the result is dropped entirely
+    rather than truncated to nonsense when it does not fit.
+    """
+    first_paragraph = cmdline_text.split("\n\n")[0].strip()
+    if not first_paragraph:
+        return ""
+
+    accumulated = ""
+    for sentence in re.split(r"(?<=[.!?])\s+", first_paragraph):
+        accumulated = f"{accumulated} {sentence}".strip()
+        balanced = accumulated.count("(") == accumulated.count(")")
+        if balanced and len(accumulated) <= 150:
+            return accumulated
+        if len(accumulated) > 150:
+            break
+    return ""
+
+
+def discover_tools(ogs_root: Path) -> List[Dict[str, Any]]:
+    source_files = list_cpp_files(ogs_root / "Applications" / "Utils")
+    tools_dict: Dict[str, Dict[str, Any]] = {}
+    logging.info(f"Searching {len(source_files)} .cpp files under {ogs_root / 'Applications' / 'Utils'}")
+
+    for file_path in source_files:
+        path_obj = Path(file_path)
+
+        with open(file_path) as fh:
+            content = fh.read()
+
+        all_matches = list(TCLAP_PATTERN_STD.finditer(content)) + list(
+            TCLAP_PATTERN_UNLABELED.finditer(content)
+        )
+
+        if not all_matches:
+            logging.debug(f"Skiping (no tclap): {file_path}")
+            continue
+
+        if path_obj.name == "main.cpp":
+            tool_name = path_obj.parent.name
+        else:
+            tool_name = path_obj.stem
+
+        if tool_name.lower() in ["main", "utils"]:
+            continue
+
+        if tool_name not in tools_dict:
+            tools_dict[tool_name] = {
+                "name": tool_name,
+                "parameters": [],
+                # OGS's own tool description (TCLAP::CmdLine), used for the
+                # Galaxy <description>/<help> instead of a redundant
+                # "Galaxy wrapper for ..." sentence.
+                "cmdline_text": extract_cmdline_text(content),
+                "source": file_path,
+            }
+
+        for match in all_matches:
+            param_data = match.groupdict()
+            param_data["is_unlabeled"] = "Unlabeled" in param_data.get("arg_type", "")
+            param_data["full_source_code"] = content
+            param_data["match_start_pos"] = match.start()
+            tools_dict[tool_name]["parameters"].append(param_data)
+
+    all_tools_data = list(tools_dict.values())
+    logging.info(f"-> Found {len(all_tools_data)}")
+    return sorted(all_tools_data, key=lambda x: x["name"])
+
+
+def process_parameters(
+    tclap_params: List[Dict[str, Any]], tool_name: str = ""
+) -> Tuple[List[object], Dict[str, str]]:
+    """Turn a tool's raw TCLAP parameter descriptors into Galaxy parameter objects.
+
+    Each element of ``tclap_params`` is one ``TCLAP::(Value|Switch|Multi)Arg``
+    declaration captured by :func:`discover_tools`. This function classifies it
+    (TCLAP arg type + C++ type) and emits the matching Galaxy parameter object
+    (``DataParam``, ``SelectParam``, ``TextParam``, ``IntegerParam``,
+    ``FloatParam``, ``BooleanParam``). It also:
+
+      * models OGS ``*_INPUT_FILE_LIST`` args as a single ``format=txt`` input
+        (OGS reads one ASCII list file, not a collection);
+      * sets ``is_data_collection`` for ``MultiArg``/``UnlabeledMultiArg`` args;
+      * resolves TCLAP ``ValuesConstraint`` option lists into ``SelectParam``
+        choices (with the ``cmd``/default-value false-positive guard);
+      * records the OGS file extension (``ogs_ext``) for runtime-correct
+        symlink naming, and builds the ``output_command_map`` used to derive
+        the tool's ``<outputs>`` (``BASE_FILENAME`` outputs for tools that only
+        accept an output basename).
+
+    Returns ``(galaxy_inputs, output_command_map)``.
+    """
+    galaxy_inputs = []
+    output_command_map = {}
+    output_idx = 1
+
+    if tclap_params and "writeMeshToFile" in tclap_params[0].get(
+        "full_source_code", ""
+    ):
+        has_tclap_output = any(
+            "output" in p.get("all_args", "").lower()
+            or "BASE_FILENAME_OUTPUT" in p.get("all_args", "")
+            for p in tclap_params
+        )
+        if not has_tclap_output:
+            output_command_map["VIRTUAL_no_flag"] = {
+                "filename": "new_",
+                "format": "vtkxml",
+                "type": "BASE_FILENAME",
+            }
+
+    for param_info in tclap_params:
+        if param_info.get("tclap_var_name") == "log_level_arg":
+            continue
+        all_args_str = param_info.get("all_args", "")
+        if not all_args_str:
+            continue
+
+        args = re.split(r",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", all_args_str)
+        args = [arg.strip() for arg in args]
+        is_unlabeled = param_info.get("is_unlabeled", False)
+
+        short_flag, long_flag, help_text_raw = "", "", ""
+        if not is_unlabeled:
+            if len(args) > 0:
+                short_flag = args[0].strip('"')
+            if len(args) > 1:
+                long_flag = args[1].strip('"')
+            if len(args) > 2:
+                help_text_raw = args[2]
+        else:
+            if len(args) > 0:
+                long_flag = args[0].strip('"')
+            if len(args) > 1:
+                help_text_raw = args[1]
+            if not long_flag:
+                long_flag = param_info.get("tclap_var_name", f"arg_{output_idx}")
+
+        if not long_flag:
+            continue
+        help_parts = re.findall(r'"(.*?)"', help_text_raw, re.DOTALL)
+        help_text = " ".join(part.strip() for part in help_parts).strip()
+        var_name = sanitize_name(long_flag)
+        argument = f"--{long_flag}" if long_flag else f"-{short_flag}"
+
+        # TCLAP constructor arity:
+        #   Value/MultiArg(flag, name, desc, required, ...) -> required at [3]
+        #   Unlabeled(Value|Multi)Arg(name, desc, required, ...) -> required at [2]
+        # Anything we cannot classify as explicitly required stays optional so a
+        # parse quirk never turns a working wrapper into a mandatory-input tool.
+        req_idx = 2 if is_unlabeled else 3
+        is_required = (
+            len(args) > req_idx and args[req_idx].strip().lower() == "true"
+        )
+        is_optional = not is_required
+
+        # OUTPUT LOGIC
+        is_output_help = (
+            help_text.lower().startswith("output")
+            or "directory name and output base" in help_text.lower()
+        )
+
+        if is_output_help or "BASE_FILENAME_OUTPUT" in all_args_str:
+            format_match = FILE_EXTENSION_PATTERN.search(help_text)
+            primary_ext = "vtu"
+            if format_match:
+                primary_ext = format_match.group(1).split("|")[0].strip().lstrip(".")
+            primary_ext = OUTPUT_EXT_OVERRIDES.get(
+                (tool_name.lower(), long_flag), primary_ext
+            )
+
+            file_format = get_ogs_ftype([primary_ext], role="output")
+            disk_ext = "vtu" if file_format == "vtkxml" else primary_ext
+
+            is_base_filename_output = (
+                "BASE_FILENAME_OUTPUT" in all_args_str
+                or "base name" in help_text.lower()
+            )
+
+            output_command_map[long_flag] = {
+                "filename": f"output_{output_idx}.{disk_ext}",
+                "format": file_format,
+                "short_flag": short_flag,
+                "type": "BASE_FILENAME" if is_base_filename_output else "FIXED_FILE",
+                # ``--output-directory`` / ``--output-dir`` take a directory
+                # the utility creates its files in; Galaxy cannot stage a bare
+                # directory, so such outputs are declared as a discovered
+                # collection instead of a single file.
+                "is_directory": (
+                    "directory" in long_flag.lower()
+                    or long_flag.lower().endswith("-dir")
+                ),
+            }
+            output_idx += 1
+            continue
+
+        # INPUT & PARAMETER LOGIC
+        param = None
+        constraint_ptr = ""
+        if len(args) >= 5:
+            for potential_ptr in args[4:]:
+                ptr_stripped = potential_ptr.strip()
+                if (
+                    ptr_stripped
+                    and not ptr_stripped.startswith('"')
+                    and not ptr_stripped[0].isdigit()
+                ):
+                    constraint_ptr = ptr_stripped
+                    break
+
+        if constraint_ptr:
+            options_list = resolve_values_constraint(
+                constraint_ptr, param_info.get("full_source_code", "")
+            )
+        else:
+            options_list = []
+
+        # Only treat a value as a Select when a real ValuesConstraint was
+        # found. A ``constraint_ptr`` false positive (e.g. the trailing
+        # ``cmd`` argument of TCLAP's 7-arg form, or a default value such as
+        # ``std::numeric_limits<double>::epsilon()``) must NOT swallow the
+        # generic input/select/switch handling, or the tool loses all inputs.
+        if options_list:
+            opts_dict = {opt: opt for opt in options_list}
+            is_multi = "MultiArg" in param_info.get("arg_type", "")
+            param = SelectParam(
+                argument=argument,
+                label=var_name.replace("_", " "),
+                help=help_text,
+                options=opts_dict,
+                optional=is_optional,
+                multiple=is_multi,
+            )
+            param.options_dict = opts_dict
+        elif (
+            help_text.startswith("Input")
+            or "filenames" in var_name
+            or "INPUT_FILE_LIST" in all_args_str
+        ):
+            format_match = FILE_EXTENSION_PATTERN.search(help_text)
+            all_exts = (
+                [e.strip().lstrip(".") for e in format_match.group(1).split("|")]
+                if format_match
+                else []
+            )
+            # Arguments that accept a ``.pvd`` *or* a single ``.vtu`` are
+            # exposed as the single-file variant: writing a sidecar XDMF/PVD
+            # from a pvd would need the member files it references.
+            is_pvd = (
+                "pvd" in help_text.lower() or "pvd" in all_exts
+            ) and (tool_name.lower(), var_name) not in NON_PVD_INPUTS
+            primary_ext = "pvd" if is_pvd else (all_exts[0] if all_exts else "vtu")
+            # A curated extension (see PARAM_EXT_OVERRIDES) must also drive the
+            # Galaxy datatype, otherwise the test uploads the fixture under a
+            # datatype that does not match the extension the command uses.
+            primary_ext = PARAM_EXT_OVERRIDES.get(
+                (tool_name.lower(), var_name), primary_ext
+            )
+            galaxy_type = get_ogs_ftype([primary_ext], role="input")
+            # OGS picks the reader from the file *extension*, and the wrapper
+            # links every input under one fixed name, so only one of several
+            # documented extensions can be accepted. Say which one instead of
+            # silently rejecting the others with an incompatible datatype.
+            other_formats = {
+                mapped_datatype(ext, role="input")
+                for ext in all_exts
+                if ext not in ("msh", primary_ext)
+            }
+            other_formats.discard(None)
+            if other_formats - {galaxy_type}:
+                help_text += f" (the wrapper accepts .{primary_ext} only)"
+            is_file_list = "INPUT_FILE_LIST" in all_args_str
+            # A *_INPUT_FILE_LIST argument is a single ASCII text file naming
+            # the input files (OGS reads it with readStringListFromFile), NOT a
+            # Galaxy collection. Model it as one txt input.
+            is_collection = "MultiArg" in param_info.get("arg_type", "")
+            if is_file_list:
+                galaxy_type = "txt"
+
+            param = DataParam(
+                argument=argument,
+                label=var_name.replace("_", " "),
+                help=help_text,
+                format=galaxy_type,
+                optional=is_optional,
+            )
+            param.is_data_collection = is_collection
+            param.is_collection = is_collection
+            param.ogs_ext = primary_ext
+            param.is_pvd = is_pvd
+            param.is_file_list = is_file_list
+
+            if is_pvd:
+                pvd_data = DataParam(
+                    name=f"{var_name}_pvd_data",
+                    label=f"{var_name} PVD Data Elements",
+                    help="VTU Member Collection",
+                    format="vtkxml",
+                    optional=True,
+                )
+                pvd_data.is_pvd_element = True
+                pvd_data.is_data_collection = True
+                pvd_data.is_collection = True
+                galaxy_inputs.append(pvd_data)
+
+            manifest = MANIFEST_INPUTS.get((tool_name.lower(), var_name))
+            if manifest:
+                if manifest["kind"] == "file_list":
+                    # The dataset itself *is* the collection.
+                    param.members_override_key = f"{var_name}__members"
+                    # The dataset is the *list* of inputs; the files themselves
+                    # are the real input, so expose them as an ordered
+                    # collection and write the list file in the command.
+                    # ``format`` lives in the XML attributes (XMLParam.__getattr__),
+                    # so it has to be set on the node, not on the object.
+                    param.node.attrib["format"] = manifest["format"]
+                    if manifest.get("help"):
+                        param.node.attrib["help"] = manifest["help"]
+                    if manifest.get("label"):
+                        param.node.attrib["label"] = manifest["label"]
+                    param.is_manifest_list = True
+                    param.is_data_collection = True
+                    param.is_collection = True
+                else:
+                    companions = DataParam(
+                        name=f"{var_name}_members",
+                        label=f"{var_name.replace('_', ' ')} referenced files",
+                        help=manifest["help"],
+                        format=manifest["format"],
+                        optional=False,
+                    )
+                    companions.is_companion = True
+                    companions.is_data_collection = True
+                    companions.is_collection = True
+                    # Only the companions are a collection; the header dataset
+                    # that names them stays a single file, so it must not get
+                    # the members override (that would emit a second
+                    # collection under its own name).
+                    companions.members_override_key = f"{var_name}__members"
+                    # Appended after the header parameter below: the dataset
+                    # that names its companions has to come first in the form.
+                    param.companion_param = companions
+
+        elif "Switch" in param_info.get("arg_type", ""):
+            param = BooleanParam(
+                argument=argument,
+                label=var_name.replace("_", " "),
+                help=help_text,
+                truevalue=f"--{long_flag}",
+                falsevalue="",
+                checked=False,
+            )
+
+        else:
+            cpp_type = param_info.get("cpp_type", "").lower()
+            # TCLAP spells integers as ``int``, ``unsigned``, ``size_t``, ...;
+            # anything else (``std::string``) is free text.
+            if re.search(
+                r"\b(?:u?int(?:8|16|32|64)?_t|u?int|u?long|u?short|unsigned|size_t)\b",
+                cpp_type,
+            ):
+                p_class = IntegerParam
+            elif re.search(r"\b(?:float|double)\b", cpp_type):
+                p_class = FloatParam
+            else:
+                p_class = TextParam
+            param = p_class(
+                argument=argument,
+                label=var_name.replace("_", " "),
+                help=help_text,
+                optional=is_optional,
+            )
+
+        if param:
+            # TCLAP ``MultiArg``/``UnlabeledMultiArg``: the flag may be given
+            # more than once. Galaxy has no list type for numeric parameters
+            # (``multiple`` only exists for select/data/upload parameters), so a
+            # repeated numeric argument is passed once -- and the help says so.
+            # Data parameters become collections instead (see above).
+            is_multi_value = "MultiArg" in param_info.get("arg_type", "")
+            param.is_multi_value = is_multi_value
+            if (
+                is_multi_value
+                and not isinstance(param, (DataParam, SelectParam))
+            ):
+                help_attr = param.node.attrib.get("help", "").rstrip()
+                param.node.attrib["help"] = (
+                    f"{help_attr} (may be repeated; the wrapper passes one value)"
+                )
+            param.original_long_flag = long_flag
+            param.original_short_flag = short_flag
+            param.is_unlabeled = is_unlabeled
+            galaxy_inputs.append(param)
+            companion = getattr(param, "companion_param", None)
+            if companion is not None:
+                galaxy_inputs.append(companion)
+
+    base_override = BASE_FILENAME_OVERRIDES.get(tool_name.lower())
+    if base_override and base_override["flag"] in output_command_map:
+        info = output_command_map[base_override["flag"]]
+        info["type"] = "BASE_FILENAME"
+        for key in (
+            "base_value",
+            "pattern",
+            "format",
+            "extra_outputs",
+            "outputs",
+        ):
+            if key in base_override:
+                info[key] = base_override[key]
+
+    return galaxy_inputs, output_command_map
+
+
+def text_validator(tool_key: str, var: str):
+    """Return the ``(pattern, message)`` for a text parameter.
+
+    OGS-derived patterns from ``TEXT_VALIDATORS`` win; everything else gets the
+    generic pattern of the characters Galaxy passes through unchanged. Keys are
+    tool (lower case) and parameter variable name, the convention the other
+    curated tables use.
+    """
+    spec = TEXT_VALIDATORS.get((tool_key, var))
+    if spec:
+        return spec["pattern"], spec["message"]
+    return TEXT_VALUE_PATTERN, TEXT_VALUE_MESSAGE
+
+
+def _derive_param_constraints(inputs_node, tool_key: str = "") -> None:
+    """Turn OGS help-string details into real Galaxy parameter attributes.
+
+    * numeric parameters: ``(min = 0)``/``(max = ...)`` in the OGS help text is
+      a constraint of the utility, so it becomes the ``min``/``max`` attribute
+      (and is removed from the prose).
+    * text parameters: the value is passed on to OGS as a flag value (array
+      names, geometry names, ids). The sanitiser is deliberately *not* switched
+      off -- see ``TEXT_VALUE_PATTERN`` -- and every text field is restricted by
+      an explicit ``<validator type="regex">``, because Galaxy's default
+      sanitiser silently rewrites the characters it cannot pass on (a quote
+      becomes ``__sq__``, a semicolon becomes ``X``). A required text field
+      additionally gets an ``<empty_field/>`` validator, because
+      ``optional="false"`` alone does not stop an empty string from being
+      passed on.
+    """
+    for param in inputs_node.findall("param"):
+        ptype = param.get("type")
+        help_text = param.get("help") or ""
+
+        if ptype in ("integer", "float"):
+            cleaned, bounds = split_range_clause(help_text)
+            if bounds:
+                param.set("help", cleaned)
+                for key, value in bounds.items():
+                    param.set(key, value)
+
+        elif ptype == "text":
+            # Rely on Galaxy's default sanitiser -- it never lets a single quote
+            # (or any other shell metacharacter) through, so the quoted value
+            # cannot escape into the command line.
+            if param.find("sanitizer") is not None:
+                param.remove(param.find("sanitizer"))
+            required_text = param.get("optional") != "true"
+            if required_text and param.find("validator") is None:
+                ET.SubElement(param, "validator", {"type": "empty_field"})
+            pattern, message = text_validator(tool_key, param_var_name(param))
+            if not any(
+                v.get("type") == "regex" for v in param.findall("validator")
+            ):
+                ET.SubElement(
+                    param, "validator", {"type": "regex", "message": message}
+                ).text = pattern
+
+
+def _discover_pattern(pattern: str, link_names: set) -> str:
+    """Keep the wrapper's own input links out of a discovered output list.
+
+    Every input dataset is symlinked into the job working directory (so that
+    utilities which write next to their input do not write into the Galaxy
+    file store). A discovery pattern such as ``(?P<designation>.*)\\.vtu``
+    would match those links too, and Galaxy rejects a discovered file that
+    resolves outside the job directory -- aborting the whole output
+    collection. The negative lookahead skips exactly the names we created.
+    """
+    if not link_names or "(?P<designation>" not in pattern:
+        return pattern
+    names = "|".join(re.escape(n) for n in sorted(link_names))
+    lookahead = f"(?!(?:{names})$)"
+    return pattern.replace("(?P<designation>", lookahead + "(?P<designation>", 1)
+
+
+# Collection elements are staged under their ``element_identifier`` because the
+# utilities resolve exactly those names (a list file, a ``.sg`` header, a
+# ``.pvtu`` source attribute). The identifier is user-controlled, so it is
+# reduced to shell-safe characters first -- ``ogs_simulation`` has always done
+# that. ``#import re`` has to precede the first use; the wrapper command gets it
+# once, whenever a collection is staged.
+IDENTIFIER_UNSAFE = r"[^\w\-.@]"
+# ``@`` is kept: real OGS Gocad SGrid data files are named like
+# ``SGrid_Testflow_..._points@@`` and the ``.sg`` header references them by that
+# name, so replacing it would make them unfindable. Everything that is not a
+# word character, ``.``, ``-`` or ``@`` is replaced, which covers the shell
+# metacharacters (space, quotes, ``$``, backtick, ``;``, ``&``, ``|``, ``*`` ...).
+SANITIZE_IDENTIFIER = (
+    "#set $safe_name = re.sub(r'" + IDENTIFIER_UNSAFE + "', '_', "
+    "str($item.element_identifier))"
+)
+
+
+def identifier_staging(names: str) -> str:
+    """Cheetah block that turns a collection into collision-free file names.
+
+    Replacing characters can map two distinct identifiers onto the same name
+    (``a b.vtu`` and ``a_b.vtu``); the list file built from those names would
+    then silently contain the same file twice and the analysis would be wrong.
+    The guard turns that into a visible failure instead.
+    """
+    return (
+        "#set $safe_names = [re.sub(r'" + IDENTIFIER_UNSAFE + "', '_', "
+        f"str($item.element_identifier)) for $item in ${names}]\n"
+        f"#if len($safe_names) != len(set($safe_names))\n"
+        f"    #set $joined = ', '.join($safe_names)\n"
+        f"    echo 'error: the element identifiers map to the same file name "
+        f"after characters outside [A-Za-z0-9_.@-] are replaced by _: $joined' >&2;\n"
+        f"    exit 1;\n"
+        f"#end if"
+    )
+
+
+def exclusive_mode_layout(tool_name: str, galaxy_inputs: list):
+    """Split the inputs of a TCLAP ``xorAdd()`` group off the flat list.
+
+    Returns ``(spec, hidden, by_mode)``: ``hidden`` holds the variable names
+    that the ``<conditional>`` renders (the mode switches and every
+    mode-specific parameter), ``by_mode`` maps a mode value to the parameters
+    of that mode. Tools without a spec return ``(None, set(), {})``.
+    """
+    spec = EXCLUSIVE_MODES.get(tool_name.lower())
+    if spec is None:
+        return None, set(), {}
+    by_var = {param_var_name(param): param for param in galaxy_inputs}
+    hidden: set = set()
+    by_mode: Dict[str, list] = {}
+    for value, mode in spec["modes"].items():
+        switch = sanitize_name(mode["flag"])
+        if switch in by_var:
+            hidden.add(switch)
+        params = []
+        for var in mode["params"]:
+            if var in by_var:
+                params.append(by_var[var])
+                hidden.add(var)
+        by_mode[value] = params
+    return spec, hidden, by_mode
+
+
+def exclusive_mode_command(spec: Dict[str, Any], by_mode: Dict[str, list]) -> str:
+    """Render the mako block that passes the selected mode's arguments."""
+    path = f"${spec['name']}.{spec['name']}"
+    lines = []
+    for index, (value, mode) in enumerate(spec["modes"].items()):
+        keyword = "#if" if index == 0 else "#elif"
+        lines.append(f'{keyword} str({path}) == "{value}"')
+        lines.append(f"    --{mode['flag']}")
+        for param in by_mode[value]:
+            var = f"${spec['name']}.{param_var_name(param)}"
+            lines.append(f"    --{param.original_long_flag} '{var}'")
+    lines.append("#end if")
+    return "\n".join(lines)
+
+
+def build_mode_conditional(spec: Dict[str, Any], by_mode: Dict[str, list]):
+    """Build the ``<conditional>`` that carries the modes of an XOR group."""
+    conditional = Conditional(name=spec["name"])
+    conditional.append(
+        SelectParam(
+            name=spec["name"],
+            label=spec["label"],
+            help=spec["help"],
+            options={v: m["label"] for v, m in spec["modes"].items()},
+            optional=False,
+        )
+    )
+    for value in spec["modes"]:
+        when = When(value=value)
+        for param in by_mode[value]:
+            # A parameter can belong to several modes (``--new-material-id``
+            # does), so every branch gets its own copy of the node.
+            node = copy.deepcopy(param.node)
+            # Within its own mode the argument is required by the utility.
+            node.set("optional", "false")
+            when.node.append(node)
+        conditional.append(when)
+    return conditional
+
+
+def nest_mode_conditional(test_case, tool_name: str) -> None:
+    """Move a test's mode parameters into the ``<conditional>`` they live in."""
+    spec = EXCLUSIVE_MODES.get(tool_name.lower())
+    if spec is None:
+        return
+    mode_name = spec["name"]
+    by_name = {p.get("name"): p for p in test_case.findall("param")}
+    select = by_name.get(mode_name)
+    if select is None:
+        return
+    conditional = ET.SubElement(test_case, "conditional", {"name": mode_name})
+    selected = spec["modes"].get(by_name[mode_name].get("value"), {})
+    kept = set(selected.get("params", []))
+    # Only the selected mode's parameters may be set: a value for another
+    # mode's parameter would be ignored at best and rejected at worst. The
+    # switches themselves are no Galaxy inputs any more, so drop them too.
+    stale = {
+        var for mode in spec["modes"].values() for var in mode.get("params", [])
+    } - kept
+    stale |= {sanitize_name(mode["flag"]) for mode in spec["modes"].values()}
+    # ElementTree ``append`` does not detach from the old parent, so the moved
+    # parameters have to be removed from the test explicitly.
+    for elem in list(test_case.findall("param")):
+        name = elem.get("name")
+        if name == mode_name or name in kept:
+            test_case.remove(elem)
+            conditional.append(elem)
+        elif name in stale:
+            test_case.remove(elem)
+
+
+def generate_tools(ogs_root: Path, output_dir: Path):
+    output_dir.mkdir(parents=True, exist_ok=True)
+    all_tools_data = discover_tools(ogs_root)
+    if not all_tools_data:
+        eprint("No tools with TCLAP definitions found. Aborting.")
+        return
+
+    generated_count = 0
+    for tool_data in all_tools_data:
+        tool_name = tool_data["name"]
+        if tool_name.lower() in EXCLUDED_TOOLS:
+            logging.info(f"--> Skipping excluded tool: {tool_name}")
+            continue
+        logging.info(f"Generating wrapper for: {tool_name}...")
+        galaxy_inputs, output_command_map = process_parameters(
+            tool_data["parameters"], tool_name
+        )
+
+        # 1. EXECUTABLE NAMING
+        current_exe = tool_name
+        if tool_name.upper() == "PVTU2VTU":
+            current_exe = "pvtu2vtu"
+        elif tool_name[0].isupper() and tool_name[1:].islower():
+            current_exe = tool_name[0].lower() + tool_name[1:]
+
+        m_fixes = {
+            "PVTU2VTU": "pvtu2vtu",
+            "FEFLOW2OGS": "feflow2ogs",
+            "MergeMeshToBulkMesh": "mergeMeshToBulkMesh",
+            "PartitionMesh": "partmesh",
+        }
+
+        executable_name = m_fixes.get(tool_name, current_exe)
+
+        command_parts = []
+        flag_parts = []
+        unlabeled_parts = []
+        # Collections are staged under sanitized element identifiers, which
+        # needs ``re`` in the Cheetah template (see ``SANITIZE_IDENTIFIER``).
+        needs_regex_import = False
+        # Names of the symlinks created in the job working directory; the
+        # discovery patterns must not pick them up as outputs.
+        input_link_names: set = set()
+
+        # TCLAP xor groups are rendered as one <conditional>; their parameters
+        # are skipped below and emitted by the mako block of the group instead.
+        mode_spec, mode_hidden, mode_params = exclusive_mode_layout(
+            tool_name, galaxy_inputs
+        )
+        mode_block_emitted = False
+
+        # 2. SYMLINKS & ARGUMENT MAPPING
+        for param in galaxy_inputs:
+            is_unlabeled = getattr(param, "is_unlabeled", False)
+
+            if param_var_name(param) in mode_hidden:
+                if not mode_block_emitted:
+                    flag_parts.append(exclusive_mode_command(mode_spec, mode_params))
+                    mode_block_emitted = True
+                continue
+
+            flag = getattr(param, "original_long_flag", None)
+            if flag:
+                name = sanitize_name(flag)
+            else:
+                name = ""
+
+            if isinstance(param, DataParam):
+                is_file_list = getattr(param, "is_file_list", False)
+                is_coll = getattr(param, "is_data_collection", False)
+                ext = PARAM_EXT_OVERRIDES.get(
+                    (tool_name.lower(), param_var_name(param)),
+                    getattr(param, "ogs_ext", "vtu"),
+                ).lower()
+
+                if getattr(param, "is_pvd_element", False) or getattr(
+                    param, "is_companion", False
+                ):
+                    # Files the dataset references by name: stage them under
+                    # exactly those names, pass nothing on the command line.
+                    command_parts.append(
+                        identifier_staging(param.name)
+                        + f"\n  #for $item in ${param.name}\n"
+                        f"    {SANITIZE_IDENTIFIER}\n"
+                        f"    ln -sf '$item' '$safe_name';\n"
+                        f"  #end for"
+                    )
+                    needs_regex_import = True
+                    continue
+                if getattr(param, "is_manifest_list", False):
+                    # The list file is generated from the collection: one line
+                    # per element, naming the staged file. OGS resolves those
+                    # names against its working directory, so the files are
+                    # linked there as well.
+                    local = f"{name}.txt"
+                    input_link_names.add(local)
+                    command_parts.append(
+                        f": > '{local}';\n"
+                        + identifier_staging(name)
+                        + f"\n#for $item in ${name}\n"
+                        f"{SANITIZE_IDENTIFIER}\n"
+                        f"ln -sf '$item' '$safe_name';\n"
+                        f"echo '$safe_name' >> '{local}';\n"
+                        f"#end for"
+                    )
+                    needs_regex_import = True
+                    flag_parts.append(f"    --{flag} '{local}'")
+                    continue
+                if is_file_list:
+                    # Single ASCII list file (OGS readStringListFromFile); pass
+                    # it straight through, no collection loop is needed. The
+                    # local symlink carries a real .txt extension so OGS can
+                    # open it (OGS infers the format from the file extension).
+                    # The link is created *in the job working directory*: a
+                    # path derived from ``${name}`` would end up in the Galaxy
+                    # file store, next to the input dataset.
+                    local = f"{name}.txt"
+                    input_link_names.add(local)
+                    symlink = f"ln -sf '${name}' '{local}';"
+                    arg = f"    --{flag} '{local}'"
+                    if is_param_optional(param, default=False):
+                        command_parts.append(f"#if ${name}\n{symlink}\n#end if")
+                        flag_parts.append(f"#if ${name}\n{arg}\n#end if")
+                    else:
+                        command_parts.append(symlink)
+                        flag_parts.append(arg)
+                    continue
+                if is_coll:
+                    loop = (
+                        identifier_staging(name)
+                        + f"\n#for $item in ${name}\n"
+                        f"{SANITIZE_IDENTIFIER}\n"
+                        f"ln -sf '$item' '$safe_name';\n"
+                        f"#end for"
+                    )
+                    loop_str = (
+                        f"#for $item in ${name}\n"
+                        f"{SANITIZE_IDENTIFIER}\n"
+                        f"'$safe_name'\n"
+                        f"#end for"
+                    )
+                    needs_regex_import = True
+                    if is_unlabeled:
+                        arg = f"    --\n{loop_str}"
+                        dest = unlabeled_parts
+                    else:
+                        arg = f"    --{flag}\n{loop_str}"
+                        dest = flag_parts
+                    if is_param_optional(param, default=False):
+                        command_parts.append(f"#if ${name}\n{loop}\n#end if")
+                        dest.append(f"#if ${name}\n{arg}\n#end if")
+                    else:
+                        command_parts.append(loop)
+                        dest.append(arg)
+                else:
+                    # Link the dataset to a name carrying the OGS extension
+                    # (OGS infers the input format from the file extension; the
+                    # Galaxy ``element_identifier`` suffix has none). The link
+                    # is created in the job working directory under a name
+                    # derived from the parameter -- writing ``${name}.ext``
+                    # would place it next to the input dataset in the Galaxy
+                    # file store, which breaks read-only/object-store backends
+                    # and litters the store.
+                    local = f"{name}.{ext}"
+                    input_link_names.add(local)
+                    symlink = f"ln -sf '${name}' '{local}';"
+                    arg_val = f"'{local}'"
+                    arg = f"    {arg_val}" if is_unlabeled else f"    --{flag} {arg_val}"
+                    target = unlabeled_parts if is_unlabeled else flag_parts
+                    if is_param_optional(param, default=False):
+                        # An omitted optional dataset must not be rendered as
+                        # the literal string 'None.<ext>': guard both the
+                        # symlink and the flag on the parameter being set.
+                        command_parts.append(f"#if ${name}\n{symlink}\n#end if")
+                        target.append(f"#if ${name}\n{arg}\n#end if")
+                    else:
+                        command_parts.append(symlink)
+                        target.append(arg)
+            elif isinstance(param, BooleanParam):
+                flag_parts.append(f"    ${name}")
+            elif isinstance(
+                param, (TextParam, IntegerParam, FloatParam, SelectParam)
+            ):
+                if isinstance(param, SelectParam) and _node_attr_true(
+                    param, "multiple"
+                ):
+                    # Multi-value selects render as a Python list; repeat the
+                    # flag once per selected value (a plain ``'$x'`` would
+                    # stringify the whole list, or ``'None'`` when empty).
+                    flag_parts.append(
+                        f"#for $v in ${name}\n    --{flag} '$v'\n#end for"
+                    )
+                    continue
+                # Optional value arguments are wrapped in ``#if str(...)`` so an
+                # empty value is omitted from the command line rather than passed
+                # as ``--flag ''`` (which TCLAP silently accepts, giving silently
+                # wrong results).
+                if is_unlabeled:
+                    if is_param_optional(param, default=False):
+                        unlabeled_parts.append(
+                            f"#if str(${name})\n    '${name}'\n#end if"
+                        )
+                    else:
+                        unlabeled_parts.append(f"    '${name}'")
+                else:
+                    if is_param_optional(param, default=False):
+                        flag_parts.append(
+                            f"#if str(${name})\n    --{flag} '${name}'\n#end if"
+                        )
+                    else:
+                        flag_parts.append(f"    --{flag} '${name}'")
+
+        # 3. OUTPUT FLAGS
+        for flag, info in output_command_map.items():
+            if flag == "VIRTUAL_no_flag":
+                continue
+            if info.get("is_directory"):
+                # The utility writes into a directory it is given.
+                flag_parts.append(f"    --{flag} '{DIRECTORY_OUTPUT_DIR}'")
+                continue
+            if info.get("type") == "BASE_FILENAME":
+                if "directory" in flag.lower():
+                    flag_parts.append(f"    --{flag} 'new_output'")
+                else:
+                    flag_parts.append(
+                        f"    --{flag} {info.get('base_value', 'new_')}"
+                    )
+            else:
+                flag_parts.append(f"    --{flag} {info['filename']}")
+
+        final_exec_line = [executable_name]
+        final_exec_line.extend(flag_parts)
+        final_exec_line.extend(unlabeled_parts)
+        if any(info.get("is_directory") for info in output_command_map.values()):
+            # OGS does not create the output directory itself.
+            command_parts.append(f"mkdir -p '{DIRECTORY_OUTPUT_DIR}';")
+        command_parts.extend(final_exec_line)
+        if (
+            not output_command_map
+            and tool_name.lower() not in IMPLICIT_OUTPUTS
+        ):
+            command_parts[-1] += " > '$stdout_log'"
+        if needs_regex_import:
+            command_parts.insert(0, "#import re")
+        command_str = "\n".join(command_parts)
+
+        # 4. Tool object
+        # Description/help come from the utility's own ``TCLAP::CmdLine`` text
+        # (the CLI definition), not from a generic "Galaxy wrapper for ..."
+        # sentence that repeats the tool name. If OGS has no description the
+        # element is dropped entirely below.
+        cmdline_text = tool_data.get("cmdline_text") or ""
+        tool_description = cmdline_description(cmdline_text)
+        tool = Tool(
+            name=f"OGS: {tool_name}",
+            id=f"ogs_{tool_name.lower()}",
+            version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@",
+            description=tool_description,
+            executable=executable_name,
+            macros=["macros.xml", "test_macros.xml"],
+            profile="@PROFILE@",
+            version_command=f"{executable_name} --version",
+            command_override=[command_str],
+        )
+
+        inputs_tag = tool.inputs = Inputs()
+        for param in galaxy_inputs:
+            if param_var_name(param) in mode_hidden:
+                continue
+            inputs_tag.append(param)
+        if mode_spec is not None:
+            inputs_tag.append(build_mode_conditional(mode_spec, mode_params))
+
+        if output_command_map:
+            outputs_tag = tool.outputs = Outputs()
+            uses_base_filename = any(
+                info.get("type") == "BASE_FILENAME"
+                for info in output_command_map.values()
+            )
+
+            if any(
+                info.get("is_directory") for info in output_command_map.values()
+            ):
+                collection = OutputCollection(
+                    name="tool_outputs",
+                    type="list",
+                    label=f"Outputs from {tool_name}",
+                )
+                collection.append(
+                    DiscoverDatasets(
+                        pattern="__name_and_ext__",
+                        directory=DIRECTORY_OUTPUT_DIR,
+                        visible=True,
+                    )
+                )
+                outputs_tag.append(collection)
+            elif uses_base_filename:
+                first_out_info = next(
+                    info
+                    for info in output_command_map.values()
+                    if info.get("type") == "BASE_FILENAME"
+                )
+                fixed_outputs = first_out_info.get("outputs")
+                if fixed_outputs:
+                    # The utility writes exactly these files (their names follow
+                    # from the base name the wrapper passes), so declare them
+                    # explicitly instead of guessing designations from a file
+                    # name pattern that carries the wrapper's artificial prefix.
+                    for out in fixed_outputs:
+                        outputs_tag.append(
+                            OutputData(
+                                name=out["name"],
+                                format=out["format"],
+                                label=out.get("label", out["name"]),
+                                from_work_dir=out["from_work_dir"],
+                            )
+                        )
+                else:
+                    # No explicit output list: discover whatever the utility wrote
+                    # under the base name the wrapper passes.
+                    if first_out_info.get("pattern"):
+                        pattern = first_out_info["pattern"]
+                    elif "VIRTUAL_no_flag" in output_command_map:
+                        # The utility names its output files itself.
+                        pattern = r"(?P<designation>.*)\.vtu"
+                    else:
+                        # Base-name output: the wrapper chooses the prefix, so
+                        # strip it (and the extension) again -- the element
+                        # designation must not depend on the wrapper's prefix.
+                        base = first_out_info.get("base_value", "new_")
+                        ext = (first_out_info.get("filename") or "x.vtu").rsplit(
+                            ".", 1
+                        )[-1]
+                        pattern = (
+                            rf"{re.escape(base)}(?P<designation>.*)\."
+                            rf"{re.escape(ext)}"
+                        )
+                    collection = OutputCollection(
+                        name="tool_outputs",
+                        type="list",
+                        label=f"Outputs from {tool_name}",
+                    )
+                    collection.append(
+                        DiscoverDatasets(
+                            pattern=_discover_pattern(pattern, input_link_names),
+                            format=first_out_info.get("format", "vtkxml"),
+                            visible=True,
+                        )
+                    )
+                    outputs_tag.append(collection)
+                    for extra in first_out_info.get("extra_outputs", []):
+                        outputs_tag.append(
+                            OutputData(
+                                name=extra["name"],
+                                format=extra["format"],
+                                label=extra.get("label", extra["name"]),
+                                from_work_dir=extra["from_work_dir"],
+                            )
+                        )
+            else:
+                single_file_outputs = [
+                    v
+                    for v in output_command_map.values()
+                    if v.get("type") == "FIXED_FILE"
+                ]
+                if len(single_file_outputs) == 1 and len(output_command_map) == 1:
+                    flag, info = list(output_command_map.items())[0]
+                    outputs_tag.append(
+                        OutputData(
+                            name=f"output_{tool_name.lower()}",
+                            format=info["format"],
+                            from_work_dir=info["filename"],
+                            label=f"Output from {tool_name}",
+                        )
+                    )
+                else:
+                    exts = sorted(
+                        {
+                            str(info["filename"]).rsplit(".", 1)[-1]
+                            for info in single_file_outputs
+                        }
+                    )
+                    collection = OutputCollection(
+                        name="tool_outputs",
+                        type="list",
+                        label=f"Outputs from {tool_name}",
+                    )
+                    collection.append(
+                        DiscoverDatasets(
+                            pattern=_discover_pattern(
+                                r"(?P<designation>output_[^.]*)\.(?:"
+                                + "|".join(exts)
+                                + r")",
+                                input_link_names,
+                            ),
+                            # The mixed-extension fallback: every utility that
+                            # gets here writes text (``.geo``, ``.gml``, ...).
+                            format="txt",
+                            visible=True,
+                        )
+                    )
+                    outputs_tag.append(collection)
+        elif tool_name.lower() in IMPLICIT_OUTPUTS:
+            outputs_tag = tool.outputs = Outputs()
+            for spec in IMPLICIT_OUTPUTS[tool_name.lower()]:
+                collection = OutputCollection(
+                    name=spec["name"],
+                    type="list",
+                    label=spec["label"],
+                )
+                collection.append(
+                    DiscoverDatasets(
+                        pattern=_discover_pattern(
+                            spec["pattern"], input_link_names
+                        ),
+                        format=spec["format"],
+                        visible=True,
+                    )
+                )
+                outputs_tag.append(collection)
+        else:
+            outputs_tag = tool.outputs = Outputs()
+            outputs_tag.append(
+                OutputData(
+                    name="stdout_log",
+                    format="txt",
+                    label=f"Output Log from {tool_name}",
+                )
+            )
+
+        tests_section = Tests()
+        tests_section.append(Expand(macro=f"{tool_name.lower()}_test"))
+        tool.tests = tests_section
+        # The OGS help strings use ``*`` (``*.vtu``) and backticks that RST would
+        # interpret as markup, so escape the characters that matter.
+        tool_help = (
+            cmdline_text
+            or f"This tool runs the **{tool_name}** utility from the "
+            "OpenGeoSys suite."
+        )
+        tool.help = re.sub(r"([*`|])", r"\\\1", tool_help)
+
+        # --- 5. XML
+        raw_xml_string = tool.export()
+        tool_xml_root = ET.fromstring(raw_xml_string)
+
+        # A tool without an OGS-supplied description gets no <description> at
+        # all: repeating the tool name there is pure noise.
+        if not tool_description:
+            description_node = tool_xml_root.find("description")
+            if description_node is not None:
+                tool_xml_root.remove(description_node)
+
+        # Insert the house <expand macro="creator"/> right after the
+        # <expand macro="requirements"/> that galaxyxml emits automatically.
+        for i, child in enumerate(tool_xml_root):
+            if child.tag == "expand" and child.get("macro") == "requirements":
+                tool_xml_root.insert(i + 1, ET.Element("expand", {"macro": "creator"}))
+                break
+
+        inputs_node = tool_xml_root.find("inputs")
+
+        if inputs_node is not None:
+            for param in galaxy_inputs:
+                if getattr(param, "is_data_collection", False):
+                    arg = getattr(param, "argument", None)
+                    p_node = (
+                        inputs_node.find(f"param[@argument='{arg}']") if arg else None
+                    )
+                    if p_node is None and getattr(param, "name", None):
+                        # PVD element collections are declared by ``name`` and
+                        # have no ``argument`` attribute in the emitted XML.
+                        p_node = inputs_node.find(f"param[@name='{param.name}']")
+                    if p_node is None and arg:
+                        # Fall back to the (possibly stale) outer ``flag`` var.
+                        p_node = inputs_node.find(f"param[@argument='--{flag}']")
+                    if p_node is not None:
+                        p_node.set("type", "data_collection")
+                        p_node.set("collection_type", "list")
+                        if "multiple" in p_node.attrib:
+                            del p_node.attrib["multiple"]
+
+        if inputs_node is not None:
+            _derive_param_constraints(inputs_node, tool_name.lower())
+
+        output_file_path = output_dir / f"{tool_name}.xml"
+        ET.indent(tool_xml_root, space="  ")
+        xml_str = ET.tostring(tool_xml_root, encoding="unicode")
+
+        def version_cdata_rewrite(match):
+            return f"<version_command><![CDATA[{match.group(1).strip()}]]></version_command>"
+
+        xml_str = re.sub(
+            r"<version_command>(.*?)</version_command>",
+            version_cdata_rewrite,
+            xml_str,
+        )
+
+        def command_cdata_rewrite(match):
+            content = (
+                match.group(1)
+                .strip()
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&amp;", "&")
+            )
+            return f"<command><![CDATA[\n{content}\n]]></command>"
+
+        xml_str = re.sub(
+            r"<command.*?>(.*?)</command>",
+            command_cdata_rewrite,
+            xml_str,
+            flags=re.DOTALL,
+        )
+
+        with open(output_file_path, "w", encoding="utf-8") as f:
+            # No ``<?xml ... ?>`` declaration: Galaxy does not need it and the
+            # house style omits it.
+            f.write(xml_str + "\n")
+        generated_count += 1
+
+    eprint(f"\nFinished. {generated_count} tool wrappers created.")
+
+
+def parse_diff_data(
+    diff_str: str, base_url: str, workdir: str, input_files: List[str]
+) -> List[Dict[str, str]]:
+    diff_files = []
+    seen_generated = set()
+    valid_exts = (
+        ".vtu",
+        ".gml",
+        ".bin",
+        ".asc",
+        ".pvtu",
+        ".msh",
+        ".smesh",
+        ".xdmf",
+        ".prj",
+        ".xml",
+        ".png",
+        ".geo",
+    )
+
+    clean_lines = [line.split("#")[0].strip() for line in diff_str.strip().split("\n")]
+    tokens = (" ".join(clean_lines)).split()
+
+    i = 0
+    while i < len(tokens):
+        t1 = tokens[i]
+        if any(t1.lower().endswith(ext) for ext in valid_exts):
+            if i + 1 < len(tokens) and any(
+                tokens[i + 1].lower().endswith(ext) for ext in valid_exts
+            ):
+                t2 = tokens[i + 1]
+
+                if t2 not in input_files and t2 not in seen_generated:
+                    ref_url = (
+                        f"{base_url}/{workdir}/{t1}".replace("<PATH>", workdir)
+                        if workdir
+                        else f"{base_url}/{t1}"
+                    )
+                    diff_files.append(
+                        {
+                            "reference": ref_url,
+                            "generated": t2,
+                            "ftype": t2.split(".")[-1],
+                        }
+                    )
+                    seen_generated.add(t2)
+                i += 2
+                continue
+        i += 1
+    return diff_files
+
+
+def get_dummy_value(param, tool_name, all_params=None):
+    def _tdata(relpath: str) -> str:
+        # Official OGS test data, pinned commit.
+        return f"{OGS_TEST_DATA_URL}/{relpath}"
+
+    URL_AREHS_TEST = _tdata("Utils/VoxelGridFromLayers/AREHS_test.vtu")
+    URL_AREHS_FAULT = _tdata("Utils/VoxelGridFromLayers/AREHS_fault.vtu")
+    URL_PVD_MAIN = _tdata(
+        "HydroMechanics/IdealGas/flow_pressure_boundary/flow_pressure_boundary.pvd"
+    )
+    URL_VTK_TEST = _tdata("Utils/VoxelGridFromLayers/AREHS_Layer17.vtu")
+
+    special_tool_files = {
+        "ComputeNodeAreasFromSurfaceMesh": "computeNodeAreasFromSurfaceMesh_test_data",
+    }
+    # For *_INPUT_FILE_LIST arguments the wrapper takes a single ASCII list
+    # file (not a collection). Fall back to the correct, known list file for
+    # tools that have no entry in Tests.cmake.
+    file_list_fixtures = {
+        "layers2grid": "Utils/VoxelGridFromLayers/AREHS_test_layers.txt",
+    }
+    if isinstance(param, DataParam):
+        ext = getattr(param, "ogs_ext", "vtu").lower()
+        if tool_name in special_tool_files:
+            return f"{special_tool_files[tool_name]}.{ext}"
+        if getattr(param, "is_file_list", False):
+            return _tdata(
+                file_list_fixtures.get(
+                    tool_name.lower(), "Utils/VoxelGridFromLayers/AREHS_test_layers.txt"
+                )
+            )
+        if getattr(param, "is_pvd", False):
+            return URL_PVD_MAIN
+        if (
+            param_var_name(param) == "fault"
+            or "fault" in (getattr(param, "label", "") or "").lower()
+        ) and ext in [
+            "vtu",
+            "vtk",
+            "msh",
+        ]:
+            return URL_AREHS_FAULT
+        if ext in ["vtu", "msh"]:
+            return URL_AREHS_TEST
+        if ext in ["vtk"]:
+            return URL_VTK_TEST
+        return f"test.{ext}"
+
+    if isinstance(param, SelectParam):
+        opts = getattr(param, "options_dict", {})
+        return list(opts.keys())[0] if opts else "value"
+    if isinstance(param, (IntegerParam, FloatParam)):
+        return "1" if isinstance(param, IntegerParam) else "1.0"
+    if isinstance(param, BooleanParam):
+        return "true"
+    return "dummy_text"
+
+
+def extra_outputs_of(tool_name: str) -> List[Dict[str, Any]]:
+    """Fixed files written next to a base-filename collection output."""
+    return BASE_FILENAME_OVERRIDES.get(tool_name.lower(), {}).get(
+        "extra_outputs", []
+    )
+
+
+def fixed_outputs_of(tool_name: str) -> List[Dict[str, Any]]:
+    """Files declared individually instead of a discovered collection."""
+    return BASE_FILENAME_OVERRIDES.get(tool_name.lower(), {}).get(
+        "outputs", []
+    )
+
+
+# Prefix marking a test fixture that is vendored in ``tools/ogs/test-data``
+# instead of downloaded from the pinned OGS commit.
+LOCAL_FIXTURE_PREFIX = "local:"
+
+
+def members_param(p_obj, members: str, wd_sub: str, output_dir: Path):
+    """Build the ``<param>`` that carries the elements of a collection input.
+
+    ``members`` is the ``<var>__members`` entry of ``TEST_OVERRIDES``: a comma
+    separated list of OGS test-data paths, each optionally prefixed with
+    ``local:`` to name a fixture vendored in ``test-data`` (which Galaxy copies
+    from ``--test_data``, so it has no ``location``). Returns ``None`` if a
+    fixture cannot be resolved, so the caller can skip the test case.
+    """
+    m_coll = ET.Element("param", {"name": param_var_name(p_obj)})
+    m_list = ET.SubElement(m_coll, "collection", {"type": "list"})
+    ftype = p_obj.format.split(",")[0]
+    for member_spec in [x.strip() for x in str(members).split(",") if x.strip()]:
+        local = member_spec.startswith(LOCAL_FIXTURE_PREFIX)
+        m_path = member_spec[len(LOCAL_FIXTURE_PREFIX):] if local else member_spec
+        m_file = m_path.split("/")[-1]
+        attribs = {"name": m_file, "value": m_file, "ftype": ftype}
+        if local:
+            fixture = Path(output_dir) / "test-data" / m_file
+            if not fixture.is_file() and fixture.parent.is_dir():
+                eprint(
+                    f"WARNING: {m_file} is used as a local test fixture but is "
+                    "not in test-data"
+                )
+                return None
+        else:
+            attribs["location"] = _fixture_url(m_path, wd_sub)
+            if not url_exists(attribs["location"]):
+                return None
+        ET.SubElement(m_list, "element", attribs)
+    return m_coll
+
+
+def apply_test_overrides(
+    tool_name: str, test_case, galaxy_inputs, output_dir=None
+) -> None:
+    """Replace auto-derived test inputs with the curated ones for a tool.
+
+    The generator can only match a parameter's *file extension* when it picks a
+    fixture, which is not enough for utilities that need a particular kind of
+    mesh, a real property name or a valid switch value. ``TEST_OVERRIDES``
+    pins those values per tool; this applies them to an already-built
+    ``<test>`` element.
+    """
+    overrides = TEST_OVERRIDES.get(tool_name.lower())
+    if not overrides:
+        return
+    apply_override_dict(overrides, test_case, galaxy_inputs, tool_name, output_dir)
+
+
+def apply_override_dict(
+    overrides: Dict[str, Any],
+    test_case,
+    galaxy_inputs,
+    tool_name: str = "",
+    output_dir=None,
+) -> None:
+    """Apply one ``TEST_OVERRIDES``-shaped mapping to a ``<test>`` element."""
+    by_var = {param_var_name(p): p for p in galaxy_inputs}
+    existing = {e.get("name"): e for e in test_case.findall("param")}
+    spec = EXCLUSIVE_MODES.get(tool_name.lower())
+    if spec is not None and spec["name"] in overrides:
+        # The mode select is created by the generator, not derived from TCLAP,
+        # so it is not in ``by_var`` and needs the value set here.
+        elem = existing.get(spec["name"])
+        if elem is None:
+            elem = ET.SubElement(test_case, "param", {"name": spec["name"]})
+        elem.set("value", str(overrides[spec["name"]]))
+    for var, value in overrides.items():
+        param = by_var.get(var)
+        if param is None:
+            # ``<var>__members``: the elements of a collection input.
+            member_owner = next(
+                (
+                    p
+                    for p in galaxy_inputs
+                    if getattr(p, "members_override_key", None) == var
+                ),
+                None,
+            )
+            if member_owner is None or value is None:
+                continue
+            name = param_var_name(member_owner)
+            for elem in list(test_case.findall("param")):
+                if elem.get("name") == name:
+                    test_case.remove(elem)
+            rebuilt = members_param(member_owner, value, "", output_dir or ".")
+            if rebuilt is not None:
+                test_case.append(rebuilt)
+            continue
+        elem = existing.get(var)
+        if value is None:
+            # Optional input the tool does not need for this test case.
+            if elem is not None:
+                test_case.remove(elem)
+            continue
+        if elem is None:
+            elem = ET.SubElement(test_case, "param", {"name": var})
+        if isinstance(param, DataParam):
+            if isinstance(value, tuple):
+                # Vendored fixture in tools/ogs/test-data/.
+                filename = value[1]
+                elem.set("value", filename)
+                elem.attrib.pop("location", None)
+            else:
+                filename = value.rsplit("/", 1)[-1]
+                elem.set("value", filename)
+                elem.set("location", f"{OGS_TEST_DATA_URL}/{value}")
+        else:
+            elem.set("value", str(value))
+
+
+def generate_tests(ogs_root: Path, output_dir: Path):
+    eprint("--- Generating Final Unified Test Macros ---")
+    # Read the CMake test definitions from the local OGS clone (no network).
+    cmake_path = Path(ogs_root) / UTILS_PATH / "Tests.cmake"
+    if not cmake_path.exists():
+        eprint(f"ERROR: {cmake_path} not found.")
+        return
+    cmake_content = cmake_path.read_text(encoding="utf-8", errors="ignore")
+
+    all_tools_data = discover_tools(ogs_root)
+    tools_map_lower = {
+        tool["name"].lower(): tool
+        for tool in all_tools_data
+        if tool["name"].lower() not in EXCLUDED_TOOLS
+    }
+    tool_tests_accumulator = {tool_name: [] for tool_name in tools_map_lower.keys()}
+
+    addtest_pattern = re.compile(r"AddTest\s*\((.*?)\s*\)(?!\s*PROPERTIES)", re.DOTALL)
+
+    STOP_KEYWORDS = [
+        "TESTER",
+        "RUNTIME",
+        "PROPERTIES",
+        "DEPENDS",
+        "REQUIREMENTS",
+        "DIFF_DATA",
+        "WRAPPER",
+        "WRAPPER_ARGS",
+    ]
+
+    for match in addtest_pattern.finditer(cmake_content):
+        test_block = match.group(1)
+
+        exec_match = re.search(r"EXECUTABLE\s+([^\s\)]+)", test_block)
+        matched_tool = None
+        if exec_match and exec_match.group(1).lower() in tools_map_lower:
+            matched_tool = exec_match.group(1).lower()
+        else:
+            # No direct EXECUTABLE match: the binary name can differ from the
+            # .cpp-derived tool name (e.g. ``partmesh`` -> PartitionMesh). Scan
+            # only the metadata fields -- NOT EXECUTABLE_ARGS, whose file paths
+            # can name another tool (ExtractSurface reads
+            # ``Utils/GMSH2OGS/quadratic_mesh.vtu``) and would otherwise
+            # mis-attribute that test to the wrong tool.
+            search_space = " ".join(
+                m.group(1).lower()
+                for m in re.finditer(
+                    r"(?:NAME|PATH|WORKING_DIRECTORY)\s+([^\n\)]+)", test_block
+                )
+            )
+            for t in tools_map_lower.keys():
+                if re.search(
+                    r"(?:[\s/_-]|^)" + re.escape(t) + r"(?:[\s/_-]|$)",
+                    search_space,
+                ):
+                    matched_tool = t
+                    break
+
+        if not matched_tool or matched_tool.lower() in EXCLUDED_TOOLS:
+            continue
+
+        tool_data = tools_map_lower[matched_tool]
+        g_inputs_temp, _ = process_parameters(tool_data["parameters"], matched_tool)
+        # Skip only true PVD inputs (a list of .vtu members that must be
+        # rendered as a collection). File-list inputs are single txt files
+        # nowadays and render fine from the real EXECUTABLE_ARGS recipe.
+        # A PVD input needs its member files staged as a collection; that is
+        # only possible when ``<param>__members`` pins them (see
+        # TEST_OVERRIDES), otherwise the tool keeps the fallback dummy test.
+        pvd_params = [p for p in g_inputs_temp if getattr(p, "is_pvd", False)]
+        has_complex_input = any(
+            f"{param_var_name(p)}__members" not in TEST_OVERRIDES.get(
+                matched_tool.lower(), {}
+            )
+            for p in pvd_params
+        )
+
+        if has_complex_input:
+            eprint(
+                f"   -> Marking {matched_tool} for Dummy-Test (Complex PVD input)."
+            )
+            continue
+
+        if tool_tests_accumulator[matched_tool]:
+            continue
+        galaxy_inputs, output_map = process_parameters(
+            tool_data["parameters"], matched_tool
+        )
+        # A tool whose wrapper has no output *file* falls back to capturing
+        # command stdout as a ``stdout_log`` text output (see generate_tools).
+        output_has_stdout = (
+            not output_map and matched_tool.lower() not in IMPLICIT_OUTPUTS
+        )
+        all_inputs_map = {param_var_name(p): p for p in galaxy_inputs}
+
+        flag_map = {}
+        unlabeled_p = next(
+            (p for p in galaxy_inputs if getattr(p, "is_unlabeled", False)), None
+        )
+        for p in galaxy_inputs:
+            if hasattr(p, "original_long_flag") and p.original_long_flag:
+                flag_map[f"--{p.original_long_flag}"] = p
+            if hasattr(p, "original_short_flag") and p.original_short_flag:
+                flag_map[f"-{p.original_short_flag}"] = p
+
+        path_match = re.search(r"PATH\s+([^\s\)]+)", test_block)
+        p_rep = path_match.group(1).strip() if path_match else ""
+        wd_match = re.search(
+            r"WORKING_DIRECTORY\s+\$\{Data_SOURCE_DIR\}/([^\s\)]+)", test_block
+        )
+        wd_sub = wd_match.group(1).replace("<PATH>", p_rep).strip() if wd_match else ""
+
+        # ARGUMENT PARSING
+        params_in_test = {}
+        input_files_in_this_test = []
+        args_match = re.search(r"EXECUTABLE_ARGS\s+(.*)", test_block, re.DOTALL)
+        if args_match:
+            raw_args = args_match.group(1).split(")")[0].strip().replace("\n", " ")
+            norm_args = raw_args.replace(" -- ", " --SEP-- ")
+            try:
+                args_list = shlex.split(norm_args)
+            except ValueError:
+                args_list = norm_args.split()
+
+            i = 0
+            while i < len(args_list):
+                arg = args_list[i]
+                if arg.upper() in STOP_KEYWORDS:
+                    break
+
+                if arg in flag_map:
+                    p = flag_map[arg]
+                    i += 1
+                    if isinstance(p, BooleanParam):
+                        params_in_test[param_var_name(p)] = "true"
+                    else:
+                        collected_vals = []
+                        while (
+                            i < len(args_list)
+                            and not args_list[i].startswith("-")
+                            and args_list[i].upper() not in STOP_KEYWORDS
+                        ):
+                            val = (
+                                args_list[i]
+                                .replace("<PATH>", p_rep)
+                                .replace("<SOURCE_PATH>", p_rep)
+                                .replace("${Data_SOURCE_DIR}/", "")
+                                .replace("${Data_BINARY_DIR}/", "")
+                                .lstrip("/")
+                            )
+                            if val:
+                                collected_vals.append(val)
+                            i += 1
+                        if collected_vals:
+                            params_in_test[param_var_name(p)] = ",".join(collected_vals)
+                        continue
+
+                elif unlabeled_p and not arg.startswith("-"):
+                    current_unlabeled = []
+                    if param_var_name(unlabeled_p) in params_in_test:
+                        current_unlabeled = (
+                            params_in_test[param_var_name(unlabeled_p)].split(",")
+                        )
+
+                    while (
+                        i < len(args_list)
+                        and not args_list[i].startswith("-")
+                        and args_list[i].upper() not in STOP_KEYWORDS
+                    ):
+                        val = (
+                            args_list[i]
+                            .replace("<PATH>", p_rep)
+                            .replace("<SOURCE_PATH>", p_rep)
+                            .replace("${Data_SOURCE_DIR}/", "")
+                            .replace("${Data_BINARY_DIR}/", "")
+                            .lstrip("/")
+                        )
+                        if any(
+                            val.lower().endswith(ext)
+                            for ext in [
+                                ".pvd",
+                                ".vtu",
+                                ".msh",
+                                ".gml",
+                                ".asc",
+                                ".nc",
+                                ".xyz",
+                            ]
+                        ):
+                            current_unlabeled.append(val)
+                        i += 1
+                    if current_unlabeled:
+                        params_in_test[param_var_name(unlabeled_p)] = ",".join(
+                            current_unlabeled
+                        )
+                    continue
+
+                i += 1
+
+        # XML generation
+        test_case = ET.Element("test")
+        test_is_valid = True
+        test_params_xml = []
+
+        # A manifest input does not name its files in the ctest arguments; the
+        # collection is supplied by ``<param>__members`` instead.
+        members_params: set = set()
+        for p_obj in galaxy_inputs:
+            m_key = getattr(p_obj, "members_override_key", None)
+            members = (
+                TEST_OVERRIDES.get(matched_tool.lower(), {}).get(m_key)
+                if m_key
+                else None
+            )
+            if not members:
+                continue
+            m_name = param_var_name(p_obj)
+            m_coll = members_param(p_obj, members, wd_sub, output_dir)
+            if m_coll is None:
+                test_is_valid = False
+                continue
+            test_params_xml.append(m_coll)
+            members_params.add(m_name)
+
+        for p_name, p_val in params_in_test.items():
+            p_obj = all_inputs_map.get(p_name)
+            if not p_obj or p_name in members_params:
+                continue
+
+            val_clean = (
+                str(p_val)
+                .replace("<PATH>", p_rep)
+                .replace("<SOURCE_PATH>", p_rep)
+                .replace("${Data_BINARY_DIR}/", "")
+                .replace("${Data_SOURCE_DIR}/", "")
+                .lstrip("/")
+            )
+
+            # PVD
+            if getattr(p_obj, "is_pvd", False):
+                # A ``.pvd``/``.pvtu`` names its companion files, so they have to
+                # be staged under exactly those names. The default list is what
+                # the utility's OGS test block references, which can point into a
+                # different data directory than the fixture pinned here, so
+                # ``<param>__members`` overrides it with explicit paths.
+                members_spec = TEST_OVERRIDES.get(matched_tool.lower(), {}).get(
+                    f"{p_name}__members"
+                )
+                if members_spec:
+                    members = [
+                        (_fixture_url(m, wd_sub), m.strip().split("/")[-1])
+                        for m in str(members_spec).split(",")
+                        if m.strip()
+                    ]
+                else:
+                    members = [
+                        (
+                            f"{OGS_TEST_DATA_URL}/{wd_sub}/{v}"
+                            if wd_sub
+                            else f"{OGS_TEST_DATA_URL}/{v}",
+                            v,
+                        )
+                        for v in sorted(
+                            set(
+                                v
+                                for v in re.findall(
+                                    r"([^\s/]+\.vt[ui])", test_block
+                                )
+                                if not v.endswith(".pvd")
+                            )
+                        )
+                    ]
+                if members:
+                    p_pvd_name = f"{p_name}_pvd_data"
+                    coll_param = ET.Element("param", {"name": p_pvd_name})
+                    coll_wrapper = ET.SubElement(
+                        coll_param, "collection", {"type": "list"}
+                    )
+                    for url, name in members:
+                        if not url_exists(url):
+                            test_is_valid = False
+                            break
+                        ET.SubElement(
+                            coll_wrapper,
+                            "element",
+                            {
+                                "name": name,
+                                "value": name,
+                                "location": url,
+                                "ftype": "vtkxml",
+                            },
+                        )
+                    if test_is_valid:
+                        test_params_xml.append(coll_param)
+
+            # Collections / INPUT_FILE_LIST
+            if getattr(p_obj, "is_data_collection", False):
+                files_to_process = val_clean.split(",")
+                coll_param = ET.Element("param", {"name": p_name})
+                coll_wrapper = ET.SubElement(coll_param, "collection", {"type": "list"})
+
+                for f_path in files_to_process:
+                    f_name = f_path.split("/")[-1]
+                    url = _fixture_url(f_path, wd_sub)
+
+                    if not url_exists(url):
+                        test_is_valid = False
+                        break
+
+                    ET.SubElement(
+                        coll_wrapper,
+                        "element",
+                        {
+                            "name": f_name,
+                            "value": f_name,
+                            "location": url,
+                            "ftype": p_obj.format.split(",")[0],
+                        },
+                    )
+
+                if test_is_valid:
+                    test_params_xml.append(coll_param)
+
+            # 3. single parameter
+            else:
+                attrs = {"name": p_name}
+                if isinstance(p_obj, DataParam):
+                    f_name = val_clean.split("/")[-1]
+                    url = _fixture_url(val_clean, wd_sub)
+                    if not url_exists(url):
+                        test_is_valid = False
+                        break
+                    attrs.update(
+                        {
+                            "value": f_name,
+                            "location": url,
+                            "ftype": p_obj.format.split(",")[0],
+                        }
+                    )
+                else:
+                    is_base_filename_param = any(
+                        sanitize_name(flag) == p_name
+                        and info.get("type") == "BASE_FILENAME"
+                        for flag, info in output_map.items()
+                    )
+                    attrs["value"] = (
+                        BASE_FILENAME_OVERRIDES.get(matched_tool.lower(), {}).get(
+                            "base_value", "new_"
+                        )
+                        if is_base_filename_param
+                        else val_clean.split("/")[-1]
+                    )
+
+                test_params_xml.append(ET.Element("param", attrs))
+
+            if not test_is_valid:
+                break
+
+        if not test_is_valid:
+            continue
+
+        for elem in test_params_xml:
+            val = elem.get("value")
+            if val and val.startswith("${") and val.endswith("}"):
+                p_name = elem.get("name")
+                p_obj = all_inputs_map.get(p_name)
+                if p_obj:
+                    new_val = get_dummy_value(
+                        p_obj, matched_tool, all_params=galaxy_inputs
+                    )
+                    elem.set("value", str(new_val))
+
+        for xml_elem in test_params_xml:
+            test_case.append(xml_elem)
+
+        # --- OUTPUT LOGIK ---
+        dm = re.search(r"DIFF_DATA\s+(.*?)(?=\s*\)|$)", test_block, re.DOTALL)
+        output_added = False
+        # Set below when the test asserts exactly one plain data output, so we
+        # can emit ``expect_num_outputs="1"`` (guards against silently
+        # dropped or extra outputs). Collection outputs have a data-dependent
+        # element count and are left without an explicit count.
+        expect_single_output = False
+
+        if dm:
+            diff_files = parse_diff_data(
+                dm.group(1).strip(),
+                OGS_TEST_DATA_URL,
+                wd_sub,
+                input_files_in_this_test,
+            )
+            if diff_files:
+                diff_files.sort(key=lambda x: x["generated"])
+                if fixed_outputs_of(matched_tool):
+                    # Individual outputs are asserted from the override below.
+                    pass
+                elif len(output_map) > 1 or any(
+                    info.get("type") == "BASE_FILENAME"
+                    or info.get("is_directory")
+                    for info in output_map.values()
+                ):
+                    # Discovered collections have data-dependent element names
+                    # (base-filename tools append their own suffixes), so assert
+                    # on the element count instead.
+                    ET.SubElement(
+                        test_case,
+                        "output_collection",
+                        {"name": "tool_outputs", "type": "list", "min": "1"},
+                    )
+                    output_added = True
+                elif len(diff_files) == 1:
+                    out_name = sanitize_name(f"output_{matched_tool}")
+                    out_elem = ET.SubElement(test_case, "output", {"name": out_name})
+                    ET.SubElement(
+                        ET.SubElement(out_elem, "assert_contents"),
+                        "has_size",
+                        {"min": "100"},
+                    )
+                    output_added = True
+                    expect_single_output = True
+
+        # Fallback
+        # Utilities in ``IMPLICIT_OUTPUTS`` write their files without an output
+        # flag; each declared collection is asserted to be non-empty.
+        if not output_added and matched_tool.lower() in IMPLICIT_OUTPUTS:
+            for spec in IMPLICIT_OUTPUTS[matched_tool.lower()]:
+                ET.SubElement(
+                    test_case,
+                    "output_collection",
+                    {"name": spec["name"], "type": "list", "min": "1"},
+                )
+                output_added = True
+
+        if not output_added and not output_map and output_has_stdout:
+            # Tool captures command stdout as a ``stdout_log`` text output
+            # (the wrapper has no real output file). Assert it exists.
+            out_elem = ET.SubElement(test_case, "output", {"name": "stdout_log"})
+            ET.SubElement(
+                ET.SubElement(out_elem, "assert_contents"), "has_size", {"min": "1"}
+            )
+            output_added = True
+            expect_single_output = True
+
+        if not output_added and output_map:
+            if fixed_outputs_of(matched_tool):
+                # Individual outputs are asserted below.
+                pass
+            elif len(output_map) > 1 or any(
+                info.get("type") == "BASE_FILENAME"
+                or info.get("is_directory")
+                for info in output_map.values()
+            ):
+                # Element names of a discovered collection are data dependent
+                # (base-filename tools append their own suffixes), so assert on
+                # the element count instead.
+                ET.SubElement(
+                    test_case,
+                    "output_collection",
+                    {"name": "tool_outputs", "type": "list", "min": "1"},
+                )
+                pass
+            else:
+                out_name = sanitize_name(f"output_{matched_tool}")
+                out_elem = ET.SubElement(test_case, "output", {"name": out_name})
+                ET.SubElement(
+                    ET.SubElement(out_elem, "assert_contents"), "has_size", {"min": "1"}
+                )
+                expect_single_output = True
+
+        extras = extra_outputs_of(matched_tool) + fixed_outputs_of(matched_tool)
+        for extra in extras:
+            out_elem = ET.SubElement(
+                test_case, "output", {"name": extra["name"]}
+            )
+            ET.SubElement(
+                ET.SubElement(out_elem, "assert_contents"),
+                "has_size",
+                {"min": "1"},
+            )
+        if matched_tool.lower() in IMPLICIT_OUTPUTS:
+            # Only the implicit collections above; no ``stdout_log``.
+            test_case.set(
+                "expect_num_outputs", str(len(IMPLICIT_OUTPUTS[matched_tool.lower()]))
+            )
+        elif fixed_outputs_of(matched_tool):
+            # Every output is declared explicitly; there is no collection.
+            test_case.set("expect_num_outputs", str(len(extras)))
+        elif extras:
+            test_case.set("expect_num_outputs", str(len(extras) + 1))
+        elif expect_single_output:
+            test_case.set("expect_num_outputs", "1")
+
+        apply_test_overrides(
+            matched_tool, test_case, galaxy_inputs, output_dir=output_dir
+        )
+        nest_mode_conditional(test_case, matched_tool)
+        tool_tests_accumulator[matched_tool].append(test_case)
+        for extra in EXTRA_TESTS.get(matched_tool.lower(), []):
+            extra_case = copy.deepcopy(test_case)
+            apply_override_dict(
+                extra["overrides"],
+                extra_case,
+                galaxy_inputs,
+                matched_tool,
+                output_dir=output_dir,
+            )
+            for out_name, checks in extra.get("assertions", {}).items():
+                for out_elem in extra_case.findall("output"):
+                    if out_elem.get("name") != out_name:
+                        continue
+                    contents = out_elem.find("assert_contents")
+                    if contents is None:
+                        contents = ET.SubElement(out_elem, "assert_contents")
+                    for tag, attribs in checks:
+                        ET.SubElement(contents, tag, attribs)
+            tool_tests_accumulator[matched_tool].append(extra_case)
+
+    # Build Macros
+    macros_root = ET.Element("macros")
+    for t_name, cases in tool_tests_accumulator.items():
+        macro_xml = ET.SubElement(macros_root, "xml", {"name": f"{t_name}_test"})
+
+        if not cases:
+            fallback_test = ET.SubElement(macro_xml, "test")
+            tool_data = tools_map_lower[t_name]
+            g_inputs, g_outputs = process_parameters(tool_data["parameters"], t_name)
+
+            for p in g_inputs:
+                m_key = getattr(p, "members_override_key", None)
+                m_spec = TEST_OVERRIDES.get(t_name, {}).get(m_key) if m_key else None
+                is_data_coll = getattr(p, "is_data_collection", False) or bool(
+                    m_spec
+                )
+
+                if is_data_coll:
+                    if m_spec:
+                        urls = [
+                            _fixture_url(m.strip(), "")
+                            for m in str(m_spec).split(",")
+                            if m.strip()
+                        ]
+                    elif getattr(p, "is_pvd_element", False):
+                        urls = [
+                            f"{OGS_TEST_DATA_URL}/HydroMechanics/IdealGas/flow_pressure_boundary/flow_pressure_boundary_ts_0_t_0.000000.vtu",
+                            f"{OGS_TEST_DATA_URL}/HydroMechanics/IdealGas/flow_pressure_boundary/flow_pressure_boundary_ts_100_t_4000.000000.vtu",
+                        ]
+                    elif getattr(p, "is_file_list", False) or param_var_name(p) == "raster_list":
+                        urls = [
+                            f"{OGS_TEST_DATA_URL}/Utils/VoxelGridFromLayers/AREHS_Layer0.vtu",
+                            f"{OGS_TEST_DATA_URL}/Utils/VoxelGridFromLayers/AREHS_Layer15.vtu",
+                        ]
+                    else:
+                        urls = [get_dummy_value(p, t_name, all_params=g_inputs)]
+
+                    coll_node = ET.SubElement(
+                        fallback_test, "param", {"name": param_var_name(p)}
+                    )
+                    coll_wrapper = ET.SubElement(
+                        coll_node, "collection", {"type": "list"}
+                    )
+                    for url in urls:
+                        filename = url.split("/")[-1]
+                        ET.SubElement(
+                            coll_wrapper,
+                            "element",
+                            {
+                                "name": filename,
+                                "value": filename,
+                                "location": url,
+                                "ftype": "vtkxml",
+                            },
+                        )
+                    continue
+
+                # Standard parameter
+                is_mandatory = not is_param_optional(p, default=True)
+                if (
+                    is_mandatory
+                    or isinstance(p, DataParam)
+                    or isinstance(p, SelectParam)
+                ):
+                    val_str = get_dummy_value(p, t_name, all_params=g_inputs)
+                    is_ext = str(val_str).startswith("http")
+                    clean_val = val_str.split("/")[-1] if is_ext else val_str
+                    attrs = {"name": param_var_name(p), "value": clean_val}
+                    if isinstance(p, DataParam):
+                        attrs["ftype"] = p.format.split(",")[0]
+                        if is_ext:
+                            attrs["location"] = val_str
+                    ET.SubElement(fallback_test, "param", attrs)
+
+            apply_test_overrides(t_name, fallback_test, g_inputs)
+            nest_mode_conditional(fallback_test, t_name)
+
+            # Outputs
+            if g_outputs:
+                if fixed_outputs_of(t_name):
+                    # Individual outputs are asserted below.
+                    pass
+                elif len(g_outputs) > 1 or any(
+                    info.get("type") == "BASE_FILENAME"
+                    or info.get("is_directory")
+                    for info in g_outputs.values()
+                ):
+                    # Element names of a discovered collection are data
+                    # dependent (base-filename tools append their own suffixes),
+                    # so assert on the element count instead.
+                    ET.SubElement(
+                        fallback_test,
+                        "output_collection",
+                        {"name": "tool_outputs", "type": "list", "min": "1"},
+                    )
+                else:
+                    out_n = sanitize_name(f"output_{t_name}")
+                    out_tag = ET.SubElement(fallback_test, "output", {"name": out_n})
+                    ET.SubElement(
+                        ET.SubElement(out_tag, "assert_contents"),
+                        "has_size",
+                        {"min": "1"},
+                    )
+                    fallback_test.set("expect_num_outputs", "1")
+
+            elif t_name.lower() in IMPLICIT_OUTPUTS:
+                # Files written next to the input geometry, no output flag.
+                for spec in IMPLICIT_OUTPUTS[t_name.lower()]:
+                    ET.SubElement(
+                        fallback_test,
+                        "output_collection",
+                        {"name": spec["name"], "type": "list", "min": "1"},
+                    )
+                fallback_test.set(
+                    "expect_num_outputs", str(len(IMPLICIT_OUTPUTS[t_name.lower()]))
+                )
+
+            else:
+                out_tag = ET.SubElement(fallback_test, "output", {"name": "stdout_log"})
+                ac = ET.SubElement(out_tag, "assert_contents")
+                ET.SubElement(ac, "has_size", {"min": "1"})
+                fallback_test.set("expect_num_outputs", "1")
+
+            extras = extra_outputs_of(t_name) + fixed_outputs_of(t_name)
+            for extra in extras:
+                out_elem = ET.SubElement(
+                    fallback_test, "output", {"name": extra["name"]}
+                )
+                ET.SubElement(
+                    ET.SubElement(out_elem, "assert_contents"),
+                    "has_size",
+                    {"min": "1"},
+                )
+            if fixed_outputs_of(t_name):
+                fallback_test.set("expect_num_outputs", str(len(extras)))
+            elif extras:
+                fallback_test.set("expect_num_outputs", str(len(extras) + 1))
+        else:
+            for case in cases:
+                macro_xml.append(case)
+
+    tree = ET.ElementTree(macros_root)
+    ET.indent(tree, space="    ")
+    out_path = Path(output_dir) / "test_macros.xml"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(out_path, "wb") as f:
+        f.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
+        tree.write(f, encoding="utf-8", xml_declaration=False)
+    eprint(f"Wrote {out_path}")
+
+
+def _closest_match(key, universe) -> str:
+    """Return a " (did you mean ...?)" hint for an unresolvable table key."""
+    hits = difflib.get_close_matches(str(key), sorted(str(u) for u in universe), n=1)
+    return f" (did you mean {hits[0]!r}?)" if hits else ""
+
+
+def _audit_curated_tables(
+    discovered: set,
+    param_names: Dict[str, set],
+    long_flags: Dict[str, set],
+    virtual_names: Dict[str, set],
+    test_data_dir: Path = None,
+) -> List[str]:
+    """Compare every curated table against the parameters the generator emits.
+
+    Pure function so it can be unit-tested without an OGS source tree; the key
+    conventions differ per table and are therefore checked explicitly:
+
+      * ``TEST_OVERRIDES``, ``MANIFEST_INPUTS``, ``NON_PVD_INPUTS`` and
+        ``PARAM_EXT_OVERRIDES`` are looked up by *parameter variable name*,
+      * ``OUTPUT_EXT_OVERRIDES`` and ``BASE_FILENAME_OVERRIDES[*]['flag']`` by
+        *long flag* (output arguments never become Galaxy parameters),
+      * ``IMPLICIT_OUTPUTS`` and ``BASE_FILENAME_OVERRIDES`` by tool only,
+      * ``EXCLUSIVE_MODES`` by tool: the mode switches are looked up in the
+        long flags, the mode parameters by variable name.
+    """
+    problems: List[str] = []
+    wrapped = set(param_names)
+
+    for tool, overrides in TEST_OVERRIDES.items():
+        if tool in EXCLUDED_TOOLS:
+            problems.append(
+                f"TEST_OVERRIDES[{tool!r}]: the tool is in EXCLUDED_TOOLS, "
+                "so no wrapper is generated"
+            )
+            continue
+        if tool not in wrapped:
+            problems.append(
+                f"TEST_OVERRIDES[{tool!r}]: no such generated tool"
+                f"{_closest_match(tool, wrapped)}"
+            )
+            continue
+        known = param_names[tool] | virtual_names[tool]
+        for key in overrides:
+            if key not in known:
+                problems.append(
+                    f"TEST_OVERRIDES[{tool!r}][{key!r}]: not a parameter of that wrapper"
+                    f"{_closest_match(key, known)}"
+                )
+
+    # A collection input without a ``__members`` fixture silently degrades the
+    # tool's test to the dummy recipe, i.e. the input is never exercised.
+    for tool, keys in virtual_names.items():
+        if tool not in TEST_OVERRIDES:
+            for key in keys:
+                problems.append(
+                    f"TEST_OVERRIDES[{tool!r}]: missing {key!r}, so the collection "
+                    "input of this wrapper would only get a dummy test"
+                )
+        else:
+            for key in keys - set(TEST_OVERRIDES[tool]):
+                problems.append(
+                    f"TEST_OVERRIDES[{tool!r}]: missing {key!r}, so the collection "
+                    "input of this wrapper would only get a dummy test"
+                )
+
+    for tool, var in PARAM_EXT_OVERRIDES:
+        if tool not in wrapped:
+            problems.append(
+                f"PARAM_EXT_OVERRIDES[({tool!r}, {var!r})]: no such generated tool"
+                f"{_closest_match(tool, wrapped)}"
+            )
+        elif var not in param_names[tool]:
+            problems.append(
+                f"PARAM_EXT_OVERRIDES[({tool!r}, {var!r})]: no such parameter"
+                f"{_closest_match(var, param_names[tool])}"
+            )
+
+    for tool, flag in OUTPUT_EXT_OVERRIDES:
+        if tool not in wrapped:
+            problems.append(
+                f"OUTPUT_EXT_OVERRIDES[({tool!r}, {flag!r})]: no such generated tool"
+                f"{_closest_match(tool, wrapped)}"
+            )
+        elif flag not in long_flags[tool]:
+            problems.append(
+                f"OUTPUT_EXT_OVERRIDES[({tool!r}, {flag!r})]: no such output argument"
+                f"{_closest_match(flag, long_flags[tool])}"
+            )
+
+    for table_name, table in (
+        ("MANIFEST_INPUTS", MANIFEST_INPUTS),
+        ("NON_PVD_INPUTS", NON_PVD_INPUTS),
+        ("TEXT_VALIDATORS", TEXT_VALIDATORS),
+    ):
+        for tool, var in table:
+            if tool not in wrapped:
+                problems.append(
+                    f"{table_name}[({tool!r}, {var!r})]: no such generated tool"
+                    f"{_closest_match(tool, wrapped)}"
+                )
+            elif var not in param_names[tool]:
+                problems.append(
+                    f"{table_name}[({tool!r}, {var!r})]: no such parameter"
+                    f"{_closest_match(var, param_names[tool])}"
+                )
+
+    for tool, var in TEXT_VALIDATORS:
+        spec = TEXT_VALIDATORS[(tool, var)]
+        try:
+            re.compile(spec["pattern"])
+        except re.error as exc:
+            problems.append(
+                f"TEXT_VALIDATORS[({tool!r}, {var!r})]['pattern']: "
+                f"{spec['pattern']!r} is not a valid regular expression ({exc})"
+            )
+        if not spec.get("message"):
+            problems.append(
+                f"TEXT_VALIDATORS[({tool!r}, {var!r})]['message']: missing"
+            )
+
+    for tool, spec in MANIFEST_INPUTS.items():
+        if spec.get("kind") not in ("file_list", "companion_names"):
+            problems.append(
+                f"MANIFEST_INPUTS[{tool!r}]['kind']: unknown kind {spec.get('kind')!r} "
+                "(expected 'file_list' or 'companion_names')"
+            )
+
+    for table_name, table in (
+        ("IMPLICIT_OUTPUTS", IMPLICIT_OUTPUTS),
+        ("BASE_FILENAME_OVERRIDES", BASE_FILENAME_OVERRIDES),
+    ):
+        for tool in table:
+            if tool not in wrapped:
+                problems.append(
+                    f"{table_name}[{tool!r}]: no such generated tool"
+                    f"{_closest_match(tool, wrapped)}"
+                )
+
+    for tool, spec in BASE_FILENAME_OVERRIDES.items():
+        flag = spec.get("flag")
+        if tool in wrapped and flag and flag not in long_flags[tool]:
+            problems.append(
+                f"BASE_FILENAME_OVERRIDES[{tool!r}]['flag']: no such output argument "
+                f"{flag!r}{_closest_match(flag, long_flags[tool])}"
+            )
+
+    for tool in EXCLUDED_TOOLS:
+        if tool not in discovered:
+            problems.append(
+                f"EXCLUDED_TOOLS: {tool!r} is not a utility in this OGS tree"
+                f"{_closest_match(tool, discovered)}"
+            )
+
+    for tool, spec in EXCLUSIVE_MODES.items():
+        if tool in EXCLUDED_TOOLS:
+            problems.append(
+                f"EXCLUSIVE_MODES[{tool!r}]: the tool is in EXCLUDED_TOOLS, "
+                "so the group is never rendered"
+            )
+            continue
+        if tool not in wrapped:
+            problems.append(
+                f"EXCLUSIVE_MODES[{tool!r}]: no such generated tool"
+                f"{_closest_match(tool, wrapped)}"
+            )
+            continue
+        for value, mode in spec["modes"].items():
+            where = f"EXCLUSIVE_MODES[{tool!r}]['modes'][{value!r}]"
+            if mode.get("flag") not in long_flags[tool]:
+                problems.append(
+                    f"{where}['flag']: no such argument "
+                    f"{mode.get('flag')!r}"
+                    f"{_closest_match(mode.get('flag'), long_flags[tool])}"
+                )
+            for var in mode.get("params", []):
+                if var not in param_names[tool]:
+                    problems.append(
+                        f"{where}['params']: no such parameter {var!r}"
+                        f"{_closest_match(var, param_names[tool])}"
+                    )
+
+    for tool, cases in EXTRA_TESTS.items():
+        if tool in EXCLUDED_TOOLS:
+            problems.append(
+                f"EXTRA_TESTS[{tool!r}]: the tool is in EXCLUDED_TOOLS, "
+                "so no wrapper is generated"
+            )
+            continue
+        if tool not in wrapped:
+            problems.append(
+                f"EXTRA_TESTS[{tool!r}]: no such generated tool"
+                f"{_closest_match(tool, wrapped)}"
+            )
+            continue
+        known = param_names[tool] | virtual_names[tool]
+        for i, case in enumerate(cases):
+            where = f"EXTRA_TESTS[{tool!r}][{i}]"
+            for key in case.get("overrides", {}):
+                if key not in known:
+                    problems.append(
+                        f"{where}['overrides'][{key!r}]: not a parameter of that "
+                        f"wrapper{_closest_match(key, known)}"
+                    )
+            for out_name in case.get("assertions", {}):
+                allowed = {f"output_{tool}"} | {
+                    spec["name"] for spec in IMPLICIT_OUTPUTS.get(tool, [])
+                }
+                if out_name not in allowed:
+                    problems.append(
+                        f"{where}['assertions'][{out_name!r}]: no such output"
+                        f"{_closest_match(out_name, allowed)}"
+                    )
+
+    # A vendored fixture that is not in ``test-data`` only shows up as a
+    # failing Galaxy test, so check the files exist up front. A scratch output
+    # directory has no ``test-data`` at all; there is nothing to compare then.
+    if test_data_dir is not None and Path(test_data_dir).is_dir():
+        local_specs: List[tuple] = []
+        for tool, overrides in TEST_OVERRIDES.items():
+            for key, value in overrides.items():
+                if isinstance(value, tuple):
+                    local_specs.append((f"TEST_OVERRIDES[{tool!r}][{key!r}]", value[1]))
+                elif key.endswith("__members") and isinstance(value, str):
+                    for member in value.split(","):
+                        member = member.strip()
+                        if member.startswith(LOCAL_FIXTURE_PREFIX):
+                            local_specs.append(
+                                (
+                                    f"TEST_OVERRIDES[{tool!r}][{key!r}]",
+                                    member[len(LOCAL_FIXTURE_PREFIX):].strip(),
+                                )
+                            )
+        for tool, cases in EXTRA_TESTS.items():
+            for i, case in enumerate(cases):
+                for key, value in case.get("overrides", {}).items():
+                    where = f"EXTRA_TESTS[{tool!r}][{i}]['overrides'][{key!r}]"
+                    if isinstance(value, tuple):
+                        local_specs.append((where, value[1]))
+                    elif isinstance(value, str) and key.endswith("__members"):
+                        for member in value.split(","):
+                            member = member.strip()
+                            if member.startswith(LOCAL_FIXTURE_PREFIX):
+                                local_specs.append(
+                                    (
+                                        where,
+                                        member[len(LOCAL_FIXTURE_PREFIX):].strip(),
+                                    )
+                                )
+        for where, filename in local_specs:
+            if not (Path(test_data_dir) / filename.split("/")[-1]).is_file():
+                problems.append(
+                    f"{where}: {filename!r} is a vendored fixture, but "
+                    f"test-data/{filename} does not exist"
+                )
+
+    return problems
+
+
+def validate_curated_tables(
+    ogs_root: Path, test_data_dir: Path = None
+) -> List[str]:
+    """Report every curated-table key that resolves to nothing.
+
+    The tables near the top of this file are consulted with ``dict.get`` all
+    over the generator, so a key that names a tool or parameter that does not
+    exist (a typo, or a rename upstream) is silently ignored: the wrapper is
+    generated without its override, or a test quietly falls back to the dummy
+    recipe. This runs the same discovery the generators run -- discarding the
+    parameter objects, because ``process_parameters`` attaches state to them --
+    and returns one message per unresolvable key.
+    """
+    param_names: Dict[str, set] = {}
+    long_flags: Dict[str, set] = {}
+    virtual_names: Dict[str, set] = {}
+    discovered: set = set()
+
+    for tool_data in discover_tools(ogs_root):
+        key = tool_data["name"].lower()
+        discovered.add(key)
+        if key in EXCLUDED_TOOLS:
+            continue
+        params, output_command_map = process_parameters(
+            tool_data["parameters"], tool_data["name"]
+        )
+        param_names[key] = {param_var_name(p) for p in params}
+        long_flags[key] = (
+            {getattr(p, "original_long_flag", "") for p in params}
+            | set(output_command_map)
+        ) - {"", None}
+        virtual_names[key] = {
+            p.members_override_key
+            for p in params
+            if getattr(p, "members_override_key", None)
+        } | {
+            # A ``.pvd`` input builds its collection members from
+            # ``<var>__members`` (see the PVD branch of generate_tests).
+            f"{param_var_name(p)}__members"
+            for p in params
+            if getattr(p, "is_pvd", False)
+        }
+        if key in EXCLUSIVE_MODES:
+            # The mode select is not a TCLAP argument: the generator creates it
+            # from EXCLUSIVE_MODES, so the tree knows nothing about the name.
+            param_names[key].add(EXCLUSIVE_MODES[key]["name"])
+
+    return _audit_curated_tables(
+        discovered, param_names, long_flags, virtual_names, test_data_dir
+    )
+
+
+def _check_outputs(ogs_root: Path, target: Path) -> int:
+    """Regenerate every tool wrapper and the test macros and verify they match.
+
+    Wrappers must be produced by the generator (no hand-edits), so CI can
+    assert that the committed ``tools/ogs/`` outputs are reproducible. Each
+    file the generator produces (54 tool XMLs + ``test_macros.xml``) is
+    regenerated into a throw-away directory and compared byte-for-byte with
+    its counterpart under ``target`` (normally ``tools/ogs/``).
+
+    Returns 0 if everything matches (plain string-files also byte matches),
+    else returns the number of mismatches (and prints each one).
+    """
+    problem_count = 0
+    for problem in validate_curated_tables(ogs_root, target / "test-data"):
+        eprint(f"CHECK FAILED: {problem}")
+        problem_count += 1
+    if problem_count:
+        return problem_count
+
+    with tempfile.TemporaryDirectory(prefix="ogs_autowrap_ck_") as tmp:
+        out = Path(tmp)
+        # --check always regenerates the full, canonical output set.
+        generate_tools(ogs_root, out)
+        generate_tests(ogs_root, out)
+        generated = sorted(out.glob("*.xml"))
+        mismatches = 0
+        for f in generated:
+            counterpart = target / f.name
+            if not counterpart.exists():
+                eprint(f"CHECK MISMATCH: generated {f.name} has no counterpart in {target}")
+                mismatches += 1
+                continue
+            with open(f, "rb") as a, open(counterpart, "rb") as b:
+                if a.read() != b.read():
+                    eprint(f"CHECK MISMATCH: {target / f.name} differs from regenerated output")
+                    mismatches += 1
+        if mismatches:
+            eprint(f"CHECK FAILED: {mismatches} file(s) out of sync with generator (run --generate-tools --generate-tests).")
+        else:
+            logging.info(f"--check: all {len(generated)} generated files match {target}")
+        return mismatches
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Galaxy XML Wrapper Generator for OGS Utilities"
+    )
+    parser.add_argument(
+        "--ogs-root",
+        required=True,
+        type=Path,
+        help="Path to a local clone of the OGS source tree.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("."),
+        help="Directory to write the generated tool XML files into.",
+    )
+    parser.add_argument(
+        "--generate-tools",
+        action="store_true",
+        help="Generate individual tool XML wrappers (default action).",
+    )
+    parser.add_argument(
+        "--generate-tests",
+        action="store_true",
+        help="Generate a single test_macros.xml file for all tools.",
+    )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Regenerate everything and verify it matches the committed tools/ogs/ outputs "
+        "(exit non-zero on drift). Implies --generate-tools --generate-tests.",
+    )
+    parser.add_argument(
+        "--check-target",
+        type=Path,
+        default=Path("tools/ogs"),
+        help="Directory the generated outputs are expected to match (default: tools/ogs).",
+    )
+
+    parser.add_argument(
+        "--verify-urls",
+        action="store_true",
+        help="HEAD-check test-data fixture URLs instead of trusting the pinned "
+        "commit (network-dependent; off by default so --check is deterministic).",
+    )
+
+    args = parser.parse_args()
+
+    global VERIFY_URLS
+    VERIFY_URLS = args.verify_urls
+
+    # The curated tables are looked up with ``dict.get`` throughout, so a key
+    # that resolves to nothing is silently ignored: the override is dropped or
+    # a test degrades to the dummy recipe. Fail loudly instead -- exit code 2
+    # means "the tables are wrong", 1 means "the outputs have drifted".
+    problems = validate_curated_tables(
+        args.ogs_root, Path(args.output_dir) / "test-data"
+    )
+    if problems:
+        eprint(
+            f"curated tables do not match the OGS tree " f"({len(problems)} problem(s)):"
+        )
+        for problem in problems:
+            eprint(f"  {problem}")
+        sys.exit(2)
+
+    if args.check:
+        sys.exit(1 if _check_outputs(args.ogs_root, args.check_target) else 0)
+
+    if args.generate_tests:
+        generate_tests(args.ogs_root, args.output_dir)
+    if args.generate_tools:
+        generate_tools(args.ogs_root, args.output_dir)
+    if not args.generate_tests and not args.generate_tools:
+        # Default: generate the tool wrappers.
+        generate_tools(args.ogs_root, args.output_dir)
+
+
+if __name__ == "__main__":
+    main()

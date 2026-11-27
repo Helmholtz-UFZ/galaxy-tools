@@ -1,0 +1,35 @@
+<tool name="OGS: createIntermediateRasters" id="ogs_createintermediaterasters" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+  <macros>
+    <import>macros.xml</import>
+    <import>test_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <expand macro="creator" />
+  <version_command><![CDATA[createIntermediateRasters --version]]></version_command>
+  <command><![CDATA[
+ln -sf '$file2' 'file2.asc';
+ln -sf '$file1' 'file1.asc';
+createIntermediateRasters
+#if str($number)
+    --number '$number'
+#end if
+    --file2 'file2.asc'
+    --file1 'file1.asc'
+    --output-file output_.asc
+]]></command>
+  <inputs>
+    <param argument="--number" type="integer" optional="true" label="number" help="number of rasters to be calculated" min="0" />
+    <param argument="--file2" type="data" optional="false" label="file2" help="Input (.asc). Second DEM-raster input file" format="raster.asc" />
+    <param argument="--file1" type="data" optional="false" label="file1" help="Input (.asc) First DEM-raster input file" format="raster.asc" />
+  </inputs>
+  <outputs>
+    <collection name="tool_outputs" type="list" label="Outputs from createIntermediateRasters">
+      <discover_datasets pattern="(?!(?:file1\.asc|file2\.asc)$)(?P&lt;designation&gt;output_.*)\.asc" format="raster.asc" visible="true" />
+    </collection>
+  </outputs>
+  <tests>
+    <expand macro="createintermediaterasters_test" />
+  </tests>
+  <help>Takes two DEMs located at the exact same spatial position (but at different elevation) and calculates n raster DEMs located at equidistant intervals between them (i.e. for n=1, one new raster located precisely in the middle will be created).</help>
+  <expand macro="citations" />
+</tool>

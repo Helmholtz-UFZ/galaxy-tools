@@ -1,69 +1,89 @@
-<tool id="shp2msh" name="OGSTools shp2msh" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+<tool id="shp2msh" name="OGSTools shp2msh" version="@SHP2MSH_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
     <description>
-        Convert shp to msh
+        Mesh a shapefile and convert it to VTU
     </description>
     <macros>
         <import>macros.xml</import>
-        <token name="@VERSION_SUFFIX@">0</token>
     </macros>
     <expand macro="creator"/>
-    <expand macro="requirements"/>
+    <expand macro="requirements" ogstools_version="@SHP2MSH_VERSION@"/>
     <command detect_errors="exit_code"><![CDATA[
-        export SHAPE_RESTORE_SHX=YES &&    
-        ln -s '$input_shp' input.shp &&
-        shp2msh --input input.shp --output output.vtu
-        #if str($cellsize)!="":
-            --cellsize '$cellsize'
-        #end if
-        '$meshing'
-        '$simplify'
+        ## A shapefile is a set of files, the index may be missing.
+        export SHAPE_RESTORE_SHX=YES &&
+        ## Galaxy keeps the components of a shapefile dataset under fixed names in
+        ## the dataset's extra files directory; the dataset itself is just an index
+        ## file that GDAL cannot read.
+        shapefile='$input_shp.extra_files_path/shapefile.shp' &&
+        if [ ! -e "\$shapefile" ]; then echo "The input dataset contains no shapefile.shp component." >&2; exit 1; fi &&
+        shp2msh
+            --input "\$shapefile"
+            --output output.vtu
+            #if str($cellsize) != ""
+                --cellsize $cellsize
+            #end if
+            $meshing
+            $simplify
     ]]></command>
     <inputs>
-        <param name="input_shp" type="data" format="shp" label="Input SHP File" argument="-i"/>
-        <param name="cellsize" type="float" min="40" optional="true" label="cellsize" argument="-c"/>
-        <param name="meshing" type="select"  label="meshing">
+        <param name="input_shp" type="data" format="shp" label="Input shapefile"/>
+        <param name="cellsize" type="float" optional="true" min="0" label="Cell size" help="Cell size of the mesh. It is also used by the simplification: points closer than half the cell size are removed. Leave empty to use 1/100 of the larger bounding box extent."/>
+        <param name="meshing" type="select" label="Meshing algorithm">
             <option value="triangle" selected="true">Triangle</option>
             <option value="gmsh">Gmsh</option>
         </param>
-        <param name="simplify" type="select" label="simplify">
+        <param name="simplify" type="select" label="Geometry simplification" help="Simplify the shapefile with the Douglas-Peucker algorithm before meshing.">
             <option value="simplified">Simplified</option>
             <option value="original" selected="true">Original</option>
         </param>
     </inputs>
     <outputs>
-        <data name="output" format="xml" from_work_dir="output.vtu"/>
+        <data name="output" format="vtkxml" from_work_dir="output.vtu" label="${tool.name} on ${on_string}: mesh"/>
     </outputs>
     <tests>
-        <test>
-            <param name="input_shp" value="circle.shp"/>
+        <test expect_num_outputs="1">
+            <param name="input_shp" value="" ftype="shp">
+                <composite_data value="circle/circle.shp"/>
+                <composite_data value="circle/circle.shx"/>
+                <composite_data value="circle/circle.dbf"/>
+            </param>
             <param name="cellsize" value="500.0"/>
-            <param name="meshing" value= "triangle"/>
+            <param name="meshing" value="triangle"/>
             <param name="simplify" value="simplified"/>
-            <output name="output" value="output.vtu"/>
+            <output name="output" ftype="vtkxml" file="output.vtu"/>
         </test>
-        <test>
-            <param name="input_shp" value="circle.shp"/>
-            <param name="meshing" value= "gmsh"/>
+        <test expect_num_outputs="1">
+            <param name="input_shp" value="" ftype="shp">
+                <composite_data value="circle/circle.shp"/>
+                <composite_data value="circle/circle.shx"/>
+                <composite_data value="circle/circle.dbf"/>
+            </param>
+            <param name="meshing" value="gmsh"/>
             <param name="simplify" value="original"/>
-            <output name="output" value="output2.vtu"/>
+            <output name="output" ftype="vtkxml" file="output2.vtu"/>
         </test>
     </tests>
-    <help><![CDATA[
-        **Overview:**
-            This tool takes a shapefile (.shp) as input and creates a mesh using either the Triangle or GMSH method.
-            The cellsize can be optionally specified, and the shapefile can be simplified before meshing.
-            Output data has the format .vtu/ .vtk.
+    <help format="markdown"><![CDATA[
+**Overview**
 
-        **Inputs:**
+`shp2msh` creates a two-dimensional mesh from the polygons of a shapefile. The
+shapefile is read with geopandas, overlapping polygons are merged, and the
+resulting geometry is meshed with either [Triangle](https://www.cs.cmu.edu/~quake/triangle.html)
+or [Gmsh](https://gmsh.info/). The mesh is written as a VTU file.
 
-            1. **Input Shape File:** The .shp file to be converted.
-            2. **Cellsize:** Select the desired cellsize min=40.
-            3. **Meshing:** Choose either triangle or gmsh.
-            4. **Simplify:** Either the shapefiles are kept unchanged or they can be simplified. Choose between original and simplified.
+**Inputs**
 
-        **Outputs:**
+- **Input shapefile**: the shapefile to mesh. Its accompanying files (`.shx`,
+  `.dbf`) are used when present; a missing index file is rebuilt.
+- **Cell size**: target cell size of the mesh. It is also used for the optional
+  simplification, which removes points that are closer to each other than half
+  the cell size. If left empty, 1/100 of the larger bounding box extent is used.
+- **Meshing algorithm**: Triangle or Gmsh.
+- **Geometry simplification**: keep the polygons unchanged (original) or
+  simplify them with the Douglas-Peucker algorithm before meshing.
 
-            **Output VTU Files:** The converted mesh as a VTU file.
+**Outputs**
+
+The generated mesh as a VTU file with triangular cells.
     ]]></help>
     <expand macro="ogs_citation"/>
 </tool>

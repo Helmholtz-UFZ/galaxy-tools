@@ -1,24 +1,37 @@
 <macros>
-    <token name="@TOOL_VERSION@">0.4.0</token>
-    <token name="@PROFILE@">23.0</token>
+    <!-- Upstream ogstools releases wrapped by this suite. Upstream removed shp2msh
+         after 0.5.0, so that wrapper stays on the 0.5.x line while the remaining
+         tools track the current release. Keep the pins here, in one place. -->
+    <token name="@MSH2VTU_VERSION@">0.8.2</token>
+    <token name="@SHP2MSH_VERSION@">0.5.0</token>
+    <token name="@YAML2VTU_VERSION@">0.8.2</token>
+
+    <token name="@PROFILE@">24.2</token>
     <token name="@VERSION_SUFFIX@">0</token>
-    
-    <xml name="requirements">
+
+    <xml name="requirements" tokens="ogstools_version">
         <requirements>
-            <requirement type="package" version="@TOOL_VERSION@">ogstools</requirement>
+            <requirement type="package" version="@OGSTOOLS_VERSION@">ogstools</requirement>
             <yield/>
         </requirements>
     </xml>
 
+    <!-- ogstools resolves the OGS binaries (e.g. NodeReordering, needed by
+         every Gmsh import) through OGS_BIN_PATH first. Without it, the ogs
+         Python bindings installed next to ogstools look for the binaries in
+         <site-packages>/bin, which no conda package provides - they live in the
+         environment's bin/ directory instead. -->
+    <token name="@SET_OGS_BIN_PATH@">export OGS_BIN_PATH="\$(dirname "\$(command -v ogs)")"</token>
+
     <xml name="ogs_citation">
-        <citations> 
+        <citations>
             <citation type="doi">10.1007/s12665-012-1546-x</citation>
         </citations>
     </xml>
 
     <xml name="creator">
         <creator>
-            <organization name="Helmholtz Centre for Environmental Research - UFZ, Department of Environmental Informatics" url ="https://www.ufz.de/index.php?en=34216"/>
+            <organization name="Helmholtz Centre for Environmental Research - UFZ, Department of Environmental Informatics" url="https://www.ufz.de/index.php?en=34216"/>
         </creator>
     </xml>
 </macros>

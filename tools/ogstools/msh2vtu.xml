@@ -1,4 +1,4 @@
-<tool id="msh2vtu" name="OGSTools msh2vtu" version="@MSH2VTU_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+<tool id="msh2vtu" name="OGSTools msh2vtu" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
     <description>
         Convert a Gmsh mesh to VTU submeshes
     </description>
@@ -6,7 +6,7 @@
         <import>macros.xml</import>
     </macros>
     <expand macro="creator"/>
-    <expand macro="requirements" ogstools_version="@MSH2VTU_VERSION@"/>
+    <expand macro="requirements" ogstools_version="@TOOL_VERSION@"/>
     <command detect_errors="exit_code"><![CDATA[
         @SET_OGS_BIN_PATH@ &&
         mkdir -p out &&

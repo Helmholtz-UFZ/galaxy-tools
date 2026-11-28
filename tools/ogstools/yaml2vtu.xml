@@ -1,4 +1,4 @@
-<tool id="yaml2vtu" name="OGSTools yaml2vtu" version="@YAML2VTU_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+<tool id="yaml2vtu" name="OGSTools yaml2vtu" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
     <description>
         Mesh a geometric model from a YAML file and convert it to VTU
     </description>
@@ -6,7 +6,7 @@
         <import>macros.xml</import>
     </macros>
     <expand macro="creator"/>
-    <expand macro="requirements" ogstools_version="@YAML2VTU_VERSION@"/>
+    <expand macro="requirements" ogstools_version="@TOOL_VERSION@"/>
     <required_files>
         <include path="yaml2vtu_wrapper.py"/>
     </required_files>

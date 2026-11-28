@@ -1,10 +1,9 @@
 <macros>
-    <!-- Upstream ogstools releases wrapped by this suite. Upstream removed shp2msh
-         after 0.5.0, so that wrapper stays on the 0.5.x line while the remaining
-         tools track the current release. Keep the pins here, in one place. -->
-    <token name="@MSH2VTU_VERSION@">0.8.2</token>
+    <!-- Version of the upstream ogstools release wrapped by the tools that are
+         still part of it. shp2msh was removed upstream after 0.5.0, so that one
+         wrapper stays on the 0.5.x line and keeps its own token. -->
+    <token name="@TOOL_VERSION@">0.8.2</token>
     <token name="@SHP2MSH_VERSION@">0.5.0</token>
-    <token name="@YAML2VTU_VERSION@">0.8.2</token>
 
     <token name="@PROFILE@">24.2</token>
     <token name="@VERSION_SUFFIX@">0</token>

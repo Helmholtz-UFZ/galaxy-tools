@@ -5,8 +5,8 @@
     <macros>
         <import>macros.xml</import>
     </macros>
-    <expand macro="creator"/>
     <expand macro="requirements" ogstools_version="@TOOL_VERSION@"/>
+    <expand macro="creator"/>
     <command detect_errors="exit_code"><![CDATA[
         @SET_OGS_BIN_PATH@ &&
         mkdir -p out &&

@@ -5,8 +5,8 @@
     <macros>
         <import>macros.xml</import>
     </macros>
-    <expand macro="creator"/>
     <expand macro="requirements" ogstools_version="@SHP2MSH_VERSION@"/>
+    <expand macro="creator"/>
     <command detect_errors="exit_code"><![CDATA[
         ## A shapefile is a set of files, the index may be missing.
         export SHAPE_RESTORE_SHX=YES &&

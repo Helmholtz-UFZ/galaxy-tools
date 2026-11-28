@@ -5,8 +5,8 @@
     <macros>
         <import>macros.xml</import>
     </macros>
-    <expand macro="creator"/>
     <expand macro="requirements" ogstools_version="@TOOL_VERSION@"/>
+    <expand macro="creator"/>
     <required_files>
         <include path="yaml2vtu_wrapper.py"/>
     </required_files>

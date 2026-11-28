@@ -1,0 +1,33 @@
+parameters:
+  tunnel_radius: 6.0        # Tunnel radius [m]
+  wall_thickness: 2.0       # Tunnel wall / support thickness [m]
+
+points:
+  center: { coords: [0.0, 0.0], char_length: 0.3 }
+
+  top_tunnel:   { coords: [0.0,      "tunnel_radius"],    char_length: 0.5 }
+  top_wall:   { coords: [0.0,      "tunnel_radius + wall_thickness"],    char_length: 0.5 }
+
+  bottom_tunnel:   { coords: [0.0,      "-tunnel_radius"],    char_length: 0.5 }
+  bottom_wall:   { coords: [0.0,      "-tunnel_radius-wall_thickness"],    char_length: 0.5 }
+
+lines:
+  tunnel_arc_top: { start: top_tunnel, end: bottom_tunnel, center: center } 
+  tunnel_arc_bottom: { start: bottom_tunnel, end: top_tunnel, center: center } 
+
+  wall_arc_top: { start: top_wall, end: bottom_wall, center: center } 
+  wall_arc_bottom: { start: bottom_wall, end: top_wall, center: center } 
+  
+surfaces:
+  tunnel:
+    loops:
+      - [ wall_arc_top, wall_arc_bottom]
+      - [ "-tunnel_arc_bottom", "-tunnel_arc_top" ]
+
+groups:
+  BoundaryTunnel:
+    dim: 1
+    entities: [tunnel_arc_top, tunnel_arc_bottom]
+  Domain:
+    dim: 2
+    entities: [tunnel]

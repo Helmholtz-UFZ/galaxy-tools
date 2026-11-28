@@ -1,24 +1,46 @@
 <macros>
-    <token name="@TOOL_VERSION@">0.4.0</token>
-    <token name="@PROFILE@">23.0</token>
+    <!-- Version of the upstream ogstools release wrapped by the tools that are
+         still part of it. shp2msh was removed upstream after 0.5.0, so that one
+         wrapper stays on the 0.5.x line and keeps its own token. -->
+    <token name="@TOOL_VERSION@">0.8.2</token>
+    <token name="@SHP2MSH_VERSION@">0.5.0</token>
+
+    <token name="@PROFILE@">24.2</token>
     <token name="@VERSION_SUFFIX@">0</token>
-    
-    <xml name="requirements">
+
+    <xml name="requirements" tokens="ogstools_version">
         <requirements>
-            <requirement type="package" version="@TOOL_VERSION@">ogstools</requirement>
+            <requirement type="package" version="@OGSTOOLS_VERSION@">ogstools</requirement>
             <yield/>
         </requirements>
     </xml>
 
+    <!-- ogstools resolves the OGS binaries (e.g. NodeReordering, needed by
+         every Gmsh import) through OGS_BIN_PATH first. Without it, the ogs
+         Python bindings installed next to ogstools look for the binaries in
+         <site-packages>/bin, which no conda package provides - they live in the
+         environment's bin/ directory instead. Only set when ogs is on PATH,
+         otherwise leave the lookup to ogstools. -->
+    <token name="@SET_OGS_BIN_PATH@">if command -v ogs >/dev/null; then export OGS_BIN_PATH="\$(dirname "\$(command -v ogs)")"; fi</token>
+
+    <!-- ogstools 0.8.x creates its scratch directory at import time from
+         getpass.getuser(). In a container the job runs under a uid without an
+         /etc/passwd entry and Galaxy exports neither USER nor LOGNAME, so the
+         import aborts with OSError: No username set in the environment.
+         getpass takes the first of LOGNAME/USER/LNAME/USERNAME that is set, so
+         providing one is enough. -->
+    <token name="@SET_USER@">export USER="\${USER:-galaxy}" LOGNAME="\${LOGNAME:-galaxy}"</token>
+
     <xml name="ogs_citation">
-        <citations> 
+        <citations>
             <citation type="doi">10.1007/s12665-012-1546-x</citation>
         </citations>
     </xml>
 
     <xml name="creator">
         <creator>
-            <organization name="Helmholtz Centre for Environmental Research - UFZ, Department of Environmental Informatics" url ="https://www.ufz.de/index.php?en=34216"/>
+            <person givenName="Matthias" familyName="Bernt" identifier="https://orcid.org/0000-0003-3763-0797" url="https://github.com/bernt-matthias"/>
+            <organization name="Helmholtz Centre for Environmental Research - UFZ, Department of Environmental Informatics" url="https://www.ufz.de/index.php?en=34216"/>
         </creator>
     </xml>
 </macros>

@@ -49,6 +49,13 @@ Toxicity prediction and dose response curves
 Tools for data conversion and data wrangling
 - [**Excel to Tabular**](https://usegalaxy.eu/root?tool_id=toolshed.g2.bx.psu.edu/repos/ufz/xlsx2tsv/xlsx2tsv/0.2.0+galaxy0) with pandas
 
+### Geo Science
+Tools to prepare geometric models and meshes for simulations with [OpenGeoSys](https://www.opengeosys.org/)
+- [**OGSTools suite**](https://toolshed.g2.bx.psu.edu/view/ufz/suite_ogs_tools) with [ogstools](https://gitlab.opengeosys.org/ogs/tools/ogstools):
+  - **msh2vtu** converts an OGS mesh (`.msh`) into VTU meshes, one for the bulk mesh and one per material group
+  - **yaml2vtu** meshes a geometric model described in a YAML file and converts it to VTU meshes
+  - **shp2msh** meshes the polygons of a shapefile and converts the resulting mesh to VTU
+
 ### Related Matherial
 #### OMERO
 - [Galaxy Training Matherial for the OMERO-suite](https://training.galaxyproject.org/training-material/topics/imaging/tutorials/omero-suite/tutorial.html)

@@ -1,0 +1,90 @@
+<tool id="yaml2vtu" name="OGSTools yaml2vtu" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" profile="@PROFILE@">
+    <description>
+        Mesh a geometric model from a YAML file and convert it to VTU
+    </description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements" ogstools_version="@TOOL_VERSION@"/>
+    <expand macro="creator"/>
+    <required_files>
+        <include path="yaml2vtu_wrapper.py"/>
+    </required_files>
+    <command detect_errors="exit_code"><![CDATA[
+        @SET_USER@ &&
+        @SET_OGS_BIN_PATH@ &&
+        mkdir -p out &&
+        python '$__tool_directory__/yaml2vtu_wrapper.py'
+            --input '$input_file'
+            --output out
+    ]]></command>
+    <inputs>
+        <param name="input_file" type="data" format="yaml" label="Geometry definition"/>
+    </inputs>
+    <outputs>
+        <collection name="meshes" type="list" label="${tool.name} on ${on_string}: meshes">
+            <discover_datasets pattern="(?P&lt;designation&gt;.+)\.vtu" directory="out" format="vtkxml" visible="true"/>
+        </collection>
+    </outputs>
+    <tests>
+        <test expect_num_outputs="1">
+            <param name="input_file" value="tunnel_geometry.yml" ftype="yaml"/>
+            <output_collection name="meshes" type="list" count="3">
+                <element name="BoundaryTunnel" ftype="vtkxml"/>
+                <element name="Domain" ftype="vtkxml"/>
+                <element name="domain" ftype="vtkxml"/>
+            </output_collection>
+        </test>
+    </tests>
+    <help format="markdown"><![CDATA[
+**Overview**
+
+`yaml2vtu` builds a two-dimensional mesh from a geometric model described in a
+YAML file. The geometry is created with Gmsh, and the resulting mesh is then
+converted to VTU meshes with the same conversion `msh2vtu` performs: one dataset
+for the bulk mesh (`domain`) and one for each physical group defined in the
+geometry file.
+
+The YAML file has four required blocks, plus an optional `parameters` block:
+
+```yaml
+parameters:                       # optional, available by name in expressions
+  tunnel_radius: 6.0
+
+points:                           # name: coordinates and target element size
+  center: { coords: [0.0, 0.0], char_length: 0.3 }
+
+lines:                            # start/end point names, optionally an arc
+  tunnel_arc_top: { start: top_tunnel, end: bottom_tunnel, center: center }
+
+surfaces:                         # closed curve loops bounding a surface
+  tunnel:
+    loops:
+      - [tunnel_arc_top, tunnel_arc_bottom]
+      - ["-tunnel_arc_bottom", "-tunnel_arc_top"]   # -name reverses a line
+
+groups:                           # physical groups, become the output meshes
+  BoundaryTunnel:
+    dim: 1
+    entities: [tunnel_arc_top, tunnel_arc_bottom]
+  Domain:
+    dim: 2
+    entities: [tunnel]
+```
+
+Coordinates, target element sizes and parameter values may be written as
+expressions that refer to the `parameters` block and to the functions of the
+`math` module, e.g. `"tunnel_radius + wall_thickness"`.
+
+**Inputs**
+
+- **Geometry definition**: the YAML file describing the geometry.
+
+**Outputs**
+
+A collection of VTU meshes: `domain` holds the bulk mesh, one further dataset is
+created per physical group, named after that group (e.g. `Domain`,
+`BoundaryTunnel`).
+    ]]></help>
+    <expand macro="ogs_citation"/>
+</tool>

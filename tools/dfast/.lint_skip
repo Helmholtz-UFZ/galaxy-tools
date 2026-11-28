@@ -1,1 +1,3 @@
 ConditionalParamTypeBool
+# the expect_failure test intentionally uses a locus_tag_prefix that the validator rejects
+TestsCaseValidation

@@ -11,6 +11,7 @@
         <include path="yaml2vtu_wrapper.py"/>
     </required_files>
     <command detect_errors="exit_code"><![CDATA[
+        @SET_USER@ &&
         @SET_OGS_BIN_PATH@ &&
         mkdir -p out &&
         python '$__tool_directory__/yaml2vtu_wrapper.py'

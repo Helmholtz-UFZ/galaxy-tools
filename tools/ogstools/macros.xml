@@ -19,8 +19,17 @@
          every Gmsh import) through OGS_BIN_PATH first. Without it, the ogs
          Python bindings installed next to ogstools look for the binaries in
          <site-packages>/bin, which no conda package provides - they live in the
-         environment's bin/ directory instead. -->
-    <token name="@SET_OGS_BIN_PATH@">export OGS_BIN_PATH="\$(dirname "\$(command -v ogs)")"</token>
+         environment's bin/ directory instead. Only set when ogs is on PATH,
+         otherwise leave the lookup to ogstools. -->
+    <token name="@SET_OGS_BIN_PATH@">if command -v ogs >/dev/null; then export OGS_BIN_PATH="\$(dirname "\$(command -v ogs)")"; fi</token>
+
+    <!-- ogstools 0.8.x creates its scratch directory at import time from
+         getpass.getuser(). In a container the job runs under a uid without an
+         /etc/passwd entry and Galaxy exports neither USER nor LOGNAME, so the
+         import aborts with OSError: No username set in the environment.
+         getpass takes the first of LOGNAME/USER/LNAME/USERNAME that is set, so
+         providing one is enough. -->
+    <token name="@SET_USER@">export USER="\${USER:-galaxy}" LOGNAME="\${LOGNAME:-galaxy}"</token>
 
     <xml name="ogs_citation">
         <citations>

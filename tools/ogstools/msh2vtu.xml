@@ -8,6 +8,7 @@
     <expand macro="requirements" ogstools_version="@TOOL_VERSION@"/>
     <expand macro="creator"/>
     <command detect_errors="exit_code"><![CDATA[
+        @SET_USER@ &&
         @SET_OGS_BIN_PATH@ &&
         mkdir -p out &&
         ln -s '$input_file' input_file.msh &&

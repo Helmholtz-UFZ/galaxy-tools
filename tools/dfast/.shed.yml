@@ -6,7 +6,7 @@ long_description: |
 name: dfast
 owner: ufz
 homepage_url: https://github.com/nigyta/dfast_core/
-remote_repository_url: https://github.com/Helmholtz-UFZ/ufz-galaxy-tools/blob/main/tools/dfast/
+remote_repository_url: https://github.com/Helmholtz-UFZ/galaxy-tools/tree/main/tools/dfast
 type: unrestricted
 auto_tool_repositories:
   name_template: "{{ tool_id }}"
